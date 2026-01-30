@@ -94,8 +94,11 @@ Requisitos:
 - Disco: 50+ GB disponible para VM
 
 Opciones de hipervisor:
-- Intel Mac: VirtualBox (gratis) o Parallels (pagado)
-- Apple Silicon: UTM (gratis) o Parallels (pagado)
+
+| Arquitectura | Opciones Disponibles |
+|---|---|
+| **Intel Mac** | VirtualBox (gratis), Parallels (pagado), VMware Fusion (pagado) |
+| **Apple Silicon (M1/M2/M3)** | UTM (gratis), Parallels (pagado), VMware Fusion (pagado) |
 
 Ventajas:
 ✅ macOS + Linux en la misma máquina
@@ -152,7 +155,7 @@ docker run -it ubuntu:22.04 /bin/bash
 - Si quieres aprender **instalación**: Usa **máquina virtual** (cualquier SO host)
 - Si quieres entorno **profesional**: Linux nativo O Docker
 
-Ver guía completa de configuración en: **SETUP.md**
+Ver guía completa de configuración en: [**SETUP.md**](../../SETUP.md)
 
 ---
 
@@ -341,7 +344,19 @@ sudo sync  # <4>
 
 4. **sync** asegura que todos los datos se escriben en el USB antes de continuar
 
-⚠️ **ADVERTENCIA**: **dd** sin validación puede **destruir tu disco principal**. Verifica 3 veces que **/dev/sdX** es el USB correcto.
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**dd** sin validación puede **destruir tu disco principal**. 
+
+Verifica **3 veces** que **/dev/sdX** es el USB correcto antes de ejecutar el comando. Una vez ejecutado, NO hay forma de recuperar datos del disco formateado.
+
+**Checklist de seguridad:**
+1. ¿Es **/dev/sda** tu disco principal? (NO usar este)
+2. ¿Es **/dev/sdb** o **/dev/sdc** tu USB? (Verificar con `lsblk`)
+3. ¿Respaldaste tus datos importantes? (Hacer backup antes)
+:::
+
 
 ---
 
@@ -438,7 +453,22 @@ d   → Borrar partición
 w   → Guardar cambios
 ```
 
-⚠️ **ADVERTENCIA**: Manejo incorrecto de particiones = **pérdida total de datos**. Practica primero en máquina virtual.
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Manejo incorrecto de particiones puede causar pérdida total de datos.**
+
+**Lo que podría salir mal:**
+- Borrar la partición equivocada
+- Sobrescribir datos existentes
+- Dejar el sistema inbooteable
+
+**Cómo prevenirlo:**
+1. Practica primero en máquina virtual (VirtualBox o VMware)
+2. Verifica 3 veces la partición antes de ejecutar comandos
+3. Haz backup de datos importantes antes de particionar
+4. Lee cada paso del particionador antes de confirmar
+:::
 
 ---
 
