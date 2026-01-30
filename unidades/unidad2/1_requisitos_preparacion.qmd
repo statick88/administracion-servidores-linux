@@ -532,6 +532,7 @@ Chip: Apple M3 Pro
 ```
 
 **Interpretación**:
+
 - arm64 = Apple Silicon (M1, M2, M3) - Máquinas modernas
 - x86_64 = Intel Mac - Máquinas antiguas (pre-2021)
 
@@ -551,6 +552,7 @@ PS> Get-ComputerInfo | Select-Object -Property CsProcessors
 ```
 
 **Interpretación**:
+
 - x64-based PC = 64-bit (estándar moderno)
 - x86-based PC = 32-bit (muy raro hoy)
 
@@ -574,6 +576,7 @@ ubuntu-22.04.4-desktop-amd64.iso: OK
 ```
 
 **Explicación**:
+
 - SHA256 es un hash criptográfico
 - Cualquier cambio en el archivo = hash diferente
 - Garantiza que nadie modificó el archivo en tránsito
@@ -593,6 +596,7 @@ $ openssl dgst -sha256 ubuntu-22.04.4-desktop-amd64.iso
 ```
 
 **Explicación**:
+
 - macOS usa **shasum** en lugar de **sha256sum**
 - El resultado debe coincidir con el archivo SHA256SUMS
 
@@ -610,6 +614,7 @@ PS> (Get-Content "$env:USERPROFILE\Downloads\SHA256SUMS" | Select-String "ubuntu
 ```
 
 **Explicación**:
+
 - PowerShell usa **Get-FileHash** para validar
 - Compara el hash calculado con el de SHA256SUMS
 - Deben ser idénticos
@@ -638,6 +643,7 @@ $ eject /dev/sdb
 ```
 
 **Explicación**:
+
 - **lsblk**: Lista discos (sda = disco principal, sdb = USB)
 - **dd**: Escribe bit-a-bit (no es una copia regular)
 - **bs=4M**: Tamaño de bloque (más rápido)
@@ -664,6 +670,7 @@ $ diskutil eject /dev/disk1
 ```
 
 **Explicación**:
+
 - **diskutil list**: Lista discos disponibles
 - **/dev/rdisk1**: Usar la versión "raw" para más velocidad
 - macOS requiere desmontar antes de escribir
@@ -692,6 +699,7 @@ PS> Format-Volume -DriveLetter H -FileSystem FAT32 -Confirm:$false
 ```
 
 **Explicación**:
+
 - **Balena Etcher**: Herramienta recomendada para Windows
 - **Rufus**: Alternativa popular
 - Ambas manejan los detalles técnicos automáticamente
