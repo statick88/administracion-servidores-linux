@@ -1,0 +1,575 @@
+---
+title: "Navegación de Directorios"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# Navegación de Directorios
+
+## Introducción
+
+La navegación eficiente por el sistema de archivos es una de las habilidades más fundamentales en Linux. Dominar comandos como `pwd`, `cd` y `ls` te permitirá moverte rápidamente por el sistema y entender su estructura jerárquica.
+
+**🗺️ En este tema aprenderás:**
+- Comando `pwd` (Print Working Directory)
+- Comando `cd` (Change Directory)
+- Comando `ls` (List) con sus opciones principales
+- Rutas absolutas vs relativas
+- Atajos de navegación (., .., ~, -)
+- Navegación eficiente en el sistema de archivos
+
+---
+
+## El Comando `pwd` - Dónde Estoy Ahora
+
+El comando `pwd` imprime tu ubicación actual en el árbol de directorios. Es especialmente útil cuando te pierdes o quieres saber exactamente dónde estás en el sistema.
+
+**Sintaxis básica:**
+```bash
+pwd [opciones]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver tu directorio actual
+
+#### Linux
+```bash
+$ pwd
+/home/usuario/documentos
+# <1>
+```
+1. Mostrará tu ruta absoluta actual
+
+#### macOS
+```bash
+$ pwd
+/Users/usuario/Documents
+# <1>
+```
+1. En macOS, el home usa "/Users" en lugar de "/home"
+
+#### Windows
+```powershell
+PS> Get-Location
+C:\Users\usuario\Documents
+# <1>
+```
+1. Equivalente de PowerShell para ver la ubicación actual
+
+:::
+
+| Aspecto | Linux | macOS | Windows |
+|---------|-------|-------|---------|
+| Comando | `pwd` | `pwd` | `Get-Location` o `cd` |
+| Home dir | `/home/user` | `/Users/user` | `C:\Users\user` |
+| Separador | `/` | `/` | `\` |
+| Salida | Ruta absoluta | Ruta absoluta | Ruta absoluta |
+
+**Cuándo usar:** Usa `pwd` cuando necesites saber tu ubicación exacta o cuando estés escribiendo scripts que requieren rutas absolutas.
+
+---
+
+## El Comando `cd` - Cambiando Directorios
+
+El comando `cd` es el motor de la navegación. Te permite moverte de un directorio a otro en el árbol de archivos.
+
+**Sintaxis:**
+```bash
+cd [directorio]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Cambiar a un directorio específico (ruta absoluta)
+
+#### Linux
+```bash
+$ pwd
+/home/usuario
+$ cd /etc
+$ pwd
+/etc
+# <1>
+```
+1. Usamos ruta absoluta (comienza con /)
+
+#### macOS
+```bash
+$ pwd
+/Users/usuario
+$ cd /var/log
+$ pwd
+/var/log
+# <1>
+```
+1. Estructura de directorios similar a Linux estándar
+
+#### Windows
+```powershell
+PS> Get-Location
+C:\Users\usuario
+PS> cd C:\Windows\System32
+PS> Get-Location
+C:\Windows\System32
+# <1>
+```
+1. Windows usa letras de unidad (C:, D:) y barras invertidas
+
+:::
+
+### Ejemplo 2: Cambiar a un subdirectorio (ruta relativa)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ pwd
+/home/usuario
+$ cd Documentos
+$ pwd
+/home/usuario/Documentos
+# <1>
+```
+1. Usamos ruta relativa (sin comenzar con /)
+
+#### macOS
+```bash
+$ pwd
+/Users/usuario
+$ cd Documents
+$ pwd
+/Users/usuario/Documents
+# <1>
+```
+1. Mismo concepto que Linux
+
+#### Windows
+```powershell
+PS> Get-Location
+C:\Users\usuario
+PS> cd Documents
+PS> Get-Location
+C:\Users\usuario\Documents
+# <1>
+```
+1. PowerShell maneja rutas relativas igual
+
+:::
+
+### Ejemplo 3: Atajos de navegación útiles
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+# Ir al home
+$ cd ~
+$ pwd
+/home/usuario
+
+# Ir a directorio padre
+$ cd ..
+$ pwd
+/home
+
+# Ir al directorio anterior
+$ cd -
+$ pwd
+/home/usuario
+
+# Directorio actual (menos común)
+$ cd .
+$ pwd
+/home/usuario
+# <1>
+```
+1. `.` es el directorio actual, `..` es el padre, `~` es el home, `-` es el anterior
+
+#### macOS
+```bash
+# Ir al home
+$ cd ~
+$ pwd
+/Users/usuario
+
+# Ir a directorio padre
+$ cd ..
+$ pwd
+/Users
+
+# Ir al directorio anterior
+$ cd -
+$ pwd
+/Users/usuario
+
+# El directorio actual
+$ cd .
+# <1>
+```
+1. Mismo comportamiento que Linux
+
+#### Windows
+```powershell
+# Ir al home (con -Path)
+PS> cd ~
+PS> Get-Location
+C:\Users\usuario
+
+# Ir a directorio padre
+PS> cd ..
+PS> Get-Location
+C:\Users
+
+# Directorio anterior
+PS> cd -
+PS> Get-Location
+C:\Users\usuario
+# <1>
+```
+1. PowerShell soporta los mismos atajos que Bash
+
+:::
+
+| Atajo | Significado | Linux | macOS | Windows |
+|-------|-------------|-------|-------|---------|
+| `~` | Directorio home | ✅ | ✅ | ✅ |
+| `..` | Directorio padre | ✅ | ✅ | ✅ |
+| `.` | Directorio actual | ✅ | ✅ | ✅ |
+| `-` | Directorio anterior | ✅ | ✅ | ✅ |
+| `/` | Raíz del sistema | ✅ | ✅ | `C:\` |
+
+**Cuándo usar:** Domina estos atajos para navegar rápidamente. Los profesionales los usan constantemente.
+
+---
+
+## El Comando `ls` - Listando Archivos
+
+El comando `ls` (list) es uno de los más usados en la terminal. Te muestra el contenido de directorios.
+
+**Sintaxis:**
+```bash
+ls [opciones] [directorio]
+```
+
+### Opciones principales:
+- `-l` : Formato largo (permisos, propietario, tamaño, fecha)
+- `-a` : Mostrar archivos ocultos (que comienzan con .)
+- `-h` : Tamaños en formato legible (K, M, G)
+- `-R` : Recursivo (mostrar subdirectorios)
+- `-t` : Ordenar por fecha de modificación
+- `-S` : Ordenar por tamaño
+- `-1` : Una columna por archivo
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Listar archivos básicamente
+
+#### Linux
+```bash
+$ ls
+Documentos  Descargas  Escritorio  Videos
+# <1>
+```
+1. Lista simple de archivos y directorios
+
+#### macOS
+```bash
+$ ls
+Applications  Desktop  Documents  Downloads  Library
+# <1>
+```
+1. Directorio home con carpetas estándar de macOS
+
+#### Windows
+```powershell
+PS> Get-ChildItem
+# o
+PS> ls
+
+    Directory: C:\Users\usuario
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         29/1/2024     10:30                Desktop
+d-----         29/1/2024     10:30                Documents
+d-----         29/1/2024     10:30                Downloads
+# <1>
+```
+1. PowerShell tiene formato más detallado por defecto
+
+:::
+
+### Ejemplo 2: Formato largo con detalles (ls -l)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ ls -l
+total 32
+drwxr-xr-x  5 usuario grupo  4096 Jan 29 10:30 Documentos
+-rw-r--r--  1 usuario grupo  2048 Jan 28 15:45 archivo.txt
+-rwxr-xr-x  1 usuario grupo   512 Jan 27 09:00 script.sh
+# <1>
+```
+1. Permisos, propietario, tamaño, fecha y nombre
+
+#### macOS
+```bash
+$ ls -l
+total 32
+drwx------  5 usuario staff  160 Jan 29 10:30 Desktop
+-rw-r--r--  1 usuario staff 2048 Jan 28 15:45 archivo.txt
+-rwxr-xr-x  1 usuario staff  512 Jan 27 09:00 script.sh
+# <1>
+```
+1. Formato idéntico a Linux (grupo es "staff" en macOS)
+
+#### Windows
+```powershell
+PS> Get-ChildItem -Force | Format-Table -AutoSize
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----         29/1/2024  10:30                  Desktop
+-a---         28/1/2024  15:45               2048 archivo.txt
+-a--x         27/1/2024  09:00                512 script.ps1
+# <1>
+```
+1. PowerShell muestra información similar en formato tabular
+
+:::
+
+### Ejemplo 3: Mostrar archivos ocultos y tamaños legibles (ls -la)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ ls -lah
+total 48
+drwxr-xr-x  15 usuario grupo 4.0K Jan 29 10:30 .
+drwxr-xr-x   3 root    root  4.0K Jan 15 08:00 ..
+-rw-r--r--   1 usuario grupo  220 Jan 29 09:15 .bashrc
+-rw-r--r--   1 usuario grupo  807 Jan 29 09:15 .bash_profile
+drwxr-xr-x   2 usuario grupo 4.0K Jan 29 10:30 Documentos
+# <1>
+```
+1. `-a` muestra puntos (.), `.bashrc`, `.bash_profile` (archivos ocultos)
+2. `-h` muestra tamaños en K, M, G en lugar de bytes
+
+#### macOS
+```bash
+$ ls -lah
+total 48
+drwx------  15 usuario staff  480 Jan 29 10:30 .
+drwxr-xr-x   3 root    wheel  480 Jan 15 08:00 ..
+-rw-r--r--   1 usuario staff  220 Jan 29 09:15 .zshrc
+-rw-r--r--   1 usuario staff  807 Jan 29 09:15 .zprofile
+drwx------   3 usuario staff   96 Jan 29 10:30 Desktop
+# <1>
+```
+1. En macOS el shell default es `zsh`, no `bash`
+2. Muestra archivos de configuración específicos de zsh
+
+#### Windows
+```powershell
+PS> Get-ChildItem -Force -File | Select-Object Mode, LastWriteTime, Length, Name
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---         29/1/2024  10:30                221 .bashrc
+-a---         29/1/2024  10:30                807 .bash_profile
+-a---         28/1/2024  15:45               2048 archivo.txt
+# <1>
+```
+1. `-Force` en PowerShell es equivalente a `-a` en Bash
+2. Muestra archivos ocultos (los que Windows marca con atributo oculto)
+
+:::
+
+### Ejemplo 4: Listar recursivamente con tamaños (ls -lhR)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ ls -lhR ~/Documentos
+~/Documentos:
+total 8.0K
+drwxr-xr-x 2 usuario grupo 4.0K Jan 29 10:30 Proyectos
+-rw-r--r-- 1 usuario grupo 2.0K Jan 28 15:45 notas.txt
+
+~/Documentos/Proyectos:
+total 12K
+-rw-r--r-- 1 usuario grupo 4.0K Jan 27 09:00 proyecto1.txt
+-rw-r--r-- 1 usuario grupo 8.0K Jan 26 14:30 proyecto2.txt
+# <1>
+```
+1. `-R` recursivo muestra directorios y sus subdirectorios
+2. `-h` hace tamaños legibles
+
+#### macOS
+```bash
+$ ls -lhR ~/Documents
+/Users/usuario/Documents:
+total 8
+drwx------  2 usuario staff  64 Jan 29 10:30 Projects
+-rw-r--r--  1 usuario staff 2.0K Jan 28 15:45 notes.txt
+
+/Users/usuario/Documents/Projects:
+total 12
+-rw-r--r--  1 usuario staff 4.0K Jan 27 09:00 project1.txt
+-rw-r--r--  1 usuario staff 8.0K Jan 26 14:30 project2.txt
+# <1>
+```
+1. Funciona igual que Linux
+
+#### Windows
+```powershell
+PS> Get-ChildItem -Path C:\Users\usuario\Documents -Recurse | Format-Table -AutoSize Mode, Length, Name
+
+Mode                 Length Name
+----                 ------ ----
+d----                      Projects
+-a---                  2048 notes.txt
+d----                      
+d----                  4096 project1.txt
+d----                  8192 project2.txt
+# <1>
+```
+1. `-Recurse` es el equivalente a `-R` en PowerShell
+2. PowerShell no tiene una forma tan concisa como `ls -lhR`
+
+:::
+
+| Opción | Linux | macOS | Windows | Descripción |
+|--------|-------|-------|---------|-------------|
+| `-l` | ✅ | ✅ | Format-Table | Formato largo |
+| `-a` | ✅ | ✅ | -Force | Mostrar ocultos |
+| `-h` | ✅ | ✅ | Parcial | Tamaños legibles |
+| `-R` | ✅ | ✅ | -Recurse | Recursivo |
+| `-t` | ✅ | ✅ | Sort-Object | Ordenar por fecha |
+| `-S` | ✅ | ✅ | Sort-Object | Ordenar por tamaño |
+
+**Cuándo usar:** `ls` es tu mejor amigo. Combina opciones para obtener exactamente la información que necesitas.
+
+---
+
+## Rutas Absolutas vs Relativas
+
+Entender la diferencia es crucial para la navegación eficiente.
+
+### Rutas Absolutas
+- Comienzan desde la raíz del sistema
+- Comienzan con `/` en Linux/macOS
+- Comienzan con `C:\` en Windows
+- Funcionan desde cualquier ubicación
+
+### Rutas Relativas
+- Son relativas a tu ubicación actual
+- No comienzan con `/`
+- Más cortas y rápidas de escribir
+- Dependientes de dónde estés
+
+### Ejemplo comparativo:
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+# Ruta absoluta (funciona desde cualquier lugar)
+$ cd /home/usuario/Documentos/Proyectos
+
+# Ruta relativa (si estás en /home/usuario)
+$ cd Documentos/Proyectos
+
+# Combinando con ..
+$ cd ../Documentos
+
+# Combinando con ~
+$ cd ~/Documentos/Proyectos
+```
+
+#### macOS
+```bash
+# Ruta absoluta
+$ cd /Users/usuario/Documents/Projects
+
+# Ruta relativa (si estás en /Users/usuario)
+$ cd Documents/Projects
+
+# Combinando con ..
+$ cd ../Documents
+
+# Combinando con ~
+$ cd ~/Documents/Projects
+```
+
+#### Windows
+```powershell
+# Ruta absoluta
+PS> cd C:\Users\usuario\Documents\Projects
+
+# Ruta relativa (si estás en C:\Users\usuario)
+PS> cd Documents\Projects
+
+# Combinando con ..
+PS> cd ..\Documents
+
+# Combinando con ~ (home)
+PS> cd ~\Documents\Projects
+```
+
+:::
+
+---
+
+## Resumen y Mejores Prácticas
+
+| Comando | Propósito | Ejemplo |
+|---------|-----------|---------|
+| `pwd` | Mostrar ubicación actual | `pwd` |
+| `cd directorio` | Cambiar a directorio | `cd ~/Documentos` |
+| `cd ~` | Ir al home | `cd ~` |
+| `cd ..` | Ir al padre | `cd ..` |
+| `cd -` | Ir anterior | `cd -` |
+| `ls` | Listar archivos | `ls` |
+| `ls -l` | Formato largo | `ls -l` |
+| `ls -la` | Incluir ocultos | `ls -la` |
+| `ls -lh` | Tamaños legibles | `ls -lh` |
+| `ls -R` | Recursivo | `ls -lR` |
+
+### Mejores prácticas:
+1. **Usa rutas relativas** cuando navegues localmente (más rápido)
+2. **Usa rutas absolutas** en scripts (más confiable)
+3. **Aprende los atajos** (~, .., -, .) - los usarás constantemente
+4. **Combine opciones** de `ls` para obtener exactamente lo que necesitas
+5. **Usa `cd -`** para volver rápidamente al directorio anterior
+
+---
+
+## 🎯 Ejercicios Prácticos
+
+1. Navega a tu directorio home usando `cd ~` y verifica con `pwd`
+2. Crea esta estructura: `Documentos/Cursos/Linux`
+3. Lista el contenido con `ls -lah` y analiza los permisos
+4. Navega hacia atrás usando `cd -` entre dos directorios
+5. Usa rutas relativas para navegar: `cd ./Documentos/Cursos/Linux`
+
+---
+
+## Referencias
+
+Para más información sobre navegación y gestión de archivos en sistemas Unix-like, consulta:
+- [@posix2018] - POSIX Standard
+- [@bash2023] - GNU Bash Manual

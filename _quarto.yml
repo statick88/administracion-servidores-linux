@@ -1,0 +1,165 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "Administración de Servidores Linux"
+  author: "Diego Saavedra - Instructor Principal"
+  subtitle: "Curso Profesional para Abacom"
+  output-file: "administracion_servidores_linux"
+  date: today
+  date-format: medium
+  favicon: "logo.jpeg"
+  description: "Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom"
+  keyword: "Linux, Servidores, Administración, Sistemas Operativos, Redes, Seguridad, Abacom"
+  url: "https://statick88.github.io"
+  page-navigation: true
+  sidebar:
+    logo: "logo.jpeg"
+    search: true
+    collapse-level: 1
+    pinned: true
+  
+  repo-subdir: book
+  sharing:
+    - twitter
+    - linkedin
+  downloads:
+    - pdf
+  image: "logo.jpeg"
+  
+  page-footer:
+    center:
+      - text: "Sobre el Curso"
+        href: "about.qmd"
+      - text: "Licencia"
+        href: "license.qmd"
+      - text: "Instructor: statick88.github.io"
+        href: "https://statick88.github.io"
+
+  chapters:
+    - "index.qmd"
+    
+    - part: "Introducción al Curso"
+      chapters:
+        - "about.qmd"
+        - "license.qmd"
+    
+    - part: "Unidad 1: Introducción a Linux"
+      chapters:
+        - "unidades/unidad1/1_introduccion_sistemas_operativos.qmd"
+        - "unidades/unidad1/2_historia_linux.qmd"
+        - "unidades/unidad1/3_distribuciones_linux.qmd"
+        - "unidades/unidad1/4_ventajas_linux.qmd"
+    
+    - part: "Unidad 2: Instalación y Configuración"
+      chapters:
+        - "unidades/unidad2/1_requisitos_preparacion.qmd"
+        - "unidades/unidad2/2_instalacion_ubuntu.qmd"
+        - "unidades/unidad2/3_configuracion_inicial.qmd"
+        - "unidades/unidad2/4_actualizacion_seguridad.qmd"
+        - "unidades/unidad2/5_primeros_pasos_terminal.qmd"
+    
+    - part: "Unidad 3: Comandos Básicos de Linux"
+      chapters:
+        - "unidades/unidad3/1_navegacion_directorios.qmd"
+        - "unidades/unidad3/2_inspeccion_archivos.qmd"
+        - "unidades/unidad3/3_busqueda_archivos.qmd"
+        - "unidades/unidad3/4_permisos_archivos.qmd"
+        - "unidades/unidad3/5_manipulacion_archivos.qmd"
+    
+    - part: "Anexos: Mini-Cursos Especializados"
+      chapters:
+        - "anexos/Anexo_A_Bash_Scripting.qmd"
+        - "anexos/Anexo_B_Editores_Vi_Nvim.qmd"
+        - "anexos/Anexo_C_Package_Managers.qmd"
+        - "anexos/Anexo_D_Herramientas_Monitoreo.qmd"
+        - "anexos/Anexo_E_Grep_Find_Sed_Awk.qmd"
+
+bibliography: "references.bib"
+biblio-style: "apalike"
+
+filters:
+  # Critical plugins
+  - include-code-files
+  - collapse-callout
+  - linkrot
+  
+  # Quiz plugin
+  - quizdown
+  
+  # Code enhancement plugins
+  - line-highlight
+  - details
+  - code-fullscreen
+  
+  # Text and formatting plugins
+  - fancy-text
+  - fontawesome
+  - highlight-text
+  - language-cell-decorator
+  
+  # Content and utility plugins
+  - code-appendix
+  - badge
+  - qrcode
+  - custom-callout
+  - bsicons
+  - social-embeds
+  - wordcount
+
+# Plugin-specific options
+quizdown:
+  use-bootstrap-css: true
+
+wordcount:
+  output: "auto"
+  
+lightbox: 
+  effect: "fade"
+  loop: true
+
+linkrot:
+  warn: true
+
+code-fullscreen:
+  button: true
+
+format:
+  html:
+    number-sections: false
+    theme:
+      dark: solar
+      light: cosmo
+    number-depth: 4
+    link-external-icon: true
+    link-external-newwindow: true
+    css: "css/styles.css"
+    include-in-header: 
+      - text: |
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  pdf:
+    documentclass: scrreprt
+    classoption:
+      - "onepage"
+      - "openany"
+    papersize: a4
+    toc: true
+    margin-top: 35mm
+    margin-left: 30mm
+    margin-bottom: 30mm
+    margin-right: 30mm
+    titlepage-geometry:
+      - top=35mm
+      - bottom=30mm
+      - right=30mm
+      - left=30mm
+
+  epub:
+    belongs-to-collection: "Administración de Servidores Linux"
+    group-position: 0
+    creator: "Lcdo. Diego Saavedra Mgtr."
+    rights: "© Statick | 2024"
+    fig-responsive: true
+    number-sections: true

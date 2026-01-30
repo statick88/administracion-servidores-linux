@@ -1,0 +1,1264 @@
+---
+title: "Primeros Pasos en Terminal"
+subtitle: "Comandos Esenciales para Navegación y Gestión de Archivos"
+author: "Diego Saavedra"
+date: "2024-01-29"
+date-format: medium
+---
+
+## 📚 Objetivos de Aprendizaje
+
+Después de completar este tema, serás capaz de:
+
+- Navegar eficientemente el sistema de archivos
+- Crear, copiar, mover y eliminar archivos/carpetas
+- Ver y editar contenido de archivos
+- Entender la estructura de directorios en Linux
+- Gestionar permisos desde terminal
+- Usar comandos esenciales diariamente
+
+## 🎯 Por Qué Este Tema Es Critical
+
+La terminal es el hogar del administrador Linux. No hay GUI (interfaz gráfica) en servidores. Estos comandos los usarás **100 veces por día**.
+
+**Tiempo estimado**: 90-120 minutos de lectura + laboratorio práctico
+
+---
+
+## 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Abrir Terminal y Verificar SO
+
+#### Linux (Ubuntu - Terminal nativa)
+```bash
+# Terminal se abre automáticamente en home del usuario
+# O abre presionando Ctrl+Alt+T en escritorio Ubuntu
+
+$ pwd  # <1>
+/home/diego
+
+$ uname -a
+Linux abacom-dev 5.15.0-89-generic #1234-Ubuntu SMP x86_64 GNU/Linux
+
+$ whoami
+diego
+
+# Ver estructura de directorios
+$ ls -la ~
+drwxr-xr-x  diego  diego  /home/diego
+drwxr-xr-x  diego  diego  .cache
+drwxr-xr-x  diego  diego  .config
+drwxr-xr-x  diego  diego  Documents
+```
+
+1. **pwd** muestra el directorio actual donde abriste la terminal
+
+#### macOS (Terminal / iTerm2)
+```bash
+# Terminal: Abre presionando Cmd+Space y escribes "Terminal"
+# O iTerm2: brew install iterm2
+
+$ pwd
+/Users/diego
+
+$ uname -a
+Darwin MacBook-Air.local 23.2.0 Darwin Kernel Version 23.2.0 x86_64
+
+$ whoami
+diego
+
+# Estructura de directorios (diferente a Linux):
+$ ls -la ~
+drwxr-xr-x  diego  staff  /Users/diego
+drwxr-xr-x  diego  staff  .cache
+drwxr-xr-x  diego  staff  .config
+drwxr-xr-x  diego  staff  Documents
+drwxr-xr-x  diego  staff  Downloads
+
+# Nota: macOS usa /Users en lugar de /home
+```
+
+#### Windows (PowerShell / Terminal)
+```powershell
+# Abrir PowerShell:
+# - Presionar Win+X y seleccionar "Windows PowerShell"
+# - O: Win+R, escribir "powershell"
+
+PS> # Nota: Prompt es PS> en lugar de $
+
+# Ver directorio actual
+PS> Get-Location
+Path
+----
+C:\Users\diego
+
+# Equivalente a pwd:
+PS> pwd  # También funciona (alias de Get-Location)
+C:\Users\diego
+
+# Verificar SO
+PS> $PSVersionTable.OS
+Microsoft Windows 11 Pro 22H2
+
+PS> whoami
+DESKTOP-LAPTOP\diego
+
+# Ver estructura de directorios
+PS> dir ~  # Equivalente a ls ~
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----          1/29/2024  10:00 AM                AppData
+d-----          1/29/2024  10:00 AM                Desktop
+d-----          1/29/2024  10:00 AM                Documents
+d-----          1/29/2024  10:00 AM                Downloads
+
+# Nota: Windows usa C:\Users en lugar de /home
+```
+
+**Comparación rápida:**
+| Aspecto | Linux | macOS | Windows |
+|--------|-------|-------|---------|
+| Terminal | bash/zsh | bash/zsh (2021+) | PowerShell |
+| Comando pwd | `pwd` | `pwd` | `Get-Location` |
+| Home | `/home/usuario` | `/Users/usuario` | `C:\Users\usuario` |
+| Separador rutas | `/` | `/` | `\` |
+| Prompt | `$` | `$` | `PS>` |
+
+### Ejemplo 2: Navegar el Sistema de Archivos
+
+#### Linux (Estructura Unix estándar)
+```bash
+# Estructura en Linux:
+$ cd /
+$ ls -1
+bin/    → Comandos esenciales
+boot/   → Archivos de arranque
+dev/    → Dispositivos
+etc/    → Configuraciones
+home/   → Carpetas de usuarios
+lib/    → Librerías del sistema
+opt/    → Software opcional
+root/   → Home del root
+srv/    → Datos de servicios
+tmp/    → Archivos temporales
+usr/    → Programas de usuario
+var/    → Datos variables (logs, etc)
+
+# Navegar
+$ cd /var/log
+$ pwd
+/var/log
+
+$ ls -lh
+-rw-r--r--  1 syslog syslog  250K Jan 29 10:30 auth.log
+-rw-r--r--  1 syslog syslog  500K Jan 29 10:31 syslog
+-rw-r--r--  1 root   root    1.2M Jan 29 10:30 kernel.log
+```
+
+#### macOS (Estructura Unix con extensiones Apple)
+```bash
+# Estructura en macOS (también Unix, pero con cambios):
+$ cd /
+$ ls -1
+Applications/     → Apps instaladas
+Library/          → Librerías del sistema (¡no es /lib!)
+System/           → Sistema macOS
+Users/            → Carpetas de usuarios (¡no es /home!)
+Volumes/          → Discos conectados
+bin/              → Comandos esenciales (igual que Linux)
+etc/              → Configuraciones
+tmp/              → Archivos temporales
+usr/              → Programas de usuario
+
+# Navegar a logs (diferente ubicación que Linux)
+$ cd /var/log
+$ pwd
+/var/log
+
+$ ls -lh
+-rw-r--r--  1 _syslogd staff  200K Jan 29 10:30 system.log
+-rw-r--r--  1 root     wheel  150K Jan 29 10:31 kernel.log
+
+# Carpeta especial de macOS:
+$ cd ~/Library/Application\ Support
+# Muchas apps guardan config aquí
+```
+
+#### Windows (Estructura de directorios Windows)
+```powershell
+# Estructura en Windows (TOTALMENTE diferente a Unix):
+PS> cd C:\
+PS> dir | Select-Object Name
+
+Name
+----
+ProgramFiles          → Apps instaladas (64-bit)
+ProgramFiles (x86)    → Apps instaladas (32-bit)
+Program Data          → Datos de aplicaciones
+Windows               → Sistema operativo
+System32              → Herramientas del sistema
+Users                 → Carpetas de usuarios
+Temp                  → Archivos temporales
+
+# Navegar a carpeta de usuario
+PS> cd $env:USERPROFILE
+PS> Get-Location
+C:\Users\diego
+
+# Ver estructura
+PS> dir | Select-Object Name
+AppData         → Datos de apps (oculto)
+Desktop         → Escritorio
+Documents       → Documentos
+Downloads       → Descargas
+Pictures        → Imágenes
+
+# Crear carpeta de proyecto
+PS> mkdir projects
+PS> cd projects
+PS> pwd
+C:\Users\diego\projects
+```
+
+**Comparación de rutas comunes:**
+| Tarea | Linux | macOS | Windows |
+|------|-------|-------|---------|
+| Ver logs | `/var/log` | `/var/log` o `~/Library/Logs` | `%APPDATA%\Logs` |
+| Home | `/home/usuario` | `/Users/usuario` | `C:\Users\usuario` |
+| Temp | `/tmp` | `/tmp` o `/var/tmp` | `C:\Temp` o `%TEMP%` |
+| Apps | `/opt` o `/usr/bin` | `/Applications` | `C:\Program Files` |
+
+### Ejemplo 3: Caso Real Abacom - Scripts Multi-SO
+
+#### Linux (Bash script)
+```bash
+#!/bin/bash
+# Script para verificar salud del servidor en Abacom
+
+echo "=== VERIFICACIÓN DE SERVIDOR LINUX ==="
+echo "Hostname: $(hostname)"
+echo "Kernel: $(uname -r)"
+echo "Usuarios conectados: $(who | wc -l)"
+echo "Uso de CPU: $(top -bn1 | grep "Cpu(s)" | awk '{print $2}')"
+echo "Uso de RAM: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
+echo "Espacio disco: $(df -h / | tail -1 | awk '{print $5}')"
+
+# Ejecutar
+$ chmod +x check_server.sh
+$ ./check_server.sh
+=== VERIFICACIÓN DE SERVIDOR LINUX ===
+Hostname: abacom-server-01
+Kernel: 5.15.0-89-generic
+Usuarios conectados: 2
+Uso de CPU: 15%
+Uso de RAM: 4.2G / 16G
+Espacio disco: 35%
+```
+
+#### macOS (Bash script - casi igual a Linux)
+```bash
+#!/bin/bash
+# Script casi idéntico para macOS
+
+echo "=== VERIFICACIÓN DE SERVIDOR macOS ==="
+echo "Hostname: $(hostname)"
+echo "Kernel: $(uname -r)"
+echo "Usuarios conectados: $(who | wc -l)"
+
+# Nota: Comandos como top son diferentes en macOS
+echo "Uso de CPU: $(top -l 1 | grep "CPU usage" | head -1)"
+echo "Uso de RAM: $(vm_stat | grep 'Pages free' | awk '{print $3}')"
+echo "Espacio disco: $(df -h / | tail -1 | awk '{print $5}')"
+
+$ chmod +x check_server.sh
+$ ./check_server.sh
+=== VERIFICACIÓN DE SERVIDOR macOS ===
+Hostname: MacBook-Air.local
+Kernel: 23.2.0
+Usuarios conectados: 1
+Uso de CPU: CPU usage: 25%
+Uso de RAM: 2024384
+Espacio disco: 45%
+```
+
+#### Windows (PowerShell script)
+```powershell
+# check_server.ps1
+# Script equivalente para Windows
+
+Write-Host "=== VERIFICACIÓN DE SERVIDOR WINDOWS ===" -ForegroundColor Cyan
+
+$ComputerName = $env:COMPUTERNAME
+$OS = (Get-WmiObject -Class Win32_OperatingSystem).Caption
+$Uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+$CPUUsage = (Get-WmiObject win32_processor).LoadPercentage
+$RAM = Get-WmiObject Win32_ComputerSystem
+$RAMUsed = $RAM.TotalPhysicalMemory - (Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory
+$DiskUsage = (Get-PSDrive C).Used / (Get-PSDrive C).Total * 100
+
+Write-Host "Nombre: $ComputerName"
+Write-Host "SO: $OS"
+Write-Host "Uptime: $($Uptime.Days) días, $($Uptime.Hours) horas"
+Write-Host "Uso de CPU: $CPUUsage%"
+Write-Host "Uso de RAM: $([math]::Round($RAMUsed/1GB)) GB"
+Write-Host "Uso de disco: $([math]::Round($DiskUsage))%"
+
+# Ejecutar
+PS> .\check_server.ps1
+=== VERIFICACIÓN DE SERVIDOR WINDOWS ===
+Nombre: ABACOM-PC
+SO: Microsoft Windows Server 2022
+Uptime: 30 días, 5 horas
+Uso de CPU: 18%
+Uso de RAM: 8 GB
+Uso de disco: 65%
+```
+
+**Conclusión: Portabilidad de scripts**
+- ✅ **Linux ↔ macOS**: Scripts Bash son 90% compatibles
+- ⚠️ **Linux ↔ Windows**: Requieren reescritura (comandos diferentes)
+- **Solución**: Usar Python, Node.js, Go (multiplataforma)
+
+:::
+
+---
+
+## 1. Estructura de Directorios en Linux
+
+### 1.1 Visualizar el Sistema de Archivos
+
+```
+/
+├── bin/              → Comandos binarios esenciales (/usr/bin para extra)
+├── sbin/             → Comandos para root (/usr/sbin para extra)
+├── etc/              → Archivos de configuración
+├── home/             → Directorios de usuarios
+│   ├── diego/
+│   ├── carlos/
+│   └── maria/
+├── root/             → Home del usuario root
+├── var/              → Datos variables (logs, caché)
+│   ├── log/          → Logs del sistema
+│   ├── www/          → Sitios web
+│   └── cache/
+├── tmp/              → Archivos temporales (se limpian al reboot)
+├── opt/              → Software opcional
+├── srv/              → Datos de servicios
+├── lib/              → Librerías del sistema
+├── usr/              → Programas de usuario
+│   ├── bin/
+│   ├── sbin/
+│   └── local/        → Software compilado localmente
+└── boot/             → Archivos de arranque
+```
+
+**Ruta absoluta vs relativa**:
+```bash
+# **Ruta absoluta: comienza con /**
+/home/diego/documentos/proyecto.txt
+
+# **Ruta relativa: desde carpeta actual**
+documentos/proyecto.txt
+
+# **Especiales**:
+~        → Home del usuario actual
+.        → Carpeta actual
+..       → Carpeta padre
+-        → Último directorio visitado
+```
+
+---
+
+## 2. Comandos Esenciales de Navegación
+
+### 2.1 pwd - Mostrar Directorio Actual
+
+```bash
+# **Mostrar ruta completa donde estás**
+pwd
+
+# **Salida**:
+# /home/diego/documentos
+
+# **¿Dónde estoy?**
+# Muy útil después de navegar varias carpetas
+```
+
+### 2.2 cd - Cambiar Directorio
+
+```bash
+# **Ir a home del usuario**
+cd
+cd ~
+cd /home/diego
+
+# **Ir a carpeta específica**
+cd /var/log
+
+# **Ir a carpeta anterior**
+cd -
+# Regresa al último directorio visitado
+
+# **Subir un nivel (a carpeta padre)**
+cd ..
+
+# **Ir a raíz del sistema**
+cd /
+
+# **Usar rutas con espacios (entre comillas)**
+cd "/home/diego/Mi Documentos"
+
+# **Ver dónde estás después de cambiar**
+pwd
+```
+
+### 2.3 ls - Listar Archivos
+
+**Básico**:
+```bash
+# **Listar archivos en carpeta actual**
+ls
+
+# **Salida**:
+# archivo.txt  carpeta/  foto.jpg
+
+# **Listar carpeta específica**
+ls /home/diego/
+
+# **Listar todo incluyendo ocultos (comienzan con .)**
+ls -a
+
+# **Salida**:
+# .  ..  .bashrc  .ssh/  archivo.txt  .hidden_folder/
+```
+
+**Detalles completos** (formato largo):
+```bash
+# **Ver permisos, propietario, tamaño, fecha**
+ls -l
+
+# **Salida**:
+# drwxr-xr-x  2 diego diego  4096 Jan 29 10:30 carpeta/
+# -rw-r--r--  1 diego diego  1024 Jan 29 09:15 archivo.txt
+# lrwxrwxrwx  1 diego diego    10 Jan 29 08:00 enlace -> archivo.txt
+
+# **Desglose de columnas**:
+# drwxr-xr-x  → Permisos
+# 2           → Número de enlaces
+# diego diego → Usuario:Grupo
+# 4096        → Tamaño (en bytes)
+# Jan 29      → Fecha
+# 10:30       → Hora
+# carpeta/    → Nombre (/ = carpeta)
+```
+
+**Tamaño legible**:
+```bash
+# **Ver tamaño en KB, MB, GB**
+ls -lh
+
+# **Salida**:
+# -rw-r--r--  1 diego diego  1.2K Jan 29 archivo.txt
+# -rw-r--r--  1 diego diego  2.5M Jan 29 video.mp4
+# -rw-r--r--  1 diego diego  256M Jan 29 imagen.iso
+
+# **Opciones útiles**:
+# -S    → Ordenar por tamaño (más grande primero)
+# -t    → Ordenar por fecha (más reciente primero)
+# -r    → Orden inverso
+```
+
+**Listar recursivamente**:
+```bash
+# **Ver todas las carpetas y subcarpetas**
+ls -R
+
+# **Útil para ver estructura**
+# .
+# ./carpeta1
+# ./carpeta1/subcarpeta
+# ./carpeta2
+```
+
+### 2.4 tree - Ver Estructura en Árbol
+
+```bash
+# **Si no está instalado**
+sudo apt install tree
+
+# **Ver estructura como árbol**
+tree
+
+# **Salida**:
+# .
+# ├── carpeta1/
+# │   ├── archivo1.txt
+# │   └── archivo2.txt
+# ├── carpeta2/
+# └── archivo3.txt
+
+# **Limitar profundidad**
+tree -L 2
+# -L 2 → Ver máximo 2 niveles
+
+# **Ver solo directorios**
+tree -d
+```
+
+---
+
+## 3. Crear y Eliminar Directorios
+
+### 3.1 mkdir - Crear Carpetas
+
+```bash
+# **Crear una carpeta**
+mkdir miprojecto
+
+# **Crear múltiples carpetas**
+mkdir carpeta1 carpeta2 carpeta3
+
+# **Crear carpeta anidada (necesita -p)**
+mkdir -p /home/diego/proyectos/2024/enero
+# -p → Crea las carpetas padre si no existen
+
+# **Crear con permisos específicos**
+mkdir -m 700 carpeta_privada
+# Accesible solo por dueño
+```
+
+### 3.2 rmdir - Eliminar Carpetas Vacías
+
+```bash
+# **Eliminar carpeta VACÍA**
+rmdir carpeta_vacia
+
+# **Eliminar múltiples carpetas vacías**
+rmdir carpeta1 carpeta2 carpeta3
+
+# **Eliminar estructura anidada (si todas están vacías)**
+rmdir -p /home/diego/proyectos/2024/enero
+# Elimina enero, 2024, proyectos (si quedan vacías)
+```
+
+---
+
+## 4. Copiar, Mover, Renombrar Archivos
+
+### 4.1 cp - Copiar Archivos
+
+```bash
+# **Copiar un archivo**
+cp archivo_original.txt archivo_copia.txt
+
+# **Copiar a otra carpeta (mantener nombre)**
+cp archivo.txt /home/diego/backup/
+
+# **Copiar a otra carpeta con nuevo nombre**
+cp archivo.txt /home/diego/backup/archivo_respaldo.txt
+
+# **Copiar carpeta y contenido (recursivo)**
+cp -r carpeta_original/ carpeta_copia/
+
+# **Opciones útiles**:
+# -i → Preguntar antes de sobrescribir
+# -v → Mostrar qué copia (verbose)
+# -p → Preservar permisos y fecha
+
+# **Ejemplo completo**
+cp -rpv /home/diego/proyecto /backup/proyecto_respaldo
+# Copia carpeta, preserva permisos, muestra progreso
+```
+
+### 4.2 mv - Mover y Renombrar
+
+```bash
+# **Renombrar archivo**
+mv archivo_viejo.txt archivo_nuevo.txt
+
+# **Mover archivo a otra carpeta**
+mv archivo.txt /home/diego/documentos/
+
+# **Mover y renombrar al mismo tiempo**
+mv archivo.txt /home/diego/documentos/archivo_movido.txt
+
+# **Mover carpeta entera**
+mv carpeta_origen/ /nueva/ubicacion/
+
+# **Opciones**:
+# -i → Preguntar antes de sobrescribir
+# -v → Mostrar qué mueve
+
+# **Ejemplo: Mover varias cosas**
+mv archivo1.txt archivo2.txt carpeta/ documentos/
+# Mueve tres cosas a documentos/
+```
+
+**Diferencia mv vs cp**:
+```
+cp archivo.txt copia.txt
+# archivo.txt sigue existiendo
+# copia.txt es nueva
+
+mv archivo.txt renombrado.txt
+# archivo.txt desaparece
+# renombrado.txt existe (mismos datos)
+```
+
+---
+
+## 5. Ver Contenido de Archivos
+
+### 5.1 cat - Mostrar Contenido Completo
+
+```bash
+# **Ver archivo pequeño**
+cat archivo.txt
+
+# **Salida**:
+# Contenido del archivo
+# en múltiples líneas
+
+# **Ver archivo y enumerar líneas**
+cat -n archivo.txt
+
+# **Salida**:
+#      1  Primera línea
+#      2  Segunda línea
+#      3  Tercera línea
+
+# **Concatenar múltiples archivos**
+cat archivo1.txt archivo2.txt
+
+# **Ver contenido con saltos visibles**
+cat -A archivo.txt
+# Muestra saltos de línea como $
+```
+
+### 5.2 less - Ver Archivo Grande Interactivamente
+
+```bash
+# **Ver archivo página por página (mejor que cat)**
+less archivo_grande.log
+
+# **Controles**:
+# Espacio o Page Down → Siguiente página
+# b o Page Up → Página anterior
+# G → Ir al final
+# g → Ir al inicio
+# /patrón → Buscar texto
+# n → Siguiente resultado
+# N → Resultado anterior
+# q → Salir
+
+# **Ejemplo: Ver log del sistema**
+less /var/log/syslog
+# Muy útil para archivos enormes
+```
+
+### 5.3 head y tail - Ver Inicio y Final
+
+```bash
+# **Ver primeras 10 líneas**
+head archivo.txt
+
+# **Ver primeras 20 líneas**
+head -20 archivo.txt
+
+# **Ver últimas 10 líneas (muy común para logs)**
+tail archivo.txt
+
+# **Ver últimas 20 líneas**
+tail -20 archivo.txt
+
+# **Ver últimas líneas conforme se agregan (monitoreo)**
+tail -f /var/log/syslog
+# -f → follow (sigue actualizaciones)
+# Presiona Ctrl+C para salir
+
+# **Ver linea 100 en adelante**
+tail -n +100 archivo.txt
+```
+
+---
+
+## 6. Crear y Editar Archivos
+
+### 6.1 touch - Crear Archivo Vacío
+
+```bash
+# **Crear archivo vacío**
+touch archivo_nuevo.txt
+
+# **Crear múltiples archivos**
+touch archivo1.txt archivo2.txt archivo3.txt
+
+# **Actualizar fecha de acceso de archivo existente**
+touch archivo_existente.txt
+# Cambia la fecha de modificación a ahora
+```
+
+### 6.2 echo - Escribir Texto
+
+```bash
+# **Mostrar texto en terminal**
+echo "Hola Mundo"
+
+# **Salida**:
+# Hola Mundo
+
+# **Crear archivo con contenido usando redirección**
+echo "Primera línea" > archivo.txt
+
+# **Agregar línea a archivo existente**
+echo "Segunda línea" >> archivo.txt
+
+# **Ver contenido**
+cat archivo.txt
+# Primera línea
+# Segunda línea
+
+# **Usar variables**
+echo "Mi usuario es: $USER"
+# Mi usuario es: diego
+
+# **Múltiples líneas**
+cat > archivo.txt << EOF
+Línea 1
+Línea 2
+Línea 3
+EOF
+```
+
+### 6.3 Editores de Texto
+
+**Nano (más fácil)**:
+```bash
+# **Abrir o crear archivo**
+nano archivo.txt
+
+# **Controles**:
+# Escribir normalmente
+# Ctrl+O → Guardar
+# Ctrl+X → Salir
+# Ctrl+W → Buscar
+# Ctrl+K → Cortar línea
+# Ctrl+U → Pegar
+```
+
+**Vim/Vi (poderoso pero complejo)**:
+```bash
+# **Abrir archivo**
+vim archivo.txt
+
+# **Modos**:
+# i → Insert (escribir)
+# Esc → Normal (comandos)
+# En normal: :wq (guardar y salir)
+```
+
+Ver [Anexo B: Editores Vi y Nvim](../anexos/Anexo_B_Editores_Vi_Nvim.qmd) para detalles completos.
+
+---
+
+## 7. Buscar Archivos y Contenido
+
+### 7.1 find - Buscar Archivos por Nombre
+
+```bash
+# **Buscar archivo por nombre**
+find . -name "archivo.txt"
+
+# **Buscar en ubicación específica**
+find /home -name "*.txt"
+
+# **Buscar ignorando mayúsculas**
+find . -iname "ARCHIVO.txt"
+
+# **Buscar archivos (no carpetas)**
+find . -type f -name "*.txt"
+
+# **Buscar solo carpetas**
+find . -type d -name "carpeta*"
+
+# **Buscar archivos modificados en últimos 7 días**
+find . -mtime -7
+
+# **Buscar archivos mayores a 100MB**
+find . -size +100M
+
+# **Buscar archivos vacíos**
+find . -empty
+
+# **Ejecutar comando en resultados**
+find . -name "*.txt" -exec rm {} \;
+# Borra todos los .txt encontrados
+```
+
+Ver [Anexo E: Búsqueda y Procesamiento](../anexos/Anexo_E_Grep_Find_Sed_Awk.qmd) para detalles avanzados.
+
+### 7.2 grep - Buscar Texto en Archivos
+
+```bash
+# **Buscar texto en archivo**
+grep "error" archivo.log
+
+# **Salida**: Solo líneas que contienen "error"
+
+# **Buscar ignorando mayúsculas**
+grep -i "ERROR" archivo.log
+
+# **Buscar en múltiples archivos**
+grep "error" /var/log/*.log
+
+# **Buscar recursivamente en carpeta**
+grep -r "función_importante" /home/diego/proyecto/
+
+# **Contar coincidencias**
+grep -c "error" archivo.log
+
+# **Ver líneas alrededor del resultado**
+grep -B2 -A2 "error" archivo.log
+# -B2 → 2 líneas antes
+# -A2 → 2 líneas después
+```
+
+---
+
+## 8. Permisos desde Terminal
+
+### 8.1 Ver Permisos Detallados
+
+```bash
+# **Ver permisos de archivos**
+ls -l
+
+# **Salida**:
+# -rw-r--r-- 1 diego diego 1024 Jan 29 archivo.txt
+#  ^^^^^^^^
+#  drwxr-xr-x
+#  └─ archivo
+#     └─ permisos
+
+# **Decodificar: rwxrwxrwx**
+# Usuario(rwx) Grupo(r-x) Otros(r--)
+```
+
+### 8.2 Cambiar Permisos - chmod
+
+```bash
+# **Hacer archivo ejecutable**
+chmod +x script.sh
+
+# **Remover permisos de escritura**
+chmod -w archivo.txt
+
+# **Establecer permisos exactos**
+chmod 755 script.sh
+# 755 = rwxr-xr-x (ejecutable para todos, editable solo por dueño)
+
+chmod 644 archivo.txt
+# 644 = rw-r--r-- (editable solo por dueño)
+
+chmod 600 archivo_privado
+# 600 = rw------- (solo dueño puede acceder)
+```
+
+### 8.3 Cambiar Propietario - chown
+
+```bash
+# **Cambiar propietario**
+sudo chown diego archivo.txt
+
+# **Cambiar propietario y grupo**
+sudo chown diego:administradores archivo.txt
+
+# **Cambiar recursivamente (carpeta y contenido)**
+sudo chown -R diego:administradores /home/diego/proyecto/
+```
+
+---
+
+## 9. Información Útil
+
+### 9.1 whoami, id, groups
+
+```bash
+# **¿Quién soy?**
+whoami
+# diego
+
+# **Información detallada del usuario**
+id
+# uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom)
+
+# **Grupos del usuario**
+groups
+# diego adm cdrom sudo
+
+# **Información de otro usuario**
+id carlos
+```
+
+### 9.2 du - Uso de Disco
+
+```bash
+# **Tamaño de carpeta actual y subcarpetas**
+du -sh *
+
+# **Salida**:
+# 2.5G carpeta1/
+# 1.2G carpeta2/
+# 512M archivo.iso
+
+# **Ver solo carpetas (no archivos)**
+du -sh */
+
+# **Ver total de carpeta**
+du -sh .
+# 5.2G .
+```
+
+### 9.3 df - Espacio Disponible en Disco
+
+```bash
+# **Ver particiones y espacio disponible**
+df -h
+
+# **Salida**:
+# Filesystem      Size  Used Avail Use% Mounted on
+# /dev/sda1        20G   15G    5G  75% /
+# /dev/sda2        50G   40G   10G  80% /home
+
+# **¿Está lleno el disco?**
+# Use% > 90% → Problemas
+```
+
+---
+
+## 10. Laboratorio Práctico
+
+### 10.1 Crear Estructura de Proyecto
+
+Crea estructura para proyecto de desarrollo:
+```bash
+# Crear carpeta principal
+mkdir ~/proyectos
+
+# Crear subcarpetas
+mkdir -p ~/proyectos/webapp/{src,config,tests,docs}
+mkdir -p ~/proyectos/webapp/src/{frontend,backend}
+
+# Ver estructura
+tree ~/proyectos/webapp
+```
+
+### 10.2 Crear Archivos de Configuración
+
+```bash
+# Crear archivo README
+cat > ~/proyectos/webapp/README.md << EOF
+# Webapp Project
+Descripción del proyecto
+EOF
+
+# Crear archivo de configuración
+cat > ~/proyectos/webapp/config/settings.sh << EOF
+#!/bin/bash
+# Configuración de webapp
+DB_HOST=localhost
+DB_USER=admin
+DB_PASS=secret123
+EOF
+
+# Hacer script ejecutable
+chmod +x ~/proyectos/webapp/config/settings.sh
+
+# Verificar
+ls -la ~/proyectos/webapp/config/
+```
+
+### 10.3 Buscar y Reemplazar Contenido
+
+```bash
+# Ver archivos con palabra clave
+grep -r "localhost" ~/proyectos/webapp/
+
+# Encontrar scripts ejecutables
+find ~/proyectos/webapp -type f -executable
+
+# Ver tamaño total del proyecto
+du -sh ~/proyectos/webapp/
+```
+
+---
+
+## 11. Ejercicios Prácticos
+
+### Ejercicio 1: Navegación
+Completa estas tareas:
+1. Navega a **/var/log**
+2. Lista archivos con detalles
+3. Ve al home con **~**
+4. Muestra dónde estás
+
+**Solución**:
+```bash
+cd /var/log
+ls -lh
+cd ~
+pwd
+```
+
+### Ejercicio 2: Crear estructura
+Crea:
+```
+~/documentos/
+├── trabajo/
+│   ├── reportes/
+│   └── propuestas/
+└── personal/
+    ├── finanzas/
+    └── salud/
+```
+
+**Solución**:
+```bash
+mkdir -p ~/documentos/{trabajo/{reportes,propuestas},personal/{finanzas,salud}}
+tree ~/documentos/
+```
+
+### Ejercicio 3: Buscar archivos
+1. Encuentra todos los .txt en tu home
+2. Busca líneas con "error" en **/var/log/syslog**
+3. Cuenta cuántas veces aparece "error"
+
+**Solución**:
+```bash
+find ~ -type f -name "*.txt"
+grep "error" /var/log/syslog
+grep -c "error" /var/log/syslog
+```
+
+---
+
+## 12. Quiz de Verificación
+
+1. **¿Cuál es la diferencia entre **cd** y **pwd**?**
+   - A) Ninguna
+   - B) cd cambia directorio; pwd muestra donde estás ✅
+   - C) pwd es más rápido
+   - D) cd solo funciona en root
+
+2. **¿Qué hace **ls -lh**?**
+   - A) Lista archivos
+   - B) Lista con detalles y tamaño legible ✅
+   - C) Lista y busca
+   - D) Lista ocultos
+
+3. **¿Cuál es la diferencia entre **>** y **>>**?**
+   - A) No hay diferencia
+   - B) > sobrescribe; >> agrega ✅
+   - C) >> es más rápido
+   - D) > solo para texto
+
+4. **¿Qué comando busca archivos?**
+   - A) grep (busca contenido)
+   - B) find (busca archivos) ✅
+   - C) locate
+   - D) search
+
+5. **¿Qué hace **chmod 755 script.sh**?**
+   - A) Hacer script ejecutable con rwxr-xr-x ✅
+   - B) Proteger archivo
+   - C) Cambiar propietario
+   - D) Crear backup
+
+---
+
+## 13. Resumen
+
+### Lo Aprendido
+
+✅ Navegar sistema de archivos (**cd**, **pwd**, **ls**)
+✅ Crear y eliminar carpetas (**mkdir**, **rmdir**)
+✅ Copiar, mover, renombrar (**cp**, **mv**)
+✅ Ver contenido (**cat**, **less**, **head**, **tail**)
+✅ Crear y editar archivos (**echo**, **touch**, **nano**)
+✅ Buscar archivos y contenido (**find**, **grep**)
+✅ Entender y cambiar permisos (**ls -l**, **chmod**, **chown**)
+
+### Siguiente
+
+¡Felicidades! Completaste **Unidad 2: Instalación y Configuración**
+
+Próximas unidades:
+- **Unidad 3**: Comandos Avanzados
+- **Unidad 4**: Usuarios y Permisos (profundidad)
+- **Unidad 5**: Procesos y Servicios
+
+---
+
+## 📚 Referencias
+
+[@linux_filesystem_hierarchy]
+[@gnu_coreutils_manual]
+[@bash_guide_navigation]
+[@linux_file_permissions]
+[@debian_commandline_guide]
+
+---
+
+## 📝 Quiz: Primeros Pasos en Terminal
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el comando para mostrar el directorio actual?
+
+- [ ] current
+- [ ] where
+- [x] pwd (print working directory)
+- [ ] location
+
+## ¿Qué significa el símbolo **~** en la terminal de Linux?
+
+- [ ] El directorio raíz (/)
+- [x] El directorio home del usuario actual
+- [ ] El directorio temporal
+- [ ] Un directorio especial del sistema
+
+## ¿Cuál comando lista archivos y directorios?
+
+- [ ] list
+- [ ] show
+- [x] ls
+- [ ] dir
+
+## ¿Qué opción añade a **ls** muestra información detallada (permisos, tamaño, fecha)?
+
+- [ ] ls -a
+- [x] ls -l
+- [ ] ls -d
+- [ ] ls -v
+
+## ¿Cómo cambias de directorio a la carpeta padre?
+
+- [ ] cd parent
+- [x] cd ..
+- [ ] cd /..
+- [ ] cd back
+
+## ¿Cuál comando crea un nuevo directorio?
+
+- [ ] newdir
+- [x] mkdir nombre
+- [ ] createdir nombre
+- [ ] mk nombre
+
+## ¿Qué comando elimina un directorio vacío?
+
+- [ ] rm directorio
+- [x] rmdir directorio
+- [ ] del directorio
+- [ ] remove directorio
+
+## ¿Cuál es la diferencia entre **cp** y **mv**?
+
+- [x] cp copia, mv mueve (traslada)
+- [ ] cp es más rápido
+- [ ] mv funciona solo en el mismo disco
+- [ ] cp funciona solo con archivos de texto
+
+## ¿Cuál comando muestra el contenido completo de un archivo?
+
+- [ ] show archivo
+- [x] cat archivo
+- [ ] display archivo
+- [ ] type archivo
+
+## ¿Qué comando permite navegar grandes archivos página por página?
+
+- [x] less archivo
+- [ ] more archivo (versión anterior, menos funciones)
+- [ ] page archivo
+- [ ] scroll archivo
+
+## ¿Cuál comando muestra las primeras 10 líneas de un archivo?
+
+- [x] head -n 10 archivo
+- [ ] first -10 archivo
+- [ ] top -10 archivo
+- [ ] head -l 10 archivo
+
+## ¿Cuál comando muestra las últimas 20 líneas de un archivo?
+
+- [ ] first -20 archivo
+- [x] tail -n 20 archivo
+- [ ] bottom -20 archivo
+- [ ] end archivo
+
+## ¿Cuál comando crea un archivo vacío?
+
+- [ ] create archivo
+- [x] touch archivo
+- [ ] new archivo
+- [ ] make archivo
+
+## ¿Cuál comando busca archivos por nombre recursivamente?
+
+- [ ] search -name
+- [x] find . -name "patrón"
+- [ ] grep -file
+- [ ] locate -exact
+
+## ¿Cuál es la estructura de directorios estándar de Linux (FHS)?
+
+- [ ] Cada distribución elige su propia estructura
+- [x] / (raíz), /home, /var, /etc, /usr, /bin, /etc, etc.
+- [ ] Solo Windows usa estructura de directorios
+- [ ] Linux no tiene estructura estándar
+
+## ¿Qué contiene el directorio **/var**?
+
+- [ ] Datos variables del usuario
+- [x] Datos variables del sistema (logs, bases de datos, caché)
+- [ ] Versiones de programas
+- [ ] Volumenes de almacenamiento
+
+## ¿En qué directorio se guardan los archivos de configuración del sistema?
+
+- [ ] /config
+- [x] /etc
+- [ ] /sys
+- [ ] /settings
+
+## ¿Cuál comando busca texto dentro de archivos?
+
+- [x] grep "término" archivo
+- [ ] find "término"
+- [ ] search "término"
+- [ ] locate "término"
+
+## ¿Qué permiso octal es necesario para que un usuario ejecute un archivo?
+
+- [ ] 1 (solo lectura)
+- [ ] 2 (solo escritura)
+- [x] 4 (solo ejecución)
+- [ ] 8 (administrador)
+
+## ¿Cuál comando muestra la estructura de directorios como un árbol?
+
+- [ ] ls -tree
+- [x] tree
+- [ ] show -tree
+- [ ] dir /tree
+```
+
+---
+

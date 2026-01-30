@@ -1,0 +1,1174 @@
+---
+title: "Configuración Inicial del Sistema"
+subtitle: "Usuarios, SSH y Permisos - Primeras 24 Horas"
+author: "Diego Saavedra"
+date: "2024-01-29"
+date-format: medium
+---
+
+## 📚 Objetivos de Aprendizaje
+
+Después de completar este tema, serás capaz de:
+
+- Crear usuarios adicionales y configurar grupos
+- Generar y configurar claves SSH para acceso seguro
+- Entender y aplicar permisos Unix (chmod, chown)
+- Configurar sudo para administración sin riesgos
+- Optimizar la seguridad en los primeros pasos
+
+## 🎯 Por Qué Esta Lección Es Crítica
+
+Tu servidor Ubuntu sale de la caja con **UN SOLO USUARIO ADMINISTRADOR**. Esto es un riesgo de seguridad. En Abacom, cada administrador necesita su propia cuenta, acceso SSH seguro, y permisos apropiados sin usar **root** directamente.
+
+**Tiempo estimado**: 90-120 minutos de lectura + laboratorio
+
+---
+
+## 1. Usuarios y Grupos en Linux
+
+### 1.1 Concepto Fundamental
+
+Cada archivo y proceso en Linux tiene un **propietario (usuario)** y un **grupo**. Los permisos se asignan a estos tres niveles:
+
+```
+┌─────────────────┬─────────────────┬─────────────────┐
+│    USUARIO      │     GRUPO       │   OTROS         │
+│  (propietario)  │                 │  (el resto)     │
+├─────────────────┼─────────────────┼─────────────────┤
+│   r w x         │   r w x         │   r w x         │
+│ (4 2 1)         │ (4 2 1)         │ (4 2 1)         │
+└─────────────────┴─────────────────┴─────────────────┘
+
+r = lectura (read)    = 4
+w = escritura (write) = 2
+x = ejecución (exec)  = 1
+```
+
+**Ejemplo**: **755** significa:
+- Usuario: 7 (4+2+1 = **rwx** = lectura + escritura + ejecución)
+- Grupo: 5 (4+1 = **r-x** = lectura + ejecución)
+- Otros: 5 (4+1 = **r-x** = lectura + ejecución)
+
+### 1.2 Ver Usuarios y Grupos
+
+```bash
+# **Ver todos los usuarios del sistema**
+cat /etc/passwd  # <1>
+
+# **Ver solo usuarios humanos (UID >= 1000)**
+getent passwd | awk -F: '$3 >= 1000 {print $1}'  # <2>
+
+# **Ver grupos de un usuario**
+groups diego  # <3>
+
+# **Ver todos los grupos**
+cat /etc/group  # <4>
+
+# **Ver información detallada de usuario actual**
+id  # <5>
+
+# **Ejemplo de salida**
+uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom),27(sudo)
+```
+
+1. **cat /etc/passwd** muestra base de datos de usuarios del sistema
+2. **getent passwd** obtiene usuarios con UID >= 1000 (usuarios humanos, no del sistema)
+3. **groups** lista todos los grupos a los que pertenece un usuario
+4. **cat /etc/group** muestra base de datos de grupos del sistema
+5. **id** muestra identidad del usuario actual (UID, GID y grupos)
+
+### 1.3 Crear Usuarios Nuevos
+
+**Crear usuario básico**:
+```bash
+# **Crear usuario 'carlos' con home en /home/carlos**
+sudo useradd -m -s /bin/bash carlos  # <1>
+
+# **Asignar contraseña**
+sudo passwd carlos  # <2>
+# Te pedirá que ingreses y confirmes la contraseña
+```
+
+1. **useradd -m** crea home directory automáticamente, **-s /bin/bash** asigna shell por defecto
+2. **passwd** establece contraseña interactiva para el usuario creado
+
+**Crear usuario con información adicional**:
+```bash
+# **Crear usuario con comentario (nombre completo)**
+sudo useradd -m -s /bin/bash -c "Carlos López - Administrador" carlos
+
+# **Ver el comentario**
+grep carlos /etc/passwd
+# Salida: carlos:x:1001:1001:Carlos López - Administrador:/home/carlos:/bin/bash
+```
+
+**Crear usuario sin contraseña (para scripts)**:
+```bash
+# **Crear usuario de servicio**
+sudo useradd -r -s /sbin/nologin nginx_backup
+
+# **-r**: usuario del sistema (UID < 1000)
+# **-s /sbin/nologin**: sin shell, no puede loguearse
+```
+
+**Crear usuario con home en ubicación personalizada**:
+```bash
+# **Para almacenar datos especiales**
+sudo useradd -m -d /srv/apps/myapp -s /bin/bash appuser
+```
+
+### 1.4 Modificar Usuarios
+
+**Cambiar información de usuario**:
+```bash
+# **Cambiar el nombre completo**
+sudo usermod -c "Carlos Manuel López" carlos
+
+# **Cambiar el shell de login**
+sudo usermod -s /bin/zsh carlos
+
+# **Agregar usuario a grupo existente**
+sudo usermod -aG adm carlos
+# **-a**: append (agregar SIN remover otros grupos)
+# **-G**: grupo suplementario
+
+# **Cambiar el home del usuario**
+sudo usermod -d /home/carlos_nuevo carlos
+
+# **Loquear usuario (deshabilitar temporalmente)**
+sudo usermod -L carlos
+
+# **Desbloquear usuario**
+sudo usermod -U carlos
+
+# **Ver cambios**
+grep carlos /etc/passwd
+```
+
+### 1.5 Crear y Gestionar Grupos
+
+**Crear grupo nuevo**:
+```bash
+# **Crear grupo de administradores locales**
+sudo groupadd administradores
+
+# **Agregar usuarios al grupo**
+sudo usermod -aG administradores diego
+sudo usermod -aG administradores carlos
+
+# **Verificar miembros del grupo**
+getent group administradores
+# Salida: administradores:x:1002:diego,carlos
+
+# **Cambiar grupo primario de usuario**
+sudo usermod -g administradores diego
+# Cuidado: esto cambia el grupo por defecto para archivos nuevos
+```
+
+**Eliminar grupo**:
+```bash
+# **Eliminar grupo vacío**
+sudo groupdel administradores
+
+# **Si el grupo tiene archivos, primero cambiar propietario**
+sudo chown -R :nuevogrupo /ruta/con/archivos
+sudo groupdel viejogrupo
+```
+
+### 1.6 Eliminar Usuarios
+
+**Opciones de eliminación**:
+```bash
+# **Eliminar usuario PERO conservar su home**
+sudo userdel carlos
+
+# **Eliminar usuario Y su home**
+sudo userdel -r carlos
+# **CUIDADO**: Esto elimina /home/carlos y todos sus archivos
+
+# **Crear script para backupear antes de eliminar**
+sudo tar czf /backup/carlos_$(date +%Y%m%d).tar.gz /home/carlos
+sudo userdel -r carlos
+```
+
+---
+
+## 2. SSH y Acceso Remoto Seguro
+
+SSH (Secure Shell) es la forma profesional de administrar servidores Linux de forma remota.
+
+### 2.1 Por Qué SSH es Esencial
+
+```
+❌ NUNCA usar telnet, rsh, o contraseña sobre red abierta
+✅ SIEMPRE usar SSH con claves criptográficas
+```
+
+**Ventajas de SSH**:
+
+- **Encriptación**: Todo el comunicado está encriptado en tránsito
+- **Autenticación por clave**: No hay contraseñas transmitidas por la red
+- **Automatización**: Scripts pueden ejecutarse sin interacción manual
+- **Port forwarding**: Túneles seguros para acceder a servicios remotos
+- **SCP/SFTP**: Transferencia segura de archivos entre máquinas
+
+### 2.2 Generar Claves SSH
+
+**En tu máquina LOCAL (laptop/desktop)**:
+
+```bash
+# **Generar par de claves (pública + privada)**
+ssh-keygen -t ed25519 -C "diego@abacom.com" -f ~/.ssh/diego_abacom
+
+# **Alternativa si ed25519 no es soportado (legacy)**
+ssh-keygen -t rsa -b 4096 -C "diego@abacom.com" -f ~/.ssh/diego_legacy
+
+# **Opciones explicadas**:
+# **-t ed25519**: Tipo moderno y seguro (recomendado)
+# **-C "diego@abacom.com"**: Comentario/email para identificar
+# **-f ~/.ssh/diego_abacom**: Ubicación y nombre del archivo
+```
+
+**El sistema preguntará por passphrase** (contraseña para la clave):
+```
+Enter passphrase (empty for no passphrase): [DIGITA TU PASSPHRASE]
+Enter same passphrase again: [CONFIRMA]
+```
+
+**Resultado - Dos archivos creados**:
+```bash
+# **Ver archivos creados**
+ls -la ~/.ssh/
+
+# **-rw-------  1 diego diego 464 Jan 29 10:30 .ssh/diego_abacom**
+# **-rw-r--r--  1 diego diego 102 Jan 29 10:30 .ssh/diego_abacom.pub**
+
+# **Privada**: NUNCA compartir, guardar en lugar seguro
+# **Pública**: Distribuir al servidor
+```
+
+**Ver contenido de claves**:
+```bash
+# **VER CLAVE PÚBLICA (seguro compartir)**
+cat ~/.ssh/diego_abacom.pub
+# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDk... diego@abacom.com
+
+# **NUNCA mostrar clave privada en público**
+cat ~/.ssh/diego_abacom  # ⚠️ NUNCA, NUNCA, NUNCA
+```
+
+### 2.3 Copiar Clave Pública al Servidor
+
+**OPCIÓN 1: Comando automático (RECOMENDADO)**
+
+```bash
+# **Copiar clave pública al servidor automáticamente**
+ssh-copy-id -i ~/.ssh/diego_abacom.pub diego@192.168.1.100
+
+# **-i**: Especificar archivo de clave
+# **diego**: Usuario en el servidor
+# **192.168.1.100**: IP del servidor
+
+# **Te pedirá contraseña UNA VEZ**
+# After that, you can connect without password
+```
+
+**OPCIÓN 2: Manual (si ssh-copy-id no funciona)**
+
+```bash
+# **En el servidor, crear directorio .ssh si no existe**
+ssh diego@192.168.1.100 "mkdir -p ~/.ssh"
+
+# **Copiar clave desde local al servidor**
+cat ~/.ssh/diego_abacom.pub | \
+  ssh diego@192.168.1.100 "cat >> ~/.ssh/authorized_keys"
+
+# **Fijar permisos correctos en servidor (critico!)**
+ssh diego@192.168.1.100 "chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"
+```
+
+### 2.4 Conectar sin Contraseña
+
+**Desde tu máquina local**:
+
+```bash
+# **Conectar usando clave específica**
+ssh -i ~/.ssh/diego_abacom diego@192.168.1.100
+
+# **Verificar que funciona**
+ssh -i ~/.ssh/diego_abacom diego@192.168.1.100 "whoami"
+# Salida: diego
+```
+
+**Configurar alias SSH (opcional pero útil)**:
+
+Crear/editar **~/.ssh/config**:
+```
+Host abacom-prod
+    HostName 192.168.1.100
+    User diego
+    IdentityFile ~/.ssh/diego_abacom
+    Port 22
+
+Host abacom-backup
+    HostName 192.168.1.101
+    User diego
+    IdentityFile ~/.ssh/diego_abacom
+    Port 22
+```
+
+**Usar alias**:
+```bash
+# **Ahora conectar es fácil**
+ssh abacom-prod
+ssh abacom-backup
+
+# **Copiar archivos con SCP también funciona**
+scp miarchivo.txt abacom-prod:~/
+```
+
+### 2.5 Seguridad: Deshabilitar Acceso por Contraseña
+
+**En el servidor, editar **/etc/ssh/sshd_config****:
+
+```bash
+# **Editar archivo SSH**
+sudo nano /etc/ssh/sshd_config
+
+# **Buscar y cambiar estas líneas**:
+```
+
+Cambios a hacer (buscar con Ctrl+W en nano):
+
+```ini
+# **ANTES:**
+#PasswordAuthentication yes
+#PermitRootLogin yes
+
+# **DESPUÉS:**
+PasswordAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+```
+
+**Aplicar cambios**:
+```bash
+# **Verificar sintaxis antes de reiniciar**
+sudo sshd -t
+# Si no hay errores, no muestra nada
+
+# **Reiniciar SSH**
+sudo systemctl restart ssh
+
+# **Verificar que SSH está corriendo**
+sudo systemctl status ssh
+```
+
+**IMPORTANTE**: Antes de desabilitar contraseña, **asegurate de que tienes clave pública funcionando**. Si no, quedarás bloqueado.
+
+---
+
+## 3. Permisos Unix (Chmod, Chown)
+
+### 3.1 Entender Permisos
+
+Cada archivo/carpeta tiene 10 caracteres de permisos:
+
+```
+drwxr-xr-x
+│││││││││
+││││││││└─ Otros: x (ejecución)
+│││││││└── Otros: - (sin escritura)
+││││││└─── Otros: r (lectura)
+│││││└──── Grupo: x (ejecución)
+││││└───── Grupo: - (sin escritura)
+│││└────── Grupo: r (lectura)
+││└─────── Usuario: x (ejecución)
+│└──────── Usuario: w (escritura)
+└───────── Usuario: r (lectura)
+```
+
+**Tipos de archivo**:
+
+- **-** → archivo regular
+- **d** → directorio
+- **l** → symlink (enlace simbólico)
+- **c** → dispositivo carácter
+- **b** → dispositivo bloque
+
+**Ejemplo práctico**:
+```bash
+# **Ver permisos de archivos**
+ls -l ~/
+
+# Salida:
+# -rw-r--r--  1 diego diego  1024 Jan 29 archivo.txt
+# drwxr-xr-x  2 diego diego  4096 Jan 29 carpeta/
+# lrwxrwxrwx  1 diego diego    10 Jan 29 enlace -> archivo.txt
+```
+
+### 3.2 Cambiar Permisos con Chmod
+
+**Sintaxis numérica** (más común):
+
+```bash
+# **Formato: chmod XXX archivo**
+# **X = Dígito 0-7 (suma de permisos)**
+
+chmod 755 script.sh
+# Usuario: 7 (4+2+1 = rwx)
+# Grupo:   5 (4+1   = r-x)
+# Otros:   5 (4+1   = r-x)
+
+chmod 644 documento.txt
+# Usuario: 6 (4+2   = rw-)
+# Grupo:   4 (4     = r--)
+# Otros:   4 (4     = r--)
+
+chmod 700 archivo_privado
+# Usuario: 7 (4+2+1 = rwx) - Solo propietario
+# Grupo:   0 (      = ---)
+# Otros:   0 (      = ---)
+```
+
+**Casos de uso comunes**:
+```bash
+# **Archivo ejecutable para todos**
+chmod 755 /usr/local/bin/micomando
+
+# **Archivo privado (solo dueño)**
+chmod 600 ~/.ssh/authorized_keys
+
+# **Directorio accesible (necesita x)**
+chmod 755 ~/documentos/
+
+# **Script privado de usuario**
+chmod 700 ~/scripts/privado.sh
+
+# **Archivo compartido en grupo**
+chmod 640 /etc/app/config.conf
+# Usuario: 6 (rw-)
+# Grupo:   4 (r--)
+# Otros:   0 (---)
+```
+
+**Sintaxis literal** (más legible pero menos común):
+
+```bash
+# **Agregar permiso de ejecución**
+chmod +x script.sh
+
+# **Remover permiso de escritura para grupo y otros**
+chmod go-w documento.txt
+
+# **Dar todos los permisos a todos**
+chmod a+rwx archivo.txt
+
+# **Quitar todo excepto lectura**
+chmod a-x archivo.txt
+chmod a-w archivo.txt
+```
+
+**Cambiar permisos recursivamente**:
+```bash
+# **Cambiar permisos de carpeta y contenido**
+chmod -R 755 ~/miproyecto/
+
+# **-R**: recursivo (incluye subcarpetas)
+
+# **CUIDADO**: A veces quieres permisos diferentes para carpetas vs archivos
+# Carpetas necesitan 'x' para entrar, archivos no
+
+# **Mejor forma: archivos=644, carpetas=755**
+find ~/miproyecto -type f -exec chmod 644 {} \;
+find ~/miproyecto -type d -exec chmod 755 {} \;
+```
+
+### 3.3 Cambiar Propietario con Chown
+
+**Sintaxis**: **chown [usuario]:[grupo] archivo**
+
+```bash
+# **Cambiar propietario a otro usuario**
+sudo chown carlos archivo.txt
+
+# **Cambiar propietario Y grupo**
+sudo chown carlos:administradores archivo.txt
+
+# **Cambiar solo grupo**
+sudo chown :administradores archivo.txt
+
+# **Cambiar recursivamente**
+sudo chown -R carlos:administradores ~/proyectos/
+
+# **Cambiar a usuario actual**
+sudo chown $USER archivo.txt
+
+# **Cambiar a usuario con su grupo primario**
+sudo chown carlos: archivo.txt  # Nota el : al final
+```
+
+**Ejemplo práctico - Transferir propiedad de carpeta**:
+```bash
+# **Carlos entrega su proyecto a Diego**
+sudo chown -R diego:administradores /home/carlos/proyecto_terminado
+
+# **Verificar cambio**
+ls -la /home/carlos/
+# drwxr-xr-x  3 diego administradores  4096 Jan 29 proyecto_terminado/
+```
+
+---
+
+## 4. Sudo: Privilegios de Administrador
+
+### 4.1 Por Qué NO Usar Root Directamente
+
+```
+❌ Conectarse como root
+❌ Ejecutar TODOS los comandos como root
+❌ Compartir contraseña de root
+
+✅ Usuarios normales + sudo cuando sea necesario
+✅ Auditoría: Saber quién hizo qué
+✅ Contraseña individual por usuario
+✅ Control granular de qué puede hacer cada usuario
+```
+
+**Riesgo del ejemplo**:
+```bash
+# **Usuario distrait comete error como root**
+sudo rm -rf /var/log/*  # **INTENTA LIMPIAR LOGS**
+# vs
+sudo rm -rf /   # **ACCIDENTAL TECLEA ESTO EN VEZ**
+# **¡TODO EL SERVIDOR ELIMINADO!**
+```
+
+### 4.2 Configurar Sudo
+
+**Editar sudoers** (SIEMPRE usar visudo, no nano/vim directo):
+
+```bash
+# **Abrir editor de sudoers de forma segura**
+sudo visudo
+
+# **Buscar la sección**:
+```
+
+Agregar al final del archivo:
+```
+# **Permitir que usuario carlos use TODOS los comandos sin contraseña**
+carlos ALL=(ALL) NOPASSWD:ALL
+
+# **Permitir que usuario diego use sudo CON contraseña**
+diego ALL=(ALL) ALL
+
+# **Permitir que grupo administradores use sudo sin contraseña**
+%administradores ALL=(ALL) NOPASSWD:ALL
+
+# **Permitir comandos específicos sin contraseña**
+diego ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx
+
+# **Permitir comando con argumentos específicos**
+carlos ALL=(ALL) NOPASSWD:/sbin/reboot, /sbin/halt
+
+# **Negar comando específico**
+diego ALL=(ALL) ALL, !/usr/bin/rm
+```
+
+**Guardar**: Ctrl+X, luego Y en nano; o :wq en vim
+
+**Verificar configuración**:
+```bash
+# **Ver qué sudoers tienes**
+sudo -l
+
+# **Salida**:
+# User diego may run the following commands on linux-server:
+#     (ALL) ALL
+```
+
+### 4.3 Usar Sudo Correctamente
+
+**Ejecutar comando individual**:
+```bash
+# **Reiniciar servicio**
+sudo systemctl restart nginx
+
+# **Te pide contraseña la primera vez**
+# Luego recuerda por 15 minutos
+
+# **Ver historial de sudo**
+sudo cat /var/log/auth.log | grep sudo
+
+# **Salida**:
+# Jan 29 10:30:45 servidor sudo: diego : TTY=pts/0 ;
+# PWD=/home/diego ; USER=root ; COMMAND=/usr/bin/systemctl
+```
+
+**Ejecutar como otro usuario**:
+```bash
+# **Ejecutar como usuario 'www-data' (usuario web)**
+sudo -u www-data whoami
+# Salida: www-data
+
+# **Útil para testear permisos**
+sudo -u www-data ls -la /var/www/
+```
+
+---
+
+## 5. Laboratorio Práctico: Configurar Usuario Nuevo
+
+### 5.1 Escenario
+
+Tienes un nuevo administrador que ingresa a Abacom: **María García**.
+
+Necesitas:
+1. Crear usuario 'maria' con home en **/home/maria**
+2. Darle acceso SSH con clave
+3. Hacerla miembro del grupo **administradores**
+4. Configurar sudo sin contraseña
+5. Deshabilitar acceso por contraseña
+
+### 5.2 Pasos
+
+**PASO 1: En tu máquina local, generar clave para María**
+
+```bash
+ssh-keygen -t ed25519 -C "maria@abacom.com" -f ~/.ssh/maria_abacom
+# Ingresa passphrase cuando pida
+```
+
+**PASO 2: En el servidor, crear usuario María**
+
+```bash
+# **Conectar al servidor**
+ssh diego@192.168.1.100
+
+# **Crear usuario**
+sudo useradd -m -s /bin/bash -c "María García - Administrador" maria
+
+# **Crear grupo administradores si no existe**
+sudo groupadd administradores 2>/dev/null || true
+
+# **Agregar a grupo administradores**
+sudo usermod -aG administradores maria
+
+# **Verificar**
+groups maria
+# maria : maria administradores
+```
+
+**PASO 3: Copiar clave SSH de María**
+
+```bash
+# **Desde tu máquina local**
+ssh-copy-id -i ~/.ssh/maria_abacom.pub maria@192.168.1.100
+
+# **Te pide contraseña de maria - usa la que estableciste**
+```
+
+**PASO 4: Permitir sudo sin contraseña para administradores**
+
+```bash
+# **En el servidor**
+sudo visudo
+
+# **Agregar esta línea al final**:
+%administradores ALL=(ALL) NOPASSWD:ALL
+
+# **Guardar (Ctrl+X, Y en nano)**
+```
+
+**PASO 5: Deshabilitar login por contraseña (opcional pero recomendado)**
+
+```bash
+# **Bloquear contraseña de maría para SSH**
+sudo passwd -l maria
+
+# **Ahora María solo puede entrar por clave SSH**
+```
+
+**PASO 6: Verificar que funciona**
+
+```bash
+# **Desde tu máquina local**
+ssh -i ~/.ssh/maria_abacom.pub maria@192.168.1.100
+
+# **Dentro del servidor como María**
+sudo systemctl status ssh
+# Debería funcionar sin pedir contraseña
+
+# **Salir**
+exit
+```
+
+---
+
+## 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver Usuarios del Sistema
+
+#### Linux (Ubuntu)
+```bash
+# Ver todos los usuarios del sistema
+$ cat /etc/passwd | head -5
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+
+# Ver solo usuarios humanos (UID >= 1000)
+$ getent passwd | awk -F: '$3 >= 1000 {print $1}'
+diego
+carlos
+admin
+
+# Ver información del usuario actual
+$ id
+uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),27(sudo)
+
+# Ver grupos de un usuario
+$ groups carlos
+carlos : carlos developers
+```
+
+#### macOS (Darwin)
+```bash
+# En macOS, usuarios se almacenan en Directory Services
+$ dscl . -list /Users | grep -v "^_"  # <1>
+root
+diego
+carlos
+admin
+
+# Ver información del usuario actual
+$ id
+uid=501(diego) gid=20(staff) groups=20(staff),12(everyone)
+
+# Ver grupos de un usuario
+$ groups carlos
+carlos staff developers
+
+# Nota: macOS NO usa /etc/passwd como Linux
+# En su lugar, usa Directory Services (Open Directory)
+```
+
+1. **dscl** (Directory Service command line) es herramienta de macOS para gestionar usuarios
+
+#### Windows (PowerShell)
+```powershell
+# Ver todos los usuarios locales
+PS> Get-LocalUser
+
+Name    Enabled Description
+----    ------- -----------
+Administrator True   Administrator account
+diego   True   Regular user account
+carlos  True   Regular user account
+Guest   False  
+
+# Ver información del usuario actual
+PS> $env:USERNAME
+diego
+
+# Ver grupos del usuario actual
+PS> Get-LocalGroupMember -Group "Administrators"
+
+ObjectClass Name          PrincipalSource
+----------- ----          ---------------
+User        LAPTOP\diego  Local
+```
+
+**Comparación:**
+| SO | Comando | Ubicación |
+|----|---------|-----------|
+| Linux | `cat /etc/passwd` | `/etc/passwd` |
+| macOS | `dscl . -list /Users` | Directory Services |
+| Windows | `Get-LocalUser` | SAM (Security Account Manager) |
+
+### Ejemplo 2: Crear Usuario Nuevo
+
+#### Linux (Ubuntu)
+```bash
+# Crear usuario 'carlos' con home
+$ sudo useradd -m -s /bin/bash carlos
+
+# Asignar contraseña
+$ sudo passwd carlos
+New password: ••••••••
+Retype new password: ••••••••
+passwd: password updated successfully
+
+# Verificar
+$ id carlos
+uid=1001(carlos) gid=1001(carlos) groups=1001(carlos)
+
+# Crear usuario con información adicional
+$ sudo useradd -m -s /bin/bash -c "Carlos López - Dev" carlos
+```
+
+#### macOS (Darwin)
+```bash
+# En macOS, crear usuario es más complejo (requiere GUI normalmente)
+# Pero se puede hacer vía dscl:
+
+$ sudo dscl . -create /Users/carlos  # <1>
+$ sudo dscl . -create /Users/carlos UserShell /bin/bash
+$ sudo dscl . -create /Users/carlos RealName "Carlos López"
+$ sudo dscl . -create /Users/carlos UniqueID 501
+$ sudo dscl . -create /Users/carlos PrimaryGroupID 20
+
+# Crear home directory
+$ sudo mkdir -p /Users/carlos
+$ sudo chown carlos:staff /Users/carlos
+
+# Asignar contraseña:
+$ sudo dscl . -passwd /Users/carlos contraseña
+
+# Verificar:
+$ dscl . -read /Users/carlos
+```
+
+1. **dscl** es la forma de crear usuarios en macOS sin GUI
+
+#### Windows (PowerShell)
+```powershell
+# Crear usuario nuevo
+PS> $Password = Read-Host -AsSecureString "Enter password"
+PS> New-LocalUser -Name "carlos" -Password $Password `
+     -FullName "Carlos López" -Description "Developer"
+
+Name    Enabled Description
+----    ------- -----------
+carlos  True   Developer
+
+# Agregar usuario a un grupo
+PS> Add-LocalGroupMember -Group "Developers" -Member "carlos"
+
+# Verificar
+PS> Get-LocalUser -Name carlos
+
+Name    Enabled Description
+----    ------- -----------
+carlos  True   Developer
+```
+
+**Comparación:**
+| SO | Comando | Complejidad |
+|----|---------|-----------|
+| Linux | `useradd -m carlos` | Simple |
+| macOS | `dscl . -create /Users/carlos` | Complejo |
+| Windows | `New-LocalUser -Name carlos` | Simple |
+
+### Ejemplo 3: Caso Real Abacom - Crear Usuario de Servicio
+
+#### Linux (Servidor Ubuntu)
+```bash
+# Crear usuario de servicio para aplicación web
+$ sudo useradd -r -s /sbin/nologin -d /var/www/app webapp_abacom
+
+# Verificar que NO puede conectarse
+$ su - webapp_abacom
+# Error: /sbin/nologin
+# Nologin previene acceso interactivo
+
+# Asignar permisos a carpetas de aplicación
+$ sudo chown -R webapp_abacom:www-data /var/www/app
+$ sudo chmod 755 /var/www/app
+$ sudo find /var/www/app -type f -exec chmod 644 {} \;
+
+# Verificar
+$ ls -la /var/www/app | head -5
+drwxr-xr-x  webapp_abacom www-data  /var/www/app
+```
+
+#### macOS (Servidor macOS - Deprecated)
+```bash
+# macOS ya NO soporta Server.app (fue discontinued en 2023)
+# Pero si quisieras crear usuario de servicio:
+
+$ sudo dscl . -create /Users/webapp_abacom
+$ sudo dscl . -create /Users/webapp_abacom UserShell /usr/sbin/nologin
+$ sudo dscl . -create /Users/webapp_abacom RealName "Abacom Web App"
+
+# Mejor: Usar Docker o Kubernetes en lugar de macOS para servidores
+```
+
+#### Windows (Windows Server)
+```powershell
+# Crear cuenta de servicio (service account) para aplicación
+PS> $ServicePassword = ConvertTo-SecureString "Complex!Pass123" -AsPlainText -Force
+PS> New-LocalUser -Name "svc_abacom" -Password $ServicePassword `
+     -Description "Service account for Abacom Web App" `
+     -PasswordNeverExpires
+
+# Asignar permisos NTFS
+PS> $ACL = Get-Acl "C:\www\app"
+PS> $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule `
+     ("svc_abacom", "Modify", "ContainerInherit,ObjectInherit", "None", "Allow")
+PS> $ACL.AddAccessRule($AccessRule)
+PS> Set-Acl "C:\www\app" $ACL
+
+# Crear tarea planificada (equivalente a systemd service)
+PS> $TaskAction = New-ScheduledTaskAction -Execute "C:\app\webapp.exe"
+PS> $TaskTrigger = New-ScheduledTaskTrigger -AtStartup
+PS> Register-ScheduledTask -TaskName "AbacomWebApp" `
+     -Action $TaskAction -Trigger $TaskTrigger `
+     -User "svc_abacom" -Password $ServicePassword
+```
+
+**Comparación arquitectura de servicios:**
+| Aspecto | Linux | macOS | Windows |
+|--------|-------|-------|---------|
+| Usuario servicio | `useradd -r` | `dscl` (limitado) | `New-LocalUser` |
+| Gestor servicios | systemd | launchd | Task Scheduler |
+| Recomendado para | ✅ Producción | ⚠️ Desarrollo | ✅ Producción |
+
+:::
+
+---
+
+## 6. Ejercicios Prácticos
+
+### Ejercicio 1: Crear usuario de desarrollo
+
+Crea usuario **dev_app** que:
+- Tenga home en **/home/dev_app**
+- Pertenezca al grupo **developers** (crear grupo primero)
+- Pueda ejecutar solo **systemctl restart app** sin contraseña
+- NO pueda ejecutar otros comandos con sudo
+
+**Solución**:
+```bash
+sudo groupadd developers
+sudo useradd -m -s /bin/bash -g developers dev_app
+sudo usermod -aG developers dev_app
+sudo visudo
+# Agregar: dev_app ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart app
+```
+
+### Ejercicio 2: Asignar permisos correctos
+
+Tienes una carpeta **/var/www/app** con estos requisitos:
+- Propietario: usuario **www-data**
+- Grupo: **developers**
+- Archivos: legibles por grupo, no editables por otros
+- Carpetas: accesibles por grupo
+
+**Solución**:
+```bash
+sudo chown -R www-data:developers /var/www/app
+sudo chmod -R 755 /var/www/app  # Carpetas
+sudo find /var/www/app -type f -exec chmod 644 {} \;  # Archivos
+# Resultado: Grupo puede leer/ejecutar, otros solo leer carpetas
+```
+
+### Ejercicio 3: Configurar SSH para usuario nuevo
+
+Dado usuario **carlos** en servidor **prod.abacom.com**:
+- Generar clave SSH
+- Copiar al servidor
+- Crear alias SSH
+- Verificar acceso sin contraseña
+
+**Solución**:
+```bash
+# Local
+ssh-keygen -t ed25519 -C "carlos@abacom.com" -f ~/.ssh/carlos_prod
+
+# Copiar clave
+ssh-copy-id -i ~/.ssh/carlos_prod.pub carlos@prod.abacom.com
+
+# Crear alias (~/.ssh/config)
+echo "Host abacom-prod
+    HostName prod.abacom.com
+    User carlos
+    IdentityFile ~/.ssh/carlos_prod" >> ~/.ssh/config
+
+# Verificar
+ssh abacom-prod whoami
+# carlos
+```
+
+---
+
+## 7. Quiz de Verificación
+
+1. **¿Cuál es el permiso 755 en términos legibles?**
+   - A) rwxrwxrwx
+   - B) rwxr-xr-x ✅
+   - C) rw-rw-rw-
+   - D) r--r--r--
+
+2. **¿Cuál es el comando para ver qué permisos sudo tiene un usuario?**
+   - A) sudo --list ✅
+   - B) sudo -l
+   - C) sudo -L
+   - D) Opciones B y C son correctas ✅
+
+3. **¿Por qué es importante deshabilitar acceso SSH por contraseña?**
+   - A) Las claves SSH son criptográficamente más seguras
+   - B) Protege contra ataques de fuerza bruta
+   - C) Contraseñas viajan sin encriptación
+   - D) Todas las anteriores ✅
+
+4. **¿Qué hace **sudo usermod -aG administradores diego**?**
+   - A) Cambia el grupo primario de diego a administradores
+   - B) Agrega diego al grupo administradores (sin remover otros)
+   - C) Solo establece diego como administrador del sistema
+   - D) Respuesta B es correcta ✅
+
+5. **¿Cuál es la diferencia entre **userdel carlos** y **userdel -r carlos**?**
+   - A) El primero solo elimina el usuario, el segundo también elimina /home/carlos ✅
+   - B) No hay diferencia
+   - C) -r elimina permisos sudo
+   - D) -r requiere confirmación
+
+---
+
+## 8. Resumen y Siguiente Paso
+
+### Lo Aprendido
+
+✅ Crear y gestionar usuarios (**useradd**, **usermod**, **userdel**)
+✅ Trabajar con grupos para organizar usuarios
+✅ Configurar SSH con claves criptográficas
+✅ Entender permisos Unix (**chmod**, **chown**)
+✅ Usar sudo sin comprometer seguridad
+
+### Siguiente: Unidad 2.4
+
+El próximo tema cubre:
+- Actualización segura del sistema
+- Firewall básico (UFW)
+- Hardening de primeros pasos
+
+---
+
+## 📚 Referencias
+
+[@ubuntu_usermanagement]
+[@linuxfoundation_perms]
+[@ssh_secure_practices]
+[@debian_sudoers]
+
+---
+
+## 📝 Quiz: Configuración Inicial
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el comando para crear un nuevo usuario en Ubuntu?
+
+- [ ] addnew usuario
+- [x] useradd -m -s /bin/bash usuario
+- [ ] newuser usuario
+- [ ] create user usuario
+
+## ¿Qué opción **-m** hace en el comando **useradd**?
+
+- [ ] Hace el usuario miembro de un grupo
+- [x] Crea el directorio home del usuario
+- [ ] Asigna permisos de módulo
+- [ ] Modifica la contraseña
+
+## ¿Cuál es el archivo donde se almacenan los grupos en Ubuntu?
+
+- [ ] /etc/groups
+- [x] /etc/group
+- [ ] /etc/group.conf
+- [ ] /var/group
+
+## ¿Qué comando añade un usuario existente a un grupo?
+
+- [ ] useradd -G grupo usuario
+- [x] usermod -aG grupo usuario
+- [ ] addgroup usuario grupo
+- [ ] group add usuario grupo
+
+## En permisos Unix **rwxrwxrwx**, ¿Qué representa cada bloque de 3 caracteres?
+
+- [x] Propietario, Grupo, Otros
+- [ ] Lectura, Escritura, Ejecución (para todos)
+- [ ] Usuario, Administrador, Sistema
+- [ ] Archivo, Directorio, Enlace
+
+## ¿Cuál es el equivalente octal de permisos **rwxr-xr-x**?
+
+- [ ] 777
+- [ ] 666
+- [x] 755
+- [ ] 750
+
+## ¿Qué comando cambia el propietario de un archivo?
+
+- [ ] chowner
+- [x] chown
+- [ ] chmod owner
+- [ ] chgrp
+
+## ¿Cuál es la diferencia principal entre SSH con contraseña y SSH con clave?
+
+- [ ] No hay diferencia
+- [x] Las claves criptográficas son más seguras que contraseñas
+- [ ] Las contraseñas son más seguras
+- [ ] Los niveles de seguridad son iguales
+
+## En autenticación SSH, ¿Cuál es la clave que NO debe compartirse?
+
+- [ ] Clave pública
+- [x] Clave privada
+- [ ] Clave de sesión
+- [ ] Clave de host
+
+## ¿Cuál comando genera una nueva pareja de claves SSH en ed25519?
+
+- [ ] ssh-keygen -t rsa
+- [x] ssh-keygen -t ed25519
+- [ ] ssh-key -new ed25519
+- [ ] generate-ssh-key ed25519
+
+## ¿Cuál es el archivo que contiene las claves públicas SSH autorizadas?
+
+- [ ] ~/.ssh/authorized_keys.pub
+- [x] ~/.ssh/authorized_keys
+- [ ] ~/.ssh/public_keys
+- [ ] /etc/ssh/authorized_keys
+
+## ¿Qué es sudo?
+
+- [ ] Super user directory
+- [x] Super User DO - permite ejecutar comandos como administrador
+- [ ] Sistema de usuario dual
+- [ ] Sincronización de directorios
+
+## ¿Cuál archivo se edita para dar permisos sudo a un usuario?
+
+- [ ] /etc/sudo.conf
+- [x] /etc/sudoers (se edita con visudo)
+- [ ] /etc/permissions
+- [ ] /etc/sudo-permissions
+
+## ¿Qué significa la línea `%sudo ALL=(ALL:ALL) ALL` en sudoers?
+
+- [ ] Miembros del grupo sudo pueden ejecutar ciertos comandos
+- [x] Miembros del grupo sudo pueden ejecutar cualquier comando como cualquier usuario
+- [ ] Solo el usuario sudo tiene permisos
+- [ ] Todos pueden ejecutar comandos como sudo
+
+## ¿Cuál es una buena práctica de seguridad para SSH?
+
+- [ ] Permitir acceso root directo por SSH
+- [ ] Usar contraseñas débiles
+- [x] Deshabilitar la autenticación por contraseña y usar solo claves
+- [ ] Cambiar puerto SSH a 22
+```
+
+---
+

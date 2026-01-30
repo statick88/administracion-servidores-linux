@@ -1,0 +1,400 @@
+# 🐧 Bienvenido al Curso de Administración de Servidores Linux
+
+:::{.text-center}
+¡Bienvenido al Curso de Administración de Servidores Linux! 🐧
+:::
+
+En este curso completo, exploraremos desde los conceptos fundamentales hasta las aplicaciones prácticas avanzadas en la administración de sistemas Linux.
+
+## 🖥️ ¿De qué trata este curso?
+
+Este curso está diseñado para formar profesionales competentes en la administración de servidores Linux, cubriendo desde la instalación básica hasta la configuración de servicios empresariales, seguridad y monitorización.
+
+## 👥 ¿Para quién es este curso?
+
+Este curso es para:
+
+- 🎓 Estudiantes de sistemas informáticos y carreras afines
+- 💼 Profesionales de TI que desean especializarse en Linux
+- 🔧 Administradores de sistemas que buscan certificación
+- 🚀 Desarrolladores que quieren gestionar sus propios servidores
+- 🌍 Cualquier persona interesada en el mundo del código abierto
+
+## 💻 Requisitos Técnicos
+
+Para seguir este curso, necesitarás uno de los siguientes entornos configurados:
+
+### Entorno 1: Windows + WSL2 (Windows Subsystem for Linux 2)
+
+**Hardware:**
+- Windows 10 (Build 19041+) o Windows 11
+- Procesador con soporte de virtualización (Intel VT-x o AMD-V)
+- RAM: 4 GB mínimo (8 GB recomendado)
+- Disco: 20 GB disponibles para WSL2
+
+**Instalación:**
+```powershell
+# En PowerShell como administrador
+wsl --install
+
+# Elige distribución Linux (Ubuntu recomendada)
+wsl --install -d Ubuntu-22.04
+
+# Reinicia tu máquina
+# Luego accede a WSL2:
+wsl
+```
+
+**Ventajas:**
+- ✅ Linux nativo directamente en Windows
+- ✅ Acceso a herramientas Windows y Linux simultáneamente
+- ✅ Mejor rendimiento que máquinas virtuales
+- ✅ Perfecto para desarrollo y administración
+
+**Desventajas:**
+- ❌ Requiere Windows 10/11
+- ❌ Interfaz gráfica limitada (usar X11 forwarding)
+- ❌ No es ideal para prácticas de instalación de sistemas
+
+**Documentación oficial**: https://learn.microsoft.com/en-us/windows/wsl/
+
+---
+
+### Entorno 2: Linux (Cualquier Distribución)
+
+**Hardware:**
+- Máquina con Linux instalado nativo
+- Cualquier distribución: Ubuntu, Fedora, Debian, openSUSE, Arch, etc.
+- RAM: 2 GB mínimo (4 GB recomendado)
+
+**Instalación:**
+Ya tienes Linux instalado en tu máquina. Solo abre una terminal y comienza:
+
+```bash
+# Verifica tu distribución
+cat /etc/os-release
+
+# Actualiza tu sistema
+sudo apt update && sudo apt upgrade    # Debian/Ubuntu
+sudo dnf upgrade                       # Fedora/RHEL
+sudo pacman -Syu                       # Arch Linux
+```
+
+**Ventajas:**
+- ✅ Acceso total al sistema
+- ✅ No requiere virtualización
+- ✅ Mejor rendimiento
+- ✅ Ideal para aprender Linux
+
+**Desventajas:**
+- ❌ Requiere Linux instalado
+- ❌ Menos protección para experimentos peligrosos
+
+**Nota especial para prácticas de instalación:**
+Para instalar otra distro Linux de forma segura, puedes:
+1. Usar máquina virtual (VirtualBox/Workstation)
+2. Usar Docker (ver Entorno 4)
+3. Usar partición adicional en tu disco
+
+---
+
+### Entorno 3: macOS (Nativo + Máquinas Virtuales)
+
+**macOS Nativo:**
+
+**Hardware:**
+- macOS 10.14 (Mojave) o más reciente
+- Intel o Apple Silicon (M1/M2/M3)
+- RAM: 8 GB mínimo (16 GB recomendado)
+- Disco: 50 GB disponibles
+
+**Instalación - Terminal nativa:**
+```bash
+# macOS tiene terminal UNIX compatible
+# Abre Terminal.app y comienza
+
+# Ver información del sistema
+uname -a
+sw_vers
+
+# La mayoría de comandos Linux funcionan en macOS
+```
+
+**Ventajas:**
+- ✅ UNIX compatible, muy similar a Linux
+- ✅ Terminal poderosa integrada
+- ✅ Excelente para desarrollo
+
+**Desventajas:**
+- ❌ No es Linux puro (diferentes comandos)
+- ❌ Menos control de SO que en Linux nativo
+
+**macOS + Máquinas Virtuales:**
+
+Para prácticas de instalación, usa virtualización:
+
+**Opción A: Parallels Desktop (Recomendado para Apple Silicon)**
+```
+- Precio: Pagado (~$100/año)
+- Compatibilidad: M1/M2/M3 excelente
+- Descarga: https://www.parallels.com/
+- Rendimiento: Excelente en Apple Silicon
+```
+
+**Opción B: UTM (Gratuito para Apple Silicon)**
+```
+- Precio: Gratuito y open source
+- Compatibilidad: M1/M2/M3 muy bueno
+- Descarga: https://mac.getutm.app/
+- Rendimiento: Muy bueno
+```
+
+**Opción C: VirtualBox (Para Intel Macs)**
+```
+- Precio: Gratuito
+- Compatibilidad: Intel Macs (soporte limitado en M1+)
+- Descarga: https://www.virtualbox.org/
+- Rendimiento: Aceptable
+```
+
+**Opción D: VMware Fusion (Para Intel y Apple Silicon)**
+```
+- Precio: Pagado (~$100)
+- Compatibilidad: Ambos procesadores
+- Descarga: https://www.vmware.com/products/fusion/
+- Rendimiento: Excelente
+```
+
+**Pasos para máquina virtual en Mac:**
+```bash
+# 1. Descarga e instala tu hipervisor preferido
+# 2. Descarga ISO de Ubuntu 22.04
+# 3. Crea máquina virtual nueva
+#    - CPU: 2-4 núcleos
+#    - RAM: 4 GB mínimo
+#    - Disco: 50 GB
+# 4. Monta ISO y sigue instalador
+# 5. Ten acceso a Linux completo para experimentar
+```
+
+**Documentación:**
+- Parallels: https://www.parallels.com/products/desktop/
+- UTM: https://mac.getutm.app/
+- VirtualBox on Mac: https://www.virtualbox.org/wiki/Downloads
+
+---
+
+### Entorno 4: Docker (Contenedores)
+
+**¿Qué es Docker?**
+Docker es una plataforma que te permite crear "máquinas Linux ligeras" (contenedores) que contienen todo lo necesario para ejecutar aplicaciones. Perfecto para aprender Linux sin virtualización pesada.
+
+**Hardware:**
+- Cualquier máquina: Windows, macOS, Linux
+- RAM: 4 GB mínimo (8 GB recomendado)
+- Disco: 20 GB para imágenes Docker
+
+**Instalación:**
+
+**En Windows + WSL2:**
+```bash
+# Instala Docker Desktop para Windows
+# https://www.docker.com/products/docker-desktop
+
+# Luego en PowerShell o WSL2:
+docker --version
+
+# Ejecuta Ubuntu container:
+docker run -it ubuntu:22.04 /bin/bash
+```
+
+**En macOS:**
+```bash
+# Instala Docker Desktop para Mac
+# https://www.docker.com/products/docker-desktop
+
+# En Terminal:
+docker --version
+
+# Ejecuta Ubuntu container:
+docker run -it ubuntu:22.04 /bin/bash
+```
+
+**En Linux:**
+```bash
+# Instala Docker
+sudo apt install docker.io          # Ubuntu/Debian
+sudo dnf install docker             # Fedora
+sudo pacman -S docker              # Arch
+
+# Inicia servicio
+sudo systemctl start docker
+
+# Ejecuta Ubuntu container:
+sudo docker run -it ubuntu:22.04 /bin/bash
+```
+
+**Ventajas de Docker:**
+- ✅ Ultraligero (usa recursos compartidos)
+- ✅ Inicio instantáneo
+- ✅ Reproducible (mismo contenedor en cualquier máquina)
+- ✅ Perfecto para aprender y experimentar
+- ✅ Escalabilidad (ejecuta muchos contenedores)
+
+**Desventajas:**
+- ❌ No es una "máquina completa" (es un contenedor)
+- ❌ Bootloader, kernel, BIOS no se pueden modificar
+- ❌ No ideal para aprender instalación del SO
+
+**Casos de uso Docker en este curso:**
+1. **Prácticas rápidas** de comandos Linux
+2. **Laboratorios** sin crear VM
+3. **Testing** de servicios (Apache, Nginx, bases de datos)
+4. **Entorno consistente** entre estudiantes
+
+**Ejemplo: Crear un contenedor educativo:**
+```dockerfile
+# Crear archivo: Dockerfile
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    vim \
+    nano
+
+WORKDIR /workspace
+CMD ["/bin/bash"]
+```
+
+```bash
+# Construir imagen
+docker build -t mi-ubuntu-curso .
+
+# Ejecutar contenedor
+docker run -it mi-ubuntu-curso
+
+# Ahora estás dentro de Ubuntu con todas las herramientas
+```
+
+**Documentación:**
+- Docker: https://docs.docker.com/
+- Docker Desktop: https://www.docker.com/products/docker-desktop/
+- Guía rápida: https://docs.docker.com/get-started/
+
+---
+
+## 🎯 ¿Cuál entorno elegir?
+
+| Entorno | Principiante | Desarrollo | Producción | Instalación |
+|---------|---|---|---|---|
+| **Windows + WSL2** | ✅ Fácil | ✅ Muy bueno | ✅ Excelente | ❌ No |
+| **Linux nativo** | ✅ Muy bueno | ✅ Excelente | ✅ Excelente | ✅ Perfecto |
+| **macOS nativo** | ✅ Bueno | ✅ Muy bueno | ✅ Muy bueno | ⚠️ Similar a Linux |
+| **macOS + VM** | ✅ Muy bueno | ✅ Excelente | ✅ Excelente | ✅ Perfecto |
+| **Docker** | ✅ Muy fácil | ✅ Excelente | ✅ Excelente | ❌ No |
+
+**Recomendaciones por perfil:**
+
+**Si eres principiante:**
+→ Usa **Windows + WSL2** O **macOS + Docker** (sin presión, fácil de experimentar)
+
+**Si quieres aprender administración seria:**
+→ Usa **Linux nativo** O **máquina virtual en tu SO**
+
+**Si quieres entorno profesional:**
+→ Usa **Linux nativo** en un servidor O **Docker para servicios**
+
+**Si quieres máxima flexibilidad:**
+→ Usa **Linux nativo + Docker** (lo mejor de ambos mundos)
+
+---
+
+## 📋 Checklist: Prepárate para el curso
+
+Antes de comenzar, asegúrate de tener:
+
+- [ ] Un entorno de los 4 anteriores configurado y probado
+- [ ] Acceso a terminal/línea de comandos funcional
+- [ ] Capacidad de ejecutar comandos básicos
+- [ ] Conexión a internet (para descargar paquetes)
+- [ ] Editor de texto (nano, vim, VS Code, etc.)
+- [ ] Para prácticas de instalación: VirtualBox O VMware Workstation
+- [ ] ISO de Ubuntu 22.04 LTS descargado
+- [ ] 100 GB de espacio disponible (para máquinas virtuales)
+
+**Prueba tu entorno con estos comandos básicos:**
+
+```bash
+# 1. Ver información del sistema
+uname -a
+
+# 2. Ver versión de shell
+echo $SHELL
+
+# 3. Ver directorios principales
+ls /
+
+# 4. Ver usuario actual
+whoami
+
+# 5. Ver directorio actual
+pwd
+```
+
+Si todos estos comandos funcionan, ¡estás listo para comenzar!
+
+---
+
+
+¡Comencemos este viaje de aprendizaje! Selecciona la primera unidad en el menú lateral para empezar.
+
+## 💡 Ejemplos Prácticos del Curso
+
+### Ejemplo 1: Verifica tu Sistema Operativo
+
+```bash
+# En Linux/macOS - Ver información del SO
+$ uname -a
+# **uname -a** muestra toda la información del SO (nombre, versión, arquitectura, etc.)
+Linux servidor-abacom 5.15.0-89-generic #99-Ubuntu SMP Mon Oct 5 09:29:34 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+
+# Ver solo la versión del kernel
+$ uname -r
+# **uname -r** muestra la versión exacta del kernel de tu sistema
+5.15.0-89-generic
+```
+
+### Ejemplo 2: Ver Procesos del Sistema Operativo
+
+```bash
+# Listar módulos del kernel cargados
+$ lsmod
+# **lsmod** lista los módulos del kernel que están actualmente cargados en memoria
+Module                  Size  Used by
+overlay                98304  0
+xt_CHECKSUM            16384  1
+ipt_MASQUERADE         20480  3
+nf_nat_masquerade_ipv4 16384  1 ipt_MASQUERADE
+```
+
+### Ejemplo 3: Caso Real Abacom
+
+```bash
+# En Windows (PowerShell) - Información del SO
+PS> systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+# **systeminfo** muestra información completa del sistema
+# **findstr** filtra solo las líneas que contienen "OS Name" y "OS Version"
+OS Name:                   Microsoft Windows Server 2022
+OS Version:                10.0.20348 Build 20348
+```
+
+### Ejemplo 4: Indentación en Python
+
+```python
+if 5 > 2:
+  print("Cinco es mayor que dos")  # **print** está indentada correctamente
+```
+
+En el ejemplo anterior, la instrucción **print** está indentada, es decir, tiene un espacio al principio de la línea. Esto es necesario para que el código funcione correctamente.

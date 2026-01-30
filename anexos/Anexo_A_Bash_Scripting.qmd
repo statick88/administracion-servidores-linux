@@ -1,0 +1,1072 @@
+---
+title: "Anexo A: Bash Scripting - Mini-Curso Práctico"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: ../unidades/unidad1/references.bib
+biblio-style: apalike
+---
+
+# Anexo A: Bash Scripting - Mini-Curso Práctico
+
+## Introducción
+
+**Bash** (Bourne Again Shell) es el intérprete de comandos por defecto en Linux. Aunque puedes ejecutar comandos uno a uno en la terminal, crear **scripts de Bash** te permite automatizar tareas complejas. Este mini-curso es **completamente práctico** con ejemplos reales que usarás en Abacom.
+
+**🗺️ En este anexo aprenderás:**
+- Variables y tipos de datos en Bash
+- Condicionales (if/else, case)
+- Loops (for, while)
+- Funciones y modularización
+- Manejo de argumentos
+- Redirección y pipes
+- Scripts prácticos listos para usar
+
+**⏱️ Duración estimada**: 2 horas de práctica
+
+---
+
+## ¿Por Qué Aprender Bash?
+
+En administración de servidores Linux, **el 80% de tu trabajo es automatizar tareas**. Sin Bash, ejecutarías comandos manualmente:
+
+```bash
+# Manual (tedioso)
+apt update
+apt upgrade -y
+apt install nginx
+systemctl enable nginx
+systemctl start nginx
+# ... repetir en 20 servidores
+```
+
+Con Bash, lo automatizas:
+
+```bash
+#!/bin/bash  # <1>
+# Instalar y configurar nginx en un script
+
+apt update && apt upgrade -y
+apt install -y nginx
+systemctl enable nginx
+systemctl start nginx
+```
+
+1. **#!/bin/bash** es el "shebang" - le dice al SO que execute este archivo con Bash
+
+**Beneficios:**
+- ⏱️ Una línea en vez de 4 pasos manuales
+- 🔄 Reutilizable en múltiples máquinas
+- 🐛 Menos errores humanos
+- 📚 Documentación del proceso
+
+---
+
+## 💡 Scripting en Diferentes SOs
+
+::: {.panel-tabset}
+
+### Bash (Linux/macOS)
+
+```bash
+#!/bin/bash
+# Script nativo en Linux y macOS
+
+# Variables
+SERVIDOR="abacom-prod"
+PUERTO=8080
+
+# Función
+setup_server() {
+    echo "Configurando $SERVIDOR en puerto $PUERTO"
+    systemctl restart nginx
+    netstat -tulpn | grep $PUERTO
+}
+
+# Loop
+for i in {1..5}; do
+    echo "Intento $i"
+    setup_server && break
+done
+
+# Ejecutar
+chmod +x script.sh
+./script.sh
+```
+
+**Dónde funciona:**
+- ✅ Linux (Bash nativo)
+- ✅ macOS (Bash/Zsh - compatible)
+- ❌ Windows (requiere WSL o Git Bash)
+
+### PowerShell (Windows)
+
+```powershell
+# Equivalente en Windows PowerShell
+
+# Variables
+$Servidor = "abacom-prod"
+$Puerto = 8080
+
+# Función
+function Setup-Server {
+    param([string]$Server)
+    Write-Host "Configurando $Server en puerto $Puerto"
+    Get-NetTCPConnection -LocalPort $Puerto | Select-Object State
+}
+
+# Loop
+for ($i = 1; $i -le 5; $i++) {
+    Write-Host "Intento $i"
+    Setup-Server -Server $Servidor
+    if ($?) { break }
+}
+
+# Ejecutar
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\script.ps1
+```
+
+**Dónde funciona:**
+- ✅ Windows (PowerShell nativo)
+- ⚠️ Linux/macOS (PowerShell 7+ disponible)
+
+### Python (Multi-plataforma)
+
+```python
+#!/usr/bin/env python3
+# Mejor alternativa para scripts portables
+
+import subprocess
+import sys
+
+# Variables
+SERVIDOR = "abacom-prod"
+PUERTO = 8080
+
+def setup_server(server):
+    """Configurar servidor"""
+    print(f"Configurando {server} en puerto {PUERTO}")
+    try:
+        result = subprocess.run(
+            ["systemctl", "restart", "nginx"],
+            capture_output=True
+        )
+        return result.returncode == 0
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+# Loop
+for i in range(1, 6):
+    print(f"Intento {i}")
+    if setup_server(SERVIDOR):
+        break
+
+# Ejecutar
+# chmod +x script.py
+# ./script.py
+```
+
+**Dónde funciona:**
+- ✅ Linux (Python 3)
+- ✅ macOS (Python 3)
+- ✅ Windows (Python 3)
+
+### Node.js (Multi-plataforma)
+
+```javascript
+#!/usr/bin/env node
+// Alternativa moderna en JavaScript
+
+const { exec } = require('child_process');
+const { promisify } = require('util');
+const execAsync = promisify(exec);
+
+const SERVIDOR = "abacom-prod";
+const PUERTO = 8080;
+
+async function setupServer(server) {
+    console.log(`Configurando ${server} en puerto ${PUERTO}`);
+    try {
+        const { stdout } = await execAsync('systemctl restart nginx');
+        return true;
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        return false;
+    }
+}
+
+// Main
+(async () => {
+    for (let i = 1; i <= 5; i++) {
+        console.log(`Intento ${i}`);
+        if (await setupServer(SERVIDOR)) break;
+    }
+})();
+
+// Ejecutar
+// chmod +x script.js
+// node script.js
+```
+
+**Dónde funciona:**
+- ✅ Linux (Node.js)
+- ✅ macOS (Node.js)
+- ✅ Windows (Node.js)
+
+:::
+
+**Recomendación para Abacom:**
+- Use **Bash** para scripts Linux-only (producción)
+- Use **Python** para herramientas multi-SO
+- Use **PowerShell** solo si necesita automatizar Windows
+
+---
+
+## Concepto 1: Variables
+
+### Declarar Variables
+
+```bash
+NOMBRE="Diego"  # <1>
+EDAD=35
+SERVIDOR="web-prod-01"
+```
+
+1. **NOMBRE="Diego"** asigna el valor "Diego" a la variable NOMBRE (sin espacios alrededor de =)
+
+**Reglas en Bash:**
+- Sin espacios alrededor del **=** (correcto: **VAR=valor**, incorrecto: **VAR = valor**)
+- Nombres en MAYÚSCULAS por convención
+- Pueden contener letras, números, guiones bajos
+- Acceder con **$NOMBRE** o **${NOMBRE}**
+
+### Usar Variables
+
+```bash
+echo "Hola, $NOMBRE"  # <1>
+```
+
+1. **echo** imprime texto. **$NOMBRE** reemplaza con valor almacenado
+
+**Salida esperada:**
+```
+Hola, Diego
+```
+
+### Variables de Entrada
+
+```bash
+#!/bin/bash
+echo "¿Cuál es tu nombre?"
+read NOMBRE  # <1>
+echo "Bienvenido, $NOMBRE"
+```
+
+1. **read NOMBRE** espera entrada del usuario y la almacena en NOMBRE
+
+**Ejecución:**
+```bash
+$ bash script.sh
+¿Cuál es tu nombre?
+Diego  ← Usuario escribe aquí
+Bienvenido, Diego
+```
+
+### Variables Especiales
+
+```bash
+echo $0      # <1>
+echo $1      # <2>
+echo $@      # <3>
+echo $?      # <4>
+echo $$      # <5>
+```
+
+1. **$0** = nombre del script
+2. **$1** = primer argumento pasado al script
+3. **$@** = todos los argumentos
+4. **$?** = código de salida del comando anterior (0=éxito, >0=error)
+5. **$$** = PID (Process ID) del script actual
+
+**Ejemplo:**
+
+```bash
+#!/bin/bash
+echo "Script: $0"
+echo "Primer arg: $1"
+echo "Todos los args: $@"
+```
+
+**Ejecución:**
+```bash
+$ bash script.sh diego 35 linux
+Script: script.sh
+Primer arg: diego
+Todos los args: diego 35 linux
+```
+
+---
+
+## Concepto 2: Condicionales (if/else)
+
+### if Básico
+
+```bash
+#!/bin/bash
+EDAD=35
+
+if [ $EDAD -gt 18 ]  # <1>
+then
+  echo "Eres adulto"
+fi
+```
+
+1. **[ $EDAD -gt 18 ]** verifica si EDAD es MAYOR QUE 18 (-gt = "greater than")
+
+**Operadores de comparación numérica:**
+- **-eq** = igual (equal)
+- **-ne** = no igual (not equal)
+- **-lt** = menor que (less than)
+- **-le** = menor o igual
+- **-gt** = mayor que (greater than)
+- **-ge** = mayor o igual
+
+### if/else
+
+```bash
+#!/bin/bash
+SISTEMA="Linux"
+
+if [ "$SISTEMA" = "Linux" ]  # <1>
+then
+  echo "Sistema: Linux"
+else
+  echo "No es Linux"
+fi
+```
+
+1. **[ "$SISTEMA" = "Linux" ]** compara strings (notar comillas alrededor de $SISTEMA)
+
+**Operadores de string:**
+- **=** = igual
+- **!=** = no igual
+- **-z** = string vacío
+- **-n** = string no vacío
+
+### if/elif/else
+
+```bash
+#!/bin/bash
+DISTRO=$1  # <1>
+
+if [ "$DISTRO" = "ubuntu" ]
+then
+  echo "Package Manager: apt"
+elif [ "$DISTRO" = "centos" ]
+then
+  echo "Package Manager: yum/dnf"
+elif [ "$DISTRO" = "arch" ]
+then
+  echo "Package Manager: pacman"
+else
+  echo "Distribución desconocida"
+fi
+```
+
+1. **$1** es el primer argumento pasado al script
+
+### Verificar Archivos
+
+```bash
+#!/bin/bash
+CONFIG_FILE="/etc/nginx/nginx.conf"
+
+if [ -f "$CONFIG_FILE" ]  # <1>
+then
+  echo "Archivo existe"
+else
+  echo "Archivo no encontrado"
+fi
+```
+
+1. **[ -f $FILE ]** verifica si el archivo existe y es un archivo regular
+
+**Operadores de archivo:**
+- **-f** = es archivo regular
+- **-d** = es directorio
+- **-e** = existe (archivo o directorio)
+- **-r** = legible (readable)
+- **-w** = escribible (writable)
+- **-x** = ejecutable
+
+---
+
+## Concepto 3: Loops (for, while)
+
+### Loop for con Lista
+
+```bash
+#!/bin/bash
+SERVIDORES="web-1 web-2 web-3"
+
+for SERVIDOR in $SERVIDORES  # <1>
+do
+  echo "Reinsticiando $SERVIDOR"
+done
+```
+
+1. **for SERVIDOR in** itera sobre cada valor en SERVIDORES
+
+**Salida:**
+```
+Reiniciando web-1
+Reiniciando web-2
+Reiniciando web-3
+```
+
+### Loop for con Rango
+
+```bash
+#!/bin/bash
+
+for i in {1..5}  # <1>
+do
+  echo "Número: $i"
+done
+```
+
+1. **{1..5}** genera rango del 1 al 5
+
+**Alternativa (sintaxis C):**
+
+```bash
+for ((i=1; i<=5; i++))  # <1>
+do
+  echo "Número: $i"
+done
+```
+
+1. Sintaxis similar a C: inicialización, condición, incremento
+
+### Loop while
+
+```bash
+#!/bin/bash
+CONTADOR=1
+
+while [ $CONTADOR -le 3 ]  # <1>
+do
+  echo "Iteración $CONTADOR"
+  CONTADOR=$((CONTADOR + 1))  # <2>
+done
+```
+
+1. **while [ condición ]** ejecuta mientras sea verdadera
+2. **$((expresión))** realiza aritmética en Bash
+
+**Salida:**
+```
+Iteración 1
+Iteración 2
+Iteración 3
+```
+
+### Iterar sobre Archivos
+
+```bash
+#!/bin/bash
+
+for ARCHIVO in /var/log/*.log  # <1>
+do
+  echo "Procesando: $ARCHIVO"
+done
+```
+
+1. ***.log** es wildcard que expande a todos los archivos .log
+
+---
+
+## Concepto 4: Funciones
+
+### Función Básica
+
+```bash
+#!/bin/bash
+
+mostrar_fecha() {  # <1>
+  echo "Fecha actual: $(date '+%Y-%m-%d')"  # <2>
+}
+
+mostrar_fecha  # <3>
+```
+
+1. **mostrar_fecha()** define una función sin parámetros
+2. **$(date ...)** ejecuta comando y captura resultado
+3. **mostrar_fecha** llama la función
+
+**Salida:**
+```
+Fecha actual: 2024-01-29
+```
+
+### Función con Parámetros
+
+```bash
+#!/bin/bash
+
+sumar() {  # <1>
+  local NUM1=$1  # <2>
+  local NUM2=$2
+  local SUMA=$((NUM1 + NUM2))
+  echo $SUMA
+}
+
+RESULTADO=$(sumar 10 20)  # <3>
+echo "10 + 20 = $RESULTADO"
+```
+
+1. **sumar()** define función que recibirá 2 argumentos
+2. **local VAR** declara variable local a la función
+3. **$(sumar 10 20)** captura el resultado de la función
+
+**Salida:**
+```
+10 + 20 = 30
+```
+
+### Función con Retorno
+
+```bash
+#!/bin/bash
+
+verificar_usuario() {
+  local USUARIO=$1
+  if id "$USUARIO" &>/dev/null  # <1>
+  then
+    return 0  # <2>
+  else
+    return 1  # <3>
+  fi
+}
+
+if verificar_usuario "diego"
+then
+  echo "Usuario existe"
+else
+  echo "Usuario no existe"
+fi
+```
+
+1. **id "usuario"** verifica si el usuario existe. **&>/dev/null** silencia la salida
+2. **return 0** = éxito
+3. **return 1** = error
+
+---
+
+## Concepto 5: Redirección y Pipes
+
+### Redirección de Salida
+
+```bash
+#!/bin/bash
+
+echo "Salida a archivo" > output.txt  # <1>
+echo "Agregar línea" >> output.txt    # <2>
+```
+
+1. **>** redirecciona salida a archivo (sobrescribe si existe)
+2. **>>** redirecciona salida a archivo (agrega al final)
+
+### Redirección de Error
+
+```bash
+#!/bin/bash
+
+ls /directorio/inexistente 2> error.log  # <1>
+```
+
+1. **2>** redirecciona stderr (error standard) a archivo
+
+**Combinaciones útiles:**
+- **> archivo** = redirige stdout (salida normal)
+- **2> archivo** = redirige stderr (errores)
+- **&> archivo** = redirige ambos
+- **2>&1** = redirige stderr a stdout
+
+### Pipes (|)
+
+```bash
+#!/bin/bash
+
+ps aux | grep nginx  # <1>
+```
+
+1. **|** (pipe) envía salida del primer comando como entrada al segundo
+
+**Ejemplo práctico:**
+
+```bash
+cat /var/log/syslog | grep "error" | wc -l  # <1>
+```
+
+1. **cat** muestra archivo → **grep** filtra líneas con "error" → **wc -l** cuenta líneas
+
+---
+
+## 💡 Ejemplos Prácticos Reales
+
+### Ejemplo 1: Script para Monitorear Disk Usage
+
+```bash
+#!/bin/bash
+# Script para alertar si disco está casi lleno
+
+UMBRAL=80  # <1>
+
+for PARTICION in $(df | tail -n +2 | awk '{print $6}')  # <2>
+do
+  USO=$(df "$PARTICION" | tail -1 | awk '{print $(NF-1)}' | sed 's/%//')  # <3>
+  
+  if [ "$USO" -gt "$UMBRAL" ]  # <4>
+  then
+    echo "ALERTA: $PARTICION está al ${USO}% lleno"
+  fi
+done
+```
+
+1. **UMBRAL=80** define límite del 80%
+2. **$(df | ...)** captura todas las particiones
+3. **awk** extrae el porcentaje de uso
+4. **if [ "$USO" -gt "$UMBRAL" ]** alerta si supera umbral
+
+**Guardar como:** **check_disk.sh**
+
+**Uso:**
+```bash
+bash check_disk.sh
+# Salida si hay alerta:
+# ALERTA: / está al 85% lleno
+```
+
+---
+
+### Ejemplo 2: Script para Respaldar Directorio
+
+```bash
+#!/bin/bash
+# Script para respaldar carpeta con timestamp
+
+CARPETA_ORIGEN=$1  # <1>
+CARPETA_BACKUP="/backup"
+FECHA=$(date '+%Y%m%d_%H%M%S')  # <2>
+
+if [ -z "$CARPETA_ORIGEN" ]  # <3>
+then
+  echo "Uso: $0 /ruta/a/respaldar"
+  exit 1
+fi
+
+NOMBRE_BACKUP="${CARPETA_BACKUP}/backup_$(basename $CARPETA_ORIGEN)_${FECHA}.tar.gz"  # <4>
+
+tar -czf "$NOMBRE_BACKUP" "$CARPETA_ORIGEN"  # <5>
+
+echo "Respaldo completado: $NOMBRE_BACKUP"
+```
+
+1. **$1** primer argumento es carpeta a respaldar
+2. **FECHA** captura fecha/hora para nombre único
+3. **-z** verifica si string está vacío
+4. **basename** extrae solo el nombre sin ruta
+5. **tar -czf** comprime carpeta
+
+**Uso:**
+```bash
+bash respaldar.sh /home/diego
+# Salida:
+# Respaldo completado: /backup/backup_diego_20240129_143022.tar.gz
+```
+
+---
+
+### Ejemplo 3: Script para Actualizar Sistema (Debian/Ubuntu)
+
+```bash
+#!/bin/bash
+# Script para actualizar sistema de forma segura
+
+echo "=== Iniciando actualización del sistema ==="
+
+# Actualizar lista de paquetes
+apt update  # <1>
+if [ $? -ne 0 ]  # <2>
+then
+  echo "Error al actualizar repositorios"
+  exit 1
+fi
+
+# Actualizar paquetes
+apt upgrade -y  # <3>
+if [ $? -ne 0 ]
+then
+  echo "Error durante apt upgrade"
+  exit 1
+fi
+
+# Eliminar paquetes sin usar
+apt autoremove -y  # <4>
+
+echo "=== Actualización completada ==="
+
+# Información del sistema
+echo "Versión del kernel: $(uname -r)"
+echo "Última actualización: $(date)"
+```
+
+1. **apt update** actualiza lista de paquetes
+2. **if [ $? -ne 0 ]** verifica si comando anterior falló
+3. **apt upgrade -y** actualiza paquetes (confirmación automática)
+4. **apt autoremove** elimina paquetes huérfanos
+
+---
+
+### Ejemplo 4: Script para Crear Usuarios en Lote
+
+```bash
+#!/bin/bash
+# Script para crear múltiples usuarios
+
+USUARIOS="diego carlos ana benjamin"
+GRUPO="developers"
+
+# Crear grupo si no existe
+if ! getent group "$GRUPO" > /dev/null 2>&1  # <1>
+then
+  groupadd "$GRUPO"
+  echo "Grupo $GRUPO creado"
+fi
+
+# Crear cada usuario
+for USUARIO in $USUARIOS  # <2>
+do
+  if id "$USUARIO" &>/dev/null
+  then
+    echo "Usuario $USUARIO ya existe"
+  else
+    useradd -m -s /bin/bash -G "$GRUPO" "$USUARIO"  # <3>
+    echo "Usuario $USUARIO creado"
+  fi
+done
+
+echo "Usuarios en grupo $GRUPO:"
+getent group "$GRUPO"
+```
+
+1. **getent group** verifica si el grupo existe
+2. **for USUARIO in** itera sobre cada usuario
+3. **useradd -m** crea usuario con directorio home (-s especifica shell)
+
+---
+
+## 🔧 Construcción de un Script Profesional
+
+### Template Completo
+
+```bash
+#!/bin/bash
+#
+# Nombre: backup_sistema.sh
+# Descripción: Respalda directorios críticos
+# Autor: Diego Saavedra
+# Fecha: 2024-01-29
+# Versión: 1.0
+#
+
+set -euo pipefail  # <1>
+
+# ============ CONSTANTES ============
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # <2>
+readonly LOG_FILE="/var/log/backup.log"
+readonly BACKUP_DIR="/backup"
+readonly CARPETAS=("/home" "/etc" "/var/www")  # <3>
+
+# ============ FUNCIONES ============
+
+log() {  # <4>
+  local NIVEL=$1
+  shift
+  local MENSAJE="$@"
+  local TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+  
+  echo "[$TIMESTAMP] [$NIVEL] $MENSAJE" | tee -a "$LOG_FILE"
+}
+
+verificar_permisos() {  # <5>
+  if [ "$EUID" -ne 0 ]
+  then
+    log "ERROR" "Este script debe ejecutarse como root"
+    exit 1
+  fi
+}
+
+crear_respaldo() {
+  local ORIGEN=$1
+  local NOMBRE=$(basename "$ORIGEN")
+  local FECHA=$(date '+%Y%m%d_%H%M%S')
+  local ARCHIVO="${BACKUP_DIR}/${NOMBRE}_${FECHA}.tar.gz"
+  
+  log "INFO" "Creando respaldo de $ORIGEN"
+  
+  tar -czf "$ARCHIVO" "$ORIGEN" 2>/dev/null
+  
+  if [ -f "$ARCHIVO" ]
+  then
+    log "OK" "Respaldo creado: $ARCHIVO ($(du -h $ARCHIVO | cut -f1))"
+  else
+    log "ERROR" "Error creando respaldo de $ORIGEN"
+  fi
+}
+
+# ============ MAIN ============
+
+main() {
+  log "INFO" "=== Iniciando respaldo del sistema ==="
+  
+  verificar_permisos
+  
+  # Crear directorio de backup si no existe
+  mkdir -p "$BACKUP_DIR"
+  
+  # Respaldar cada carpeta
+  for CARPETA in "${CARPETAS[@]}"  # <6>
+  do
+    if [ -d "$CARPETA" ]
+    then
+      crear_respaldo "$CARPETA"
+    else
+      log "WARN" "Carpeta no existe: $CARPETA"
+    fi
+  done
+  
+  log "INFO" "=== Respaldo completado ==="
+}
+
+# Ejecutar main si el script se ejecuta directamente
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
+then
+  main "$@"
+fi
+```
+
+1. **set -euo pipefail** = salir si error, no permitir variables indefinidas, fallar en pipes
+2. **readonly** = variable inmutable
+3. **(@)** = array (múltiples valores)
+4. **log()** función para mensajes con timestamp
+5. **verificar_permisos()** asegurar que es root
+6. **"${CARPETAS[@]}"** itera sobre elementos del array
+
+---
+
+## ⚠️ Errores Comunes en Bash
+
+**Error 1: Sin comillas alrededor de variables**
+```bash
+# MALO
+if [ $NOMBRE = "Diego" ]  # Falla si $NOMBRE está vacío
+
+# BUENO
+if [ "$NOMBRE" = "Diego" ]  # Funciona incluso si vacío
+```
+
+**Error 2: Espacios alrededor de =**
+```bash
+# MALO
+VAR = valor  # Error de sintaxis
+
+# BUENO
+VAR=valor
+```
+
+**Error 3: = vs -eq para números**
+```bash
+# MALO (compara como strings)
+if [ "10" = "2" ]  # Retorna verdadero
+
+# BUENO (compara como números)
+if [ 10 -gt 2 ]  # Retorna verdadero
+```
+
+**Error 4: Olvidar fi, done, etc**
+```bash
+# MALO
+if [ $AGE -gt 18 ]
+then
+  echo "Mayor"
+# Falta fi
+
+# BUENO
+if [ $AGE -gt 18 ]
+then
+  echo "Mayor"
+fi
+```
+
+---
+
+## 📊 Tabla de Referencia Rápida
+
+| Operador | Uso | Ejemplo |
+|----------|-----|---------|
+| **-eq** | Igual (números) | **[ $A -eq $B ]** |
+| **-ne** | No igual | **[ $A -ne $B ]** |
+| **-lt** | Menor que | **[ $A -lt $B ]** |
+| **-gt** | Mayor que | **[ $A -gt $B ]** |
+| **=** | Igual (strings) | **[ "$S" = "hola" ]** |
+| **!=** | No igual (strings) | **[ "$S" != "hola" ]** |
+| **-f** | Es archivo | **[ -f /ruta/archivo ]** |
+| **-d** | Es directorio | **[ -d /ruta/dir ]** |
+| **-z** | String vacío | **[ -z "$VAR" ]** |
+| **>** | Redir salida | **echo "hola" > file.txt** |
+| **>>** | Agregar a archivo | **echo "hola" >> file.txt** |
+| **\|** | Pipe (tubería) | **cat file \| grep "error"** |
+
+---
+
+## 🎓 Quiz: Verificar Comprensión
+
+:::{.callout-tip collapse="true"}
+### Pregunta 1: Variables
+¿Cuál es el error en este código?
+
+```bash
+NOMBRE = Diego
+echo $NOMBRE
+```
+
+**a)** Falta el signo $ en la asignación  
+**b)** Los espacios alrededor de = causan error de sintaxis (Correcto ✓)  
+**c)** echo necesita comillas  
+**d)** No hay error  
+
+**Explicación**: Bash es estricto con espacios. **NOMBRE = Diego** intenta ejecutar comando **NOMBRE**, no asignar variable.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 2: Condicionales
+¿Qué operador compara STRINGS en Bash?
+
+**a)** **-eq**  
+**b)** **=** (Correcto ✓)  
+**c)** **-lt**  
+**d)** **-gt**  
+
+**Explicación**: **=** compara strings. **-eq** compara números. Usar incorrecto causa comparación inesperada.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 3: Loops
+¿Cuál es la diferencia entre **for** y **while**?
+
+**a)** No hay diferencia, son iguales  
+**b)** **for** itera sobre una lista, **while** ejecuta mientras condición sea verdadera (Correcto ✓)  
+**c)** **for** es más rápido  
+**d)** **while** solo funciona con números  
+
+**Explicación**: **for** itera conociendo fin. **while** evalúa condición cada iteración.
+:::
+
+---
+
+## 👨‍💻 Práctica: Crear tu Primer Script
+
+**Ejercicio 1: Script de Saludo**
+
+```bash
+#!/bin/bash
+# Crea un script que:
+# 1. Pida nombre al usuario (read)
+# 2. Verifique que no está vacío
+# 3. Imprima saludo personalizado
+
+# SOLUCIÓN:
+#!/bin/bash
+echo "¿Cuál es tu nombre?"
+read NOMBRE
+
+if [ -z "$NOMBRE" ]
+then
+  echo "Error: Nombre no puede estar vacío"
+  exit 1
+fi
+
+echo "¡Hola, $NOMBRE! Bienvenido a Bash"
+```
+
+**Ejercicio 2: Script de Números Pares**
+
+```bash
+#!/bin/bash
+# Crea un script que imprima números pares del 1 al 20
+
+# SOLUCIÓN:
+#!/bin/bash
+for i in {1..20}
+do
+  if [ $((i % 2)) -eq 0 ]
+  then
+    echo "$i"
+  fi
+done
+```
+
+**Ejercicio 3: Script para Contar Líneas**
+
+```bash
+#!/bin/bash
+# Crea un script que:
+# 1. Reciba ruta a archivo como argumento
+# 2. Verifique que existe
+# 3. Cuente líneas
+
+# SOLUCIÓN:
+#!/bin/bash
+if [ -z "$1" ]
+then
+  echo "Uso: $0 /ruta/archivo"
+  exit 1
+fi
+
+if [ ! -f "$1" ]
+then
+  echo "Error: Archivo no existe"
+  exit 1
+fi
+
+LINEAS=$(wc -l < "$1")
+echo "El archivo tiene $LINEAS líneas"
+```
+
+---
+
+## 📚 Recursos Adicionales
+
+- **Bash Manual Oficial**: https://www.gnu.org/software/bash/manual/
+- **ShellCheck (Validador)**: https://www.shellcheck.net/
+- **Google Shell Style Guide**: https://google.github.io/styleguide/shellguide.html
+- **Bash Pitfalls**: https://mywiki.wooledge.org/BashPitfalls
+
+---
+
+## Conclusión
+
+Ahora sabes:
+✓ Variables, tipos y conversiones
+✓ Condicionales (if/else/elif)
+✓ Loops (for/while)
+✓ Funciones y modularización
+✓ Redirección y pipes
+✓ Scripts profesionales listos para usar
+
+**Próximo paso**: Usa estos conocimientos en los scripts que encontrarás en configuraciones de sistemas.
+
+---

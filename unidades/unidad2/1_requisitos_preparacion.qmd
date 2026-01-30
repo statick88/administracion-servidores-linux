@@ -1,0 +1,1109 @@
+---
+title: "Requisitos y Preparación para Instalación"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# Requisitos y Preparación para Instalación
+
+## Introducción
+
+Antes de instalar Ubuntu 22.04 LTS, es fundamental verificar que tu equipo cumple con los requisitos mínimos y preparar el medio de instalación. Esta lección te guiará a través de todo lo necesario para una instalación exitosa.
+
+**🗺️ En este tema aprenderás:**
+- Requisitos de hardware mínimos y recomendados
+- Cómo verificar si tu computadora es compatible
+- Descarga segura de Ubuntu 22.04 LTS
+- Creación de USB de instalación
+- Acceso a BIOS/UEFI
+- Preparación del disco duro
+
+---
+
+## 🖥️ Selecciona tu Entorno de Aprendizaje
+
+Este curso soporta **4 entornos diferentes**. Elige el que mejor se adapte a tu máquina:
+
+### Entorno 1: Windows + WSL2 (Windows Subsystem for Linux)
+
+**Ideal para:** Desarrolladores en Windows que quieren Linux sin virtualización
+
+```
+Requisitos:
+- Windows 10 Build 19041+ o Windows 11
+- Procesador con virtualización
+- RAM: 4 GB mínimo
+
+Ventajas:
+✅ Linux completo en Windows
+✅ Mejor rendimiento que VM
+✅ Acceso simultáneo Windows + Linux
+
+Desventajas:
+❌ No ideal para aprender instalación
+❌ Interfaz gráfica limitada
+```
+
+**Para usar WSL2 en este curso:**
+```powershell
+# En PowerShell como admin:
+wsl --install
+
+# Accede a WSL2:
+wsl
+
+# Realiza prácticas de comandos aquí
+# Para instalar SO: usa máquina virtual
+```
+
+### Entorno 2: Linux Nativo (Cualquier Distribución)
+
+**Ideal para:** Aprender administración de Linux en serio
+
+```
+Requisitos:
+- Linux ya instalado (Ubuntu, Fedora, Debian, etc.)
+- RAM: 2 GB mínimo (4 GB recomendado)
+- Disco: 50+ GB disponible
+
+Ventajas:
+✅ Control total del sistema
+✅ Mejor rendimiento
+✅ Ambiente profesional real
+
+Desventajas:
+❌ Requiere Linux pre-instalado
+❌ Menos protección para experimentos
+```
+
+**Para instalar otra distribución Linux:**
+- Opción A: Usa máquina virtual (VirtualBox/Workstation)
+- Opción B: Particiona disco e instala dual-boot
+- Opción C: Usa Docker para laboratorios rápidos
+
+### Entorno 3: macOS + Máquinas Virtuales
+
+**Ideal para:** Usuarios de Mac que quieren aprender Linux puro
+
+```
+Requisitos:
+- macOS 10.14+ (Intel o Apple Silicon M1/M2/M3)
+- RAM: 8 GB mínimo (16 GB recomendado)
+- Disco: 50+ GB disponible para VM
+
+Opciones de hipervisor:
+- Intel Mac: VirtualBox (gratis) o Parallels (pagado)
+- Apple Silicon: UTM (gratis) o Parallels (pagado)
+
+Ventajas:
+✅ macOS + Linux en la misma máquina
+✅ Protección completa
+✅ Entorno profesional
+
+Desventajas:
+❌ Requiere máquina potente
+❌ Algunas opciones pagadas
+```
+
+### Entorno 4: Docker (Contenedores)
+
+**Ideal para:** Aprender comandos Linux rápidamente
+
+```
+Requisitos:
+- Cualquier máquina: Windows, macOS, Linux
+- RAM: 4 GB mínimo
+- Docker instalado
+
+Ventajas:
+✅ Ultraligero y rápido
+✅ Inicio instantáneo
+✅ Perfecto para experimentar
+
+Desventajas:
+❌ No es SO completo
+❌ No puedes instalar bootloader
+```
+
+**Para usar Docker:**
+```bash
+# Ejecuta Ubuntu directamente
+docker run -it ubuntu:22.04 /bin/bash
+
+# Dentro estás en Linux completo
+# Practica comandos sin riesgo
+```
+
+---
+
+## 📚 ¿Cuál entorno elegir?
+
+| Entorno | Para principiantes | Para instalación | Para producción |
+|---------|---|---|---|
+| **Windows + WSL2** | ✅ Muy bueno | ❌ No | ✅ Excelente |
+| **Linux nativo** | ✅ Excelente | ✅ Perfecto | ✅ Excelente |
+| **macOS + VM** | ✅ Muy bueno | ✅ Bueno | ✅ Muy bueno |
+| **Docker** | ✅ Muy fácil | ❌ No | ✅ Excelente |
+
+**Recomendación:** 
+- Si eres **principiante**: WSL2 O Docker para aprender comandos
+- Si quieres aprender **instalación**: Usa **máquina virtual** (cualquier SO host)
+- Si quieres entorno **profesional**: Linux nativo O Docker
+
+Ver guía completa de configuración en: **SETUP.md**
+
+---
+
+## Requisitos de Hardware
+
+### Especificaciones Mínimas
+
+Para ejecutar Ubuntu 22.04 LTS, tu computadora necesita al menos [@ubuntu_requirements_2024]:
+
+| Componente | Mínimo | Recomendado |
+|-----------|---------|------------|
+| **Procesador** | 1 GHz | 2 GHz multi-core |
+| **RAM** | 1 GB | 4 GB |
+| **Espacio en disco** | 2.5 GB | 50 GB |
+| **Pantalla** | VGA | 1024x768 |
+| **Conexión** | CD-ROM o USB | USB 3.0+ |
+
+### ¿Por qué importan estos requisitos?
+
+El **kernel de Linux** es muy eficiente y puede funcionar en hardware antiguo. Sin embargo, para una experiencia de escritorio moderna con Ubuntu GNOME, necesitas recursos suficientes.
+
+La **RAM mínima de 1 GB** es apenas funcional - con aplicaciones modernas, necesitarás **4 GB** para productividad real. El **procesador de 1 GHz** también es mínimo absoluto.
+
+---
+
+## Verificar Compatibilidad del Hardware
+
+### Método 1: Verificar desde Windows
+
+```powershell
+systeminfo  # <1>
+```
+
+1. **systeminfo** muestra detalles del sistema en Windows (procesador, RAM, BIOS)
+
+Busca en la salida:
+- **Processor**: Procesador instalado (ej: Intel Core i5, AMD Ryzen 7)
+- **System Type**: x86-64 (64-bit es lo esperado) o ARM64
+- **Total Physical Memory**: RAM total en GB
+
+### Método 2: Verificar desde macOS
+
+```bash
+system_profiler SPHardwareDataType  # <1>
+```
+
+1. **system_profiler** muestra información completa de hardware en macOS
+
+Busca:
+- **Processor Name**: Tipo de procesador
+- **Processor Speed**: Velocidad en GHz
+- **Memory**: RAM total
+
+### Método 3: Verificar desde Linux existente
+
+```bash
+uname -m  # <1>
+```
+
+1. **uname -m** muestra la arquitectura del procesador (x86_64 para 64-bit, armv7l para ARM 32-bit)
+
+```bash
+free -h  # <2>
+```
+
+2. **free -h** muestra RAM disponible en formato legible (human-readable)
+
+```bash
+cat /proc/cpuinfo | grep "^processor" | wc -l  # <3>
+```
+
+3. Este comando cuenta el número de núcleos disponibles (multiplicar por 2 si tiene hyper-threading)
+
+### Verificar Particiones de Disco
+
+```bash
+lsblk  # <1>
+```
+
+1. **lsblk** (list block devices) muestra todos los discos y particiones de forma visual
+
+```bash
+df -h  # <2>
+```
+
+2. **df -h** (disk free) muestra espacio disponible en particiones existentes
+
+```bash
+fdisk -l  # <3>
+```
+
+3. **fdisk -l** (list) muestra particiones en formato detallado (requiere sudo)
+
+---
+
+## Descargar Ubuntu 22.04 LTS
+
+### Paso 1: Obtener la Imagen ISO
+
+Accede a **https://releases.ubuntu.com/22.04/** y descarga el archivo correcto:
+
+- **ubuntu-22.04.4-desktop-amd64.iso** → Para procesadores Intel/AMD 64-bit (RECOMENDADO)
+- **ubuntu-22.04.4-desktop-arm64.iso** → Para procesadores ARM (MacBook Apple Silicon, Raspberry Pi)
+- **ubuntu-22.04.4-live-server-amd64.iso** → Versión servidor sin interfaz gráfica
+
+El archivo tendrá un tamaño aproximado de **3.5 GB**.
+
+### Paso 2: Verificar Integridad (Importante para Seguridad)
+
+Cada ISO oficial tiene un archivo **SHA256SUMS** que garantiza que la descarga no fue modificada:
+
+```bash
+# En Linux o macOS
+sha256sum ubuntu-22.04.4-desktop-amd64.iso > descargado.sha256  # <1>
+```
+
+1. **sha256sum** genera un hash criptográfico del archivo ISO descargado
+
+```bash
+diff descargado.sha256 SHA256SUMS  # <2>
+```
+
+2. **diff** compara el hash descargado con el oficial - si no hay salida, la descarga es válida
+
+En **Windows**, usa:
+
+```powershell
+(Get-FileHash ubuntu-22.04.4-desktop-amd64.iso -Algorithm SHA256).Hash  # <1>
+```
+
+1. **Get-FileHash** es el equivalente de PowerShell para calcular checksums
+
+Luego compara manualmente con el valor en SHA256SUMS.
+
+---
+
+## Crear USB de Instalación
+
+### Software Requerido
+
+Para crear un USB booteable, necesitas herramientas según tu SO:
+
+| Sistema | Software | Descarga |
+|---------|----------|----------|
+| **Windows** | Rufus | https://rufus.ie/ |
+| **macOS** | Etcher | https://www.balena.io/etcher/ |
+| **Linux** | Etcher o dd | **apt install balena-etcher-bin** |
+
+### Método: Usar Balena Etcher (Multiplataforma)
+
+**Paso 1:** Descarga e instala Balena Etcher
+
+**Paso 2:** Conecta tu USB (mínimo 4 GB)
+
+**Paso 3:** Abre Etcher y selecciona:
+
+```
+1. Flash from file → Selecciona ubuntu-22.04.4-desktop-amd64.iso
+2. Select target → Elige tu USB (¡CUIDADO! Borra datos)
+3. Flash → Espera a que complete (~5 minutos)
+```
+
+### Método: Usar comando **dd** en Linux/macOS (Avanzado)
+
+```bash
+lsblk  # <1>
+```
+
+1. **lsblk** lista los discos para identificar cuál es tu USB (ej: /dev/sdb)
+
+```bash
+sudo umount /dev/sdX1  # <2>
+```
+
+2. **umount** desmonta la partición antes de escribir (reemplaza X con tu letra)
+
+```bash
+sudo dd if=ubuntu-22.04.4-desktop-amd64.iso of=/dev/sdX bs=4M status=progress  # <3>
+```
+
+3. **dd** (disk dump) copia el ISO byte a byte. **bs=4M** define el tamaño de bloque. **status=progress** muestra avance
+
+```bash
+sudo sync  # <4>
+```
+
+4. **sync** asegura que todos los datos se escriben en el USB antes de continuar
+
+⚠️ **ADVERTENCIA**: **dd** sin validación puede **destruir tu disco principal**. Verifica 3 veces que **/dev/sdX** es el USB correcto.
+
+---
+
+## Acceso a BIOS/UEFI
+
+Para arrancar desde USB, necesitas cambiar el **orden de boot** en BIOS/UEFI. Esto depende de tu fabricante:
+
+| Fabricante | Tecla | Cuando |
+|-----------|--------|--------|
+| **Dell** | F2 o F12 | Inmediatamente al encender |
+| **HP/Compaq** | F10 o F2 | Inmediatamente al encender |
+| **Lenovo (ThinkPad)** | F1 o F2 | Inmediatamente al encender |
+| **Asus** | F2 o Delete | Inmediatamente al encender |
+| **Acer** | F2 o Delete | Inmediatamente al encender |
+| **Apple (Intel)** | Command + Option + P + R | Al encender |
+
+### Cambiar Orden de Boot
+
+```
+1. Enciende el equipo
+2. Inmediatamente presiona la tecla correspondiente (antes de que cargue SO)
+3. Navega a "Boot" o "Boot Order"
+4. Mueve "USB Device" al primer lugar
+5. Guarda (F10) y sale (Esc)
+6. Reinicia con USB conectado
+```
+
+### UEFI vs BIOS Clásico
+
+**BIOS Clásico** (legacy) - Antiguo, simple, máximo 4 particiones primarias
+
+**UEFI** (Unified Extensible Firmware Interface) - Moderno, seguro, soporta GPT, Secure Boot
+
+Ubuntu 22.04 LTS soporta ambos, pero **UEFI es recomendado** para equipos modernos (post-2012) [@uefi_standard_2022].
+
+Si durante la instalación ves:
+
+```
+Installation Type: EFI Installation (recomendado)
+```
+
+Significa que estás en UEFI. Si ves:
+
+```
+Installation Type: MBR/BIOS Installation
+```
+
+Estás en BIOS clásico. Ambos funcionan correctamente.
+
+---
+
+## Preparación del Disco Duro
+
+### Opción 1: Instalación Única (Recomendado para Abacom)
+
+Borrarás completamente el disco e instalarás solo Ubuntu. **TODOS TUS DATOS SE PERDERÁN** - haz backup primero.
+
+```bash
+# Esto se hace durante la instalación, no en terminal
+# El instalador ofrecerá: "Erase disk and install Ubuntu"
+```
+
+### Opción 2: Dual Boot (Windows + Ubuntu)
+
+Compartir el disco entre Windows y Ubuntu:
+
+**Antes de instalar Ubuntu:**
+
+```bash
+# En Windows, abre Disk Management (diskmgmt.msc)
+# Haz clic derecho en C: → Shrink Volume
+# Libera espacio (ej: 50 GB para Ubuntu)
+# Verás unallocated space en Disk Management
+```
+
+Durante instalación, selecciona "Something else" y particiona manualmente.
+
+### Opción 3: Instalación en Partición Existente
+
+Si ya tienes Linux, puedes reparticionar e instalar en partición nueva.
+
+```bash
+sudo fdisk /dev/sda  # <1>
+```
+
+1. **fdisk** abre el particionador interactivo (requiere sudo)
+
+```
+Comandos útiles en fdisk:
+m   → Mostrar menu
+p   → Listar particiones actuales
+n   → Nueva partición
+d   → Borrar partición
+w   → Guardar cambios
+```
+
+⚠️ **ADVERTENCIA**: Manejo incorrecto de particiones = **pérdida total de datos**. Practica primero en máquina virtual.
+
+---
+
+## Checklist de Preparación
+
+Antes de iniciar la instalación, verifica:
+
+- [ ] Hardware cumple mínimos (especialmente RAM y espacio)
+- [ ] Descargaste la ISO correcta (amd64 para la mayoría)
+- [ ] Validaste SHA256 del ISO
+- [ ] USB está formateado en FAT32 o exFAT
+- [ ] ISO está grabado en USB con Etcher o dd
+- [ ] USB es booteable (probado en otra máquina si es posible)
+- [ ] BIOS/UEFI está configurado para booting desde USB
+- [ ] Hiciste backup de datos importantes
+- [ ] Tienes conexión a internet para descarga de actualizaciones
+- [ ] Tiempo disponible: ~30-45 minutos para instalación completa
+
+---
+
+## 💡 Ejemplos Prácticos
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Verificar Arquitectura en Sistema Existente
+
+#### Linux
+
+```bash
+# Verificar arquitectura del procesador
+$ uname -m
+x86_64
+
+# Más información del sistema
+$ uname -a
+Linux servidor 5.15.0-89-generic #99-Ubuntu SMP Mon Oct 5 09:29:34 UTC 2024 x86_64 GNU/Linux
+
+# Confirmar que es 64-bit
+$ getconf LONG_BIT
+64
+```
+
+**Interpretación**: 
+- x86_64 = Procesador Intel/AMD de 64-bit → Descargar **ubuntu-22.04-amd64.iso**
+- arm64 = Procesador ARM (Raspberry Pi) → Descargar **ubuntu-22.04-arm64.iso**
+
+#### macOS
+
+```bash
+# Verificar arquitectura en macOS
+$ uname -m
+arm64
+
+# O si es Intel Mac
+$ uname -m
+x86_64
+
+# Versión completa
+$ system_profiler SPHardwareDataType | grep "Chip\|Processor"
+Chip: Apple M3 Pro
+```
+
+**Interpretación**:
+- arm64 = Apple Silicon (M1, M2, M3) - Máquinas modernas
+- x86_64 = Intel Mac - Máquinas antiguas (pre-2021)
+
+#### Windows
+
+```powershell
+# Verificar arquitectura en Windows
+PS> [System.Environment]::Is64BitOperatingSystem
+True
+
+# Más información
+PS> (Get-ComputerInfo -Property SystemSkuFamily).SystemSkuFamily
+x64-based PC
+
+# Procesador específico
+PS> Get-ComputerInfo | Select-Object -Property CsProcessors
+```
+
+**Interpretación**:
+- x64-based PC = 64-bit (estándar moderno)
+- x86-based PC = 32-bit (muy raro hoy)
+
+---
+
+### Ejemplo 2: Validar Descarga de Ubuntu
+
+#### Linux
+
+```bash
+# 1. Descargar checksums oficiales
+$ cd ~/Downloads
+$ wget https://releases.ubuntu.com/22.04/SHA256SUMS
+
+# 2. Validar descarga
+$ sha256sum -c SHA256SUMS 2>/dev/null | grep ubuntu-22.04.4-desktop-amd64.iso
+ubuntu-22.04.4-desktop-amd64.iso: OK
+
+# Si ves OK = descarga correcta
+# Si ves FAILED = archivo corrupto, descargar nuevamente
+```
+
+**Explicación**:
+- SHA256 es un hash criptográfico
+- Cualquier cambio en el archivo = hash diferente
+- Garantiza que nadie modificó el archivo en tránsito
+
+#### macOS
+
+```bash
+# 1. Descargar checksums
+$ cd ~/Downloads
+$ curl -O https://releases.ubuntu.com/22.04/SHA256SUMS
+
+# 2. Validar descarga
+$ shasum -a 256 -c SHA256SUMS | grep ubuntu-22.04.4-desktop-amd64.iso
+
+# Alternativa con openssl
+$ openssl dgst -sha256 ubuntu-22.04.4-desktop-amd64.iso
+```
+
+**Explicación**:
+- macOS usa **shasum** en lugar de **sha256sum**
+- El resultado debe coincidir con el archivo SHA256SUMS
+
+#### Windows
+
+```powershell
+# 1. Descargar checksums con PowerShell
+PS> Invoke-WebRequest -Uri "https://releases.ubuntu.com/22.04/SHA256SUMS" -OutFile "$env:USERPROFILE\Downloads\SHA256SUMS"
+
+# 2. Calcular hash del archivo ISO descargado
+PS> (Get-FileHash -Algorithm SHA256 "$env:USERPROFILE\Downloads\ubuntu-22.04.4-desktop-amd64.iso").Hash
+
+# 3. Comparar con el archivo SHA256SUMS
+PS> (Get-Content "$env:USERPROFILE\Downloads\SHA256SUMS" | Select-String "ubuntu-22.04.4-desktop-amd64.iso").Line
+```
+
+**Explicación**:
+- PowerShell usa **Get-FileHash** para validar
+- Compara el hash calculado con el de SHA256SUMS
+- Deben ser idénticos
+
+---
+
+### Ejemplo 3: Crear USB Booteable
+
+#### Linux
+
+```bash
+# 1. Identificar el USB
+$ lsblk | grep -E "^NAME|sd"
+NAME           MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sdb              8:16   1  15.6G  0 disk /media/user/USB
+
+# 2. Desmontar el USB (importante!)
+$ sudo umount /dev/sdb1 /dev/sdb2 2>/dev/null
+
+# 3. Escribir ISO en USB con dd
+$ sudo dd if=~/Downloads/ubuntu-22.04.4-desktop-amd64.iso of=/dev/sdb bs=4M status=progress conv=fsync
+3500M bytes transferred in 2.5 seconds
+
+# 4. Expulsar USB
+$ eject /dev/sdb
+```
+
+**Explicación**:
+- **lsblk**: Lista discos (sda = disco principal, sdb = USB)
+- **dd**: Escribe bit-a-bit (no es una copia regular)
+- **bs=4M**: Tamaño de bloque (más rápido)
+- **conv=fsync**: Asegura que se escribió completamente
+
+#### macOS
+
+```bash
+# 1. Insertar USB y identificarlo
+$ diskutil list
+/dev/disk0 (internal, physical): ...
+/dev/disk1 (external, physical): 15.6 GB USB DISK
+
+# 2. Desmontar el USB
+$ diskutil unmountDisk /dev/disk1
+Unmount of all volumes on disk1 was successful
+
+# 3. Escribir ISO en USB
+$ sudo dd if=~/Downloads/ubuntu-22.04.4-desktop-amd64.iso of=/dev/rdisk1 bs=4m
+$ # Esperar a que termine (puede tomar 5-10 minutos)
+
+# 4. Expulsar el USB
+$ diskutil eject /dev/disk1
+```
+
+**Explicación**:
+- **diskutil list**: Lista discos disponibles
+- **/dev/rdisk1**: Usar la versión "raw" para más velocidad
+- macOS requiere desmontar antes de escribir
+
+#### Windows
+
+```powershell
+# 1. Usar Balena Etcher (GUI, recomendado)
+# Descargar desde: https://www.balena.io/etcher/
+# - Seleccionar ISO
+# - Seleccionar USB
+# - Click "Flash"
+
+# Alternativa: PowerShell (avanzado)
+# 2. Identificar el USB en PowerShell
+PS> Get-Disk | Where-Object {$_.BusType -eq "USB"}
+Number Friendly Name  Serial Number  HealthStatus OperationalStatus
+------ -------------- -------------- ------------ -----------------
+1      KINGSTON USB   123456789      Healthy      Online
+
+# 3. Formatear USB
+PS> Format-Volume -DriveLetter H -FileSystem FAT32 -Confirm:$false
+
+# 4. Usar Etcher o Rufus (GUI)
+# PowerShell puro es complejo para escribir ISO
+```
+
+**Explicación**:
+- **Balena Etcher**: Herramienta recomendada para Windows
+- **Rufus**: Alternativa popular
+- Ambas manejan los detalles técnicos automáticamente
+
+:::
+
+---
+
+---
+
+## 🔧 Componentes Clave
+
+### ISO (Imagen de Disco)
+
+Un archivo **ISO** es una imagen exacta de un CD/DVD/USB. Contiene todo el sistema operativo Ubuntu comprimido en un archivo.
+
+Para instalar, debes **escribir** (flash) este archivo en un USB, no solo copiarlo.
+
+**Analogía**: Es como la diferencia entre enviar a alguien el plano de una casa vs enviarle la casa construida.
+
+### SHA256 (Validación Criptográfica)
+
+Un **checksum** es una firma digital que verifica que un archivo no fue modificado.
+
+**SHA256** genera un código de 64 caracteres único para cada archivo. Si alguien cambia 1 byte del ISO, el SHA256 es completamente diferente.
+
+**Analogía**: Como la cédula de identidad de un archivo - cada persona tiene uno único.
+
+### BIOS vs UEFI
+
+- **BIOS** (Basic Input/Output System) → Estándar antiguo, simple pero limitado
+- **UEFI** (Unified Extensible Firmware Interface) → Estándar moderno, más seguro y flexible
+
+Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
+
+---
+
+## ⚠️ Errores Comunes
+
+**Error 1: "Invalid Partition Table"**
+- **Causa**: El USB no fue escrito correctamente
+- **Solución**: Usa Etcher en vez de **dd**, verifica con **fdisk -l /dev/sdX** que sea booteable
+
+**Error 2: "No bootable device found"**
+- **Causa**: BIOS no está configurado para boot desde USB
+- **Solución**: Entra a BIOS/UEFI (tecla según fabricante), ve a Boot Order, mueve USB al primer lugar
+
+**Error 3: "Cannot load kernel"**
+- **Causa**: Descargaste el ISO incorrecto (ej: arm64 en máquina x86_64)
+- **Solución**: Verifica con **uname -m**, descarga amd64 si ves "x86_64"
+
+**Error 4: "Not enough space"**
+- **Causa**: El disco no tiene 2.5 GB libres mínimo
+- **Solución**: Libera espacio, elimina archivos temporales, o particiona el disco primero
+
+---
+
+## 📊 Mejores Prácticas
+
+1. **Siempre valida SHA256** - Toma 30 segundos y previene problemas
+2. **Usa Etcher si eres principiante** - Es gráfico y más seguro que **dd**
+3. **Deja 50 GB mínimo** - Los 2.5 GB son solo para el SO, necesitas espacio para aplicaciones
+4. **Haz backup antes de particionar** - No hay "Deshacer" en operaciones de disco
+5. **Actualiza BIOS si es muy viejo** - Equipos pre-2010 pueden tener issues con UEFI
+
+---
+
+## 📋 Tabla de Referencia Rápida
+
+| Tarea | Comando/Herramienta | Uso |
+|------|---------------------|-----|
+| Ver arquitectura | **uname -m** | Saber si es 32 o 64 bit |
+| Ver RAM | **free -h** | Verificar memoria disponible |
+| Listar discos | **lsblk** | Identificar USB o disco a particionar |
+| Validar ISO | **sha256sum -c SHA256SUMS** | Verificar que descarga es válida |
+| Crear USB | Balena Etcher | Grabar ISO en USB (GUI) |
+| Crear USB | **dd if=X.iso of=/dev/sdX** | Grabar ISO en USB (CLI) |
+| Ver particiones | **fdisk -l** | Listar particiones existentes |
+| Acceso BIOS | Tecla al encender (Del/F2) | Cambiar boot order |
+
+---
+
+## 🎓 Quiz: Verificar tu Comprensión
+
+:::{.callout-tip collapse="true"}
+### Pregunta 1: Requisitos de Hardware
+¿Cuál es la RAM recomendada mínima para que Ubuntu 22.04 LTS funcione de forma productiva?
+
+**a)** 512 MB  
+**b)** 1 GB  
+**c)** 4 GB (Correcto ✓)  
+**d)** 8 GB  
+
+**Explicación**: Aunque el mínimo técnico es 1 GB, para usar aplicaciones modernas (navegador, editor, terminal) necesitas 4 GB para productividad real.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 2: Validación de ISO
+¿Por qué es importante validar el SHA256 de la descarga de Ubuntu?
+
+**a)** Para ahorrar tiempo en descarga  
+**b)** Para verificar que el archivo no fue modificado en tránsito  (Correcto ✓)  
+**c)** Para aumentar la velocidad de instalación  
+**d)** No es importante, es opcional  
+
+**Explicación**: SHA256 es una firma criptográfica que prueba que el archivo que descargaste es exactamente el que Ubuntu publicó. Protege contra tampering.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 3: Creación de USB
+¿Cuál es la diferencia entre "Copiar" el ISO al USB vs "Escribir" (flash) el ISO?
+
+**a)** No hay diferencia, son la mismo  
+**b)** Copiar solo funciona en Windows  
+**c)** Escribir (flash) graba a nivel de sector, permitiendo boot. Copiar solo crea un archivo dentro del USB  (Correcto ✓)  
+**d)** Escribir es más lento que copiar  
+
+**Explicación**: Flash escribe el ISO directamente en los sectores del USB, reemplazando todo. Copiar deja el USB con su sistema de archivos. Solo USB "flashed" es booteable.
+:::
+
+---
+
+## 👨‍💻 Práctica Guiada: Preparar tu Instalación
+
+**Objetivos:**
+1. Verificar que tu hardware es compatible
+2. Descargar Ubuntu 22.04 LTS correctamente
+3. Validar la descarga
+4. Preparar un USB booteable
+
+**Tiempo estimado:** 30 minutos
+
+**Instrucciones:**
+
+```
+1. VERIFICAR HARDWARE (5 min)
+   □ Abre terminal/PowerShell en tu equipo actual
+   □ Ejecuta comandos según tu SO:
+     - Linux: uname -m && free -h
+     - macOS: system_profiler SPHardwareDataType | grep -E "Processor|Memory"
+     - Windows: systeminfo | findstr /C:"Processor" /C:"Total Physical Memory"
+   □ Nota: ¿Es 64-bit? ¿Tienes 4GB+ RAM? ¿Espacio libre >50GB?
+   □ Si respondiste SÍ a todo, puedes instalar sin problemas
+
+2. DESCARGAR UBUNTU (10 min)
+   □ Ve a https://releases.ubuntu.com/22.04/
+   □ Descarga: ubuntu-22.04.4-desktop-amd64.iso
+   □ Descarga también: SHA256SUMS (archivo de checksums)
+   □ Espera a que ambos completen 100%
+
+3. VALIDAR DESCARGA (5 min)
+   □ Abre terminal en el directorio de descargas
+   □ Ejecuta: sha256sum ubuntu-22.04.4-desktop-amd64.iso
+   □ Compara el resultado con SHA256SUMS
+   □ Deben ser idénticos (copia y pega ambos para verificar)
+
+4. CREAR USB BOOTEABLE (10 min)
+   □ Descarga Balena Etcher: https://www.balena.io/etcher/
+   □ Instala y abre Etcher
+   □ Conecta USB (4GB+) - **TODOS LOS DATOS SE BORRARÁN**
+   □ En Etcher:
+     - Click "Flash from file" → Selecciona el ISO
+     - Click "Select target" → Elige tu USB
+     - Click "Flash" → Espera ~5 minutos
+   □ Etcher confirmará "Flash complete!"
+
+5. VERIFICAR USB (5 min)
+   □ En terminal: lsblk | grep -E "sd|usb"
+   □ Busca tu USB (identificarlo por tamaño)
+   □ Si ves tipo "disk" (no partición), el USB está listo
+
+✓ ¡Listo! Tienes tu USB de instalación preparada
+```
+
+---
+
+## 🧪 Laboratorio: Instalación en Máquina Virtual (Recomendado)
+
+**Se recomienda practicar primero en una máquina virtual antes de instalar en el sistema real.** Las prácticas de instalación de sistemas GNU/Linux se realizarán en **VirtualBox y VMware Workstation**.
+
+### Opción 1: Oracle VirtualBox (Gratuito)
+
+**Características:**
+- Completamente gratuito y de código abierto
+- Disponible en Windows, macOS, Linux
+- Fácil de usar con interfaz intuitiva
+- Ideal para principiantes
+
+**Requisitos mínimos:**
+- RAM: 8 GB en tu máquina host (para VM de 4 GB)
+- Espacio disco: 60 GB disponibles
+- Procesador con soporte de virtualización (Intel VT-x o AMD-V)
+
+**Descarga:** https://www.virtualbox.org/
+
+**Pasos iniciales en VirtualBox:**
+
+```
+1. Descarga VirtualBox desde https://www.virtualbox.org/
+2. Instala VirtualBox en tu máquina host
+3. Crea una máquina virtual nueva:
+   ├─ Nombre: "Ubuntu 22.04 Practice"
+   ├─ Tipo: Linux
+   ├─ Versión: Ubuntu (64-bit)
+   ├─ RAM: 4096 MB (4 GB mínimo)
+   ├─ Disco duro: Crear disco virtual
+   ├─ Tamaño: 50 GB
+   └─ Tipo de disco: VDI (VirtualBox Disk Image)
+
+4. Configuración adicional (antes de iniciar):
+   ├─ CPU: 2-4 núcleos
+   ├─ Memoria video: 128 MB (mínimo)
+   ├─ Sistema operativo: Linux
+   └─ Versión: Ubuntu (64-bit)
+
+5. Monta el ISO de Ubuntu:
+   ├─ Menú: Máquina → Configuración
+   ├─ Sección: Almacenamiento
+   ├─ Unidad óptica → Selecciona el ISO descargado
+   └─ Aceptar cambios
+
+6. Inicia la máquina virtual y sigue el instalador de Ubuntu
+```
+
+### Opción 2: VMware Workstation (Profesional)
+
+**Características:**
+- Plataforma profesional con características avanzadas
+- Disponible en Windows y Linux
+- Mejor rendimiento y más opciones de configuración
+- Ideal para ambientes profesionales y servidores
+
+**Versiones:**
+- **Workstation Pro**: Versión pagada con todas las características
+- **Workstation Player**: Versión gratuita (limitada)
+
+**Requisitos mínimos:**
+- RAM: 8-16 GB en tu máquina host
+- Espacio disco: 60+ GB disponibles
+- Procesador con soporte de virtualización (Intel VT-x o AMD-V)
+
+**Descarga:**
+- **Workstation Pro**: https://www.vmware.com/products/workstation-pro.html
+- **Workstation Player (Gratis)**: https://www.vmware.com/products/workstation-player.html
+
+**Pasos iniciales en VMware Workstation:**
+
+```
+1. Descarga VMware Workstation desde el sitio oficial
+2. Instala Workstation en tu máquina host
+3. Abre VMware Workstation
+
+4. Crea una máquina virtual nueva (File → New Virtual Machine):
+   ├─ Tipo: Custom Configuration (para control total)
+   ├─ Compatibilidad: Latest version
+   ├─ Sistema operativo: Linux → Ubuntu 64-bit
+   ├─ Nombre: "Ubuntu 22.04 Practice"
+   ├─ Ubicación: Selecciona directorio
+   └─ Siguiente
+
+5. Configuración de hardware:
+   ├─ CPU: 2-4 procesadores
+   ├─ RAM: 4096 MB (4 GB mínimo)
+   ├─ Disco duro: SCSI (recomendado)
+   ├─ Tamaño: 50 GB
+   ├─ Almacenamiento: Asignar espacio simple
+   ├─ Red: NAT (para acceso a internet)
+   └─ Finalizar configuración
+
+6. Monta el ISO de Ubuntu:
+   ├─ Click derecho en VM → Settings
+   ├─ CD/DVD (SATA): Selecciona "Use ISO image file"
+   ├─ Browse → Selecciona ubuntu-22.04.x-desktop-amd64.iso
+   ├─ OK
+
+7. Inicia la máquina virtual (Power on) y sigue el instalador
+```
+
+### Comparativa: VirtualBox vs VMware Workstation
+
+| Característica | VirtualBox | VMware Workstation |
+|---|---|---|
+| **Precio** | Gratuito | Pro: Pagado, Player: Gratuito |
+| **Facilidad de uso** | Muy fácil | Fácil a moderada |
+| **Rendimiento** | Bueno | Excelente |
+| **Características avanzadas** | Básicas | Avanzadas |
+| **Snapshots/Clones** | Sí | Sí (más rápido) |
+| **Documentación** | Excelente | Muy buena |
+| **Soporte comunitario** | Muy activo | Profesional |
+| **Ideal para** | Aprendizaje, desarrollo | Producción, ambientes reales |
+
+**Recomendación para este curso:**
+- **VirtualBox** si es tu primera vez (más simple)
+- **VMware Workstation** si necesitas características profesionales
+
+### Ventajas de practicar en máquina virtual
+
+✅ **Sin riesgo de pérdida de datos:**
+- Tu máquina real permanece intacta
+- Los errores afectan solo la VM
+
+✅ **Práctica ilimitada:**
+- Instala, falla, borra y repite
+- Snapshots: guarda estado antes de cambios
+
+✅ **Aprendizaje iterativo:**
+- Experimenta sin presión
+- Comprende cada paso del instalador
+
+✅ **Requisitos flexibles:**
+- Usa máquinas viejas como host
+- Perfecto para laboratorios
+
+### Troubleshooting común
+
+**Problema: "VT-x/AMD-V not enabled"**
+```
+Solución: Accede a BIOS de tu máquina host
+1. Reinicia la máquina
+2. Presiona F2, F10, Del, o Esc (depende del fabricante)
+3. Busca "Virtualization" o "SVM"
+4. Habilita la opción
+5. Guarda y reinicia
+```
+
+**Problema: Máquina virtual muy lenta**
+```
+Solución: Ajusta configuración de recursos
+1. Asigna más CPU (2-4 núcleos)
+2. Aumenta RAM (mínimo 4 GB)
+3. Disabilita efectos visuales en guest OS
+4. Usa disco SSD en lugar de HDD
+```
+
+**Problema: No detecta el ISO**
+```
+Solución:
+- VirtualBox: Menú Máquina → Configuración → Almacenamiento
+- Workstation: Click derecho VM → Settings → CD/DVD
+- Verifica que el archivo .iso existe y no está dañado
+```
+
+---
+
+
+## 📚 Recursos Adicionales
+
+- **Documentación Oficial**: https://help.ubuntu.com/22.04/installation-guide/
+- **Ubuntu Release Notes**: https://wiki.ubuntu.com/JammyJellyfish/ReleaseNotes
+- **Hardware Compatibility List**: https://ubuntu.com/certification
+- **UEFI Explained** [@wiki_uefi]: https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface
+- **Balena Etcher Docs**: https://www.balena.io/etcher/docs/
+- **Rufus (Windows)**: https://rufus.ie/
+
+---
+
+## Conclusión
+
+Ahora tienes:
+✓ Requisitos claros para instalar Ubuntu
+✓ USB de instalación booteable
+✓ Hardware verificado y compatible
+✓ ISO validado criptográficamente
+
+En la próxima lección, usaremos este USB para **instalar Ubuntu 22.04 LTS paso a paso**.
+
+---
+
+## 📝 Quiz: Requisitos y Preparación
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el requisito mínimo de RAM recomendado para Ubuntu 22.04 LTS?
+
+- [ ] 512 MB
+- [x] 2 GB (recomendado para uso confortable)
+- [ ] 4 GB (obligatorio)
+- [ ] 8 GB (solo para servidores)
+
+## ¿Qué algoritmo hash se debe usar para validar la ISO de Ubuntu 22.04?
+
+- [ ] MD5
+- [ ] SHA-1
+- [x] SHA-256
+- [ ] SHA-512
+
+## ¿Cuál es la herramienta más recomendada para crear USB booteable en macOS?
+
+- [ ] Rufus
+- [x] Balena Etcher
+- [ ] UNetbootin
+- [ ] dd (comando directo)
+
+## ¿Cuánto espacio en disco se recomienda para una instalación completa de Ubuntu?
+
+- [ ] 5 GB
+- [ ] 10 GB
+- [x] 20-30 GB (mínimo recomendado)
+- [ ] 50+ GB
+
+## VERDADERO o FALSO: Las máquinas virtuales NO permiten instalar Ubuntu
+
+- [ ] VERDADERO
+- [x] FALSO (las máquinas virtuales soportan Ubuntu perfectamente)
+
+## ¿Qué es UEFI?
+
+- [ ] Un gestor de particiones
+- [ ] Un sistema de archivos
+- [x] Un firmware moderno que reemplaza a BIOS
+- [ ] Una herramienta de instalación
+
+## Cuando booteas desde USB, ¿En cuál parte típicamente presionas F2, F10 o Del para entrar al BIOS?
+
+- [x] Durante el POST (Power-On Self Test) al encender
+- [ ] Después de que aparece el logo del SO
+- [ ] Dentro del sistema operativo actual
+- [ ] No se puede acceder
+
+## ¿Cuál es el tamaño típico de la ISO de Ubuntu 22.04 LTS (Desktop)?
+
+- [ ] ~500 MB
+- [x] ~3-4 GB
+- [ ] ~8 GB
+- [ ] ~15 GB
+
+## ¿Qué comando se usa en Linux para verificar el hash SHA-256 de la ISO?
+
+- [ ] hash iso-file
+- [x] sha256sum iso-file
+- [ ] checksum iso-file
+- [ ] verify iso-file
+
+## Al particionar manualmente en Ubuntu, ¿Cuál es el tamaño mínimo recomendado para la partición raíz (/)?
+
+- [ ] 5 GB
+- [ ] 10 GB
+- [x] 20-30 GB
+- [ ] 50+ GB (obligatorio)
+```
+
+---

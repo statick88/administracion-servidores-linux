@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Diego Saavedra">
+<meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
+
+<title>Actualización y Seguridad del Sistema – Administración de Servidores Linux</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../unidades/unidad2/5_primeros_pasos_terminal.html" rel="next">
+<link href="../../unidades/unidad2/3_configuracion_inicial.html" rel="prev">
+<link href="../../logo.jpeg" rel="icon" type="image/jpeg">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown-init.js"></script>
+<link href="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+<script src="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
+<link href="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad2/1_requisitos_preparacion.html">Unidad 2: Instalación y Configuración</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad2/4_actualizacion_seguridad.html"><span class="chapter-title">Actualización y Seguridad del Sistema</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../../index.html" class="sidebar-logo-link">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Administración de Servidores Linux</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="../../administracion_servidores_linux.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">🐧 Bienvenido al Curso de Administración de Servidores Linux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introducción al Curso</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acerca del Instructor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../license.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licencia</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 1: Introducción a Linux</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1: Introducción a Sistemas Operativos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/2_historia_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.2: Historia y Evolución de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/3_distribuciones_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.3: Distribuciones de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/4_ventajas_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.4: Ventajas de Linux para Abacom</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Unidad 2: Instalación y Configuración</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/1_requisitos_preparacion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Requisitos y Preparación para Instalación</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/2_instalacion_ubuntu.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instalación de Ubuntu 22.04 LTS Paso a Paso</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/3_configuracion_inicial.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración Inicial del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/4_actualizacion_seguridad.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Actualización y Seguridad del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/5_primeros_pasos_terminal.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Primeros Pasos en Terminal</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 3: Comandos Básicos de Linux</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/1_navegacion_directorios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Navegación de Directorios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/2_inspeccion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inspección de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/3_busqueda_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Búsqueda de Archivos y Contenido</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/4_permisos_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Permisos de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/5_manipulacion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Manipulación de Archivos y Directorios</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos Especializados</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_B_Editores_Vi_Nvim.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo B: Editores Vi y Nvim - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_D_Herramientas_Monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#objetivos-de-aprendizaje" id="toc-objetivos-de-aprendizaje" class="nav-link active" data-scroll-target="#objetivos-de-aprendizaje">📚 Objetivos de Aprendizaje</a></li>
+  <li><a href="#por-qué-este-tema-es-crítico" id="toc-por-qué-este-tema-es-crítico" class="nav-link" data-scroll-target="#por-qué-este-tema-es-crítico">🎯 Por Qué Este Tema Es Crítico</a></li>
+  <li><a href="#ejemplos-prácticos-multi-so" id="toc-ejemplos-prácticos-multi-so" class="nav-link" data-scroll-target="#ejemplos-prácticos-multi-so">💡 Ejemplos Prácticos Multi-SO</a></li>
+  <li><a href="#gestión-de-paquetes-con-apt-debianubuntu" id="toc-gestión-de-paquetes-con-apt-debianubuntu" class="nav-link" data-scroll-target="#gestión-de-paquetes-con-apt-debianubuntu">1. Gestión de Paquetes con APT (Debian/Ubuntu)</a>
+  <ul class="collapse">
+  <li><a href="#entender-apt-advanced-package-tool" id="toc-entender-apt-advanced-package-tool" class="nav-link" data-scroll-target="#entender-apt-advanced-package-tool">1.1 Entender APT (Advanced Package Tool)</a></li>
+  <li><a href="#actualizar-repositorios" id="toc-actualizar-repositorios" class="nav-link" data-scroll-target="#actualizar-repositorios">1.2 Actualizar Repositorios</a></li>
+  <li><a href="#actualizar-paquetes" id="toc-actualizar-paquetes" class="nav-link" data-scroll-target="#actualizar-paquetes">1.3 Actualizar Paquetes</a></li>
+  <li><a href="#limpiar-paquetes-no-usados" id="toc-limpiar-paquetes-no-usados" class="nav-link" data-scroll-target="#limpiar-paquetes-no-usados">1.4 Limpiar Paquetes No Usados</a></li>
+  <li><a href="#actualizar-paquete-específico" id="toc-actualizar-paquete-específico" class="nav-link" data-scroll-target="#actualizar-paquete-específico">1.5 Actualizar Paquete Específico</a></li>
+  </ul></li>
+  <li><a href="#actualizaciones-automáticas" id="toc-actualizaciones-automáticas" class="nav-link" data-scroll-target="#actualizaciones-automáticas">2. Actualizaciones Automáticas</a>
+  <ul class="collapse">
+  <li><a href="#instalar-unattended-upgrades" id="toc-instalar-unattended-upgrades" class="nav-link" data-scroll-target="#instalar-unattended-upgrades">2.1 Instalar Unattended-Upgrades</a></li>
+  <li><a href="#configurar-qué-se-actualiza-automáticamente" id="toc-configurar-qué-se-actualiza-automáticamente" class="nav-link" data-scroll-target="#configurar-qué-se-actualiza-automáticamente">2.2 Configurar Qué Se Actualiza Automáticamente</a></li>
+  <li><a href="#notificar-cambios-por-email" id="toc-notificar-cambios-por-email" class="nav-link" data-scroll-target="#notificar-cambios-por-email">2.3 Notificar cambios por Email</a></li>
+  </ul></li>
+  <li><a href="#firewall-con-ufw" id="toc-firewall-con-ufw" class="nav-link" data-scroll-target="#firewall-con-ufw">3. Firewall con UFW</a>
+  <ul class="collapse">
+  <li><a href="#entender-firewall" id="toc-entender-firewall" class="nav-link" data-scroll-target="#entender-firewall">3.1 Entender Firewall</a></li>
+  <li><a href="#instalar-y-habilitar-ufw" id="toc-instalar-y-habilitar-ufw" class="nav-link" data-scroll-target="#instalar-y-habilitar-ufw">3.2 Instalar y Habilitar UFW</a></li>
+  <li><a href="#reglas-básicas" id="toc-reglas-básicas" class="nav-link" data-scroll-target="#reglas-básicas">3.3 Reglas Básicas</a></li>
+  <li><a href="#eliminar-reglas" id="toc-eliminar-reglas" class="nav-link" data-scroll-target="#eliminar-reglas">3.4 Eliminar Reglas</a></li>
+  <li><a href="#reglas-avanzadas" id="toc-reglas-avanzadas" class="nav-link" data-scroll-target="#reglas-avanzadas">3.5 Reglas Avanzadas</a></li>
+  <li><a href="#configuración-de-inicioparada" id="toc-configuración-de-inicioparada" class="nav-link" data-scroll-target="#configuración-de-inicioparada">3.6 Configuración de Inicio/Parada</a></li>
+  </ul></li>
+  <li><a href="#hardening-básico" id="toc-hardening-básico" class="nav-link" data-scroll-target="#hardening-básico">4. Hardening Básico</a>
+  <ul class="collapse">
+  <li><a href="#actualizar-bootloader" id="toc-actualizar-bootloader" class="nav-link" data-scroll-target="#actualizar-bootloader">4.1 Actualizar Bootloader</a></li>
+  <li><a href="#deshabilitar-servicios-innecesarios" id="toc-deshabilitar-servicios-innecesarios" class="nav-link" data-scroll-target="#deshabilitar-servicios-innecesarios">4.2 Deshabilitar Servicios Innecesarios</a></li>
+  <li><a href="#limitar-acceso-a-archivos-sensibles" id="toc-limitar-acceso-a-archivos-sensibles" class="nav-link" data-scroll-target="#limitar-acceso-a-archivos-sensibles">4.3 Limitar Acceso a Archivos Sensibles</a></li>
+  <li><a href="#audit-y-selinuxapparmor" id="toc-audit-y-selinuxapparmor" class="nav-link" data-scroll-target="#audit-y-selinuxapparmor">4.4 Audit y SELinux/AppArmor</a></li>
+  <li><a href="#fail2ban---proteger-contra-brute-force" id="toc-fail2ban---proteger-contra-brute-force" class="nav-link" data-scroll-target="#fail2ban---proteger-contra-brute-force">4.5 Fail2Ban - Proteger contra Brute Force</a></li>
+  </ul></li>
+  <li><a href="#laboratorio-práctico-actualizar-y-asegurar-servidor" id="toc-laboratorio-práctico-actualizar-y-asegurar-servidor" class="nav-link" data-scroll-target="#laboratorio-práctico-actualizar-y-asegurar-servidor">5. Laboratorio Práctico: Actualizar y Asegurar Servidor</a>
+  <ul class="collapse">
+  <li><a href="#escenario" id="toc-escenario" class="nav-link" data-scroll-target="#escenario">5.1 Escenario</a></li>
+  <li><a href="#pasos" id="toc-pasos" class="nav-link" data-scroll-target="#pasos">5.2 Pasos</a></li>
+  </ul></li>
+  <li><a href="#monitoreo-de-seguridad" id="toc-monitoreo-de-seguridad" class="nav-link" data-scroll-target="#monitoreo-de-seguridad">6. Monitoreo de Seguridad</a>
+  <ul class="collapse">
+  <li><a href="#ver-logs-de-actualizaciones" id="toc-ver-logs-de-actualizaciones" class="nav-link" data-scroll-target="#ver-logs-de-actualizaciones">6.1 Ver Logs de Actualizaciones</a></li>
+  <li><a href="#auditoría-de-cambios-recientes" id="toc-auditoría-de-cambios-recientes" class="nav-link" data-scroll-target="#auditoría-de-cambios-recientes">6.2 Auditoría de Cambios Recientes</a></li>
+  </ul></li>
+  <li><a href="#ejercicios-prácticos" id="toc-ejercicios-prácticos" class="nav-link" data-scroll-target="#ejercicios-prácticos">7. Ejercicios Prácticos</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-1-crear-política-de-actualización" id="toc-ejercicio-1-crear-política-de-actualización" class="nav-link" data-scroll-target="#ejercicio-1-crear-política-de-actualización">Ejercicio 1: Crear política de actualización</a></li>
+  <li><a href="#ejercicio-2-configurar-firewall-completo" id="toc-ejercicio-2-configurar-firewall-completo" class="nav-link" data-scroll-target="#ejercicio-2-configurar-firewall-completo">Ejercicio 2: Configurar firewall completo</a></li>
+  <li><a href="#ejercicio-3-crear-script-de-backup-antes-de-actualizar" id="toc-ejercicio-3-crear-script-de-backup-antes-de-actualizar" class="nav-link" data-scroll-target="#ejercicio-3-crear-script-de-backup-antes-de-actualizar">Ejercicio 3: Crear script de backup antes de actualizar</a></li>
+  </ul></li>
+  <li><a href="#quiz-de-verificación" id="toc-quiz-de-verificación" class="nav-link" data-scroll-target="#quiz-de-verificación">8. Quiz de Verificación</a></li>
+  <li><a href="#resumen-y-siguiente-paso" id="toc-resumen-y-siguiente-paso" class="nav-link" data-scroll-target="#resumen-y-siguiente-paso">9. Resumen y Siguiente Paso</a>
+  <ul class="collapse">
+  <li><a href="#lo-aprendido" id="toc-lo-aprendido" class="nav-link" data-scroll-target="#lo-aprendido">Lo Aprendido</a></li>
+  <li><a href="#siguiente-unidad-2.5" id="toc-siguiente-unidad-2.5" class="nav-link" data-scroll-target="#siguiente-unidad-2.5">Siguiente: Unidad 2.5</a></li>
+  </ul></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">📚 Referencias</a></li>
+  <li><a href="#quiz-actualización-y-seguridad" id="toc-quiz-actualización-y-seguridad" class="nav-link" data-scroll-target="#quiz-actualización-y-seguridad">📝 Quiz: Actualización y Seguridad</a></li>
+  <li>Code Appendix</li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad2/1_requisitos_preparacion.html">Unidad 2: Instalación y Configuración</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad2/4_actualizacion_seguridad.html"><span class="chapter-title">Actualización y Seguridad del Sistema</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Actualización y Seguridad del Sistema</span></h1>
+<p class="subtitle lead">Mantener Ubuntu Seguro y Actualizado</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">Jan 29, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="objetivos-de-aprendizaje" class="level2">
+<h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">📚 Objetivos de Aprendizaje</h2>
+<p>Después de completar este tema, serás capaz de:</p>
+<ul>
+<li>Actualizar el sistema Linux de forma segura</li>
+<li>Entender las diferencias entre <strong>update</strong>, <strong>upgrade</strong>, y <strong>dist-upgrade</strong></li>
+<li>Configurar actualizaciones automáticas</li>
+<li>Instalar y usar firewall UFW</li>
+<li>Aplicar hardening básico de seguridad</li>
+<li>Monitorear cambios de seguridad</li>
+</ul>
+</section>
+<section id="por-qué-este-tema-es-crítico" class="level2">
+<h2 class="anchored" data-anchor-id="por-qué-este-tema-es-crítico">🎯 Por Qué Este Tema Es Crítico</h2>
+<p>Un servidor sin actualizar es un servidor comprometido. <strong>0-day exploits</strong> (vulnerabilidades nuevas) se descubren regularmente, y los parches salen diariamente. Tu servidor debe estar actualizado.</p>
+<p><strong>Estadística real</strong>: El 80% de brechas de seguridad podrían haberse prevenido con actualizaciones oportunas.</p>
+<p><strong>Tiempo estimado</strong>: 60-90 minutos de lectura + laboratorio</p>
+<hr>
+</section>
+<section id="ejemplos-prácticos-multi-so" class="level2">
+<h2 class="anchored" data-anchor-id="ejemplos-prácticos-multi-so">💡 Ejemplos Prácticos Multi-SO</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">Ejemplo 1: Actualizar Sistema Operativo</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Ejemplo 2: Verificar Vulnerabilidades de Seguridad</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Ejemplo 3: Caso Real Abacom - Configurar Firewall y Seguridad</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<section id="linux-ubuntu" class="level4">
+<h4 class="anchored" data-anchor-id="linux-ubuntu">Linux (Ubuntu)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 1: Actualizar lista de paquetes</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Get:1</span> http://security.ubuntu.com/ubuntu jammy-security InRelease [114 kB]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Leyendo</span> listas de paquetes... Hecho</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 2: Actualizar paquetes instalados</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt upgrade <span class="at">-y</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Se</span> instalarán las siguientes actualizaciones:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">openssl</span> ssh systemd vim curl wget</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ex">0</span> paquetes recién instalados, 5 para actualizar</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ex">¿Deseas</span> continuar<span class="pp">?</span> <span class="pp">[</span><span class="ss">S/n</span><span class="pp">]</span> S</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 3: Limpiar paquetes no usados</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt autoremove <span class="at">-y</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Los</span> siguientes paquetes serán ELIMINADOS:</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="ex">libpython3.8-minimal</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ex">¿Deseas</span> continuar<span class="pp">?</span> <span class="pp">[</span><span class="ss">S/n</span><span class="pp">]</span> S</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar versión del kernel después</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-r</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="ex">5.15.0-89-generic</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="macos-darwin" class="level4">
+<h4 class="anchored" data-anchor-id="macos-darwin">macOS (Darwin)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-37" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-37-1"><a href="#annotated-cell-37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># macOS usa dos sistemas de actualización:</span></span>
+<span id="annotated-cell-37-2"><a href="#annotated-cell-37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-37-3"><a href="#annotated-cell-37-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Sistema A: Actualizaciones de SO (via App Store / Sistema)</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-37" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-37-4" class="code-annotation-target"><a href="#annotated-cell-37-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> softwareupdate <span class="at">-l</span></span>
+<span id="annotated-cell-37-5"><a href="#annotated-cell-37-5" aria-hidden="true" tabindex="-1"></a><span class="ex">The</span> following updates are available:</span>
+<span id="annotated-cell-37-6"><a href="#annotated-cell-37-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">macOS</span> Sonoma 14.2.1 Update</span>
+<span id="annotated-cell-37-7"><a href="#annotated-cell-37-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">Security</span> Update 2024-001</span>
+<span id="annotated-cell-37-8"><a href="#annotated-cell-37-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="annotated-cell-37-9"><a href="#annotated-cell-37-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar todas las actualizaciones</span></span>
+<span id="annotated-cell-37-10"><a href="#annotated-cell-37-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo softwareupdate <span class="at">-ia</span></span>
+<span id="annotated-cell-37-11"><a href="#annotated-cell-37-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Installing</span> macOS Sonoma 14.2.1 Update</span>
+<span id="annotated-cell-37-12"><a href="#annotated-cell-37-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Requiere reinicio</span></span>
+<span id="annotated-cell-37-13"><a href="#annotated-cell-37-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-37-14"><a href="#annotated-cell-37-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Sistema B: Homebrew (package manager de terceros)</span></span>
+<span id="annotated-cell-37-15"><a href="#annotated-cell-37-15" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> brew update</span>
+<span id="annotated-cell-37-16"><a href="#annotated-cell-37-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Updated</span> 2 taps and 215 formulae</span>
+<span id="annotated-cell-37-17"><a href="#annotated-cell-37-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-37-18"><a href="#annotated-cell-37-18" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> brew upgrade  <span class="co"># Actualizar todos los paquetes</span></span>
+<span id="annotated-cell-37-19"><a href="#annotated-cell-37-19" aria-hidden="true" tabindex="-1"></a><span class="ex">Upgrading</span> curl, openssl, wget</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-37" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-37" data-code-lines="4,15" data-code-annotation="1"><strong>softwareupdate</strong> es el gestor de actualizaciones de SO en macOS</span>
+</dd>
+</dl>
+</section>
+<section id="windows-powershell" class="level4">
+<h4 class="anchored" data-anchor-id="windows-powershell">Windows (PowerShell)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows tiene actualización automática (Windows Update)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Pero también puedes forzar actualizaciones vía PowerShell:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver actualizaciones disponibles</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-WindowsUpdate</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>Title                                  KB        Size</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">-----</span>                                  <span class="op">--</span>        <span class="op">----</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>Cumulative Update <span class="cf">for</span> Windows <span class="dv">11</span>        KB5034441  800MB</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>Security Update <span class="cf">for</span> <span class="op">.</span><span class="fu">NET</span> Framework <span class="dv">4.8</span> KB5034440  150MB</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar actualizaciones (requiere privilegios admin)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Install-WindowsUpdate <span class="op">-</span>AcceptAll <span class="op">-</span>AutoReboot</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar versión del SO</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">[</span>Environment<span class="op">]::</span>OSVersion<span class="op">.</span><span class="fu">Version</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="dv">10.0</span><span class="op">.</span><span class="dv">22621.0</span>  <span class="co"># Windows 11 Build 22621</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Comparación:</strong> | SO | Comando | Gestor | Automático | |—-|———|——–|———–| | Linux | <code>apt update &amp;&amp; apt upgrade</code> | apt | Configurable | | macOS | <code>softwareupdate -ia</code> | App Store + brew | Sí, con popup | | Windows | <code>Install-WindowsUpdate</code> | Windows Update | Sí, forzado |</p>
+</section>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<section id="linux-ubuntu-1" class="level4">
+<h4 class="anchored" data-anchor-id="linux-ubuntu-1">Linux (Ubuntu)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-41" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-41-1"><a href="#annotated-cell-41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver historial de parchesaplicados</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-41" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-41-2" class="code-annotation-target"><a href="#annotated-cell-41-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt log</span>
+<span id="annotated-cell-41-3"><a href="#annotated-cell-41-3" aria-hidden="true" tabindex="-1"></a><span class="co"># O ver el archivo de log:</span></span>
+<span id="annotated-cell-41-4"><a href="#annotated-cell-41-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail <span class="at">-f</span> /var/log/apt/history.log</span>
+<span id="annotated-cell-41-5"><a href="#annotated-cell-41-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-41-6"><a href="#annotated-cell-41-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar CVEs (Common Vulnerabilities) en paquetes instalados</span></span>
+<span id="annotated-cell-41-7"><a href="#annotated-cell-41-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt list <span class="at">--upgradable</span></span>
+<span id="annotated-cell-41-8"><a href="#annotated-cell-41-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Listado</span> de paquetes con actualizaciones disponibles:</span>
+<span id="annotated-cell-41-9"><a href="#annotated-cell-41-9" aria-hidden="true" tabindex="-1"></a><span class="ex">curl/jammy</span> 7.81.0-1ubuntu1.14 7.81.0-1ubuntu1.15</span>
+<span id="annotated-cell-41-10"><a href="#annotated-cell-41-10" aria-hidden="true" tabindex="-1"></a><span class="ex">openssh-client/jammy</span> 1:8.2p1-4ubuntu0.5 1:8.2p1-4ubuntu0.6</span>
+<span id="annotated-cell-41-11"><a href="#annotated-cell-41-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-41-12"><a href="#annotated-cell-41-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar ubuntu-security-status (más información)</span></span>
+<span id="annotated-cell-41-13"><a href="#annotated-cell-41-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install ubuntu-security-status</span>
+<span id="annotated-cell-41-14"><a href="#annotated-cell-41-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ubuntu-security-status <span class="at">--json</span></span>
+<span id="annotated-cell-41-15"><a href="#annotated-cell-41-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Muestra vulnerabilidades conocidas</span></span>
+<span id="annotated-cell-41-16"><a href="#annotated-cell-41-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-41-17"><a href="#annotated-cell-41-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver vulnerabilidades recientes</span></span>
+<span id="annotated-cell-41-18"><a href="#annotated-cell-41-18" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo unattended-upgrade <span class="at">--debug</span></span>
+<span id="annotated-cell-41-19"><a href="#annotated-cell-41-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Muestra qué está siendo parcheado automáticamente</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-41" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-41" data-code-lines="2" data-code-annotation="1"><strong>apt log</strong> muestra el historial de instalaciones y actualizaciones</span>
+</dd>
+</dl>
+</section>
+<section id="macos-darwin-1" class="level4">
+<h4 class="anchored" data-anchor-id="macos-darwin-1">macOS (Darwin)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># macOS tiene vulnerabilidades de seguridad reportadas en:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo softwareupdate <span class="at">-l</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrada en formato: "Security Update XXXX-XXX"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Para análisis más detallado, usar herramientas de terceros:</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> brew install clamav  <span class="co"># Antivirus</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> freshclam  <span class="co"># Actualizar base de datos de virus</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> clamscan <span class="at">-ri</span> /Users  <span class="co"># Escanear el sistema</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar historial de updatesde seguridad</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> log show <span class="at">--predicate</span> <span class="st">'eventMessage contains "Update"'</span> <span class="at">--last</span> 1h</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="windows-powershell-1" class="level4">
+<h4 class="anchored" data-anchor-id="windows-powershell-1">Windows (PowerShell)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows tiene Windows Security (built-in)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar estado desde PowerShell:</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-MpComputerStatus <span class="op">|</span> <span class="fu">Select-Object</span> RealTimeProtectionEnabled<span class="op">,</span> OnAccessProtectionEnabled</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>RealTimeProtectionEnabled    OnAccessProtectionEnabled</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">---------------------------</span>  <span class="op">-------------------------</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>True                         True</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver historial de updates</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Get-WinEvent</span> <span class="op">-</span>LogName System <span class="op">-</span>FilterXPath <span class="st">"*[System[(EventID=19)]]"</span> <span class="op">|</span> <span class="fu">Select-Object</span> TimeCreated<span class="op">,</span> Message <span class="op">|</span> head <span class="op">-</span><span class="dv">5</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="dt">TimeCreated</span>             Message</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="op">-----------</span>             <span class="op">-------</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="dv">2024</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span><span class="dv">29</span> <span class="dv">10</span><span class="op">:</span><span class="dv">30</span><span class="op">:</span><span class="dv">00</span>     Update KB5034441 installed successfully</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar si hay updates pendientes</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">(</span><span class="fu">New-Object</span> <span class="op">-</span>ComObject Microsoft<span class="op">.</span><span class="fu">Update</span><span class="op">.</span><span class="fu">Session</span><span class="op">).</span><span class="fu">CreateupdateSearcher</span><span class="op">().</span><span class="fu">Search</span><span class="op">(</span><span class="st">"IsHidden=0 and Type='Software'"</span><span class="op">).</span><span class="fu">Updates</span><span class="op">.</span><span class="fu">Count</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Si devuelve 0: Sistema actualizado</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Comparación:</strong> | SO | Herramienta | Comando | Frecuencia | |—-|———–|———|———–| | Linux | unattended-upgrades | <code>apt upgrade</code> | Configurable (diario típico) | | macOS | Software Update | <code>softwareupdate -l</code> | Automático (con notificación) | | Windows | Windows Update | Automático | Forzado (Patch Tuesday) |</p>
+</section>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<section id="linux-ufw-firewall" class="level4">
+<h4 class="anchored" data-anchor-id="linux-ufw-firewall">Linux (UFW Firewall)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En Abacom, usamos UFW para proteger servidores</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 1: Habilitar firewall</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw enable</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Firewall</span> is active and enabled on system startup</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 2: Ver estado</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw status</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Status:</span> active</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ex">To</span>                         Action      From</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">--</span>                         <span class="at">------</span>      <span class="at">----</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="ex">22/tcp</span>                     ALLOW       Anywhere</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="ex">80/tcp</span>                     ALLOW       Anywhere</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">443/tcp</span>                    ALLOW       Anywhere</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 3: Permitir puertos específicos</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow 22/tcp  <span class="co"># SSH</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow 80/tcp  <span class="co"># HTTP</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow 443/tcp <span class="co"># HTTPS</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 4: Denegar todo lo demás (default)</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw default deny incoming</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw default allow outgoing</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar firewall log</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail <span class="at">-f</span> /var/log/ufw.log</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="macos-built-in-firewall" class="level4">
+<h4 class="anchored" data-anchor-id="macos-built-in-firewall">macOS (Built-in Firewall)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># macOS tiene firewall built-in (menos potente que UFW)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar firewall</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo /usr/libexec/ApplicationFirewall/socketfilterfw <span class="at">--setglobalstate</span> on</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Firewall</span> is now enabled</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver estado</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo /usr/libexec/ApplicationFirewall/socketfilterfw <span class="at">--getglobalstate</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Firewall</span> is enabled</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Permitir aplicación específica</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo /usr/libexec/ApplicationFirewall/socketfilterfw <span class="at">--add</span> /usr/bin/python3</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Mejor opción: Usar herramientas de terceros como Hands Off! o Little Snitch</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># O usar pfctl (Advanced BSD firewall)</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo pfctl <span class="at">-e</span>  <span class="co"># Habilitar PF firewall</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="windows-windows-defender-firewall" class="level4">
+<h4 class="anchored" data-anchor-id="windows-windows-defender-firewall">Windows (Windows Defender Firewall)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En Windows Server, usar Windows Defender Firewall</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver estado del firewall</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-NetFirewallProfile</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>Name             Enabled</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="op">----</span>             <span class="op">-------</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>Domain           True</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>Private          True</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>Public           True</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear regla de firewall (permitir SSH en puerto 22)</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> New-NetFirewallRule <span class="op">-</span>DisplayName <span class="st">"Allow SSH"</span> `</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">-</span>Direction Inbound <span class="op">-</span>LocalPort <span class="dv">22</span> <span class="op">-</span>Protocol TCP <span class="op">-</span>Action Allow</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver reglas activas</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-NetFirewallRule <span class="op">-</span>Direction Inbound <span class="op">-</span>Action Allow <span class="op">|</span> <span class="fu">Select-Object</span> DisplayName</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Más seguro: Denegar todo por defecto</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Set-NetFirewallProfile <span class="op">-</span>DefaultInboundAction Block <span class="op">-</span>DefaultOutboundAction Allow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Comparación arquitectura:</strong> | Aspecto | Linux (UFW) | macOS | Windows | |——–|———–|——-|———| | Facilidad | ✅ Simple | ⚠️ Complejo | ✅ GUI intuitiva | | Control | ✅ Total | ⚠️ Limitado | ✅ Granular | | Producción | ✅ Ideal | ❌ No | ✅ Viable | | Port blocking | ✅ Sí | ⚠️ Difícil | ✅ Sí |</p>
+</section>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="gestión-de-paquetes-con-apt-debianubuntu" class="level2">
+<h2 class="anchored" data-anchor-id="gestión-de-paquetes-con-apt-debianubuntu">1. Gestión de Paquetes con APT (Debian/Ubuntu)</h2>
+<section id="entender-apt-advanced-package-tool" class="level3">
+<h3 class="anchored" data-anchor-id="entender-apt-advanced-package-tool">1.1 Entender APT (Advanced Package Tool)</h3>
+<p>APT es el gestor de paquetes estándar en Debian y Ubuntu. Mantiene un índice de repositorios remotos.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **El ciclo de actualización**</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> update    → Descargar listas de paquetes nuevos</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> upgrade   → Instalar versiones nuevas <span class="er">(</span><span class="ex">sin</span> remover paquetes<span class="kw">)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> autoremove → Eliminar dependencias no utilizadas</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="actualizar-repositorios" class="level3">
+<h3 class="anchored" data-anchor-id="actualizar-repositorios">1.2 Actualizar Repositorios</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Descargar listas de paquetes desde repositorios**</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida esperada**:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Get:1 http://security.ubuntu.com/ubuntu focal-security InRelease [114 kB]</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Get:2 http://archive.ubuntu.com/ubuntu focal-updates InRelease [99.8 kB]</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Leyendo listas de paquetes... Hecho</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Se construirán 312 nuevos paquetes</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **¿Qué hace?**</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># - Conecta a repositorios configurados en /etc/apt/sources.list</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># - Descarga lista de paquetes disponibles y versiones</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># - Si ves "Get", está descargando; "Hit" = sin cambios</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Verificar repositorios configurados</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver fuentes APT**</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/apt/sources.list</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida típica**:</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># deb http://archive.ubuntu.com/ubuntu/ jammy main restricted</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># deb http://security.ubuntu.com/ubuntu jammy-security main restricted universe</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># **Carpeta de repositorios adicionales (PPA)**</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> /etc/apt/sources.list.d/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="actualizar-paquetes" class="level3">
+<h3 class="anchored" data-anchor-id="actualizar-paquetes">1.3 Actualizar Paquetes</h3>
+<p><strong>OPCIÓN 1: Upgrade (seguro - no elimina paquetes)</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Actualizar paquetes instalados a versión más reciente**</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt upgrade</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida**:</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Leyendo listas de paquetes... Hecho</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Creando árbol de dependencias</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Obteniendo información del estado... Hecho</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Se instalarán las siguientes actualizaciones:</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   openssl ssh systemd vim curl wget</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 0 paquetes recién instalados, 5 para actualizar, 0 para remover</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ¿Deseas continuar? [S/n] S</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ventaja**: Nunca rompe dependencias</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co"># **Desventaja**: A veces no puede instalar actualizaciones importantes</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>OPCIÓN 2: Full-Upgrade (más agresivo - puede remover paquetes)</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Actualización más completa (puede remover dependencias antiguas)**</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt full-upgrade</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Diferencia**: Si openssl 3.0 necesita remover openssl 1.1,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># full-upgrade lo hará; upgrade NO</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>OPCIÓN 3: Dist-Upgrade (Actualizar distribución - CUIDADO)</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Saltar a versión mayor de Ubuntu (22.04 -&gt; 24.04)**</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt dist-upgrade</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ⚠️ SOLO después de backup completo</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ⚠️ SOLO en ambiente de testing primero</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># **Mejor forma de actualizar distribución**:</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> do-release-upgrade</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Esta herramienta es más segura para saltos mayores</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="limpiar-paquetes-no-usados" class="level3">
+<h3 class="anchored" data-anchor-id="limpiar-paquetes-no-usados">1.4 Limpiar Paquetes No Usados</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Eliminar paquetes de dependencias que ya no se usan**</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt autoremove</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida**:</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Los siguientes paquetes serán ELIMINADOS:</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   libpython3.8-minimal</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 0 nuevos paquetes instalados, 0 actualizaciones, 1 para remover</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ¿Deseas continuar? [S/n] S</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Eliminar cachés de paquetes descargados**</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt autoclean</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co"># **Eliminar </span><span class="al">TODO</span><span class="co"> lo que tenga caché (más agresivo)**</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt clean</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="actualizar-paquete-específico" class="level3">
+<h3 class="anchored" data-anchor-id="actualizar-paquete-específico">1.5 Actualizar Paquete Específico</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Actualizar solo nginx a versión más reciente**</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">--only-upgrade</span> nginx</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Instalar versión específica**</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install nginx=1.24.0-1~jammy</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver versiones disponibles**</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">apt-cache</span> policy nginx</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># nginx:</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   Instalada: 1.18.0-6ubuntu14.3</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   Candidato: 1.24.0-1~jammy</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   Tabla de versión:</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#     1.24.0-1~jammy 500</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#     1.18.0-6ubuntu14.3 500</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="actualizaciones-automáticas" class="level2">
+<h2 class="anchored" data-anchor-id="actualizaciones-automáticas">2. Actualizaciones Automáticas</h2>
+<section id="instalar-unattended-upgrades" class="level3">
+<h3 class="anchored" data-anchor-id="instalar-unattended-upgrades">2.1 Instalar Unattended-Upgrades</h3>
+<p>En producción, quieres actualizaciones automáticas sin esperar:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Instalar herramienta de actualizaciones automáticas**</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install unattended-upgrades</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Habilitar servicio**</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable unattended-upgrades</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl start unattended-upgrades</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># **Verificar estado**</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status unattended-upgrades</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="configurar-qué-se-actualiza-automáticamente" class="level3">
+<h3 class="anchored" data-anchor-id="configurar-qué-se-actualiza-automáticamente">2.2 Configurar Qué Se Actualiza Automáticamente</h3>
+<p><strong>Editar configuración</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Archivo de configuración**</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> nano /etc/apt/apt.conf.d/50unattended-upgrades</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Cambios importantes:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Habilitar solo actualizaciones de seguridad (recomendado)**</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Package-Blacklist</span> {</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># **Solo paquetes de seguridad (línea clave)**</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Origins-Pattern</span> {</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"origin=*,archive=*-security"</span><span class="kw">;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir reinicio automático si es necesario**</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Automatic-Reboot</span> <span class="st">"true"</span><span class="kw">;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co"># **Horario para reinicio (ej: 3 AM)**</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Automatic-Reboot-Time</span> <span class="st">"03:00"</span><span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="notificar-cambios-por-email" class="level3">
+<h3 class="anchored" data-anchor-id="notificar-cambios-por-email">2.3 Notificar cambios por Email</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Instalar herramienta de email**</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install mailutils</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **En /etc/apt/apt.conf.d/50unattended-upgrades, agregar**:</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Mail</span> <span class="st">"diego@abacom.com"</span><span class="kw">;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::MailReport</span> <span class="st">"only-on-change"</span><span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="firewall-con-ufw" class="level2">
+<h2 class="anchored" data-anchor-id="firewall-con-ufw">3. Firewall con UFW</h2>
+<section id="entender-firewall" class="level3">
+<h3 class="anchored" data-anchor-id="entender-firewall">3.1 Entender Firewall</h3>
+<p>Un firewall es una barrera entre tu servidor y la red. Controla qué conexiones se permiten:</p>
+<pre data-code-line-numbers=""><code>                   ┌──────────────┐
+                   │   Internet   │
+                   └──────┬───────┘
+                          │
+                   ┌──────▼───────┐
+                   │  FIREWALL    │ ← UFW (controla qué entra/sale)
+                   └──────┬───────┘
+                          │
+                   ┌──────▼───────┐
+                   │   Servidor   │
+                   │  (Servicios) │
+                   └──────────────┘</code></pre>
+<p><strong>Reglas de firewall</strong>: - <strong>ALLOW</strong>: Permitir conexión - <strong>DENY</strong>: Bloquear conexión - <strong>REJECT</strong>: Rechazar (y notificar al cliente) - <strong>DROP</strong>: Descartar silenciosamente</p>
+</section>
+<section id="instalar-y-habilitar-ufw" class="level3">
+<h3 class="anchored" data-anchor-id="instalar-y-habilitar-ufw">3.2 Instalar y Habilitar UFW</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **UFW (Uncomplicated Firewall) viene con Ubuntu**</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># **Verificar si está instalado**</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install ufw</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># **Habilitar firewall**</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw enable</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida**:</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Firewall is active and enabled on system startup.</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver estado**</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida cuando está deshabilitado**:</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Status: inactive</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida cuando está habilitado**:</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Status: active</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="co"># To                         Action      From</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co"># --                         ------      ----</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 22/tcp                     ALLOW       Anywhere</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 80/tcp                     ALLOW       Anywhere</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 443/tcp                    ALLOW       Anywhere</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="reglas-básicas" class="level3">
+<h3 class="anchored" data-anchor-id="reglas-básicas">3.3 Reglas Básicas</h3>
+<p><strong>Permitir puerto SSH</strong> (¡CRÍTICO! Sino quedarás bloqueado):</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir SSH (puerto 22)**</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 22/tcp</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ó</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow ssh</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># **Verificar**</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># To                         Action      From</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --                         ------      ----</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 22/tcp                     ALLOW       Anywhere</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Permitir puertos web</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir HTTP (puerto 80)**</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 80/tcp</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow http</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir HTTPS (puerto 443)**</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 443/tcp</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow https</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir HTTP y HTTPS juntos**</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow <span class="st">"Nginx Full"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Permitir puertos personalizados</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir puerto 8080 (TCP)**</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 8080/tcp</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir puerto 5432 (PostgreSQL) solo desde IP específica**</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow from 192.168.1.50 to any port 5432</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir rango de puertos**</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 6000:6010/tcp</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir desde red específica**</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow from 192.168.1.0/24 to any port 3306</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Denegar puertos</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Bloquear conexiones SMTP (puerto 25) para prevenir spam**</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw deny 25/tcp</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Bloquear puerto desde IP específica**</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw deny from 203.0.113.1 to any port 22</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Bloquear todo excepto SSH, HTTP, HTTPS**</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw default deny incoming</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw default allow outgoing</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 22/tcp</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 80/tcp</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 443/tcp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="eliminar-reglas" class="level3">
+<h3 class="anchored" data-anchor-id="eliminar-reglas">3.4 Eliminar Reglas</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Listar reglas numeradas**</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status numbered</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Num  To                         Action      From</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ---  --                         ------      ----</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1    22/tcp                     ALLOW IN    Anywhere</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2    80/tcp                     ALLOW IN    Anywhere</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3    443/tcp                    ALLOW IN    Anywhere</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Eliminar regla por número**</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw delete 2</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Deleting:</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  allow 80/tcp</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Proceed with operation (y|n)? y</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co"># **Eliminar regla por descripción**</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw delete allow http</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="reglas-avanzadas" class="level3">
+<h3 class="anchored" data-anchor-id="reglas-avanzadas">3.5 Reglas Avanzadas</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir con límite de conexiones (prevenir brute force)**</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw limit 22/tcp</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Permite máximo 6 conexiones por 30 segundos</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver reglas en formato verbose**</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw show added</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Added user rules (see 'ufw status' for running firewall):</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ufw allow 22/tcp</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ufw allow 80/tcp</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ufw allow 443/tcp</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="co"># **Resetear UFW a estado por defecto**</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw reset</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="configuración-de-inicioparada" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-de-inicioparada">3.6 Configuración de Inicio/Parada</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Verificar si UFW está habilitado para startup**</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Status: active</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co"># **Deshabilitar UFW temporalmente (se reactiva en reboot)**</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw disable</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="co"># **Habilitar de nuevo**</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw enable</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># **Cargar reglas nuevas sin reiniciar**</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw reload</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="hardening-básico" class="level2">
+<h2 class="anchored" data-anchor-id="hardening-básico">4. Hardening Básico</h2>
+<section id="actualizar-bootloader" class="level3">
+<h3 class="anchored" data-anchor-id="actualizar-bootloader">4.1 Actualizar Bootloader</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Proteger GRUB con contraseña (previene acceso físico)**</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> nano /etc/default/grub</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Agregar línea**:</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co"># **Cambiar a**:</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co"># GRUB_CMDLINE_LINUX_DEFAULT="quiet splash systemd.unit=multi-user.target"</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co"># **Actualizar GRUB**</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="deshabilitar-servicios-innecesarios" class="level3">
+<h3 class="anchored" data-anchor-id="deshabilitar-servicios-innecesarios">4.2 Deshabilitar Servicios Innecesarios</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver servicios en ejecución**</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl list-units <span class="at">--type</span><span class="op">=</span>service <span class="at">--state</span><span class="op">=</span>running</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Deshabilitar servicio innecesario (ej: Bluetooth)**</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl disable bluetooth</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl stop bluetooth</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co"># **Servicios que generalmente NO se necesitan en servidor**:</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - bluetooth</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co"># - cups (impresoras)</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="co"># - avahi-daemon (mDNS)</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co"># - isc-dhcp-server (si no lo usas)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="limitar-acceso-a-archivos-sensibles" class="level3">
+<h3 class="anchored" data-anchor-id="limitar-acceso-a-archivos-sensibles">4.3 Limitar Acceso a Archivos Sensibles</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Proteger archivos de configuración sensibles**</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod 600 /etc/ssh/sshd_config</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Asegurar log de auditoría**</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod 640 /var/log/auth.log</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Proteger crontab de usuario**</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod 640 /etc/crontab</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Archivos con permisos adecuados**</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co"># /etc/passwd:     644 (legible por todos)</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="co"># /etc/shadow:     640 (solo root)</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co"># /etc/sudoers:    440 (solo root, con visudo)</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="co"># /root/.ssh:      700 (solo root)</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ~/.ssh:          700 (solo usuario)</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="co"># ~/.ssh/id_rsa:   600 (solo usuario)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="audit-y-selinuxapparmor" class="level3">
+<h3 class="anchored" data-anchor-id="audit-y-selinuxapparmor">4.4 Audit y SELinux/AppArmor</h3>
+<p><strong>En Ubuntu, AppArmor es estándar</strong> (SELinux es en CentOS):</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver estado de AppArmor**</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status apparmor</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver perfiles cargados**</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> aa-status</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Habilitar AppArmor**</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable apparmor</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **NOTA**: AppArmor es más simple que SELinux</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Usa perfiles predefinidos para servicios comunes</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="fail2ban---proteger-contra-brute-force" class="level3">
+<h3 class="anchored" data-anchor-id="fail2ban---proteger-contra-brute-force">4.5 Fail2Ban - Proteger contra Brute Force</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Instalar Fail2Ban (bloquea IPs después de N intentos fallidos)**</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install fail2ban</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Habilitar**</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable fail2ban</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl start fail2ban</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver estado**</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status fail2ban</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver intentos fallidos en SSH**</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> fail2ban-client status sshd</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida**:</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Status for the jail sshd:</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co"># |- Filter set to: sshd</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="co"># |- Currently failed: 0</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a><span class="co"># |- Currently banned: 2</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a><span class="co"># `- Total banned: 5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="laboratorio-práctico-actualizar-y-asegurar-servidor" class="level2">
+<h2 class="anchored" data-anchor-id="laboratorio-práctico-actualizar-y-asegurar-servidor">5. Laboratorio Práctico: Actualizar y Asegurar Servidor</h2>
+<section id="escenario" class="level3">
+<h3 class="anchored" data-anchor-id="escenario">5.1 Escenario</h3>
+<p>Tienes un servidor Ubuntu recién instalado que necesita: 1. Actualizar todos los paquetes 2. Configurar firewall básico 3. Habilitar actualizaciones automáticas 4. Aplicar hardening inicial</p>
+</section>
+<section id="pasos" class="level3">
+<h3 class="anchored" data-anchor-id="pasos">5.2 Pasos</h3>
+<p><strong>PASO 1: Actualizar repositorios y paquetes</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Conectar al servidor**</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> diego@192.168.1.100</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Actualizar lista de paquetes**</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Upgrade seguro**</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt upgrade</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Responder 'S' cuando pregunte**</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ¿Deseas continuar? [S/n] S</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co"># **Limpiar paquetes no usados**</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt autoremove</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>PASO 2: Instalar Fail2Ban y UFW</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Instalar fail2ban**</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install fail2ban</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Instalar UFW (probablemente ya viene)**</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install ufw</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Habilitar UFW**</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw enable</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Responder 'y' si pregunta si quieres continuar**</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>PASO 3: Configurar firewall</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir SSH (¡PRIMERO ESTO!)**</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 22/tcp</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir HTTP**</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 80/tcp</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Permitir HTTPS**</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 443/tcp</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Verificar reglas**</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="co"># **Salida esperada**:</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Status: active</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="co"># To                         Action      From</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="co"># --                         ------      ----</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 22/tcp                     ALLOW       Anywhere</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 80/tcp                     ALLOW       Anywhere</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 443/tcp                    ALLOW       Anywhere</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>PASO 4: Configurar actualizaciones automáticas</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Instalar unattended-upgrades**</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install unattended-upgrades</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Habilitar**</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable unattended-upgrades</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl start unattended-upgrades</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="co"># **Verificar estado**</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status unattended-upgrades</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>PASO 5: Verificar seguridad</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver estado de firewall**</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status verbose</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver servicios en escucha**</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ss <span class="at">-tulpn</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver logs de fail2ban**</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> fail2ban-client status</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver logs de auditoría SSH**</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tail <span class="at">-20</span> /var/log/auth.log</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="monitoreo-de-seguridad" class="level2">
+<h2 class="anchored" data-anchor-id="monitoreo-de-seguridad">6. Monitoreo de Seguridad</h2>
+<section id="ver-logs-de-actualizaciones" class="level3">
+<h3 class="anchored" data-anchor-id="ver-logs-de-actualizaciones">6.1 Ver Logs de Actualizaciones</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver qué se actualizó**</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /var/log/apt/history.log</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver logs de unattended-upgrades**</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cat /var/log/unattended-upgrades/unattended-upgrades.log</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="auditoría-de-cambios-recientes" class="level3">
+<h3 class="anchored" data-anchor-id="auditoría-de-cambios-recientes">6.2 Auditoría de Cambios Recientes</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># **Ver cambios en archivo crítico**</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install aide</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># **Inicializar base de datos AIDE**</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> aideinit</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="co"># **Luego, verificar cambios**</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> aide <span class="at">--check</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="ejercicios-prácticos" class="level2">
+<h2 class="anchored" data-anchor-id="ejercicios-prácticos">7. Ejercicios Prácticos</h2>
+<section id="ejercicio-1-crear-política-de-actualización" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-1-crear-política-de-actualización">Ejercicio 1: Crear política de actualización</h3>
+<p>Define: - Cuándo actualizar (horarios) - Qué actualizar (seguridad, todas) - Cómo notificar (email) - Cuándo reiniciar (horario seguro)</p>
+<p><strong>Solución</strong>: Editar <strong>/etc/apt/apt.conf.d/50unattended-upgrades</strong> con:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Origins-Pattern</span> {</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"origin=*,archive=*-security"</span><span class="kw">;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Automatic-Reboot</span> <span class="st">"true"</span><span class="kw">;</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Automatic-Reboot-Time</span> <span class="st">"03:00"</span><span class="kw">;</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Unattended-Upgrade::Mail</span> <span class="st">"admin@abacom.com"</span><span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="ejercicio-2-configurar-firewall-completo" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-2-configurar-firewall-completo">Ejercicio 2: Configurar firewall completo</h3>
+<p>Crea firewall para: - SSH: Permitir solo desde IP 192.168.1.50 - HTTP/HTTPS: Permitir desde cualquiera - MySQL: Permitir solo desde red 192.168.1.0/24 - Bloquear todo lo demás</p>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw default deny incoming</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw default allow outgoing</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow from 192.168.1.50 to any port 22</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 80/tcp</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 443/tcp</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow from 192.168.1.0/24 to any port 3306</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="ejercicio-3-crear-script-de-backup-antes-de-actualizar" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-3-crear-script-de-backup-antes-de-actualizar">Ejercicio 3: Crear script de backup antes de actualizar</h3>
+<p>Crea script que: 1. Hace backup de configuración 2. Ejecuta <strong>apt update &amp;&amp; apt upgrade</strong> 3. Notifica resultado por log 4. Se ejecuta cada domingo a las 2 AM</p>
+<p><strong>Solución</strong>: Ver Anexo A (Bash Scripting) para crear script + crontab</p>
+<hr>
+</section>
+</section>
+<section id="quiz-de-verificación" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-de-verificación">8. Quiz de Verificación</h2>
+<ol type="1">
+<li><strong>¿Cuál es la diferencia entre </strong>apt upgrade** y <strong>apt full-upgrade</strong>?**
+<ul>
+<li><ol type="A">
+<li>No hay diferencia</li>
+</ol></li>
+<li><ol start="2" type="A">
+<li>upgrade es más rápido</li>
+</ol></li>
+<li><ol start="3" type="A">
+<li>full-upgrade puede remover paquetes; upgrade no</li>
+</ol></li>
+<li><ol start="4" type="A">
+<li>Respuesta C es correcta ✅</li>
+</ol></li>
+</ul></li>
+<li><strong>¿Qué hace </strong>sudo ufw allow 22/tcp** antes de <strong>sudo ufw enable</strong>?**
+<ul>
+<li><ol type="A">
+<li>Permite acceso SSH para que no te bloquees</li>
+</ol></li>
+<li><ol start="2" type="A">
+<li>Es necesario antes de habilitar firewall</li>
+</ol></li>
+<li><ol start="3" type="A">
+<li>Protege SSH de ataques</li>
+</ol></li>
+<li><ol start="4" type="A">
+<li>Respuestas A y B son correctas ✅</li>
+</ol></li>
+</ul></li>
+<li><strong>¿Cuál es el comando para ver reglas de UFW numeradas?</strong>
+<ul>
+<li><ol type="A">
+<li>sudo ufw list</li>
+</ol></li>
+<li><ol start="2" type="A">
+<li>sudo ufw show</li>
+</ol></li>
+<li><ol start="3" type="A">
+<li>sudo ufw status numbered ✅</li>
+</ol></li>
+<li><ol start="4" type="A">
+<li>sudo ufw rules</li>
+</ol></li>
+</ul></li>
+<li><strong>¿Qué es unattended-upgrades?</strong>
+<ul>
+<li><ol type="A">
+<li>Actualización manual del sistema</li>
+</ol></li>
+<li><ol start="2" type="A">
+<li>Herramienta para actualizar automáticamente ✅</li>
+</ol></li>
+<li><ol start="3" type="A">
+<li>Comando para actualizar paquetes específicos</li>
+</ol></li>
+<li><ol start="4" type="A">
+<li>Script para limpiar paquetes</li>
+</ol></li>
+</ul></li>
+<li><strong>¿Cuál es la regla de seguridad al usar UFW?</strong>
+<ul>
+<li><ol type="A">
+<li>Permitir SSH al último</li>
+</ol></li>
+<li><ol start="2" type="A">
+<li>Permitir SSH al primero ✅</li>
+</ol></li>
+<li><ol start="3" type="A">
+<li>No importa el orden</li>
+</ol></li>
+<li><ol start="4" type="A">
+<li>SSH no necesita regla</li>
+</ol></li>
+</ul></li>
+</ol>
+<hr>
+</section>
+<section id="resumen-y-siguiente-paso" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-y-siguiente-paso">9. Resumen y Siguiente Paso</h2>
+<section id="lo-aprendido" class="level3">
+<h3 class="anchored" data-anchor-id="lo-aprendido">Lo Aprendido</h3>
+<p>✅ Actualizar paquetes de forma segura (<strong>apt update</strong>, <strong>upgrade</strong>) ✅ Configurar actualizaciones automáticas ✅ Instalar y usar firewall UFW ✅ Crear reglas de firewall apropiadas ✅ Aplicar hardening inicial ✅ Monitorear cambios de seguridad</p>
+</section>
+<section id="siguiente-unidad-2.5" class="level3">
+<h3 class="anchored" data-anchor-id="siguiente-unidad-2.5">Siguiente: Unidad 2.5</h3>
+<p>El próximo (y último) tema de Unidad 2 cubre: - Comandos básicos de terminal - Navegación del sistema de archivos - Primeros pasos prácticos</p>
+<hr>
+</section>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">📚 Referencias</h2>
+<p><span class="citation" data-cites="ubuntu_updates_security">(<a href="#ref-ubuntu_updates_security" role="doc-biblioref">Canonical 2024b</a>)</span> <span class="citation" data-cites="ufw_firewall_guide">(<a href="#ref-ufw_firewall_guide" role="doc-biblioref">Community 2024</a>)</span> <span class="citation" data-cites="fail2ban_protection">(<a href="#ref-fail2ban_protection" role="doc-biblioref">F. Project 2024</a>)</span> <span class="citation" data-cites="unattended_upgrades_config">(<a href="#ref-unattended_upgrades_config" role="doc-biblioref">D. Project 2024</a>)</span> <span class="citation" data-cites="ubuntu_hardening_guide">(<a href="#ref-ubuntu_hardening_guide" role="doc-biblioref">Canonical 2024a</a>)</span></p>
+<hr>
+</section>
+<section id="quiz-actualización-y-seguridad" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-actualización-y-seguridad">📝 Quiz: Actualización y Seguridad</h2>
+<div class="quizdown">
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el comando para actualizar la lista de paquetes en Ubuntu?
+
+- [ ] apt upgrade
+- [x] apt update
+- [ ] apt refresh
+- [ ] apt list
+
+## ¿Cuál es la diferencia entre `apt upgrade` y `apt full-upgrade`?
+
+- [x] upgrade instala actualizaciones, full-upgrade también elimina paquetes obsoletos
+- [ ] upgrade es más rápido
+- [ ] full-upgrade es solo para servidores
+- [ ] No hay diferencia
+
+## ¿Qué paquete permite actualizaciones automáticas en Ubuntu?
+
+- [ ] auto-update
+- [x] unattended-upgrades
+- [ ] auto-patch
+- [ ] background-updates
+
+## ¿Cuál es el archivo de configuración de unattended-upgrades?
+
+- [ ] /etc/unattended-upgrades
+- [x] /etc/apt/apt.conf.d/50unattended-upgrades
+- [ ] /etc/unattended.conf
+- [ ] /var/apt/unattended-upgrades
+
+## ¿Qué es UFW?
+
+- [ ] Un protocolo de red
+- [x] Uncomplicated Firewall - interfaz simplificada para iptables
+- [ ] Universal File Writer
+- [ ] User Firewall
+
+## ¿Cuál comando habilita el firewall UFW?
+
+- [ ] ufw on
+- [x] ufw enable
+- [ ] ufw activate
+- [ ] ufw start
+
+## ¿Cuál comando permite conexiones SSH a través del firewall?
+
+- [ ] ufw allow port 22
+- [x] ufw allow ssh
+- [ ] ufw ssh allow
+- [ ] ufw permit 22
+
+## ¿Qué es Fail2Ban?
+
+- [x] Sistema que detecta y bloquea intentos de acceso fallidos repetidos
+- [ ] Herramienta para eliminar archivos
+- [ ] Servicio de backup
+- [ ] Monitor de memoria
+
+## ¿Cuál es el archivo de configuración principal de Fail2Ban?
+
+- [ ] /etc/fail2ban.conf
+- [x] /etc/fail2ban/jail.conf
+- [ ] /etc/fail2ban/config
+- [ ] /var/fail2ban/conf
+
+## ¿Cuántos intentos fallidos típicamente bloquean a un usuario en Fail2Ban por defecto?
+
+- [ ] 3
+- [x] 5
+- [ ] 10
+- [ ] 15
+
+## ¿Qué comando muestra las actualizaciones disponibles sin instalarlas?
+
+- [x] apt list --upgradable
+- [ ] apt check
+- [ ] apt show-updates
+- [ ] apt available
+
+## ¿Cuál es una buena práctica de seguridad al actualizar un servidor en producción?
+
+- [ ] Actualizar sin hacer respaldo
+- [ ] Actualizar en horario de máximo uso
+- [x] Hacer backup, actualizar en ventana de mantenimiento, verificar servicios
+- [ ] Actualizar y reiniciar inmediatamente
+
+## ¿Qué hace el comando `sudo apt autoremove`?
+
+- [ ] Elimina todo tipo de archivos
+- [x] Elimina paquetes que no son necesarios (dependencias de paquetes removidos)
+- [ ] Elimina archivos automáticamente
+- [ ] Elimina directorios vacíos
+
+## ¿Cuál es el puerto estándar para SSH?
+
+- [ ] 2222
+- [x] 22
+- [ ] 2022
+- [ ] 8022
+
+## ¿Qué herramienta de línea de comandos se usa frecuentemente para auditar puertos abiertos?
+
+- [ ] port-scan
+- [ ] netstat (antiguo)
+- [x] ss (socket statistics)
+- [ ] ports -list
+</div>
+<hr>
+
+
+</section>
+<section class="level1 unnumbered">
+<h1 class="unnumbered">Code Appendix</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-ubuntu_hardening_guide" class="csl-entry" role="listitem">
+Canonical. 2024a. <span>“Security Hardening.”</span> 2024.
+</div>
+<div id="ref-ubuntu_updates_security" class="csl-entry" role="listitem">
+———. 2024b. <span>“Security Updates.”</span> 2024.
+</div>
+<div id="ref-ufw_firewall_guide" class="csl-entry" role="listitem">
+Community, Ubuntu. 2024. <span>“UFW - Uncomplicated Firewall.”</span> 2024.
+</div>
+<div id="ref-unattended_upgrades_config" class="csl-entry" role="listitem">
+Project, Debian. 2024. <span>“Unattended Upgrades.”</span> 2024.
+</div>
+<div id="ref-fail2ban_protection" class="csl-entry" role="listitem">
+Project, Fail2ban. 2024. <span>“Fail2ban.”</span> 2024.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../unidades/unidad2/3_configuracion_inicial.html" class="pagination-link" aria-label="Configuración Inicial del Sistema">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Configuración Inicial del Sistema</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../unidades/unidad2/5_primeros_pasos_terminal.html" class="pagination-link" aria-label="Primeros Pasos en Terminal">
+        <span class="nav-page-text"><span class="chapter-title">Primeros Pasos en Terminal</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+<p>Sobre el Curso</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../../license.html">
+<p>Licencia</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://statick88.github.io">
+<p>Instructor: statick88.github.io</p>
+</a>
+  </li>  
+</ul>
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

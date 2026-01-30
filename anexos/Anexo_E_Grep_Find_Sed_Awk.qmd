@@ -1,0 +1,838 @@
+---
+title: "Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: ../unidades/unidad1/references.bib
+biblio-style: apalike
+---
+
+# Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk
+
+## Introducción
+
+Administrar servidores Linux significa constantemente **buscar archivos** y **procesar texto**. Desde logs enormes hasta archivos de configuración, necesitas poder encontrar y modificar información rápidamente.
+
+Este anexo enseña las **4 herramientas más poderosas** de Linux para procesamiento de texto:
+
+- **grep** - Buscar líneas que coincidan con patrón
+- **find** - Encontrar archivos por nombre, tamaño, fecha, etc
+- **sed** - Edición de streams (modificar texto en scripts)
+- **awk** - Procesamiento de columnas de texto
+
+**🗺️ En este anexo aprenderás:**
+- Búsqueda básica y avanzada con grep
+- Encontrar archivos específicos con find
+- Editar y reemplazar texto con sed
+- Procesar columnas con awk
+- Piping y combinación de herramientas
+- Casos de uso reales en Abacom
+
+**⏱️ Duración estimada**: 2 horas de práctica
+
+---
+
+## 💡 Herramientas de Búsqueda en Diferentes SOs
+
+::: {.panel-tabset}
+
+### Linux (Herramientas Nativas)
+
+```bash
+# Linux tiene grep, find, sed, awk nativas y optimizadas
+
+# Buscar en archivo
+$ grep "error" /var/log/syslog
+$ grep -r "error" /var/log  # Recursivo
+
+# Encontrar archivos
+$ find / -name "*.log" -type f
+$ find /home -user diego -type d
+
+# Editar con sed
+$ sed 's/error/ERROR/g' archivo.txt
+$ sed -i 's/old/new/g' archivo.txt  # In-place
+
+# Procesar columnas con awk
+$ ps aux | awk '{print $1, $2, $3}'
+$ cat datos.csv | awk -F, '{sum += $2} END {print sum}'
+```
+
+**Disponibilidad:**
+- ✅ grep: Siempre disponible
+- ✅ find: Siempre disponible
+- ✅ sed: Siempre disponible (GNU sed)
+- ✅ awk: Siempre disponible (GNU awk / gawk)
+
+### macOS (Compatible pero diferente)
+
+```bash
+# macOS tiene las herramientas, pero versiones BSD (no GNU)
+# Las opciones pueden ser ligeramente diferentes
+
+# Buscar en archivo
+$ grep "error" /var/log/system.log
+$ grep -r "error" /var/log  # Recursivo (igual)
+
+# DIFERENCIA: BSD sed vs GNU sed
+# macOS sed es BSD sed (menos opciones)
+$ sed -i '' 's/error/ERROR/g' archivo.txt  # '' es requerido en macOS
+$ sed -i 's/error/ERROR/g' archivo.txt  # Linux
+
+# Mejor: Instalar GNU sed via Homebrew
+$ brew install gnu-sed
+$ gsed -i 's/error/ERROR/g' archivo.txt  # GNU sed
+
+# awk (BSD awk, pero compatible)
+$ ps aux | awk '{print $1, $2, $3}'
+$ cat datos.csv | awk -F, '{sum += $2} END {print sum}'
+
+# find (similar a Linux)
+$ find . -name "*.log" -type f
+```
+
+**Disponibilidad:**
+- ✅ grep: Disponible (BSD grep)
+- ✅ find: Disponible (BSD find)
+- ⚠️ sed: Disponible pero limitado (BSD sed)
+- ✅ awk: Disponible (BSD awk)
+- 💡 Recomendado: Instalar GNU tools via Homebrew
+
+### Windows (PowerShell / Git Bash)
+
+```powershell
+# Windows NO tiene grep, find, sed, awk nativamente
+# Opciones:
+
+# OPCIÓN 1: PowerShell (alternativas nativas)
+PS> # Buscar en archivo
+PS> Select-String -Path "C:\logs\error.log" -Pattern "error"
+
+PS> # Encontrar archivos
+PS> Get-ChildItem -Path "C:\" -Filter "*.log" -Recurse
+
+PS> # Reemplazar en archivo
+PS> (Get-Content "archivo.txt") -replace "old", "new" | Set-Content "archivo.txt"
+
+PS> # Procesar columnas (similar a awk)
+PS> Get-Process | Select-Object Name, CPU, Memory
+
+# OPCIÓN 2: Git Bash (incluye grep, sed, awk)
+$ grep "error" C:\logs\error.log
+$ find C:\projects -name "*.log"
+$ sed 's/error/ERROR/g' archivo.txt
+
+# OPCIÓN 3: Windows Subsystem for Linux (WSL)
+PS> wsl grep "error" /mnt/c/logs/error.log
+PS> wsl find / -name "*.log"
+# Acceso completo a herramientas Linux
+```
+
+**Disponibilidad:**
+- ❌ grep: No nativo (via Git Bash o WSL)
+- ❌ find: No nativo (via Git Bash o WSL)
+- ❌ sed: No nativo (via Git Bash o WSL)
+- ❌ awk: No nativo (via Git Bash o WSL)
+- ✅ PowerShell equivalentes: Disponibles
+- 🎯 Recomendado: **Usar WSL o PowerShell nativo**
+
+:::
+
+**Tabla comparativa:**
+| Herramienta | Linux | macOS | Windows |
+|-----------|-------|-------|---------|
+| grep | ✅ GNU | ✅ BSD | ❌ (WSL/Git Bash) |
+| find | ✅ GNU | ✅ BSD | ❌ (WSL/Get-ChildItem) |
+| sed | ✅ GNU | ⚠️ BSD | ❌ (WSL/Get-Content) |
+| awk | ✅ GNU | ✅ BSD | ❌ (WSL/Select-Object) |
+
+**Recomendación para Abacom:**
+- Linux: Usar herramientas nativas (grep, find, sed, awk)
+- macOS: Instalar `brew install gnu-sed` para compatibilidad
+- Windows: Usar WSL para acceso completo a herramientas Linux
+
+---
+
+## Concepto 1: GREP - Buscar Texto en Archivos
+
+### Búsqueda Básica
+
+```bash
+# Buscar "error" en archivo
+grep "error" /var/log/syslog  # <1>
+```
+
+1. **grep "patrón" archivo** busca todas las líneas que contienen "error"
+
+**Salida (solo líneas con "error"):**
+```
+Jan 29 15:45:23 server kernel: [error] Failed to allocate memory
+Jan 29 16:12:01 server nginx: [error] Connection refused
+Jan 29 17:34:56 server php: [error] Undefined variable in script.php
+```
+
+### Búsqueda Case-Insensitive
+
+```bash
+# Buscar "ERROR", "Error", "error" todo junto
+grep -i "error" /var/log/syslog  # <1>
+```
+
+1. **-i** (ignore case) ignora mayúsculas/minúsculas
+
+### Contar Ocurrencias
+
+```bash
+# ¿Cuántas veces aparece "error"?
+grep -c "error" /var/log/syslog  # <1>
+```
+
+1. **-c** (count) cuenta líneas coincidentes
+
+**Salida:**
+```
+47
+```
+
+Hay 47 líneas con "error".
+
+### Buscar en Múltiples Archivos
+
+```bash
+# Buscar "error" en TODOS los .log
+grep "error" /var/log/*.log  # <1>
+```
+
+1. **\*.log** wildcard que expande a todos los .log
+
+**Salida:**
+```
+/var/log/syslog:Jan 29 15:45:23 server kernel: [error] Failed
+/var/log/nginx.log:Jan 29 16:12:01 server nginx: [error] Connection
+/var/log/apache2.log:Jan 29 17:34:56 server apache: [error] Forbidden
+```
+
+### Mostrar Contexto (Líneas Alrededor)
+
+```bash
+# Mostrar 3 líneas antes y después de "error"
+grep -C 3 "error" /var/log/syslog  # <1>
+
+# O por separado:
+grep -B 2 -A 2 "error" /var/log/syslog  # <2>
+```
+
+1. **-C 3** (context) 3 líneas antes y después
+2. **-B 2** (before), **-A 2** (after)
+
+### Expresiones Regulares (Regex)
+
+```bash
+# Buscar líneas que empiezen con "ERROR"
+grep "^ERROR" /var/log/syslog  # <1>
+
+# Buscar líneas que terminen con "failed"
+grep "failed$" /var/log/syslog  # <2>
+
+# Buscar patrón flexible (error, warning, critical)
+grep -E "error|warning|critical" /var/log/syslog  # <3>
+```
+
+1. **^** = inicio de línea
+2. **$** = fin de línea
+3. **-E** (extended regex) permite **|** (o)
+
+### Buscar Archivos Recursivamente
+
+```bash
+# Buscar "TODO" en todos los .py en carpeta proyecto
+grep -r "TODO" /home/diego/proyecto/  # <1>
+
+# Con número de línea
+grep -rn "TODO" /home/diego/proyecto/  # <2>
+```
+
+1. **-r** (recursive) busca en subcarpetas
+2. **-n** (number) muestra número de línea
+
+**Salida:**
+```
+/home/diego/proyecto/main.py:45: TODO: Implementar autenticación
+/home/diego/proyecto/utils.py:123: TODO: Optimizar función lenta
+```
+
+### Invertir Búsqueda (NOT)
+
+```bash
+# Mostrar líneas SIN "error"
+grep -v "error" /var/log/syslog  # <1>
+```
+
+1. **-v** (invert) muestra líneas que NO coinciden
+
+---
+
+## Concepto 2: FIND - Encontrar Archivos
+
+### Buscar por Nombre
+
+```bash
+# Encontrar todos los archivos .log en /var/log
+find /var/log -name "*.log"  # <1>
+
+# Buscar archivos exactamente "nginx.conf"
+find / -name "nginx.conf"  # <2>
+```
+
+1. **-name "patrón"** busca por nombre
+2. Sin **-type f** incluye directorios también
+
+### Buscar Solo Archivos o Directorios
+
+```bash
+# Solo archivos (no directorios)
+find /home -type f -name "*.txt"  # <1>
+
+# Solo directorios
+find /home -type d -name "backup*"  # <2>
+```
+
+1. **-type f** = archivos
+2. **-type d** = directorios
+
+### Buscar por Tamaño
+
+```bash
+# Encontrar archivos mayores a 100 MB
+find /home -type f -size +100M  # <1>
+
+# Encontrar archivos menores a 1 KB
+find /tmp -type f -size -1K  # <2>
+
+# Exactamente 5 GB
+find / -type f -size 5G  # <3>
+```
+
+1. **+100M** = mayor que 100 MB
+2. **-1K** = menor que 1 KB
+3. **5G** = exactamente 5 GB
+
+### Buscar por Fecha
+
+```bash
+# Archivos modificados en últimos 7 días
+find /home -type f -mtime -7  # <1>
+
+# Archivos modificados más de 30 días atrás
+find /var/log -type f -mtime +30  # <2>
+
+# Accedidos hoy
+find / -type f -atime 0  # <3>
+```
+
+1. **-mtime -7** = últimos 7 días
+2. **-mtime +30** = más de 30 días atrás
+3. **-atime 0** = accedidos hoy
+
+### Ejecutar Comando en Resultados
+
+```bash
+# Eliminar todos los .log del 2023
+find /var/log -name "*.log.*" -mtime +365 -delete  # <1>
+
+# Contar líneas en todos los .py
+find /home -name "*.py" -exec wc -l {} \;  # <2>
+
+# Cambiar permisos en lote
+find /home -type d -exec chmod 755 {} \;  # <3>
+```
+
+1. **-delete** elimina archivos encontrados
+2. **-exec comando {} \;** ejecuta comando en cada archivo
+3. **{}** es placeholder para nombre del archivo
+
+### Buscar Archivos Vacíos
+
+```bash
+# Encontrar archivos vacíos
+find /tmp -type f -empty  # <1>
+
+# Encontrar directorios vacíos
+find /var -type d -empty  # <2>
+```
+
+1. **-empty** archivos de 0 bytes
+2. **-empty** directorios sin contenido
+
+---
+
+## Concepto 3: SED - Editor de Streams
+
+### Reemplazar Texto (Substitución)
+
+```bash
+# Reemplazar "apache2" por "nginx" (primera ocurrencia por línea)
+sed 's/apache2/nginx/' /etc/hosts  # <1>
+
+# Reemplazar TODAS las ocurrencias (global)
+sed 's/apache2/nginx/g' /etc/hosts  # <2>
+
+# Case-insensitive
+sed 's/apache2/nginx/gi' /etc/hosts  # <3>
+```
+
+1. **s/viejo/nuevo/** reemplaza (primera por línea)
+2. **g** = global (todas)
+3. **i** = case-insensitive
+
+### Usar Delimitador Diferente
+
+```bash
+# Útil cuando hay "/" en patrón
+sed 's|/var/log/|/backup/|g' /etc/fstab  # <1>
+
+# O con #
+sed 's#/var/log/#/backup/#g' /etc/fstab  # <2>
+```
+
+1. **|** como delimitador
+2. **#** como delimitador (también válido)
+
+### Eliminar Líneas
+
+```bash
+# Eliminar línea 5
+sed '5d' /etc/config.txt  # <1>
+
+# Eliminar líneas 5-10
+sed '5,10d' /etc/config.txt  # <2>
+
+# Eliminar líneas que contengan "error"
+sed '/error/d' /var/log/syslog  # <3>
+
+# Eliminar líneas vacías
+sed '/^$/d' /etc/config.txt  # <4>
+```
+
+1. **5d** = delete línea 5
+2. **5,10d** = delete rango
+3. **/patrón/d** = delete líneas que coincidan
+4. **/^$/d** = delete líneas vacías
+
+### Guardar Cambios a Archivo
+
+```bash
+# Mostrar en pantalla (no modifica archivo)
+sed 's/viejo/nuevo/g' archivo.txt
+
+# Guardar en nuevo archivo
+sed 's/viejo/nuevo/g' archivo.txt > archivo_nuevo.txt
+
+# Modificar archivo en lugar (in-place)
+sed -i 's/viejo/nuevo/g' archivo.txt  # <1>
+
+# Backup antes de modificar
+sed -i.bak 's/viejo/nuevo/g' archivo.txt  # <2>
+```
+
+1. **-i** modifica el archivo original
+2. **-i.bak** crea backup antes de modificar
+
+### Inserciones y Adiciones
+
+```bash
+# Agregar línea antes de línea 5
+sed '5i\NUEVA LÍNEA' archivo.txt  # <1>
+
+# Agregar línea después de línea 5
+sed '5a\NUEVA LÍNEA' archivo.txt  # <2>
+
+# Agregar al final del archivo
+sed '$a\ÚLTIMA LÍNEA' archivo.txt  # <3>
+```
+
+1. **5i** = insert antes (before)
+2. **5a** = append después (after)
+3. **$** = última línea
+
+---
+
+## Concepto 4: AWK - Procesamiento de Columnas
+
+### Imprimir Columnas Específicas
+
+```bash
+# Archivo: usuarios.txt
+# diego  35  linux  admin
+# carlos 28  python developer
+# ana    32  java   engineer
+
+# Imprimir columna 1 (nombre)
+awk '{print $1}' usuarios.txt  # <1>
+
+# Imprimir columnas 1 y 3
+awk '{print $1, $3}' usuarios.txt  # <2>
+
+# Imprimir en orden inverso
+awk '{print $4, $1}' usuarios.txt  # <3>
+```
+
+1. **$1** = primera columna
+2. **$1, $3** = columna 1 y 3
+3. **$4, $1** = columna 4 y 1
+
+**Salida:**
+```
+diego
+carlos
+ana
+
+diego linux
+carlos python
+ana java
+
+admin diego
+developer carlos
+engineer ana
+```
+
+### Usar Delimitador Diferente
+
+```bash
+# Archivo /etc/passwd usa : como delimitador
+# root:x:0:0:root:/root:/bin/bash
+
+# Ver solo nombres de usuario (-F = Field separator)
+awk -F: '{print $1}' /etc/passwd  # <1>
+
+# Ver UID y nombre
+awk -F: '{print $3, $1}' /etc/passwd  # <2>
+```
+
+1. **-F:** usa : como delimitador
+2. Imprimir UID (columna 3) y nombre (columna 1)
+
+### Condicionales con AWK
+
+```bash
+# Mostrar solo usuarios con edad > 30
+awk '$2 > 30 {print $1}' usuarios.txt  # <1>
+
+# Mostrar líneas que contengan "admin"
+awk '/admin/ {print $0}' usuarios.txt  # <2>
+
+# Mostrar línea 2 solamente
+awk 'NR==2' usuarios.txt  # <3>
+```
+
+1. **$2 > 30** = columna 2 mayor que 30
+2. **/patrón/** = líneas coincidentes
+3. **NR==2** = línea número 2 (NR = Number of Record)
+
+### Operaciones Matemáticas
+
+```bash
+# Archivo: precios.txt
+# producto precio cantidad
+# laptop   1000  5
+# mouse    25    50
+# monitor  300   10
+
+# Calcular total por producto
+awk '{print $1, $2 * $3}' precios.txt  # <1>
+
+# Suma total de todo
+awk '{suma += $2 * $3} END {print "Total: " suma}' precios.txt  # <2>
+```
+
+1. **$2 * $3** = precio × cantidad
+2. **END** = después de procesar todo, mostrar suma
+
+### Variables y Strings
+
+```bash
+# Añadir texto personalizado
+awk '{print "Usuario: " $1 " edad: " $2}' usuarios.txt  # <1>
+
+# Usar variables
+awk -v nombre="Diego" '{print nombre ": " $1}' usuarios.txt  # <2>
+```
+
+1. Concatenar strings con espacios
+2. **-v var=valor** define variable antes
+
+---
+
+## 💡 Ejemplos Prácticos Reales en Abacom
+
+### Ejemplo 1: Buscar y Contar Errores en Log
+
+```bash
+#!/bin/bash
+# Analizar errores en /var/log/syslog
+
+echo "=== REPORTE DE ERRORES ==="
+echo
+
+# Total de errores
+echo "Total de errores:"
+grep -c "error" /var/log/syslog
+
+# Por tipo de error
+echo
+echo "Errores por tipo:"
+grep "error" /var/log/syslog | awk -F'] ' '{print $2}' | sort | uniq -c | sort -rn | head -5
+
+# Últimas 10 líneas con error
+echo
+echo "Últimas 10 ocurrencias:"
+grep "error" /var/log/syslog | tail -10
+```
+
+---
+
+### Ejemplo 2: Limpiar Logs Antiguos
+
+```bash
+#!/bin/bash
+# Eliminar logs más antiguos de 30 días
+
+echo "Eliminando logs antiguos..."
+
+# Encontrar y eliminar
+find /var/log -type f -name "*.log.*" -mtime +30 -delete
+
+# Comprimir logs en rotación
+find /var/log -type f -name "*.log" -mtime +7 -exec gzip {} \;
+
+echo "✓ Limpieza completada"
+```
+
+---
+
+### Ejemplo 3: Procesar Archivo CSV
+
+```bash
+#!/bin/bash
+# Procesar CSV de usuarios y crear cuentas
+
+# usuarios.csv
+# diego,35,developer,active
+# carlos,28,admin,inactive
+# ana,32,engineer,active
+
+echo "Creando cuentas de usuario..."
+
+awk -F, '$4 == "active" {
+  print "sudo useradd -m -s /bin/bash " $1
+}' usuarios.csv | bash
+
+echo "✓ Usuarios creados"
+```
+
+---
+
+### Ejemplo 4: Reporte de Uso de Disco
+
+```bash
+#!/bin/bash
+# Generar reporte de disco
+
+echo "=== REPORTE DE USO DE DISCO ==="
+echo
+
+# Ver particiones >80% lleno
+echo "Particiones críticas (>80%):"
+df -h | awk '$5 > 80 {print $1 ": " $5 " usado"}'
+
+echo
+echo "Top 5 carpetas más grandes:"
+du -sh /* | sort -rh | head -5
+
+echo
+echo "Archivos grandes (>100MB):"
+find / -type f -size +100M -exec ls -lh {} \; | awk '{print $5, $9}' | sort -rh | head -10
+```
+
+---
+
+### Ejemplo 5: Combinar Herramientas (Pipe)
+
+```bash
+#!/bin/bash
+# Pipeline complejo: buscar → procesar → reportar
+
+# ¿Cuáles usuarios iniciaron sesión hoy?
+echo "Usuarios que iniciaron sesión hoy:"
+
+grep "$(date '+%b %d')" /var/log/auth.log | \
+  grep "Accepted password" | \
+  awk '{print $1, $2, $3}' | \
+  sort | uniq
+
+# Desglose:
+# 1. grep fecha actual de auth.log
+# 2. grep solo líneas de "Accepted password"
+# 3. awk extrae fecha y hora
+# 4. sort ordena
+# 5. uniq elimina duplicados
+```
+
+---
+
+## 🔧 Tabla Rápida: Combinaciones Poderosas
+
+| Tarea | Comando |
+|------|---------|
+| **Buscar archivos grandes** | **find / -type f -size +100M** |
+| **Buscar texto recursivo** | **grep -rn "TODO" /home/** |
+| **Reemplazar en lote** | **find . -name "*.txt" -exec sed -i 's/viejo/nuevo/g' {} \;** |
+| **Contar líneas en archivos** | **find . -name "*.py" -exec wc -l {} + \| tail -1** |
+| **Listar usuarios sistema** | **awk -F: '{print $1}' /etc/passwd** |
+| **Archivos modificados hoy** | **find / -type f -mtime 0** |
+| **Ver top 10 usuarios por size** | **du -sh /home/* \| sort -rh \| head -10** |
+
+---
+
+## ⚠️ Errores Comunes
+
+**Error 1: Olvidar escapar caracteres especiales**
+
+```bash
+# MALO: . significa "cualquier carácter"
+grep "archivo.txt" /var/log/syslog
+
+# BUENO: \. es punto literal
+grep "archivo\.txt" /var/log/syslog
+```
+
+**Error 2: -i in-place sin backup**
+
+```bash
+# MALO: Si hay error, perdiste archivo
+sed -i 's/viejo/nuevo/g' archivo.txt
+
+# BUENO: Backup primero
+sed -i.bak 's/viejo/nuevo/g' archivo.txt
+```
+
+**Error 3: Olvidar comillas**
+
+```bash
+# MALO: Se expande wildcard antes
+awk $1 archivo.txt
+
+# BUENO: Comillas protegen variables
+awk '{print $1}' archivo.txt
+```
+
+---
+
+## 🎓 Quiz: Verificar Comprensión
+
+:::{.callout-tip collapse="true"}
+### Pregunta 1: ¿Qué diferencia hay entre grep y grep -r?
+
+**a)** No hay diferencia  
+**b)** -r busca recursivamente en directorios (Correcto ✓)  
+**c)** -r usa regex  
+**d)** -r es más rápido  
+
+**Explicación**: sin -r grep solo busca en un archivo. Con -r busca en carpeta y subcarpetas.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 2: ¿Cómo eliminas líneas vacías de un archivo con sed?
+
+**a)** **sed '/^$/d' archivo.txt** (Correcto ✓)  
+**b)** **sed 's/^$//' archivo.txt**  
+**c)** **sed 'd' archivo.txt**  
+**d)** **sed '/^/d' archivo.txt**  
+
+**Explicación**: **/^$/** coincide líneas que solo tienen inicio y fin (vacías). **d** las elimina.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 3: ¿Qué hace **awk '{print $2}'**?
+
+**a)** Imprime toda la línea  
+**b)** Imprime 2 caracteres  
+**c)** Imprime la segunda columna (Correcto ✓)  
+**d)** Imprime línea 2  
+
+**Explicación**: **$2** es la columna 2 (separada por espacios). **NR==2** sería línea 2.
+:::
+
+---
+
+## 👨‍💻 Práctica: Scripts Útiles
+
+**Script 1: Buscar archivo por edad**
+
+```bash
+#!/bin/bash
+# Encontrar archivos sin modificar hace N días
+
+DIAS=${1:-30}
+echo "Buscando archivos no modificados en últimos $DIAS días..."
+find /home -type f -mtime +$DIAS
+```
+
+**Script 2: Reportar errores en logs**
+
+```bash
+#!/bin/bash
+# Generar reporte de errores
+
+find /var/log -name "*.log" | while read FILE
+do
+  COUNT=$(grep -c "error" "$FILE" 2>/dev/null || echo 0)
+  if [ $COUNT -gt 0 ]
+  then
+    echo "$FILE: $COUNT errores"
+  fi
+done
+```
+
+**Script 3: Backup selectivo**
+
+```bash
+#!/bin/bash
+# Respaldar solo archivos modificados hoy
+
+BACKUP_DIR="/backup/diario"
+mkdir -p "$BACKUP_DIR"
+
+find /home -type f -mtime 0 | while read FILE
+do
+  cp "$FILE" "$BACKUP_DIR/"
+done
+
+echo "✓ Respaldo completado: $(date)"
+```
+
+---
+
+## 📚 Recursos Adicionales
+
+- **Regular Expressions Tester**: https://regex101.com/
+- **Sed Tutorial**: https://www.gnu.org/software/sed/manual/sed.html
+- **AWK Manual**: https://www.gnu.org/software/gawk/manual/gawk.html
+- **Find Command**: https://linux.die.net/man/1/find
+- **Grep Patterns**: https://www.gnu.org/software/grep/manual/grep.html
+
+---
+
+## Conclusión
+
+Ahora sabes:
+✓ Buscar texto con grep (simple y avanzado)
+✓ Encontrar archivos con find
+✓ Editar archivos con sed
+✓ Procesar columnas con awk
+✓ Combinar herramientas con pipes
+
+**Para Abacom**: Estas 4 herramientas son **TU PAN DE CADA DÍA** en administración. Dóminalas.
+
+**Próximo paso**: Úsalas en scripts de mantenimiento y análisis de logs.
+
+---

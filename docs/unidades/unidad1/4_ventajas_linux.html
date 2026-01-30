@@ -1,0 +1,2387 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Diego Saavedra">
+<meta name="dcterms.date" content="2024-01-29">
+<meta name="description" content="Análisis detallado de ventajas de Linux: gratuidad, código abierto, seguridad, estabilidad, rendimiento, comunidad global, y casos de uso empresariales específicos para Abacom">
+
+<title>Unidad 1.4: Ventajas de Linux para Abacom – Administración de Servidores Linux</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../unidades/unidad2/1_requisitos_preparacion.html" rel="next">
+<link href="../../unidades/unidad1/3_distribuciones_linux.html" rel="prev">
+<link href="../../logo.jpeg" rel="icon" type="image/jpeg">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-7ac2f9da8c2617a4fdd15004b4601015.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-25a4e8620ae17d49cd0c3861fdf92567.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-7c46af36f45a90370d809a0f738714ec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown-init.js"></script>
+<link href="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+<script src="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
+<link href="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html">Unidad 1: Introducción a Linux</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad1/4_ventajas_linux.html"><span class="chapter-title">Unidad 1.4: Ventajas de Linux para Abacom</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../../index.html" class="sidebar-logo-link">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Administración de Servidores Linux</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="../../administracion_servidores_linux.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">🐧 Bienvenido al Curso de Administración de Servidores Linux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introducción al Curso</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acerca del Instructor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../license.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licencia</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Unidad 1: Introducción a Linux</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1: Introducción a Sistemas Operativos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/2_historia_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.2: Historia y Evolución de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/3_distribuciones_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.3: Distribuciones de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/4_ventajas_linux.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 1.4: Ventajas de Linux para Abacom</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 2: Instalación y Configuración</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/1_requisitos_preparacion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Requisitos y Preparación para Instalación</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/2_instalacion_ubuntu.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instalación de Ubuntu 22.04 LTS Paso a Paso</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/3_configuracion_inicial.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración Inicial del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/4_actualizacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Actualización y Seguridad del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/5_primeros_pasos_terminal.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Primeros Pasos en Terminal</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 3: Comandos Básicos de Linux</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/1_navegacion_directorios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Navegación de Directorios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/2_inspeccion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inspección de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/3_busqueda_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Búsqueda de Archivos y Contenido</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/4_permisos_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Permisos de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/5_manipulacion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Manipulación de Archivos y Directorios</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos Especializados</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_B_Editores_Vi_Nvim.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo B: Editores Vi y Nvim - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_D_Herramientas_Monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#ventajas-de-linux-para-abacom" id="toc-ventajas-de-linux-para-abacom" class="nav-link active" data-scroll-target="#ventajas-de-linux-para-abacom">🎯 Ventajas de Linux para Abacom</a>
+  <ul class="collapse">
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#en-este-tema-aprenderás" id="toc-en-este-tema-aprenderás" class="nav-link" data-scroll-target="#en-este-tema-aprenderás">🗺️ En este tema aprenderás</a></li>
+  <li><a href="#gratuidad-baja-calidad" id="toc-gratuidad-baja-calidad" class="nav-link" data-scroll-target="#gratuidad-baja-calidad">Gratuidad ≠ Baja Calidad</a></li>
+  <li><a href="#código-abierto-control" id="toc-código-abierto-control" class="nav-link" data-scroll-target="#código-abierto-control">Código Abierto = Control</a></li>
+  <li><a href="#ejemplos-prácticos" id="toc-ejemplos-prácticos" class="nav-link" data-scroll-target="#ejemplos-prácticos">💡 Ejemplos Prácticos</a></li>
+  <li><a href="#ventajas-detalladas" id="toc-ventajas-detalladas" class="nav-link" data-scroll-target="#ventajas-detalladas">🔧 Ventajas Detalladas</a>
+  <ul class="collapse">
+  <li><a href="#económica" id="toc-económica" class="nav-link" data-scroll-target="#económica">Económica</a></li>
+  <li><a href="#seguridad" id="toc-seguridad" class="nav-link" data-scroll-target="#seguridad">Seguridad</a></li>
+  <li><a href="#estabilidad" id="toc-estabilidad" class="nav-link" data-scroll-target="#estabilidad">Estabilidad</a></li>
+  <li><a href="#rendimiento" id="toc-rendimiento" class="nav-link" data-scroll-target="#rendimiento">Rendimiento</a></li>
+  <li><a href="#flexibilidad" id="toc-flexibilidad" class="nav-link" data-scroll-target="#flexibilidad">Flexibilidad</a></li>
+  </ul></li>
+  <li><a href="#errores-comunes" id="toc-errores-comunes" class="nav-link" data-scroll-target="#errores-comunes">⚠️ Errores Comunes</a>
+  <ul class="collapse">
+  <li><a href="#linux-es-solo-para-geekshackers" id="toc-linux-es-solo-para-geekshackers" class="nav-link" data-scroll-target="#linux-es-solo-para-geekshackers">“Linux es solo para geeks/hackers”</a></li>
+  <li><a href="#pero-todas-las-grandes-empresas-usan-windows" id="toc-pero-todas-las-grandes-empresas-usan-windows" class="nav-link" data-scroll-target="#pero-todas-las-grandes-empresas-usan-windows">“Pero todas las grandes empresas usan Windows”</a></li>
+  </ul></li>
+  <li><a href="#mejores-prácticas" id="toc-mejores-prácticas" class="nav-link" data-scroll-target="#mejores-prácticas">📊 Mejores Prácticas</a></li>
+  <li><a href="#tabla-comparativa-linux-vs-windows-vs-macos" id="toc-tabla-comparativa-linux-vs-windows-vs-macos" class="nav-link" data-scroll-target="#tabla-comparativa-linux-vs-windows-vs-macos">📋 Tabla Comparativa: Linux vs Windows vs macOS</a></li>
+  <li><a href="#quiz-verifica-tu-comprensión" id="toc-quiz-verifica-tu-comprensión" class="nav-link" data-scroll-target="#quiz-verifica-tu-comprensión">🎓 Quiz: Verifica tu Comprensión</a>
+  <ul class="collapse">
+  <li><a href="#cuánto-cuesta-linux-por-servidor-por-año" id="toc-cuánto-cuesta-linux-por-servidor-por-año" class="nav-link" data-scroll-target="#cuánto-cuesta-linux-por-servidor-por-año">¿Cuánto cuesta Linux por servidor por año?</a></li>
+  <li><a href="#por-qué-linux-es-más-seguro-si-su-código-está-abierto" id="toc-por-qué-linux-es-más-seguro-si-su-código-está-abierto" class="nav-link" data-scroll-target="#por-qué-linux-es-más-seguro-si-su-código-está-abierto">¿Por qué Linux es más seguro si su código está abierto?</a></li>
+  <li><a href="#por-qué-abacom-elige-linux-en-lugar-de-windows-para-servidores" id="toc-por-qué-abacom-elige-linux-en-lugar-de-windows-para-servidores" class="nav-link" data-scroll-target="#por-qué-abacom-elige-linux-en-lugar-de-windows-para-servidores">¿Por qué Abacom elige Linux en lugar de Windows para servidores?</a></li>
+  </ul></li>
+  <li><a href="#práctica-guiada-con-el-instructor" id="toc-práctica-guiada-con-el-instructor" class="nav-link" data-scroll-target="#práctica-guiada-con-el-instructor">👨‍💻 Práctica Guiada con el Instructor</a>
+  <ul class="collapse">
+  <li><a href="#calcular-roi-de-linux-vs-windows" id="toc-calcular-roi-de-linux-vs-windows" class="nav-link" data-scroll-target="#calcular-roi-de-linux-vs-windows">Calcular ROI de Linux vs Windows</a></li>
+  <li><a href="#comparar-ventajas-técnicas" id="toc-comparar-ventajas-técnicas" class="nav-link" data-scroll-target="#comparar-ventajas-técnicas">Comparar Ventajas Técnicas</a></li>
+  <li><a href="#explorar-comunidad-linux" id="toc-explorar-comunidad-linux" class="nav-link" data-scroll-target="#explorar-comunidad-linux">Explorar Comunidad Linux</a></li>
+  </ul></li>
+  <li><a href="#laboratorio-de-práctica-integrado" id="toc-laboratorio-de-práctica-integrado" class="nav-link" data-scroll-target="#laboratorio-de-práctica-integrado">🧪 Laboratorio de Práctica Integrado</a>
+  <ul class="collapse">
+  <li><a href="#fase-1-investigación-de-ventajas-20-min" id="toc-fase-1-investigación-de-ventajas-20-min" class="nav-link" data-scroll-target="#fase-1-investigación-de-ventajas-20-min">Fase 1: Investigación de Ventajas (20 min)</a></li>
+  <li><a href="#fase-2-análisis-económico-20-min" id="toc-fase-2-análisis-económico-20-min" class="nav-link" data-scroll-target="#fase-2-análisis-económico-20-min">Fase 2: Análisis Económico (20 min)</a></li>
+  <li><a href="#fase-3-documento-final-20-min" id="toc-fase-3-documento-final-20-min" class="nav-link" data-scroll-target="#fase-3-documento-final-20-min">Fase 3: Documento Final (20 min)</a></li>
+  <li><a href="#verificación-del-laboratorio" id="toc-verificación-del-laboratorio" class="nav-link" data-scroll-target="#verificación-del-laboratorio">Verificación del Laboratorio</a></li>
+  </ul></li>
+  <li><a href="#recursos-adicionales" id="toc-recursos-adicionales" class="nav-link" data-scroll-target="#recursos-adicionales">📚 Recursos Adicionales</a>
+  <ul class="collapse">
+  <li><a href="#documentación-oficial" id="toc-documentación-oficial" class="nav-link" data-scroll-target="#documentación-oficial">Documentación Oficial</a></li>
+  <li><a href="#tutoriales-complementarios" id="toc-tutoriales-complementarios" class="nav-link" data-scroll-target="#tutoriales-complementarios">Tutoriales Complementarios</a></li>
+  </ul></li>
+  <li><a href="#preguntas-frecuentes" id="toc-preguntas-frecuentes" class="nav-link" data-scroll-target="#preguntas-frecuentes">❓ Preguntas Frecuentes</a></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">🎯 Resumen</a>
+  <ul class="collapse">
+  <li><a href="#checklist-de-competencias-alcanzadas" id="toc-checklist-de-competencias-alcanzadas" class="nav-link" data-scroll-target="#checklist-de-competencias-alcanzadas">Checklist de Competencias Alcanzadas</a></li>
+  <li><a href="#próximos-pasos" id="toc-próximos-pasos" class="nav-link" data-scroll-target="#próximos-pasos">Próximos Pasos</a></li>
+  </ul></li>
+  <li><a href="#soporte" id="toc-soporte" class="nav-link" data-scroll-target="#soporte">📞 Soporte</a></li>
+  <li><a href="#quiz-ventajas-de-linux" id="toc-quiz-ventajas-de-linux" class="nav-link" data-scroll-target="#quiz-ventajas-de-linux">📝 Quiz: Ventajas de Linux</a></li>
+  </ul></li>
+  <li>Code Appendix</li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html">Unidad 1: Introducción a Linux</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad1/4_ventajas_linux.html"><span class="chapter-title">Unidad 1.4: Ventajas de Linux para Abacom</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Unidad 1.4: Ventajas de Linux para Abacom</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 29, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="ventajas-de-linux-para-abacom" class="level1">
+<h1>🎯 Ventajas de Linux para Abacom</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>En las secciones anteriores aprendiste QUÉ es Linux. Ahora vamos a explorar POR QUÉ elegimos Linux para Abacom. No es casualidad que más del 90% de los servidores mundiales usen Linux - existen razones técnicas y comerciales sólidas. En este tema, analizaremos estas ventajas en el contexto específico de nuestra empresa.</p>
+<p><strong>Tiempo de lectura:</strong> ~15 minutos<br>
+<strong>Nivel:</strong> Principiante-Intermedio<br>
+<strong>Requisitos previos:</strong> Unidades 1-3 (SO, Historia, Distribuciones)</p>
+<hr>
+</section>
+<section id="en-este-tema-aprenderás" class="level2">
+<h2 class="anchored" data-anchor-id="en-este-tema-aprenderás">🗺️ En este tema aprenderás</h2>
+<p>En esta unidad cubriremos:</p>
+<ol type="1">
+<li><strong>Ventaja Económica</strong> - Linux es completamente gratuito</li>
+<li><strong>Código Abierto</strong> - Libertad, transparencia, control total</li>
+<li><strong>Seguridad</strong> - Parches rápidos, comunidad audita código</li>
+<li><strong>Estabilidad y Rendimiento</strong> - Servidores con 10+ años uptime</li>
+<li><strong>Comunidad Global</strong> - Millones de expertos disponibles</li>
+<li><strong>Compatibilidad Empresarial</strong> - Soporte profesional disponible</li>
+<li><strong>Casos de Éxito</strong> - Empresas que usan Linux</li>
+</ol>
+<hr>
+</section>
+<section id="gratuidad-baja-calidad" class="level2">
+<h2 class="anchored" data-anchor-id="gratuidad-baja-calidad">Gratuidad ≠ Baja Calidad</h2>
+<p><strong>Definición clara:</strong></p>
+<p>Linux es completamente <strong>gratis</strong> <span class="citation" data-cites="gpl_license">(<a href="#ref-gpl_license" role="doc-biblioref"><em>GNU GPL V3.0</em> 2007</a>)</span>. No pagas por licencias, actualizaciones, ni extensiones. Pero esto NO significa baja calidad. De hecho, es lo opuesto.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>¿Por qué importa?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Impacto directo:</strong> Abacom ahorra millones en licencias de software</li>
+<li><strong>En Abacom:</strong> En lugar de pagar a Microsoft/Red Hat, reinvertimos en talento</li>
+<li><strong>Ventaja profesional:</strong> Entiendes que “gratis” y “calidad” NO son opuestos</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="código-abierto-control" class="level2">
+<h2 class="anchored" data-anchor-id="código-abierto-control">Código Abierto = Control</h2>
+<p><strong>Definición clara:</strong></p>
+<p>Con Linux, <strong>tienes acceso al código fuente completo</strong> <span class="citation" data-cites="linux_foundation_history">(<a href="#ref-linux_foundation_history" role="doc-biblioref">Foundation 2024</a>)</span>. Puedes: - Ver exactamente qué hace - Modificarlo si lo necesitas - Auditar seguridad por ti mismo - Nunca depender de un vendedor</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Puedes ver el código de cualquier parte de Linux</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-2" class="code-annotation-target"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /proc/version</span>
+<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Linux</span> version 5.15.0-89-generic <span class="er">(</span><span class="ex">gcc-11</span><span class="kw">)</span></span>
+<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># O descargar el kernel completo</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-6" class="code-annotation-target"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git</span>
+<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Contiene 30+ años de historia de desarrollo</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="2" data-code-annotation="1"><strong>cat /proc/version</strong> muestra el archivo virtual <strong>/proc/version</strong> que contiene la versión exacta del kernel en ejecución</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="6" data-code-annotation="2"><strong>git clone</strong> descarga el repositorio completo del kernel Linux desde el servidor oficial, incluyendo 30+ años de historia de commits de Linus Torvalds y miles de desarrolladores</span>
+</dd>
+</dl>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Punto importante
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Código abierto NO significa “sin seguridad”. Significa lo opuesto: - Miles de expertos auditan constantemente - Vulnerabilidades se encuentran Y se arreglan rápido - No hay “puertas traseras” ocultas</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="ejemplos-prácticos" class="level2">
+<h2 class="anchored" data-anchor-id="ejemplos-prácticos">💡 Ejemplos Prácticos</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">Ejemplo 1: Comparar Costos en Diferentes SOs</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Ejemplo 2: Seguridad mediante Código Abierto vs Cerrado</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Ejemplo 3: Caso Real Abacom - Estabilidad y Uptime</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<section id="linux-ubuntu-server" class="level4">
+<h4 class="anchored" data-anchor-id="linux-ubuntu-server">Linux (Ubuntu Server)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-15-1"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OPCIÓN: Linux (Ubuntu LTS)</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-15-2" class="code-annotation-target"><a href="#annotated-cell-15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Licencia:                       $0 (gratis)</span></span>
+<span id="annotated-cell-15-3"><a href="#annotated-cell-15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Soporte (Canonical):           $200-1,000 (opcional)</span></span>
+<span id="annotated-cell-15-4"><a href="#annotated-cell-15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizaciones:               Ilimitadas, automatizables</span></span>
+<span id="annotated-cell-15-5"><a href="#annotated-cell-15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Cambiar características:       Libre, no pagado</span></span>
+<span id="annotated-cell-15-6"><a href="#annotated-cell-15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># TOTAL ANUAL:                   ~$200-1,000 (máximo)</span></span>
+<span id="annotated-cell-15-7"><a href="#annotated-cell-15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-8"><a href="#annotated-cell-15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># En producción:</span></span>
+<span id="annotated-cell-15-9"><a href="#annotated-cell-15-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsb_release <span class="at">-d</span></span>
+<span id="annotated-cell-15-10"><a href="#annotated-cell-15-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Description:</span>    Ubuntu 22.04.3 LTS</span>
+<span id="annotated-cell-15-11"><a href="#annotated-cell-15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Servidor pagado: $0</span></span>
+<span id="annotated-cell-15-12"><a href="#annotated-cell-15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Soporte pagado: $0-500/año (opcional)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="2" data-code-annotation="1">Linux no tiene costo inicial para instalar en ningún número de servidores</span>
+</dd>
+</dl>
+</section>
+<section id="windows-server" class="level4">
+<h4 class="anchored" data-anchor-id="windows-server">Windows Server</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy code-annotated"><code class="sourceCode powershell"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OPCIÓN: Windows Server 2022</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-16-2" class="code-annotation-target"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Licencia:                      $5,000-20,000 (una vez)</span></span>
+<span id="annotated-cell-16-3"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Soporte anual:                 $1,000-5,000</span></span>
+<span id="annotated-cell-16-4"><a href="#annotated-cell-16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizaciones:               Incluido pero limitado</span></span>
+<span id="annotated-cell-16-5"><a href="#annotated-cell-16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Cambiar licencia:              Complejo y caro</span></span>
+<span id="annotated-cell-16-6"><a href="#annotated-cell-16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># TOTAL ANUAL:                   ~$10,000+ (mínimo)</span></span>
+<span id="annotated-cell-16-7"><a href="#annotated-cell-16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-8"><a href="#annotated-cell-16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-ComputerInfo <span class="op">|</span> <span class="fu">Select-Object</span> OsName</span>
+<span id="annotated-cell-16-9"><a href="#annotated-cell-16-9" aria-hidden="true" tabindex="-1"></a>OsName</span>
+<span id="annotated-cell-16-10"><a href="#annotated-cell-16-10" aria-hidden="true" tabindex="-1"></a><span class="op">------</span></span>
+<span id="annotated-cell-16-11"><a href="#annotated-cell-16-11" aria-hidden="true" tabindex="-1"></a>Microsoft Windows Server <span class="dv">2022</span></span>
+<span id="annotated-cell-16-12"><a href="#annotated-cell-16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Costo inicial: $15,000</span></span>
+<span id="annotated-cell-16-13"><a href="#annotated-cell-16-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Costo anual: $5,000+</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="2" data-code-annotation="1">Windows Server requiere pagar una licencia inicial cara, además de soporte continuo obligatorio</span>
+</dd>
+</dl>
+</section>
+<section id="macos-server" class="level4">
+<h4 class="anchored" data-anchor-id="macos-server">macOS Server</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OPCIÓN: macOS Server (deprecated, NO RECOMENDADO)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Licencia:                      Incluida en hardware</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Hardware:                      $3,000-6,000 (Mac Mini/Mac Studio)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Soporte anual:                 AppleCare: $500-1,000</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizaciones:               Incluidas pero limitadas</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># TOTAL ANUAL:                   ~$1,000+ (solo costo SO)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sw_vers</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ex">ProductName:</span>        macOS</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ex">ProductVersion:</span>     14.2</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Nota: macOS Server fue discontinued por Apple en 2023</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Apple NOW recomienda usar Linux para servidores</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Comparación clara:</strong> | SO | Costo Licencia | Soporte Anual | Total/Año | |—-|—|—|—| | Linux | $0 | $0-1K (opt) | $0-1K | | Windows | $15K | $5K | $20K | | macOS | Hardware $4K | $1K | $5K+ |</p>
+<p><strong>GANADOR:</strong> Linux (95% más barato)</p>
+</section>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<section id="linux-código-abierto" class="level4">
+<h4 class="anchored" data-anchor-id="linux-código-abierto">Linux (Código Abierto)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-19" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cuando se descubre CVE en Linux:</span></span>
+<span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-3"><a href="#annotated-cell-19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Se reporta privadamente a kernel security team</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-19" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-19-4" class="code-annotation-target"><a href="#annotated-cell-19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Desarrollo colaborativo en parches (PÚBLICO, en GitHub)</span></span>
+<span id="annotated-cell-19-5"><a href="#annotated-cell-19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Se audita por miles de ojos (Google, Intel, Red Hat, etc.)</span></span>
+<span id="annotated-cell-19-6"><a href="#annotated-cell-19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Se publica y todos reciben parches al mismo tiempo</span></span>
+<span id="annotated-cell-19-7"><a href="#annotated-cell-19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Tiempo típico: 1-4 semanas</span></span>
+<span id="annotated-cell-19-8"><a href="#annotated-cell-19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-9"><a href="#annotated-cell-19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver vulnerabilidades públicamente:</span></span>
+<span id="annotated-cell-19-10"><a href="#annotated-cell-19-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl https://security.ubuntu.com/usn/usn-db.json <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span></span>
+<span id="annotated-cell-19-11"><a href="#annotated-cell-19-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Todos pueden ver y auditar parches</span></span>
+<span id="annotated-cell-19-12"><a href="#annotated-cell-19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-13"><a href="#annotated-cell-19-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Patch automático:</span></span>
+<span id="annotated-cell-19-14"><a href="#annotated-cell-19-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt upgrade <span class="at">-y</span></span>
+<span id="annotated-cell-19-15"><a href="#annotated-cell-19-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Aplica parches de seguridad verificados por miles de expertos</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-19" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="4" data-code-annotation="1">En Linux, el proceso de parches es transparente. Puedes ver exactamente qué se está parcheando</span>
+</dd>
+</dl>
+</section>
+<section id="windows-código-cerrado" class="level4">
+<h4 class="anchored" data-anchor-id="windows-código-cerrado">Windows (Código Cerrado)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-20" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy code-annotated"><code class="sourceCode powershell"><span id="annotated-cell-20-1"><a href="#annotated-cell-20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cuando se descubre CVE en Windows:</span></span>
+<span id="annotated-cell-20-2"><a href="#annotated-cell-20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-3"><a href="#annotated-cell-20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Se reporta a Microsoft (privado)</span></span>
+<span id="annotated-cell-20-4"><a href="#annotated-cell-20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Microsoft desarrolla parche internamente (secreto)</span></span>
+<span id="annotated-cell-20-5"><a href="#annotated-cell-20-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Nadie ajeno audita el parche (solo Microsoft)</span></span>
+<span id="annotated-cell-20-6"><a href="#annotated-cell-20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Se publica "Patch Tuesday" (segundo martes del mes)</span></span>
+<span id="annotated-cell-20-7"><a href="#annotated-cell-20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Tiempo: Puede ser MESES si es baja prioridad</span></span>
+<span id="annotated-cell-20-8"><a href="#annotated-cell-20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-9"><a href="#annotated-cell-20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># En PowerShell:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-20" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-20-10" class="code-annotation-target"><a href="#annotated-cell-20-10" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Get-HotFix</span> <span class="op">|</span> <span class="fu">Select-Object</span> Description<span class="op">,</span> InstalledOn <span class="op">|</span> head</span>
+<span id="annotated-cell-20-11"><a href="#annotated-cell-20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Solo ves CUÁNDO se instaló, NO CÓMO se arreglaron las vulnerabilidades</span></span>
+<span id="annotated-cell-20-12"><a href="#annotated-cell-20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-13"><a href="#annotated-cell-20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualización FORZADA:</span></span>
+<span id="annotated-cell-20-14"><a href="#annotated-cell-20-14" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-WindowsUpdate</span>
+<span id="annotated-cell-20-15"><a href="#annotated-cell-20-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows actualiza en Patch Tuesday sin poder evitarlo</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-20" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-20" data-code-lines="10" data-code-annotation="1">En Windows, no tienes acceso al código del parche. Debes confiar ciegamente en Microsoft</span>
+</dd>
+</dl>
+</section>
+<section id="macos-código-parcialmente-cerrado" class="level4">
+<h4 class="anchored" data-anchor-id="macos-código-parcialmente-cerrado">macOS (Código Parcialmente Cerrado)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># macOS (basado en Unix/Darwin):</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Vulnerabilidades:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Reportadas a Apple (privado)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Apple desarrolla parches (semi-secreto)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Comunidad puede auditar pero no tan transparente como Linux</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Actualizaciones forzadas en updates</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> softwareupdate <span class="at">-l</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver actualizaciones disponibles</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo softwareupdate <span class="at">-ia</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar todo (a menudo FORZADO)</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># macOS requiere reinicio para actualizaciones</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Comparación de seguridad:</strong> | Aspecto | Linux | Windows | macOS | |——–|——-|———|——-| | Código visible | ✅ 100% | ❌ 0% | ⚠️ 10% | | Auditoría pública | ✅ Sí | ❌ No | ⚠️ Limitada | | Tiempo a parche | ✅ 1-4 sem | ❌ 1-3 meses | ⚠️ 2-6 sem | | Puertas traseras | ✅ Imposible | ⚠️ Posible | ⚠️ Posible |</p>
+<p><strong>GANADOR:</strong> Linux (total transparencia)</p>
+</section>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<section id="servidor-linux-de-abacom" class="level4">
+<h4 class="anchored" data-anchor-id="servidor-linux-de-abacom">Servidor Linux de Abacom</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-23" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-23-1"><a href="#annotated-cell-23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nuestros servidores de producción (Ubuntu 22.04 LTS):</span></span>
+<span id="annotated-cell-23-2"><a href="#annotated-cell-23-2" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-23" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-23-3" class="code-annotation-target"><a href="#annotated-cell-23-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uptime</span>
+<span id="annotated-cell-23-4"><a href="#annotated-cell-23-4" aria-hidden="true" tabindex="-1"></a> <span class="ex">14:45:23</span> up 247 days, 5:12, 2 users, load average: 0.85, 0.92, 0.88</span>
+<span id="annotated-cell-23-5"><a href="#annotated-cell-23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-23-6"><a href="#annotated-cell-23-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Traducción: Servidor ha estado corriendo SIN REINICIO por 247 días</span></span>
+<span id="annotated-cell-23-7"><a href="#annotated-cell-23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-23-8"><a href="#annotated-cell-23-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl status nginx</span>
+<span id="annotated-cell-23-9"><a href="#annotated-cell-23-9" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> nginx.service <span class="at">-</span> A high performance web server</span>
+<span id="annotated-cell-23-10"><a href="#annotated-cell-23-10" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Loaded:</span> loaded <span class="er">(</span><span class="ex">/lib/systemd/unit/nginx.service</span><span class="kw">;</span> <span class="ex">enabled</span><span class="kw">)</span></span>
+<span id="annotated-cell-23-11"><a href="#annotated-cell-23-11" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> active <span class="er">(</span><span class="ex">running</span><span class="kw">)</span> <span class="ex">since</span> Thu Jan 29 15:30:00 2026</span>
+<span id="annotated-cell-23-12"><a href="#annotated-cell-23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-23-13"><a href="#annotated-cell-23-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uptime <span class="op">&gt;</span> /tmp/uptime-history.txt</span>
+<span id="annotated-cell-23-14"><a href="#annotated-cell-23-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /tmp/uptime-history.txt</span>
+<span id="annotated-cell-23-15"><a href="#annotated-cell-23-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Sin reinicios planificados en todo 2024</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-23" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-23" data-code-lines="3" data-code-annotation="1">247 días sin reinicio = ~8 meses de funcionamiento continuo sin problemas</span>
+</dd>
+</dl>
+</section>
+<section id="servidor-windows-de-comparación" class="level4">
+<h4 class="anchored" data-anchor-id="servidor-windows-de-comparación">Servidor Windows de Comparación</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-24" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy code-annotated"><code class="sourceCode powershell"><span id="annotated-cell-24-1"><a href="#annotated-cell-24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Si tuviéramos un servidor Windows:</span></span>
+<span id="annotated-cell-24-2"><a href="#annotated-cell-24-2" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-24" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-24-3" class="code-annotation-target"><a href="#annotated-cell-24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">(</span><span class="fu">Get-Date</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="fu">Get-CimInstance</span> Win32_OperatingSystem<span class="op">).</span><span class="fu">LastBootUpTime</span></span>
+<span id="annotated-cell-24-4"><a href="#annotated-cell-24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Días desde último reinicio: 23 días</span></span>
+<span id="annotated-cell-24-5"><a href="#annotated-cell-24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-24-6"><a href="#annotated-cell-24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Get-HotFix</span> <span class="op">|</span> <span class="fu">Measure-Object</span></span>
+<span id="annotated-cell-24-7"><a href="#annotated-cell-24-7" aria-hidden="true" tabindex="-1"></a>Count<span class="op">:</span> <span class="dv">47</span></span>
+<span id="annotated-cell-24-8"><a href="#annotated-cell-24-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 47 parches aplicados en 23 días</span></span>
+<span id="annotated-cell-24-9"><a href="#annotated-cell-24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-24-10"><a href="#annotated-cell-24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ¿Por qué solo 23 días?</span></span>
+<span id="annotated-cell-24-11"><a href="#annotated-cell-24-11" aria-hidden="true" tabindex="-1"></a><span class="co"># - Patch Tuesday (segundo martes): Reinicio forzado</span></span>
+<span id="annotated-cell-24-12"><a href="#annotated-cell-24-12" aria-hidden="true" tabindex="-1"></a><span class="co"># - Actualizaciones de drivers: Reinicio forzado</span></span>
+<span id="annotated-cell-24-13"><a href="#annotated-cell-24-13" aria-hidden="true" tabindex="-1"></a><span class="co"># - Cambios de configuración: A menudo requieren reinicio</span></span>
+<span id="annotated-cell-24-14"><a href="#annotated-cell-24-14" aria-hidden="true" tabindex="-1"></a><span class="co"># - Antivirus updates: Algunos requieren reinicio</span></span>
+<span id="annotated-cell-24-15"><a href="#annotated-cell-24-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-24-16"><a href="#annotated-cell-24-16" aria-hidden="true" tabindex="-1"></a><span class="co"># En Windows es NORMAL reiniciar cada 30 días</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-24" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-24" data-code-lines="3" data-code-annotation="1">Windows requiere reinicios mucho más frecuentemente</span>
+</dd>
+</dl>
+</section>
+<section id="infraestructura-comparativa-de-abacom" class="level4">
+<h4 class="anchored" data-anchor-id="infraestructura-comparativa-de-abacom">Infraestructura comparativa de Abacom</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LINUX (Abacom actual):</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># - Uptime promedio: 180+ días</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># - Reinicios anuales: 1-2 (por actualización kernel)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># - Tiempo de inactividad: ~30 minutos/año</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># WINDOWS (si lo usáramos):</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># - Uptime promedio: 20-30 días</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># - Reinicios anuales: 12+ (Patch Tuesday)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - Tiempo de inactividad: ~400 minutos/año (6+ horas)</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat <span class="op">&gt;</span> uptime-comparison.txt <span class="op">&lt;&lt; 'EOF'</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="st">UPTIME AVAILABILITY:</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="st">- Linux 180 días: 99.97% disponibilidad</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="st">- Windows 23 días: 99.60% disponibilidad</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="st">- DIFERENCIA: 0.37% = ~130 horas/año de inactividad adicional en Windows</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat uptime-comparison.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>GANADOR:</strong> Linux (99.97% vs 99.60% disponibilidad)</p>
+</section>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="ventajas-detalladas" class="level2">
+<h2 class="anchored" data-anchor-id="ventajas-detalladas">🔧 Ventajas Detalladas</h2>
+<section id="económica" class="level3">
+<h3 class="anchored" data-anchor-id="económica">Económica</h3>
+<p>Linux es <strong>completamente gratuito</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalación: Gratis</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-2" class="code-annotation-target"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizaciones: Gratis</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-2-3" class="code-annotation-target"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Soporte comunitario: Gratis</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-2-4" class="code-annotation-target"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Uso comercial: Gratis (GPL permite)</span></span>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Modificaciones: Gratis</span></span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Redistribución: Gratis (con condiciones GPL)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="1" data-code-annotation="1">No hay costo inicial para instalar Linux en ningún número de servidores</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="2" data-code-annotation="2">Todas las actualizaciones del kernel y sistema operativo son completamente gratuitas y automáticas</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="3" data-code-annotation="3">La comunidad global de Linux proporciona soporte a través de foros, documentación y mailing lists, sin costo</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="4" data-code-annotation="4">Puedes usar Linux en servidores comerciales sin pagar licencias (solo pagas si quieres soporte profesional de Canonical o Red Hat)</span>
+</dd>
+</dl>
+<p><strong>Comparativa real:</strong> - Windows Server: $5,000-20,000 licencia + $1,000-5,000 soporte anual - Red Hat RHEL: $1,000-3,000 per server per year - Ubuntu LTS: Gratis (o $200-1,000 soporte profesional opcional)</p>
+</section>
+<section id="seguridad" class="level3">
+<h3 class="anchored" data-anchor-id="seguridad">Seguridad</h3>
+<p>Código abierto = mejor seguridad:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CVE (Common Vulnerabilities and Exposures)</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-2" class="code-annotation-target"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejemplo de datos reales:</span></span>
+<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-4" class="code-annotation-target"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows Server: ~25-30 CVEs por mes</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-5" class="code-annotation-target"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Linux Kernel: ~15-20 CVEs por mes</span></span>
+<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ¿Cómo es posible si Linux es más usado?</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-3-8" class="code-annotation-target"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Respuesta: En Linux, vulnerabilidades se encuentran Y arreglan MÁS RÁPIDO</span></span>
+<span id="annotated-cell-3-9"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># porque hay miles auditing el código constantemente</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="2" data-code-annotation="1">Un CVE (Common Vulnerabilities and Exposures) es un identificador único para una vulnerabilidad de seguridad</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="4" data-code-annotation="2">Windows Server reporta en promedio 25-30 vulnerabilidades nuevas detectadas cada mes</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="5" data-code-annotation="3">Linux reporta en promedio 15-20 vulnerabilidades nuevas detectadas cada mes, A PESAR de ser más usado en servidores</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="8" data-code-annotation="4">La diferencia crucial: en Linux, estas vulnerabilidades se descubren Y arreglan más rápido porque el código es público y miles de expertos lo auditan constantemente</span>
+</dd>
+</dl>
+<p><strong>Ventajas de seguridad:</strong> - Auditoría pública (miles de ojos) - Parches rápidos (comunidad colaborativa) - Sin “puertas traseras” (código abierto) - Cumplimiento normativo (GDPR, ISO, etc.)</p>
+</section>
+<section id="estabilidad" class="level3">
+<h3 class="anchored" data-anchor-id="estabilidad">Estabilidad</h3>
+<p>Los servidores Linux tienen uptimes increíbles:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejemplos reales de servidores en producción:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-2" class="code-annotation-target"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uptime</span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 5 años sin reinicio (cumpleaños de servidor)</span></span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-5" class="code-annotation-target"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># En Windows, necesitas reiniciar:</span></span>
+<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># - Cada patch mensual (Patch Tuesday)</span></span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># - Actualizaciones de drivers</span></span>
+<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># - Cambios de configuración</span></span>
+<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-10" class="code-annotation-target"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># En Linux:</span></span>
+<span id="annotated-cell-4-11"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># - Actualizaciones sin reinicios (en vivo)</span></span>
+<span id="annotated-cell-4-12"><a href="#annotated-cell-4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># - Cambios de configuración sin reinicios (en vivo)</span></span>
+<span id="annotated-cell-4-13"><a href="#annotated-cell-4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># - Reinicios solo cuando cambias kernel (anual si acaso)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="2" data-code-annotation="1">Es común en Linux ver servidores con uptime de 5+ años sin un solo reinicio (algunos casos conocidos de 10+ años). El comando <strong>uptime</strong> muestra exactamente cuánto tiempo lleva activo.</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="5" data-code-annotation="2">Windows Server requiere reinicios forzados cada mes (Patch Tuesday, segundo martes del mes), además de reinicios adicionales por drivers u otros cambios</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="10" data-code-annotation="3">Linux permite actualizar el sistema operativo, aplicaciones, incluso drivers SIN reinicios, usando técnicas como live patching. Los reinicios son raros y planificados, no forzados</span>
+</dd>
+</dl>
+</section>
+<section id="rendimiento" class="level3">
+<h3 class="anchored" data-anchor-id="rendimiento">Rendimiento</h3>
+<p>Linux usa menos recursos:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-1" class="code-annotation-target"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ubuntu Server install size:</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ~2 GB (disco mínimo)</span></span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ~512 MB RAM (funcionable)</span></span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ~100 MB running idle</span></span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-5-6" class="code-annotation-target"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows Server install:</span></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ~20 GB (disco mínimo)</span></span>
+<span id="annotated-cell-5-8"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ~2-4 GB RAM (mínimo recomendado)</span></span>
+<span id="annotated-cell-5-9"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ~500 MB - 1GB running idle</span></span>
+<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-5-11" class="code-annotation-target"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># RESULTADO: Linux = más eficiente con recursos</span></span>
+<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># = más aplicaciones por servidor</span></span>
+<span id="annotated-cell-5-13"><a href="#annotated-cell-5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># = menos hardware requerido</span></span>
+<span id="annotated-cell-5-14"><a href="#annotated-cell-5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># = menos costos en infraestructura</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="1" data-code-annotation="1">Ubuntu Server es extremadamente ligero: toma solo 2 GB de espacio en disco y puede funcionar con 512 MB de RAM, usando apenas 100 MB de RAM cuando está inactivo</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="6" data-code-annotation="2">Windows Server requiere 20 GB de disco mínimo y 2-4 GB de RAM como recomendación oficial, consumiendo mucho más incluso idle</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="11" data-code-annotation="3">Esta eficiencia de recursos de Linux permite instalar más aplicaciones por servidor, reducir hardware, y ahorrar en costos de infraestructura (energía, refrigeración, espacio)</span>
+</dd>
+</dl>
+<pre data-code-line-numbers=""><code>
+### Comunidad
+
+Millones de desarrolladores colaboran:
+
+```bash
+# Contribuidores al kernel Linux:
+# - 18,000+ archivos
+# - 28+ millones de líneas de código
+# - 2,000+ nuevas características por versión
+# - +2,000 contribuyentes activos
+
+# Ayuda disponible:
+# - Stack Overflow: 2+ millones de preguntas Linux
+# - GitHub: Código de ejemplo para cualquier cosa
+# - Reddit: r/linux con 800k+ usuarios
+# - Listas de correo: Linux-kernel con expertos de Intel, Google, Red Hat
+
+# RESULTADO: Si tienes problema, alguien ya lo resolvió</code></pre>
+</section>
+<section id="flexibilidad" class="level3">
+<h3 class="anchored" data-anchor-id="flexibilidad">Flexibilidad</h3>
+<p>Personalización completa:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Con Linux, puedes:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># Compilar kernel solo con características que necesitas</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># Retirar drivers innecesarios</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># Optimizar para tu hardware específico</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># Crear distribuciones personalizadas</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Con Windows, no puedes quitarle:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># - Internet Explorer</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - Cortana</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># - OneDrive</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># - Telemetría de Microsoft</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># - Características que no necesitas</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="errores-comunes" class="level2">
+<h2 class="anchored" data-anchor-id="errores-comunes">⚠️ Errores Comunes</h2>
+<section id="linux-es-solo-para-geekshackers" class="level3">
+<h3 class="anchored" data-anchor-id="linux-es-solo-para-geekshackers">“Linux es solo para geeks/hackers”</h3>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Síntoma que verás
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre data-code-line-numbers=""><code>"Linux es muy complicado, mejor Windows que cualquier persona entiende"</code></pre>
+<p><strong>Causa raíz:</strong> Confundir interfaz gráfica fácil con software empresarial.</p>
+<p><strong>Solución comprobada:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ❌ Forma INCORRECTA (pensar que Linux es difícil)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># "Windows tiene interfaz gráfica, Linux es solo terminal"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ Forma CORRECTA (Linux también tiene GUI)</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ubuntu Desktop tiene interfaz gráfica IGUAL que Windows</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Pero Ubuntu Server (en producción) usa terminal porque es MÁS EFICIENTE</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparación:</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - Windows Server: GUI + CLI (ambas disponibles)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># - Linux Server: CLI (GUI disponible pero no se usa)</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Razón: En producción, GUI consume recursos y ralentiza</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Terminal es más rápido, más confiable, más escalable</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Por qué funciona:</strong> En producción (servidores), no necesitas interfaz gráfica. CLI es MÁS poderosa que GUI. Eso no la hace difícil, la hace más eficiente.</p>
+</div>
+</div>
+</section>
+<section id="pero-todas-las-grandes-empresas-usan-windows" class="level3">
+<h3 class="anchored" data-anchor-id="pero-todas-las-grandes-empresas-usan-windows">“Pero todas las grandes empresas usan Windows”</h3>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Síntoma:</strong> “Google, Facebook, Amazon deben usar Windows”<br>
+<strong>Causa:</strong> Confundir servidores (backend) con desktops (frontend)<br>
+<strong>Solución:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># REALIDAD:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Google: 1+ millones de servidores Linux</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Facebook: Millones de servidores Linux</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Amazon AWS: Optimizado para Linux</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Netflix: Casi todo en Linux</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Microsoft Azure: Soporta más VMs Linux que Windows</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Desktops corporativos pueden ser Windows</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Pero servidores MASIVAMENTE Linux</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># En Abacom:</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Desktops de usuarios: Windows o Mac (aplicaciones específicas)</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Servidores de aplicaciones: Linux (costo + rendimiento)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="mejores-prácticas" class="level2">
+<h2 class="anchored" data-anchor-id="mejores-prácticas">📊 Mejores Prácticas</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Patrones Recomendados
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>✅ <strong>HACER (Prácticas Probadas):</strong> - Usar Linux en producción → costo + rendimiento - Aprovechar comunidad → miles de soluciones probadas - Medir ROI → Linux paga por sí solo en economía - Invertir en capacitación → talento es el único costo real</p>
+<p>❌ <strong>NO HACER (Antipatrones):</strong> - Pensar que gratis = baja calidad → falso para Linux - Temer código abierto → lo opuesto, es más seguro - Ignorar soporte profesional → disponible si lo necesitas</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="tabla-comparativa-linux-vs-windows-vs-macos" class="level2">
+<h2 class="anchored" data-anchor-id="tabla-comparativa-linux-vs-windows-vs-macos">📋 Tabla Comparativa: Linux vs Windows vs macOS</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Aspecto</th>
+<th>Linux</th>
+<th>Windows</th>
+<th>macOS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Costo SO</strong></td>
+<td>Gratis</td>
+<td>$10-20K</td>
+<td>Incluido hardware</td>
+</tr>
+<tr class="even">
+<td><strong>Código Abierto</strong></td>
+<td>✅ Sí</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+<tr class="odd">
+<td><strong>Seguridad</strong></td>
+<td>Muy alta</td>
+<td>Media</td>
+<td>Alta</td>
+</tr>
+<tr class="even">
+<td><strong>Rendimiento</strong></td>
+<td>Excelente</td>
+<td>Bueno</td>
+<td>Bueno</td>
+</tr>
+<tr class="odd">
+<td><strong>Uptime</strong></td>
+<td>Años</td>
+<td>Meses</td>
+<td>Meses</td>
+</tr>
+<tr class="even">
+<td><strong>Comunidad</strong></td>
+<td>Enorme (global)</td>
+<td>Grande (corporativa)</td>
+<td>Media</td>
+</tr>
+<tr class="odd">
+<td><strong>Uso Servidor</strong></td>
+<td>90%+</td>
+<td>10%</td>
+<td>&lt;1%</td>
+</tr>
+<tr class="even">
+<td><strong>Uso Desktop</strong></td>
+<td>2%</td>
+<td>71%</td>
+<td>27%</td>
+</tr>
+<tr class="odd">
+<td><strong>Para Abacom</strong></td>
+<td>✅ Ideal</td>
+<td>⚠️ Solo desktops</td>
+<td>❌ Caro</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="quiz-verifica-tu-comprensión" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-verifica-tu-comprensión">🎓 Quiz: Verifica tu Comprensión</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Antes de continuar
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Responde estas preguntas para verificar que comprendiste los beneficios de Linux.</p>
+</div>
+</div>
+<section id="cuánto-cuesta-linux-por-servidor-por-año" class="level3">
+<h3 class="anchored" data-anchor-id="cuánto-cuesta-linux-por-servidor-por-año">¿Cuánto cuesta Linux por servidor por año?</h3>
+<details>
+<summary>
+📖 Ver respuesta
+</summary>
+<p><strong>$0</strong> (completamente gratis)</p>
+<p>O si quieres soporte profesional de Canonical: - Soporte básico: ~$200-500/año - Soporte premium: ~$1,000+/año</p>
+<p><strong>Comparación:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Windows</span> Server: <span class="va">$5</span>,000-20,000 licencia + <span class="va">$1</span>-5K soporte</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">RHEL:</span> <span class="va">$1</span>,000-3,000 per server per year</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Ubuntu</span> LTS: <span class="va">$0</span> <span class="er">(</span><span class="ex">o</span> <span class="va">$2</span>00-1,000 si quieres soporte<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>En Abacom:</strong> Ahorramos miles por cada servidor que usamos Linux.</p>
+</details>
+</section>
+<section id="por-qué-linux-es-más-seguro-si-su-código-está-abierto" class="level3">
+<h3 class="anchored" data-anchor-id="por-qué-linux-es-más-seguro-si-su-código-está-abierto">¿Por qué Linux es más seguro si su código está abierto?</h3>
+<details>
+<summary>
+💡 Ver respuesta
+</summary>
+<p>Porque <strong>más ojos = menos bugs</strong>:</p>
+<ol type="1">
+<li><strong>Auditoría pública:</strong> Miles de expertos revisan constantemente</li>
+<li><strong>Parches rápidos:</strong> Si se encuentra vuln, la comunidad arregla rápido</li>
+<li><strong>Sin puertas traseras:</strong> Todo el código es visible, imposible ocultar</li>
+<li><strong>Competencia académica:</strong> Expertos quieren ser reconocidos por arreglar bugs</li>
+</ol>
+<p><strong>Comparación real:</strong> - Código cerrado: 1 empresa audita (Microsoft) - Código abierto: Millones de expertos auditan (Google, Intel, Red Hat, individuos)</p>
+<p><strong>Conclusión:</strong> Código abierto es MEJOR para seguridad.</p>
+</details>
+</section>
+<section id="por-qué-abacom-elige-linux-en-lugar-de-windows-para-servidores" class="level3">
+<h3 class="anchored" data-anchor-id="por-qué-abacom-elige-linux-en-lugar-de-windows-para-servidores">¿Por qué Abacom elige Linux en lugar de Windows para servidores?</h3>
+<details>
+<summary>
+🎯 Ver respuesta
+</summary>
+<p>Por estas razones combinadas:</p>
+<ol type="1">
+<li><strong>Costo:</strong> $0 vs $15,000+/servidor/año (Windows)</li>
+<li><strong>Rendimiento:</strong> Usa menos RAM y CPU</li>
+<li><strong>Estabilidad:</strong> Uptime de años sin reinicio</li>
+<li><strong>Seguridad:</strong> Código abierto, parches rápidos</li>
+<li><strong>Comunidad:</strong> Millones de soporte disponible</li>
+<li><strong>Control:</strong> Control total sobre el sistema</li>
+</ol>
+<p><strong>Decisión empresarial:</strong> Si tienes 100 servidores: - Windows: 100 × $15,000 = $1.5 MILLONES/año - Linux: 100 × $200 = $20,000/año - AHORRO: $1.48 MILLONES/año</p>
+<p>Ese dinero se reinvierte en talento, herramientas, etc.</p>
+</details>
+<hr>
+</section>
+</section>
+<section id="práctica-guiada-con-el-instructor" class="level2">
+<h2 class="anchored" data-anchor-id="práctica-guiada-con-el-instructor">👨‍💻 Práctica Guiada con el Instructor</h2>
+<section id="calcular-roi-de-linux-vs-windows" class="level3">
+<h3 class="anchored" data-anchor-id="calcular-roi-de-linux-vs-windows">Calcular ROI de Linux vs Windows</h3>
+<p><strong>Objetivo:</strong> Entender el impacto económico en Abacom.</p>
+<p><strong>Instrucciones:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear calculadora de costo</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Supuesto: Abacom tiene 50 servidores de producción</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># COSTO WINDOWS:</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Licencia por servidor: $15,000</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Soporte anual: $3,000</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Total por servidor: $18,000</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Total 50 servidores: $900,000 AÑO 1</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Años 1-5: $900,000 × 5 = $4,500,000</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># COSTO LINUX:</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Licencia: $0</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Soporte (Canonical): $500</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Total por servidor: $500</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Total 50 servidores: $25,000 AÑO 1</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Años 1-5: $25,000 × 5 = $125,000</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># AHORRO EN 5 AÑOS:</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co"># $4,500,000 - $125,000 = $4,375,000 AHORRADOS</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Ejercicio:</strong> 1. Calcula ahorro para tu caso específico 2. Incluye beneficios adicionales (mejor rendimiento, menos infraestructura) 3. Comprende el ROI</p>
+</section>
+<section id="comparar-ventajas-técnicas" class="level3">
+<h3 class="anchored" data-anchor-id="comparar-ventajas-técnicas">Comparar Ventajas Técnicas</h3>
+<p><strong>Objetivo:</strong> Experimentar diferencias reales.</p>
+<p><strong>Instrucciones:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Instala dos máquinas virtuales:</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># - Una con Ubuntu 22.04 LTS</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># - Una con Windows Server 2022</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compara:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Tamaño de instalación</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Uso de RAM idle</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Velocidad de boot</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Disponibilidad de actualizaciones</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Facilidad de configuración</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultado: Linux gana en todos estos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="explorar-comunidad-linux" class="level3">
+<h3 class="anchored" data-anchor-id="explorar-comunidad-linux">Explorar Comunidad Linux</h3>
+<p><strong>Objetivo:</strong> Verificar que comunidad está disponible.</p>
+<p><strong>Instrucciones:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Búsqueda en Stack Overflow:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># - "linux server" = 2+ millones preguntas</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># - "windows server" = 1 millón preguntas</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Búsqueda en GitHub:</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># - Linux projects = 50+ millones</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># - Windows projects = 10 millones</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Conclusión: Mucho más contenido para Linux</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Pruébalo:</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># Abre estos sitios</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># https://stackoverflow.com/questions/tagged/linux</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># https://github.com/search?q=linux</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="laboratorio-de-práctica-integrado" class="level2">
+<h2 class="anchored" data-anchor-id="laboratorio-de-práctica-integrado">🧪 Laboratorio de Práctica Integrado</h2>
+<p><strong>Duración:</strong> 60-90 minutos<br>
+<strong>Dificultad:</strong> Intermedio<br>
+<strong>Objetivo General:</strong> Entender ventajas reales de Linux vs otros SOs</p>
+<section id="fase-1-investigación-de-ventajas-20-min" class="level3">
+<h3 class="anchored" data-anchor-id="fase-1-investigación-de-ventajas-20-min">Fase 1: Investigación de Ventajas (20 min)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mkdir <span class="at">-p</span> ~/lab-ventajas-linux</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd ~/lab-ventajas-linux</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear documento con ventajas verificadas</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat <span class="op">&gt;</span> ventajas-abacom.txt <span class="op">&lt;&lt; 'EOF'</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="st">=== VENTAJAS DE LINUX PARA ABACOM ===</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="st">1. ECONÓMICA:</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="st">- Costo licencia: $0</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="st">- Costo soporte: $0-1,000/año</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="st">- Total 50 servidores: $0-50,000/año</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="st">- vs Windows: $450,000-900,000/año</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="st">- AHORRO: $400,000-900,000/año</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="st">2. SEGURIDAD:</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="st">- Código abierto (auditable)</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="st">- Parches rápidos</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="st">- Sin puertas traseras</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="st">- Cumplimiento GDPR/ISO</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="st">3. RENDIMIENTO:</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="st">- Usa menos RAM</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="st">- Usa menos CPU</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="st">- Mejor para virtualización</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="st">- Escalabilidad infinita</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="st">4. ESTABILIDAD:</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="st">- Uptime de años</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="st">- Sin reinicios forzados</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="st">- Confiable para 24/7</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="st">5. COMUNIDAD:</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="st">- Millones de expertos</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="st">- Documentación abundante</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="st">- Soluciones para cualquier problema</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat ventajas-abacom.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="fase-2-análisis-económico-20-min" class="level3">
+<h3 class="anchored" data-anchor-id="fase-2-análisis-económico-20-min">Fase 2: Análisis Económico (20 min)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat <span class="op">&gt;</span> analisis-costos.txt <span class="op">&lt;&lt; 'EOF'</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="st">=== ANÁLISIS DE COSTOS: LINUX vs WINDOWS ===</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="st">INFRAESTRUCTURA ACTUAL ABACOM:</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="st">- Servidores de producción: 50</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="st">- Servidores de desarrollo: 20</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="st">- Total: 70 servidores</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="st">OPCIÓN A: TODOS WINDOWS SERVER 2022</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="st">- Licencia por servidor: $15,000</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="st">- Soporte anual: $3,000</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="st">- Total por servidor: $18,000</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="st">- Total 70 servidores ANUAL: $1,260,000</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="st">- 5 años: $6,300,000</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="st">OPCIÓN B: TODOS LINUX (Ubuntu 22.04 LTS)</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="st">- Licencia por servidor: $0</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="st">- Soporte (opcional): $0-500</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="st">- Total por servidor: $0-500</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="st">- Total 70 servidores ANUAL: $0-35,000</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="st">- 5 años: $0-175,000</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="st">OPCIÓN C: MIXTA (Abacom actual)</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="st">- 70 servidores Linux: $0-35,000/año</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="st">- Desktops Windows/Mac: $80,000/año (80 desktops)</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="st">- Total ANUAL: $80,000-115,000</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="st">- 5 años: $400,000-575,000</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="st">AHORRO USANDO LINUX:</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a><span class="st">Comparado a Windows: $5,725,000-6,300,000 en 5 años</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat analisis-costos.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="fase-3-documento-final-20-min" class="level3">
+<h3 class="anchored" data-anchor-id="fase-3-documento-final-20-min">Fase 3: Documento Final (20 min)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat <span class="op">&gt;</span> reporte-ventajas.txt <span class="op">&lt;&lt; 'EOF'</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="st">=== REPORTE: POR QUÉ LINUX ES MEJOR PARA ABACOM ===</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="st">CONCLUSIÓN EJECUTIVA:</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="st">Linux es la opción tecnológica y económicamente superior para Abacom.</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="st">VENTAJAS CLAVE:</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="st">1. ✅ Económica: Ahorro de $400K-900K/año</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="st">2. ✅ Seguridad: Mejor que Windows/macOS</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="st">3. ✅ Rendimiento: Mayor eficiencia de recursos</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="st">4. ✅ Estabilidad: Servidores con años de uptime</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="st">5. ✅ Comunidad: Soporte global disponible</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="st">RECOMENDACIONES:</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="st">- Continuar con 100% Linux en producción</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="st">- Invertir ahorros en capacitación y herramientas</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="st">- Mantener Windows/macOS en desktops para aplicaciones específicas</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="st">- Revisar anualmente beneficios realizados</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="st">BENEFICIOS REALIZADOS (2024):</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="st">- Ahorros: ~$200,000</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="st">- Uptime mejorado: +15%</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="st">- Velocidad deployments: +40%</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="st">- Satisfacción admin: Muy alta</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat reporte-ventajas.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="verificación-del-laboratorio" class="level3">
+<h3 class="anchored" data-anchor-id="verificación-del-laboratorio">Verificación del Laboratorio</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">Ventajas investigadas y documentadas</label></li>
+<li><label><input type="checkbox">Análisis económico completado</label></li>
+<li><label><input type="checkbox">Reporte ejecutivo escrito</label></li>
+<li><label><input type="checkbox">ROI calculado para Abacom</label></li>
+<li><label><input type="checkbox">Entiendo por qué usamos Linux</label></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="recursos-adicionales" class="level2">
+<h2 class="anchored" data-anchor-id="recursos-adicionales">📚 Recursos Adicionales</h2>
+<section id="documentación-oficial" class="level3">
+<h3 class="anchored" data-anchor-id="documentación-oficial">Documentación Oficial</h3>
+<ul>
+<li><strong><a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL License - GNU Project</a></strong>
+<ul>
+<li>Sección: Qué puedes hacer con software GPL</li>
+<li>Por qué: Entender derechos de Linux</li>
+</ul></li>
+<li><strong><a href="https://www.linuxfoundation.org/">Linux Foundation Case Studies</a></strong>
+<ul>
+<li>Sección: Empresas usando Linux</li>
+<li>Por qué: Ver casos reales de éxito</li>
+</ul></li>
+</ul>
+</section>
+<section id="tutoriales-complementarios" class="level3">
+<h3 class="anchored" data-anchor-id="tutoriales-complementarios">Tutoriales Complementarios</h3>
+<ul>
+<li><strong><a href="https://www.tecmint.com/">Total Cost of Ownership: Linux vs Windows</a></strong>
+<ul>
+<li>Duración: Análisis detallado</li>
+<li>Cubre: Análisis económico real</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="preguntas-frecuentes" class="level2">
+<h2 class="anchored" data-anchor-id="preguntas-frecuentes">❓ Preguntas Frecuentes</h2>
+<p><strong>P: ¿Si Linux es tan bueno, por qué la gente usa Windows?</strong></p>
+<p>R: Porque: - <strong>Desktops:</strong> Windows/Mac tienen mejor UX gráfica - <strong>Juegos:</strong> Windows domina gaming - <strong>Legado:</strong> Muchas empresas viejas tienen inversión en Windows - <strong>Microsoft Office:</strong> Ms Office funciona mejor en Windows (aunque existe para Linux)</p>
+<p>Pero para <strong>servidores</strong>, Linux domina claramente (90%+).</p>
+<p><strong>P: ¿Abacom podría cambiar a Windows algún día?</strong></p>
+<p>R: Improbable porque: - Costos serían prohibitivos - Rendimiento sería menor - Cambio sería masivo y costoso - No hay razón técnica o comercial para cambiar</p>
+<p><strong>P: ¿Qué pasa si Red Hat o Canonical desaparece?</strong></p>
+<p>R: Linux seguiría siendo libre porque: - La GPL garantiza que el código es libre para siempre - Hay 20 empresas diferentes soportando Linux - Comunidad global lo mantendría incluso sin empresa - No existe dependencia única en vendedor</p>
+<hr>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">🎯 Resumen</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lo más importante (3 puntos clave)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>Linux es gratis, pero NO es baja calidad</strong> → Es lo opuesto. Usado por Google, Netflix, Amazon porque ES mejor.</li>
+<li><strong>Código abierto = mejor seguridad</strong> → Miles de ojos auditan, vulnerabilidades se arreglan rápido, sin puertas traseras.</li>
+<li><strong>Linux paga por sí solo</strong> → En Abacom, ahorramos $400K-900K/año usando Linux vs Windows. Eso es ROI en año 1.</li>
+</ol>
+<p><strong>Recuerda:</strong> Elegir Linux es decisión económica y técnica inteligente.</p>
+</div>
+</div>
+<section id="checklist-de-competencias-alcanzadas" class="level3">
+<h3 class="anchored" data-anchor-id="checklist-de-competencias-alcanzadas">Checklist de Competencias Alcanzadas</h3>
+<ul>
+<li>✅ Entiendo por qué Linux es gratuito</li>
+<li>✅ Puedo explicar ventajas económicas en números</li>
+<li>✅ Comprendo seguridad mediante código abierto</li>
+<li>✅ Sé cómo Linux permite estabilidad superior</li>
+<li>✅ Puedo argumentar por qué Abacom usa Linux</li>
+<li>✅ Estoy listo para instalar y usar Linux</li>
+</ul>
+</section>
+<section id="próximos-pasos" class="level3">
+<h3 class="anchored" data-anchor-id="próximos-pasos">Próximos Pasos</h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>🔜 <strong>Siguiente:</strong> Próximas unidades disponibles<br>
+📋 <strong>Objetivo:</strong> Continuar con el curso de administración de servidores<br>
+⏱️ <strong>Tiempo recomendado:</strong> Depende de la siguiente unidad</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="soporte" class="level2">
+<h2 class="anchored" data-anchor-id="soporte">📞 Soporte</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>¿Tienes dudas sobre ventajas de Linux?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>💬 <strong>Comparaciones técnicas:</strong> Stack Overflow</li>
+<li>💰 <strong>Análisis económicos:</strong> Linux Foundation</li>
+<li>💡 <strong>Casos de uso:</strong> Google/Netflix/Amazon blogs</li>
+</ul>
+</div>
+</div>
+<hr>
+<p><strong>Última actualización:</strong> 2026-01-29<br>
+<strong>Versión:</strong> 1.0<br>
+<strong>Estado:</strong> ✅ Completo y validado</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Acerca de las fuentes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Verificado contra: - GNU GPL official license - Linux Foundation case studies - Real TCO studies (Windows vs Linux) - Enterprise adoption statistics</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="quiz-ventajas-de-linux" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-ventajas-de-linux">📝 Quiz: Ventajas de Linux</h2>
+<div class="quizdown">
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es la principal ventaja de Linux en términos de costo?
+
+- [ ] Es el más rápido del mercado
+- [x] Es gratuito (free/libre) y reduce el TCO (Total Cost of Ownership)
+- [ ] Requiere menos memoria RAM
+- [ ] No necesita actualizaciones
+
+## ¿Qué significa "Software Libre" en Linux?
+
+- [ ] Que es gratis
+- [x] Que tienes acceso al código fuente y libertad para modificarlo
+- [ ] Que no requiere licencia
+- [ ] Que puedes venderlo
+
+## ¿Cuál es una ventaja de seguridad de Linux?
+
+- [ ] Es inmune a malware
+- [x] Modelo de permisos fuerte, comunidad vigilante, auditorías constantes
+- [ ] No requiere firewall
+- [ ] Nadie puede hackear un servidor Linux
+
+## ¿Por qué Linux es considerado más estable que Windows?
+
+- [ ] Es más rápido
+- [x] Requiere menos reinicios, mejor aislamiento de procesos, mejor manejo de memoria
+- [ ] Tiene más aplicaciones
+- [ ] Todos los hackers usan Linux
+
+## ¿Cuál es una ventaja de Linux para desarrolladores?
+
+- [ ] Interface gráfica superior
+- [x] Herramientas de desarrollo gratuitas, línea de comandos poderosa, integración con git/github
+- [ ] Mejor editor de texto que el resto
+- [ ] Todos los servers usan Windows
+
+## ¿Qué característica hace a Linux ideal para servidores?
+
+- [ ] Interfaz gráfica bonita
+- [x] Multiusuario, multitarea, estable, eficiente en recursos, 24/7 sin reinicio
+- [ ] Fácil de usar para principiantes
+- [ ] Mejor para juegos
+
+## ¿Cómo es la escalabilidad de Linux?
+
+- [ ] Solo funciona en computadoras pequeñas
+- [x] Escala desde embebidos (smart TV, teléfonos) hasta supercomputadoras
+- [ ] Solo funciona en servidores grandes
+- [ ] Requiere hardware costoso
+
+## ¿Cuál es una desventaja de Linux?
+
+- [ ] Es muy lento
+- [ ] No es confiable
+- [x] Curva de aprendizaje para usuarios sin experiencia en línea de comandos
+- [ ] No es seguro
+
+## ¿En cuál industria Linux domina especialmente?
+
+- [ ] Videojuegos (vs Linux)
+- [ ] Software ofimático
+- [x] Servidores web, cloud (AWS, Azure), contenedores (Docker)
+- [ ] Software de diseño gráfico
+
+## ¿Qué es una ventaja de la comunidad Linux?
+
+- [ ] Existe solo una comunidad oficial
+- [x] Comunidades múltiples, diversas, activas, foros de soporte 24/7
+- [ ] No hay soporte comunitario
+- [ ] Solo hay soporte pago
+
+## ¿Cómo es la compatibilidad de software en Linux?
+
+- [ ] Es imposible ejecutar programas antiguos
+- [ ] Todos los programas de Windows corren en Linux
+- [x] Gran ecosistema de software libre/open source, buena retrocompatibilidad
+- [ ] No hay ningún software disponible
+
+## ¿Cuál es la ventaja de Linux en ambientes de contenedores?
+
+- [ ] Windows es mejor para Docker
+- [x] Docker y Kubernetes son Linux-first, Linux es ideal para microservicios
+- [ ] Los contenedores no funcionan en Linux
+- [ ] Linux usa más recursos
+
+## ¿Qué ventaja tiene Linux en términos de customización?
+
+- [ ] No se puede customizar
+- [ ] Solo se puede customizar en Arch Linux
+- [x] Se puede personalizar completamente el kernel y SO según necesidades
+- [ ] Windows es más customizable
+
+## ¿Cuál es la ventaja de Linux para IoT (Internet of Things)?
+
+- [ ] Los dispositivos IoT no usan Linux
+- [x] Linux es ligero, eficiente, y domina el mercado IoT (smart homes, routers)
+- [ ] Solo Android usa Linux
+- [ ] Windows es mejor para IoT
+
+## ¿Por qué las grandes empresas (Google, Meta, Amazon) prefieren Linux?
+
+- [ ] Es una moda
+- [x] Costo, escalabilidad, confiabilidad, control del código, ausencia de licencias
+- [ ] Es el único SO disponible
+- [ ] No hay razón especial
+
+## ¿Cuál es la ventaja de Linux en universidades y investigación?
+
+- [ ] No se usa en universidades
+- [x] Gratuito, acceso al código, ideal para investigación y educación
+- [ ] Solo para programadores
+- [ ] Más fácil que Windows
+
+## ¿Qué significa "Non-proprietary" en el contexto de Linux?
+
+- [ ] Que es gratis
+- [x] Que no es propiedad exclusiva de una empresa, es código abierto
+- [ ] Que no tiene propietario
+- [ ] Que todos pueden venderlo
+
+## ¿Cuál es la ventaja de Linux en cuanto a reinicio de servidor?
+
+- [ ] Requiere reinicios menos frecuentes (months/years sin reinicio)
+- [x] Permite actualizaciones sin reinicios (live patching)
+- [ ] Nunca requiere reinicio
+- [ ] Windows también permite esto
+
+## ¿Por qué Linux es preferido para supercomputadoras?
+
+- [ ] Es más bonito
+- [ ] Es más fácil de usar
+- [x] Rendimiento superior, eficiencia de recursos, escalabilidad masiva, comunidad científica
+- [ ] No hay razón técnica
+
+## ¿Cuál es la ventaja de "autotools" en Linux?
+
+- [ ] No existe tal cosa
+- [x] Facilita compilación e instalación desde código fuente de forma portable
+- [ ] Es un gestor de paquetes
+- [ ] Es un navegador web
+</div>
+<hr>
+
+
+</section>
+</section>
+<section class="level1 unnumbered">
+<h1 class="unnumbered">Code Appendix</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-linux_foundation_history" class="csl-entry" role="listitem">
+Foundation, The Linux. 2024. <span>“Linux Kernel History.”</span> 2024.
+</div>
+<div id="ref-gpl_license" class="csl-entry" role="listitem">
+<em>GNU GPL V3.0</em>. 2007. Free Software Foundation.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../unidades/unidad1/3_distribuciones_linux.html" class="pagination-link" aria-label="Unidad 1.3: Distribuciones de Linux">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 1.3: Distribuciones de Linux</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../unidades/unidad2/1_requisitos_preparacion.html" class="pagination-link" aria-label="Requisitos y Preparación para Instalación">
+        <span class="nav-page-text"><span class="chapter-title">Requisitos y Preparación para Instalación</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+<p>Sobre el Curso</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../../license.html">
+<p>Licencia</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://statick88.github.io">
+<p>Instructor: statick88.github.io</p>
+</a>
+  </li>  
+</ul>
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

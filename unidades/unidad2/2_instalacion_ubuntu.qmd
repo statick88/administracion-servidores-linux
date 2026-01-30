@@ -1,0 +1,1295 @@
+---
+title: "Instalación de Ubuntu 22.04 LTS Paso a Paso"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# Instalación de Ubuntu 22.04 LTS Paso a Paso
+
+## Introducción
+
+Esta lección te guiará a través del proceso completo de instalación de Ubuntu 22.04 LTS. El instalador de Ubuntu es amigable e intuitivo, pero entender cada paso te ayuda a tomar decisiones informadas sobre particiones, usuarios y configuración del sistema [@ubuntu_install_guide].
+
+**🗺️ En este tema aprenderás:**
+- Arrancar desde USB de instalación
+- Seleccionar idioma y región
+- Configurar particiones (Manual vs Automático)
+- Crear usuario administrador
+- Opciones de red y actualizaciones
+- Instalación completa del sistema
+- Verificar instalación exitosa
+
+---
+
+## Requisitos Previos
+
+Asegúrate de tener:
+✓ USB booteable con Ubuntu 22.04 LTS (de lección anterior)
+✓ Hardware compatible (4GB RAM, 50GB espacio, 64-bit)
+✓ Conexión a internet (durante la instalación)
+✓ Backup de datos si instalas en partición existente
+✓ 30-45 minutos de tiempo disponible
+
+---
+
+## Paso 1: Arrancar desde USB
+
+### Conectar USB y Reiniciar
+
+```bash
+# Estos comandos NO se ejecutan ahora
+# Solo muestran lo que pasará después de reiniciar
+```
+
+1. **Conecta el USB** booteable a tu computadora
+2. **Reinicia el equipo** (Ctrl+Alt+Delete en Windows, Reiniciar en macOS/Linux)
+3. **Inmediatamente después de encender**, presiona la tecla de BIOS según tu fabricante:
+
+| Fabricante | Tecla |
+|-----------|--------|
+| **Dell** | F12 |
+| **HP** | F9 o Esc |
+| **Lenovo** | F12 o F2 |
+| **Asus** | Esc |
+| **Acer** | Esc |
+| **Apple (Intel)** | Option |
+
+### Seleccionar USB en Boot Menu
+
+Verás un menú similar a:
+
+```
+UEFI Boot Options
+─────────────────
+1. Ubuntu (USB)           ← Selecciona esta
+2. Windows Boot Manager
+3. UEFI CD/DVD
+```
+
+Selecciona **Ubuntu (USB)** con las flechas y presiona **Enter**.
+
+---
+
+## Paso 2: Pantalla Inicial del Instalador
+
+### Bienvenida Ubuntu
+
+Después de ~30 segundos, verás:
+
+```
+Try or Install Ubuntu
+
+[Try Ubuntu without installing]
+[Install Ubuntu]  ← Selecciona esto
+```
+
+Selecciona **"Install Ubuntu"** con el mouse o Tab + Enter.
+
+### Seleccionar Idioma
+
+```
+Select a language
+─────────────────
+Español (España)
+Español (México)  
+English          ← Por defecto
+français
+Português (Brasil)
+```
+
+**Para Abacom (empresa española)**: Selecciona **"Español (España)"**
+
+Haz clic en **"Continue"** o presiona Enter.
+
+---
+
+## Paso 3: Configurar Teclado y Región
+
+### Teclado
+
+```
+Keyboard layout
+───────────────
+Spanish
+Spanish (Macintosh)
+English (US)  ← Por defecto
+```
+
+Si instalas en España, selecciona **Spanish**.
+
+Si no está disponible, **English (US)** es universal - puedes cambiar después.
+
+### Ubicación Geográfica
+
+```
+Choose your location
+────────────────────
+Europe
+  Spain  ← Para Abacom
+  France
+Americas
+  United States
+```
+
+Selecciona tu ubicación. Esto configura:
+- **Zona horaria** (CET/CEST para España)
+- **Locales del sistema** (formatos de fecha/número)
+- **Servidores NTP** (sincronización de hora)
+
+---
+
+## Paso 4: Red e Inicio de Sesión
+
+### Conectar a Red
+
+```
+Network Configuration
+─────────────────────
+Wired (en0) ↑
+WiFi (wlan0)
+```
+
+**Durante instalación**, conecta a internet si es posible. El instalador descargará:
+- Actualizaciones de kernel
+- Drivers de hardware
+- Paquetes de idioma
+
+Si no tienes internet, puedes instalar offline (menos recomendado).
+
+---
+
+## Paso 5: Particionamiento de Disco - LA PARTE CRÍTICA
+
+### Opción A: Instalación Única (Recomendado para Abacom)
+
+```
+Installation type
+─────────────────
+[ ] Erase disk and install Ubuntu   ← RECOMENDADO (borra TODO)
+[ ] Something else (Manual)         ← AVANZADO (control total)
+```
+
+**ADVERTENCIA: "Erase disk" borra TODOS los datos existentes**.
+
+Selecciona **"Erase disk and install Ubuntu"** si:
+- Es nueva máquina
+- No tienes datos importantes
+- No necesitas Windows
+- Solo usarás Linux
+
+Entonces elige:
+
+```
+Select disk to install to
+──────────────────────────
+[✓] /dev/sda (500 GB) Seagate ST500DM002
+[ ] /dev/sdb (2 TB)   Western Digital WD20EZ
+```
+
+**VERIFICA CUIDADOSAMENTE** que seleccionas el disco CORRECTO.
+
+### Opción B: Dual Boot (Windows + Ubuntu)
+
+Si ya tenías Windows:
+
+1. **Antes de instalar Ubuntu**, en Windows:
+   - Abre **Disk Management** (diskmgmt.msc)
+   - Haz clic derecho en C: → **Shrink Volume**
+   - Libera 50-100 GB
+   - Cierra Windows normalmente
+
+2. **Durante instalación Ubuntu**:
+   - Selecciona **"Something else"** (particionamiento manual)
+   - Verás espacio "unallocated" en el disco
+   - Crea 2 particiones:
+
+```
+/dev/sda1  (existente) 500 GB [Windows] (sin cambiar)
+/dev/sda2  (nuevo)      50 GB [Ubuntu root]
+/dev/sda3  (nuevo)      10 GB [Ubuntu swap]
+```
+
+### Opción C: Particionamiento Manual (Avanzado)
+
+Selecciona **"Something else"** si necesitas control total.
+
+Verás:
+
+```
+Partitions
+──────────
+NAME   TYPE      SIZE      MOUNT POINT
+/dev/sda1 Unallocated 500 GB
+
+[+] para agregar
+[-] para eliminar
+[Edit] para modificar
+```
+
+**Partición típica para servidor Abacom:**
+
+```
+/dev/sda1 (EFI)         1 GB    /boot/efi     (FAT32)
+/dev/sda2 (root)       100 GB   /             (ext4)
+/dev/sda3 (swap)        16 GB   [swap]        (swap)
+/dev/sda4 (home)       ~383 GB   /home        (ext4)
+```
+
+**Crear partición root:**
+
+```
+[+] Nueva partición
+├─ Size: 100000 MB (100 GB)
+├─ Type: Primary / Logical: Logical
+├─ Location: Beginning / End: End
+├─ Use as: Ext4 journaling file system
+└─ Mount point: /
+```
+
+**Crear partición home:**
+
+```
+[+] Nueva partición
+├─ Size: 383000 MB (383 GB)
+├─ Type: Logical
+├─ Use as: Ext4 journaling file system
+└─ Mount point: /home
+```
+
+**Crear partición swap:**
+
+```
+[+] Nueva partición
+├─ Size: 16000 MB (16 GB)
+├─ Type: Logical
+├─ Use as: swap area
+└─ Mount point: [none]
+```
+
+---
+
+## Paso 6: Crear Usuario Administrador
+
+### Información Personal
+
+```
+Who are you?
+─────────────
+Your name:              [Diego Saavedra          ]
+Your computer's name:   [abacom-ubuntu           ]
+Pick a username:        [diego                   ]
+Choose a password:      [••••••••••              ]
+Confirm password:       [••••••••••              ]
+
+[ ] Log in automatically
+[ ] Require my password to log in  ✓
+```
+
+**Campos importantes:**
+
+1. **Your name**: Tu nombre completo (se muestra en la GUI)
+   - Ejemplo: **Diego Saavedra**
+
+2. **Computer's name**: Nombre del equipo en la red (hostname)
+   - Debe ser alfanumérico, guiones permitidos
+   - Ejemplo: **abacom-ubuntu** (sin espacios)
+   - Acceso después: **ssh diego@abacom-ubuntu.local**
+
+3. **Username**: Usuario login (minúsculas, sin espacios)
+   - Ejemplo: **diego** (no **Diego Saavedra**)
+   - Acceso: **ssh diego@abacom-ubuntu.local**
+
+4. **Password**: Contraseña del usuario
+   - Mínimo 8 caracteres
+   - Recomendado: letras, números, símbolos
+   - Ejemplo: **AbacomLinux2024!**
+   - ⚠️ **NO OLVIDES** - sin password = sin acceso
+
+5. **Require my password**: Marcar esta opción
+   - Evita acceso no autorizado si dejas desatendida la máquina
+
+---
+
+## Paso 7: Seleccionar Software Inicial
+
+### Actualizaciones y Otros Software
+
+```
+Updates and other software
+──────────────────────────
+[ ] Install security updates automatically
+[ ] Install third-party software for graphics, WiFi, etc
+```
+
+**Recomendaciones para Abacom:**
+
+```
+[✓] Install security updates automatically
+    → Parchea automáticamente vulnerabilidades
+    
+[✓] Install third-party software for graphics, WiFi, etc
+    → Instala drivers propietarios si los necesita
+```
+
+Selecciona ambas opciones para máxima compatibilidad.
+
+---
+
+## Paso 8: Revisar Resumen y Confirmar
+
+### Resumen de Cambios
+
+```
+Installation Summary
+────────────────────
+Location:           Spain
+Keyboard:           Spanish
+Locale:             es_ES.UTF-8
+Hostname:           abacom-ubuntu
+Username:           diego
+Installation type:  Erase disk and install Ubuntu
+Disk to install to: /dev/sda (500 GB)
+
+These changes will be made to these disks:
+[ ] [✓] /dev/sda  BOOTLOADER, PARTITION 1, PARTITION 2
+```
+
+**ÚLTIMA OPORTUNIDAD PARA REVISAR**
+
+Si ves algo incorrecto (disco equivocado, particiones raras), haz clic **"Back"** para corregir.
+
+**Si todo está bien:** Haz clic **"Install"** o **"Begin"**.
+
+---
+
+## Paso 9: Instalación en Progreso
+
+### Barra de Progreso
+
+```
+Installing system
+─────────────────
+35%  ████████░░░░░░░░░░ Copying files...
+```
+
+**¿Qué está haciendo?**
+
+1. **Copiar sistema de archivos** (3-5 min) - Escribe archivos del SO en disco
+2. **Instalar bootloader** (1 min) - Configura GRUB para arrancar
+3. **Configurar red** (1 min) - Instala drivers de red
+4. **Generar locales** (3-5 min) - Crea archivos de idioma
+5. **Instalar actualizaciones** (5-10 min) - Si hay conexión a internet
+
+**Tiempo total**: 15-30 minutos dependiendo de velocidad de disco y internet
+
+**No interrumpas la instalación** - Si se corta, deberás reintentar.
+
+---
+
+## Paso 10: Reiniciar el Sistema
+
+### Final de Instalación
+
+```
+Installation complete
+─────────────────────
+The installation has finished successfully.
+
+[Restart now]  ← Haz clic aquí
+```
+
+Haz clic **"Restart now"**.
+
+El sistema mostrará:
+
+```
+Please remove the installation media, then press ENTER to continue.
+```
+
+**IMPORTANTE:**
+1. **Desconecta el USB de instalación**
+2. Presiona **Enter**
+3. La máquina reiniciará
+
+---
+
+## Paso 11: Primera Sesión
+
+### Pantalla de Login
+
+Después del reinicio (~1 minuto), verás:
+
+```
+Ubuntu 22.04 LTS
+
+abacom-ubuntu login: diego
+Password: ••••••••••
+```
+
+**O si está en interfaz gráfica (GNOME):**
+
+```
+ubuntu GNOME Desktop
+
+[icono de usuario] diego
+Password: [campo para escribir]
+```
+
+Ingresa:
+- **Usuario**: **diego** (el que creaste)
+- **Contraseña**: La que estableciste
+
+---
+
+## Paso 12: Verificar Instalación Exitosa
+
+### Terminal: Verificar Versión
+
+```bash
+lsb_release -a  # <1>
+```
+
+1. **lsb_release -a** muestra información de la distribución instalada
+
+**Salida esperada:**
+```
+No LSB modules are available.
+Distributor ID: Ubuntu
+Release:        22.04
+Codename:       jammy
+Description:    Ubuntu 22.04.4 LTS
+```
+
+### Verificar Kernel
+
+```bash
+uname -r  # <1>
+```
+
+1. **uname -r** muestra versión del kernel Linux
+
+**Salida esperada:**
+```
+5.15.0-91-generic
+```
+
+Versión 5.15+ es correcta para Ubuntu 22.04 LTS.
+
+### Verificar Particiones
+
+```bash
+lsblk  # <1>
+```
+
+1. **lsblk** lista el particionamiento realizado
+
+**Salida esperada (instalación única):**
+```
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0  500G  0 disk 
+├─sda1   8:1    0  1.5G  0 part /boot/efi
+├─sda2   8:2    0   50G  0 part /
+└─sda3   8:3    0  448G  0 part /home
+```
+
+### Verificar Espacio Disponible
+
+```bash
+df -h  # <1>
+```
+
+1. **df -h** muestra espacio usado/disponible en particiones
+
+**Salida esperada:**
+```
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda2        50G  8.5G   39G  18% /
+/dev/sda3       448G  100M  425G   1% /home
+/dev/sda1       1.5G  400M  1.1G  27% /boot/efi
+```
+
+### Verificar Conexión a Internet
+
+```bash
+ping -c 3 8.8.8.8  # <1>
+```
+
+1. **ping -c 3** envía 3 paquetes de prueba a Google DNS (8.8.8.8)
+
+**Salida esperada:**
+```
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=119 time=25.3 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=119 time=23.8 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=119 time=24.2 ms
+```
+
+Si ves 3 respuestas exitosas = Internet funciona ✓
+
+---
+
+## 💡 Ejemplos Prácticos
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Instalación en Abacom (Empresa Real)
+
+#### Servidor Linux (Ubuntu 22.04 LTS)
+
+**Escenario**: Abacom necesita 5 servidores Ubuntu 22.04 LTS
+
+**Configuración estándar por servidor:**
+
+- **Hostname**: **abacom-server-01** a **abacom-server-05**
+- **Usuario**: **admin** (o **sysadmin**)
+- **Particiones**:
+  - **/** → 50 GB (sistema operativo)
+  - **/var** → 50 GB (logs, bases de datos)
+  - **/home** → 50 GB (datos de usuarios)
+  - **swap** → 16 GB
+
+**Pasos:**
+1. Crear 5 USBs booteable (o usar PXE boot)
+2. Instalar cada servidor con mismo usuario pero Hostname único
+3. Después: Script para configuración común (SSH keys, firewall, etc)
+
+```bash
+# Verificar instalación en primer servidor:
+$ ssh admin@abacom-server-01
+$ cat /etc/hostname
+abacom-server-01
+$ df -h
+Filesystem     Size  Used Avail Use% Mounted on
+/dev/sda1       50G  2.5G   47G   5% /
+/dev/sda2       50G   10G   40G  20% /var
+/dev/sda3       50G   100M   49G   1% /home
+/dev/sda4       16G     0   16G   0% swap
+```
+
+#### Escritorio Personal (Windows + Ubuntu Dual Boot)
+
+**Escenario**: Quieres Windows 11 para trabajo y Ubuntu para desarrollo
+
+**En Windows 11:**
+```powershell
+# Paso 1: Preparar espacio libre
+PS> # Abre Disk Management (diskmgmt.msc)
+PS> # Right-click Disco C: → Shrink Volume
+PS> # Liberar 100 GB
+Get-Volume | Select-Object DriveLetter, Size, SizeRemaining
+```
+
+**En Windows (Descargar Ubuntu):**
+```powershell
+# Paso 2: Descargar ISO (en Windows)
+PS> Invoke-WebRequest -Uri "https://releases.ubuntu.com/22.04/ubuntu-22.04.3-live-server-amd64.iso" `
+    -OutFile "C:\Users\usuario\Downloads\ubuntu-22.04.3.iso"
+
+# Paso 3: Flash ISO a USB (usar Balena Etcher)
+# - Descargar Balena Etcher desde https://www.balena.io/etcher/
+# - Seleccionar ISO
+# - Seleccionar USB
+# - Click "Flash"
+```
+
+**Instalar Ubuntu:**
+```bash
+# Boot desde USB → "Something else" (manual)
+# Crear particiones en 100 GB libres
+# Instalar con Windows existente
+
+# Después de reiniciar:
+$ # Verás menu GRUB con opciones:
+# 1. Ubuntu
+# 2. Windows 11
+
+# Resultado: Dual boot funcional
+```
+
+#### macOS (Alternativa: Usar Multipass o Docker)
+
+**Escenario**: Tienes Mac y quieres desarrollar en Ubuntu
+
+**OPCIÓN A: Multipass (Recomendado)**
+```bash
+# En macOS, instalar Multipass (VM manager de Canonical)
+$ brew install multipass
+
+# Crear VM Ubuntu
+$ multipass launch --name abacom-dev ubuntu:22.04
+Creating instance with 1 CPU, 1GB of memory and 5GB of disk space
+
+# Acceder a la VM
+$ multipass shell abacom-dev
+ubuntu@abacom-dev:~$ uname -a
+Linux abacom-dev 5.15.0-1234-generic #1234-Ubuntu SMP x86_64
+
+# Desde macOS, copiar archivos a VM:
+$ multipass transfer archivo.txt abacom-dev:/home/ubuntu/
+```
+
+**OPCIÓN B: Docker Desktop (Ligero)**
+```bash
+# En macOS, usar Docker para contenedor Linux
+$ docker run -it ubuntu:22.04 /bin/bash
+
+root@container# apt update
+root@container# apt install -y build-essential
+# Tienes Ubuntu dentro de Docker en tu Mac
+```
+
+**Por qué en macOS?**
+- macOS: 100% BSD Unix-like (parcialmente compatible)
+- Pero: Herramientas pueden variar
+- Solución: Usar Multipass o Docker para tener Ubuntu "real"
+
+### Ejemplo 2: Validar Particiones Antes de Instalar
+
+#### Linux (Verificación desde USB)
+```bash
+# Boot desde USB Ubuntu live
+$ # Presiona Ctrl+Alt+T para terminal
+$ sudo fdisk -l
+
+Disk /dev/sda: 238.47 GiB, 256060514304 bytes
+...
+```
+
+#### Windows (Verificación desde PowerShell)
+```powershell
+# En Windows, antes de encoger C:
+PS> Get-Disk | Select-Object DiskNumber, TotalSize, FreeSpace
+
+DiskNumber TotalSize     FreeSpace
+---------- ---------     ---------
+         0 238GB         50GB
+
+# Encoger disco C: (liberar 100 GB):
+PS> $disk = Get-Disk -Number 0
+PS> $partition = $disk | Get-Partition | Where-Object {$_.DriveLetter -eq 'C'}
+PS> $partition | Resize-Partition -Size ($partition.Size - 100GB)
+```
+
+#### macOS (Verificación desde Terminal)
+```bash
+# En macOS, ver discos disponibles
+$ diskutil list
+
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *238GB      disk0
+   1:                        EFI EFI                     209MB      disk0s1
+   2:       Apple_APFS Macintosh HD                      ~150GB     disk0s2
+
+# Para crear espacio para Linux, usar Disk Utility.app
+# O via terminal: 
+$ diskutil secureErase freespace 0 /Volumes/FreeSapce
+```
+
+### Ejemplo 3: Caso Real - Servidor Multi-Disco con RAID
+
+#### Linux (Configuración Abacom)
+
+**Escenario**: Servidor de bases de datos con 2 SSDs y 4 HDDs
+
+**Durante Instalación (Elegir "Something else"):**
+```bash
+# Configuración planificada:
+SSD #1 (/dev/sda) - Partición primaria:
+  50 GB / (sistema)
+  16 GB swap
+  
+SSD #2 (/dev/sdb) - Dedicado a BD:
+  400 GB /var (logs, temp)
+  
+HDD #1-4 (/dev/sd{c-f}) - RAID-10:
+  8 TB RAID (datos de BD)
+
+# Durante setup visual, crear particiones en orden:
+# 1. Seleccionar /dev/sda como disco principal
+# 2. Click "New Partition Table" en /dev/sda
+# 3. Crear:
+#    - 50 GB mounted at /
+#    - 16 GB swap
+# 4. En /dev/sdb, crear:
+#    - 400 GB mounted at /var
+```
+
+**Después de instalación (configurar RAID):**
+```bash
+$ ssh admin@server
+$ sudo apt install mdadm  # herramienta RAID
+
+# Ver discos disponibles:
+$ sudo fdisk -l | grep "Disk /dev/sd"
+Disk /dev/sdc: 2 TiB
+Disk /dev/sdd: 2 TiB
+Disk /dev/sde: 2 TiB
+Disk /dev/sdf: 2 TiB
+
+# Crear RAID-10:
+$ sudo mdadm --create /dev/md0 --level=10 --raid-devices=4 /dev/sdc /dev/sdd /dev/sde /dev/sdf
+
+# Montar RAID:
+$ sudo mkdir -p /mnt/database
+$ sudo mount /dev/md0 /mnt/database
+
+# Verificar:
+$ df -h | grep /mnt/database
+/dev/md0       7.8T    100G  7.7T   2% /mnt/database
+```
+
+#### Windows Server (Comparación)
+
+**Configuración equivalente en Windows Server:**
+```powershell
+# En Windows Server, usar Storage Spaces (equivalente a RAID)
+PS> Get-PhysicalDisk
+
+FriendlyName    HealthStatus OperationalStatus Size       Usage
+-----------     ------------ ------------ ----   ---
+Samsung 960 Pro Healthy      OK           2 TB   Auto-provisioned
+WDC Red Plus    Healthy      OK           2 TB   Auto-provisioned
+Seagate IronWolf Healthy     OK           2 TB   Auto-provisioned
+Seagate IronWolf Healthy     OK           2 TB   Auto-provisioned
+
+# Crear storage pool:
+PS> New-StoragePool -FriendlyName "Database-RAID" `
+     -StorageSubsystemFriendlyName "Storage Spaces Direct" `
+     -PhysicalDisks (Get-PhysicalDisk)
+
+# Crear virtual disk (equivalente a RAID-10):
+PS> New-VirtualDisk -StoragePoolFriendlyName "Database-RAID" `
+     -FriendlyName "database-volume" `
+     -ResiliencySettingName "Mirror" `
+     -Size 8TB
+```
+
+#### macOS (No recomendado para servidores, pero posible)
+
+**En macOS (usando RAID via Disk Utility o terminal):**
+```bash
+# macOS soporta RAID pero NO es recomendado para producción
+$ diskutil secureErase freespace 0 /Volumes/Free
+
+# Mejor: Usar Linux o Windows Server
+# macOS está hecho para desarrollo, no para servidores críticos
+```
+
+**Conclusión:**
+| Aspecto | Linux | Windows | macOS |
+|--------|-------|---------|-------|
+| RAID nativo | ✅ mdadm | ⚠️ Storage Spaces | ❌ No recomendado |
+| Producción | ✅ Ideal | ✅ Viable | ❌ No usar |
+| Facilidad | ✅ Fácil | ⚠️ Complejo | ❌ Limitado |
+
+:::
+
+---
+
+## 🔧 Componentes Clave
+
+### GRUB (GRand Unified Bootloader)
+
+**GRUB** es el bootloader que carga Linux después de que BIOS/UEFI busca discos.
+
+```bash
+# Configuración de GRUB está en:
+cat /etc/default/grub  # <1>
+```
+
+1. **cat** muestra el contenido del archivo de configuración de GRUB
+
+**Parámetros comunes:**
+```
+GRUB_DEFAULT=0           # Entrada de menu por defecto
+GRUB_TIMEOUT=5           # Segundos antes de boot automático
+GRUB_CMDLINE_LINUX=""    # Parámetros para el kernel
+```
+
+Si editas GRUB, debes actualizar:
+```bash
+sudo update-grub  # <1>
+```
+
+1. **update-grub** reconstruye la configuración de GRUB desde /etc/default/grub
+
+### Ext4 Filesystem [@linux_filesystems]
+
+**ext4** (Fourth Extended Filesystem) es el sistema de archivos por defecto de Ubuntu.
+
+**Características de ext4:**
+
+- **Journaling**: Protege contra corrupción si se apaga abruptamente
+- **Sparse files**: Archivos "huecos" usan menos espacio
+- **Extents**: Mejor performance con archivos grandes
+- **Límite de tamaño**: Soporta archivos hasta 16 TB
+
+**Alternativas de sistemas de archivos** (menos comunes):
+
+- **XFS**: Para datos muy grandes (aplicaciones científicas)
+- **Btrfs**: Experimental, con soporte para snapshots
+- **ZFS**: Especializado para RAID y almacenamiento
+
+### Swap (Memoria Virtual)
+
+**Swap** es espacio en disco usado como extensión de RAM cuando la memoria física se llena.
+
+```bash
+# Ver swap disponible
+swapon --show  # <1>
+```
+
+1. **swapon --show** muestra estado de swap activo
+
+**Tamaño recomendado de swap:**
+
+- **Máquina con 8 GB RAM** → 4-8 GB swap
+- **Máquina con 32 GB RAM** → 2-4 GB swap
+- **Servidor sin hibernación** → 1-2 GB swap
+
+---
+
+## ⚠️ Errores Comunes
+
+### Error 1: "No bootable device found"
+- **Causa**: USB no fue flashed correctamente o está desconectado
+- **Solución**: Reconecta USB, presiona F12, selecciona USB en boot menu
+
+### Error 2: "Disk I/O error" durante instalación
+- **Causa**: Disco dañado o USB corrupto
+- **Solución**: Intenta con USB recién grabado. Si persiste, disco está fallando
+
+### Error 3: "Installer crashed"
+- **Causa**: Bug raro (muy poco común)
+- **Solución**: Reinicia desde USB y reintenta
+
+### Error 4: "No connection to Internet" durante setup
+- **Causa**: Red no está configurada o cable desconectado
+- **Solución**: Pulsa Atrás, espera a que detecte red, intenta de nuevo
+
+### Error 5: "Partitions too small"
+- **Causa**: Seleccionaste disco con menos de 2.5 GB libres
+- **Solución**: Selecciona otro disco o borra datos
+
+---
+
+## 📊 Mejores Prácticas
+
+1. **Siempre valida discos** - Usa **fdisk -l** para verificar disco correcto antes de "Erase"
+2. **Deja espacio en / para crecer** - Mínimo 20 GB, preferible 50+ GB
+3. **Separa /home de /** - Facilita actualizaciones sin perder datos
+4. **Usa swap físico, no archivo** - Mejor performance que swapfile
+5. **Documenta particiones** - Escribe en papel qué va en qué disco
+6. **Practica en VirtualBox** - Antes de instalar en máquina real
+
+---
+
+## 📋 Tabla de Referencia Rápida
+
+| Etapa | Opción | Recomendación |
+|------|--------|---------------|
+| **Idioma** | Español / English | Español (España) para Abacom |
+| **Teclado** | Spanish / English | Spanish si está disponible |
+| **Ubicación** | Tu país | Spain para Abacom |
+| **Red** | Wired / WiFi | Wired si es posible (más estable) |
+| **Instalación** | Erase / Manual | Erase (simple) o Manual (control) |
+| **Usuario** | nombre_usuario | Minúsculas, sin espacios, 8+ caracteres |
+| **Password** | ••••••••••• | Mínimo 8, con números y símbolos |
+| **Swap** | Size | RAM ÷ 2 (mínimo 1 GB) |
+
+---
+
+## 🎓 Quiz: Verificar tu Comprensión
+
+:::{.callout-tip collapse="true"}
+### Pregunta 1: Particionamiento
+¿Por qué es importante separar **/** de **/home** en particiones diferentes?
+
+**a)** Es más rápido  
+**b)** Usa menos espacio  
+**c)** Si **/** falla y necesitas reinstalar SO, datos en **/home** se preservan (Correcto ✓)  
+**d)** No hay razón, es opcional  
+
+**Explicación**: Separar permite reinstalar el SO sin tocar datos de usuario. Si ambos están en **/**, reinstalar borra todo.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 2: Arranque desde USB
+¿Cuál es la tecla para acceder al BIOS en un Dell?
+
+**a)** Delete  
+**b)** F2  
+**c)** F12 (Correcto ✓)  
+**d)** Escape  
+
+**Explicación**: Aunque F2 abre configuración de BIOS, F12 muestra el boot menu que permite seleccionar USB directamente.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 3: Verificar Instalación
+¿Cómo verificas qué versión de Ubuntu se instaló correctamente?
+
+**a)** **uname -a**  
+**b)** **lsb_release -a** (Correcto ✓)  
+**c)** **cat /etc/os-release**  
+**d)** Todas las anteriores funcionan  
+
+**Explicación**: **lsb_release** es estándar para distribuir Linux. Ambas funcionan, pero **lsb_release** es más portable.
+:::
+
+---
+
+## 👨‍💻 Práctica Guiada: Instalación Paso a Paso
+
+**Objetivos:**
+1. Arrancar desde USB
+2. Navegar el instalador de Ubuntu
+3. Crear particiones
+4. Instalar el sistema
+5. Verificar instalación
+
+**Tiempo estimado:** 45 minutos
+
+**Instrucciones:**
+
+```
+1. PREPARACIÓN (2 min)
+   □ Conecta USB booteable
+   □ Cierra todas aplicaciones
+   □ Guarda documentos abiertos
+   □ Encaja en proceso: NO INTERRUMPAS instalación
+
+2. ARRANCAR DESDE USB (3 min)
+   □ Reinicia la máquina
+   □ Presiona tecla de BIOS inmediatamente (F12, Del, etc)
+   □ Busca "USB Device" o "Removable Media"
+   □ Presiona Enter
+   □ Espera a que cargue el Live USB (~30 seg)
+
+3. INSTALADOR - IDIOMA (2 min)
+   □ Ves menú "Try or Install"
+   □ Selecciona "Install Ubuntu"
+   □ Selecciona idioma: Español (España)
+   □ Haz clic "Continue"
+
+4. INSTALADOR - TECLADO Y REGIÓN (2 min)
+   □ Teclado: Spanish (si está disponible)
+   □ Ubicación: Spain
+   □ Haz clic "Continue"
+
+5. INSTALADOR - RED (1 min)
+   □ Espera a que detecte conexión wired/wifi
+   □ Verás "Wired (ip address) connected" o similar
+   □ Haz clic "Continue"
+
+6. INSTALADOR - PARTICIONES (5 min)
+   □ Selecciona "Erase disk and install Ubuntu" (simple)
+   □ O "Something else" si quieres control manual
+   □ Verifica que seleccionas disco CORRECTO
+   □ Haz clic "Continue"
+
+7. INSTALADOR - USUARIO (3 min)
+   □ Your name: Tu nombre completo
+   □ Computer name: hostname (ej: abacom-ubuntu)
+   □ Pick a username: usuario lowercase (ej: diego)
+   □ Password: contraseña segura (8+ caracteres)
+   □ Marca "Require my password to log in"
+   □ Haz clic "Continue"
+
+8. INSTALADOR - CONFIRMACIÓN (1 min)
+   □ Revisa resumen de cambios
+   □ Si todo es correcto: Haz clic "Install"
+   □ Si hay error: Haz clic "Back" para corregir
+
+9. INSTALACIÓN AUTOMÁTICA (20 min)
+   □ Barra de progreso muestra avance
+   □ NO INTERRUMPAS - deja que termine
+   □ Puedes leer documentación durante este tiempo
+
+10. REINICIO (3 min)
+    □ Ves "Installation complete"
+    □ Desconecta USB
+    □ Haz clic "Restart now"
+    □ Presiona Enter
+    □ Máquina reinicia
+
+11. LOGIN (1 min)
+    □ Ves login screen o GNOME desktop
+    □ Ingresa usuario y contraseña
+    □ Presiona Enter
+
+12. VERIFICACIÓN (5 min)
+    □ Abre Terminal: Ctrl+Alt+T
+    □ Ejecuta: lsb_release -a
+    □ Verifica que ves "Ubuntu 22.04" y "jammy"
+    □ Ejecuta: df -h
+    □ Verifica particiones están montadas
+    □ Ejecuta: ping -c 3 8.8.8.8
+    □ Verifica que hay conexión a Internet
+
+✓ ¡Listo! Ubuntu 22.04 LTS está instalado y funcionando
+```
+
+---
+
+## 🧪 Laboratorio: Instalación en VirtualBox (Recomendado Primero)
+
+**Si es tu primera vez**, practica en máquina virtual primero. Las prácticas de instalación se realizarán en **VirtualBox y VMware Workstation**.
+
+### Instalación en VirtualBox
+
+```
+Pasos detallados:
+
+1. Descarga e instala VirtualBox:
+   └─ https://www.virtualbox.org/
+
+2. Crea máquina virtual nueva:
+   ├─ Nombre: "Ubuntu 22.04 Lab"
+   ├─ Tipo: Linux
+   ├─ Versión: Ubuntu (64-bit)
+   ├─ RAM: 4096 MB (4 GB)
+   ├─ Tipo de disco: VDI (VirtualBox Disk Image)
+   └─ Tamaño: 50 GB (dinámico)
+
+3. Configura media de arranque:
+   ├─ Menú: Máquina → Configuración
+   ├─ Sección: Almacenamiento
+   ├─ Unidad óptica CD/DVD
+   └─ Selecciona ISO de Ubuntu 22.04.x
+
+4. Arranca la VM (Power On)
+
+5. Sigue el instalador (idéntico a máquina real)
+
+6. Experimenta, comete errores, aprende
+
+7. Antes de cambios importantes, crea snapshots:
+   Máquina → Snapshots → Tomar Snapshot
+```
+
+### Instalación en VMware Workstation
+
+```
+Pasos detallados:
+
+1. Descarga e instala VMware Workstation:
+   - Pro: https://www.vmware.com/products/workstation-pro.html
+   - Player: https://www.vmware.com/products/workstation-player.html
+
+2. Abre VMware Workstation → File → New Virtual Machine
+
+3. Configuración personalizada:
+   ├─ Compatibilidad: Última versión disponible
+   ├─ Sistema operativo: Linux → Ubuntu 64-bit
+   ├─ Nombre: "Ubuntu 22.04 Lab"
+   ├─ CPU: 2-4 procesadores
+   ├─ RAM: 4096 MB (4 GB)
+   ├─ Red: NAT (acceso a internet)
+   ├─ Disco: SCSI
+   ├─ Tamaño: 50 GB
+   └─ Asignar espacio simple (mejor rendimiento)
+
+4. Monta el ISO:
+   ├─ Click derecho en VM → Settings
+   ├─ CD/DVD → Use ISO image file
+   └─ Selecciona ubuntu-22.04.x-desktop-amd64.iso
+
+5. Arranca la VM (Power On)
+
+6. Sigue el instalador paso a paso
+
+7. Crea snapshots antes de cambios:
+   VM → Snapshot → Take Snapshot
+```
+
+**Ventajas de practicar en máquina virtual:**
+
+✅ **Sin riesgo de pérdida de datos:**
+   - Tu máquina host permanece completamente protegida
+   - Los errores afectan solo la máquina virtual
+
+✅ **Snapshots - Regresa en el tiempo:**
+   - Guarda estado antes de cambios importantes
+   - Restaura si algo sale mal
+   - Perfecto para experimentar
+
+✅ **Instalación ilimitada:**
+   - Practica el instalador tantas veces como quieras
+   - Borra y reinicia sin límite
+   - Cero consecuencias de errores
+
+✅ **Requisitos flexibles:**
+   - Usa máquinas viejas o poco poderosas como host
+   - Perfecto para laboratorios educativos
+
+✅ **Toma control total:**
+   - Pausa la máquina en cualquier momento
+   - Clona discos duros virtuales
+   - Experimenta con particionamiento sin presión
+
+### Comparativa: VirtualBox vs VMware Workstation
+
+| Aspecto | VirtualBox | Workstation |
+|---|---|---|
+| **Precio** | Gratuito | Pro: Pagado, Player: Gratis |
+| **Curva de aprendizaje** | Muy baja | Media |
+| **Rendimiento** | Bueno | Excelente |
+| **Snapshots** | Sí, pero lentos | Sí, muy rápidos |
+| **Clonación** | Sí | Sí, muy rápido |
+| **Documentación** | Excelente | Muy buena |
+| **Ideal para** | Principiantes, lab básicos | Profesionales, prod |
+
+### Troubleshooting durante la instalación
+
+**Problema: La VM no arranca después de instalar**
+```
+Causas comunes:
+1. ISO todavía montado en CD/DVD
+   └─ Solución: Desmonta el ISO en Configuración → Almacenamiento
+
+2. Bootloader no instalado correctamente
+   └─ Solución: Reinstala GRUB desde liveUSB
+
+3. Partición EFI corrupta
+   └─ Solución: Repara particiones desde live session
+```
+
+**Problema: Ubuntu instala pero arranca lentamente**
+```
+Causas:
+1. Recursos insuficientes
+   └─ Asigna más CPU y RAM
+
+2. Disco virtual fragmentado
+   └─ Defragmenta el disco virtual (.vdi o .vmdk)
+
+3. Efectos visualizados habilitados
+   └─ Deshabilita efectos en VM
+```
+
+**Problema: No reconoce el ISO**
+```
+Pasos:
+1. Verifica que el archivo .iso existe
+2. Verifica integridad: sha256sum ubuntu-*.iso
+3. En VirtualBox: Menú Máquina → Configuración → Almacenamiento
+4. En Workstation: Settings → CD/DVD → Use ISO image file
+5. Intenta con ruta absoluta (no relativa)
+```
+
+---
+
+
+## 📚 Recursos Adicionales
+
+- **Ubuntu Installation Guide**: https://help.ubuntu.com/22.04/installation-guide/
+- **VirtualBox Manual**: https://www.virtualbox.org/manual/
+- **GRUB Bootloader**: https://www.gnu.org/software/grub/
+- **Ext4 Filesystem**: https://ext4.wiki.kernel.org/
+- **Linux Partitioning**: https://wiki.archlinux.org/title/Partitioning
+
+---
+
+## Conclusión
+
+Ahora tienes:
+
+- ✅ Ubuntu 22.04 LTS completamente instalado
+- ✅ Sistema verificado y funcionando
+- ✅ Conexión a internet establecida
+- ✅ Usuario administrador creado
+
+En la próxima lección, realizaremos la **configuración inicial del sistema** (usuarios adicionales, SSH, firewall).
+
+---
+
+## 📝 Quiz: Instalación de Ubuntu
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el primer paso después de bootear desde USB de instalación?
+
+- [ ] Particionar el disco
+- [ ] Crear cuenta de usuario
+- [x] Seleccionar idioma y distribución de teclado
+- [ ] Conectar a internet
+
+## En el instalador de Ubuntu, ¿Qué significa "Instalación Normal"?
+
+- [ ] Instalación sin interfaz gráfica
+- [x] Instalación con aplicaciones básicas como navegador, editor de texto, etc.
+- [ ] Instalación mínima sin aplicaciones
+- [ ] Instalación para servidores
+
+## ¿Cuál es el sistema de archivos predeterminado recomendado en Ubuntu 22.04?
+
+- [ ] ext3
+- [x] ext4
+- [ ] btrfs
+- [ ] XFS
+
+## Al particionar automáticamente, ¿Cuáles son las particiones típicas que crea Ubuntu?
+
+- [ ] Solo una partición raíz (/)
+- [x] Partición EFI, partición raíz (/), área de intercambio (swap)
+- [ ] Partición raíz (/), /home, /var
+- [ ] Múltiples particiones según el espacio disponible
+
+## ¿Cuál comando verifica la versión instalada de Ubuntu después de la instalación?
+
+- [ ] ubuntu --version
+- [ ] os --info
+- [x] lsb_release -a
+- [ ] cat /etc/version
+
+## ¿Qué hace el comando `uname -a` en Ubuntu?
+
+- [ ] Muestra información del usuario
+- [x] Muestra información del kernel y el sistema operativo
+- [ ] Muestra la distribución de Linux
+- [ ] Muestra la fecha y hora actual
+
+## Durante la instalación, ¿Cuál es la mínima cantidad de RAM recomendada para no tener problemas?
+
+- [ ] 512 MB
+- [ ] 1 GB
+- [x] 2 GB
+- [ ] 4 GB
+
+## ¿Qué comando se usa para verificar el espacio disponible en disco después de instalar?
+
+- [ ] free -h
+- [x] df -h
+- [ ] du -sh
+- [ ] disk -info
+
+## El instalador de Ubuntu puede detectar automáticamente:
+
+- [x] Múltiples sistemas operativos ya instalados y crear un dual-boot
+- [ ] Solo detecta Windows
+- [ ] No puede detectar otros sistemas
+- [ ] Solo detecta particiones ext4
+
+## ¿Cuál es la ventaja de usar una dirección IP estática en servidor Ubuntu?
+
+- [ ] No necesita conexión a internet
+- [x] El servidor siempre tiene la misma IP, facilitando la conexión remota
+- [ ] Es más rápido que DHCP
+- [ ] Es obligatorio para servidores
+
+## ¿Qué hace la opción "Instalar controladores propietarios" en el instalador?
+
+- [ ] Nada, solo es decorativo
+- [ ] Instala sistemas operativos adicionales
+- [x] Instala drivers no libres que pueden mejorar rendimiento (GPU, wifi, etc.)
+- [ ] Desinstala paquetes innecesarios
+```
+
+---

@@ -1,0 +1,1097 @@
+---
+title: "Actualización y Seguridad del Sistema"
+subtitle: "Mantener Ubuntu Seguro y Actualizado"
+author: "Diego Saavedra"
+date: "2024-01-29"
+date-format: medium
+---
+
+## 📚 Objetivos de Aprendizaje
+
+Después de completar este tema, serás capaz de:
+
+- Actualizar el sistema Linux de forma segura
+- Entender las diferencias entre **update**, **upgrade**, y **dist-upgrade**
+- Configurar actualizaciones automáticas
+- Instalar y usar firewall UFW
+- Aplicar hardening básico de seguridad
+- Monitorear cambios de seguridad
+
+## 🎯 Por Qué Este Tema Es Crítico
+
+Un servidor sin actualizar es un servidor comprometido. **0-day exploits** (vulnerabilidades nuevas) se descubren regularmente, y los parches salen diariamente. Tu servidor debe estar actualizado.
+
+**Estadística real**: El 80% de brechas de seguridad podrían haberse prevenido con actualizaciones oportunas.
+
+**Tiempo estimado**: 60-90 minutos de lectura + laboratorio
+
+---
+
+## 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Actualizar Sistema Operativo
+
+#### Linux (Ubuntu)
+```bash
+# Paso 1: Actualizar lista de paquetes
+$ sudo apt update
+Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [114 kB]
+Leyendo listas de paquetes... Hecho
+
+# Paso 2: Actualizar paquetes instalados
+$ sudo apt upgrade -y
+Se instalarán las siguientes actualizaciones:
+  openssl ssh systemd vim curl wget
+0 paquetes recién instalados, 5 para actualizar
+¿Deseas continuar? [S/n] S
+
+# Paso 3: Limpiar paquetes no usados
+$ sudo apt autoremove -y
+Los siguientes paquetes serán ELIMINADOS:
+  libpython3.8-minimal
+¿Deseas continuar? [S/n] S
+
+# Verificar versión del kernel después
+$ uname -r
+5.15.0-89-generic
+```
+
+#### macOS (Darwin)
+```bash
+# macOS usa dos sistemas de actualización:
+
+# Sistema A: Actualizaciones de SO (via App Store / Sistema)
+$ softwareupdate -l  # <1>
+The following updates are available:
+  macOS Sonoma 14.2.1 Update
+  Security Update 2024-001
+  
+# Instalar todas las actualizaciones
+$ sudo softwareupdate -ia
+Installing macOS Sonoma 14.2.1 Update
+# Requiere reinicio
+
+# Sistema B: Homebrew (package manager de terceros)
+$ brew update  # <1>
+Updated 2 taps and 215 formulae
+
+$ brew upgrade  # Actualizar todos los paquetes
+Upgrading curl, openssl, wget
+```
+
+1. **softwareupdate** es el gestor de actualizaciones de SO en macOS
+2. **brew** es el package manager externo más popular en macOS (similar a apt en Linux)
+
+#### Windows (PowerShell)
+```powershell
+# Windows tiene actualización automática (Windows Update)
+# Pero también puedes forzar actualizaciones vía PowerShell:
+
+# Ver actualizaciones disponibles
+PS> Get-WindowsUpdate
+Title                                  KB        Size
+-----                                  --        ----
+Cumulative Update for Windows 11        KB5034441  800MB
+Security Update for .NET Framework 4.8 KB5034440  150MB
+
+# Instalar actualizaciones (requiere privilegios admin)
+PS> Install-WindowsUpdate -AcceptAll -AutoReboot
+
+# Verificar versión del SO
+PS> [Environment]::OSVersion.Version
+10.0.22621.0  # Windows 11 Build 22621
+```
+
+**Comparación:**
+| SO | Comando | Gestor | Automático |
+|----|---------|--------|-----------|
+| Linux | `apt update && apt upgrade` | apt | Configurable |
+| macOS | `softwareupdate -ia` | App Store + brew | Sí, con popup |
+| Windows | `Install-WindowsUpdate` | Windows Update | Sí, forzado |
+
+### Ejemplo 2: Verificar Vulnerabilidades de Seguridad
+
+#### Linux (Ubuntu)
+```bash
+# Ver historial de parchesaplicados
+$ sudo apt log  # <1>
+# O ver el archivo de log:
+$ sudo tail -f /var/log/apt/history.log
+
+# Verificar CVEs (Common Vulnerabilities) en paquetes instalados
+$ sudo apt list --upgradable
+Listado de paquetes con actualizaciones disponibles:
+curl/jammy 7.81.0-1ubuntu1.14 7.81.0-1ubuntu1.15
+openssh-client/jammy 1:8.2p1-4ubuntu0.5 1:8.2p1-4ubuntu0.6
+
+# Instalar ubuntu-security-status (más información)
+$ sudo apt install ubuntu-security-status
+$ ubuntu-security-status --json
+# Muestra vulnerabilidades conocidas
+
+# Ver vulnerabilidades recientes
+$ sudo unattended-upgrade --debug
+# Muestra qué está siendo parcheado automáticamente
+```
+
+1. **apt log** muestra el historial de instalaciones y actualizaciones
+
+#### macOS (Darwin)
+```bash
+# macOS tiene vulnerabilidades de seguridad reportadas en:
+$ sudo softwareupdate -l
+# Mostrada en formato: "Security Update XXXX-XXX"
+
+# Para análisis más detallado, usar herramientas de terceros:
+$ brew install clamav  # Antivirus
+$ freshclam  # Actualizar base de datos de virus
+$ clamscan -ri /Users  # Escanear el sistema
+
+# Verificar historial de updatesde seguridad
+$ log show --predicate 'eventMessage contains "Update"' --last 1h
+```
+
+#### Windows (PowerShell)
+```powershell
+# Windows tiene Windows Security (built-in)
+# Verificar estado desde PowerShell:
+
+PS> Get-MpComputerStatus | Select-Object RealTimeProtectionEnabled, OnAccessProtectionEnabled
+RealTimeProtectionEnabled    OnAccessProtectionEnabled
+---------------------------  -------------------------
+True                         True
+
+# Ver historial de updates
+PS> Get-WinEvent -LogName System -FilterXPath "*[System[(EventID=19)]]" | Select-Object TimeCreated, Message | head -5
+TimeCreated             Message
+-----------             -------
+2024-01-29 10:30:00     Update KB5034441 installed successfully
+
+# Verificar si hay updates pendientes
+PS> (New-Object -ComObject Microsoft.Update.Session).CreateupdateSearcher().Search("IsHidden=0 and Type='Software'").Updates.Count
+# Si devuelve 0: Sistema actualizado
+```
+
+**Comparación:**
+| SO | Herramienta | Comando | Frecuencia |
+|----|-----------|---------|-----------|
+| Linux | unattended-upgrades | `apt upgrade` | Configurable (diario típico) |
+| macOS | Software Update | `softwareupdate -l` | Automático (con notificación) |
+| Windows | Windows Update | Automático | Forzado (Patch Tuesday) |
+
+### Ejemplo 3: Caso Real Abacom - Configurar Firewall y Seguridad
+
+#### Linux (UFW Firewall)
+```bash
+# En Abacom, usamos UFW para proteger servidores
+
+# Paso 1: Habilitar firewall
+$ sudo ufw enable
+Firewall is active and enabled on system startup
+
+# Paso 2: Ver estado
+$ sudo ufw status
+Status: active
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW       Anywhere
+80/tcp                     ALLOW       Anywhere
+443/tcp                    ALLOW       Anywhere
+
+# Paso 3: Permitir puertos específicos
+$ sudo ufw allow 22/tcp  # SSH
+$ sudo ufw allow 80/tcp  # HTTP
+$ sudo ufw allow 443/tcp # HTTPS
+
+# Paso 4: Denegar todo lo demás (default)
+$ sudo ufw default deny incoming
+$ sudo ufw default allow outgoing
+
+# Verificar firewall log
+$ sudo tail -f /var/log/ufw.log
+```
+
+#### macOS (Built-in Firewall)
+```bash
+# macOS tiene firewall built-in (menos potente que UFW)
+
+# Habilitar firewall
+$ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
+Firewall is now enabled
+
+# Ver estado
+$ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
+Firewall is enabled
+
+# Permitir aplicación específica
+$ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /usr/bin/python3
+
+# Mejor opción: Usar herramientas de terceros como Hands Off! o Little Snitch
+# O usar pfctl (Advanced BSD firewall)
+$ sudo pfctl -e  # Habilitar PF firewall
+```
+
+#### Windows (Windows Defender Firewall)
+```powershell
+# En Windows Server, usar Windows Defender Firewall
+
+# Ver estado del firewall
+PS> Get-NetFirewallProfile
+
+Name             Enabled
+----             -------
+Domain           True
+Private          True
+Public           True
+
+# Crear regla de firewall (permitir SSH en puerto 22)
+PS> New-NetFirewallRule -DisplayName "Allow SSH" `
+     -Direction Inbound -LocalPort 22 -Protocol TCP -Action Allow
+
+# Ver reglas activas
+PS> Get-NetFirewallRule -Direction Inbound -Action Allow | Select-Object DisplayName
+
+# Más seguro: Denegar todo por defecto
+PS> Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
+```
+
+**Comparación arquitectura:**
+| Aspecto | Linux (UFW) | macOS | Windows |
+|--------|-----------|-------|---------|
+| Facilidad | ✅ Simple | ⚠️ Complejo | ✅ GUI intuitiva |
+| Control | ✅ Total | ⚠️ Limitado | ✅ Granular |
+| Producción | ✅ Ideal | ❌ No | ✅ Viable |
+| Port blocking | ✅ Sí | ⚠️ Difícil | ✅ Sí |
+
+:::
+
+---
+
+## 1. Gestión de Paquetes con APT (Debian/Ubuntu)
+
+### 1.1 Entender APT (Advanced Package Tool)
+
+APT es el gestor de paquetes estándar en Debian y Ubuntu. Mantiene un índice de repositorios remotos.
+
+```bash
+# **El ciclo de actualización**
+apt update    → Descargar listas de paquetes nuevos
+apt upgrade   → Instalar versiones nuevas (sin remover paquetes)
+apt autoremove → Eliminar dependencias no utilizadas
+```
+
+### 1.2 Actualizar Repositorios
+
+```bash
+# **Descargar listas de paquetes desde repositorios**
+sudo apt update
+
+# **Salida esperada**:
+# Get:1 http://security.ubuntu.com/ubuntu focal-security InRelease [114 kB]
+# Get:2 http://archive.ubuntu.com/ubuntu focal-updates InRelease [99.8 kB]
+# Leyendo listas de paquetes... Hecho
+# Se construirán 312 nuevos paquetes
+
+# **¿Qué hace?**
+# - Conecta a repositorios configurados en /etc/apt/sources.list
+# - Descarga lista de paquetes disponibles y versiones
+# - Si ves "Get", está descargando; "Hit" = sin cambios
+```
+
+**Verificar repositorios configurados**:
+```bash
+# **Ver fuentes APT**
+cat /etc/apt/sources.list
+
+# **Salida típica**:
+# deb http://archive.ubuntu.com/ubuntu/ jammy main restricted
+# deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted
+# deb http://security.ubuntu.com/ubuntu jammy-security main restricted universe
+
+# **Carpeta de repositorios adicionales (PPA)**
+ls -la /etc/apt/sources.list.d/
+```
+
+### 1.3 Actualizar Paquetes
+
+**OPCIÓN 1: Upgrade (seguro - no elimina paquetes)**
+
+```bash
+# **Actualizar paquetes instalados a versión más reciente**
+sudo apt upgrade
+
+# **Salida**:
+# Leyendo listas de paquetes... Hecho
+# Creando árbol de dependencias
+# Obteniendo información del estado... Hecho
+# Se instalarán las siguientes actualizaciones:
+#   openssl ssh systemd vim curl wget
+# 0 paquetes recién instalados, 5 para actualizar, 0 para remover
+# ¿Deseas continuar? [S/n] S
+
+# **Ventaja**: Nunca rompe dependencias
+# **Desventaja**: A veces no puede instalar actualizaciones importantes
+```
+
+**OPCIÓN 2: Full-Upgrade (más agresivo - puede remover paquetes)**
+
+```bash
+# **Actualización más completa (puede remover dependencias antiguas)**
+sudo apt full-upgrade
+
+# **Diferencia**: Si openssl 3.0 necesita remover openssl 1.1,
+# full-upgrade lo hará; upgrade NO
+```
+
+**OPCIÓN 3: Dist-Upgrade (Actualizar distribución - CUIDADO)**
+
+```bash
+# **Saltar a versión mayor de Ubuntu (22.04 -> 24.04)**
+sudo apt dist-upgrade
+# ⚠️ SOLO después de backup completo
+# ⚠️ SOLO en ambiente de testing primero
+
+# **Mejor forma de actualizar distribución**:
+sudo do-release-upgrade
+# Esta herramienta es más segura para saltos mayores
+```
+
+### 1.4 Limpiar Paquetes No Usados
+
+```bash
+# **Eliminar paquetes de dependencias que ya no se usan**
+sudo apt autoremove
+
+# **Salida**:
+# Los siguientes paquetes serán ELIMINADOS:
+#   libpython3.8-minimal
+# 0 nuevos paquetes instalados, 0 actualizaciones, 1 para remover
+# ¿Deseas continuar? [S/n] S
+
+# **Eliminar cachés de paquetes descargados**
+sudo apt autoclean
+
+# **Eliminar TODO lo que tenga caché (más agresivo)**
+sudo apt clean
+```
+
+### 1.5 Actualizar Paquete Específico
+
+```bash
+# **Actualizar solo nginx a versión más reciente**
+sudo apt install --only-upgrade nginx
+
+# **Instalar versión específica**
+sudo apt install nginx=1.24.0-1~jammy
+
+# **Ver versiones disponibles**
+apt-cache policy nginx
+# nginx:
+#   Instalada: 1.18.0-6ubuntu14.3
+#   Candidato: 1.24.0-1~jammy
+#   Tabla de versión:
+#     1.24.0-1~jammy 500
+#     1.18.0-6ubuntu14.3 500
+```
+
+---
+
+## 2. Actualizaciones Automáticas
+
+### 2.1 Instalar Unattended-Upgrades
+
+En producción, quieres actualizaciones automáticas sin esperar:
+
+```bash
+# **Instalar herramienta de actualizaciones automáticas**
+sudo apt install unattended-upgrades
+
+# **Habilitar servicio**
+sudo systemctl enable unattended-upgrades
+sudo systemctl start unattended-upgrades
+
+# **Verificar estado**
+sudo systemctl status unattended-upgrades
+```
+
+### 2.2 Configurar Qué Se Actualiza Automáticamente
+
+**Editar configuración**:
+```bash
+# **Archivo de configuración**
+sudo nano /etc/apt/apt.conf.d/50unattended-upgrades
+```
+
+Cambios importantes:
+```bash
+# **Habilitar solo actualizaciones de seguridad (recomendado)**
+Unattended-Upgrade::Package-Blacklist {
+};
+
+# **Solo paquetes de seguridad (línea clave)**
+Unattended-Upgrade::Origins-Pattern {
+    "origin=*,archive=*-security";
+};
+
+# **Permitir reinicio automático si es necesario**
+Unattended-Upgrade::Automatic-Reboot "true";
+
+# **Horario para reinicio (ej: 3 AM)**
+Unattended-Upgrade::Automatic-Reboot-Time "03:00";
+```
+
+### 2.3 Notificar cambios por Email
+
+```bash
+# **Instalar herramienta de email**
+sudo apt install mailutils
+
+# **En /etc/apt/apt.conf.d/50unattended-upgrades, agregar**:
+Unattended-Upgrade::Mail "diego@abacom.com";
+Unattended-Upgrade::MailReport "only-on-change";
+```
+
+---
+
+## 3. Firewall con UFW
+
+### 3.1 Entender Firewall
+
+Un firewall es una barrera entre tu servidor y la red. Controla qué conexiones se permiten:
+
+```
+                   ┌──────────────┐
+                   │   Internet   │
+                   └──────┬───────┘
+                          │
+                   ┌──────▼───────┐
+                   │  FIREWALL    │ ← UFW (controla qué entra/sale)
+                   └──────┬───────┘
+                          │
+                   ┌──────▼───────┐
+                   │   Servidor   │
+                   │  (Servicios) │
+                   └──────────────┘
+```
+
+**Reglas de firewall**:
+- **ALLOW**: Permitir conexión
+- **DENY**: Bloquear conexión
+- **REJECT**: Rechazar (y notificar al cliente)
+- **DROP**: Descartar silenciosamente
+
+### 3.2 Instalar y Habilitar UFW
+
+```bash
+# **UFW (Uncomplicated Firewall) viene con Ubuntu**
+# **Verificar si está instalado**
+sudo apt install ufw
+
+# **Habilitar firewall**
+sudo ufw enable
+
+# **Salida**:
+# Firewall is active and enabled on system startup.
+
+# **Ver estado**
+sudo ufw status
+
+# **Salida cuando está deshabilitado**:
+# Status: inactive
+
+# **Salida cuando está habilitado**:
+# Status: active
+# 
+# To                         Action      From
+# --                         ------      ----
+# 22/tcp                     ALLOW       Anywhere
+# 80/tcp                     ALLOW       Anywhere
+# 443/tcp                    ALLOW       Anywhere
+```
+
+### 3.3 Reglas Básicas
+
+**Permitir puerto SSH** (¡CRÍTICO! Sino quedarás bloqueado):
+
+```bash
+# **Permitir SSH (puerto 22)**
+sudo ufw allow 22/tcp
+# ó
+sudo ufw allow ssh
+
+# **Verificar**
+sudo ufw status
+
+# To                         Action      From
+# --                         ------      ----
+# 22/tcp                     ALLOW       Anywhere
+```
+
+**Permitir puertos web**:
+
+```bash
+# **Permitir HTTP (puerto 80)**
+sudo ufw allow 80/tcp
+sudo ufw allow http
+
+# **Permitir HTTPS (puerto 443)**
+sudo ufw allow 443/tcp
+sudo ufw allow https
+
+# **Permitir HTTP y HTTPS juntos**
+sudo ufw allow "Nginx Full"
+```
+
+**Permitir puertos personalizados**:
+
+```bash
+# **Permitir puerto 8080 (TCP)**
+sudo ufw allow 8080/tcp
+
+# **Permitir puerto 5432 (PostgreSQL) solo desde IP específica**
+sudo ufw allow from 192.168.1.50 to any port 5432
+
+# **Permitir rango de puertos**
+sudo ufw allow 6000:6010/tcp
+
+# **Permitir desde red específica**
+sudo ufw allow from 192.168.1.0/24 to any port 3306
+```
+
+**Denegar puertos**:
+
+```bash
+# **Bloquear conexiones SMTP (puerto 25) para prevenir spam**
+sudo ufw deny 25/tcp
+
+# **Bloquear puerto desde IP específica**
+sudo ufw deny from 203.0.113.1 to any port 22
+
+# **Bloquear todo excepto SSH, HTTP, HTTPS**
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+```
+
+### 3.4 Eliminar Reglas
+
+```bash
+# **Listar reglas numeradas**
+sudo ufw status numbered
+
+# Num  To                         Action      From
+# ---  --                         ------      ----
+# 1    22/tcp                     ALLOW IN    Anywhere
+# 2    80/tcp                     ALLOW IN    Anywhere
+# 3    443/tcp                    ALLOW IN    Anywhere
+
+# **Eliminar regla por número**
+sudo ufw delete 2
+# Deleting:
+#  allow 80/tcp
+# Proceed with operation (y|n)? y
+
+# **Eliminar regla por descripción**
+sudo ufw delete allow http
+```
+
+### 3.5 Reglas Avanzadas
+
+```bash
+# **Permitir con límite de conexiones (prevenir brute force)**
+sudo ufw limit 22/tcp
+# Permite máximo 6 conexiones por 30 segundos
+
+# **Ver reglas en formato verbose**
+sudo ufw show added
+
+# Added user rules (see 'ufw status' for running firewall):
+# ufw allow 22/tcp
+# ufw allow 80/tcp
+# ufw allow 443/tcp
+
+# **Resetear UFW a estado por defecto**
+sudo ufw reset
+```
+
+### 3.6 Configuración de Inicio/Parada
+
+```bash
+# **Verificar si UFW está habilitado para startup**
+sudo ufw status
+# Status: active
+
+# **Deshabilitar UFW temporalmente (se reactiva en reboot)**
+sudo ufw disable
+
+# **Habilitar de nuevo**
+sudo ufw enable
+
+# **Cargar reglas nuevas sin reiniciar**
+sudo ufw reload
+```
+
+---
+
+## 4. Hardening Básico
+
+### 4.1 Actualizar Bootloader
+
+```bash
+# **Proteger GRUB con contraseña (previene acceso físico)**
+sudo nano /etc/default/grub
+
+# **Agregar línea**:
+# GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+# **Cambiar a**:
+# GRUB_CMDLINE_LINUX_DEFAULT="quiet splash systemd.unit=multi-user.target"
+
+# **Actualizar GRUB**
+sudo update-grub
+```
+
+### 4.2 Deshabilitar Servicios Innecesarios
+
+```bash
+# **Ver servicios en ejecución**
+sudo systemctl list-units --type=service --state=running
+
+# **Deshabilitar servicio innecesario (ej: Bluetooth)**
+sudo systemctl disable bluetooth
+sudo systemctl stop bluetooth
+
+# **Servicios que generalmente NO se necesitan en servidor**:
+# - bluetooth
+# - cups (impresoras)
+# - avahi-daemon (mDNS)
+# - isc-dhcp-server (si no lo usas)
+```
+
+### 4.3 Limitar Acceso a Archivos Sensibles
+
+```bash
+# **Proteger archivos de configuración sensibles**
+sudo chmod 600 /etc/ssh/sshd_config
+
+# **Asegurar log de auditoría**
+sudo chmod 640 /var/log/auth.log
+
+# **Proteger crontab de usuario**
+sudo chmod 640 /etc/crontab
+
+# **Archivos con permisos adecuados**
+# /etc/passwd:     644 (legible por todos)
+# /etc/shadow:     640 (solo root)
+# /etc/sudoers:    440 (solo root, con visudo)
+# /root/.ssh:      700 (solo root)
+# ~/.ssh:          700 (solo usuario)
+# ~/.ssh/id_rsa:   600 (solo usuario)
+```
+
+### 4.4 Audit y SELinux/AppArmor
+
+**En Ubuntu, AppArmor es estándar** (SELinux es en CentOS):
+
+```bash
+# **Ver estado de AppArmor**
+sudo systemctl status apparmor
+
+# **Ver perfiles cargados**
+sudo aa-status
+
+# **Habilitar AppArmor**
+sudo systemctl enable apparmor
+
+# **NOTA**: AppArmor es más simple que SELinux
+# Usa perfiles predefinidos para servicios comunes
+```
+
+### 4.5 Fail2Ban - Proteger contra Brute Force
+
+```bash
+# **Instalar Fail2Ban (bloquea IPs después de N intentos fallidos)**
+sudo apt install fail2ban
+
+# **Habilitar**
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+
+# **Ver estado**
+sudo systemctl status fail2ban
+
+# **Ver intentos fallidos en SSH**
+sudo fail2ban-client status sshd
+
+# **Salida**:
+# Status for the jail sshd:
+# |- Filter set to: sshd
+# |- Currently failed: 0
+# |- Currently banned: 2
+# `- Total banned: 5
+```
+
+---
+
+## 5. Laboratorio Práctico: Actualizar y Asegurar Servidor
+
+### 5.1 Escenario
+
+Tienes un servidor Ubuntu recién instalado que necesita:
+1. Actualizar todos los paquetes
+2. Configurar firewall básico
+3. Habilitar actualizaciones automáticas
+4. Aplicar hardening inicial
+
+### 5.2 Pasos
+
+**PASO 1: Actualizar repositorios y paquetes**
+
+```bash
+# **Conectar al servidor**
+ssh diego@192.168.1.100
+
+# **Actualizar lista de paquetes**
+sudo apt update
+
+# **Upgrade seguro**
+sudo apt upgrade
+
+# **Responder 'S' cuando pregunte**
+# ¿Deseas continuar? [S/n] S
+
+# **Limpiar paquetes no usados**
+sudo apt autoremove
+```
+
+**PASO 2: Instalar Fail2Ban y UFW**
+
+```bash
+# **Instalar fail2ban**
+sudo apt install fail2ban
+
+# **Instalar UFW (probablemente ya viene)**
+sudo apt install ufw
+
+# **Habilitar UFW**
+sudo ufw enable
+
+# **Responder 'y' si pregunta si quieres continuar**
+```
+
+**PASO 3: Configurar firewall**
+
+```bash
+# **Permitir SSH (¡PRIMERO ESTO!)**
+sudo ufw allow 22/tcp
+
+# **Permitir HTTP**
+sudo ufw allow 80/tcp
+
+# **Permitir HTTPS**
+sudo ufw allow 443/tcp
+
+# **Verificar reglas**
+sudo ufw status
+
+# **Salida esperada**:
+# Status: active
+# 
+# To                         Action      From
+# --                         ------      ----
+# 22/tcp                     ALLOW       Anywhere
+# 80/tcp                     ALLOW       Anywhere
+# 443/tcp                    ALLOW       Anywhere
+```
+
+**PASO 4: Configurar actualizaciones automáticas**
+
+```bash
+# **Instalar unattended-upgrades**
+sudo apt install unattended-upgrades
+
+# **Habilitar**
+sudo systemctl enable unattended-upgrades
+sudo systemctl start unattended-upgrades
+
+# **Verificar estado**
+sudo systemctl status unattended-upgrades
+```
+
+**PASO 5: Verificar seguridad**
+
+```bash
+# **Ver estado de firewall**
+sudo ufw status verbose
+
+# **Ver servicios en escucha**
+sudo ss -tulpn
+
+# **Ver logs de fail2ban**
+sudo fail2ban-client status
+
+# **Ver logs de auditoría SSH**
+sudo tail -20 /var/log/auth.log
+```
+
+---
+
+## 6. Monitoreo de Seguridad
+
+### 6.1 Ver Logs de Actualizaciones
+
+```bash
+# **Ver qué se actualizó**
+cat /var/log/apt/history.log
+
+# **Ver logs de unattended-upgrades**
+sudo cat /var/log/unattended-upgrades/unattended-upgrades.log
+```
+
+### 6.2 Auditoría de Cambios Recientes
+
+```bash
+# **Ver cambios en archivo crítico**
+sudo apt install aide
+
+# **Inicializar base de datos AIDE**
+sudo aideinit
+
+# **Luego, verificar cambios**
+sudo aide --check
+```
+
+---
+
+## 7. Ejercicios Prácticos
+
+### Ejercicio 1: Crear política de actualización
+
+Define:
+- Cuándo actualizar (horarios)
+- Qué actualizar (seguridad, todas)
+- Cómo notificar (email)
+- Cuándo reiniciar (horario seguro)
+
+**Solución**: Editar **/etc/apt/apt.conf.d/50unattended-upgrades** con:
+```bash
+Unattended-Upgrade::Origins-Pattern {
+    "origin=*,archive=*-security";
+};
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "03:00";
+Unattended-Upgrade::Mail "admin@abacom.com";
+```
+
+### Ejercicio 2: Configurar firewall completo
+
+Crea firewall para:
+- SSH: Permitir solo desde IP 192.168.1.50
+- HTTP/HTTPS: Permitir desde cualquiera
+- MySQL: Permitir solo desde red 192.168.1.0/24
+- Bloquear todo lo demás
+
+**Solución**:
+```bash
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow from 192.168.1.50 to any port 22
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow from 192.168.1.0/24 to any port 3306
+```
+
+### Ejercicio 3: Crear script de backup antes de actualizar
+
+Crea script que:
+1. Hace backup de configuración
+2. Ejecuta **apt update && apt upgrade**
+3. Notifica resultado por log
+4. Se ejecuta cada domingo a las 2 AM
+
+**Solución**: Ver Anexo A (Bash Scripting) para crear script + crontab
+
+---
+
+## 8. Quiz de Verificación
+
+1. **¿Cuál es la diferencia entre **apt upgrade** y **apt full-upgrade**?**
+   - A) No hay diferencia
+   - B) upgrade es más rápido
+   - C) full-upgrade puede remover paquetes; upgrade no
+   - D) Respuesta C es correcta ✅
+
+2. **¿Qué hace **sudo ufw allow 22/tcp** antes de **sudo ufw enable**?**
+   - A) Permite acceso SSH para que no te bloquees
+   - B) Es necesario antes de habilitar firewall
+   - C) Protege SSH de ataques
+   - D) Respuestas A y B son correctas ✅
+
+3. **¿Cuál es el comando para ver reglas de UFW numeradas?**
+   - A) sudo ufw list
+   - B) sudo ufw show
+   - C) sudo ufw status numbered ✅
+   - D) sudo ufw rules
+
+4. **¿Qué es unattended-upgrades?**
+   - A) Actualización manual del sistema
+   - B) Herramienta para actualizar automáticamente ✅
+   - C) Comando para actualizar paquetes específicos
+   - D) Script para limpiar paquetes
+
+5. **¿Cuál es la regla de seguridad al usar UFW?**
+   - A) Permitir SSH al último
+   - B) Permitir SSH al primero ✅
+   - C) No importa el orden
+   - D) SSH no necesita regla
+
+---
+
+## 9. Resumen y Siguiente Paso
+
+### Lo Aprendido
+
+✅ Actualizar paquetes de forma segura (**apt update**, **upgrade**)
+✅ Configurar actualizaciones automáticas
+✅ Instalar y usar firewall UFW
+✅ Crear reglas de firewall apropiadas
+✅ Aplicar hardening inicial
+✅ Monitorear cambios de seguridad
+
+### Siguiente: Unidad 2.5
+
+El próximo (y último) tema de Unidad 2 cubre:
+- Comandos básicos de terminal
+- Navegación del sistema de archivos
+- Primeros pasos prácticos
+
+---
+
+## 📚 Referencias
+
+[@ubuntu_updates_security]
+[@ufw_firewall_guide]
+[@fail2ban_protection]
+[@unattended_upgrades_config]
+[@ubuntu_hardening_guide]
+
+---
+
+## 📝 Quiz: Actualización y Seguridad
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el comando para actualizar la lista de paquetes en Ubuntu?
+
+- [ ] apt upgrade
+- [x] apt update
+- [ ] apt refresh
+- [ ] apt list
+
+## ¿Cuál es la diferencia entre `apt upgrade` y `apt full-upgrade`?
+
+- [x] upgrade instala actualizaciones, full-upgrade también elimina paquetes obsoletos
+- [ ] upgrade es más rápido
+- [ ] full-upgrade es solo para servidores
+- [ ] No hay diferencia
+
+## ¿Qué paquete permite actualizaciones automáticas en Ubuntu?
+
+- [ ] auto-update
+- [x] unattended-upgrades
+- [ ] auto-patch
+- [ ] background-updates
+
+## ¿Cuál es el archivo de configuración de unattended-upgrades?
+
+- [ ] /etc/unattended-upgrades
+- [x] /etc/apt/apt.conf.d/50unattended-upgrades
+- [ ] /etc/unattended.conf
+- [ ] /var/apt/unattended-upgrades
+
+## ¿Qué es UFW?
+
+- [ ] Un protocolo de red
+- [x] Uncomplicated Firewall - interfaz simplificada para iptables
+- [ ] Universal File Writer
+- [ ] User Firewall
+
+## ¿Cuál comando habilita el firewall UFW?
+
+- [ ] ufw on
+- [x] ufw enable
+- [ ] ufw activate
+- [ ] ufw start
+
+## ¿Cuál comando permite conexiones SSH a través del firewall?
+
+- [ ] ufw allow port 22
+- [x] ufw allow ssh
+- [ ] ufw ssh allow
+- [ ] ufw permit 22
+
+## ¿Qué es Fail2Ban?
+
+- [x] Sistema que detecta y bloquea intentos de acceso fallidos repetidos
+- [ ] Herramienta para eliminar archivos
+- [ ] Servicio de backup
+- [ ] Monitor de memoria
+
+## ¿Cuál es el archivo de configuración principal de Fail2Ban?
+
+- [ ] /etc/fail2ban.conf
+- [x] /etc/fail2ban/jail.conf
+- [ ] /etc/fail2ban/config
+- [ ] /var/fail2ban/conf
+
+## ¿Cuántos intentos fallidos típicamente bloquean a un usuario en Fail2Ban por defecto?
+
+- [ ] 3
+- [x] 5
+- [ ] 10
+- [ ] 15
+
+## ¿Qué comando muestra las actualizaciones disponibles sin instalarlas?
+
+- [x] apt list --upgradable
+- [ ] apt check
+- [ ] apt show-updates
+- [ ] apt available
+
+## ¿Cuál es una buena práctica de seguridad al actualizar un servidor en producción?
+
+- [ ] Actualizar sin hacer respaldo
+- [ ] Actualizar en horario de máximo uso
+- [x] Hacer backup, actualizar en ventana de mantenimiento, verificar servicios
+- [ ] Actualizar y reiniciar inmediatamente
+
+## ¿Qué hace el comando `sudo apt autoremove`?
+
+- [ ] Elimina todo tipo de archivos
+- [x] Elimina paquetes que no son necesarios (dependencias de paquetes removidos)
+- [ ] Elimina archivos automáticamente
+- [ ] Elimina directorios vacíos
+
+## ¿Cuál es el puerto estándar para SSH?
+
+- [ ] 2222
+- [x] 22
+- [ ] 2022
+- [ ] 8022
+
+## ¿Qué herramienta de línea de comandos se usa frecuentemente para auditar puertos abiertos?
+
+- [ ] port-scan
+- [ ] netstat (antiguo)
+- [x] ss (socket statistics)
+- [ ] ports -list
+```
+
+---
+

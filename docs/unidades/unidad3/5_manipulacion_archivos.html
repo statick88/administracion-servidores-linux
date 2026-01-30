@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Diego Saavedra">
+<meta name="dcterms.date" content="2024-01-29">
+<meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
+
+<title>Manipulación de Archivos y Directorios – Administración de Servidores Linux</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../anexos/Anexo_A_Bash_Scripting.html" rel="next">
+<link href="../../unidades/unidad3/4_permisos_archivos.html" rel="prev">
+<link href="../../logo.jpeg" rel="icon" type="image/jpeg">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown-init.js"></script>
+<link href="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+<script src="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
+<link href="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad3/1_navegacion_directorios.html">Unidad 3: Comandos Básicos de Linux</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad3/5_manipulacion_archivos.html"><span class="chapter-title">Manipulación de Archivos y Directorios</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../../index.html" class="sidebar-logo-link">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Administración de Servidores Linux</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="../../administracion_servidores_linux.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">🐧 Bienvenido al Curso de Administración de Servidores Linux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introducción al Curso</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acerca del Instructor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../license.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licencia</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 1: Introducción a Linux</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1: Introducción a Sistemas Operativos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/2_historia_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.2: Historia y Evolución de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/3_distribuciones_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.3: Distribuciones de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/4_ventajas_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.4: Ventajas de Linux para Abacom</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 2: Instalación y Configuración</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/1_requisitos_preparacion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Requisitos y Preparación para Instalación</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/2_instalacion_ubuntu.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instalación de Ubuntu 22.04 LTS Paso a Paso</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/3_configuracion_inicial.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración Inicial del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/4_actualizacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Actualización y Seguridad del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/5_primeros_pasos_terminal.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Primeros Pasos en Terminal</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Unidad 3: Comandos Básicos de Linux</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/1_navegacion_directorios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Navegación de Directorios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/2_inspeccion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inspección de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/3_busqueda_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Búsqueda de Archivos y Contenido</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/4_permisos_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Permisos de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/5_manipulacion_archivos.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Manipulación de Archivos y Directorios</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos Especializados</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_B_Editores_Vi_Nvim.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo B: Editores Vi y Nvim - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_D_Herramientas_Monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#manipulación-de-archivos-y-directorios" id="toc-manipulación-de-archivos-y-directorios" class="nav-link active" data-scroll-target="#manipulación-de-archivos-y-directorios">Manipulación de Archivos y Directorios</a>
+  <ul class="collapse">
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#el-comando-mkdir---crear-directorios" id="toc-el-comando-mkdir---crear-directorios" class="nav-link" data-scroll-target="#el-comando-mkdir---crear-directorios">El Comando <code>mkdir</code> - Crear Directorios</a>
+  <ul class="collapse">
+  <li><a href="#opciones-principales" id="toc-opciones-principales" class="nav-link" data-scroll-target="#opciones-principales">Opciones principales:</a></li>
+  <li><a href="#ejemplos-prácticos-multi-so" id="toc-ejemplos-prácticos-multi-so" class="nav-link" data-scroll-target="#ejemplos-prácticos-multi-so">💡 Ejemplos Prácticos Multi-SO</a></li>
+  <li><a href="#ejemplo-2-crear-estructura-de-directorios-anidados--p" id="toc-ejemplo-2-crear-estructura-de-directorios-anidados--p" class="nav-link" data-scroll-target="#ejemplo-2-crear-estructura-de-directorios-anidados--p">Ejemplo 2: Crear estructura de directorios anidados (-p)</a></li>
+  <li><a href="#ejemplo-3-crear-directorio-con-permisos-específicos--m" id="toc-ejemplo-3-crear-directorio-con-permisos-específicos--m" class="nav-link" data-scroll-target="#ejemplo-3-crear-directorio-con-permisos-específicos--m">Ejemplo 3: Crear directorio con permisos específicos (-m)</a></li>
+  </ul></li>
+  <li><a href="#el-comando-touch---crear-archivos-vacíos" id="toc-el-comando-touch---crear-archivos-vacíos" class="nav-link" data-scroll-target="#el-comando-touch---crear-archivos-vacíos">El Comando <code>touch</code> - Crear Archivos Vacíos</a>
+  <ul class="collapse">
+  <li><a href="#ejemplos-prácticos-multi-so-1" id="toc-ejemplos-prácticos-multi-so-1" class="nav-link" data-scroll-target="#ejemplos-prácticos-multi-so-1">💡 Ejemplos Prácticos Multi-SO</a></li>
+  <li><a href="#ejemplo-2-actualizar-marca-de-tiempo-de-archivo-existente" id="toc-ejemplo-2-actualizar-marca-de-tiempo-de-archivo-existente" class="nav-link" data-scroll-target="#ejemplo-2-actualizar-marca-de-tiempo-de-archivo-existente">Ejemplo 2: Actualizar marca de tiempo de archivo existente</a></li>
+  </ul></li>
+  <li><a href="#el-comando-cp---copiar-archivos-y-directorios" id="toc-el-comando-cp---copiar-archivos-y-directorios" class="nav-link" data-scroll-target="#el-comando-cp---copiar-archivos-y-directorios">El Comando <code>cp</code> - Copiar Archivos y Directorios</a>
+  <ul class="collapse">
+  <li><a href="#opciones-principales-1" id="toc-opciones-principales-1" class="nav-link" data-scroll-target="#opciones-principales-1">Opciones principales:</a></li>
+  <li><a href="#ejemplos-prácticos-multi-so-2" id="toc-ejemplos-prácticos-multi-so-2" class="nav-link" data-scroll-target="#ejemplos-prácticos-multi-so-2">💡 Ejemplos Prácticos Multi-SO</a></li>
+  <li><a href="#ejemplo-2-copiar-a-un-directorio-diferente" id="toc-ejemplo-2-copiar-a-un-directorio-diferente" class="nav-link" data-scroll-target="#ejemplo-2-copiar-a-un-directorio-diferente">Ejemplo 2: Copiar a un directorio diferente</a></li>
+  <li><a href="#ejemplo-3-copiar-directorios-recursivamente--r" id="toc-ejemplo-3-copiar-directorios-recursivamente--r" class="nav-link" data-scroll-target="#ejemplo-3-copiar-directorios-recursivamente--r">Ejemplo 3: Copiar directorios recursivamente (-r)</a></li>
+  <li><a href="#ejemplo-4-copiar-con-confirmación--i-y-preservación-de-atributos--p" id="toc-ejemplo-4-copiar-con-confirmación--i-y-preservación-de-atributos--p" class="nav-link" data-scroll-target="#ejemplo-4-copiar-con-confirmación--i-y-preservación-de-atributos--p">Ejemplo 4: Copiar con confirmación (-i) y preservación de atributos (-p)</a></li>
+  </ul></li>
+  <li><a href="#el-comando-mv---mover-y-renombrar" id="toc-el-comando-mv---mover-y-renombrar" class="nav-link" data-scroll-target="#el-comando-mv---mover-y-renombrar">El Comando <code>mv</code> - Mover y Renombrar</a>
+  <ul class="collapse">
+  <li><a href="#ejemplos-prácticos-multi-so-3" id="toc-ejemplos-prácticos-multi-so-3" class="nav-link" data-scroll-target="#ejemplos-prácticos-multi-so-3">💡 Ejemplos Prácticos Multi-SO</a></li>
+  <li><a href="#ejemplo-2-mover-archivo-a-otro-directorio" id="toc-ejemplo-2-mover-archivo-a-otro-directorio" class="nav-link" data-scroll-target="#ejemplo-2-mover-archivo-a-otro-directorio">Ejemplo 2: Mover archivo a otro directorio</a></li>
+  <li><a href="#ejemplo-3-mover-y-renombrar-simultáneamente" id="toc-ejemplo-3-mover-y-renombrar-simultáneamente" class="nav-link" data-scroll-target="#ejemplo-3-mover-y-renombrar-simultáneamente">Ejemplo 3: Mover y renombrar simultáneamente</a></li>
+  </ul></li>
+  <li><a href="#el-comando-rm---eliminar-archivos" id="toc-el-comando-rm---eliminar-archivos" class="nav-link" data-scroll-target="#el-comando-rm---eliminar-archivos">El Comando <code>rm</code> - Eliminar Archivos</a>
+  <ul class="collapse">
+  <li><a href="#opciones-principales-2" id="toc-opciones-principales-2" class="nav-link" data-scroll-target="#opciones-principales-2">Opciones principales:</a></li>
+  <li><a href="#ejemplos-prácticos-multi-so-4" id="toc-ejemplos-prácticos-multi-so-4" class="nav-link" data-scroll-target="#ejemplos-prácticos-multi-so-4">💡 Ejemplos Prácticos Multi-SO</a></li>
+  <li><a href="#ejemplo-2-eliminar-sin-preguntar-peligroso" id="toc-ejemplo-2-eliminar-sin-preguntar-peligroso" class="nav-link" data-scroll-target="#ejemplo-2-eliminar-sin-preguntar-peligroso">Ejemplo 2: Eliminar sin preguntar (peligroso)</a></li>
+  <li><a href="#ejemplo-3-eliminar-directorios-recursivamente--r" id="toc-ejemplo-3-eliminar-directorios-recursivamente--r" class="nav-link" data-scroll-target="#ejemplo-3-eliminar-directorios-recursivamente--r">Ejemplo 3: Eliminar directorios recursivamente (-r)</a></li>
+  </ul></li>
+  <li><a href="#el-comando-rmdir---eliminar-directorios-vacíos" id="toc-el-comando-rmdir---eliminar-directorios-vacíos" class="nav-link" data-scroll-target="#el-comando-rmdir---eliminar-directorios-vacíos">El Comando <code>rmdir</code> - Eliminar Directorios Vacíos</a>
+  <ul class="collapse">
+  <li><a href="#ejemplos-prácticos-multi-so-5" id="toc-ejemplos-prácticos-multi-so-5" class="nav-link" data-scroll-target="#ejemplos-prácticos-multi-so-5">💡 Ejemplos Prácticos Multi-SO</a></li>
+  </ul></li>
+  <li><a href="#el-comando-ln---crear-enlaces" id="toc-el-comando-ln---crear-enlaces" class="nav-link" data-scroll-target="#el-comando-ln---crear-enlaces">El Comando <code>ln</code> - Crear Enlaces</a>
+  <ul class="collapse">
+  <li><a href="#enlaces-simbólicos-soft-links" id="toc-enlaces-simbólicos-soft-links" class="nav-link" data-scroll-target="#enlaces-simbólicos-soft-links">Enlaces simbólicos (soft links):</a></li>
+  <li><a href="#enlaces-duros-hard-links" id="toc-enlaces-duros-hard-links" class="nav-link" data-scroll-target="#enlaces-duros-hard-links">Enlaces duros (hard links):</a></li>
+  <li><a href="#ejemplos-prácticos-multi-so-6" id="toc-ejemplos-prácticos-multi-so-6" class="nav-link" data-scroll-target="#ejemplos-prácticos-multi-so-6">💡 Ejemplos Prácticos Multi-SO</a></li>
+  <li><a href="#ejemplo-2-crear-enlace-duro-sin--s" id="toc-ejemplo-2-crear-enlace-duro-sin--s" class="nav-link" data-scroll-target="#ejemplo-2-crear-enlace-duro-sin--s">Ejemplo 2: Crear enlace duro (sin -s)</a></li>
+  </ul></li>
+  <li><a href="#resumen-de-manipulación-de-archivos" id="toc-resumen-de-manipulación-de-archivos" class="nav-link" data-scroll-target="#resumen-de-manipulación-de-archivos">Resumen de Manipulación de Archivos</a></li>
+  <li><a href="#mejores-prácticas-de-seguridad" id="toc-mejores-prácticas-de-seguridad" class="nav-link" data-scroll-target="#mejores-prácticas-de-seguridad">Mejores Prácticas de Seguridad</a></li>
+  <li><a href="#ejercicios-prácticos" id="toc-ejercicios-prácticos" class="nav-link" data-scroll-target="#ejercicios-prácticos">🎯 Ejercicios Prácticos</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
+  </ul></li>
+  <li>Code Appendix</li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad3/1_navegacion_directorios.html">Unidad 3: Comandos Básicos de Linux</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad3/5_manipulacion_archivos.html"><span class="chapter-title">Manipulación de Archivos y Directorios</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Manipulación de Archivos y Directorios</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 29, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="manipulación-de-archivos-y-directorios" class="level1">
+<h1>Manipulación de Archivos y Directorios</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>Más allá de navegar y buscar, necesitas crear, copiar, mover y eliminar archivos. Estos comandos son las herramientas básicas para la administración de archivos en el sistema.</p>
+<p><strong>🗺️ En este tema aprenderás:</strong> - Comando <code>cp</code> - copiar archivos y directorios - Comando <code>mv</code> - mover y renombrar - Comando <code>rm</code> - eliminar archivos - Comando <code>rmdir</code> - eliminar directorios - Comando <code>mkdir</code> - crear directorios - Comando <code>touch</code> - crear archivos vacíos - Comando <code>ln</code> - crear enlaces - Buenas prácticas de seguridad</p>
+<hr>
+</section>
+<section id="el-comando-mkdir---crear-directorios" class="level2">
+<h2 class="anchored" data-anchor-id="el-comando-mkdir---crear-directorios">El Comando <code>mkdir</code> - Crear Directorios</h2>
+<p>El comando <code>mkdir</code> (make directory) crea nuevos directorios.</p>
+<p><strong>Sintaxis:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="pp">[</span><span class="ss">opciones</span><span class="pp">]</span> [directorio<span class="er">(</span><span class="ex">s</span><span class="kw">)</span><span class="ex">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="opciones-principales" class="level3">
+<h3 class="anchored" data-anchor-id="opciones-principales">Opciones principales:</h3>
+<ul>
+<li><code>-p</code> : Crear directorios padres si es necesario</li>
+<li><code>-m</code> : Establecer permisos al crear</li>
+</ul>
+</section>
+<section id="ejemplos-prácticos-multi-so" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplos-prácticos-multi-so">💡 Ejemplos Prácticos Multi-SO</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">Ejemplo 1: Crear un directorio simple</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<section id="linux" class="level4">
+<h4 class="anchored" data-anchor-id="linux">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-8-1"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mkdir Documentos</span>
+<span id="annotated-cell-8-2"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-d</span> Documentos</span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Documentos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="4" data-code-annotation="1">Crea un directorio en la ubicación actual</span>
+</dd>
+</dl>
+</section>
+<section id="macos" class="level4">
+<h4 class="anchored" data-anchor-id="macos">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mkdir Documents</span>
+<span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-d</span> Documents</span>
+<span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Documents</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="4" data-code-annotation="1">Funciona igual que Linux</span>
+</dd>
+</dl>
+</section>
+<section id="windows" class="level4">
+<h4 class="anchored" data-anchor-id="windows">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-10-1"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> mkdir Documents</span>
+<span id="annotated-cell-10-2"><a href="#annotated-cell-10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Get-Item</span> Documents</span>
+<span id="annotated-cell-10-3"><a href="#annotated-cell-10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-4"><a href="#annotated-cell-10-4" aria-hidden="true" tabindex="-1"></a>Mode                 LastWriteTime         Length Name</span>
+<span id="annotated-cell-10-5"><a href="#annotated-cell-10-5" aria-hidden="true" tabindex="-1"></a><span class="op">----</span>                 <span class="op">-------------</span>         <span class="op">------</span> <span class="op">----</span></span>
+<span id="annotated-cell-10-6"><a href="#annotated-cell-10-6" aria-hidden="true" tabindex="-1"></a>d-----         <span class="dv">29</span><span class="op">/</span><span class="dv">1</span><span class="op">/</span><span class="dv">2024</span>     <span class="dv">10</span><span class="op">:</span><span class="dv">30</span>                Documents</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="7" data-code-annotation="1"><code>mkdir</code> es un alias de <code>New-Item -ItemType Directory</code></span>
+</dd>
+</dl>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-2-crear-estructura-de-directorios-anidados--p" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-2-crear-estructura-de-directorios-anidados--p">Ejemplo 2: Crear estructura de directorios anidados (-p)</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mkdir <span class="at">-p</span> ~/Proyectos/Python/web-app/src</span>
+<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tree ~/Proyectos</span>
+<span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Proyectos/</span></span>
+<span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> Python/</span>
+<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">└──</span> web-app/</span>
+<span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a>        <span class="ex">└──</span> src/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="7" data-code-annotation="1"><code>-p</code> crea todos los directorios intermedios</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-12" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-12-1"><a href="#annotated-cell-12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mkdir <span class="at">-p</span> ~/Projects/Python/web-app/src</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-13" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-13-1"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> mkdir <span class="op">-</span>Path C<span class="op">:</span>\Users\usuario\Projects\Python\web-app\src <span class="op">-</span>Force</span>
+<span id="annotated-cell-13-2"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># El -Force es equivalente a -p</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="3" data-code-annotation="1">PowerShell requiere <code>-Force</code> para crear padres</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-3-crear-directorio-con-permisos-específicos--m" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-3-crear-directorio-con-permisos-específicos--m">Ejemplo 3: Crear directorio con permisos específicos (-m)</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-14-1"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mkdir <span class="at">-m</span> 700 privado</span>
+<span id="annotated-cell-14-2"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-ld</span> privado</span>
+<span id="annotated-cell-14-3"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">drwx------</span> 1 usuario usuario 4096 Jan 29 10:30 privado</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="4" data-code-annotation="1"><code>-m 700</code> establece permisos solo-propietario</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-15-1"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mkdir <span class="at">-m</span> 700 privado</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows no soporta -m, pero puedes hacerlo después:</span></span>
+<span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> mkdir privado</span>
+<span id="annotated-cell-16-3"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="co"># No hay equivalente directo en PowerShell</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="4" data-code-annotation="1">Los permisos de Windows funciona diferente (NTFS ACLs)</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="el-comando-touch---crear-archivos-vacíos" class="level2">
+<h2 class="anchored" data-anchor-id="el-comando-touch---crear-archivos-vacíos">El Comando <code>touch</code> - Crear Archivos Vacíos</h2>
+<p>El comando <code>touch</code> crea archivos vacíos o actualiza la marca de tiempo de archivos existentes.</p>
+<p><strong>Sintaxis:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> <span class="pp">[</span><span class="ss">opciones</span><span class="pp">]</span> [archivo<span class="er">(</span><span class="ex">s</span><span class="kw">)</span><span class="ex">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="ejemplos-prácticos-multi-so-1" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplos-prácticos-multi-so-1">💡 Ejemplos Prácticos Multi-SO</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true" href="">Ejemplo 1: Crear un archivo vacío</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<section id="linux-3" class="level4">
+<h4 class="anchored" data-anchor-id="linux-3">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-18" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-18-1"><a href="#annotated-cell-18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> touch README.md</span>
+<span id="annotated-cell-18-2"><a href="#annotated-cell-18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-l</span> README.md</span>
+<span id="annotated-cell-18-3"><a href="#annotated-cell-18-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 usuario grupo 0 Jan 29 10:30 README.md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-18" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-18" data-code-lines="4" data-code-annotation="1">Crea un archivo vacío de 0 bytes</span>
+</dd>
+</dl>
+</section>
+<section id="macos-3" class="level4">
+<h4 class="anchored" data-anchor-id="macos-3">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-19" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> touch README.md</span>
+<span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-l</span> README.md</span>
+<span id="annotated-cell-19-3"><a href="#annotated-cell-19-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 usuario staff 0 Jan 29 10:30 README.md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-19" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="4" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</section>
+<section id="windows-3" class="level4">
+<h4 class="anchored" data-anchor-id="windows-3">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-20" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-20-1"><a href="#annotated-cell-20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># No existe touch, pero:</span></span>
+<span id="annotated-cell-20-2"><a href="#annotated-cell-20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">New-Item</span> <span class="op">-</span>Path C<span class="op">:</span>\Users\usuario <span class="op">-</span>Name README<span class="op">.</span><span class="fu">md</span> <span class="op">-</span>ItemType File</span>
+<span id="annotated-cell-20-3"><a href="#annotated-cell-20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># o en WSL:</span></span>
+<span id="annotated-cell-20-4"><a href="#annotated-cell-20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> wsl touch README<span class="op">.</span><span class="fu">md</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-20" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-20" data-code-lines="5" data-code-annotation="1">PowerShell usa <code>New-Item</code></span>
+</dd>
+</dl>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-2-actualizar-marca-de-tiempo-de-archivo-existente" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-2-actualizar-marca-de-tiempo-de-archivo-existente">Ejemplo 2: Actualizar marca de tiempo de archivo existente</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-3" role="tab" aria-controls="tabset-5-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-21" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-21-1"><a href="#annotated-cell-21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-l</span> archivo.txt</span>
+<span id="annotated-cell-21-2"><a href="#annotated-cell-21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 usuario grupo 1024 Jan 25 10:00 archivo.txt</span>
+<span id="annotated-cell-21-3"><a href="#annotated-cell-21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-21-4"><a href="#annotated-cell-21-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> touch archivo.txt</span>
+<span id="annotated-cell-21-5"><a href="#annotated-cell-21-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-l</span> archivo.txt</span>
+<span id="annotated-cell-21-6"><a href="#annotated-cell-21-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 usuario grupo 1024 Jan 29 10:30 archivo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-21" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-21" data-code-lines="7" data-code-annotation="1">Actualiza el timestamp sin modificar contenido</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-22" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-22-1"><a href="#annotated-cell-22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> touch archivo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-22" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-22" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-5-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-23" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-23-1"><a href="#annotated-cell-23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">(</span><span class="fu">Get-Item</span> archivo<span class="op">.</span><span class="fu">txt</span><span class="op">).</span><span class="fu">LastWriteTime</span> <span class="op">=</span> <span class="fu">Get-Date</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-23" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-23" data-code-lines="2" data-code-annotation="1">PowerShell actualiza la fecha manualmente</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="el-comando-cp---copiar-archivos-y-directorios" class="level2">
+<h2 class="anchored" data-anchor-id="el-comando-cp---copiar-archivos-y-directorios">El Comando <code>cp</code> - Copiar Archivos y Directorios</h2>
+<p>El comando <code>cp</code> (copy) copia archivos y directorios.</p>
+<p><strong>Sintaxis:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> <span class="pp">[</span><span class="ss">opciones</span><span class="pp">]</span> <span class="pp">[</span><span class="ss">origen</span><span class="pp">]</span> <span class="pp">[</span><span class="ss">destino</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="opciones-principales-1" class="level3">
+<h3 class="anchored" data-anchor-id="opciones-principales-1">Opciones principales:</h3>
+<ul>
+<li><code>-r</code> o <code>-R</code> : Copiar recursivamente (directorios)</li>
+<li><code>-i</code> : Preguntar antes de sobrescribir</li>
+<li><code>-v</code> : Modo verboso (mostrar progreso)</li>
+<li><code>-p</code> : Preservar permisos y timestamps</li>
+</ul>
+</section>
+<section id="ejemplos-prácticos-multi-so-2" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplos-prácticos-multi-so-2">💡 Ejemplos Prácticos Multi-SO</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true" href="">Ejemplo 1: Copiar un archivo simple</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
+<section id="linux-5" class="level4">
+<h4 class="anchored" data-anchor-id="linux-5">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-25" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-25-1"><a href="#annotated-cell-25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cp archivo.txt archivo-copia.txt</span>
+<span id="annotated-cell-25-2"><a href="#annotated-cell-25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-l</span> archivo<span class="pp">*</span></span>
+<span id="annotated-cell-25-3"><a href="#annotated-cell-25-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 usuario grupo 1024 Jan 29 10:30 archivo-copia.txt</span>
+<span id="annotated-cell-25-4"><a href="#annotated-cell-25-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 usuario grupo 1024 Jan 25 10:00 archivo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-25" data-code-lines="5" data-code-annotation="1">Crea una copia exacta del archivo</span>
+</dd>
+</dl>
+</section>
+<section id="macos-5" class="level4">
+<h4 class="anchored" data-anchor-id="macos-5">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-26" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-26-1"><a href="#annotated-cell-26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cp archivo.txt archivo-copia.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-26" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-26" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</section>
+<section id="windows-5" class="level4">
+<h4 class="anchored" data-anchor-id="windows-5">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-27" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-27-1"><a href="#annotated-cell-27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Copy-Item</span> archivo<span class="op">.</span><span class="fu">txt</span> archivo-copia<span class="op">.</span><span class="fu">txt</span></span>
+<span id="annotated-cell-27-2"><a href="#annotated-cell-27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># o</span></span>
+<span id="annotated-cell-27-3"><a href="#annotated-cell-27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">cp</span> archivo<span class="op">.</span><span class="fu">txt</span> archivo-copia<span class="op">.</span><span class="fu">txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-27" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-27" data-code-lines="4" data-code-annotation="1"><code>cp</code> es un alias de <code>Copy-Item</code></span>
+</dd>
+</dl>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-2-copiar-a-un-directorio-diferente" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-2-copiar-a-un-directorio-diferente">Ejemplo 2: Copiar a un directorio diferente</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-7-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-1" role="tab" aria-controls="tabset-7-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-2" role="tab" aria-controls="tabset-7-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-3" role="tab" aria-controls="tabset-7-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-7-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-28" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-28-1"><a href="#annotated-cell-28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cp archivo.txt ~/Documentos/</span>
+<span id="annotated-cell-28-2"><a href="#annotated-cell-28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls ~/Documentos/archivo.txt</span>
+<span id="annotated-cell-28-3"><a href="#annotated-cell-28-3" aria-hidden="true" tabindex="-1"></a><span class="ex">/home/usuario/Documentos/archivo.txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-28" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-28" data-code-lines="4" data-code-annotation="1">Si el destino es un directorio, copia el archivo dentro</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-7-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-29" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-29-1"><a href="#annotated-cell-29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cp archivo.txt ~/Documents/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-29" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-29" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-7-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-30" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-30-1"><a href="#annotated-cell-30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Copy-Item</span> archivo<span class="op">.</span><span class="fu">txt</span> C<span class="op">:</span>\Users\usuario\Documents\</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-30" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-30" data-code-lines="2" data-code-annotation="1">Igual funcionalidad</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-3-copiar-directorios-recursivamente--r" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-3-copiar-directorios-recursivamente--r">Ejemplo 3: Copiar directorios recursivamente (-r)</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-8-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-8-1" role="tab" aria-controls="tabset-8-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-8-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-8-2" role="tab" aria-controls="tabset-8-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-8-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-8-3" role="tab" aria-controls="tabset-8-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-8-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-8-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-31" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-31-1"><a href="#annotated-cell-31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cp <span class="at">-r</span> Proyectos Proyectos-copia</span>
+<span id="annotated-cell-31-2"><a href="#annotated-cell-31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-ld</span> Proyectos<span class="pp">*</span></span>
+<span id="annotated-cell-31-3"><a href="#annotated-cell-31-3" aria-hidden="true" tabindex="-1"></a><span class="ex">drwxr-xr-x</span> 5 usuario grupo 4096 Jan 29 10:30 Proyectos</span>
+<span id="annotated-cell-31-4"><a href="#annotated-cell-31-4" aria-hidden="true" tabindex="-1"></a><span class="ex">drwxr-xr-x</span> 5 usuario grupo 4096 Jan 29 10:30 Proyectos-copia</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-31" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-31" data-code-lines="5" data-code-annotation="1"><code>-r</code> copia recursivamente todo el directorio</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-8-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-8-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-32" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-32-1"><a href="#annotated-cell-32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cp <span class="at">-r</span> Proyectos Proyectos-copia</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-32" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-32" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-8-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-8-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-33" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-33-1"><a href="#annotated-cell-33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Copy-Item</span> <span class="op">-</span>Path Proyectos <span class="op">-</span>Destination Proyectos-copia <span class="op">-</span>Recurse</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-33" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-33" data-code-lines="2" data-code-annotation="1"><code>-Recurse</code> es el equivalente a <code>-r</code></span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-4-copiar-con-confirmación--i-y-preservación-de-atributos--p" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-4-copiar-con-confirmación--i-y-preservación-de-atributos--p">Ejemplo 4: Copiar con confirmación (-i) y preservación de atributos (-p)</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-9-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-9-1" role="tab" aria-controls="tabset-9-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-9-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-9-2" role="tab" aria-controls="tabset-9-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-9-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-9-3" role="tab" aria-controls="tabset-9-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-9-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-34" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-34-1"><a href="#annotated-cell-34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cp <span class="at">-ip</span> archivo.txt archivo-copia.txt</span>
+<span id="annotated-cell-34-2"><a href="#annotated-cell-34-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cp:</span> overwrite <span class="st">'archivo-copia.txt'</span><span class="pp">?</span> y</span>
+<span id="annotated-cell-34-3"><a href="#annotated-cell-34-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-l</span> archivo-copia.txt</span>
+<span id="annotated-cell-34-4"><a href="#annotated-cell-34-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 usuario grupo 1024 Jan 25 10:00 archivo-copia.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-34" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-34" data-code-lines="5" data-code-annotation="1"><code>-i</code> pregunta antes de sobrescribir</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-9-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-9-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-35" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-35-1"><a href="#annotated-cell-35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cp <span class="at">-ip</span> archivo.txt archivo-copia.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-35" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-35" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-9-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-9-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-36" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-36-1"><a href="#annotated-cell-36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Copy-Item</span> archivo<span class="op">.</span><span class="fu">txt</span> archivo-copia<span class="op">.</span><span class="fu">txt</span> <span class="op">-</span>Confirm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-36" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-36" data-code-lines="2" data-code-annotation="1">PowerShell no preserva permisos igual (usa NTFS ACLs)</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="el-comando-mv---mover-y-renombrar" class="level2">
+<h2 class="anchored" data-anchor-id="el-comando-mv---mover-y-renombrar">El Comando <code>mv</code> - Mover y Renombrar</h2>
+<p>El comando <code>mv</code> (move) mueve o renombra archivos y directorios.</p>
+<p><strong>Sintaxis:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mv</span> <span class="pp">[</span><span class="ss">opciones</span><span class="pp">]</span> <span class="pp">[</span><span class="ss">origen</span><span class="pp">]</span> <span class="pp">[</span><span class="ss">destino</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="ejemplos-prácticos-multi-so-3" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplos-prácticos-multi-so-3">💡 Ejemplos Prácticos Multi-SO</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-10-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-10-1" role="tab" aria-controls="tabset-10-1" aria-selected="true" href="">Ejemplo 1: Renombrar un archivo</a></li></ul>
+<div class="tab-content">
+<div id="tabset-10-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-10-1-tab">
+<section id="linux-9" class="level4">
+<h4 class="anchored" data-anchor-id="linux-9">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-38" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-38-1"><a href="#annotated-cell-38-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mv archivo-viejo.txt archivo-nuevo.txt</span>
+<span id="annotated-cell-38-2"><a href="#annotated-cell-38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls archivo<span class="pp">*</span></span>
+<span id="annotated-cell-38-3"><a href="#annotated-cell-38-3" aria-hidden="true" tabindex="-1"></a><span class="ex">archivo-nuevo.txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-38" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-38" data-code-lines="4" data-code-annotation="1">Renombra el archivo (mismo directorio)</span>
+</dd>
+</dl>
+</section>
+<section id="macos-9" class="level4">
+<h4 class="anchored" data-anchor-id="macos-9">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-39" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-39-1"><a href="#annotated-cell-39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mv archivo-viejo.txt archivo-nuevo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-39" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-39" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</section>
+<section id="windows-9" class="level4">
+<h4 class="anchored" data-anchor-id="windows-9">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-40" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-40-1"><a href="#annotated-cell-40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Rename-Item</span> archivo-viejo<span class="op">.</span><span class="fu">txt</span> archivo-nuevo<span class="op">.</span><span class="fu">txt</span></span>
+<span id="annotated-cell-40-2"><a href="#annotated-cell-40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># o</span></span>
+<span id="annotated-cell-40-3"><a href="#annotated-cell-40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">mv</span> archivo-viejo<span class="op">.</span><span class="fu">txt</span> archivo-nuevo<span class="op">.</span><span class="fu">txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-40" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-40" data-code-lines="4" data-code-annotation="1"><code>mv</code> es un alias de <code>Move-Item</code></span>
+</dd>
+</dl>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-2-mover-archivo-a-otro-directorio" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-2-mover-archivo-a-otro-directorio">Ejemplo 2: Mover archivo a otro directorio</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-11-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-11-1" role="tab" aria-controls="tabset-11-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-11-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-11-2" role="tab" aria-controls="tabset-11-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-11-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-11-3" role="tab" aria-controls="tabset-11-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-11-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-11-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-41" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-41-1"><a href="#annotated-cell-41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mv archivo.txt ~/Documentos/</span>
+<span id="annotated-cell-41-2"><a href="#annotated-cell-41-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls ~/Documentos/archivo.txt</span>
+<span id="annotated-cell-41-3"><a href="#annotated-cell-41-3" aria-hidden="true" tabindex="-1"></a><span class="ex">/home/usuario/Documentos/archivo.txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-41" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-41" data-code-lines="4" data-code-annotation="1">Mueve el archivo, no copia</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-11-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-11-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-42" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-42-1"><a href="#annotated-cell-42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mv archivo.txt ~/Documents/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-42" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-42" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-11-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-11-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-43" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-43-1"><a href="#annotated-cell-43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Move-Item</span> archivo<span class="op">.</span><span class="fu">txt</span> C<span class="op">:</span>\Users\usuario\Documents\</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-43" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-43" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-3-mover-y-renombrar-simultáneamente" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-3-mover-y-renombrar-simultáneamente">Ejemplo 3: Mover y renombrar simultáneamente</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-12-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-12-1" role="tab" aria-controls="tabset-12-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-12-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-12-2" role="tab" aria-controls="tabset-12-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-12-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-12-3" role="tab" aria-controls="tabset-12-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-12-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-12-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-44" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-44-1"><a href="#annotated-cell-44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mv archivo.txt ~/Documentos/archivo-nuevo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-44" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-44" data-code-lines="2" data-code-annotation="1">Mueve y renombra en una operación</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-12-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-12-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-45" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-45-1"><a href="#annotated-cell-45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mv archivo.txt ~/Documents/archivo-nuevo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-45" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-45" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-12-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-12-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-46" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-46-1"><a href="#annotated-cell-46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Move-Item</span> archivo<span class="op">.</span><span class="fu">txt</span> C<span class="op">:</span>\Users\usuario\Documents\archivo-nuevo<span class="op">.</span><span class="fu">txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-46" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-46" data-code-lines="2" data-code-annotation="1">Mismo comportamiento</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="el-comando-rm---eliminar-archivos" class="level2">
+<h2 class="anchored" data-anchor-id="el-comando-rm---eliminar-archivos">El Comando <code>rm</code> - Eliminar Archivos</h2>
+<p>El comando <code>rm</code> (remove) elimina archivos. <strong>ADVERTENCIA: No hay “papelera de reciclaje” - es permanente.</strong></p>
+<p><strong>Sintaxis:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="pp">[</span><span class="ss">opciones</span><span class="pp">]</span> [archivo<span class="er">(</span><span class="ex">s</span><span class="kw">)</span><span class="ex">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="opciones-principales-2" class="level3">
+<h3 class="anchored" data-anchor-id="opciones-principales-2">Opciones principales:</h3>
+<ul>
+<li><code>-i</code> : Preguntar antes de eliminar (seguro)</li>
+<li><code>-f</code> : Forzar sin preguntar (peligroso)</li>
+<li><code>-r</code> : Recursivo (eliminar directorios)</li>
+<li><code>-v</code> : Verboso (mostrar qué se elimina)</li>
+</ul>
+</section>
+<section id="ejemplos-prácticos-multi-so-4" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplos-prácticos-multi-so-4">💡 Ejemplos Prácticos Multi-SO</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-13-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-13-1" role="tab" aria-controls="tabset-13-1" aria-selected="true" href="">Ejemplo 1: Eliminar un archivo (seguro)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-13-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-13-1-tab">
+<section id="linux-12" class="level4">
+<h4 class="anchored" data-anchor-id="linux-12">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-48" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-48-1"><a href="#annotated-cell-48-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rm <span class="at">-i</span> archivo.txt</span>
+<span id="annotated-cell-48-2"><a href="#annotated-cell-48-2" aria-hidden="true" tabindex="-1"></a><span class="ex">remove</span> archivo.txt<span class="pp">?</span> y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-48" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-48" data-code-lines="3" data-code-annotation="1"><code>-i</code> pregunta antes de eliminar</span>
+</dd>
+</dl>
+</section>
+<section id="macos-12" class="level4">
+<h4 class="anchored" data-anchor-id="macos-12">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-49" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-49-1"><a href="#annotated-cell-49-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rm <span class="at">-i</span> archivo.txt</span>
+<span id="annotated-cell-49-2"><a href="#annotated-cell-49-2" aria-hidden="true" tabindex="-1"></a><span class="ex">remove</span> archivo.txt<span class="pp">?</span> y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-49" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-49" data-code-lines="3" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</section>
+<section id="windows-12" class="level4">
+<h4 class="anchored" data-anchor-id="windows-12">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-50" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-50-1"><a href="#annotated-cell-50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Remove-Item</span> archivo<span class="op">.</span><span class="fu">txt</span> <span class="op">-</span>Confirm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-50" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-50" data-code-lines="2" data-code-annotation="1"><code>-Confirm</code> pregunta antes de eliminar</span>
+</dd>
+</dl>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-2-eliminar-sin-preguntar-peligroso" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-2-eliminar-sin-preguntar-peligroso">Ejemplo 2: Eliminar sin preguntar (peligroso)</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-14-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-14-1" role="tab" aria-controls="tabset-14-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-14-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-14-2" role="tab" aria-controls="tabset-14-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-14-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-14-3" role="tab" aria-controls="tabset-14-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-14-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-14-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-51" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-51-1"><a href="#annotated-cell-51-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rm archivo.txt</span>
+<span id="annotated-cell-51-2"><a href="#annotated-cell-51-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Sin confirmación, archivo eliminado para siempre</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-51" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-51" data-code-lines="3" data-code-annotation="1"><strong>PELIGRO: No hay forma de recuperar</strong></span>
+</dd>
+</dl>
+</div>
+<div id="tabset-14-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-14-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-52" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-52-1"><a href="#annotated-cell-52-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rm archivo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-52" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-52" data-code-lines="2" data-code-annotation="1">Funcionamiento idéntico</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-14-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-14-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-53" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-53-1"><a href="#annotated-cell-53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Remove-Item</span> archivo<span class="op">.</span><span class="fu">txt</span> <span class="op">-</span>Force</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-53" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-53" data-code-lines="2" data-code-annotation="1"><code>-Force</code> elimina sin preguntar</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-3-eliminar-directorios-recursivamente--r" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-3-eliminar-directorios-recursivamente--r">Ejemplo 3: Eliminar directorios recursivamente (-r)</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-15-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-15-1" role="tab" aria-controls="tabset-15-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-15-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-15-2" role="tab" aria-controls="tabset-15-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-15-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-15-3" role="tab" aria-controls="tabset-15-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-15-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-15-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-54" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-54-1"><a href="#annotated-cell-54-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rm <span class="at">-ri</span> directorio</span>
+<span id="annotated-cell-54-2"><a href="#annotated-cell-54-2" aria-hidden="true" tabindex="-1"></a><span class="ex">remove</span> directorio<span class="pp">?</span> y</span>
+<span id="annotated-cell-54-3"><a href="#annotated-cell-54-3" aria-hidden="true" tabindex="-1"></a><span class="ex">remove</span> directorio/archivo1.txt<span class="pp">?</span> y</span>
+<span id="annotated-cell-54-4"><a href="#annotated-cell-54-4" aria-hidden="true" tabindex="-1"></a><span class="ex">remove</span> directorio/archivo2.txt<span class="pp">?</span> y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-54" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-54" data-code-lines="5" data-code-annotation="1"><code>-r</code> elimina recursivamente</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-15-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-15-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-55" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-55-1"><a href="#annotated-cell-55-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rm <span class="at">-ri</span> directorio</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-55" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-55" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-15-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-15-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-56" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-56-1"><a href="#annotated-cell-56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Remove-Item</span> <span class="op">-</span>Path directorio <span class="op">-</span>Recurse <span class="op">-</span>Confirm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-56" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-56" data-code-lines="2" data-code-annotation="1"><code>-Recurse</code> elimina directorios y contenido</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="el-comando-rmdir---eliminar-directorios-vacíos" class="level2">
+<h2 class="anchored" data-anchor-id="el-comando-rmdir---eliminar-directorios-vacíos">El Comando <code>rmdir</code> - Eliminar Directorios Vacíos</h2>
+<p>El comando <code>rmdir</code> solo elimina directorios vacíos, es más seguro que <code>rm -r</code>.</p>
+<p><strong>Sintaxis:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rmdir</span> <span class="pp">[</span><span class="ss">directorio</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="ejemplos-prácticos-multi-so-5" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplos-prácticos-multi-so-5">💡 Ejemplos Prácticos Multi-SO</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-16-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-16-1" role="tab" aria-controls="tabset-16-1" aria-selected="true" href="">Ejemplo 1: Eliminar directorio vacío</a></li></ul>
+<div class="tab-content">
+<div id="tabset-16-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-16-1-tab">
+<section id="linux-15" class="level4">
+<h4 class="anchored" data-anchor-id="linux-15">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-58" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-58-1"><a href="#annotated-cell-58-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rmdir directorio-vacio</span>
+<span id="annotated-cell-58-2"><a href="#annotated-cell-58-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls directorio-vacio</span>
+<span id="annotated-cell-58-3"><a href="#annotated-cell-58-3" aria-hidden="true" tabindex="-1"></a><span class="ex">ls:</span> cannot access <span class="st">'directorio-vacio'</span>: No such file or directory</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-58" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-58" data-code-lines="4" data-code-annotation="1">Solo funciona si está completamente vacío</span>
+</dd>
+</dl>
+</section>
+<section id="macos-15" class="level4">
+<h4 class="anchored" data-anchor-id="macos-15">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-59" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-59-1"><a href="#annotated-cell-59-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rmdir directorio-vacio</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-59" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-59" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</section>
+<section id="windows-15" class="level4">
+<h4 class="anchored" data-anchor-id="windows-15">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-60" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-60-1"><a href="#annotated-cell-60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Remove-Item</span> <span class="op">-</span>Path directorio-vacio <span class="op">-</span>Confirm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-60" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-60" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</section>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="el-comando-ln---crear-enlaces" class="level2">
+<h2 class="anchored" data-anchor-id="el-comando-ln---crear-enlaces">El Comando <code>ln</code> - Crear Enlaces</h2>
+<p>El comando <code>ln</code> (link) crea enlaces entre archivos. Existen dos tipos:</p>
+<section id="enlaces-simbólicos-soft-links" class="level3">
+<h3 class="anchored" data-anchor-id="enlaces-simbólicos-soft-links">Enlaces simbólicos (soft links):</h3>
+<ul>
+<li>Apuntan a otro archivo por nombre</li>
+<li>Pueden cruzar sistemas de archivos</li>
+<li>Se rompen si el archivo original se elimina</li>
+</ul>
+</section>
+<section id="enlaces-duros-hard-links" class="level3">
+<h3 class="anchored" data-anchor-id="enlaces-duros-hard-links">Enlaces duros (hard links):</h3>
+<ul>
+<li>Apuntan directamente al contenido del archivo</li>
+<li>No pueden cruzar sistemas de archivos</li>
+<li>Persisten aunque se elimine el original</li>
+</ul>
+</section>
+<section id="ejemplos-prácticos-multi-so-6" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplos-prácticos-multi-so-6">💡 Ejemplos Prácticos Multi-SO</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-17-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-17-1" role="tab" aria-controls="tabset-17-1" aria-selected="true" href="">Ejemplo 1: Crear enlace simbólico (-s)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-17-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-17-1-tab">
+<section id="linux-16" class="level4">
+<h4 class="anchored" data-anchor-id="linux-16">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-61" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-61-1"><a href="#annotated-cell-61-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ln <span class="at">-s</span> archivo.txt enlace.txt</span>
+<span id="annotated-cell-61-2"><a href="#annotated-cell-61-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-l</span> enlace.txt</span>
+<span id="annotated-cell-61-3"><a href="#annotated-cell-61-3" aria-hidden="true" tabindex="-1"></a><span class="ex">lrwxrwxrwx</span> 1 usuario grupo 10 Jan 29 10:30 enlace.txt <span class="at">-</span><span class="op">&gt;</span> archivo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-61" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-61" data-code-lines="4" data-code-annotation="1"><code>-s</code> crea enlace simbólico</span>
+</dd>
+</dl>
+</section>
+<section id="macos-16" class="level4">
+<h4 class="anchored" data-anchor-id="macos-16">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-62" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-62-1"><a href="#annotated-cell-62-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ln <span class="at">-s</span> archivo.txt enlace.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-62" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-62" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</section>
+<section id="windows-16" class="level4">
+<h4 class="anchored" data-anchor-id="windows-16">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-63" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-63-1"><a href="#annotated-cell-63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En WSL:</span></span>
+<span id="annotated-cell-63-2"><a href="#annotated-cell-63-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> wsl ln <span class="op">-</span>s archivo<span class="op">.</span><span class="fu">txt</span> enlace<span class="op">.</span><span class="fu">txt</span></span>
+<span id="annotated-cell-63-3"><a href="#annotated-cell-63-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-63-4"><a href="#annotated-cell-63-4" aria-hidden="true" tabindex="-1"></a><span class="co"># En PowerShell (Windows 10+):</span></span>
+<span id="annotated-cell-63-5"><a href="#annotated-cell-63-5" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">New-Item</span> <span class="op">-</span>ItemType SymbolicLink <span class="op">-</span>Path enlace<span class="op">.</span><span class="fu">txt</span> <span class="op">-</span>Target archivo<span class="op">.</span><span class="fu">txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-63" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-63" data-code-lines="6" data-code-annotation="1">PowerShell requiere permisos de administrador</span>
+</dd>
+</dl>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplo-2-crear-enlace-duro-sin--s" class="level3">
+<h3 class="anchored" data-anchor-id="ejemplo-2-crear-enlace-duro-sin--s">Ejemplo 2: Crear enlace duro (sin -s)</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-18-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-18-1" role="tab" aria-controls="tabset-18-1" aria-selected="true" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-18-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-18-2" role="tab" aria-controls="tabset-18-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-18-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-18-3" role="tab" aria-controls="tabset-18-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-18-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-18-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-64" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-64-1"><a href="#annotated-cell-64-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ln archivo.txt enlace-duro.txt</span>
+<span id="annotated-cell-64-2"><a href="#annotated-cell-64-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-i</span> archivo.txt enlace-duro.txt</span>
+<span id="annotated-cell-64-3"><a href="#annotated-cell-64-3" aria-hidden="true" tabindex="-1"></a><span class="ex">123456</span> archivo.txt</span>
+<span id="annotated-cell-64-4"><a href="#annotated-cell-64-4" aria-hidden="true" tabindex="-1"></a><span class="ex">123456</span> enlace-duro.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-64" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-64" data-code-lines="5" data-code-annotation="1">Sin <code>-s</code>, crea enlace duro</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-18-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-18-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-65" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-65-1"><a href="#annotated-cell-65-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ln archivo.txt enlace-duro.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-65" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-65" data-code-lines="2" data-code-annotation="1">Funciona igual</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-18-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-18-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-66" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy"><code class="sourceCode powershell"><span id="annotated-cell-66-1"><a href="#annotated-cell-66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># No soporta hard links igual que Unix</span></span>
+<span id="annotated-cell-66-2"><a href="#annotated-cell-66-2" aria-hidden="true" tabindex="-1"></a><span class="co"># En WSL:</span></span>
+<span id="annotated-cell-66-3"><a href="#annotated-cell-66-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> wsl ln archivo<span class="op">.</span><span class="fu">txt</span> enlace-duro<span class="op">.</span><span class="fu">txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-66" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-66" data-code-lines="4" data-code-annotation="1">NTFS tiene junctions que son similares</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="resumen-de-manipulación-de-archivos" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-de-manipulación-de-archivos">Resumen de Manipulación de Archivos</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 37%">
+<col style="width: 31%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Comando</th>
+<th>Propósito</th>
+<th>Ejemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mkdir -p dir/subdir</code></td>
+<td>Crear directorios</td>
+<td><code>mkdir -p ~/Proyectos/web</code></td>
+</tr>
+<tr class="even">
+<td><code>touch archivo.txt</code></td>
+<td>Crear archivo vacío</td>
+<td><code>touch README.md</code></td>
+</tr>
+<tr class="odd">
+<td><code>cp archivo.txt copia.txt</code></td>
+<td>Copiar archivo</td>
+<td><code>cp config.txt config.bak</code></td>
+</tr>
+<tr class="even">
+<td><code>cp -r dir dir-copia</code></td>
+<td>Copiar directorio</td>
+<td><code>cp -r src src-backup</code></td>
+</tr>
+<tr class="odd">
+<td><code>mv archivo.txt nuevo.txt</code></td>
+<td>Renombrar</td>
+<td><code>mv archivo.txt LEEME.txt</code></td>
+</tr>
+<tr class="even">
+<td><code>mv archivo.txt dir/</code></td>
+<td>Mover</td>
+<td><code>mv archivo.txt ~/Documentos/</code></td>
+</tr>
+<tr class="odd">
+<td><code>rm archivo.txt</code></td>
+<td>Eliminar archivo</td>
+<td><code>rm archivo.txt</code></td>
+</tr>
+<tr class="even">
+<td><code>rm -r directorio</code></td>
+<td>Eliminar directorio</td>
+<td><code>rm -r directorio/</code></td>
+</tr>
+<tr class="odd">
+<td><code>rmdir dir-vacio</code></td>
+<td>Eliminar dir vacío</td>
+<td><code>rmdir dir-vacio</code></td>
+</tr>
+<tr class="even">
+<td><code>ln -s archivo enlace</code></td>
+<td>Enlace simbólico</td>
+<td><code>ln -s config config.link</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="mejores-prácticas-de-seguridad" class="level2">
+<h2 class="anchored" data-anchor-id="mejores-prácticas-de-seguridad">Mejores Prácticas de Seguridad</h2>
+<ol type="1">
+<li><p><strong>Siempre usa <code>-i</code> con <code>rm</code> hasta que tengas experiencia</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-i</span> archivo.txt  <span class="co"># Pregunta antes de eliminar</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></li>
+<li><p><strong>Haz copias antes de operaciones peligrosas</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> archivo.txt archivo.txt.backup</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ... hacer cambios ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></li>
+<li><p><strong>Usa <code>rsync</code> para copias importantes</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rsync</span> <span class="at">-av</span> origen/ destino/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></li>
+<li><p><strong>Verifica antes de eliminar recursivamente</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lR</span> directorio/  <span class="co"># Ver contenido primero</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-ri</span> directorio   <span class="co"># Luego eliminar</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></li>
+<li><p><strong>Usa control de versiones para código</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Backup antes de cambios"</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ... hacer cambios ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></li>
+</ol>
+<hr>
+</section>
+<section id="ejercicios-prácticos" class="level2">
+<h2 class="anchored" data-anchor-id="ejercicios-prácticos">🎯 Ejercicios Prácticos</h2>
+<ol type="1">
+<li>Crea estructura: <code>Proyecto/src/main</code> usando <code>mkdir -p</code></li>
+<li>Crea 3 archivos vacíos con <code>touch</code></li>
+<li>Copia un archivo con <code>cp</code> y verifica con <code>ls</code></li>
+<li>Renombra archivo con <code>mv</code></li>
+<li>Crea enlace simbólico con <code>ln -s</code></li>
+<li>Elimina archivos con <code>rm -i</code> (seguro)</li>
+<li>Elimina directorio vacío con <code>rmdir</code></li>
+</ol>
+<hr>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
+<p>Para más información sobre manipulación de archivos: - <span class="citation" data-cites="posix2018">(<a href="#ref-posix2018" role="doc-biblioref">IEEE 2018</a>)</span> - POSIX File Operations - <span class="citation" data-cites="bash2023">(<a href="#ref-bash2023" role="doc-biblioref">Foundation 2023</a>)</span> - GNU Bash Manual - <span class="citation" data-cites="coreutils2024">(<a href="#ref-coreutils2024" role="doc-biblioref">Project 2024</a>)</span> - GNU Coreutils Manual</p>
+
+
+</section>
+</section>
+<section class="level1 unnumbered">
+<h1 class="unnumbered">Code Appendix</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-bash2023" class="csl-entry" role="listitem">
+Foundation, Free Software. 2023. <span>“Bash Manual.”</span> 2023.
+</div>
+<div id="ref-posix2018" class="csl-entry" role="listitem">
+IEEE. 2018. <span>“POSIX.1-2017 Portable Operating System Interface.”</span> 2018.
+</div>
+<div id="ref-coreutils2024" class="csl-entry" role="listitem">
+Project, GNU. 2024. <span>“GNU Coreutils Manual.”</span> 2024.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../unidades/unidad3/4_permisos_archivos.html" class="pagination-link" aria-label="Permisos de Archivos">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Permisos de Archivos</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../anexos/Anexo_A_Bash_Scripting.html" class="pagination-link" aria-label="Anexo A: Bash Scripting - Mini-Curso Práctico">
+        <span class="nav-page-text"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+<p>Sobre el Curso</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../../license.html">
+<p>Licencia</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://statick88.github.io">
+<p>Instructor: statick88.github.io</p>
+</a>
+  </li>  
+</ul>
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>
