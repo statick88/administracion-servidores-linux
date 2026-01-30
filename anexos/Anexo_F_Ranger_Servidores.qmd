@@ -1,0 +1,804 @@
+---
+title: "Ranger: Gestor de Archivos Terminal para Servidores"
+subtitle: "Navegación Eficiente de Directorios sin GUI"
+author: "Diego Saavedra"
+date: "2024-01-30"
+date-format: medium
+---
+
+# Ranger: Navegación de Archivos en Terminal
+
+## 📚 Introducción a Ranger
+
+**Ranger** es un gestor de archivos basado en terminal escrito en Python. Proporciona:
+- Navegación visual multi-panel (similar a Norton Commander)
+- Vista previa de archivos
+- Operaciones rápidas de archivo
+- Soporte para plugins personalizados
+- Integración perfecta con herramientas CLI
+
+**Por qué es importante en servidores:**
+- ✅ No requiere X11/GUI
+- ✅ Funciona por SSH sin overhead gráfico
+- ✅ Más eficiente que `cd` + `ls` iterativo
+- ✅ Vista previa de código directamente
+- ✅ Operaciones de archivo más intuitivas
+
+**Tiempo estimado:** 30-45 minutos
+
+---
+
+## 🎯 Objetivos de Aprendizaje
+
+Después de este anexo, serás capaz de:
+- Instalar y configurar Ranger
+- Navegar el sistema de archivos eficientemente
+- Usar visor de archivos y miniaturas
+- Ejecutar operaciones de archivo (copiar, mover, eliminar)
+- Personalizar Ranger con configuración avanzada
+- Integrar Ranger con otros comandos CLI
+- Usar Ranger en conexiones SSH remotas
+
+---
+
+## 📋 Tabla de Contenidos
+
+1. [Instalación](#instalación)
+2. [Interfaz y Navegación Básica](#interfaz-y-navegación-básica)
+3. [Operaciones de Archivos](#operaciones-de-archivos)
+4. [Visor de Archivos](#visor-de-archivos)
+5. [Configuración Avanzada](#configuración-avanzada)
+6. [Integración con Otros Comandos](#integración-con-otros-comandos)
+7. [Ranger en Servidores Remotos](#ranger-en-servidores-remotos)
+8. [Atajos de Teclado Esenciales](#atajos-de-teclado-esenciales)
+9. [Laboratorio Práctico](#laboratorio-práctico)
+
+---
+
+## Instalación
+
+### Linux (Debian/Ubuntu)
+
+```bash
+# Instalar Ranger desde repositorio
+sudo apt update  # <1>
+sudo apt install ranger  # <2>
+
+# Instalar dependencias opcionales para vista previa mejorada
+sudo apt install highlight atool w3m-img  # <3>
+
+# Verificar instalación
+ranger --version  # <4>
+```
+
+1. **apt update** actualiza la lista de paquetes disponibles
+2. **apt install ranger** instala el gestor de archivos Ranger
+3. Dependencias opcionales: **highlight** (sintaxis), **atool** (archivos), **w3m-img** (imágenes)
+4. **ranger --version** verifica la versión instalada
+
+### macOS (Homebrew)
+
+```bash
+# Instalar Ranger con Homebrew
+brew install ranger  # <1>
+
+# Instalar utilidades de vista previa
+brew install highlight atool  # <2>
+
+# Verificar instalación
+ranger --version  # <3>
+```
+
+1. **brew install ranger** instala Ranger desde Homebrew
+2. Utilidades adicionales para vista previa mejorada
+3. **ranger --version** muestra la versión instalada
+
+### Compilación desde Fuente
+
+```bash
+# Para versión más reciente o soporte especial
+git clone https://github.com/ranger/ranger.git  # <1>
+cd ranger
+sudo make install  # <2>
+
+# O instalación local sin sudo
+python install.py --local  # <3>
+```
+
+1. **git clone** descarga el repositorio oficial de Ranger
+2. **make install** compila e instala globalmente
+3. **python install.py --local** instalación en directorio de usuario
+
+---
+
+## Interfaz y Navegación Básica
+
+### Arranque Inicial
+
+```bash
+# Abrir Ranger en directorio actual
+ranger  # <1>
+
+# Abrir Ranger en directorio específico
+ranger /var/log  # <2>
+
+# Abrir Ranger sin montar sistemas de archivos
+ranger --no-mounts  # <3>
+```
+
+1. **ranger** abre el gestor en el directorio actual ($HOME o PWD)
+2. **ranger /ruta** abre Ranger en una ruta específica
+3. **ranger --no-mounts** carga más rápido sin montar sistemas de archivos remotos
+
+### Interfaz de Ranger
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ PANEL IZQUIERDO  │ PANEL CENTRAL  │ PANEL DERECHO       │
+│ Directorios      │ Contenido dir  │ Vista previa        │
+│ padres           │ actual         │ del archivo         │
+│                  │                │ seleccionado        │
+│ /               │ Documents/     │ (code, images,      │
+│ home/           │ Downloads/  ◄──│  text files)        │
+│ usr/            │ Pictures/      │                     │
+│ var/            │ file.txt ◄─────│ File: file.txt      │
+│ etc/            │ script.sh      │ Size: 1.2K          │
+│ tmp/            │ image.png      │ Mode: -rw-r--r--    │
+│                 │ README.md      │                     │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Componentes:**
+- **Panel izquierdo:** Directorio padre (permite navegación rápida hacia arriba)
+- **Panel central:** Contenido del directorio actual (donde operas)
+- **Panel derecho:** Vista previa del archivo seleccionado
+- **Barra inferior:** Información del archivo, marca, estado
+
+### Navegación de Directorios
+
+::: {.panel-tabset}
+
+### Movimiento Básico
+
+```bash
+# Navegar hacia arriba en el árbol de directorios
+# Presionar: h (left arrow)
+
+# Entrar en un directorio
+# Presionar: j (down) + Enter o l (right arrow)
+
+# Moverse entre archivos
+j  # Siguiente archivo (↓)
+k  # Archivo anterior (↑)
+
+# Saltar a inicio/fin de lista
+gg  # Ir al inicio (first file)
+G   # Ir al final (last file)
+```
+
+### Movimiento Avanzado
+
+```bash
+# Ir al home del usuario
+~
+
+# Ir a raíz del sistema
+/
+
+# Ir al directorio anterior (como 'cd -')
+-
+
+# Saltar a marcador
+'<letra>  # Ir a marcador (ej: 'a, 'b, 'c)
+
+# Ir a ruta específica (comando)
+:cd /var/log  # <1>
+```
+
+1. **:cd** es el comando interno de Ranger (similar a cd en shell)
+
+### Búsqueda de Archivos
+
+```bash
+# Buscar archivo por nombre (búsqueda incremental)
+/nombre_archivo  # <1>
+
+# Búsqueda siguiendo coincidencias
+n  # Siguiente coincidencia
+N  # Coincidencia anterior
+
+# Buscar archivo con expresión regular
+/.*\.log$  # <2>
+```
+
+1. **/** inicia búsqueda (presiona Enter para confirmar)
+2. Expresiones regulares completas soportadas
+
+:::
+
+---
+
+## Operaciones de Archivos
+
+### Selección de Archivos
+
+```bash
+# Seleccionar/deseleccionar archivo actual
+Space  # <1>
+
+# Seleccionar todos los archivos en directorio
+sa  # <2>
+
+# Invertir selección (seleccionar no-seleccionados)
+si  # <3>
+
+# Deseleccionar todos
+uv  # <4>
+
+# Seleccionar por extensión
+# Por ejemplo, todos los .log:
+:select_file \.log$  # <5>
+```
+
+1. **Space** marca/desmarca el archivo actual para operación
+2. **sa** (select all) marca todos los archivos
+3. **si** (select invert) invierte la selección
+4. **uv** (unselect via) desmarca todos
+5. **:select_file** selecciona por patrón regex
+
+### Copiar, Mover, Eliminar
+
+```bash
+# Copiar archivo seleccionado
+yy  # Copiar a portapapeles  # <1>
+pp  # Pegar en ubicación actual  # <2>
+
+# Mover/renombrar
+dd  # Cortar archivo  # <3>
+pp  # Pegar en nueva ubicación
+
+# Eliminar permanentemente
+dD  # Eliminar archivo(s) seleccionado(s)  # <4>
+
+# Cambiar nombre (renombrar)
+cw  # <5>
+# Edita nombre en editor (vim/nano)
+# Presiona ESC + :wq para guardar
+
+# Crear archivo/directorio nuevo
+touch myfile.txt  # Crea archivo
+mkdir mydir      # Crea directorio
+```
+
+1. **yy** copia archivo(s) al portapapeles interno
+2. **pp** pega en el directorio actual
+3. **dd** corta para mover después
+4. **dD** elimina sin recuperación (cuidado!)
+5. **cw** abre editor para renombrar
+
+---
+
+## Visor de Archivos
+
+### Vista Previa Integrada
+
+```bash
+# Habilitar/deshabilitar vista previa (panel derecho)
+zi  # <1>
+
+# Ver contenido de archivo de texto
+# (automático en panel derecho)
+cat file.txt  # Shell: equivalente
+
+# Vista de directorio (tamaño de contenidos)
+:du  # <2>
+
+# Mostrar archivos ocultos
+zh  # <3>
+```
+
+1. **zi** alterna la visualización del panel de vista previa
+2. **:du** (disk usage) muestra tamaño de directorios
+3. **zh** muestra/oculta archivos que comienzan con punto
+
+### Formatos Soportados
+
+:::{.callout-tip}
+## 💡 Vista Previa de Ranger
+
+Ranger puede previsualizar (con dependencias instaladas):
+- **Texto:** .txt, .md, .py, .sh, .log, .csv, .json, etc.
+- **Código:** Resaltado de sintaxis (highlight)
+- **Imágenes:** .jpg, .png, .gif (en terminal capaz de imágenes)
+- **Archivos:** .zip, .tar, .gz (con atool)
+- **Documentos:** .pdf (con pdftotext)
+:::
+
+### Abrir Archivos
+
+```bash
+# Abrir archivo con editor por defecto
+e  # <1>
+# O presionar Enter (abre con aplicación por defecto)
+
+# Abrir con programa específico
+o  # Menú de programas alternativos
+
+# Abrir terminal en directorio actual
+!  # <2>
+# O presionar S (capital S) para subshell
+
+# Ejecutar archivo ejecutable
+x  # <3>
+```
+
+1. **e** abre archivo en editor configurado ($EDITOR)
+2. **!** o **S** abre shell interactivo en directorio actual
+3. **x** ejecuta archivo si tiene permisos de ejecución
+
+---
+
+## Configuración Avanzada
+
+### Ubicación de Archivos de Configuración
+
+```bash
+# Configuración de Ranger
+~/.config/ranger/
+
+# Archivos principales:
+~/.config/ranger/rc.conf        # Configuración principal  # <1>
+~/.config/ranger/rifle.conf     # Asociaciones de archivos  # <2>
+~/.config/ranger/scope.sh       # Script de vista previa   # <3>
+~/.config/ranger/colorscheme/   # Temas de color
+
+# Generar configuración por defecto
+ranger --copy-config=all  # <4>
+```
+
+1. **rc.conf** contiene atajos, temas, opciones de interfaz
+2. **rifle.conf** define qué programa abre cada tipo de archivo
+3. **scope.sh** personaliza vista previa para tipos específicos
+4. **--copy-config=all** crea todos los archivos en ~/.config/ranger/
+
+### Configuración Básica (rc.conf)
+
+```bash
+# Editar configuración
+nano ~/.config/ranger/rc.conf
+```
+
+Opciones útiles a editar:
+
+```conf
+# Mostrar números de línea en vista previa
+set preview_script ~/.config/ranger/scope.sh
+
+# Usar vi-style keybindings
+set vcsync true
+
+# Colores personalizados
+colorscheme default  # <1>
+
+# Confirmación antes de eliminar
+set confirm_on_delete move  # <2>
+
+# Anchos de panel
+set column_ratios 1,3,4
+
+# Mostrar archivos ocultos por defecto
+set show_hidden false  # <3>
+
+# Orden de directorios
+set sort directories_first
+
+# Número máximo de líneas de vista previa
+set preview_max_size 262144
+```
+
+1. **colorscheme** opciones: default, jungle, snow, solarized
+2. **confirm_on_delete** previene eliminación accidental
+3. **show_hidden** true/false controla visibilidad de archivos ocultos
+
+### Rifle.conf - Asociaciones de Archivos
+
+```bash
+# Ver configuración actual
+cat ~/.config/ranger/rifle.conf | head -30
+```
+
+Ejemplo de configuración personalizada:
+
+```conf
+# Archivos de código con editor
+ext py|sh|js|rb = vim "$@"  # <1>
+
+# PDFs con visor
+ext pdf = pdfviewer "$@"
+
+# Imágenes con visor de imagen
+ext jpg|png|gif|jpeg = feh "$@"
+
+# Videos con reproductor
+ext mp4|mkv|avi = mpv "$@"
+
+# Comprimidos con gestor de archivo
+ext zip|tar|gz = atool -x "$@"
+
+# Fallback: editor por defecto
+else = $EDITOR "$@"  # <2>
+```
+
+1. **ext** define extensión(es) de archivo
+2. **else** es el comportamiento por defecto si no coincide nada
+
+---
+
+## Integración con Otros Comandos
+
+### Usar Ranger desde Scripts
+
+```bash
+# Navegar con Ranger y ejecutar comando en seleccionado
+ranger_file=$(ranger --choosefile=/tmp/chosenfile --show-only-dir)
+# Luego procesar $ranger_file  # <1>
+
+# Copiar ruta del archivo seleccionado
+ranger --choosefile=/tmp/f /var/log && xargs cat < /tmp/f  # <2>
+```
+
+1. **--choosefile** permite que Ranger retorne archivo seleccionado
+2. Combinación con pipes para procesar archivos
+
+### Alias Útiles en .bashrc
+
+```bash
+# Agregar a ~/.bashrc
+alias r='ranger'  # <1>
+alias rc='ranger --show-only-dir'  # <2>
+alias rl='ranger --mode=3'  # <3>
+```
+
+1. Alias corto para ranger
+2. Ranger solo directorios
+3. Ranger vista lista solamente
+
+### Integración con fzf (Fuzzy Finder)
+
+```bash
+# Instalar fzf
+sudo apt install fzf
+
+# Usar Ranger + fzf en .bashrc
+ranger-fzf() {
+    ranger --choosefile=/tmp/rf && \
+    cat /tmp/rf | fzf | xargs vim
+}
+```
+
+---
+
+## Ranger en Servidores Remotos
+
+### Conexión SSH Eficiente
+
+```bash
+# Ranger sobre SSH (sin X11, muy ligero)
+ssh usuario@servidor  # <1>
+ranger  # En servidor remoto, rangerse ejecuta en terminal
+
+# Copiar configuración a servidor
+ssh usuario@servidor "mkdir -p ~/.config/ranger"
+scp ~/.config/ranger/rc.conf usuario@servidor:~/.config/ranger/  # <2>
+```
+
+1. **ssh usuario@servidor** conecta por SSH
+2. **scp** copia archivos de configuración a servidor
+
+### Instalación en Servidor Ubuntu
+
+```bash
+# En servidor remoto vía SSH
+ssh admin@192.168.1.100
+
+# Una vez conectado
+sudo apt update && sudo apt install -y ranger highlight atool  # <1>
+
+# Crear estructura de configuración
+ranger --copy-config=all
+
+# Verificar instalación
+ranger --version
+```
+
+1. Instalación completa con dependencias
+
+### Optimización para Servidores
+
+```bash
+# En ~/.config/ranger/rc.conf (servidor)
+set vcs_backend_git disable  # <1>
+set vcs_backend_hg disable
+set vcs_backend_bzr disable
+
+# Desactivar vista previa para mejorar velocidad
+set use_preview_script false  # <2>
+
+# Reducir máximo de líneas de vista previa
+set preview_max_size 102400  # 100KB
+
+# Colores básicos (más rápido)
+colorscheme default
+```
+
+1. **vcs_backend disable** desactiva control de versiones (lento en SSH)
+2. **use_preview_script false** desactiva vista previa compleja
+
+---
+
+## Atajos de Teclado Esenciales
+
+### Navegación
+
+| Tecla | Acción |
+|-------|--------|
+| `h` / `j` / `k` / `l` | ← ↓ ↑ → (movimiento estilo vim) |
+| `gg` | Ir al inicio de la lista |
+| `G` | Ir al final de la lista |
+| `J` / `K` | Scroll página hacia abajo/arriba |
+| `~` | Ir al directorio home |
+| `/` | Ir a raíz del sistema |
+| `-` | Ir al directorio anterior |
+| `u` | Ir hacia arriba un directorio |
+| `H` / `L` | Historial anterior/siguiente |
+
+### Selección y Operaciones
+
+| Tecla | Acción |
+|-------|--------|
+| `Space` | Seleccionar/deseleccionar archivo |
+| `sa` | Seleccionar todos |
+| `si` | Invertir selección |
+| `uv` | Deseleccionar todos |
+| `yy` | Copiar |
+| `dd` | Cortar |
+| `pp` | Pegar |
+| `dD` | Eliminar |
+| `cw` | Renombrar |
+| `cO` | Copiar aquí (prompt) |
+| `cR` | Mover aquí (prompt) |
+
+### Visualización
+
+| Tecla | Acción |
+|-------|--------|
+| `i` | Ciclar entre 4 modos de vista |
+| `I` | Información detallada del archivo |
+| `zh` | Mostrar/ocultar archivos ocultos |
+| `zf` | Filtrar archivos (por extensión) |
+| `z?` | Ayuda de atajos `z` |
+
+### Archivos
+
+| Tecla | Acción |
+|-------|--------|
+| `e` | Abrir con editor ($EDITOR) |
+| `o` | Menú de programas alternativos |
+| `x` | Ejecutar archivo |
+| `!` / `S` | Abrir shell en directorio |
+| `/` | Buscar archivo (regex) |
+| `n` / `N` | Siguiente/anterior coincidencia |
+
+### Configuración
+
+| Tecla | Acción |
+|-------|--------|
+| `:` | Comandos (`:set`, `:cd`, `:open`, etc.) |
+| `m<letra>` | Crear marcador en letra |
+| `'<letra>` | Ir a marcador |
+| `q` | Salir de Ranger |
+
+---
+
+## Laboratorio Práctico
+
+### Ejercicio 1: Navegación Básica
+
+**Objetivo:** Familiarizarse con movimiento en Ranger
+
+```bash
+# 1. Abrir Ranger
+ranger  # <1>
+
+# 2. Navegar a /etc (usando h para subir, j/k para mover)
+# - Presiona 'h' hasta llegar a raíz (/)
+# - Presiona 'j' para mover a 'etc'
+# - Presiona 'l' o Enter para entrar
+
+# 3. Explorar archivos de configuración
+# - Buscar 'passwd' (presiona /)
+# - Ver preview en panel derecho
+# - Presiona 'e' para ver contenido completo
+
+# 4. Ir a /var/log
+# - Presiona '/' para ir a raíz
+# - Navega a 'var' → 'log'
+# - Observa archivos de log
+```
+
+1. **ranger** abre el gestor de archivos en directorio actual
+
+### Ejercicio 2: Operaciones de Archivos
+
+**Objetivo:** Practicar copiar, mover, eliminar
+
+```bash
+# 1. Crear estructura de prueba
+mkdir -p ~/ranger-lab/origen ~/ranger-lab/destino  # <1>
+cd ~/ranger-lab/origen  # <2>
+
+# 2. Crear archivos de prueba
+touch file1.txt file2.txt file3.log script.sh
+
+# 3. Abrir Ranger en origen
+ranger
+
+# 4. Operaciones en Ranger:
+# - Seleccionar archivo1.txt (Space)
+# - Copiar (yy)
+# - Navegar a destino
+# - Pegar (pp)
+
+# 5. Mover archivo
+# - Seleccionar file2.txt
+# - Cortar (dd)
+# - Navegar a destino
+# - Pegar (pp)
+
+# 6. Renombrar
+# - Seleccionar file3.log
+# - Presionar 'cw'
+# - Cambiar nombre a 'renamed.log'
+```
+
+1. **mkdir -p** crea directorios anidados (origen y destino para laboratorio)
+2. **cd** cambia al directorio origen
+
+### Ejercicio 3: Vista Previa y Visualización
+
+**Objetivo:** Usar visor de archivos
+
+```bash
+# 1. Crear archivos de ejemplo
+cat > test.py << 'EOF'
+#!/usr/bin/env python3
+# Script de prueba
+for i in range(10):
+    print(f"Line {i}")
+EOF
+
+# 2. Abrir Ranger
+ranger
+
+# 3. Ver vista previa:
+# - Navega a test.py
+# - Panel derecho muestra contenido
+# - Presiona 'zi' para alternar preview
+# - Presiona 'e' para editar
+
+# 4. Ver información extendida
+# - Selecciona archivo
+# - Presiona 'I' para info detallada
+```
+
+### Ejercicio 4: Búsqueda y Filtrado
+
+**Objetivo:** Buscar y filtrar archivos
+
+```bash
+# 1. En Ranger, navega a un directorio con muchos archivos
+# Ejemplo: /usr/share/doc
+
+# 2. Búsqueda básica:
+# - Presiona '/'
+# - Escribe 'python'
+# - Presiona Enter
+# - Usa 'n' para siguiente coincidencia
+
+# 3. Búsqueda avanzada (regex):
+# - Presiona '/'
+# - Escribe '.*\.py$' (archivos .py)
+# - Presiona Enter
+
+# 4. Filtrado:
+# - Presiona 'zf'
+# - Escribe '.log' (muestra solo .log)
+```
+
+### Ejercicio 5: Integración con Shell
+
+**Objetivo:** Usar Ranger desde scripts
+
+```bash
+# 1. Crear script que usa Ranger
+cat > ~/choose-file.sh << 'EOF'  # <1>
+#!/bin/bash
+# Script que usa Ranger para seleccionar archivo
+ranger --choosefile=/tmp/choice /tmp
+if [ -f /tmp/choice ]; then
+    file=$(cat /tmp/choice)
+    echo "Archivo seleccionado: $file"
+    file "$file"  # Mostrar tipo de archivo
+fi
+EOF
+
+# 2. Hacer script ejecutable
+chmod +x ~/choose-file.sh  # <2>
+
+# 3. Ejecutar script
+~/choose-file.sh  # <3>
+```
+
+1. **cat > archivo << 'EOF'** crea un archivo multilinea con contenido de script
+2. **chmod +x** hace el script ejecutable (permisos de ejecución)
+3. **~/choose-file.sh** ejecuta el script desde la carpeta home
+
+---
+
+## 🛠️ Troubleshooting Común
+
+:::{.callout-warning}
+## ⚠️ Problemas Frecuentes
+
+**Problema 1: Vista previa no funciona**
+```bash
+# Solución: Instalar dependencias
+sudo apt install highlight atool w3m-img
+# Luego reiniciar Ranger
+```
+
+**Problema 2: Ranger es lento en SSH**
+```bash
+# Solución: Desactivar preview en rc.conf
+set use_preview_script false
+set vcs_backend_git disable
+```
+
+**Problema 3: No puede copiar/pegar entre rangery shell**
+```bash
+# Ranger usa portapapeles interno, no sistema
+# Usar comando :open_console para shell directo
+```
+:::
+
+---
+
+## 📚 Recursos Adicionales
+
+- **Documentación Oficial:** https://ranger.github.io/
+- **GitHub Repository:** https://github.com/ranger/ranger
+- **Wiki:** https://github.com/ranger/ranger/wiki
+- **Cheat Sheet:** https://github.com/ranger/ranger/wiki/VCS-Integration
+
+---
+
+## ✅ Checklist Final
+
+Después de completar este anexo, deberías poder:
+
+- [ ] Instalar Ranger en Linux/macOS
+- [ ] Navegar directorios con hjkl
+- [ ] Seleccionar y copiar/mover archivos
+- [ ] Ver vista previa de archivos
+- [ ] Personalizar rc.conf y rifle.conf
+- [ ] Usar Ranger en conexiones SSH
+- [ ] Integrar Ranger con scripts shell
+- [ ] Resolver problemas comunes
+- [ ] Usar todos los atajos esenciales
+
+---
+
+**Última actualización:** 2024-01-30  
+**Autor:** Diego Saavedra (Abacom)  
+**Dificultad:** Intermedio  
+**Categoría:** Herramientas de Terminal

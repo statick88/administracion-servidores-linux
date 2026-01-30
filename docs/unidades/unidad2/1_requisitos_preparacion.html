@@ -495,12 +495,54 @@ div.csl-indent {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
- <span class="menu-text">Anexos: Mini-Cursos Especializados</span></a>
+ <span class="menu-text">Unidad 4: Docker y Containerización</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/1_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/2_docker_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dockerfile y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/3_DevContainers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">DevContainers</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos Especializados</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
@@ -716,8 +758,11 @@ Desventajas:
 - Disco: 50+ GB disponible para VM
 
 Opciones de hipervisor:
-- Intel Mac: VirtualBox (gratis) o Parallels (pagado)
-- Apple Silicon: UTM (gratis) o Parallels (pagado)
+
+| Arquitectura | Opciones Disponibles |
+|---|---|
+| **Intel Mac** | VirtualBox (gratis), Parallels (pagado), VMware Fusion (pagado) |
+| **Apple Silicon (M1/M2/M3)** | UTM (gratis), Parallels (pagado), VMware Fusion (pagado) |
 
 Ventajas:
 ✅ macOS + Linux en la misma máquina
@@ -797,7 +842,7 @@ Desventajas:
 </tbody>
 </table>
 <p><strong>Recomendación:</strong> - Si eres <strong>principiante</strong>: WSL2 O Docker para aprender comandos - Si quieres aprender <strong>instalación</strong>: Usa <strong>máquina virtual</strong> (cualquier SO host) - Si quieres entorno <strong>profesional</strong>: Linux nativo O Docker</p>
-<p>Ver guía completa de configuración en: <strong>SETUP.md</strong></p>
+<p>Ver guía completa de configuración en: <a href="../../SETUP.md"><strong>SETUP.md</strong></a></p>
 <hr>
 </section>
 <section id="requisitos-de-hardware" class="level2">
@@ -1111,7 +1156,21 @@ Desventajas:
 <span data-code-cell="annotated-cell-22" data-code-lines="1" data-code-annotation="4"><strong>sync</strong> asegura que todos los datos se escriben en el USB antes de continuar</span>
 </dd>
 </dl>
-<p>⚠️ <strong>ADVERTENCIA</strong>: <strong>dd</strong> sin validación puede <strong>destruir tu disco principal</strong>. Verifica 3 veces que <strong>/dev/sdX</strong> es el USB correcto.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ ADVERTENCIA CRÍTICA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>dd</strong> sin validación puede <strong>destruir tu disco principal</strong>.</p>
+<p>Verifica <strong>3 veces</strong> que <strong>/dev/sdX</strong> es el USB correcto antes de ejecutar el comando. Una vez ejecutado, NO hay forma de recuperar datos del disco formateado.</p>
+<p><strong>Checklist de seguridad:</strong> 1. ¿Es <strong>/dev/sda</strong> tu disco principal? (NO usar este) 2. ¿Es <strong>/dev/sdb</strong> o <strong>/dev/sdc</strong> tu USB? (Verificar con <code>lsblk</code>) 3. ¿Respaldaste tus datos importantes? (Hacer backup antes)</p>
+</div>
+</div>
 <hr>
 </section>
 </section>
@@ -1230,7 +1289,21 @@ p   → Listar particiones actuales
 n   → Nueva partición
 d   → Borrar partición
 w   → Guardar cambios</code></pre>
-<p>⚠️ <strong>ADVERTENCIA</strong>: Manejo incorrecto de particiones = <strong>pérdida total de datos</strong>. Practica primero en máquina virtual.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ ADVERTENCIA CRÍTICA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Manejo incorrecto de particiones puede causar pérdida total de datos.</strong></p>
+<p><strong>Lo que podría salir mal:</strong> - Borrar la partición equivocada - Sobrescribir datos existentes - Dejar el sistema inbooteable</p>
+<p><strong>Cómo prevenirlo:</strong> 1. Practica primero en máquina virtual (VirtualBox o VMware) 2. Verifica 3 veces la partición antes de ejecutar comandos 3. Haz backup de datos importantes antes de particionar 4. Lee cada paso del particionador antes de confirmar</p>
+</div>
+</div>
 <hr>
 </section>
 </section>
@@ -1562,7 +1635,7 @@ w   → Guardar cambios</code></pre>
 <section id="quiz-verificar-tu-comprensión" class="level2">
 <h2 class="anchored" data-anchor-id="quiz-verificar-tu-comprensión">🎓 Quiz: Verificar tu Comprensión</h2>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1571,7 +1644,7 @@ w   → Guardar cambios</code></pre>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>¿Cuál es la RAM recomendada mínima para que Ubuntu 22.04 LTS funcione de forma productiva?</p>
 <p><strong>a)</strong> 512 MB<br>
@@ -1583,7 +1656,7 @@ w   → Guardar cambios</code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1592,7 +1665,7 @@ w   → Guardar cambios</code></pre>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>¿Por qué es importante validar el SHA256 de la descarga de Ubuntu?</p>
 <p><strong>a)</strong> Para ahorrar tiempo en descarga<br>
@@ -1604,7 +1677,7 @@ w   → Guardar cambios</code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1613,7 +1686,7 @@ w   → Guardar cambios</code></pre>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>¿Cuál es la diferencia entre “Copiar” el ISO al USB vs “Escribir” (flash) el ISO?</p>
 <p><strong>a)</strong> No hay diferencia, son la mismo<br>
