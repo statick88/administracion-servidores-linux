@@ -537,12 +537,33 @@ div.csl-indent {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
- <span class="menu-text">Anexos: Mini-Cursos Especializados</span></a>
+ <span class="menu-text">Laboratorios Prácticos</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorios Prácticos - Administración de Servidores Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/rubrica-evaluacion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Rúbrica de Evaluación - Laboratorio Práctico</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos Especializados</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
@@ -566,6 +587,11 @@ div.csl-indent {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_F_Ranger_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Ranger: Gestor de Archivos Terminal para Servidores</span></a>
   </div>
 </li>
       </ul>
@@ -763,6 +789,47 @@ Opciones de hipervisor:
 |---|---|
 | **Intel Mac** | VirtualBox (gratis), Parallels (pagado), VMware Fusion (pagado) |
 | **Apple Silicon (M1/M2/M3)** | UTM (gratis), Parallels (pagado), VMware Fusion (pagado) |
+
+::: {.callout-warning}
+## ⚠️ ¿Por qué VirtualBox NO funciona en Apple Silicon?
+
+**Razón técnica:** VirtualBox está escrito ÚNICAMENTE para arquitectura x86-64 (Intel/AMD), y Apple Silicon usa ARM64 - son incompatibles a nivel de CPU.
+
+### La diferencia de arquitecturas:
+
+| Aspecto | Intel Mac | Apple Silicon (M1/M2/M3) |
+|---------|-----------|-------------------------|
+| **Arquitectura CPU** | x86-64 | ARM64 |
+| **VirtualBox emula** | x86-64 (mismo que host) | x86-64 (diferente al host) |
+| **Método** | Virtualización HW (rápido) | Emulación total (lentísimo) |
+| **Velocidad** | ~95% nativa | ~10-20% nativa |
+| **VirtualBox** | ✅ Funciona perfecto | ❌ NO funciona |
+
+### ¿Por qué no fue actualizado?
+
+Oracle (dueño de VirtualBox) dijo explícitamente: **"No hay planes para soportar Apple Silicon ARM64 natively"**
+
+Razones:
+1. **Costo enorme:** Reescribir VirtualBox tomaría años de desarrollo
+2. **Mercado pequeño:** Solo ~15% de Macs son Apple Silicon (2025)
+3. **Complejidad:** Perderíamos 20+ años de optimizaciones x86-64
+4. **Alternativas existentes:** Parallels y UTM ya lo hacen
+
+### ¿Qué hacer si tienes Apple Silicon?
+
+- **UTM (Gratis):** Emulador universal, lento pero gratuito
+- **Parallels (Pagado):** Optimizado específicamente para M1/M2/M3, muy rápido (~80-90%)
+- **VMware Fusion (Pagado):** Soporte ARM64, más lento que Parallels
+
+### Analogía simple:
+
+VirtualBox es como un "traductor":
+- **Intel Mac:** Traduce Inglés → Inglés (rápido, solo copia)
+- **Apple Silicon:** Traduce Japonés → Inglés (lentísimo, tiene que convertir TODO)
+
+**Conclusión:** No es limitación de tu Mac, es que VirtualBox **nunca fue diseñado** para ARM64.
+
+:::
 
 Ventajas:
 ✅ macOS + Linux en la misma máquina
@@ -1368,7 +1435,11 @@ w   → Guardar cambios</code></pre>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> system_profiler SPHardwareDataType <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"Chip\|Processor"</span></span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Chip:</span> Apple M3 Pro</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Interpretación</strong>: - arm64 = Apple Silicon (M1, M2, M3) - Máquinas modernas - x86_64 = Intel Mac - Máquinas antiguas (pre-2021)</p>
+<p><strong>Interpretación</strong>:</p>
+<ul>
+<li>arm64 = Apple Silicon (M1, M2, M3) - Máquinas modernas</li>
+<li>x86_64 = Intel Mac - Máquinas antiguas (pre-2021)</li>
+</ul>
 </section>
 <section id="windows" class="level4">
 <h4 class="anchored" data-anchor-id="windows">Windows</h4>
@@ -1387,7 +1458,11 @@ w   → Guardar cambios</code></pre>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Procesador específico</span></span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-ComputerInfo <span class="op">|</span> <span class="fu">Select-Object</span> <span class="op">-</span>Property CsProcessors</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Interpretación</strong>: - x64-based PC = 64-bit (estándar moderno) - x86-based PC = 32-bit (muy raro hoy)</p>
+<p><strong>Interpretación</strong>:</p>
+<ul>
+<li>x64-based PC = 64-bit (estándar moderno)</li>
+<li>x86-based PC = 32-bit (muy raro hoy)</li>
+</ul>
 <hr>
 </section>
 </div>
@@ -1409,7 +1484,12 @@ w   → Guardar cambios</code></pre>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Si ves OK = descarga correcta</span></span>
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Si ves FAILED = archivo corrupto, descargar nuevamente</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Explicación</strong>: - SHA256 es un hash criptográfico - Cualquier cambio en el archivo = hash diferente - Garantiza que nadie modificó el archivo en tránsito</p>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li>SHA256 es un hash criptográfico</li>
+<li>Cualquier cambio en el archivo = hash diferente</li>
+<li>Garantiza que nadie modificó el archivo en tránsito</li>
+</ul>
 </section>
 <section id="macos-1" class="level4">
 <h4 class="anchored" data-anchor-id="macos-1">macOS</h4>
@@ -1427,7 +1507,11 @@ w   → Guardar cambios</code></pre>
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternativa con openssl</span></span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> openssl dgst <span class="at">-sha256</span> ubuntu-22.04.4-desktop-amd64.iso</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Explicación</strong>: - macOS usa <strong>shasum</strong> en lugar de <strong>sha256sum</strong> - El resultado debe coincidir con el archivo SHA256SUMS</p>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li>macOS usa <strong>shasum</strong> en lugar de <strong>sha256sum</strong></li>
+<li>El resultado debe coincidir con el archivo SHA256SUMS</li>
+</ul>
 </section>
 <section id="windows-1" class="level4">
 <h4 class="anchored" data-anchor-id="windows-1">Windows</h4>
@@ -1444,7 +1528,12 @@ w   → Guardar cambios</code></pre>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Comparar con el archivo SHA256SUMS</span></span>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">(</span><span class="fu">Get-Content</span> <span class="st">"</span><span class="va">$env</span><span class="op">:</span><span class="va">USERPROFILE</span><span class="st">\Downloads\SHA256SUMS"</span> <span class="op">|</span> <span class="fu">Select-String</span> <span class="st">"ubuntu-22.04.4-desktop-amd64.iso"</span><span class="op">).</span><span class="fu">Line</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Explicación</strong>: - PowerShell usa <strong>Get-FileHash</strong> para validar - Compara el hash calculado con el de SHA256SUMS - Deben ser idénticos</p>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li>PowerShell usa <strong>Get-FileHash</strong> para validar</li>
+<li>Compara el hash calculado con el de SHA256SUMS</li>
+<li>Deben ser idénticos</li>
+</ul>
 <hr>
 </section>
 </div>
@@ -1470,7 +1559,13 @@ w   → Guardar cambios</code></pre>
 <span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Expulsar USB</span></span>
 <span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> eject /dev/sdb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Explicación</strong>: - <strong>lsblk</strong>: Lista discos (sda = disco principal, sdb = USB) - <strong>dd</strong>: Escribe bit-a-bit (no es una copia regular) - <strong>bs=4M</strong>: Tamaño de bloque (más rápido) - <strong>conv=fsync</strong>: Asegura que se escribió completamente</p>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li><strong>lsblk</strong>: Lista discos (sda = disco principal, sdb = USB)</li>
+<li><strong>dd</strong>: Escribe bit-a-bit (no es una copia regular)</li>
+<li><strong>bs=4M</strong>: Tamaño de bloque (más rápido)</li>
+<li><strong>conv=fsync</strong>: Asegura que se escribió completamente</li>
+</ul>
 </section>
 <section id="macos-2" class="level4">
 <h4 class="anchored" data-anchor-id="macos-2">macOS</h4>
@@ -1494,7 +1589,12 @@ w   → Guardar cambios</code></pre>
 <span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Expulsar el USB</span></span>
 <span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> diskutil eject /dev/disk1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Explicación</strong>: - <strong>diskutil list</strong>: Lista discos disponibles - <strong>/dev/rdisk1</strong>: Usar la versión “raw” para más velocidad - macOS requiere desmontar antes de escribir</p>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li><strong>diskutil list</strong>: Lista discos disponibles</li>
+<li><strong>/dev/rdisk1</strong>: Usar la versión “raw” para más velocidad</li>
+<li>macOS requiere desmontar antes de escribir</li>
+</ul>
 </section>
 <section id="windows-2" class="level4">
 <h4 class="anchored" data-anchor-id="windows-2">Windows</h4>
@@ -1521,7 +1621,12 @@ w   → Guardar cambios</code></pre>
 <span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Usar Etcher o Rufus (GUI)</span></span>
 <span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co"># PowerShell puro es complejo para escribir ISO</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Explicación</strong>: - <strong>Balena Etcher</strong>: Herramienta recomendada para Windows - <strong>Rufus</strong>: Alternativa popular - Ambas manejan los detalles técnicos automáticamente</p>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li><strong>Balena Etcher</strong>: Herramienta recomendada para Windows</li>
+<li><strong>Rufus</strong>: Alternativa popular</li>
+<li>Ambas manejan los detalles técnicos automáticamente</li>
+</ul>
 </section>
 </div>
 </div>

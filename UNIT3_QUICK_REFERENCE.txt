@@ -1,0 +1,105 @@
+================================================================================
+UNIT 3 ANNOTATION WARNINGS - QUICK REFERENCE GUIDE
+================================================================================
+
+PROBLEM: Code blocks have `# <1>` annotation but multiple explanation items (1. 2. 3.)
+
+STANDARD (from Agents.md Section 1):
+  # <1>  must match with  1. explanation
+  # <2>  must match with  2. explanation
+  # <3>  must match with  3. explanation
+
+================================================================================
+FILE SUMMARY & FIXES NEEDED
+================================================================================
+
+FILE 1: 1_navegacion_directorios.qmd (2 fixes)
+  Line 416: Change "# <1>" to "# <2>" (ls -lhR example, Linux section)
+  Line 451: Change "# <1>" to "# <2>" (ls -lhR example, Windows section)
+
+FILE 2: 2_inspeccion_archivos.qmd (2 fixes)
+  Line 301: Change "# <1>" to "# <2>" (tail -f example, Linux section)
+  Line 320: Change "# <1>" to "# <2>" (tail -f example, Windows section)
+
+FILE 3: 3_busqueda_archivos.qmd (6 fixes) ⚠ MOST CRITICAL FILE
+  Line 102: Change "# <1>" to "# <2>" (find +100M, Linux section)
+  Line 140: Change "# <1>" to "# <2>" (find -mtime, Linux section)
+  Line 174: Change "# <1>" to "# <2>" (find -empty, Linux section)
+  Line 249: Change "# <1>" to "# <2>" (grep example, Windows section)
+  Line 369: Change "# <1>" to "# <2>" (grep -E, Linux section)
+  Line 370: Change "# <1>" to "# <3>" (grep -E, Linux section - 3rd explanation)
+
+FILE 4: 4_permisos_archivos.qmd (8 fixes) ⚠ MOST ISSUES IN ONE FILE
+  Line 115: Change "# <1>" to "# <2>" (chmod +x, Linux section)
+  Line 136: Change "# <1>" to "# <2>" (chmod +x, Windows section)
+  Line 153: Change "# <1>" to "# <2>" (chmod 644, Linux section)
+  Line 154: Change "# <1>" to "# <3>" (chmod 644, Linux section - 3rd explanation)
+  Line 198: Change "# <1>" to "# <2>" (chmod symbolic, Linux section)
+  Line 280: Change "# <1>" to "# <2>" (chown, Linux section)
+
+FILE 5: 5_manipulacion_archivos.qmd (1 fix)
+  Line 344: Change "# <1>" to "# <2>" (cp -ip, Linux section)
+
+================================================================================
+STATISTICS
+================================================================================
+
+Total Files Analyzed:         5
+Files with Issues:            4
+Total Issues:                 16 code blocks
+Total Annotations to Change:  18 lines
+Severity:                     Medium (render warnings, not breaking errors)
+Estimated Fix Time:           15-20 minutes
+
+================================================================================
+PATTERN EXPLANATION
+================================================================================
+
+BEFORE (Incorrect):
+```bash
+$ find ~ -type f -mtime -7
+/home/usuario/Documentos/archivo-reciente.txt
+# <1>
+```
+1. `-mtime -7` = modificado en últimos 7 días
+2. `-mtime +7` = modificado hace más de 7 días
+
+AFTER (Correct):
+```bash
+$ find ~ -type f -mtime -7
+/home/usuario/Documentos/archivo-reciente.txt
+# <1>
+```
+1. `-mtime -7` = modificado en últimos 7 días
+# <2>
+2. `-mtime +7` = modificado hace más de 7 días
+
+Or if annotations are on same line:
+```bash
+...
+# <1><2>
+```
+
+================================================================================
+VALIDATION COMMAND
+================================================================================
+
+After making changes, verify each file:
+
+  quarto render unidades/unidad3/1_navegacion_directorios.qmd 2>&1 | grep -i warning
+  quarto render unidades/unidad3/2_inspeccion_archivos.qmd 2>&1 | grep -i warning
+  quarto render unidades/unidad3/3_busqueda_archivos.qmd 2>&1 | grep -i warning
+  quarto render unidades/unidad3/4_permisos_archivos.qmd 2>&1 | grep -i warning
+  quarto render unidades/unidad3/5_manipulacion_archivos.qmd 2>&1 | grep -i warning
+
+Expected output: No annotation-related warnings
+
+================================================================================
+PRIORITY ORDER
+================================================================================
+
+1. CRITICAL: File 3, Line 370 (needs # <3>, only file with 3+ explanations)
+2. CRITICAL: File 4, Lines 154 (needs # <3>, only file with 3+ explanations)
+3. HIGH: All 2-explanation mismatches (remaining items)
+
+================================================================================
