@@ -110,9 +110,13 @@ ID=ubuntu
 VERSION_CODENAME=jammy  # <2>
 
 # También funciona:
-$ lsb_release -d
+$ lsb_release -d  # <3>
 Description:	Ubuntu 22.04.3 LTS
 ```
+
+1. **/etc/os-release** es el archivo estándar (desde systemd) que identifica la distribución y versión
+2. **jammy** es el nombre código de Ubuntu 22.04 (cada versión de Ubuntu tiene un nombre animal)
+3. **lsb_release -d** (Linux Standard Base) obtiene la descripción de la distribución en formato legible
 
 1. **/etc/os-release** es un archivo de configuración que identifica la distribución y versión de tu sistema
 2. VERSION_CODENAME "jammy" es el nombre código de Ubuntu 22.04 (cada versión tiene un nombre en clave)
@@ -120,18 +124,22 @@ Description:	Ubuntu 22.04.3 LTS
 #### macOS
 ```bash
 # En macOS (Darwin)
-$ cat /etc/os-release
+$ cat /etc/os-release  # <1>
 # Nota: En macOS no existe /etc/os-release (es Linux)
 # En su lugar:
 
-$ sw_vers  # <1>
+$ sw_vers  # <2>
 ProductName:        macOS
 ProductVersion:     14.2
 BuildVersion:       23C64
 
-$ uname -a
+$ uname -a  # <3>
 Darwin MacBook-Air 23.2.0 Darwin Kernel Version 23.2.0
 ```
+
+1. **/etc/os-release** NO existe en macOS (es un archivo específico de Linux)
+2. **sw_vers** es el comando equivalente en macOS para obtener información del SO
+3. **uname -a** muestra información del kernel Darwin en macOS
 
 1. **sw_vers** es el comando equivalente en macOS para obtener información del SO
 
@@ -145,10 +153,13 @@ OsName       OsVersion
 Microsoft Windows 11 Pro  22H2
 
 # También funciona:
-PS> systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+PS> systeminfo | findstr /B /C:"OS Name" /C:"OS Version"  # <2>
 OS Name:                          Microsoft Windows 11 Pro
 OS Version:                       10.0.22621 Build 22621
 ```
+
+1. **Get-ComputerInfo | Select-Object** obtiene información del computador y selecciona solo OsName (nombre del SO) y OsVersion
+2. **systeminfo | findstr** ejecuta systeminfo y filtra (/B busca al inicio) las líneas que contienen "OS Name" o "OS Version"
 
 1. **Get-ComputerInfo** es el comando PowerShell equivalente a **/etc/os-release** en Linux
 
@@ -167,9 +178,13 @@ $ sudo apt update  # <1>
 $ sudo apt install curl  # <2>
 
 # Verificar instalación
-$ curl --version
+$ curl --version  # <3>
 curl 7.81.0 (x86_64-pc-linux-gnu)
 ```
+
+1. **sudo apt update** actualiza la lista local de paquetes disponibles en repositorios (sin instalar nada)
+2. **sudo apt install curl** descarga e instala el programa curl desde los repositorios de Ubuntu
+3. **curl --version** verifica que se instaló correctamente mostrando la versión
 
 1. **sudo apt update** actualiza la lista local de paquetes disponibles (sin instalar nada)
 2. **sudo apt install curl** descarga e instala el comando curl desde los repositorios de Ubuntu
@@ -178,15 +193,20 @@ curl 7.81.0 (x86_64-pc-linux-gnu)
 ```bash
 # CentOS/RHEL (yum/dnf)
 $ sudo yum update  # <1>
-$ sudo yum install curl
+$ sudo yum install curl  # <2>
 
 # O en Fedora:
-$ sudo dnf install curl
+$ sudo dnf install curl  # <3>
 
 # Verificar instalación
-$ curl --version
+$ curl --version  # <4>
 curl 7.61.1 (x86_64-redhat-linux-gnu)
 ```
+
+1. **sudo yum update** es el equivalente en CentOS/RHEL a **apt update**
+2. **sudo yum install curl** instala curl usando el gestor de paquetes yum (Red Hat)
+3. **sudo dnf install curl** es la versión moderna en Fedora (dnf es más rápido que yum)
+4. **curl --version** verifica la instalación igual que en Ubuntu
 
 1. **sudo yum update** es el equivalente en CentOS/RHEL, pero la sintaxis es diferente a apt
 
@@ -196,12 +216,16 @@ curl 7.61.1 (x86_64-redhat-linux-gnu)
 $ brew install curl  # <1>
 
 # Si Homebrew no está instalado, instalarlo primero:
-$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"  # <2>
 
 # Verificar instalación
-$ curl --version
+$ curl --version  # <3>
 curl 8.1.2 (x86_64-apple-darwin23.2.0)
 ```
+
+1. **brew install** instala paquetes usando Homebrew (el package manager de macOS, NO es nativo)
+2. **bash -c** ejecuta el script de instalación de Homebrew desde GitHub (es la forma estándar de instalar Homebrew)
+3. **curl --version** verifica la instalación correcta
 
 1. **brew install** es el package manager de macOS (Homebrew). No es nativo, pero es el estándar
 
@@ -211,16 +235,21 @@ curl 8.1.2 (x86_64-apple-darwin23.2.0)
 PS> choco install curl  # <1>
 
 # Si Chocolatey no está instalado:
-PS> Set-ExecutionPolicy Bypass -Scope Process -Force; `
+PS> Set-ExecutionPolicy Bypass -Scope Process -Force; `  # <2>
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; `
     iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
 # Verificar instalación
-PS> curl --version
+PS> curl --version  # <3>
 # O usar el comando nativo de Windows:
-PS> (Invoke-WebRequest -Uri "https://www.google.com").StatusCode
+PS> (Invoke-WebRequest -Uri "https://www.google.com").StatusCode  # <4>
 200
 ```
+
+1. **choco install** instala paquetes usando Chocolatey (el package manager más popular en Windows)
+2. **Set-ExecutionPolicy Bypass** permite ejecutar scripts PowerShell sin restricciones (necesario para instalar Chocolatey)
+3. **curl --version** verifica la instalación (curl es ahora nativo en Windows)
+4. **Invoke-WebRequest** es el equivalente nativo de Windows a curl para hacer requests HTTP
 
 1. **choco install** es Chocolatey (package manager de Windows). Alternativa: descargar .exe desde sitio web
 
@@ -239,65 +268,81 @@ PS> (Invoke-WebRequest -Uri "https://www.google.com").StatusCode
 #### Servidor Linux (Ubuntu)
 ```bash
 # En nuestros servidores Ubuntu de producción
-$ sudo apt update
+$ sudo apt update  # <1>
 Reading package lists... Done
 Building dependency tree... Done
 Reading state information... Done
 
-$ sudo apt install vim-nox
+$ sudo apt install vim-nox  # <2>
 Reading package lists... Done
 Building dependency tree... Done
 Setting up vim-nox (2:8.2.3455-1ubuntu1) ...
 
 # Instalar nginx (servidor web)
-$ sudo apt install nginx
+$ sudo apt install nginx  # <3>
 Processing triggers for ufw...
 
 # Verificar
-$ nginx -v
+$ nginx -v  # <4>
 nginx version: nginx/1.18.0 (Ubuntu)
 
-$ systemctl status nginx
+$ systemctl status nginx  # <5>
 ● nginx.service - A high performance web server
      Loaded: loaded (/lib/systemd/unit/nginx.service; enabled)
      Active: active (running)
 ```
 
+1. **sudo apt update** actualiza la lista de paquetes disponibles en los repositorios de Ubuntu
+2. **sudo apt install vim-nox** instala vim completo (vim-nox tiene la versión completa con soporte X)
+3. **sudo apt install nginx** instala nginx (popular servidor web) desde repositorios de Ubuntu
+4. **nginx -v** verifica la versión instalada de nginx
+5. **systemctl status nginx** muestra el estado del servicio nginx (must be "active running")
+
 #### Estación de desarrollo macOS
 ```bash
 # En máquinas de desarrollo (macOS)
-$ brew install nginx vim curl
+$ brew install nginx vim curl  # <1>
 
 # Verificar instalación
-$ nginx -v
+$ nginx -v  # <2>
 nginx version: nginx/1.25.3
 
-$ vim --version | head -1
+$ vim --version | head -1  # <3>
 VIM - Vi IMproved 9.0
 
 # En macOS, no usamos systemctl (es systemd de Linux)
 # En su lugar, usamos launchctl o brew services:
-$ brew services list
+$ brew services list  # <4>
 Name  Status  User Plist
 nginx started root /Library/LaunchDaemons/homebrew.mxcl.nginx.plist
 ```
+
+1. **brew install** instala múltiples paquetes a la vez (nginx, vim y curl)
+2. **nginx -v** verifica la versión de nginx instalada por Homebrew
+3. **vim --version | head -1** muestra solo la primera línea de la salida de vim (la línea que contiene la versión)
+4. **brew services list** muestra todos los servicios instalados con Homebrew y su estado (en macOS, reemplaza a systemctl)
 
 #### Máquina Windows (Administración Remota)
 ```powershell
 # En Windows, administramos remotamente servidores Linux
 PS> # Usando SSH para conectar al servidor Ubuntu
-PS> ssh admin@production-server.com
+PS> ssh admin@production-server.com  # <1>
 
 # Una vez conectado (en el servidor Linux):
-$ sudo apt install vim nginx curl
-$ systemctl status nginx
+$ sudo apt install vim nginx curl  # <2>
+$ systemctl status nginx  # <3>
 
 # Desde Windows, también podemos:
-PS> Invoke-WebRequest -Uri "http://production-server.com" | Select-Object StatusCode
+PS> Invoke-WebRequest -Uri "http://production-server.com" | Select-Object StatusCode  # <4>
 StatusCode
 ----------
 200
 ```
+
+1. **ssh admin@production-server.com** conecta a un servidor Linux remoto mediante SSH (está disponible por defecto en Windows 10+)
+2. **sudo apt install** instala paquetes en el servidor remoto (ejecutado desde Windows a través de SSH)
+3. **systemctl status nginx** verifica el estado del servicio nginx en el servidor remoto
+4. **Invoke-WebRequest** es el equivalente de Windows a curl, haciendo un request HTTP a la web del servidor
 
 **Por qué es importante Abacom:**
 - **Servidor:** Ubuntu (producción) - stabiliidad
@@ -325,7 +370,7 @@ $ lsb_release -d  # <1>
 Description:    Debian GNU/Linux 12 (bookworm)
 ```
 
-1. **lsb_release -d** (Linux Standard Base release) muestra información de la distribución instalada, en este caso Debian 12 (nombre código "bookworm")
+1. **lsb_release -d** (Linux Standard Base release) muestra la versión de Debian en formato legible (12 = Debian 12, "bookworm" es el nombre código)
 
 **Distribuciones derivadas de Debian:**
 - Ubuntu (+ soporte comercial, + user-friendly)
@@ -348,7 +393,7 @@ $ cat /etc/os-release | grep NAME  # <1>
 NAME="Red Hat Enterprise Linux"
 ```
 
-1. **cat /etc/os-release | grep NAME** muestra el archivo de identificación del sistema y filtra solo la línea que contiene el nombre ("Red Hat Enterprise Linux")
+1. **cat /etc/os-release | grep NAME** muestra el archivo /etc/os-release y filtra solo la línea que contiene el nombre de la distribución
 
 **Distribuciones en esta familia:**
 - RHEL (Red Hat Enterprise Linux) - Pagado, soporte profesional
@@ -458,14 +503,17 @@ NAME="Arch Linux"
 # Corre igual en CentOS, Debian, etc.
 
 # Ejemplo: Script en Python
-$ cat script.py
+$ cat script.py  # <1>
 #!/usr/bin/env python3
 print("Hello from any Linux!")
 
 # Corre igual en cualquier distro
-$ python3 script.py
+$ python3 script.py  # <2>
 Hello from any Linux!
 ```
+
+1. **cat script.py** muestra el contenido del archivo script.py (un simple programa Python)
+2. **python3 script.py** ejecuta el script Python (funciona IGUAL en Ubuntu, CentOS, Debian, etc.)
 
 **Por qué funciona:**
 El código sigue estándares POSIX. La única diferencia es el package manager (apt vs yum), pero el código sigue siendo igual.
@@ -479,13 +527,17 @@ El código sigue estándares POSIX. La única diferencia es el package manager (
 **Solución:**
 ```bash
 # Agregar repositorio externo (PPA en Ubuntu)
-$ sudo add-apt-repository ppa:nginx/stable
-$ sudo apt update
-$ sudo apt install nginx
+$ sudo add-apt-repository ppa:nginx/stable  # <1>
+$ sudo apt update  # <2>
+$ sudo apt install nginx  # <3>
 
 # O compilar desde source (más complicado)
 # Pero la idea: siempre hay solución
 ```
+
+1. **sudo add-apt-repository** agrega un repositorio externo (PPA = Personal Package Archive) que contiene versiones más nuevas
+2. **sudo apt update** actualiza la lista de paquetes locales para incluir los del nuevo repositorio
+3. **sudo apt install nginx** instala la versión más nueva desde el repositorio externo agregado
 :::
 
 ---
@@ -533,81 +585,82 @@ Responde estas preguntas para verificar que comprendiste los conceptos clave.
 ### ¿Cuál es la diferencia entre Ubuntu y CentOS?
 
 <details>
-<summary>📖 Ver respuesta</summary>
+  <summary>📖 Ver respuesta</summary>
 
-Ambos son distribuciones Linux con kernel Linux, pero:
+  Ambos son distribuciones Linux con kernel Linux, pero:
 
-- **Ubuntu:** Basado en Debian, package manager **apt**, soporte de Canonical
-- **CentOS:** Basado en RHEL, package manager **yum/dnf**, soporte de Red Hat
+  - **Ubuntu:** Basado en Debian, package manager **apt**, soporte de Canonical
+  - **CentOS:** Basado en RHEL, package manager **yum/dnf**, soporte de Red Hat
 
-```bash
+  ```bash
 # Misma funcionalidad, diferente package manager
 # Ubuntu:
-$ apt install nginx
+  $ apt install nginx
 
 # CentOS:
-$ yum install nginx
+  $ yum install nginx
 
 # Resultado: nginx está instalado en ambos
-```
+  ```
 
-**Por qué es importante:**
-El package manager es la principal diferencia visible. El kernel, el shell, los comandos básicos son idénticos.
-
+  **Por qué es importante:**
+  El package manager es la principal diferencia visible. El kernel, el shell, los comandos básicos son idénticos.
+  </summary>
 </details>
 
 ### ¿Cuál es el comando para identificar tu distribución?
 
 <details>
-<summary>💡 Ver respuesta</summary>
+  <summary>💡 Ver respuesta</summary>
 
-```bash
-$ cat /etc/os-release
+  ```bash
+  $ cat /etc/os-release
 # O más simple:
-$ lsb_release -d
-Description:    Ubuntu 22.04.3 LTS
-```
+  $ lsb_release -d
+  Description:    Ubuntu 22.04.3 LTS
+  ```
 
-**Validación:**
-Si ejecutas esto, verás exactamente:
-- Nombre de la distro
-- Versión específica
-- ID de versión (nombre código)
+  **Validación:**
+  Si ejecutas esto, verás exactamente:
+  - Nombre de la distro
+  - Versión específica
+  - ID de versión (nombre código)
 
-**Útil cuando:**
-- Heredas un servidor desconocido
-- Necesitas verificar versión para soporte
-- Escribes scripts que dependen de distro específica
-
+  **Útil cuando:**
+  - Heredas un servidor desconocido
+  - Necesitas verificar versión para soporte
+  - Escribes scripts que dependen de distro específica
+  </summary>
 </details>
 
 ### ¿Por qué Abacom elige Ubuntu 22.04 LTS en lugar de CentOS?
 
 <details>
-<summary>🎯 Ver respuesta</summary>
+  <summary>🎯 Ver respuesta</summary>
 
-Ubuntu 22.04 LTS es mejor para Abacom porque:
+    Ubuntu 22.04 LTS es mejor para Abacom porque:
 
-- ✅ LTS = 5 años de soporte (hasta Abril 2027)
-- ✅ **apt** es más simple que **yum**
-- ✅ Comunidad enorme = fácil encontrar ayuda
-- ✅ Cloud-native (AWS, Azure, Google Cloud)
-- ✅ Herramientas modernas listas (systemd, etc.)
+    - ✅ LTS = 5 años de soporte (hasta Abril 2027)
+    - ✅ **apt** es más simple que **yum**
+    - ✅ Comunidad enorme = fácil encontrar ayuda
+    - ✅ Cloud-native (AWS, Azure, Google Cloud)
+    - ✅ Herramientas modernas listas (systemd, etc.)
 
-**Comparación:**
-```bash
-# Ubuntu: Lo que necesitamos
-$ apt update && apt upgrade  # Fácil
+    **Comparación:**
+    ```bash
+    
+    # Ubuntu: Lo que necesitamos
+    $ apt update && apt upgrade  # Fácil
 
-# CentOS: Similar pero sintaxis diferente
-$ yum update && yum upgrade  # Equivalente
-```
+    # CentOS: Similar pero sintaxis diferente
+    $ yum update && yum upgrade  # Equivalente
+    ```
 
-**Razón de negocio:**
-- Soporte de Canonical disponible si lo necesitamos
-- Comunidad más grande para troubleshooting
-- Mejor integración con herramientas modernas
-
+    **Razón de negocio:**
+    - Soporte de Canonical disponible si lo necesitamos
+    - Comunidad más grande para troubleshooting
+    - Mejor integración con herramientas modernas
+  </summary>
 </details>
 
 ---
@@ -624,15 +677,18 @@ $ yum update && yum upgrade  # Equivalente
 $ cat /etc/os-release
 
 # Paso 2: Ver más detalles
+
 $ lsb_release -a
 
 # Paso 3: Ver package manager
+
 $ apt --version    # Si es Ubuntu/Debian
 # O
 $ yum --version    # Si es CentOS/RHEL
 ```
 
 **Verificación:**
+
 - ✓ Sabes el nombre de tu distro
 - ✓ Sabes la versión exacta
 - ✓ Sabes qué package manager usar
@@ -648,6 +704,7 @@ $ cat > /tmp/distros-comparacion.txt << 'EOF'
 === COMPARACIÓN DE DISTRIBUCIONES ===
 
 UBUNTU 22.04 LTS:
+
 - Base: Debian
 - Package manager: apt
 - Release cycle: 6 meses (LTS: 5 años)
@@ -655,6 +712,7 @@ UBUNTU 22.04 LTS:
 - Ideal para: Servidores empresariales
 
 CENTOS 7:
+
 - Base: RHEL
 - Package manager: yum
 - Release cycle: 7 años
@@ -662,6 +720,7 @@ CENTOS 7:
 - Ideal para: Infraestructura legacy
 
 DEBIAN 12:
+
 - Base: Original
 - Package manager: apt
 - Release cycle: 2-3 años
@@ -673,6 +732,7 @@ $ cat /tmp/distros-comparacion.txt
 ```
 
 **Ejercicio:**
+
 1. ¿Qué distro está en tu servidor?
 2. ¿Cuánto tiempo de soporte tiene?
 3. ¿Cuál elegirías para nuevo servidor?
@@ -684,22 +744,28 @@ $ cat /tmp/distros-comparacion.txt
 **Instrucciones:**
 ```bash
 # Paso 1: Actualizar lista de paquetes
+
 $ sudo apt update    # Ubuntu/Debian
 
 # Paso 2: Ver versiones disponibles
+
 $ apt search curl | grep "^curl"
 
 # Paso 3: Instalar
+
 $ sudo apt install curl -y
 
 # Paso 4: Verificar
+
 $ curl --version
 
 # Paso 5: Desinstalar (limpieza)
+
 $ sudo apt remove curl -y
 ```
 
 **Verificación:**
+
 - ✓ Paquete se instaló correctamente
 - ✓ Comando **curl --version** funciona
 - ✓ Entiendes el flujo: update → search → install
@@ -751,6 +817,7 @@ $ cat > analisis-distros.txt << 'EOF'
 Mi distro actual: Ubuntu 22.04 LTS
 
 ¿Por qué Ubuntu?
+
 1. Base: Debian (estable)
 2. LTS: Soporte 5 años (hasta 2027)
 3. Package manager: apt (fácil)
@@ -758,6 +825,7 @@ Mi distro actual: Ubuntu 22.04 LTS
 5. Cloud: Soportado en AWS, Azure, GCP
 
 ¿Cuándo cambiaría?
+
 - A CentOS: Si necesitara soporte Red Hat empresarial
 - A Debian: Si quisiera estabilidad pura (sin extras)
 - A Fedora: Nunca en producción (cambios rápidos)
@@ -773,24 +841,29 @@ $ cat > reporte-distribucion.txt << 'EOF'
 === REPORTE: DISTRIBUCIÓN EN ABACOM ===
 
 1. DISTRIBUCIÓN ACTUAL:
+
 $(cat /etc/os-release | grep "PRETTY_NAME")
 
 2. INFORMACIÓN TÉCNICA:
+
 - Release: Ubuntu 22.04 LTS (Jammy Jellyfish)
 - Soporte: Hasta Abril 2027
 - Package Manager: apt
 - Kernel: $(uname -r)
 
 3. PAQUETES INSTALADOS:
+
 - Total: $(dpkg --list | wc -l)
 - Actualización: $(date)
 
 4. RECOMENDACIÓN:
+
 ✅ Mantener Ubuntu 22.04 LTS hasta fin de soporte (2027)
 ✅ Aplicar parches de seguridad mensualmente
 ✅ No cambiar a otra distro sin razón técnica
 
 5. ALTERNATIVAS CONSIDERADAS:
+
 - CentOS: No necesario (Ubuntu más fácil)
 - Debian: Viable pero Ubuntu es superset
 - Fedora: No recomendado (cambios rápidos)
@@ -848,6 +921,7 @@ $ cat reporte-distribucion.txt
 **P: ¿Cuál es la mejor distribución?**
 
 R: No hay "mejor", pero hay "mejor para caso X":
+
 - **Producción empresarial:** Ubuntu LTS o CentOS/RHEL
 - **Aprender Linux:** Ubuntu, Debian
 - **Desarrollo:** Fedora, Arch
@@ -857,6 +931,7 @@ R: No hay "mejor", pero hay "mejor para caso X":
 **P: ¿Puedo cambiar de distribución sin perder datos?**
 
 R: Sí y no:
+
 - El kernel y comandos son similares
 - Pero migrar de Ubuntu a CentOS requiere reconfiguraciones
 - Mejor: backup + instalación limpia + restore de datos
@@ -864,6 +939,7 @@ R: Sí y no:
 **P: ¿En Abacom alguna vez cambiaremos de Ubuntu?**
 
 R: Posible, pero poco probable:
+
 - Ubuntu funciona bien
 - Comunidad es grande
 - Soporte es bueno
@@ -922,6 +998,7 @@ R: Posible, pero poco probable:
 ## Acerca de las fuentes
 
 Verificado contra:
+
 - DistroWatch official database
 - Ubuntu Server documentation
 - The Linux Foundation ecosystem guide
