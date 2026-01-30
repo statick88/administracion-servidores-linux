@@ -36,27 +36,32 @@ Un servidor sin actualizar es un servidor comprometido. **0-day exploits** (vuln
 #### Linux (Ubuntu)
 ```bash
 # Paso 1: Actualizar lista de paquetes
-$ sudo apt update
+$ sudo apt update  # <1>
 Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [114 kB]
 Leyendo listas de paquetes... Hecho
 
 # Paso 2: Actualizar paquetes instalados
-$ sudo apt upgrade -y
+$ sudo apt upgrade -y  # <2>
 Se instalarán las siguientes actualizaciones:
   openssl ssh systemd vim curl wget
 0 paquetes recién instalados, 5 para actualizar
 ¿Deseas continuar? [S/n] S
 
 # Paso 3: Limpiar paquetes no usados
-$ sudo apt autoremove -y
+$ sudo apt autoremove -y  # <3>
 Los siguientes paquetes serán ELIMINADOS:
   libpython3.8-minimal
 ¿Deseas continuar? [S/n] S
 
 # Verificar versión del kernel después
-$ uname -r
+$ uname -r  # <4>
 5.15.0-89-generic
 ```
+
+1. **apt update** descarga la lista de paquetes disponibles de repositorios remotos (sin instalar nada)
+2. **apt upgrade** instala versiones más recientes de paquetes ya instalados (-y responde "sí" automáticamente)
+3. **apt autoremove** elimina dependencias instaladas pero ya no necesitadas (limpia espacio)
+4. **uname -r** muestra la versión actual del kernel Linux
 
 #### macOS (Darwin)
 ```bash
@@ -188,11 +193,11 @@ PS> (New-Object -ComObject Microsoft.Update.Session).CreateupdateSearcher().Sear
 # En Abacom, usamos UFW para proteger servidores
 
 # Paso 1: Habilitar firewall
-$ sudo ufw enable
+$ sudo ufw enable  # <1>
 Firewall is active and enabled on system startup
 
 # Paso 2: Ver estado
-$ sudo ufw status
+$ sudo ufw status  # <2>
 Status: active
 To                         Action      From
 --                         ------      ----
@@ -201,17 +206,23 @@ To                         Action      From
 443/tcp                    ALLOW       Anywhere
 
 # Paso 3: Permitir puertos específicos
-$ sudo ufw allow 22/tcp  # SSH
-$ sudo ufw allow 80/tcp  # HTTP
-$ sudo ufw allow 443/tcp # HTTPS
+$ sudo ufw allow 22/tcp  # <3>
+$ sudo ufw allow 80/tcp  # <3>
+$ sudo ufw allow 443/tcp # <3>
 
 # Paso 4: Denegar todo lo demás (default)
-$ sudo ufw default deny incoming
-$ sudo ufw default allow outgoing
+$ sudo ufw default deny incoming  # <4>
+$ sudo ufw default allow outgoing # <4>
 
 # Verificar firewall log
-$ sudo tail -f /var/log/ufw.log
+$ sudo tail -f /var/log/ufw.log  # <5>
 ```
+
+1. **ufw enable** activa el firewall y configura inicio automático al bootear
+2. **ufw status** muestra reglas activas (puerto, acción, origen)
+3. **ufw allow** abre un puerto específico (SSH:22, HTTP:80, HTTPS:443 son estándar)
+4. **ufw default deny/allow** configura política por defecto (rechazar entrada, permitir salida)
+5. **tail -f** muestra en tiempo real los intentos bloqueados por el firewall
 
 #### macOS (Built-in Firewall)
 ```bash
@@ -286,7 +297,7 @@ apt autoremove → Eliminar dependencias no utilizadas
 
 ```bash
 # **Descargar listas de paquetes desde repositorios**
-sudo apt update
+sudo apt update  # <1>
 
 # **Salida esperada**:
 # Get:1 http://security.ubuntu.com/ubuntu focal-security InRelease [114 kB]
@@ -299,6 +310,8 @@ sudo apt update
 # - Descarga lista de paquetes disponibles y versiones
 # - Si ves "Get", está descargando; "Hit" = sin cambios
 ```
+
+1. **apt update** descarga lista actualizada de paquetes disponibles en repositorios (sin instalar nada)
 
 **Verificar repositorios configurados**:
 ```bash
@@ -406,10 +419,15 @@ En producción, quieres actualizaciones automáticas sin esperar:
 
 ```bash
 # **Instalar herramienta de actualizaciones automáticas**
-sudo apt install unattended-upgrades
+sudo apt install unattended-upgrades  # <1>
 
 # **Habilitar servicio**
-sudo systemctl enable unattended-upgrades
+sudo systemctl enable unattended-upgrades  # <2>
+sudo systemctl start unattended-upgrades  # <2>
+```
+
+1. **unattended-upgrades** es el paquete que permite actualizaciones automáticas sin intervención
+2. **systemctl enable/start** configura el servicio para ejecutarse automáticamente en el boot
 sudo systemctl start unattended-upgrades
 
 # **Verificar estado**
@@ -714,17 +732,17 @@ sudo systemctl enable apparmor
 
 ```bash
 # **Instalar Fail2Ban (bloquea IPs después de N intentos fallidos)**
-sudo apt install fail2ban
+sudo apt install fail2ban  # <1>
 
 # **Habilitar**
-sudo systemctl enable fail2ban
-sudo systemctl start fail2ban
+sudo systemctl enable fail2ban  # <2>
+sudo systemctl start fail2ban  # <2>
 
 # **Ver estado**
-sudo systemctl status fail2ban
+sudo systemctl status fail2ban  # <3>
 
 # **Ver intentos fallidos en SSH**
-sudo fail2ban-client status sshd
+sudo fail2ban-client status sshd  # <4>
 
 # **Salida**:
 # Status for the jail sshd:
@@ -733,6 +751,11 @@ sudo fail2ban-client status sshd
 # |- Currently banned: 2
 # `- Total banned: 5
 ```
+
+1. **fail2ban** es el sistema que detecta intentos fallidos de login y bloquea IPs automáticamente
+2. **systemctl enable/start** configura el servicio y lo inicia (enable = arrancar al boot, start = arrancar ahora)
+3. **systemctl status** muestra si el servicio está activo (running) o detenido (inactive)
+4. **fail2ban-client status sshd** muestra estadísticas: IPs actualmente baneadas y total histórico
 
 ---
 
