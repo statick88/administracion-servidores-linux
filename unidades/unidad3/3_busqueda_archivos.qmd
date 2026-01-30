@@ -13,6 +13,7 @@ biblio-style: apalike
 Encontrar archivos y contenido específico es una tarea diaria para cualquier administrador de Linux. Los comandos `find` y `grep` son herramientas poderosas que te permitirán localizar exactamente lo que necesitas en un sistema con millones de archivos.
 
 **🗺️ En este tema aprenderás:**
+
 - Comando `find` - búsqueda por nombre, tipo, tamaño, fecha
 - Comando `grep` - búsqueda en contenido de archivos
 - Comando `locate` - búsqueda rápida por base de datos
@@ -99,6 +100,7 @@ $ find / -type f -size +100M
 # <2>
 ```
 1. `-size +100M` busca archivos mayores a 100MB
+
 2. `+` significa "mayor que", `-` significa "menor que"
 
 #### macOS
@@ -137,6 +139,7 @@ $ find ~ -type f -mtime -7
 # <2>
 ```
 1. `-mtime -7` = modificado en últimos 7 días (negativo = pasado reciente)
+
 2. `-mtime +7` = modificado hace más de 7 días
 
 #### macOS
@@ -171,6 +174,7 @@ $ find ~ -type d -empty
 # <2>
 ```
 1. `-type d` busca solo directorios
+
 2. `-empty` busca elementos sin contenido
 
 #### macOS
@@ -246,6 +250,7 @@ archivo.log:8:error: authentication failed
 # <2>
 ```
 1. `-Pattern` es el equivalente a patrón en grep
+
 2. Devuelve línea y número automáticamente
 
 :::
@@ -296,6 +301,7 @@ $ grep -in "ERROR" /var/log/syslog
 # <1>
 ```
 1. `-i` ignora mayúsculas
+
 2. `-n` muestra número de línea
 
 #### macOS
@@ -368,7 +374,9 @@ Error: API timeout
 # <3>
 ```
 1. `-E` habilita expresiones regulares extendidas
+
 2. `^` significa "comienza la línea"
+
 3. `|` significa "o"
 
 #### macOS
@@ -421,6 +429,7 @@ tareas.txt:importante: completar antes del viernes
 # <1>
 ```
 1. `-exec` ejecuta un comando en cada resultado
+
 2. `xargs` pasa los resultados como argumentos
 
 #### macOS
@@ -511,6 +520,7 @@ $ locate apache
 # <1>
 ```
 1. `locate` es mucho más rápido que `find`
+
 2. Requiere que la BD se actualice con `updatedb`
 
 #### macOS
@@ -531,11 +541,13 @@ PS> Get-ChildItem -Path C:\ -Recurse -Filter "*apache*" -ErrorAction SilentlyCon
 # <1>
 ```
 1. Sin herramienta especializada, es más lento
+
 2. Software como "Everything" proporciona funcionalidad similar
 
 :::
 
 **Cuándo usar:** 
+
 - Usa `locate` para búsquedas rápidas por nombre
 - Usa `find` para búsquedas complejas con múltiples condiciones
 
@@ -556,10 +568,15 @@ PS> Get-ChildItem -Path C:\ -Recurse -Filter "*apache*" -ErrorAction SilentlyCon
 ## 🎯 Ejercicios Prácticos
 
 1. Usa `find` para localizar todos los archivos `.txt` en tu home
+
 2. Usa `grep` para buscar "Linux" en todos los archivos del directorio actual
+
 3. Busca archivos modificados en los últimos 30 días
+
 4. Encuentra archivos mayores a 10MB
+
 5. Busca líneas que contengan números usando `grep` con regex
+
 6. Combina `find` y `grep` para buscar "error" en todos los logs
 
 ---
@@ -567,6 +584,7 @@ PS> Get-ChildItem -Path C:\ -Recurse -Filter "*apache*" -ErrorAction SilentlyCon
 ## Referencias
 
 Para más información sobre búsqueda de archivos:
+
 - [@posix2018] - POSIX File Search
 - [@gnu2023] - GNU Find Documentation
 - [@grep2023] - GNU Grep Manual

@@ -13,6 +13,7 @@ biblio-style: apalike
 Una vez que dominas la navegación, el siguiente paso es entender el contenido de los archivos. Linux proporciona herramientas poderosas para inspeccionar, ver y analizar archivos sin necesidad de editarlos. Estas herramientas son esenciales para la administración del sistema.
 
 **🗺️ En este tema aprenderás:**
+
 - Comando `cat` (concatenate) - ver contenido completo
 - Comando `less` y `more` - navegar archivos grandes
 - Comando `head` y `tail` - ver partes de archivos
@@ -189,11 +190,13 @@ PS> Get-Content archivo-grande.txt -ReadCount 0 | Out-Host -Paging
 # <1>
 ```
 1. Windows no tiene `less` por defecto
+
 2. `Out-Host -Paging` es el equivalente más cercano
 
 :::
 
 **Diferencia entre `less` y `more`:**
+
 - `less` es más moderno y flexible
 - `more` es más antiguo pero universal
 - En Linux/macOS, `less` es preferible
@@ -298,6 +301,7 @@ $ tail -f /var/log/apache2/access.log
 # <2>
 ```
 1. `-f` (follow) monitoriza cambios en tiempo real
+
 2. Perfecto para ver logs mientras ocurren eventos
 
 #### macOS
@@ -317,6 +321,7 @@ PS> while($true) { Clear-Host; Get-Content archivo.txt | Select-Object -Last 20;
 # <2>
 ```
 1. `-Wait` intenta emular `-f`
+
 2. La alternativa con loop es más controlable pero consume más CPU
 
 :::
@@ -329,6 +334,7 @@ PS> while($true) { Clear-Host; Get-Content archivo.txt | Select-Object -Last 20;
 | Eficiencia | Muy alta | Muy alta | Moderada |
 
 **Cuándo usar:** 
+
 - `head` para ver encabezados o primeras filas
 - `tail` para ver logs recientes
 - `tail -f` para monitorizar eventos en tiempo real
@@ -479,11 +485,13 @@ PS> wsl file archivo.exe
 # <1>
 ```
 1. `file` no existe en PowerShell nativo
+
 2. Se puede usar desde WSL si está disponible
 
 :::
 
 **Cuándo usar:** Usa `file` cuando:
+
 - No estés seguro del tipo de archivo
 - Recibas archivos sin extensión
 - Necesites validar integridad de archivos
@@ -578,10 +586,15 @@ LastWriteTime             : 28/01/2024 15:30:15
 ## 🎯 Ejercicios Prácticos
 
 1. Crea un archivo `prueba.txt` con 50 líneas de texto
+
 2. Usa `head` y `tail` para ver partes del archivo
+
 3. Usa `wc -l` para contar las líneas
+
 4. Identifica el tipo con `file prueba.txt`
+
 5. Inspecciona metadatos con `stat prueba.txt`
+
 6. Crea un script y usa `file` para verificar su tipo
 
 ---
@@ -589,5 +602,6 @@ LastWriteTime             : 28/01/2024 15:30:15
 ## Referencias
 
 Para más información sobre inspección de archivos:
+
 - [@posix2018] - POSIX File Operations
 - [@bash2023] - GNU Bash Text Processing

@@ -13,6 +13,7 @@ biblio-style: apalike
 Antes de instalar Ubuntu 22.04 LTS, es fundamental verificar que tu equipo cumple con los requisitos mínimos y preparar el medio de instalación. Esta lección te guiará a través de todo lo necesario para una instalación exitosa.
 
 **🗺️ En este tema aprenderás:**
+
 - Requisitos de hardware mínimos y recomendados
 - Cómo verificar si tu computadora es compatible
 - Descarga segura de Ubuntu 22.04 LTS
@@ -32,6 +33,7 @@ Este curso soporta **4 entornos diferentes**. Elige el que mejor se adapte a tu 
 
 ```
 Requisitos:
+
 - Windows 10 Build 19041+ o Windows 11
 - Procesador con virtualización
 - RAM: 4 GB mínimo
@@ -64,6 +66,7 @@ wsl
 
 ```
 Requisitos:
+
 - Linux ya instalado (Ubuntu, Fedora, Debian, etc.)
 - RAM: 2 GB mínimo (4 GB recomendado)
 - Disco: 50+ GB disponible
@@ -79,6 +82,7 @@ Desventajas:
 ```
 
 **Para instalar otra distribución Linux:**
+
 - Opción A: Usa máquina virtual (VirtualBox/Workstation)
 - Opción B: Particiona disco e instala dual-boot
 - Opción C: Usa Docker para laboratorios rápidos
@@ -89,6 +93,7 @@ Desventajas:
 
 ```
 Requisitos:
+
 - macOS 10.14+ (Intel o Apple Silicon M1/M2/M3)
 - RAM: 8 GB mínimo (16 GB recomendado)
 - Disco: 50+ GB disponible para VM
@@ -120,9 +125,13 @@ Opciones de hipervisor:
 Oracle (dueño de VirtualBox) dijo explícitamente: **"No hay planes para soportar Apple Silicon ARM64 natively"**
 
 Razones:
+
 1. **Costo enorme:** Reescribir VirtualBox tomaría años de desarrollo
+
 2. **Mercado pequeño:** Solo ~15% de Macs son Apple Silicon (2025)
+
 3. **Complejidad:** Perderíamos 20+ años de optimizaciones x86-64
+
 4. **Alternativas existentes:** Parallels y UTM ya lo hacen
 
 ### ¿Qué hacer si tienes Apple Silicon?
@@ -134,6 +143,7 @@ Razones:
 ### Analogía simple:
 
 VirtualBox es como un "traductor":
+
 - **Intel Mac:** Traduce Inglés → Inglés (rápido, solo copia)
 - **Apple Silicon:** Traduce Japonés → Inglés (lentísimo, tiene que convertir TODO)
 
@@ -157,6 +167,7 @@ Desventajas:
 
 ```
 Requisitos:
+
 - Cualquier máquina: Windows, macOS, Linux
 - RAM: 4 GB mínimo
 - Docker instalado
@@ -192,6 +203,7 @@ docker run -it ubuntu:22.04 /bin/bash
 | **Docker** | ✅ Muy fácil | ❌ No | ✅ Excelente |
 
 **Recomendación:** 
+
 - Si eres **principiante**: WSL2 O Docker para aprender comandos
 - Si quieres aprender **instalación**: Usa **máquina virtual** (cualquier SO host)
 - Si quieres entorno **profesional**: Linux nativo O Docker
@@ -233,6 +245,7 @@ systeminfo  # <1>
 1. **systeminfo** muestra detalles del sistema en Windows (procesador, RAM, BIOS)
 
 Busca en la salida:
+
 - **Processor**: Procesador instalado (ej: Intel Core i5, AMD Ryzen 7)
 - **System Type**: x86-64 (64-bit es lo esperado) o ARM64
 - **Total Physical Memory**: RAM total en GB
@@ -246,6 +259,7 @@ system_profiler SPHardwareDataType  # <1>
 1. **system_profiler** muestra información completa de hardware en macOS
 
 Busca:
+
 - **Processor Name**: Tipo de procesador
 - **Processor Speed**: Velocidad en GHz
 - **Memory**: RAM total
@@ -355,7 +369,9 @@ Para crear un USB booteable, necesitas herramientas según tu SO:
 
 ```
 1. Flash from file → Selecciona ubuntu-22.04.4-desktop-amd64.iso
+
 2. Select target → Elige tu USB (¡CUIDADO! Borra datos)
+
 3. Flash → Espera a que complete (~5 minutos)
 ```
 
@@ -393,8 +409,11 @@ sudo sync  # <4>
 Verifica **3 veces** que **/dev/sdX** es el USB correcto antes de ejecutar el comando. Una vez ejecutado, NO hay forma de recuperar datos del disco formateado.
 
 **Checklist de seguridad:**
+
 1. ¿Es **/dev/sda** tu disco principal? (NO usar este)
+
 2. ¿Es **/dev/sdb** o **/dev/sdc** tu USB? (Verificar con `lsblk`)
+
 3. ¿Respaldaste tus datos importantes? (Hacer backup antes)
 :::
 
@@ -418,10 +437,15 @@ Para arrancar desde USB, necesitas cambiar el **orden de boot** en BIOS/UEFI. Es
 
 ```
 1. Enciende el equipo
+
 2. Inmediatamente presiona la tecla correspondiente (antes de que cargue SO)
+
 3. Navega a "Boot" o "Boot Order"
+
 4. Mueve "USB Device" al primer lugar
+
 5. Guarda (F10) y sale (Esc)
+
 6. Reinicia con USB conectado
 ```
 
@@ -500,14 +524,19 @@ w   → Guardar cambios
 **Manejo incorrecto de particiones puede causar pérdida total de datos.**
 
 **Lo que podría salir mal:**
+
 - Borrar la partición equivocada
 - Sobrescribir datos existentes
 - Dejar el sistema inbooteable
 
 **Cómo prevenirlo:**
+
 1. Practica primero en máquina virtual (VirtualBox o VMware)
+
 2. Verifica 3 veces la partición antes de ejecutar comandos
+
 3. Haz backup de datos importantes antes de particionar
+
 4. Lee cada paso del particionador antes de confirmar
 :::
 
@@ -553,6 +582,7 @@ $ getconf LONG_BIT
 ```
 
 **Interpretación**: 
+
 - x86_64 = Procesador Intel/AMD de 64-bit → Descargar **ubuntu-22.04-amd64.iso**
 - arm64 = Procesador ARM (Raspberry Pi) → Descargar **ubuntu-22.04-arm64.iso**
 
@@ -781,18 +811,22 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 ## ⚠️ Errores Comunes
 
 **Error 1: "Invalid Partition Table"**
+
 - **Causa**: El USB no fue escrito correctamente
 - **Solución**: Usa Etcher en vez de **dd**, verifica con **fdisk -l /dev/sdX** que sea booteable
 
 **Error 2: "No bootable device found"**
+
 - **Causa**: BIOS no está configurado para boot desde USB
 - **Solución**: Entra a BIOS/UEFI (tecla según fabricante), ve a Boot Order, mueve USB al primer lugar
 
 **Error 3: "Cannot load kernel"**
+
 - **Causa**: Descargaste el ISO incorrecto (ej: arm64 en máquina x86_64)
 - **Solución**: Verifica con **uname -m**, descarga amd64 si ves "x86_64"
 
 **Error 4: "Not enough space"**
+
 - **Causa**: El disco no tiene 2.5 GB libres mínimo
 - **Solución**: Libera espacio, elimina archivos temporales, o particiona el disco primero
 
@@ -801,9 +835,13 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 ## 📊 Mejores Prácticas
 
 1. **Siempre valida SHA256** - Toma 30 segundos y previene problemas
+
 2. **Usa Etcher si eres principiante** - Es gráfico y más seguro que **dd**
+
 3. **Deja 50 GB mínimo** - Los 2.5 GB son solo para el SO, necesitas espacio para aplicaciones
+
 4. **Haz backup antes de particionar** - No hay "Deshacer" en operaciones de disco
+
 5. **Actualiza BIOS si es muy viejo** - Equipos pre-2010 pueden tener issues con UEFI
 
 ---
@@ -866,9 +904,13 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 ## 👨‍💻 Práctica Guiada: Preparar tu Instalación
 
 **Objetivos:**
+
 1. Verificar que tu hardware es compatible
+
 2. Descargar Ubuntu 22.04 LTS correctamente
+
 3. Validar la descarga
+
 4. Preparar un USB booteable
 
 **Tiempo estimado:** 30 minutos
@@ -879,6 +921,7 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 1. VERIFICAR HARDWARE (5 min)
    □ Abre terminal/PowerShell en tu equipo actual
    □ Ejecuta comandos según tu SO:
+
      - Linux: uname -m && free -h
      - macOS: system_profiler SPHardwareDataType | grep -E "Processor|Memory"
      - Windows: systeminfo | findstr /C:"Processor" /C:"Total Physical Memory"
@@ -902,6 +945,7 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
    □ Instala y abre Etcher
    □ Conecta USB (4GB+) - **TODOS LOS DATOS SE BORRARÁN**
    □ En Etcher:
+
      - Click "Flash from file" → Selecciona el ISO
      - Click "Select target" → Elige tu USB
      - Click "Flash" → Espera ~5 minutos
@@ -924,12 +968,14 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 ### Opción 1: Oracle VirtualBox (Gratuito)
 
 **Características:**
+
 - Completamente gratuito y de código abierto
 - Disponible en Windows, macOS, Linux
 - Fácil de usar con interfaz intuitiva
 - Ideal para principiantes
 
 **Requisitos mínimos:**
+
 - RAM: 8 GB en tu máquina host (para VM de 4 GB)
 - Espacio disco: 60 GB disponibles
 - Procesador con soporte de virtualización (Intel VT-x o AMD-V)
@@ -940,7 +986,9 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 
 ```
 1. Descarga VirtualBox desde https://www.virtualbox.org/
+
 2. Instala VirtualBox en tu máquina host
+
 3. Crea una máquina virtual nueva:
    ├─ Nombre: "Ubuntu 22.04 Practice"
    ├─ Tipo: Linux
@@ -968,21 +1016,25 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 ### Opción 2: VMware Workstation (Profesional)
 
 **Características:**
+
 - Plataforma profesional con características avanzadas
 - Disponible en Windows y Linux
 - Mejor rendimiento y más opciones de configuración
 - Ideal para ambientes profesionales y servidores
 
 **Versiones:**
+
 - **Workstation Pro**: Versión pagada con todas las características
 - **Workstation Player**: Versión gratuita (limitada)
 
 **Requisitos mínimos:**
+
 - RAM: 8-16 GB en tu máquina host
 - Espacio disco: 60+ GB disponibles
 - Procesador con soporte de virtualización (Intel VT-x o AMD-V)
 
 **Descarga:**
+
 - **Workstation Pro**: https://www.vmware.com/products/workstation-pro.html
 - **Workstation Player (Gratis)**: https://www.vmware.com/products/workstation-player.html
 
@@ -990,7 +1042,9 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 
 ```
 1. Descarga VMware Workstation desde el sitio oficial
+
 2. Instala Workstation en tu máquina host
+
 3. Abre VMware Workstation
 
 4. Crea una máquina virtual nueva (File → New Virtual Machine):
@@ -1033,24 +1087,29 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 | **Ideal para** | Aprendizaje, desarrollo | Producción, ambientes reales |
 
 **Recomendación para este curso:**
+
 - **VirtualBox** si es tu primera vez (más simple)
 - **VMware Workstation** si necesitas características profesionales
 
 ### Ventajas de practicar en máquina virtual
 
 ✅ **Sin riesgo de pérdida de datos:**
+
 - Tu máquina real permanece intacta
 - Los errores afectan solo la VM
 
 ✅ **Práctica ilimitada:**
+
 - Instala, falla, borra y repite
 - Snapshots: guarda estado antes de cambios
 
 ✅ **Aprendizaje iterativo:**
+
 - Experimenta sin presión
 - Comprende cada paso del instalador
 
 ✅ **Requisitos flexibles:**
+
 - Usa máquinas viejas como host
 - Perfecto para laboratorios
 
@@ -1059,25 +1118,35 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 **Problema: "VT-x/AMD-V not enabled"**
 ```
 Solución: Accede a BIOS de tu máquina host
+
 1. Reinicia la máquina
+
 2. Presiona F2, F10, Del, o Esc (depende del fabricante)
+
 3. Busca "Virtualization" o "SVM"
+
 4. Habilita la opción
+
 5. Guarda y reinicia
 ```
 
 **Problema: Máquina virtual muy lenta**
 ```
 Solución: Ajusta configuración de recursos
+
 1. Asigna más CPU (2-4 núcleos)
+
 2. Aumenta RAM (mínimo 4 GB)
+
 3. Disabilita efectos visuales en guest OS
+
 4. Usa disco SSD en lugar de HDD
 ```
 
 **Problema: No detecta el ISO**
 ```
 Solución:
+
 - VirtualBox: Menú Máquina → Configuración → Almacenamiento
 - Workstation: Click derecho VM → Settings → CD/DVD
 - Verifica que el archivo .iso existe y no está dañado

@@ -45,6 +45,7 @@ x = ejecución (exec)  = 1
 ```
 
 **Ejemplo**: **755** significa:
+
 - Usuario: 7 (4+2+1 = **rwx** = lectura + escritura + ejecución)
 - Grupo: 5 (4+1 = **r-x** = lectura + ejecución)
 - Otros: 5 (4+1 = **r-x** = lectura + ejecución)
@@ -72,9 +73,13 @@ uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom),27(sudo)
 ```
 
 1. **cat /etc/passwd** muestra base de datos de usuarios del sistema
+
 2. **getent passwd** obtiene usuarios con UID >= 1000 (usuarios humanos, no del sistema)
+
 3. **groups** lista todos los grupos a los que pertenece un usuario
+
 4. **cat /etc/group** muestra base de datos de grupos del sistema
+
 5. **id** muestra identidad del usuario actual (UID, GID y grupos)
 
 ### 1.3 Crear Usuarios Nuevos
@@ -90,6 +95,7 @@ sudo passwd carlos  # <2>
 ```
 
 1. **useradd -m** crea home directory automáticamente, **-s /bin/bash** asigna shell por defecto
+
 2. **passwd** establece contraseña interactiva para el usuario creado
 
 **Crear usuario con información adicional**:
@@ -625,10 +631,15 @@ sudo -u www-data ls -la /var/www/
 Tienes un nuevo administrador que ingresa a Abacom: **María García**.
 
 Necesitas:
+
 1. Crear usuario 'maria' con home en **/home/maria**
+
 2. Darle acceso SSH con clave
+
 3. Hacerla miembro del grupo **administradores**
+
 4. Configurar sudo sin contraseña
+
 5. Deshabilitar acceso por contraseña
 
 ### 5.2 Pasos
@@ -936,6 +947,7 @@ PS> Register-ScheduledTask -TaskName "AbacomWebApp" `
 ### Ejercicio 1: Crear usuario de desarrollo
 
 Crea usuario **dev_app** que:
+
 - Tenga home en **/home/dev_app**
 - Pertenezca al grupo **developers** (crear grupo primero)
 - Pueda ejecutar solo **systemctl restart app** sin contraseña
@@ -953,6 +965,7 @@ sudo visudo
 ### Ejercicio 2: Asignar permisos correctos
 
 Tienes una carpeta **/var/www/app** con estos requisitos:
+
 - Propietario: usuario **www-data**
 - Grupo: **developers**
 - Archivos: legibles por grupo, no editables por otros
@@ -969,6 +982,7 @@ sudo find /var/www/app -type f -exec chmod 644 {} \;  # Archivos
 ### Ejercicio 3: Configurar SSH para usuario nuevo
 
 Dado usuario **carlos** en servidor **prod.abacom.com**:
+
 - Generar clave SSH
 - Copiar al servidor
 - Crear alias SSH
@@ -998,30 +1012,35 @@ ssh abacom-prod whoami
 ## 7. Quiz de Verificación
 
 1. **¿Cuál es el permiso 755 en términos legibles?**
+
    - A) rwxrwxrwx
    - B) rwxr-xr-x ✅
    - C) rw-rw-rw-
    - D) r--r--r--
 
 2. **¿Cuál es el comando para ver qué permisos sudo tiene un usuario?**
+
    - A) sudo --list ✅
    - B) sudo -l
    - C) sudo -L
    - D) Opciones B y C son correctas ✅
 
 3. **¿Por qué es importante deshabilitar acceso SSH por contraseña?**
+
    - A) Las claves SSH son criptográficamente más seguras
    - B) Protege contra ataques de fuerza bruta
    - C) Contraseñas viajan sin encriptación
    - D) Todas las anteriores ✅
 
 4. **¿Qué hace **sudo usermod -aG administradores diego**?**
+
    - A) Cambia el grupo primario de diego a administradores
    - B) Agrega diego al grupo administradores (sin remover otros)
    - C) Solo establece diego como administrador del sistema
    - D) Respuesta B es correcta ✅
 
 5. **¿Cuál es la diferencia entre **userdel carlos** y **userdel -r carlos**?**
+
    - A) El primero solo elimina el usuario, el segundo también elimina /home/carlos ✅
    - B) No hay diferencia
    - C) -r elimina permisos sudo
@@ -1042,6 +1061,7 @@ ssh abacom-prod whoami
 ### Siguiente: Unidad 2.4
 
 El próximo tema cubre:
+
 - Actualización segura del sistema
 - Firewall básico (UFW)
 - Hardening de primeros pasos

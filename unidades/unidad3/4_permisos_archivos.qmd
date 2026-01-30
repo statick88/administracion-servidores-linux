@@ -13,6 +13,7 @@ biblio-style: apalike
 Los permisos de archivos son fundamentales en Linux. Controlan quién puede leer, escribir o ejecutar un archivo. Entender y manejar permisos correctamente es esencial para la seguridad del sistema.
 
 **🗺️ En este tema aprenderás:**
+
 - Estructura de permisos en Linux (rwx)
 - Permiso de lectura (r), escritura (w), ejecución (x)
 - Propietario, grupo y otros
@@ -47,6 +48,7 @@ En Linux, cada archivo tiene 3 conjuntos de permisos: propietario, grupo y otros
 ### Ejemplo de interpretación:
 ```
 -rw-r--r--
+
 - = archivo regular
 rw- = propietario puede leer y escribir (no ejecutar)
 r-- = grupo solo puede leer
@@ -58,6 +60,7 @@ r-- = otros solo pueden leer
 ## Notación Octal de Permisos
 
 Cada permiso puede representarse como número:
+
 - **r** = 4
 - **w** = 2
 - **x** = 1
@@ -93,6 +96,7 @@ chmod [opciones] [modo] [archivo]
 
 ### Modalidades:
 1. **Octal**: `chmod 644 archivo`
+
 2. **Simbólica**: `chmod u+x archivo`
 
 ### 💡 Ejemplos Prácticos Multi-SO
@@ -112,6 +116,7 @@ $ ls -l script.sh
 # <2>
 ```
 1. `+x` agrega permisos de ejecución para todos
+
 2. Se puede ejecutar ahora: `./script.sh`
 
 #### macOS
@@ -133,6 +138,7 @@ PS> wsl chmod +x script.sh
 # <2>
 ```
 1. Windows usa permisos ACL diferentes
+
 2. WSL hereda permisos del sistema de archivos de Windows
 
 :::
@@ -152,7 +158,9 @@ $ ls -l archivo.txt
 # <3>
 ```
 1. `6` (rw-) para propietario
+
 2. `4` (r--) para grupo
+
 3. `4` (r--) para otros
 
 #### macOS
@@ -176,6 +184,7 @@ PS> $rule = New-Object System.Security.AccessControl.FileSystemAccessRule `
 # <1>
 ```
 1. Mucho más complejo en PowerShell
+
 2. WSL es más práctico
 
 :::
@@ -197,6 +206,7 @@ $ chmod u=rwx,g=rx,o= archivo.txt  # Establecer permisos exactos
 # <2>
 ```
 1. Muy flexible y legible
+
 2. Puedes combinar múltiples cambios con comas
 
 #### macOS
@@ -279,6 +289,7 @@ $ ls -l archivo.txt
 # <2>
 ```
 1. Requiere permisos de administrador (sudo)
+
 2. Solo el propietario o root puede cambiar el dueño
 
 #### macOS
@@ -427,6 +438,7 @@ drwxrwxrwt 1 root root 4096 Jan 29 10:45 /tmp
 # <1>
 ```
 1. La `t` al final es sticky bit
+
 2. Solo el propietario de cada archivo puede borrarlo
 
 #### Establecer Setuid
@@ -473,10 +485,15 @@ $ chmod 4755 archivo     # Notación octal (4 = setuid)
 ## 🎯 Ejercicios Prácticos
 
 1. Crea un archivo y establece permisos `644`
+
 2. Crea un script y hazlo ejecutable con `chmod +x`
+
 3. Crea un directorio y establece `755`
+
 4. Usa notación simbólica para remover escritura (`g-w`)
+
 5. Ver permisos con `ls -l` e interpreta cada columna
+
 6. Cambia grupo de un archivo con `chgrp`
 
 ---
@@ -484,5 +501,6 @@ $ chmod 4755 archivo     # Notación octal (4 = setuid)
 ## Referencias
 
 Para más información sobre permisos:
+
 - [@posix2018] - POSIX Permissions
 - [@linux2024] - Linux File Permissions Guide

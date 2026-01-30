@@ -13,6 +13,7 @@ biblio-style: apalike
 **Bash** (Bourne Again Shell) es el intérprete de comandos por defecto en Linux. Aunque puedes ejecutar comandos uno a uno en la terminal, crear **scripts de Bash** te permite automatizar tareas complejas. Este mini-curso es **completamente práctico** con ejemplos reales que usarás en Abacom.
 
 **🗺️ En este anexo aprenderás:**
+
 - Variables y tipos de datos en Bash
 - Condicionales (if/else, case)
 - Loops (for, while)
@@ -54,6 +55,7 @@ systemctl start nginx
 1. **#!/bin/bash** es el "shebang" - le dice al SO que execute este archivo con Bash
 
 **Beneficios:**
+
 - ⏱️ Una línea en vez de 4 pasos manuales
 - 🔄 Reutilizable en múltiples máquinas
 - 🐛 Menos errores humanos
@@ -94,6 +96,7 @@ chmod +x script.sh
 ```
 
 **Dónde funciona:**
+
 - ✅ Linux (Bash nativo)
 - ✅ macOS (Bash/Zsh - compatible)
 - ❌ Windows (requiere WSL o Git Bash)
@@ -127,6 +130,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 **Dónde funciona:**
+
 - ✅ Windows (PowerShell nativo)
 - ⚠️ Linux/macOS (PowerShell 7+ disponible)
 
@@ -168,6 +172,7 @@ for i in range(1, 6):
 ```
 
 **Dónde funciona:**
+
 - ✅ Linux (Python 3)
 - ✅ macOS (Python 3)
 - ✅ Windows (Python 3)
@@ -210,6 +215,7 @@ async function setupServer(server) {
 ```
 
 **Dónde funciona:**
+
 - ✅ Linux (Node.js)
 - ✅ macOS (Node.js)
 - ✅ Windows (Node.js)
@@ -217,6 +223,7 @@ async function setupServer(server) {
 :::
 
 **Recomendación para Abacom:**
+
 - Use **Bash** para scripts Linux-only (producción)
 - Use **Python** para herramientas multi-SO
 - Use **PowerShell** solo si necesita automatizar Windows
@@ -236,6 +243,7 @@ SERVIDOR="web-prod-01"
 1. **NOMBRE="Diego"** asigna el valor "Diego" a la variable NOMBRE (sin espacios alrededor de =)
 
 **Reglas en Bash:**
+
 - Sin espacios alrededor del **=** (correcto: **VAR=valor**, incorrecto: **VAR = valor**)
 - Nombres en MAYÚSCULAS por convención
 - Pueden contener letras, números, guiones bajos
@@ -284,9 +292,13 @@ echo $$      # <5>
 ```
 
 1. **$0** = nombre del script
+
 2. **$1** = primer argumento pasado al script
+
 3. **$@** = todos los argumentos
+
 4. **$?** = código de salida del comando anterior (0=éxito, >0=error)
+
 5. **$$** = PID (Process ID) del script actual
 
 **Ejemplo:**
@@ -325,6 +337,7 @@ fi
 1. **[ $EDAD -gt 18 ]** verifica si EDAD es MAYOR QUE 18 (-gt = "greater than")
 
 **Operadores de comparación numérica:**
+
 - **-eq** = igual (equal)
 - **-ne** = no igual (not equal)
 - **-lt** = menor que (less than)
@@ -349,6 +362,7 @@ fi
 1. **[ "$SISTEMA" = "Linux" ]** compara strings (notar comillas alrededor de $SISTEMA)
 
 **Operadores de string:**
+
 - **=** = igual
 - **!=** = no igual
 - **-z** = string vacío
@@ -393,6 +407,7 @@ fi
 1. **[ -f $FILE ]** verifica si el archivo existe y es un archivo regular
 
 **Operadores de archivo:**
+
 - **-f** = es archivo regular
 - **-d** = es directorio
 - **-e** = existe (archivo o directorio)
@@ -463,6 +478,7 @@ done
 ```
 
 1. **while [ condición ]** ejecuta mientras sea verdadera
+
 2. **$((expresión))** realiza aritmética en Bash
 
 **Salida:**
@@ -502,7 +518,9 @@ mostrar_fecha  # <3>
 ```
 
 1. **mostrar_fecha()** define una función sin parámetros
+
 2. **$(date ...)** ejecuta comando y captura resultado
+
 3. **mostrar_fecha** llama la función
 
 **Salida:**
@@ -527,7 +545,9 @@ echo "10 + 20 = $RESULTADO"
 ```
 
 1. **sumar()** define función que recibirá 2 argumentos
+
 2. **local VAR** declara variable local a la función
+
 3. **$(sumar 10 20)** captura el resultado de la función
 
 **Salida:**
@@ -559,7 +579,9 @@ fi
 ```
 
 1. **id "usuario"** verifica si el usuario existe. **&>/dev/null** silencia la salida
+
 2. **return 0** = éxito
+
 3. **return 1** = error
 
 ---
@@ -576,6 +598,7 @@ echo "Agregar línea" >> output.txt    # <2>
 ```
 
 1. **>** redirecciona salida a archivo (sobrescribe si existe)
+
 2. **>>** redirecciona salida a archivo (agrega al final)
 
 ### Redirección de Error
@@ -589,6 +612,7 @@ ls /directorio/inexistente 2> error.log  # <1>
 1. **2>** redirecciona stderr (error standard) a archivo
 
 **Combinaciones útiles:**
+
 - **> archivo** = redirige stdout (salida normal)
 - **2> archivo** = redirige stderr (errores)
 - **&> archivo** = redirige ambos
@@ -636,8 +660,11 @@ done
 ```
 
 1. **UMBRAL=80** define límite del 80%
+
 2. **$(df | ...)** captura todas las particiones
+
 3. **awk** extrae el porcentaje de uso
+
 4. **if [ "$USO" -gt "$UMBRAL" ]** alerta si supera umbral
 
 **Guardar como:** **check_disk.sh**
@@ -675,9 +702,13 @@ echo "Respaldo completado: $NOMBRE_BACKUP"
 ```
 
 1. **$1** primer argumento es carpeta a respaldar
+
 2. **FECHA** captura fecha/hora para nombre único
+
 3. **-z** verifica si string está vacío
+
 4. **basename** extrae solo el nombre sin ruta
+
 5. **tar -czf** comprime carpeta
 
 **Uso:**
@@ -724,8 +755,11 @@ echo "Última actualización: $(date)"
 ```
 
 1. **apt update** actualiza lista de paquetes
+
 2. **if [ $? -ne 0 ]** verifica si comando anterior falló
+
 3. **apt upgrade -y** actualiza paquetes (confirmación automática)
+
 4. **apt autoremove** elimina paquetes huérfanos
 
 ---
@@ -763,7 +797,9 @@ getent group "$GRUPO"
 ```
 
 1. **getent group** verifica si el grupo existe
+
 2. **for USUARIO in** itera sobre cada usuario
+
 3. **useradd -m** crea usuario con directorio home (-s especifica shell)
 
 ---
@@ -859,10 +895,15 @@ fi
 ```
 
 1. **set -euo pipefail** = salir si error, no permitir variables indefinidas, fallar en pipes
+
 2. **readonly** = variable inmutable
+
 3. **(@)** = array (múltiples valores)
+
 4. **log()** función para mensajes con timestamp
+
 5. **verificar_permisos()** asegurar que es root
+
 6. **"${CARPETAS[@]}"** itera sobre elementos del array
 
 ---

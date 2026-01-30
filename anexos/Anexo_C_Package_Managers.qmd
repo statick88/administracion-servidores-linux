@@ -13,6 +13,7 @@ biblio-style: apalike
 Cada distribución Linux tiene su **gestor de paquetes** - la herramienta que instala, actualiza y elimina software. Aunque los comandos son diferentes, la **lógica es idéntica**.
 
 **Distribuciones que encontrarás en Abacom:**
+
 - 🐧 **Debian/Ubuntu** → **apt**, **apt-get** (Familia Debian)
 - 🎩 **CentOS/RHEL/Fedora** → **yum**, **dnf** (Familia Red Hat)
 - 🏠 **Arch Linux** → **pacman** (Arch)
@@ -20,6 +21,7 @@ Cada distribución Linux tiene su **gestor de paquetes** - la herramienta que in
 Este anexo es **práctico y comparativo**: Aprenderás a hacer lo mismo en cada sistema.
 
 **🗺️ En este anexo aprenderás:**
+
 - Diferencias entre gestores de paquetes
 - Instalar, actualizar, desinstalar paquetes
 - Buscar paquetes disponibles
@@ -62,8 +64,11 @@ Servidor Oficial Ubuntu
 ```
 
 Cuando haces **apt install nginx**, el gestor:
+
 1. Busca en repositorios configurados
+
 2. Descarga el paquete
+
 3. Instala automáticamente dependencias
 
 ---
@@ -98,6 +103,7 @@ Reading package lists... Done
 ```
 
 **¿Cuándo ejecutar?**
+
 - Antes de instalar algo nuevo
 - Diariamente en servidores (para seguridad)
 - Después de agregar nuevos repositorios
@@ -142,6 +148,7 @@ sudo apt install -y \  # <2>
 ```
 
 1. **apt update** actualiza lista primero
+
 2. **\** permite continuar comando en siguiente línea
 
 ### Actualizar Paquetes
@@ -162,6 +169,7 @@ sudo apt upgrade  # <1>
 1. **apt upgrade** actualiza paquetes a nuevas versiones
 
 **¿Diferencia entre **update** y **upgrade**?**
+
 - **update** = Descarga lista de nuevas versiones (no instala)
 - **upgrade** = Instala las nuevas versiones
 
@@ -193,6 +201,7 @@ sudo apt autoclean  # <2>
 ```
 
 1. **autoremove** elimina dependencias huérfanas
+
 2. **autoclean** elimina archivos .deb descargados
 
 ### Buscar Paquete
@@ -206,6 +215,7 @@ apt show nginx  # <2>
 ```
 
 1. **apt search** busca descripción de paquetes
+
 2. **apt show** muestra versión, tamaño, dependencias
 
 ### Repositorios Personalizados (PPA)
@@ -220,7 +230,9 @@ sudo apt install nodejs  # <3>
 ```
 
 1. **add-apt-repository** agrega nuevo repositorio
+
 2. **apt update** descarga lista del nuevo repo
+
 3. **apt install** instala desde nuevo repositorio
 
 ---
@@ -250,6 +262,7 @@ sudo dnf check-update  # <2>
 ```
 
 1. **yum check-update** verifica actualizaciones disponibles
+
 2. **dnf check-update** equivalente en dnf
 
 ### Instalar Paquete
@@ -282,6 +295,7 @@ sudo dnf upgrade  # <2>
 ```
 
 1. **dnf upgrade nginx** actualiza solo nginx
+
 2. **dnf upgrade** actualiza todos los paquetes
 
 ### Desinstalar Paquete
@@ -304,6 +318,7 @@ sudo dnf clean packages  # <2>
 ```
 
 1. **dnf clean all** borra caché completo
+
 2. **dnf clean packages** borra solo paquetes .rpm descargados
 
 ### Buscar Paquete
@@ -317,6 +332,7 @@ sudo dnf info nginx  # <2>
 ```
 
 1. **dnf search** busca descripción
+
 2. **dnf info** muestra versión, tamaño, repositorio
 
 ### Gestionar Repositorios
@@ -336,7 +352,9 @@ sudo dnf install -y https://repo-url/package.rpm
 ```
 
 1. **dnf repolist** lista repositorios activos
+
 2. **dnf repolist all** incluye deshabilitados (useful para ver opciones)
+
 3. **dnf config-manager** habilita/deshabilita repositorios
 
 ---
@@ -346,6 +364,7 @@ sudo dnf install -y https://repo-url/package.rpm
 ### Filosofía de Arch
 
 Arch tiene filosofía diferente:
+
 - **Minimalista**: Solo lo esencial
 - **DIY**: Usuario decide configuración
 - **Rolling release**: Actualizaciones continuas (no versiones fijas)
@@ -388,7 +407,9 @@ sudo pacman -Rn nginx  # <3>
 ```
 
 1. **-R** (Remove) desinstala paquete
+
 2. **-Rs** también elimina dependencias no usadas
+
 3. **-Rn** elimina config (purge)
 
 ### Limpiar Espacio
@@ -402,6 +423,7 @@ sudo pacman -Scc  # <2>
 ```
 
 1. **-Sc** borra cache de instalados (seguro)
+
 2. **-Scc** borra TODOS los .pkg descargados (peligroso)
 
 ### Buscar Paquete
@@ -418,7 +440,9 @@ sudo pacman -Ql nginx  # <3>
 ```
 
 1. **-Ss** (Search Sync) busca descripción
+
 2. **-Si** (info Sync) muestra detalles de repositorio
+
 3. **-Ql** (Query List) lista archivos instalados
 
 ### Ver Paquetes Instalados
@@ -432,6 +456,7 @@ sudo pacman -Qi nginx  # <2>
 ```
 
 1. **-Q** (Query) lista paquetes instalados
+
 2. **-Qi** muestra info completa incluyendo tamaño
 
 ### AUR: Arch User Repository
@@ -675,9 +700,13 @@ fi
 ```
 
 1. **apt** = Debian/Ubuntu
+
 2. **dnf** = CentOS/RHEL 8+
+
 3. **yum** = CentOS/RHEL 7
+
 4. **pacman** = Arch Linux
+
 5. **macOS** = Detectado por OSTYPE
 
 ---
@@ -713,8 +742,11 @@ fi
 ```
 
 1. **apt update && apt upgrade** para Debian
+
 2. **dnf upgrade** para CentOS moderno
+
 3. **yum update** para CentOS 7
+
 4. **pacman -Syu** para Arch
 
 **Guardar como**: **/usr/local/bin/actualizar-sistema.sh**

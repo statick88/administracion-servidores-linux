@@ -59,8 +59,11 @@ $ uname -r  # <4>
 ```
 
 1. **apt update** descarga la lista de paquetes disponibles de repositorios remotos (sin instalar nada)
+
 2. **apt upgrade** instala versiones más recientes de paquetes ya instalados (-y responde "sí" automáticamente)
+
 3. **apt autoremove** elimina dependencias instaladas pero ya no necesitadas (limpia espacio)
+
 4. **uname -r** muestra la versión actual del kernel Linux
 
 #### macOS (Darwin)
@@ -87,6 +90,7 @@ Upgrading curl, openssl, wget
 ```
 
 1. **softwareupdate** es el gestor de actualizaciones de SO en macOS
+
 2. **brew** es el package manager externo más popular en macOS (similar a apt en Linux)
 
 #### Windows (PowerShell)
@@ -219,9 +223,13 @@ $ sudo tail -f /var/log/ufw.log  # <5>
 ```
 
 1. **ufw enable** activa el firewall y configura inicio automático al bootear
+
 2. **ufw status** muestra reglas activas (puerto, acción, origen)
+
 3. **ufw allow** abre un puerto específico (SSH:22, HTTP:80, HTTPS:443 son estándar)
+
 4. **ufw default deny/allow** configura política por defecto (rechazar entrada, permitir salida)
+
 5. **tail -f** muestra en tiempo real los intentos bloqueados por el firewall
 
 #### macOS (Built-in Firewall)
@@ -427,6 +435,7 @@ sudo systemctl start unattended-upgrades  # <2>
 ```
 
 1. **unattended-upgrades** es el paquete que permite actualizaciones automáticas sin intervención
+
 2. **systemctl enable/start** configura el servicio para ejecutarse automáticamente en el boot
 sudo systemctl start unattended-upgrades
 
@@ -754,8 +763,11 @@ sudo fail2ban-client status sshd  # <4>
 ```
 
 1. **fail2ban** es el sistema que detecta intentos fallidos de login y bloquea IPs automáticamente
+
 2. **systemctl enable/start** configura el servicio y lo inicia (enable = arrancar al boot, start = arrancar ahora)
+
 3. **systemctl status** muestra si el servicio está activo (running) o detenido (inactive)
+
 4. **fail2ban-client status sshd** muestra estadísticas: IPs actualmente baneadas y total histórico
 
 ---
@@ -765,9 +777,13 @@ sudo fail2ban-client status sshd  # <4>
 ### 5.1 Escenario
 
 Tienes un servidor Ubuntu recién instalado que necesita:
+
 1. Actualizar todos los paquetes
+
 2. Configurar firewall básico
+
 3. Habilitar actualizaciones automáticas
+
 4. Aplicar hardening inicial
 
 ### 5.2 Pasos
@@ -895,6 +911,7 @@ sudo aide --check
 ### Ejercicio 1: Crear política de actualización
 
 Define:
+
 - Cuándo actualizar (horarios)
 - Qué actualizar (seguridad, todas)
 - Cómo notificar (email)
@@ -913,6 +930,7 @@ Unattended-Upgrade::Mail "admin@abacom.com";
 ### Ejercicio 2: Configurar firewall completo
 
 Crea firewall para:
+
 - SSH: Permitir solo desde IP 192.168.1.50
 - HTTP/HTTPS: Permitir desde cualquiera
 - MySQL: Permitir solo desde red 192.168.1.0/24
@@ -931,9 +949,13 @@ sudo ufw allow from 192.168.1.0/24 to any port 3306
 ### Ejercicio 3: Crear script de backup antes de actualizar
 
 Crea script que:
+
 1. Hace backup de configuración
+
 2. Ejecuta **apt update && apt upgrade**
+
 3. Notifica resultado por log
+
 4. Se ejecuta cada domingo a las 2 AM
 
 **Solución**: Ver Anexo A (Bash Scripting) para crear script + crontab
@@ -943,30 +965,35 @@ Crea script que:
 ## 8. Quiz de Verificación
 
 1. **¿Cuál es la diferencia entre **apt upgrade** y **apt full-upgrade**?**
+
    - A) No hay diferencia
    - B) upgrade es más rápido
    - C) full-upgrade puede remover paquetes; upgrade no
    - D) Respuesta C es correcta ✅
 
 2. **¿Qué hace **sudo ufw allow 22/tcp** antes de **sudo ufw enable**?**
+
    - A) Permite acceso SSH para que no te bloquees
    - B) Es necesario antes de habilitar firewall
    - C) Protege SSH de ataques
    - D) Respuestas A y B son correctas ✅
 
 3. **¿Cuál es el comando para ver reglas de UFW numeradas?**
+
    - A) sudo ufw list
    - B) sudo ufw show
    - C) sudo ufw status numbered ✅
    - D) sudo ufw rules
 
 4. **¿Qué es unattended-upgrades?**
+
    - A) Actualización manual del sistema
    - B) Herramienta para actualizar automáticamente ✅
    - C) Comando para actualizar paquetes específicos
    - D) Script para limpiar paquetes
 
 5. **¿Cuál es la regla de seguridad al usar UFW?**
+
    - A) Permitir SSH al último
    - B) Permitir SSH al primero ✅
    - C) No importa el orden
@@ -988,6 +1015,7 @@ Crea script que:
 ### Siguiente: Unidad 2.5
 
 El próximo (y último) tema de Unidad 2 cubre:
+
 - Comandos básicos de terminal
 - Navegación del sistema de archivos
 - Primeros pasos prácticos

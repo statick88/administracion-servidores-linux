@@ -30,9 +30,13 @@ Un **Sistema Operativo** es el software fundamental que controla todos los recur
 En esta unidad cubriremos:
 
 1. **¿Qué es un Sistema Operativo?** - Definición, rol y responsabilidades
+
 2. **Componentes Principales** - Kernel, shell, drivers y utilidades
+
 3. **Funciones Esenciales** - Gestión de recursos, procesos y memoria
+
 4. **Diferencias entre SOs** - Comparativa entre Windows, macOS y Linux
+
 5. **Por qué existe Linux** - Historia, filosofía y ventajas
 
 ---
@@ -90,6 +94,7 @@ PRETTY_NAME="Ubuntu 22.04.4 LTS"
 ```
 
 **Explicación:**
+
 - **uname -a**: Muestra nombre del kernel, versión y arquitectura
 - En Linux: Kernel es "Linux 5.15.0" en arquitectura "x86_64" (64 bits)
 - **Resultado**: Información técnica para administración de servidores
@@ -109,6 +114,7 @@ BuildVersion:   23C71
 ```
 
 **Explicación:**
+
 - **uname -a**: Muestra "Darwin" (kernel de macOS) en arquitectura arm64 (Apple Silicon) o x86_64 (Intel)
 - **sw_vers**: Muestra versión específica de macOS instalado
 - **Resultado**: macOS es basado en Unix, compatible con comandos Linux
@@ -127,6 +133,7 @@ PS> Get-ComputerInfo -Property osname, osversion, systemskufamily
 ```
 
 **Explicación:**
+
 - **systeminfo**: Muestra información detallada del sistema
 - **findstr**: Filtra solo líneas específicas (similar a grep en Linux)
 - **Resultado**: Windows usa arquitectura x64 (equivalente a x86_64 en Linux)
@@ -152,6 +159,7 @@ diego     5432  0.0  0.5 234567 8912 pts/0    S+   14:35   0:00 bash
 ```
 
 **Cómo funciona:**
+
 - **ps aux**: Lista todos los procesos del sistema con detalles completos
 - **PID**: Identificador único de proceso
 - **%CPU / %MEM**: Porcentaje de CPU y memoria que usa
@@ -172,6 +180,7 @@ $ top -l 1 -n 10
 ```
 
 **Cómo funciona:**
+
 - Similar a Linux pero con columnas ligeramente diferentes
 - **STARTED**: Cuándo se inició el proceso
 - **WindowServer**: Proceso especial de macOS para gráficos
@@ -194,6 +203,7 @@ PS> tasklist /V | findstr "python"
 ```
 
 **Cómo funciona:**
+
 - **Get-Process**: Obtiene lista de procesos activos
 - **Id**: Identificador único (equivalente a PID en Linux)
 - **Memory**: Uso de memoria en bytes
@@ -221,6 +231,7 @@ $ ps aux | grep "python\|node\|java"
 ```
 
 **Por qué lo usamos en Abacom:**
+
 - Monitorear memoria disponible para aplicaciones críticas
 - Detectar si el servidor está bajo carga (load average)
 - Uptime de 247 días = Excelente estabilidad
@@ -242,6 +253,7 @@ $ vm_stat
 ```
 
 **Por qué lo usamos en Abacom:**
+
 - Verificar que tenemos suficiente RAM para Docker/VirtualBox
 - Monitorear si las herramientas de desarrollo están consumiendo demasiado
 - Detectar memory leaks en aplicaciones
@@ -263,6 +275,7 @@ PS> systeminfo | findstr /C:"Processor" /C:"System Type" /C:"Total Physical Memo
 ```
 
 **Por qué lo usamos en Abacom:**
+
 - Monitorear servidores remotos desde Windows
 - Verificar que tengas suficiente RAM en tu máquina
 - Automatizar tareas de administración
@@ -299,6 +312,7 @@ kvm                  1019904  1 kvm_intel
 ```
 
 1. **uname -r** muestra la versión exacta del kernel de tu sistema
+
 2. **lsmod** lista los módulos del kernel que están actualmente cargados en memoria
 
 El kernel Linux se actualiza para seguridad y rendimiento, pero rara vez requiere reinicio.
@@ -322,6 +336,7 @@ $ lsmod | grep -i eth  # <2>
 ```
 
 1. **lspci** lista todos los dispositivos PCI conectados al sistema, filtramos solo Network, VGA y Audio
+
 2. **lsmod | grep -i eth** muestra solo los módulos de ethernet cargados en el kernel
 
 Sin drivers correctos, el hardware no funciona.
@@ -343,6 +358,7 @@ drwxr-xr-x  5 diego staff 160 Jan 29 14:22 diego
 ```
 
 1. **ls -la /home** lista todos los directorios en /home con detalles (permisos, dueño, fecha, etc.)
+
 2. El shell convierte este comando en instrucciones que el kernel entiende
 
 Diferentes shells: **bash**, **zsh**, **sh**, **fish**.
@@ -365,13 +381,19 @@ Tasks: 156 total,   1 running, 155 sleeping,   0 stopped,   0 zombie  # <2>
 ```
 
 1. **top -b -n 1** ejecuta top en modo batch (sin interfaz interactiva) una sola vez
+
 2. La línea "Tasks" muestra cuántos procesos están ejecutándose (156 total, 1 corriendo, 155 dormidos)
+
 3. La línea "%Cpu(s)" muestra el porcentaje de CPU usado en modo usuario (us), sistema (sy), inactivo (id), etc.
 
 **Cómo funciona:**
+
 1. El SO maneja un "planificador" (scheduler) que decides cuál proceso ejecutar
+
 2. Si tienes un CPU de 4 núcleos, puede ejecutar 4 cosas simultáneamente
+
 3. En paralelo, el SO cambia entre procesos muy rápidamente (time slicing)
+
 4. Resultado: Parece que 100 programas corren "al mismo tiempo"
 
 ### Gestión de Memoria
@@ -387,13 +409,17 @@ MemAvailable:   12506144 kB    # RAM que puede usar si es necesario  # <4>
 ```
 
 1. **/proc/meminfo** es un archivo virtual que muestra información detallada de memoria del kernel
+
 2. MemTotal es la cantidad total de RAM disponible
+
 3. MemFree es RAM completamente sin usar (no incluye caché)
+
 4. MemAvailable es RAM que el kernel puede liberar rápidamente si la necesita otra aplicación
 ...
 ```
 
 **Importancia:**
+
 - Cada proceso cree que tiene acceso a toda la memoria (memoria virtual)
 - El SO maneja la traducción real a direcciones físicas
 - Si se acaba RAM, usa disco (swap) - mucho más lento
@@ -414,8 +440,11 @@ sdb      8:16   0    2T  0 disk
 ```
 
 1. **lsblk** (block list) muestra todos los dispositivos de almacenamiento en forma de árbol
+
 2. NAME: nombre del dispositivo, SIZE: tamaño, TYPE: tipo (disk=disco, part=partición), MOUNTPOINT: dónde está montado
+
 3. **sda** es el primer disco duro (500 GB), identificado como 8:0 en el kernel
+
 4. **sda1** y **sda2** son particiones (divisiones) del disco sda, la primera (1G) es /boot (donde arranca el SO)
 
 El SO decide qué proceso puede acceder a qué dispositivo en qué momento.
@@ -434,8 +463,11 @@ tmpfs           7.8G     0  7.8G   0% /dev/shm
 ```
 
 1. **df -h** (disk free) muestra el espacio disponible en todos los sistemas de archivos montados (-h = human readable, en GB/TB)
+
 2. Filesystem: dispositivo, Size: tamaño total, Used: usado, Avail: disponible, Mounted on: dónde está montado
+
 3. **/dev/sda2** es la partición principal (/) con 500G total, 120G usados, 380G disponibles (24% ocupado)
+
 4. **/dev/sdb1** es una segunda partición montada como /data, casi llena (75% usada, solo 500G disponibles)
 
 El SO traduce "abre archivo.txt" en "busca en sector X del disco Y".
@@ -471,6 +503,7 @@ Mem:          15.6G   14.8G   0.8G  ← ¡RAM llena!
 ```
 
 1. df -h** muestra espacio en disco (500G disponibles), así que el problema NO es falta de disco
+
 2. **free -h** muestra RAM, y aquí está el problema: solo 0.8G de 15.6G disponibles, la RAM está casi llena
 
 **Por qué funciona la solución:**
@@ -495,8 +528,11 @@ Filename  Size  Used Priority
 ```
 
 1. **uptime** muestra cuánto tiempo lleva el sistema activo y el "load average" (promedio de procesos en cola)
+
 2. Si load average (12.5, 11.2, 10.1) es mayor que los núcleos CPU que tienes (ej: 4 núcleos), el CPU está sobrecargado
+
 3. **swapon -s** muestra si el sistema está usando swap (disco como RAM, mucho más lento)
+
 4. Si "Used" de swap es alto, significa que se llenó la RAM y ahora está usando disco, causando ralentizaciones severas
 :::
 
@@ -508,11 +544,13 @@ Filename  Size  Used Priority
 ## Patrones Recomendados
 
 ✅ **HACER (Prácticas Probadas):**
+
 - Monitorear RAM disponible continuamente → previene problemas antes
 - Mantener kernél actualizado → parches de seguridad
 - Revisar procesos que consumen recursos → identificar culpables
 
 ❌ **NO HACER (Antipatrones):**
+
 - Ignorar alertas de memoria llena → causa crashes
 - Ejecutar procesos como **root** innecesariamente → riesgo seguridad
 - Llenar swap sin investigar → enmascara problema real
@@ -596,6 +634,7 @@ Si **free** es muy pequeño o **used** es muy grande, la RAM está llena.
   Usarías `free -h` cuando una **aplicación reporta error de memoria**, no cuando te falta espacio en disco.
 
   **Ejemplo práctico:**
+
   - ✅ Usar `free -h` cuando: Java reporta "OutOfMemoryError" o aplicación se crashes con "Cannot allocate memory"
   - ❌ No usar `free -h` cuando: El disco muestra "100% full" o error de "No space left on device"
 
@@ -612,8 +651,11 @@ Si **free** es muy pequeño o **used** es muy grande, la RAM está llena.
 **Objetivo:** Ejecutar comandos básicos para entender qué SO tienes y cómo funciona.
 
 **Pasos:**
+
 1. Abrir una terminal (macOS/Linux) o PowerShell (Windows)
+
 2. Ejecutar comandos para obtener información
+
 3. Interpretar los resultados
 
 **Instrucciones:**
@@ -632,10 +674,13 @@ $ free -h  # <3>
 ```
 
 1. **uname -a** (all) muestra toda la información del sistema: nombre kernel, versión, máquina, procesador
+
 2. **ps aux** lista todos los procesos en ejecución, `| head -10` muestra solo los primeros 10
+
 3. **free -h** (human readable) muestra RAM total, usada, libre en formato legible (GB)
 
 **Verificación:**
+
 - ✓ Ves el nombre del kernel (Linux, Darwin para macOS, etc.)
 - ✓ Ves una lista de procesos numerados
 - ✓ Ves números de memoria (Mem: XXG)
@@ -645,8 +690,11 @@ $ free -h  # <3>
 **Objetivo:** Observar cómo el SO gestiona recursos mientras ejecutas comandos.
 
 **Pasos:**
+
 1. Abrir **top** o **htop** para ver monitoreo
+
 2. Notar cómo cambian los procesos
+
 3. Ejecutar un comando que consume recursos
 
 **Instrucciones:**
@@ -663,6 +711,7 @@ $ yes > /dev/null  # Genera CPU load
 ```
 
 **Verificación:**
+
 - ✓ Ves el proceso "yes" en la lista de top
 - ✓ Ves que %CPU es alto para ese proceso
 - ✓ El cambio ocurre en tiempo real
@@ -691,6 +740,7 @@ $ top -b -n 1 | sort -k 3 -nr | head -5
 ```
 
 **Verificación:**
+
 - ✓ Entiendes qué significan los números
 - ✓ Puedes identificar el culpable (memoria, CPU, disco)
 - ✓ Sabes qué pasos seguir para resolver
@@ -734,8 +784,11 @@ $ cat resultados/info-so.txt
 ```
 
 **Ejercicio:**
+
 1. Ejecuta cada comando
+
 2. Guarda los resultados en el archivo
+
 3. Interpreta: ¿Qué versión de kernel tienes? ¿32 o 64 bits?
 
 ### Fase 3: Monitoreo de Recursos (20 min)
@@ -755,8 +808,11 @@ $ cat resultados/recursos.txt
 ```
 
 **Ejercicio:**
+
 1. ¿Cuánta RAM tienes?
+
 2. ¿Cuánta RAM está disponible?
+
 3. ¿Cuál es el proceso que más CPU consume?
 
 ### Fase 4: Análisis de Procesos (20 min)
@@ -777,8 +833,11 @@ $ ps aux | wc -l >> resultados/procesos.txt
 ```
 
 **Ejercicio:**
+
 1. ¿Cuál es el proceso que más CPU consume?
+
 2. ¿Cuál es el proceso que más memoria consume?
+
 3. ¿Cuántos procesos totales hay en ejecución?
 
 ### Fase 5: Proyecto Integrador - Diagnóstico Real (15 min)
@@ -888,6 +947,7 @@ $ man df
 **P: ¿Por qué macOS es diferente a Linux si ambos son Unix?**
 
 R: Ambos siguen estándares POSIX, pero tienen diferencias:
+
 - macOS usa kernel XNU (derivado de BSD y Mach)
 - Linux usa kernel Linux (de Linus Torvalds)
 - Comandos básicos son similares, pero algunos flags difieren
@@ -904,6 +964,7 @@ $ vm_stat
 **P: ¿Cómo aplico esto en Abacom?**
 
 R: En nuestro caso, usamos estos comandos diariamente:
+
 - **top** o **htop** cuando reportan problemas de rendimiento
 - `free -h` para verificar si falta RAM
 - `df -h` para monitorear espacio en disco
@@ -922,7 +983,9 @@ $ uptime && free -h && df -h && top -b -n 1 | head -20
 ## Lo más importante (3 puntos clave)
 
 1. **Sistema Operativo = Intermediario entre usuario y hardware** → Sin SO, no funciona nada. Todo pasa a través del SO.
+
 2. **Kernel vs Shell** → Kernel gestiona hardware (invisible), Shell es la interfaz (lo que ves).
+
 3. **Diagnóstico de problemas** → Usa `free -h` para memoria, `df -h` para disco, **top** para CPU.
 
 **Recuerda:** Estos conceptos serán la base para entender administración avanzada de servidores.
@@ -967,6 +1030,7 @@ $ uptime && free -h && df -h && top -b -n 1 | head -20
 ## Acerca de las fuentes
 
 Todo el contenido de este módulo ha sido verificado contra:
+
 - Estándares POSIX.1-2017 y IEEE 1003.1
 - Documentación oficial de The Linux Foundation
 - Man-pages oficiales de Linux

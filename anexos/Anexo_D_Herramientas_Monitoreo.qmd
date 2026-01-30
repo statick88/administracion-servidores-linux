@@ -11,6 +11,7 @@ biblio-style: apalike
 ## Introducción
 
 En administración de servidores Linux, **monitorear el sistema** es fundamental. Necesitas saber:
+
 - ¿Cuánta CPU estoy usando?
 - ¿Qué procesos consumen memoria?
 - ¿Está saturado el disco?
@@ -19,6 +20,7 @@ En administración de servidores Linux, **monitorear el sistema** es fundamental
 Este anexo enseña herramientas para **observar qué está sucediendo** en tiempo real en tu servidor.
 
 **🗺️ En este anexo aprenderás:**
+
 - **top** - Monitor de procesos clásico (siempre disponible)
 - **htop** - Versión mejorada de top (más amigable)
 - **free** - Información de RAM
@@ -174,6 +176,7 @@ PS> taskmgr  # GUI interactiva
 | Ver conexiones | `netstat -an` / `ss` | `netstat -an` / `lsof -i` | `Get-NetTCPConnection` |
 
 **Recomendación para Abacom:**
+
 - Linux: Usar herramientas nativas (top, free, df, netstat)
 - macOS: Instalar Homebrew y usar `htop`, `lsof`
 - Windows: Usar PowerShell cmdlets o Task Manager GUI
@@ -215,6 +218,7 @@ load average: 0.89, 0.76, 0.68  ← Carga CPU (1min, 5min, 15min)
 ```
 
 **"Load average" es crítico:**
+
 - **1 core = load 1.0** es 100% ocupado
 - **4 cores = load 4.0** es 100% ocupado
 - **load 0.5** = 50% del CPU disponible
@@ -345,6 +349,7 @@ htop  # <1>
 1. **htop** es reemplazo directo de top (mismos comandos)
 
 **Ventajas sobre TOP:**
+
 - ✅ Colores (más legible)
 - ✅ Barras de progreso (CPU, Memoria)
 - ✅ Scroll horizontal/vertical
@@ -618,6 +623,7 @@ w_await  ← Latencia de escritura (ms)
 ```
 
 **Análisis:**
+
 - **%util > 80%** = Disco saturado
 - **r_await > 50ms** = Lecturas lentas
 - **w_await > 100ms** = Escrituras muy lentas
@@ -637,9 +643,11 @@ netstat -tulpn  # <2>
 ```
 
 1. **ss** (socket statistics) es reemplazo moderno de netstat
+
 2. **netstat** funciona pero deprecado
 
 **Opciones:**
+
 - **t** = TCP
 - **u** = UDP
 - **l** = Listen (servicios esperando)

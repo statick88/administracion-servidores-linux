@@ -690,9 +690,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</h1>
 <section id="introducción" class="level2">
 <h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
-<p>En administración de servidores Linux, <strong>monitorear el sistema</strong> es fundamental. Necesitas saber: - ¿Cuánta CPU estoy usando? - ¿Qué procesos consumen memoria? - ¿Está saturado el disco? - ¿Quién se conecta al servidor?</p>
+<p>En administración de servidores Linux, <strong>monitorear el sistema</strong> es fundamental. Necesitas saber:</p>
+<ul>
+<li>¿Cuánta CPU estoy usando?</li>
+<li>¿Qué procesos consumen memoria?</li>
+<li>¿Está saturado el disco?</li>
+<li>¿Quién se conecta al servidor?</li>
+</ul>
 <p>Este anexo enseña herramientas para <strong>observar qué está sucediendo</strong> en tiempo real en tu servidor.</p>
-<p><strong>🗺️ En este anexo aprenderás:</strong> - <strong>top</strong> - Monitor de procesos clásico (siempre disponible) - <strong>htop</strong> - Versión mejorada de top (más amigable) - <strong>free</strong> - Información de RAM - <strong>df</strong> - Espacio en disco - <strong>du</strong> - Uso de disco por carpeta - <strong>iostat</strong> - Lectura/escritura de disco - <strong>netstat/ss</strong> - Conexiones de red - <strong>vmstat</strong> - Estadísticas virtuales de memoria - Monitoreo remoto y alertas</p>
+<p><strong>🗺️ En este anexo aprenderás:</strong></p>
+<ul>
+<li><strong>top</strong> - Monitor de procesos clásico (siempre disponible)</li>
+<li><strong>htop</strong> - Versión mejorada de top (más amigable)</li>
+<li><strong>free</strong> - Información de RAM</li>
+<li><strong>df</strong> - Espacio en disco</li>
+<li><strong>du</strong> - Uso de disco por carpeta</li>
+<li><strong>iostat</strong> - Lectura/escritura de disco</li>
+<li><strong>netstat/ss</strong> - Conexiones de red</li>
+<li><strong>vmstat</strong> - Estadísticas virtuales de memoria</li>
+<li>Monitoreo remoto y alertas</li>
+</ul>
 <p><strong>⏱️ Duración estimada</strong>: 60 minutos de práctica</p>
 <hr>
 </section>
@@ -831,7 +848,12 @@ Solución: Optimizar aplicación o agregar más RAM</code></pre>
 </div>
 </div>
 <p><strong>Comparación de comandos:</strong> | Tarea | Linux | macOS | Windows | |——|——-|——-|———| | Ver procesos | <code>top</code> / <code>htop</code> | <code>top -l 1</code> (diferente) | <code>Get-Process</code> | | Ver RAM | <code>free -h</code> | <code>vm_stat</code> | <code>Get-WmiObject Win32_ComputerSystem</code> | | Ver disco | <code>df -h</code> | <code>df -h</code> | <code>Get-PSDrive</code> | | Ver conexiones | <code>netstat -an</code> / <code>ss</code> | <code>netstat -an</code> / <code>lsof -i</code> | <code>Get-NetTCPConnection</code> |</p>
-<p><strong>Recomendación para Abacom:</strong> - Linux: Usar herramientas nativas (top, free, df, netstat) - macOS: Instalar Homebrew y usar <code>htop</code>, <code>lsof</code> - Windows: Usar PowerShell cmdlets o Task Manager GUI</p>
+<p><strong>Recomendación para Abacom:</strong></p>
+<ul>
+<li>Linux: Usar herramientas nativas (top, free, df, netstat)</li>
+<li>macOS: Instalar Homebrew y usar <code>htop</code>, <code>lsof</code></li>
+<li>Windows: Usar PowerShell cmdlets o Task Manager GUI</li>
+</ul>
 <hr>
 </section>
 <section id="concepto-1-top---monitor-de-procesos" class="level2">
@@ -868,7 +890,13 @@ MiB Swap:  4096.0 total,  4096.0 free,     0.0 used.  9854.3 avail Mem
 up 45 days, 2:34            ← Tiempo encendido el servidor
 3 users                     ← Usuarios conectados
 load average: 0.89, 0.76, 0.68  ← Carga CPU (1min, 5min, 15min)</code></pre>
-<p><strong>“Load average” es crítico:</strong> - <strong>1 core = load 1.0</strong> es 100% ocupado - <strong>4 cores = load 4.0</strong> es 100% ocupado - <strong>load 0.5</strong> = 50% del CPU disponible - Si ves <strong>load 8.0</strong> en máquina 4-core = <strong>SATURADO</strong></p>
+<p><strong>“Load average” es crítico:</strong></p>
+<ul>
+<li><strong>1 core = load 1.0</strong> es 100% ocupado</li>
+<li><strong>4 cores = load 4.0</strong> es 100% ocupado</li>
+<li><strong>load 0.5</strong> = 50% del CPU disponible</li>
+<li>Si ves <strong>load 8.0</strong> en máquina 4-core = <strong>SATURADO</strong></li>
+</ul>
 <p><strong>Segunda línea - Procesos:</strong></p>
 <pre data-code-line-numbers=""><code>Tasks: 287 total    ← Total de procesos
 2 running           ← Ejecutándose ahora
@@ -997,7 +1025,15 @@ f         → Agregar/quitar columnas</code></pre>
 <span data-code-cell="annotated-cell-14" data-code-lines="1" data-code-annotation="1"><strong>htop</strong> es reemplazo directo de top (mismos comandos)</span>
 </dd>
 </dl>
-<p><strong>Ventajas sobre TOP:</strong> - ✅ Colores (más legible) - ✅ Barras de progreso (CPU, Memoria) - ✅ Scroll horizontal/vertical - ✅ Buscar procesos (f para filtrar) - ✅ Ver árbol de procesos (t para tree) - ✅ Interfaz más amigable</p>
+<p><strong>Ventajas sobre TOP:</strong></p>
+<ul>
+<li>✅ Colores (más legible)</li>
+<li>✅ Barras de progreso (CPU, Memoria)</li>
+<li>✅ Scroll horizontal/vertical</li>
+<li>✅ Buscar procesos (f para filtrar)</li>
+<li>✅ Ver árbol de procesos (t para tree)</li>
+<li>✅ Interfaz más amigable</li>
+</ul>
 <p><strong>Pantalla de HTOP:</strong></p>
 <pre data-code-line-numbers=""><code>  CPU[████████░░░░░░] 45%     Tasks: 142, 2 thr; 1 running
   Mem[██████████░░░░] 68%     Load average: 0.89 0.76 0.68
@@ -1287,7 +1323,12 @@ wMB/s    ← Megabytes escritos por segundo
 r_await  ← Latencia de lectura (ms)
 w_await  ← Latencia de escritura (ms)
 %util    ← Porcentaje de utilización</code></pre>
-<p><strong>Análisis:</strong> - <strong>%util &gt; 80%</strong> = Disco saturado - <strong>r_await &gt; 50ms</strong> = Lecturas lentas - <strong>w_await &gt; 100ms</strong> = Escrituras muy lentas</p>
+<p><strong>Análisis:</strong></p>
+<ul>
+<li><strong>%util &gt; 80%</strong> = Disco saturado</li>
+<li><strong>r_await &gt; 50ms</strong> = Lecturas lentas</li>
+<li><strong>w_await &gt; 100ms</strong> = Escrituras muy lentas</li>
+</ul>
 <hr>
 </section>
 </section>
@@ -1315,7 +1356,14 @@ w_await  ← Latencia de escritura (ms)
 <span data-code-cell="annotated-cell-39" data-code-lines="5" data-code-annotation="2"><strong>netstat</strong> funciona pero deprecado</span>
 </dd>
 </dl>
-<p><strong>Opciones:</strong> - <strong>t</strong> = TCP - <strong>u</strong> = UDP - <strong>l</strong> = Listen (servicios esperando) - <strong>p</strong> = Process (mostrar qué proceso) - <strong>n</strong> = Numeric (IP en vez de nombres)</p>
+<p><strong>Opciones:</strong></p>
+<ul>
+<li><strong>t</strong> = TCP</li>
+<li><strong>u</strong> = UDP</li>
+<li><strong>l</strong> = Listen (servicios esperando)</li>
+<li><strong>p</strong> = Process (mostrar qué proceso)</li>
+<li><strong>n</strong> = Numeric (IP en vez de nombres)</li>
+</ul>
 <p><strong>Salida:</strong></p>
 <pre data-code-line-numbers=""><code>State     Recv-Q Send-Q Local Address    Foreign Address  State    PID/Program
 LISTEN      0     128  0.0.0.0:22       0.0.0.0:*       LISTEN   1234/sshd

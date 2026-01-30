@@ -690,7 +690,17 @@ div.csl-indent {
 <section id="introducción" class="level2">
 <h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
 <p>Los permisos de archivos son fundamentales en Linux. Controlan quién puede leer, escribir o ejecutar un archivo. Entender y manejar permisos correctamente es esencial para la seguridad del sistema.</p>
-<p><strong>🗺️ En este tema aprenderás:</strong> - Estructura de permisos en Linux (rwx) - Permiso de lectura (r), escritura (w), ejecución (x) - Propietario, grupo y otros - Notación octal vs simbólica - Comando <code>chmod</code> - cambiar permisos - Comando <code>chown</code> - cambiar propietario - Comando <code>chgrp</code> - cambiar grupo - Permisos especiales (setuid, setgid, sticky)</p>
+<p><strong>🗺️ En este tema aprenderás:</strong></p>
+<ul>
+<li>Estructura de permisos en Linux (rwx)</li>
+<li>Permiso de lectura (r), escritura (w), ejecución (x)</li>
+<li>Propietario, grupo y otros</li>
+<li>Notación octal vs simbólica</li>
+<li>Comando <code>chmod</code> - cambiar permisos</li>
+<li>Comando <code>chown</code> - cambiar propietario</li>
+<li>Comando <code>chgrp</code> - cambiar grupo</li>
+<li>Permisos especiales (setuid, setgid, sticky)</li>
+</ul>
 <hr>
 </section>
 <section id="entendiendo-los-permisos-de-linux" class="level2">
@@ -716,6 +726,7 @@ div.csl-indent {
 <section id="ejemplo-de-interpretación" class="level3">
 <h3 class="anchored" data-anchor-id="ejemplo-de-interpretación">Ejemplo de interpretación:</h3>
 <pre data-code-line-numbers=""><code>-rw-r--r--
+
 - = archivo regular
 rw- = propietario puede leer y escribir (no ejecutar)
 r-- = grupo solo puede leer
@@ -725,7 +736,12 @@ r-- = otros solo pueden leer</code></pre>
 </section>
 <section id="notación-octal-de-permisos" class="level2">
 <h2 class="anchored" data-anchor-id="notación-octal-de-permisos">Notación Octal de Permisos</h2>
-<p>Cada permiso puede representarse como número: - <strong>r</strong> = 4 - <strong>w</strong> = 2 - <strong>x</strong> = 1</p>
+<p>Cada permiso puede representarse como número:</p>
+<ul>
+<li><strong>r</strong> = 4</li>
+<li><strong>w</strong> = 2</li>
+<li><strong>x</strong> = 1</li>
+</ul>
 <p>Se suman para obtener un dígito de 0-7:</p>
 <table class="caption-top table">
 <thead>
@@ -801,8 +817,8 @@ r-- = otros solo pueden leer</code></pre>
 <section id="modalidades" class="level3">
 <h3 class="anchored" data-anchor-id="modalidades">Modalidades:</h3>
 <ol type="1">
-<li><strong>Octal</strong>: <code>chmod 644 archivo</code></li>
-<li><strong>Simbólica</strong>: <code>chmod u+x archivo</code></li>
+<li><p><strong>Octal</strong>: <code>chmod 644 archivo</code></p></li>
+<li><p><strong>Simbólica</strong>: <code>chmod u+x archivo</code></p></li>
 </ol>
 </section>
 <section id="ejemplos-prácticos-multi-so" class="level3">
@@ -825,9 +841,9 @@ r-- = otros solo pueden leer</code></pre>
 <span id="annotated-cell-6-6"><a href="#annotated-cell-6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rwxr-xr-x</span> 1 usuario grupo 1024 Jan 29 10:30 script.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl>
-<dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-6" data-code-lines="7" data-code-annotation="1"><code>+x</code> agrega permisos de ejecución para todos</span>
+<span data-code-cell="annotated-cell-6" data-code-lines="7" data-code-annotation="2">Se puede ejecutar ahora: <code>./script.sh</code></span>
 </dd>
 </dl>
 </section>
@@ -861,9 +877,9 @@ r-- = otros solo pueden leer</code></pre>
 <span id="annotated-cell-8-5"><a href="#annotated-cell-8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># En PowerShell puro, no aplica igual</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl>
-<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-8" data-code-lines="6" data-code-annotation="1">Windows usa permisos ACL diferentes</span>
+<span data-code-cell="annotated-cell-8" data-code-lines="6" data-code-annotation="2">WSL hereda permisos del sistema de archivos de Windows</span>
 </dd>
 </dl>
 </section>
@@ -881,15 +897,25 @@ r-- = otros solo pueden leer</code></pre>
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> chmod 644 archivo.txt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> chmod 644 archivo.txt</span>
 <span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-l</span> archivo.txt</span>
 <span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 usuario grupo 1024 Jan 29 10:30 archivo.txt</span>
-<span id="annotated-cell-9-4"><a href="#annotated-cell-9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Interpretación: 6=rw-, 4=r--, 4=r--</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-9-4"><a href="#annotated-cell-9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Interpretación: 6=rw-, 4=r--, 4=r--</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-9-5" class="code-annotation-target"><a href="#annotated-cell-9-5" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-9-6" class="code-annotation-target"><a href="#annotated-cell-9-6" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<dl>
+<dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
 <dd>
 <span data-code-cell="annotated-cell-9" data-code-lines="5" data-code-annotation="1"><code>6</code> (rw-) para propietario</span>
+</dd>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="6" data-code-annotation="2"><code>4</code> (r–) para grupo</span>
+</dd>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="7" data-code-annotation="3"><code>4</code> (r–) para otros</span>
 </dd>
 </dl>
 </div>
@@ -952,9 +978,9 @@ r-- = otros solo pueden leer</code></pre>
 <span id="annotated-cell-12-8"><a href="#annotated-cell-12-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> chmod u=rwx,g=rx,o= archivo.txt  <span class="co"># Establecer permisos exactos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl>
-<dt data-target-cell="annotated-cell-12" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-12" data-code-lines="9" data-code-annotation="1">Muy flexible y legible</span>
+<span data-code-cell="annotated-cell-12" data-code-lines="9" data-code-annotation="2">Puedes combinar múltiples cambios con comas</span>
 </dd>
 </dl>
 </div>
@@ -1100,9 +1126,9 @@ r-- = otros solo pueden leer</code></pre>
 <span id="annotated-cell-19-6"><a href="#annotated-cell-19-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 otro-usuario grupo 1024 Jan 29 10:30 archivo.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl>
-<dt data-target-cell="annotated-cell-19" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-19" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-19" data-code-lines="7" data-code-annotation="1">Requiere permisos de administrador (sudo)</span>
+<span data-code-cell="annotated-cell-19" data-code-lines="7" data-code-annotation="2">Solo el propietario o root puede cambiar el dueño</span>
 </dd>
 </dl>
 </section>
@@ -1496,18 +1522,22 @@ r-- = otros solo pueden leer</code></pre>
 <section id="ejercicios-prácticos" class="level2">
 <h2 class="anchored" data-anchor-id="ejercicios-prácticos">🎯 Ejercicios Prácticos</h2>
 <ol type="1">
-<li>Crea un archivo y establece permisos <code>644</code></li>
-<li>Crea un script y hazlo ejecutable con <code>chmod +x</code></li>
-<li>Crea un directorio y establece <code>755</code></li>
-<li>Usa notación simbólica para remover escritura (<code>g-w</code>)</li>
-<li>Ver permisos con <code>ls -l</code> e interpreta cada columna</li>
-<li>Cambia grupo de un archivo con <code>chgrp</code></li>
+<li><p>Crea un archivo y establece permisos <code>644</code></p></li>
+<li><p>Crea un script y hazlo ejecutable con <code>chmod +x</code></p></li>
+<li><p>Crea un directorio y establece <code>755</code></p></li>
+<li><p>Usa notación simbólica para remover escritura (<code>g-w</code>)</p></li>
+<li><p>Ver permisos con <code>ls -l</code> e interpreta cada columna</p></li>
+<li><p>Cambia grupo de un archivo con <code>chgrp</code></p></li>
 </ol>
 <hr>
 </section>
 <section id="referencias" class="level2">
 <h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
-<p>Para más información sobre permisos: - <span class="citation" data-cites="posix2018">(<a href="#ref-posix2018" role="doc-biblioref">IEEE 2018</a>)</span> - POSIX Permissions - <span class="citation" data-cites="linux2024">(<a href="#ref-linux2024" role="doc-biblioref"><strong>linux2024?</strong></a>)</span> - Linux File Permissions Guide</p>
+<p>Para más información sobre permisos:</p>
+<ul>
+<li><span class="citation" data-cites="posix2018">(<a href="#ref-posix2018" role="doc-biblioref">IEEE 2018</a>)</span> - POSIX Permissions</li>
+<li><span class="citation" data-cites="linux2024">(<a href="#ref-linux2024" role="doc-biblioref"><strong>linux2024?</strong></a>)</span> - Linux File Permissions Guide</li>
+</ul>
 
 
 </section>
