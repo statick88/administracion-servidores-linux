@@ -1,223 +1,335 @@
-# 🖥️ Guía de Configuración - Selecciona tu Entorno
+# 🖥️ Guía de Configuración del Entorno
 
-Este curso soporta **4 entornos diferentes** para que puedas elegir el que mejor se adapte a tu máquina y necesidades.
+Tienes **4 opciones** para ejecutar Linux y seguir este curso. Elige la que mejor se adapte a tu máquina.
+
+> **Consejo:** Si no sabes cuál elegir, ir a la sección [Recomendaciones](#-recomendaciones) al final.
 
 ---
 
-## Opción 1: Windows + WSL2 ⭐ Recomendado para Windows
+## Opción 1: Windows + WSL2 ⭐ Mejor para Desarrolladores en Windows
 
 **¿Qué es WSL2?**
-Windows Subsystem for Linux 2 es una capa de compatibilidad que te permite ejecutar Linux directamente en Windows sin virtualización pesada.
 
-### Requisitos:
-- Windows 10 (Build 19041 o superior) o Windows 11
-- Procesador con virtualización habilitada
-- RAM: 4 GB mínimo (8 GB recomendado)
+Windows Subsystem for Linux 2 te permite ejecutar un kernel Linux completo directamente en Windows. Es como tener "Linux como programa" en tu PC.
 
-### Instalación paso a paso:
+**¿Por qué WSL2?**
+- 🚀 Más rápido que máquinas virtuales
+- 💾 Menos requisitos de almacenamiento
+- 🔄 Integración perfecta con Windows
+- 🐳 Excelente para Docker
 
-#### 1. Habilita WSL2 en Windows
+**Requisitos Mínimos:**
+
+```
+Windows 10 Build 19041+ o Windows 11
+Procesador: Cualquiera moderno (Intel VT-x o AMD-V)
+RAM: 4 GB (8 GB recomendado para este curso)
+Disco: 20 GB disponibles
+```
+
+### Instalación (3 pasos simples)
+
+#### Paso 1: Instalar WSL2
+
+Abre **PowerShell como Administrador** (clic derecho → "Ejecutar como Administrador")
 
 ```powershell
-# Abre PowerShell como Administrador
-# Ejecuta:
+# Instala WSL2 con Ubuntu 22.04
 wsl --install
 
-# Esto instala:
-# - Windows Subsystem for Linux
-# - Docker Desktop (opcional)
-# - Ubuntu 22.04 LTS (distribución por defecto)
-
-# Reinicia tu máquina cuando se te pida
+# Si tienes WSL1 antiguo:
+wsl --install -d Ubuntu-22.04
 ```
 
-#### 2. Configura WSL2
+Después, **reinicia tu PC**.
+
+#### Paso 2: Primera conexión
+
+Después del reinicio, WSL te pedirá crear usuario y contraseña:
+
+```
+Enter new UNIX username: tu_usuario
+New password: [escribe algo que recuerdes]
+Retype new password: [confirma]
+```
+
+#### Paso 3: Verifica que funciona
 
 ```powershell
-# Verifica que WSL2 está instalado
+# Abre PowerShell de nuevo y verifica
 wsl --list --verbose
 
-# Deberías ver:
+# Deberías ver algo como:
 # NAME            STATE           VERSION
 # Ubuntu-22.04    Running         2
+
+# O simplemente entra a WSL
+wsl
 ```
 
-#### 3. Accede a WSL2
+### Usar WSL2 para el Curso
+
+**Opción A: PowerShell (Windows Terminal)**
 
 ```powershell
-# Opción 1: Desde PowerShell
+# Desde PowerShell o Windows Terminal
 wsl
 
-# Opción 2: Desde Windows Terminal (recomendado)
-# Descarga: https://www.microsoft.com/en-us/p/windows-terminal/
-
-# Opción 3: Directo desde menú Inicio busca "Ubuntu"
-
-# Una vez dentro, estás en un bash completo de Linux
+# Ahora estás en bash de Linux
+whoami
+pwd
+ls
 ```
 
-#### 4. Configura tu usuario WSL2
+**Opción B: Acceso directo desde menú**
+
+Presiona `Win` y busca "Ubuntu" → click → abre terminal Linux directo
+
+**Opción C: Windows Terminal (recomendado)**
+
+```powershell
+# Descarga gratis desde Microsoft Store
+# O: https://www.microsoft.com/en-us/p/windows-terminal/
+
+# Luego tienes pestaña "Ubuntu" en Windows Terminal
+```
+
+### Primeras configuraciones útiles
 
 ```bash
-# Una vez dentro de WSL2:
-# Te pedirá crear usuario y contraseña
-# Completa el setup
-
-# Actualiza paquetes
+# Actualizar paquetes (SIEMPRE haz esto primero)
 sudo apt update
-sudo apt upgrade
-```
+sudo apt upgrade -y
 
-#### 5. Instala herramientas útiles para el curso
+# Instalar herramientas de desarrollo
+sudo apt install -y \
+  build-essential \
+  git \
+  vim \
+  nano \
+  curl \
+  wget \
+  net-tools \
+  htop \
+  tree
 
-```bash
-# Editor de texto
-sudo apt install vim nano
-
-# Herramientas de desarrollo
-sudo apt install build-essential git curl
-
-# Herramientas de sistema
-sudo apt install net-tools htop tree
-
-# Verificar instalaciones
-which git
-which gcc
-which curl
+# Verificar que todo está
+git --version
+gcc --version
+python3 --version
 ```
 
 ### Acceso a archivos Windows desde WSL2
 
+Tu unidad `C:` está en `/mnt/c`:
+
 ```bash
-# Tu unidad C: está en
-/mnt/c
+# Ver contenidos de Documentos
+ls /mnt/c/Users/TuUsuario/Documents
 
 # Crear carpeta de trabajo
-mkdir -p /mnt/c/Users/TuUsuario/AbacomLinux
-cd /mnt/c/Users/TuUsuario/AbacomLinux
+mkdir -p /mnt/c/Users/TuUsuario/CursoLinux
+cd /mnt/c/Users/TuUsuario/CursoLinux
 
-# Crear proyecto
-git clone https://github.com/tu-repo/curso-linux.git
+# Crear archivos aquí = los ves en Windows
+touch archivo.txt
+# Lo ves en Explorador de archivos
 ```
 
-### Uso de Docker en WSL2
+### Docker en WSL2
 
 ```bash
-# WSL2 integra muy bien con Docker
 # Instala Docker Desktop para Windows
 # https://www.docker.com/products/docker-desktop
 
-# Luego en WSL2:
+# En WSL2 luego puedes usar:
 docker --version
 docker run -it ubuntu:22.04 /bin/bash
 ```
 
-### Ventajas de WSL2 para este curso:
-✅ Linux completo en Windows  
-✅ Sin virtualización pesada  
-✅ Perfecto para desarrollo  
-✅ Integración con Docker  
-⚠️ No es ideal para aprender instalación del SO (es post-instalación)
+### Ventajas y Limitaciones
 
-### Limitaciones:
-❌ Interfaz gráfica limitada  
-❌ No puedes instalar GRUB o bootloader  
-❌ Kernel Windows, no Linux puro
+**✅ Ventajas:**
+- Linux completo sin virtualización pesada
+- Perfecto para desarrollo en Windows
+- Excelente para Docker
+- No consume mucho disco
+
+**⚠️ Limitaciones:**
+- NO es ideal para aprender instalación del SO
+- Interfaz gráfica muy limitada
+- Es kernel Windows, no Linux puro
 
 ---
 
-## Opción 2: Linux Nativo ⭐ Recomendado para aprender Linux
+## Opción 2: Linux Nativo ⭐ La Mejor Opción para Aprender Serio
 
 **¿Qué significa?**
-Tienes Linux instalado directamente como tu sistema operativo principal o secundario.
+
+Tu computadora ya tiene Linux instalado como sistema operativo (ya sea como único SO o dual-boot con Windows/macOS).
+
+**¿Por qué es lo mejor?**
+- 🎯 Acceso completo y real al sistema
+- ⚡ Máximo rendimiento
+- 🔐 Entorno profesional auténtico
+- 📖 Aprendes administración real, no simulada
 
 ### Requisitos:
-- Máquina con Linux ya instalado (Ubuntu, Fedora, Debian, Arch, etc.)
-- RAM: 2 GB mínimo (4 GB recomendado)
 
-### Primeros pasos:
-
-#### 1. Abre una terminal
-
-```bash
-# Atajo de teclado típico: Ctrl + Alt + T
-# O busca "Terminal" en tu menú de aplicaciones
+```
+Máquina con Linux ya instalado (Ubuntu, Fedora, Debian, Arch, etc.)
+RAM: 2 GB mínimo (4 GB recomendado)
+Terminal de comandos accesible
 ```
 
-#### 2. Verifica tu distribución
+### Verificar tu sistema
+
+**Abre una terminal** (Ctrl+Alt+T típicamente, o busca "Terminal" en menú)
 
 ```bash
-# Ver información completa
+# Ver distribución y versión completa
 cat /etc/os-release
 
-# Ver solo versión
+# Ejemplo de salida:
+# NAME="Ubuntu"
+# VERSION="22.04.1 LTS"
+# ID=ubuntu
+```
+
+```bash
+# Ver solo la versión
 lsb_release -a
 
-# Ver kernel
+# Ver versión del kernel
 uname -r
 ```
 
-#### 3. Actualiza tu sistema
+### Mantener tu sistema actualizado
+
+**Para Ubuntu/Debian:**
 
 ```bash
-# Para Ubuntu/Debian
-sudo apt update
-sudo apt upgrade
+sudo apt update     # Actualiza lista de paquetes
+sudo apt upgrade    # Instala actualizaciones
+sudo apt autoremove # Limpia paquetes viejos
+```
 
-# Para Fedora/RHEL
+**Para Fedora/RHEL:**
+
+```bash
 sudo dnf upgrade
+```
 
-# Para Arch Linux
+**Para Arch Linux:**
+
+```bash
 sudo pacman -Syu
 ```
 
-#### 4. Instala herramientas de desarrollo
+### Instalar herramientas necesarias para el curso
+
+**Ubuntu/Debian:**
 
 ```bash
-# Ubuntu/Debian
-sudo apt install build-essential git vim nano curl net-tools
-
-# Fedora
-sudo dnf install gcc gcc-c++ make git vim nano curl net-tools
-
-# Arch
-sudo pacman -S base-devel git vim nano curl net-tools
+sudo apt install -y \
+  build-essential \
+  git \
+  vim \
+  nano \
+  curl \
+  wget \
+  net-tools \
+  htop \
+  tree \
+  openssh-client \
+  openssh-server
 ```
 
-### Para prácticas de instalación en Linux nativo:
+**Fedora/RHEL:**
 
-#### Opción A: Usar máquina virtual (recomendado)
 ```bash
-# Instala VirtualBox o VMware
-# Descarga ISO de Ubuntu
-# Crea máquina virtual
-# Practica instalación sin riesgo
+sudo dnf install -y \
+  gcc \
+  gcc-c++ \
+  make \
+  git \
+  vim \
+  nano \
+  curl \
+  wget \
+  net-tools \
+  htop \
+  tree \
+  openssh-clients \
+  openssh-server
 ```
 
-#### Opción B: Usar partición dual boot
+**Arch Linux:**
+
 ```bash
-# Crea partición adicional
-# Instala otra distribución Linux
-# Elige en boot cual SO usar
+sudo pacman -S \
+  base-devel \
+  git \
+  vim \
+  nano \
+  curl \
+  wget \
+  net-tools \
+  htop \
+  tree \
+  openssh
 ```
 
-#### Opción C: Usar Docker
+### Para Practicar Instalación de Linux
+
+Si YA tienes Linux nativo, pero quieres practicar la instalación, tienes 3 opciones:
+
+**Opción A: Máquina Virtual (Recomendado)**
+
+```bash
+# Instala VirtualBox
+sudo apt install virtualbox
+
+# O descarga desde: https://www.virtualbox.org/
+
+# Luego:
+# 1. Descarga ISO de Ubuntu
+# 2. Crea máquina virtual vacía
+# 3. Practica la instalación sin riesgo
+```
+
+**Opción B: Partición Dual Boot**
+
+```bash
+# Crea partición adicional en tu disco
+# Instala otra distribución Linux en esa partición
+# Elige cuál SO usar al arrancar
+
+# ⚠️ REQUIERE CUIDADO: puedes perder datos
+# Haz backup ANTES de intentarlo
+```
+
+**Opción C: Docker**
+
 ```bash
 # Crea contenedores Linux
 docker run -it ubuntu:22.04 /bin/bash
-# Aprendes comandos sin virtualización
+
+# Dentro del contenedor tienes un "Linux completo"
+# Perfecto para aprender comandos sin virtualización
 ```
 
-### Ventajas de Linux nativo:
-✅ Acceso completo al sistema  
-✅ Mejor rendimiento  
-✅ Ideal para administración real  
-✅ Perfecto para aprender Linux profundamente  
-✅ Entorno profesional
+### Ventajas y Limitaciones
 
-### Limitaciones:
-❌ Requiere Linux ya instalado  
-❌ Menor protección si experimentas peligrosamente
+**✅ Ventajas:**
+- Acceso completo y real al sistema
+- Mejor rendimiento posible
+- Ideal para administración de sistemas
+- Aprendizaje profesional auténtico
+
+**⚠️ Limitaciones:**
+- Requiere tener Linux ya instalado
+- Menor protección al experimentar (podrías afectar tu SO principal)
 
 ---
 
