@@ -8,6 +8,15 @@
 
 ## 📚 Índice de Laboratorios
 
+### Laboratorio 0: Diagnóstico del Sistema
+- **Unidad:** 1 - Introducción a Linux
+- **Duración:** 45-60 minutos
+- **Dificultad:** Principiante
+- **Archivo:** `lab0_diagnostico_sistema.md`
+- **Objetivos:**
+  - Identificar distribución, kernel y recursos del sistema
+  - Validar conectividad de red básica
+
 ### Laboratorio 1: Instalación de Ubuntu Server
 - **Unidad:** 2 - Instalación y Configuración
 - **Duración:** 90 minutos
@@ -186,4 +195,3 @@ Ver `rubrica-evaluacion.qmd` para:
 ---
 
 **Para preguntas o problemas, contacta al instructor: Diego Saavedra**
-

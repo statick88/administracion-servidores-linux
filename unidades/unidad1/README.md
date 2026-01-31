@@ -103,7 +103,7 @@ Cada tema tiene un laboratorio práctico de 60-90 minutos. Al completar todos:
 - Evolución de versiones del kernel
 
 **Recursos:**
-- [Linux Foundation History](https://www.linuxfoundation.org/linux-kernel-history/)
+- [Linux kernel documentation](https://docs.kernel.org/)
 - [Kernel.org - Releases](https://www.kernel.org/)
 
 ---

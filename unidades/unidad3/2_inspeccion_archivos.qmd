@@ -187,7 +187,7 @@ $ less /var/log/system.log
 # PowerShell tiene 'more' pero es distinto
 PS> Get-Content archivo-grande.txt | more
 # Para mejor experiencia, usar:
-PS> Get-Content archivo-grande.txt -ReadCount 0 | Out-Host -Paging
+PS> Get-Content archivo-grande.txt -ReadCount 0 | Out-Host -Paging  # <2>
 # <1>
 ```
 1. Windows no tiene `less` por defecto
@@ -294,7 +294,7 @@ PS> Get-Content archivo.txt | Select-Object -Last 5
 
 #### Linux
 ```bash
-$ tail -f /var/log/apache2/access.log
+$ tail -f /var/log/apache2/access.log  # <1>
 192.168.1.100 - - [29/Jan/2024:10:45:30 +0000] "GET / HTTP/1.1" 200 1234
 192.168.1.101 - - [29/Jan/2024:10:46:00 +0000] "GET /api HTTP/1.1" 200 5678
 # ... (continúa mostrando nuevas líneas)
@@ -316,7 +316,7 @@ $ tail -f ~/Library/Logs/system.log
 #### Windows
 ```powershell
 # PowerShell no tiene -f nativo, pero:
-PS> Get-Content archivo.txt -Wait -Tail 10
+PS> Get-Content archivo.txt -Wait -Tail 10  # <1>
 # Para monitorizar más eficientemente:
 PS> while($true) { Clear-Host; Get-Content archivo.txt | Select-Object -Last 20; Start-Sleep 1 }
 # <2>
@@ -483,7 +483,7 @@ PS> Get-Item archivo.exe | ForEach-Object {$_.Extension}
 .exe
 
 # Mejor opción si tienes WSL o Git Bash:
-PS> wsl file archivo.exe
+PS> wsl file archivo.exe  # <2>
 # <1>
 ```
 1. `file` no existe en PowerShell nativo

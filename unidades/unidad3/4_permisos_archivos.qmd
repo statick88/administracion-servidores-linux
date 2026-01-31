@@ -112,7 +112,7 @@ chmod [opciones] [modo] [archivo]
 $ ls -l script.sh
 -rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 script.sh
 
-$ chmod +x script.sh
+$ chmod +x script.sh  # <1>
 $ ls -l script.sh
 -rwxr-xr-x 1 usuario grupo 1024 Jan 29 10:30 script.sh
 # <2>
@@ -132,7 +132,7 @@ $ ls -l script.sh
 
 #### Windows
 ```powershell
-# Windows no tiene permisos estilo Unix en NTFS
+# Windows no tiene permisos estilo Unix en NTFS  # <1>
 # Si estás en WSL:
 PS> wsl chmod +x script.sh
 
@@ -184,6 +184,7 @@ PS> $acl = Get-Acl archivo.txt
 PS> $rule = New-Object System.Security.AccessControl.FileSystemAccessRule `
     ("usuario", "Modify", "Allow")
 # <1>
+# <2>
 ```
 1. Mucho más complejo en PowerShell
 
@@ -205,6 +206,7 @@ $ chmod g-w archivo.txt         # Remover escritura del grupo
 $ chmod o-rwx archivo.txt       # Remover todos los permisos a otros
 $ chmod a+r archivo.txt         # Agregar lectura a todos
 $ chmod u=rwx,g=rx,o= archivo.txt  # Establecer permisos exactos
+# <1>
 # <2>
 ```
 1. Muy flexible y legible
@@ -289,6 +291,7 @@ $ sudo chown otro-usuario archivo.txt
 $ ls -l archivo.txt
 -rw-r--r-- 1 otro-usuario grupo 1024 Jan 29 10:30 archivo.txt
 # <2>
+# <1>
 ```
 1. Requiere permisos de administrador (sudo)
 
@@ -438,6 +441,7 @@ $ ls -l /usr/bin/sudo
 $ ls -ld /tmp
 drwxrwxrwt 1 root root 4096 Jan 29 10:45 /tmp
 # <1>
+# <2>
 ```
 1. La `t` al final es sticky bit
 

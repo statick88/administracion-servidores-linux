@@ -94,7 +94,7 @@ PS> wsl find ~ -name "*.txt"
 
 #### Linux
 ```bash
-$ find / -type f -size +100M
+$ find / -type f -size +100M  # <1>
 /var/lib/docker/overlay2/abc123.../layer.tar
 /home/usuario/videos/pelicula.mp4
 /var/cache/cache-file.bin
@@ -134,7 +134,7 @@ Mode                 LastWriteTime         Length Name
 
 #### Linux
 ```bash
-$ find ~ -type f -mtime -7
+$ find ~ -type f -mtime -7  # <1>
 /home/usuario/Documentos/archivo-reciente.txt
 /home/usuario/Descargas/descarga.pdf
 # <2>
@@ -169,7 +169,7 @@ PS> Get-ChildItem -Path C:\Users\usuario -Recurse -File |
 
 #### Linux
 ```bash
-$ find ~ -type d -empty
+$ find ~ -type d -empty  # <1>
 /home/usuario/directorio-vacio
 /home/usuario/proyectos/carpeta-vieja
 # <2>
@@ -245,7 +245,7 @@ $ grep "error" ~/Library/Logs/system.log
 #### Windows
 ```powershell
 # grep no existe, usar Select-String:
-PS> Select-String -Path C:\path\to\file.log -Pattern "error"
+PS> Select-String -Path C:\path\to\file.log -Pattern "error"  # <1>
 
 archivo.log:5:error: connection timeout
 archivo.log:8:error: authentication failed
@@ -301,6 +301,7 @@ $ grep -in "ERROR" /var/log/syslog
 45:[10:45:32] Error: connection timeout
 67:[10:46:00] ERROR: authentication failed
 # <1>
+# <2>
 ```
 1. `-i` ignora mayúsculas
 
@@ -429,6 +430,7 @@ $ find ~ -name "*.txt" | xargs grep "importante"
 Documentos/notas.txt:Este es un punto importante
 tareas.txt:importante: completar antes del viernes
 # <1>
+# <2>
 ```
 1. `-exec` ejecuta un comando en cada resultado
 
@@ -512,7 +514,7 @@ locate [opciones] patrón
 #### Linux
 ```bash
 # Actualizar base de datos (se hace automáticamente cada noche)
-$ sudo updatedb
+$ sudo updatedb  # <2>
 
 # Buscar archivos que contengan "apache" en el nombre
 $ locate apache
@@ -541,6 +543,7 @@ $ locate apache
 # Alternativa: crear índice con Everything o:
 PS> Get-ChildItem -Path C:\ -Recurse -Filter "*apache*" -ErrorAction SilentlyContinue
 # <1>
+# <2>
 ```
 1. Sin herramienta especializada, es más lento
 

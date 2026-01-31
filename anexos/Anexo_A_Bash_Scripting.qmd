@@ -12,6 +12,8 @@ biblio-style: apalike
 
 **Bash** (Bourne Again Shell) es el intérprete de comandos por defecto en Linux. Aunque puedes ejecutar comandos uno a uno en la terminal, crear **scripts de Bash** te permite automatizar tareas complejas. Este mini-curso es **completamente práctico** con ejemplos reales que usarás en Abacom.
 
+Ver definiciones rapidas en: [Glosario del curso](../glosario.qmd)
+
 **🗺️ En este anexo aprenderás:**
 
 - Variables y tipos de datos en Bash
@@ -19,7 +21,9 @@ biblio-style: apalike
 - Loops (for, while)
 - Funciones y modularización
 - Manejo de argumentos
+- Flags y opciones (getopts)
 - Redirección y pipes
+- Debugging y limpieza (trap)
 - Scripts prácticos listos para usar
 
 **⏱️ Duración estimada**: 2 horas de práctica
@@ -295,7 +299,7 @@ echo $$      # <5>
 
 2. **$1** = primer argumento pasado al script
 
-3. **$@** = todos los argumentos
+3. **`$@`** = todos los argumentos
 
 4. **$?** = código de salida del comando anterior (0=éxito, >0=error)
 
@@ -414,6 +418,98 @@ fi
 - **-r** = legible (readable)
 - **-w** = escribible (writable)
 - **-x** = ejecutable
+
+---
+
+## Concepto 2.5: case (múltiples opciones)
+
+Cuando tienes muchas opciones (distro, entorno, modo de ejecución), `case` suele ser más claro que varios `elif`.
+
+```bash
+#!/bin/bash
+
+DISTRO="${1:-}"  # <1>
+
+case "$DISTRO" in  # <2>
+  ubuntu|debian)
+    echo "Package manager: apt"
+    ;;
+  centos|rocky|rhel)
+    echo "Package manager: dnf"
+    ;;
+  arch)
+    echo "Package manager: pacman"
+    ;;
+  "")
+    echo "Uso: $0 <distro>" >&2
+    echo "Ejemplo: $0 ubuntu" >&2
+    exit 2
+    ;;
+  *)
+    echo "Distribución no soportada: $DISTRO" >&2
+    exit 2
+    ;;
+esac
+```
+
+
+
+1. **"${1:-}"** evita errores si no pasan argumentos; deja DISTRO vacío si falta
+2. **case "$DISTRO" in** evalúa alternativas y ejecuta el bloque que coincida
+
+---
+
+## Concepto 2.6: Flags y opciones con getopts
+
+`getopts` permite parsear opciones tipo `-u diego -g developers` sin depender del orden.
+
+```bash
+#!/bin/bash
+
+set -euo pipefail  # <1>
+
+USUARIO=""  # <2>
+GRUPO=""  # <3>
+SHELL="/bin/bash"  # <4>
+
+while getopts ":u:g:s:h" opt; do  # <5>
+  case "$opt" in
+    u) USUARIO="$OPTARG" ;;
+    g) GRUPO="$OPTARG" ;;
+    s) SHELL="$OPTARG" ;;
+    h)
+      echo "Uso: $0 -u <usuario> -g <grupo> [-s <shell>]" >&2
+      exit 0
+      ;;
+    :)
+      echo "Falta valor para -$OPTARG" >&2
+      exit 2
+      ;;
+    \?)
+      echo "Opción inválida: -$OPTARG" >&2
+      exit 2
+      ;;
+  esac
+done
+
+if [ -z "$USUARIO" ] || [ -z "$GRUPO" ]  # <6>
+then
+  echo "Uso: $0 -u <usuario> -g <grupo> [-s <shell>]" >&2
+  exit 2
+fi
+
+echo "OK: usuario='$USUARIO' grupo='$GRUPO' shell='$SHELL'"  # <7>
+```
+
+
+
+1. **set -euo pipefail** hace que el script falle temprano ante errores comunes
+2. **USUARIO=""** inicializa variable para validar más adelante
+3. **GRUPO=""** idem; lo exigimos como parámetro obligatorio
+4. **SHELL="/bin/bash"** define valor por defecto si no pasan `-s`
+5. **getopts ":u:g:s:h"** define flags; `u`, `g`, `s` esperan argumento y `h` muestra ayuda
+6. **-z** valida que los campos obligatorios no estén vacíos
+7. **echo** aquí simula la acción; en producción reemplaza por `useradd`, `usermod`, etc.
 
 ---
 
@@ -635,6 +731,52 @@ cat /var/log/syslog | grep "error" | wc -l  # <1>
 ```
 
 1. **cat** muestra archivo → **grep** filtra líneas con "error" → **wc -l** cuenta líneas
+
+---
+
+## Concepto 5.5: Debugging y limpieza con trap
+
+En producción, un buen script hace dos cosas bien: (1) falla de forma clara y (2) deja el sistema limpio (por ejemplo, borra archivos temporales).
+
+### trap (cleanup al salir)
+
+```bash
+#!/bin/bash
+
+set -euo pipefail  # <1>
+
+tmp_file="$(mktemp)"  # <2>
+
+cleanup() {  # <3>
+  rm -f "$tmp_file"
+}
+
+trap cleanup EXIT  # <4>
+
+echo "Archivo temporal: $tmp_file"
+echo "hola" > "$tmp_file"
+cat "$tmp_file"
+```
+
+
+
+1. **set -euo pipefail** reduce fallas silenciosas y evita variables indefinidas
+2. **mktemp** crea un archivo temporal con nombre seguro
+3. **cleanup()** define la limpieza que quieres garantizar
+4. **trap ... EXIT** ejecuta cleanup al terminar el script (exito o error)
+
+### Debug rapido (ver lo que ejecuta)
+
+```bash
+$ bash -x script.sh  # <1>
++ mktemp
++ echo "Archivo temporal: ..."
+# <1>
+```
+
+
+
+1. **bash -x** imprime cada comando antes de ejecutarlo (muy util para depurar)
 
 ---
 
@@ -898,13 +1040,13 @@ fi
 
 2. **readonly** = variable inmutable
 
-3. **(@)** = array (múltiples valores)
+3. **`(@)`** = array (múltiples valores)
 
 4. **log()** función para mensajes con timestamp
 
 5. **verificar_permisos()** asegurar que es root
 
-6. **"${CARPETAS[@]}"** itera sobre elementos del array
+6. **`"${CARPETAS[@]}"`** itera sobre elementos del array
 
 ---
 
