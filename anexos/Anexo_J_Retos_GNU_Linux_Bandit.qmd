@@ -1,0 +1,361 @@
+# Retos GNU/Linux
+
+## Introduccion
+
+Este mini-curso usa el wargame **Bandit** de OverTheWire como practica guiada para reforzar:
+
+- Conexion remota por SSH usando un puerto no estandar.
+- Navegacion en el sistema de archivos y lectura de archivos.
+- Habitos de seguridad basicos (verificacion de huella, no publicar credenciales).
+
+Al final de esta seccion deberias poder pasar de **Bandit Nivel 0** a **Nivel 1** (sin spoilers del password del Nivel 1).
+
+### Comandos que puedes necesitar
+
+En este salto (Nivel 0 -> Nivel 1) normalmente basta con:
+
+- `ls`, `cd`, `cat`, `file`, `du`, `find`
+
+:::{.callout-note}
+## 📝 NOTA
+
+**Las contrasenas no se guardan automaticamente y pueden cambiar.** Si no las registras, tendras que empezar de nuevo.
+:::
+
+:::{.callout-tip}
+## 💡 RECOMENDACION
+
+**Crea un archivo de notas local para usuarios y passwords.**
+
+**Casos de uso:**
+- Guardar como te conectaste (host, puerto, usuario).
+- Registrar como resolviste cada nivel sin publicar la respuesta.
+
+**Cuando aplicar:**
+- Cada vez que completes un nivel.
+:::
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRITICA
+
+**No publiques passwords ni writeups completos de niveles.**
+
+**Lo que podria salir mal:**
+- Te banean del juego.
+- Compartes credenciales que cambian o que otros estan usando.
+
+**Como prevenirlo:**
+1. Escribe tus notas en tu maquina local.
+2. En documentacion publica, usa placeholders como `<PASSWORD_NIVEL_1>`.
+:::
+
+## Reto: Bandit Nivel 0 -> Nivel 1
+
+### Objetivo del nivel
+
+La contrasena para el siguiente nivel esta en un archivo llamado `readme` ubicado en tu directorio de inicio.
+Una vez que la encuentres, inicia sesion como `bandit1` por SSH (puerto `2220`) y continua el juego.
+
+:::{.callout-note}
+## 📝 NOTA
+
+**En SSH no se muestra lo que escribes cuando te pide password.** Esto es normal.
+:::
+
+### Datos de conexion (Nivel 0)
+
+- Host: `bandit.labs.overthewire.org`
+- Puerto: `2220`
+- Usuario: `bandit0`
+- Password inicial: `bandit0`
+
+## Errores comunes al conectarte por SSH
+
+Un error tipico es escribir `host:puerto` (esto no define el puerto, se interpreta como parte del hostname).
+
+::: {.panel-tabset}
+
+### Linux
+
+```bash
+$ ssh bandit0@bandit.labs.overthewire.org:2220  # <1>
+ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: Name or service not known
+# <1>
+```
+
+
+
+1. **ssh** no acepta `host:puerto` en ese formato; debes pasar el puerto con `-p`.
+
+### macOS
+
+```bash
+$ ssh bandit0@bandit.labs.overthewire.org:2220  # <1>
+ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: nodename nor servname provided, or not known
+# <1>
+```
+
+
+
+1. **ssh** en macOS muestra el mismo problema: el `:2220` se vuelve parte del hostname.
+
+### Windows
+
+```powershell
+PS> ssh bandit0@bandit.labs.overthewire.org:2220  # <1>
+ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: No such host is known.
+# <1>
+```
+
+
+
+1. **ssh** en Windows (OpenSSH) tambien interpreta `:2220` como parte del nombre del host.
+
+:::
+
+## Conexion correcta (puerto 2220)
+
+::: {.panel-tabset}
+
+### Linux
+
+```bash
+$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+The authenticity of host '[bandit.labs.overthewire.org]:2220 (51.21.210.216)' can't be established.
+ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+bandit0@bandit.labs.overthewire.org's password:
+# <1>
+```
+
+
+
+1. **ssh -p** define el puerto remoto; aqui `2220`.
+
+### macOS
+
+```bash
+$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+The authenticity of host '[bandit.labs.overthewire.org]:2220 ([51.21.210.216]:2220)' can't be established.
+ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+bandit0@bandit.labs.overthewire.org's password:
+# <1>
+```
+
+
+
+1. **ssh -p** es la forma correcta de usar un puerto no estandar en macOS.
+
+### Windows
+
+```powershell
+PS> ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+The authenticity of host '[bandit.labs.overthewire.org]:2220 (51.21.210.216)' can't be established.
+ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+bandit0@bandit.labs.overthewire.org's password:
+# <1>
+```
+
+
+
+1. **ssh -p** tambien funciona igual en Windows con OpenSSH.
+
+:::
+
+## Ejemplos Practicos Multi-SO
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRITICA
+
+**No aceptes huellas (fingerprints) a ciegas en servidores reales.**
+
+**Lo que podria salir mal:**
+- Ataque de tipo Man-in-the-Middle.
+
+**Como prevenirlo:**
+1. Verifica la huella publicada por el proveedor/infra.
+2. Si cambia inesperadamente, detente y valida con el administrador.
+:::
+
+## Dentro del servidor: encontrar el password del Nivel 1
+
+Una vez dentro como `bandit0`, tu objetivo es leer el archivo `readme` en el home.
+
+```bash
+bandit0@bandit:~$ ls  # <1>
+readme
+# <1>
+```
+
+
+
+1. **ls** lista el contenido del directorio actual; aqui ves el archivo `readme`.
+
+```bash
+bandit0@bandit:~$ file readme  # <1>
+readme: ASCII text
+# <1>
+```
+
+
+
+1. **file** identifica el tipo de archivo; en este caso es texto plano.
+
+```bash
+bandit0@bandit:~$ du -h readme  # <1>
+4.0K\treadme
+# <1>
+```
+
+
+
+1. **du -h** muestra el tamano del archivo de forma legible.
+
+```bash
+bandit0@bandit:~$ find ~ -maxdepth 1 -type f -name readme  # <1>
+/home/bandit0/readme
+# <1>
+```
+
+
+
+1. **find** sirve para ubicar archivos por nombre; aqui busca `readme` en tu home.
+
+```bash
+bandit0@bandit:~$ cat readme  # <1>
+<PASSWORD_NIVEL_1>
+# <1>
+```
+
+
+
+1. **cat** imprime el contenido de `readme`; guarda ese valor en tus notas como password del Nivel 1.
+
+## Entrar al Nivel 1
+
+Cuando ya tengas el password, sales y te conectas como `bandit1`.
+
+```bash
+bandit0@bandit:~$ exit  # <1>
+logout
+Connection to bandit.labs.overthewire.org closed.
+# <1>
+```
+
+
+
+1. **exit** cierra tu sesion SSH actual.
+
+```bash
+$ ssh -p 2220 bandit1@bandit.labs.overthewire.org  # <1>
+bandit1@bandit.labs.overthewire.org's password:
+# <1>
+```
+
+
+
+1. **ssh -p** repite el patron, cambiando el usuario a `bandit1`.
+
+### Si ves "Permission denied"
+
+Si escribes mal el password, SSH te lo dira.
+
+```bash
+$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+bandit0@bandit.labs.overthewire.org's password:
+Permission denied, please try again.
+# <1>
+```
+
+
+
+1. **Permission denied** casi siempre significa password incorrecto (o usuario equivocado).
+
+## Mini-guia para tus notas (local)
+
+Una forma simple es guardar un archivo de texto en tu equipo.
+
+::: {.panel-tabset}
+
+### Linux
+
+```bash
+$ mkdir -p "$HOME/notas"  # <1>
+$ printf "%s\n" "Bandit0->Bandit1: <PASSWORD_NIVEL_1>" >> "$HOME/notas/bandit.txt"  # <2>
+$ cat "$HOME/notas/bandit.txt"  # <3>
+Bandit0->Bandit1: <PASSWORD_NIVEL_1>
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **mkdir -p** crea una carpeta para tus notas.
+2. **printf** agrega una linea al archivo de notas.
+3. **cat** verifica el contenido guardado.
+
+### macOS
+
+```bash
+$ mkdir -p "$HOME/notas"  # <1>
+$ printf "%s\n" "Bandit0->Bandit1: <PASSWORD_NIVEL_1>" >> "$HOME/notas/bandit.txt"  # <2>
+$ cat "$HOME/notas/bandit.txt"  # <3>
+Bandit0->Bandit1: <PASSWORD_NIVEL_1>
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **mkdir -p** crea una carpeta para tus notas.
+2. **printf** agrega una linea al archivo de notas.
+3. **cat** verifica el contenido guardado.
+
+### Windows
+
+```powershell
+PS> New-Item -ItemType Directory -Force "$HOME\\notas"  # <1>
+PS> Add-Content -Path "$HOME\\notas\\bandit.txt" -Value "Bandit0->Bandit1: <PASSWORD_NIVEL_1>"  # <2>
+PS> Get-Content "$HOME\\notas\\bandit.txt"  # <3>
+Bandit0->Bandit1: <PASSWORD_NIVEL_1>
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **New-Item** crea la carpeta de notas en PowerShell.
+2. **Add-Content** agrega una linea al archivo de notas.
+3. **Get-Content** verifica el contenido guardado.
+
+:::
+
+:::{.callout-tip}
+## 💡 RECOMENDACION
+
+**Mejores practicas**
+
+| Aspecto | Recomendacion |
+|---------|---------------|
+| **Puerto SSH** | Usa `ssh -p 2220 ...` (no `host:puerto`). |
+| **Seguridad** | Verifica la huella cuando sea un servidor real. |
+| **Orden** | Anota: `nivel`, `usuario`, `password`, `comandos`, `resultado`. |
+| **Etica** | No publiques passwords ni soluciones completas. |
+:::
+
+## Resumen
+
+- El puerto en SSH se especifica con `-p`.
+- En Bandit, el Nivel 0 se trata de conectarte por SSH y leer `readme`.
+- Guarda el password del siguiente nivel en tus notas locales y continua con `bandit1`.
+
+## Referencias
+
+- OverTheWire Bandit: <https://overthewire.org/wargames/bandit/>
+- SSH (Wikipedia): <https://en.wikipedia.org/wiki/Secure_Shell>
+- Manual `ssh(1)`: <https://man.openbsd.org/ssh>

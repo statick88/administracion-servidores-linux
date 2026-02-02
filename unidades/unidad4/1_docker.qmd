@@ -1,13 +1,13 @@
-:::{.justify}
+::: {.justify}
 # Docker
 
-:::{.center}
+::: {.center}
 ![Docker](./images/docker.png){width=200px}
 :::
 
 Docker es una plataforma que permite desarrollar, enviar y ejecutar aplicaciones en contenedores. Un **contenedor** es una instancia ejecutable de una **imagen**, que es una especie de **plantilla** que contiene todo lo necesario para ejecutar una aplicación.
 
-Haciendo una analogía con los contenedores de transporte, una **imagen** sería el **contenedor** en sí, y el **contenedor** sería la **carga** que se transporta.
+Haciendo una analogia con los contenedores de transporte, una **imagen** es el **plano/plantilla** (lo que se puede replicar), y el **contenedor** es la **instancia en ejecucion** (lo que efectivamente se "mueve" y corre).
 
 Docker resuelve un problema principal en el desarrollo de software: la **portabilidad**. Al empaquetar una aplicación y sus dependencias en un contenedor, se garantiza que la aplicación se ejecute de manera **consistente** en diferentes entornos.
 
@@ -15,35 +15,41 @@ En esta lección, aprenderemos a crear y ejecutar contenedores Docker, y a utili
 
 Con docker se acaba la frase típica de los desarrolladores **En mi máquina funciona**. Con Docker, puedes estar seguro de que tu aplicación funcionará de la misma manera en cualquier entorno.
 
-:::{.center}
+::: {.center}
 ![](./images/docker_image.png)
 :::
 
 Una imagen Docker es una plantilla inmutable que contiene un conjunto de instrucciones para crear un contenedor Docker. Las imágenes son portátiles y pueden ser compartidas, almacenadas y actualizadas.
 
-:::{.callout-tip}
+::: {.callout-tip}
 Las imágenes Docker son inmutables, lo que significa que no se pueden modificar una vez creadas. Si se realizan cambios en una imagen, se debe crear una nueva versión de la imagen.
 :::
 
 
-:::{.center}
+::: {.center}
 ![](./images/docker_container.png)
 :::
 
 Un contenedor Docker es una instancia ejecutable de una imagen Docker. Se ejecuta de manera aislada y contiene todo lo necesario para ejecutar la aplicación, incluyendo el código, las dependencias, el entorno de ejecución, las bibliotecas y los archivos de configuración.
 
-:::{.callout-tip}
+::: {.callout-tip}
 Un contenedor aisla la aplicación de su entorno, lo que garantiza que la aplicación se ejecute de manera consistente en diferentes entornos.
 :::
 
-## Ejemplos:
+## Ejemplos
 
 Descargar una imagen:
 
 ```bash
-docker pull docker/getting-started
+$ docker pull docker/getting-started  # <1>
+# <1>
 ```
-:::{.center}
+
+
+
+1. **docker pull** descarga una imagen desde un registro (por defecto, Docker Hub).
+
+::: {.center}
 ![](images/paste-2.png)
 :::
 
@@ -52,85 +58,72 @@ Este comando descarga la imagen **getting-started** desde el registro público d
 Correr un contenedor en el puerto 80:
 
 ```bash
-docker run -d -p 80:80 docker/getting-started
+$ docker run -d -p 80:80 docker/getting-started  # <1>
+# <1>
 ```
 
-:::{.center}
+::: {.center}
 ![](images/paste-1.png)
 :::
 
-Este comando ejecuta un contenedor desenlazado en segundo plano (-d) y mapea el puerto 80 de la máquina host al puerto 80 del contenedor (-p 80:80).
 
-Descargar una imagen desde un registro.
 
-:::{.callout-tip}
+
+1. **docker run** crea y ejecuta un contenedor; `-d` lo deja en segundo plano y `-p 80:80` publica el puerto del contenedor en el host.
+
+Este comando ejecuta un contenedor en segundo plano y publica el puerto 80 del contenedor en el puerto 80 del host.
+
+::: {.callout-tip}
 El comando -p se utiliza para mapear los puertos de la máquina host al contenedor, muchas personas consideran que significa "puerto". Sin embargo en realidad significa "publicar" o "publicar puerto".
 :::
 
 ## Comandos básicos de Docker:
 
-Descargar una imagen desde un registro.
-
 ```bash
-docker pull <IMAGE_NAME:TAG>
+$ docker pull <IMAGE_NAME:TAG>  # <1>
+$ docker images  # <2>
+$ docker ps  # <3>
+$ docker ps -a  # <4>
+$ docker run -d -p <HOST_PORT>:<CONTAINER_PORT> <IMAGE_NAME:TAG>  # <5>
+$ docker stop <CONTAINER_ID>  # <6>
+$ docker start <CONTAINER_ID>  # <7>
+$ docker rm <CONTAINER_ID>  # <8>
+$ docker rmi <IMAGE_NAME:TAG>  # <9>
+$ docker inspect <CONTAINER_ID>  # <10>
+$ docker logs <CONTAINER_ID>  # <11>
+$ docker compose up -d  # <12>
+# <1>
+# <2>
+# <3>
+# <4>
+# <5>
+# <6>
+# <7>
+# <8>
+# <9>
+# <10>
+# <11>
+# <12>
 ```
-Listar las imágenes descargadas.
 
-```bash
-docker images
-```
-Listar contenedores en ejecución.
 
-```bash
-docker ps
-```
-Listar todos los contenedores, incluyendo los detenidos.
 
-```bash
-docker ps -a
-```
-Ejecutar un contenedor a partir de una imagen.
+1. **docker pull** descarga una imagen desde un registro (por defecto, Docker Hub).
+2. **docker images** lista las imágenes descargadas en el host.
+3. **docker ps** lista los contenedores en ejecución.
+4. **docker ps -a** lista todos los contenedores (incluyendo detenidos).
+5. **docker run** crea y ejecuta un contenedor a partir de una imagen.
+6. **docker stop** detiene un contenedor.
+7. **docker start** inicia un contenedor detenido.
+8. **docker rm** elimina un contenedor (debe estar detenido).
+9. **docker rmi** elimina una imagen.
+10. **docker inspect** muestra metadatos detallados del contenedor/imagen (IPs, mounts, etc.).
+11. **docker logs** muestra los logs (stdout/stderr) del contenedor.
+12. **docker compose up -d** levanta un stack multi-contenedor con Compose v2.
 
-```bash
-docker run -d -p <HOST_PORT>:<CONTAINER_PORT> <IMAGE_NAME:TAG>
-```
-Detener un contenedor en ejecución.
-
-```bash
-docker stop <CONTAINER_ID>
-```
-Iniciar un contenedor detenio.
-
-```bash
-docker start <CONTAINER_ID>
-```
-Eliminar un contenedor.
-
-```bash
-docker rm <CONTAINER_ID>
-```
-Eliminar una imagen.
-
-```bash
-docker rmi <IMAGE_NAME:TAG>
-```
-## Atajos y Comandos Adicionales:
-
-Ejecutar comandos dentro de un contenedor en ejecución.
-
-```bash
-docker inspect <CONTAINER_ID or IMAGE_NAME:TAG>
-```
-Ver los logs de un contenedor.
-
-```bash
-docker logs <CONTAINER_ID>
-```
-Utilizar Docker Compose para gestionar aplicaciones multi-contenedor.
-
-```bash
-docker-compose up -d
-```
+::: {.callout-note}
+Si tu entorno aún usa el binario antiguo, el equivalente es `docker-compose up -d`.
+:::
 
 ## Práctica:
 
@@ -139,43 +132,66 @@ docker-compose up -d
 - Detén y elimina el contenedor creado
 - Utiliza los comandos para detener y eliminar un contenedor.
 
-<details>
-<summary>Resolución de la Actividad Práctica</summary>
+::: {.callout-tip collapse="true"}
+## Resolución de la Actividad Práctica
 
-1. Abre tu terminal o línea de comandos.
+Abre tu terminal o línea de comandos y ejecuta los siguientes pasos.
 
-2. Descarga la imagen de Nginx desde el registro público de Docker:
-
-```bash
-docker pull nginx
-```
-3. Crea y ejecuta un contenedor de Nginx en el puerto 8080:
+**Paso 1: Descarga la imagen de Nginx**
 
 ```bash
-docker run -d -p 8080:80 nginx
+$ docker pull nginx  # <1>
+# <1>
 ```
-Elige un puerto en tu máquina local (por ejemplo, 8080) para mapearlo al puerto 80 del contenedor.
 
-4. Verifica que el contenedor esté en ejecución:
+
+
+1. **docker pull nginx** descarga la imagen oficial de Nginx.
+
+**Paso 2: Crea y ejecuta el contenedor (puerto 8080)**
 
 ```bash
-docker ps
+$ docker run -d -p 8080:80 nginx  # <1>
+# <1>
 ```
-5. Si el contenedor está en ejecución, detenlo utilizando el siguiente comando:
+
+
+
+1. **docker run -d -p 8080:80** ejecuta el contenedor en segundo plano y publica el puerto 80 del contenedor en el 8080 del host.
+
+**Paso 3: Verifica que el contenedor esté en ejecución**
 
 ```bash
-docker stop <CONTAINER_ID>
+$ docker ps  # <1>
+# <1>
 ```
-Reemplaza **<CONTAINER_ID>** con el ID real del contenedor que obtuviste en el paso anterior.
 
-6. Elimina el contenedor detenido:
+
+
+1. **docker ps** lista contenedores en ejecución y muestra el mapeo de puertos.
+
+**Paso 4: Detén el contenedor**
 
 ```bash
-docker rm <CONTAINER_ID>
+$ docker stop <CONTAINER_ID>  # <1>
+# <1>
 ```
-Reemplaza **<CONTAINER_ID>** con el ID real del contenedor.
 
-</details>
+
+
+1. **docker stop** detiene el contenedor por ID.
+
+**Paso 5: Elimina el contenedor**
+
+```bash
+$ docker rm <CONTAINER_ID>  # <1>
+# <1>
+```
+
+
+
+1. **docker rm** elimina el contenedor (debe estar detenido).
+:::
 
 ::: {.callout-tip}
 Combina los comandos docker ps, docker stop, y docker rm para gestionar contenedores eficientemente. 
@@ -185,6 +201,6 @@ Combina los comandos docker ps, docker stop, y docker rm para gestionar contened
 
 # Conclusiones
 
-En esta lección aprendimos sobre la creación y uso de módulos en Python, así como la creación y ejecución de contenedores Docker. Los módulos son archivos que contienen funciones y variables que pueden ser reutilizadas en otros programas. Los contenedores Docker son instancias ejecutables de imágenes que contienen todo lo necesario para ejecutar una aplicación.
-:::
+En esta lección aprendimos los conceptos base de Docker (imágenes y contenedores) y el ciclo de vida de un contenedor: descargar imágenes, ejecutar servicios, inspeccionar estado y logs, y limpiar recursos. Con esto, ya puedes ejecutar aplicaciones de forma portable y aislada.
 
+:::

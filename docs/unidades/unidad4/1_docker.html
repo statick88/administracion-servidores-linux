@@ -983,6 +983,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_J_Retos_GNU_Linux_Bandit.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retos GNU/Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
   </div>
 </li>
@@ -1035,7 +1040,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../anexos/Anexo_I_Openbot_Telegram_Abacombot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo I: OpenClaw (Openbot) + Telegram (Abacombot) - De 0 a Avanzado</span></a>
+  <a href="../../anexos/Anexo_I_Openclaw_Telegram_Abacombot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado</span></a>
   </div>
 </li>
       </ul>
@@ -1087,7 +1092,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Docker es una plataforma que permite desarrollar, enviar y ejecutar aplicaciones en contenedores. Un <strong>contenedor</strong> es una instancia ejecutable de una <strong>imagen</strong>, que es una especie de <strong>plantilla</strong> que contiene todo lo necesario para ejecutar una aplicación.</p>
-<p>Haciendo una analogía con los contenedores de transporte, una <strong>imagen</strong> sería el <strong>contenedor</strong> en sí, y el <strong>contenedor</strong> sería la <strong>carga</strong> que se transporta.</p>
+<p>Haciendo una analogia con los contenedores de transporte, una <strong>imagen</strong> es el <strong>plano/plantilla</strong> (lo que se puede replicar), y el <strong>contenedor</strong> es la <strong>instancia en ejecucion</strong> (lo que efectivamente se “mueve” y corre).</p>
 <p>Docker resuelve un problema principal en el desarrollo de software: la <strong>portabilidad</strong>. Al empaquetar una aplicación y sus dependencias en un contenedor, se garantiza que la aplicación se ejecute de manera <strong>consistente</strong> en diferentes entornos.</p>
 <p>En esta lección, aprenderemos a crear y ejecutar contenedores Docker, y a utilizarlos para ejecutar aplicaciones de manera aislada y portátil.</p>
 <p>Con docker se acaba la frase típica de los desarrolladores <strong>En mi máquina funciona</strong>. Con Docker, puedes estar seguro de que tu aplicación funcionará de la misma manera en cualquier entorno.</p>
@@ -1126,14 +1131,20 @@ Tip
 </div>
 </div>
 <section id="ejemplos" class="level2">
-<h2 class="anchored" data-anchor-id="ejemplos">Ejemplos:</h2>
+<h2 class="anchored" data-anchor-id="ejemplos">Ejemplos</h2>
 <p>Descargar una imagen:</p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull docker/getting-started</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker pull docker/getting-started</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="1,2" data-code-annotation="1"><strong>docker pull</strong> descarga una imagen desde un registro (por defecto, Docker Hub).</span>
+</dd>
+</dl>
 <div class="center">
 <p><img src="images/paste-2.png" class="img-fluid"></p>
 </div>
@@ -1143,13 +1154,15 @@ Tip
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-p</span> 80:80 docker/getting-started</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker run <span class="at">-d</span> <span class="at">-p</span> 80:80 docker/getting-started</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="center">
 <p><img src="images/paste-1.png" class="img-fluid"></p>
 </div>
-<p>Este comando ejecuta un contenedor desenlazado en segundo plano (-d) y mapea el puerto 80 de la máquina host al puerto 80 del contenedor (-p 80:80).</p>
-<p>Descargar una imagen desde un registro.</p>
+<ol type="1">
+<li><strong>docker run</strong> crea y ejecuta un contenedor; <code>-d</code> lo deja en segundo plano y <code>-p 80:80</code> publica el puerto del contenedor en el host.</li>
+</ol>
+<p>Este comando ejecuta un contenedor en segundo plano y publica el puerto 80 del contenedor en el puerto 80 del host.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1166,92 +1179,96 @@ Tip
 </section>
 <section id="comandos-básicos-de-docker" class="level2">
 <h2 class="anchored" data-anchor-id="comandos-básicos-de-docker">Comandos básicos de Docker:</h2>
-<p>Descargar una imagen desde un registro.</p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull <span class="op">&lt;</span>IMAGE_NAME:TAG<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker pull <span class="op">&lt;</span>IMAGE_NAME:TAG<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-2" class="code-annotation-target"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker images</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-3" class="code-annotation-target"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker ps</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-3-4" class="code-annotation-target"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker ps <span class="at">-a</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-3-5" class="code-annotation-target"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker run <span class="at">-d</span> <span class="at">-p</span> <span class="op">&lt;</span>HOST_PORT<span class="op">&gt;</span>:<span class="op">&lt;</span>CONTAINER_PORT<span class="op">&gt;</span> <span class="op">&lt;</span>IMAGE_NAME:TAG<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-3-6" class="code-annotation-target"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker stop <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="7" onclick="event.preventDefault();">7</a><span id="annotated-cell-3-7" class="code-annotation-target"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker start <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="8" onclick="event.preventDefault();">8</a><span id="annotated-cell-3-8" class="code-annotation-target"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker rm <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="9" onclick="event.preventDefault();">9</a><span id="annotated-cell-3-9" class="code-annotation-target"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker rmi <span class="op">&lt;</span>IMAGE_NAME:TAG<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="10" onclick="event.preventDefault();">10</a><span id="annotated-cell-3-10" class="code-annotation-target"><a href="#annotated-cell-3-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker inspect <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="11" onclick="event.preventDefault();">11</a><span id="annotated-cell-3-11" class="code-annotation-target"><a href="#annotated-cell-3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker logs <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="12" onclick="event.preventDefault();">12</a><span id="annotated-cell-3-12" class="code-annotation-target"><a href="#annotated-cell-3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose up <span class="at">-d</span></span>
+<span id="annotated-cell-3-13"><a href="#annotated-cell-3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-14"><a href="#annotated-cell-3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-15"><a href="#annotated-cell-3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-16"><a href="#annotated-cell-3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-17"><a href="#annotated-cell-3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-18"><a href="#annotated-cell-3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-19"><a href="#annotated-cell-3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-20"><a href="#annotated-cell-3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-21"><a href="#annotated-cell-3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-22"><a href="#annotated-cell-3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-23"><a href="#annotated-cell-3-23" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Listar las imágenes descargadas.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="1,13" data-code-annotation="1"><strong>docker pull</strong> descarga una imagen desde un registro (por defecto, Docker Hub).</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="2,14" data-code-annotation="2"><strong>docker images</strong> lista las imágenes descargadas en el host.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="3,15" data-code-annotation="3"><strong>docker ps</strong> lista los contenedores en ejecución.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="4,16" data-code-annotation="4"><strong>docker ps -a</strong> lista todos los contenedores (incluyendo detenidos).</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="5">5</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="5,17" data-code-annotation="5"><strong>docker run</strong> crea y ejecuta un contenedor a partir de una imagen.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="6">6</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="6,18" data-code-annotation="6"><strong>docker stop</strong> detiene un contenedor.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="7">7</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="7,19" data-code-annotation="7"><strong>docker start</strong> inicia un contenedor detenido.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="8">8</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="8,20" data-code-annotation="8"><strong>docker rm</strong> elimina un contenedor (debe estar detenido).</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="9">9</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="9,21" data-code-annotation="9"><strong>docker rmi</strong> elimina una imagen.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="10">10</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="10,22" data-code-annotation="10"><strong>docker inspect</strong> muestra metadatos detallados del contenedor/imagen (IPs, mounts, etc.).</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="11">11</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="11,23" data-code-annotation="11"><strong>docker logs</strong> muestra los logs (stdout/stderr) del contenedor.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="12">12</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="12,24" data-code-annotation="12"><strong>docker compose up -d</strong> levanta un stack multi-contenedor con Compose v2.</span>
+</dd>
+</dl>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> images</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout-title-container flex-fill">
+Note
 </div>
-<p>Listar contenedores en ejecución.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> ps</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout-body-container callout-body">
+<p>Si tu entorno aún usa el binario antiguo, el equivalente es <code>docker-compose up -d</code>.</p>
 </div>
-<p>Listar todos los contenedores, incluyendo los detenidos.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> ps <span class="at">-a</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Ejecutar un contenedor a partir de una imagen.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-p</span> <span class="op">&lt;</span>HOST_PORT<span class="op">&gt;</span>:<span class="op">&lt;</span>CONTAINER_PORT<span class="op">&gt;</span> <span class="op">&lt;</span>IMAGE_NAME:TAG<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Detener un contenedor en ejecución.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Iniciar un contenedor detenio.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> start <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Eliminar un contenedor.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Eliminar una imagen.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi <span class="op">&lt;</span>IMAGE_NAME:TAG<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section id="atajos-y-comandos-adicionales" class="level2">
-<h2 class="anchored" data-anchor-id="atajos-y-comandos-adicionales">Atajos y Comandos Adicionales:</h2>
-<p>Ejecutar comandos dentro de un contenedor en ejecución.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> inspect <span class="op">&lt;</span>CONTAINER_ID or IMAGE_NAME:TAG<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Ver los logs de un contenedor.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> logs <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Utilizar Docker Compose para gestionar aplicaciones multi-contenedor.</p>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> up <span class="at">-d</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="práctica" class="level2">
@@ -1262,60 +1279,87 @@ Tip
 <li>Detén y elimina el contenedor creado</li>
 <li>Utiliza los comandos para detener y eliminar un contenedor.</li>
 </ul>
-<details>
-<summary>
-Resolución de la Actividad Práctica
-</summary>
-<ol type="1">
-<li><p>Abre tu terminal o línea de comandos.</p></li>
-<li><p>Descarga la imagen de Nginx desde el registro público de Docker:</p></li>
-</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Resolución de la Actividad Práctica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Abre tu terminal o línea de comandos y ejecuta los siguientes pasos.</p>
+<p><strong>Paso 1: Descarga la imagen de Nginx</strong></p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull nginx</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker pull nginx</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<ol start="3" type="1">
-<li>Crea y ejecuta un contenedor de Nginx en el puerto 8080:</li>
-</ol>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="1,2" data-code-annotation="1"><strong>docker pull nginx</strong> descarga la imagen oficial de Nginx.</span>
+</dd>
+</dl>
+<p><strong>Paso 2: Crea y ejecuta el contenedor (puerto 8080)</strong></p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-p</span> 8080:80 nginx</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-1" class="code-annotation-target"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker run <span class="at">-d</span> <span class="at">-p</span> 8080:80 nginx</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Elige un puerto en tu máquina local (por ejemplo, 8080) para mapearlo al puerto 80 del contenedor.</p>
-<ol start="4" type="1">
-<li>Verifica que el contenedor esté en ejecución:</li>
-</ol>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="1,2" data-code-annotation="1"><strong>docker run -d -p 8080:80</strong> ejecuta el contenedor en segundo plano y publica el puerto 80 del contenedor en el 8080 del host.</span>
+</dd>
+</dl>
+<p><strong>Paso 3: Verifica que el contenedor esté en ejecución</strong></p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> ps</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-6-1" class="code-annotation-target"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker ps</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<ol start="5" type="1">
-<li>Si el contenedor está en ejecución, detenlo utilizando el siguiente comando:</li>
-</ol>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="1,2" data-code-annotation="1"><strong>docker ps</strong> lista contenedores en ejecución y muestra el mapeo de puertos.</span>
+</dd>
+</dl>
+<p><strong>Paso 4: Detén el contenedor</strong></p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-1" class="code-annotation-target"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker stop <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Reemplaza <strong><container_id></container_id></strong> con el ID real del contenedor que obtuviste en el paso anterior.</p>
-<ol start="6" type="1">
-<li>Elimina el contenedor detenido:</li>
-</ol>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="1,2" data-code-annotation="1"><strong>docker stop</strong> detiene el contenedor por ID.</span>
+</dd>
+</dl>
+<p><strong>Paso 5: Elimina el contenedor</strong></p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-8-1" class="code-annotation-target"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker rm <span class="op">&lt;</span>CONTAINER_ID<span class="op">&gt;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Reemplaza <strong><container_id></container_id></strong> con el ID real del contenedor.</p>
-</details>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="1,2" data-code-annotation="1"><strong>docker rm</strong> elimina el contenedor (debe estar detenido).</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1333,7 +1377,7 @@ Tip
 </section>
 <section id="conclusiones" class="level1">
 <h1>Conclusiones</h1>
-<p>En esta lección aprendimos sobre la creación y uso de módulos en Python, así como la creación y ejecución de contenedores Docker. Los módulos son archivos que contienen funciones y variables que pueden ser reutilizadas en otros programas. Los contenedores Docker son instancias ejecutables de imágenes que contienen todo lo necesario para ejecutar una aplicación.</p>
+<p>En esta lección aprendimos los conceptos base de Docker (imágenes y contenedores) y el ciclo de vida de un contenedor: descargar imágenes, ejecutar servicios, inspeccionar estado y logs, y limpiar recursos. Con esto, ya puedes ejecutar aplicaciones de forma portable y aislada.</p>
 </section>
 </div>
 
