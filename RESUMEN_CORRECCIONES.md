@@ -43,7 +43,7 @@
 - Metodología educativa documentada
 
 ### ✅ Error 5: Laboratorios Incompletos
-**Problema:** Solo existía rúbrica de evaluación, sin laboratorios prácticos
+**Problema:** Faltaban laboratorios prácticos completos
 **Solución:**
 - Creados 4 laboratorios completos:
   - Lab 1: Instalación de Ubuntu Server (90 min)
@@ -74,11 +74,11 @@
   12. Checklists pre-curso
 
 ### ✅ Error 7: Estructura de Labs Confusa
-**Problema:** Directorio lab-practicos solo tenía una rúbrica
+**Problema:** Estructura de labs poco clara y con evaluación centralizada
 **Solución:**
 - Creado README.md para labs (índice y coordinación)
 - 4 laboratorios con instrucciones paso a paso
-- Rúbrica de evaluación mejorada y documentada
+- Criterios de aceptación claros al final de cada laboratorio
 - Cronograma sugerido para implementación
 
 ### ✅ Error 8: Validación Técnica
@@ -104,7 +104,7 @@
 | `lab-practicos/lab2_usuarios_permisos.md` | Laboratorio usuarios y permisos | ✅ NUEVO |
 | `lab-practicos/lab3_procesos_servicios.md` | Laboratorio procesos y servicios | ✅ NUEVO |
 | `lab-practicos/lab4_redes_ssh.md` | Laboratorio redes y SSH | ✅ NUEVO |
-| `lab-practicos/rubrica-evaluacion.qmd` | Mejorada y documentada | ✅ |
+| (Eliminada) `lab-practicos/rubrica-evaluacion.qmd` | Reemplazada por checklist por lab/práctica | ✅ |
 
 ---
 
@@ -146,10 +146,8 @@
 
 ### Evaluación
 
-- ✅ Rúbrica de evaluación completa y clara
-- ✅ Criterios: Teoría (30%), Práctica (50%), Integración (20%)
-- ✅ Casos de uso por laboratorio
-- ✅ Checklist de competencias
+- ✅ Checklist de aceptación al final de cada laboratorio/práctica
+- ✅ Criterios verificables (evidencias, comandos, servicios, logs)
 
 ---
 
@@ -274,4 +272,3 @@
 **Empresa:** Abacom  
 **Fecha:** Enero 29, 2026  
 **Estado:** ✅ COMPLETO Y VALIDADO
-

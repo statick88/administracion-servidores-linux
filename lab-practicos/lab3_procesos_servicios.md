@@ -244,16 +244,6 @@ at -l
 4. Cambiar a cada 15 minutos
 5. Después de 15 min, remover
 
-## Validación
-
-Demuestra al instructor:
-
-- [ ] Puedes listar y monitorear procesos
-- [ ] Entiendes señales de proceso (kill, SIGTERM, SIGKILL)
-- [ ] Servicio personalizado funciona
-- [ ] Tarea cron se ejecuta correctamente
-- [ ] Puedes explicar diferencia entre `kill -15` y `kill -9`
-
 ## Conceptos Clave
 
 **Señales Comunes:**
@@ -276,3 +266,10 @@ Demuestra al instructor:
 
 ---
 
+## Checklist de aceptación
+
+- [ ] Incluí evidencia de monitoreo (`ps`/`top`/`htop`) y expliqué qué observé
+- [ ] Creé un proceso en background y lo terminé con SIGTERM (y, si aplica, SIGKILL) con evidencia
+- [ ] `mi-servicio.service` existe, inicia y genera logs (evidencia de `systemctl status` y del archivo `/tmp/mi_servicio.log`)
+- [ ] Configuré una tarea de cron y evidencié al menos una ejecución en `/tmp/cron_log.txt`
+- [ ] Eliminé la tarea de cron al final (para no dejar basura)

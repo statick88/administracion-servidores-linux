@@ -28,7 +28,7 @@
   - Validar acceso SSH
 
 ### Laboratorio 2: Gestión de Usuarios y Permisos
-- **Unidad:** 4 - Gestión de Usuarios y Permisos
+- **Unidad:** 3 - Comandos Básicos de Linux
 - **Duración:** 120 minutos
 - **Dificultad:** Intermedio
 - **Archivo:** `lab2_usuarios_permisos.md`
@@ -37,6 +37,17 @@
   - Entender sistema de permisos
   - Trabajar con grupos
   - Usar sudo
+
+### Laboratorio 2B: Hardening Básico Post-Instalación
+- **Unidad:** 2 - Instalación y Configuración
+- **Duración:** 90-120 minutos
+- **Dificultad:** Intermedio
+- **Archivo:** `lab2b_hardening_basico.md`
+- **Objetivos:**
+  - Actualizar el sistema de forma segura
+  - Configurar UFW sin perder acceso SSH
+  - Endurecer SSH (sin cambios destructivos)
+  - (Opcional) Fail2Ban y unattended-upgrades
 
 ### Laboratorio 3: Administración de Procesos
 - **Unidad:** 5 - Procesos y Servicios
@@ -60,29 +71,95 @@
   - Firewall básico
   - Diagnóstico de red
 
+### Laboratorio 4B: Docker y Docker Compose
+- **Unidad:** 4 - Docker y Containerización
+- **Duración:** 90-120 minutos
+- **Dificultad:** Intermedio
+- **Archivo:** `lab4b_docker_compose.md`
+- **Objetivos:**
+  - Instalar Docker y validar motor
+  - Levantar un servicio con Docker Compose
+  - Revisar logs, puertos y volúmenes
+
+### Laboratorio 5: Almacenamiento (Particiones y Montajes)
+- **Unidad:** 6 - Almacenamiento y Sistemas de Archivos
+- **Duración:** 90-120 minutos
+- **Dificultad:** Intermedio
+- **Archivo:** `lab5_almacenamiento_montajes.md`
+- **Objetivos:**
+  - Inventariar discos/FS (lsblk/df)
+  - Crear un disco de laboratorio (loop)
+  - Crear filesystem, montar y persistir con fstab
+  - Diagnosticar espacio con du
+
+### Laboratorio 6: HTTP Básico y Diagnóstico Web
+- **Unidad:** 8 - Introducción a Servidores Web
+- **Duración:** 60-90 minutos
+- **Dificultad:** Principiante-Intermedio
+- **Archivo:** `lab6_http_diagnostico_web.md`
+- **Objetivos:**
+  - Entender request/response con curl
+  - Validar DNS, puertos y headers
+  - Identificar fallas típicas (DNS/puerto/firewall)
+
+### Laboratorio 7: Apache - Sitio y VirtualHost
+- **Unidad:** 9 - Apache
+- **Duración:** 90-120 minutos
+- **Dificultad:** Intermedio
+- **Archivo:** `lab7_apache_virtualhost.md`
+- **Objetivos:**
+  - Instalar Apache y habilitar módulos básicos
+  - Crear un VirtualHost y revisar logs
+  - Publicar un sitio simple con evidencia
+
+### Laboratorio 8: Nginx - Reverse Proxy + TLS (self-signed)
+- **Unidad:** 10 - Nginx y SSL
+- **Duración:** 120-150 minutos
+- **Dificultad:** Intermedio
+- **Archivo:** `lab8_nginx_reverseproxy_tls.md`
+- **Objetivos:**
+  - Configurar server block
+  - Hacer reverse proxy hacia un servicio local
+  - Habilitar HTTPS con certificado self-signed (o Certbot si tienes dominio)
+
+### Laboratorio 9: MariaDB - Usuarios, Privilegios y Backup/Restore
+- **Unidad:** 11 - MariaDB
+- **Duración:** 120-150 minutos
+- **Dificultad:** Intermedio
+- **Archivo:** `lab9_mariadb_backup_restore.md`
+- **Objetivos:**
+  - Asegurar instalación básica
+  - Crear DB/usuario con privilegios mínimos
+  - Generar y validar backup/restore
+
+### Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)
+- **Unidad:** 12 - Diagnóstico y Troubleshooting
+- **Duración:** 120-180 minutos
+- **Dificultad:** Intermedio-Avanzado
+- **Archivo:** `lab10_troubleshooting_integrado.md`
+- **Objetivos:**
+  - Resolver incidentes simulados (servicio/puertos/DNS/espacio)
+  - Entregar reporte reproducible con evidencias
+
 ---
 
 ## 📊 Evaluación
 
-Ver `rubrica-evaluacion.qmd` para:
-- Criterios de evaluación (teoría, práctica, integración)
-- Matriz de puntuación
-- Verificación por casos de uso
-- Plantilla de calificación
+Cada laboratorio incluye un **Checklist de aceptación** al final. Ese checklist define los criterios mínimos para considerar el lab como completado.
 
 ---
 
 ## 🛠️ Recursos Adicionales por Laboratorio
 
 ### Para Todos los Labs
-- Máquina virtual Ubuntu 22.04 LTS configurada
+- Máquina virtual Ubuntu Server LTS configurada (22.04 o 24.04)
 - Acceso SSH desde máquina host
 - Terminal con bash/zsh
 - Permisos sudo
 
 ### Lab 1
 - VirtualBox o similar
-- Imagen ISO Ubuntu 22.04 LTS
+- Imagen ISO Ubuntu Server LTS
 - 20GB espacio en disco
 - 2GB RAM disponible
 
@@ -99,6 +176,10 @@ Ver `rubrica-evaluacion.qmd` para:
 - SSH configurado
 - Firewall deshabilitado inicialmente
 - Acceso a utilidades de red
+
+### Lab 4B
+- Docker instalado (o permisos sudo para instalar)
+- Acceso a Internet para descargar imágenes
 
 ---
 
@@ -129,7 +210,9 @@ Ver `rubrica-evaluacion.qmd` para:
 | Semana | Laboratorio | Tipo |
 |--------|-------------|------|
 | 2-3 | Lab 1: Instalación | Práctica Guiada |
+| 3-4 | Lab 2B: Hardening | Práctica Guiada |
 | 5-6 | Lab 2: Usuarios | Ejercicio Independiente |
+| 6 | Lab 4B: Docker | Práctica Guiada + Independiente |
 | 6-7 | Lab 3: Procesos | Ejercicio Independiente |
 | 9-10 | Lab 4: Redes | Práctica Guiada + Independiente |
 | 12+ | Proyecto Final | Integración |

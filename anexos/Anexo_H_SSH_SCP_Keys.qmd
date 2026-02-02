@@ -1,0 +1,232 @@
+---
+title: "Anexo H: SSH, SCP y Llaves - Mini-Curso Práctico"
+author: "Diego Saavedra"
+date: "2026-02-02"
+bibliography: ../unidades/unidad1/references.bib
+biblio-style: apalike
+---
+
+# Anexo H: SSH, SCP y Llaves - Mini-Curso Práctico
+
+## Introducción
+
+En administración de servidores, **SSH** es la herramienta base: te conecta a servidores remotos, te permite ejecutar comandos, copiar archivos y automatizar tareas.
+
+Este mini-curso está diseñado para que puedas trabajar con servidores de forma **segura y repetible**: llaves, agentes, hardening básico y troubleshooting.
+
+**⏱️ Duración estimada:** 60-90 minutos
+
+---
+
+## Objetivos
+
+- Conectarte por SSH de forma segura
+- Crear y usar llaves (ed25519 recomendado)
+- Copiar archivos con `scp` y sincronizar con `rsync`
+- Aplicar hardening básico de `sshd`
+- Diagnosticar errores comunes (auth, DNS, puertos)
+
+---
+
+## Conceptos clave
+
+- **Cliente SSH:** tu PC (desde donde te conectas)
+- **Servidor SSH (sshd):** el servidor remoto
+- **Llave pública/privada:** autenticación sin contraseña (la privada nunca se comparte)
+- **Agente SSH:** mantiene llaves cargadas en memoria para no reingresar passphrase
+
+---
+
+## Ejemplo 1: Conexión básica (multi-SO)
+
+::: {.panel-tabset}
+
+### Linux
+
+```bash
+$ ssh alumno@192.168.56.10  # <1>
+The authenticity of host '192.168.56.10 (192.168.56.10)' can't be established.
+ED25519 key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+alumno@192.168.56.10's password:
+# <1>
+```
+
+
+
+1. **ssh usuario@ip** inicia sesión remota; la primera vez verás el mensaje de fingerprint del host.
+
+### macOS
+
+```bash
+$ ssh alumno@192.168.56.10  # <1>
+alumno@192.168.56.10's password:
+# <1>
+```
+
+
+
+1. **ssh** viene instalado en macOS y funciona igual que en Linux.
+
+### Windows
+
+```powershell
+PS> ssh alumno@192.168.56.10  # <1>
+alumno@192.168.56.10's password:
+# <1>
+```
+
+
+
+1. **ssh** está disponible en Windows 10/11 (OpenSSH). Si no está, se instala como característica opcional.
+
+:::
+
+---
+
+## Ejemplo 2: Crear llaves y autenticación sin password
+
+::: {.panel-tabset}
+
+### Linux
+
+```bash
+$ ssh-keygen -t ed25519 -C "alumno@abacom"  # <1>
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/alumno/.ssh/id_ed25519):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+
+$ ssh-copy-id -i ~/.ssh/id_ed25519.pub alumno@192.168.56.10  # <2>
+Number of key(s) added: 1
+
+$ ssh alumno@192.168.56.10  # <3>
+Welcome to Ubuntu Server LTS
+# <3>
+```
+
+
+
+1. **ssh-keygen -t ed25519** crea un par de llaves moderno y seguro.
+2. **ssh-copy-id** instala la llave pública en `~/.ssh/authorized_keys` del servidor.
+3. **ssh** ya no pide password si la llave está instalada y aceptada.
+
+### macOS
+
+```bash
+$ ssh-keygen -t ed25519 -C "alumno@abacom"  # <1>
+
+$ cat ~/.ssh/id_ed25519.pub | ssh alumno@192.168.56.10 'mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys'  # <2>
+
+$ ssh alumno@192.168.56.10  # <3>
+# <3>
+```
+
+
+
+1. **ssh-keygen** crea llaves en `~/.ssh/`.
+2. **cat | ssh ...** es alternativa a `ssh-copy-id` (no siempre existe en macOS).
+3. **ssh** valida el login sin password.
+
+### Windows
+
+```powershell
+PS> ssh-keygen -t ed25519 -C "alumno@abacom"  # <1>
+
+PS> type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh alumno@192.168.56.10 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"  # <2>
+
+PS> ssh alumno@192.168.56.10  # <3>
+# <3>
+```
+
+
+
+1. **ssh-keygen** crea llaves en `%USERPROFILE%\.ssh`.
+2. **type | ssh ...** copia la llave pública al servidor.
+3. **ssh** prueba el acceso sin password.
+
+:::
+
+---
+
+## Ejemplo 3: Copiar archivos con scp y rsync
+
+```bash
+$ scp ./backup.tar.gz alumno@192.168.56.10:/tmp/  # <1>
+
+$ scp alumno@192.168.56.10:/var/log/syslog ./syslog.txt  # <2>
+
+$ rsync -avz ./site/ alumno@192.168.56.10:/var/www/html/site/  # <3>
+# <3>
+```
+
+
+
+1. **scp local -> remoto** copia un archivo al servidor.
+2. **scp remoto -> local** trae un archivo del servidor.
+3. **rsync -avz** sincroniza directorios eficientemente (reintenta, delta, conserva metadata).
+
+---
+
+## Hardening básico de sshd (con cuidado)
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+Cambiar `sshd_config` sin validación puede dejarte sin acceso remoto.
+
+**Lo que podría salir mal:**
+- Cortas tu sesión y no puedes volver a entrar.
+- Deshabilitas el método de autenticación que estabas usando.
+
+**Cómo prevenirlo:**
+1. Mantén una sesión SSH abierta mientras pruebas.
+2. Valida configuración antes de reiniciar el servicio.
+3. Aplica cambios de a uno y verifica.
+:::
+
+```bash
+$ sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak  # <1>
+
+$ sudo sshd -t  # <2>
+
+$ sudo systemctl reload ssh  # <3>
+
+$ sudo ss -tlnp | grep ':22'  # <4>
+# <4>
+```
+
+
+
+1. **cp** crea un backup del archivo de configuración.
+2. **sshd -t** valida sintaxis sin reiniciar.
+3. **systemctl reload** recarga configuración con menor riesgo que reiniciar.
+4. **ss** confirma que SSH sigue escuchando en el puerto.
+
+---
+
+## Troubleshooting rápido
+
+```bash
+$ ssh -vvv alumno@192.168.56.10  # <1>
+
+$ nc -vz 192.168.56.10 22  # <2>
+
+$ ping -c 3 192.168.56.10  # <3>
+# <3>
+```
+
+
+
+1. **ssh -vvv** muestra el motivo exacto de fallo (llave, auth, kex, host key, etc.).
+2. **nc -vz host 22** valida conectividad al puerto 22.
+3. **ping** valida conectividad IP básica (si ICMP está permitido).
+
+---
+
+## Mejores prácticas
+
+- Usa llaves `ed25519` con passphrase.
+- Deshabilita password auth solo cuando ya validaste llaves.
+- Mantén backups de `sshd_config` y valida con `sshd -t`.
+- Usa `ssh -vvv` cuando algo falla (no adivines).

@@ -26,7 +26,7 @@ lab-practicos/
 
 ### 3️⃣ Evaluación
 ```
-lab-practicos/rubrica-evaluacion.qmd  ← Cómo calificar
+Checklist de aceptación al final de cada lab/práctica  ← Cómo calificar
 ```
 
 ---
@@ -116,7 +116,7 @@ sudo ufw enable
 - Ver: GUIA_INSTRUCTOR.md, Sección 3
 
 **Problema:** "¿Cómo califico un laboratorio?"
-- Ver: rubrica-evaluacion.qmd
+- Ver: Checklist de aceptación al final de cada lab
 
 **Problema:** "¿Qué hacen si X no funciona?"
 - Ver: Troubleshooting en cada lab (final)
@@ -199,4 +199,3 @@ El proyecto está completamente preparado. Solo necesitas:
 **¡Mucho éxito en el curso! 🚀**
 
 Diego, el proyecto está listo para producción. Tienes todo lo que necesitas para ser un instructor exitoso.
-

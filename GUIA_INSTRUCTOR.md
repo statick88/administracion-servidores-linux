@@ -39,7 +39,7 @@ Al completar el curso, los participantes podrán:
 ### Formato
 - **Sesiones Sincrónicas:** 2-3 sesiones por semana (2-3 horas cada una)
 - **Laboratorios Prácticos:** Guiados en sesión + independientes asincrónico
-- **Evaluaciones:** Continuas mediante rúbricas y proyectos
+- **Evaluaciones:** Continuas mediante checklist de aceptación y proyectos
 
 ### Unidades del Curso
 
@@ -105,7 +105,7 @@ Al completar el curso, los participantes podrán:
 ### Recursos Disponibles
 - Documentación: `Readme.md` y archivos `.qmd`
 - Brochure: `Brochure_Administración_de_Servidores_Linux.pdf`
-- Rúbricas: `lab-practicos/rubrica-evaluacion.qmd`
+- Checklists: al final de cada laboratorio y práctica
 - Imágenes: carpeta `images/`
 
 ---
@@ -150,7 +150,7 @@ Al completar el curso, los participantes podrán:
 - Crear grupos de estudio
 
 **Para Evaluación:**
-- Rúbricas claras antes de la tarea
+- Checklist de aceptación claro antes de la tarea
 - Feedback específico y oportuno
 - Celebrar logros
 - Proporcionar recursos de mejora
@@ -179,17 +179,10 @@ Al completar el curso, los participantes podrán:
 
 ```
 lab-practicos/
-├── unidad1/
-│   ├── lab1_instalacion.md
-│   ├── scripts/
-│   │   └── setup.sh
-│   └── soluciones/
-│       └── solucion_lab1.md
-├── unidad2/
-│   ├── lab2_usuarios.md
-│   ├── scripts/
-│   └── soluciones/
-├── rubrica-evaluacion.qmd
+├── lab1_instalacion_ubuntu.md
+├── lab2_usuarios_permisos.md
+├── lab3_procesos_servicios.md
+├── lab4_redes_ssh.md
 └── recursos/
     ├── VMs/
     │   ├── ubuntu-base.ova
@@ -201,7 +194,7 @@ lab-practicos/
 
 ### Evaluación de Laboratorios
 
-**Usar rúbrica en `lab-practicos/rubrica-evaluacion.qmd`**
+**Usar el checklist de aceptación al final de cada laboratorio**
 
 Aspectos a evaluar:
 - Completitud de tarea
@@ -336,9 +329,9 @@ R: VMs son suficientes para aprendizaje. El curso usa VirtualBox (gratuito).
 | Quices/Evaluaciones | 20% | Conceptos clave, comprensión |
 | Proyecto Final | 20% | Servidor integrado, documentación |
 
-### Rúbricas por Laboratorio
+### Criterios de Aceptación por Laboratorio
 
-Ver `lab-practicos/rubrica-evaluacion.qmd`
+Usar el checklist de aceptación al final de cada laboratorio/práctica.
 
 Escala sugerida:
 - **Excepcional (90-100):** Completo, correcto, bien documentado, con mejoras
@@ -412,4 +405,3 @@ Para preguntas sobre esta guía o mejoras sugeridas, contactar al instructor.
 ---
 
 **Versión:** 1.0 | **Fecha:** Enero 2026 | **Estado:** En uso activo
-

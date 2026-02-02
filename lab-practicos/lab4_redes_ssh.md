@@ -225,16 +225,6 @@ speedtest-cli  # Primero instalar: sudo apt install speedtest-cli
 4. Usar `ping` a 3 hosts diferentes
 5. Ejecutar `traceroute` a google.com
 
-## Validación
-
-Demuestra al instructor:
-
-- [ ] Conexión SSH sin contraseña funciona
-- [ ] Puerto SSH cambiado a puerto personalizado
-- [ ] Firewall habilitado y funciona
-- [ ] Puertos abiertos verificados con `ss -tlnp`
-- [ ] Puedes explicar diferencia entre TCP y UDP
-
 ## Troubleshooting
 
 | Problema | Solución |
@@ -265,3 +255,10 @@ Demuestra al instructor:
 
 ---
 
+## Checklist de aceptación
+
+- [ ] Incluí evidencia de inventario de red (`ip addr`, `ip route`) y resolución (`getent`/`dig`/`nslookup`)
+- [ ] Puedo conectar por SSH usando clave (sin contraseña) y lo evidencié
+- [ ] `sshd -t` pasa sin errores y el servicio SSH sigue accesible tras cambios
+- [ ] UFW está activo y permite el puerto SSH (evidencia de `ufw status verbose`)
+- [ ] Incluí evidencia de puertos en escucha con `ss -tlnp`

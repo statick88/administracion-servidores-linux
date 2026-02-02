@@ -6,7 +6,7 @@
 
 ## Objetivos
 
-- Instalar Ubuntu Server 22.04 LTS en máquina virtual
+- Instalar Ubuntu Server LTS en máquina virtual
 - Configurar particiones de disco
 - Realizar configuración inicial del sistema
 - Validar acceso SSH
@@ -15,7 +15,7 @@
 
 - VirtualBox instalado
 - 20 GB de almacenamiento libre en host
-- Imagen ISO de Ubuntu 22.04 LTS descargada
+- Imagen ISO de Ubuntu Server LTS descargada
 - Conexión de red activa
 
 ## Pasos del Laboratorio
@@ -42,7 +42,7 @@
 ### Paso 3: Iniciar Instalación (20 min)
 
 1. Inicia la VM
-2. Selecciona la imagen ISO de Ubuntu 22.04
+2. Selecciona la imagen ISO de Ubuntu Server LTS
 3. Selecciona "Try or Install Ubuntu"
 4. Espera a que cargue
 
@@ -85,16 +85,6 @@ ssh alumno@192.168.1.X
 # Si funciona, verás el prompt de ubuntu-lab-abacom
 ```
 
-## Validación
-
-Marca cuando completes cada punto:
-
-- [ ] VM creada en VirtualBox
-- [ ] Ubuntu instalado exitosamente
-- [ ] Sistema arranca sin errores
-- [ ] SSH conecta desde host
-- [ ] Comando `uname -a` muestra Ubuntu 22.04
-
 ## Troubleshooting
 
 | Problema | Solución |
@@ -108,5 +98,10 @@ Marca cuando completes cada punto:
 
 Una vez completado este laboratorio, tienes un servidor Ubuntu funcional con SSH habilitado. Este será tu entorno para los laboratorios siguientes.
 
----
+## Checklist de aceptación
 
+- [ ] La VM existe y arranca sin errores
+- [ ] Puedo iniciar sesión localmente (consola) con el usuario creado
+- [ ] `ip a` muestra una IP válida para conectarme por SSH
+- [ ] Puedo conectar por SSH desde el host y llegar a un prompt
+- [ ] Incluí evidencia de `uname -a` y del acceso SSH (captura o salida)

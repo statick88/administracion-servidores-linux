@@ -173,16 +173,6 @@ ls -ld /home/alumno/proyecto_publico
 5. Asigna permisos 770 al directorio
 6. Verifica que todos los miembros del grupo pueden acceder
 
-## Validación
-
-Demuestra al instructor:
-
-- [ ] 3 usuarios creados con diferentes grupos
-- [ ] Permisos básicos (rwx) entendidos y aplicados correctamente
-- [ ] Ejercicio A completado correctamente
-- [ ] Ejercicio B completado correctamente
-- [ ] Puedes explicar diferencia entre permisos de usuario/grupo/otros
-
 ## Troubleshooting
 
 | Problema | Solución |
@@ -209,3 +199,10 @@ Demuestra al instructor:
 
 ---
 
+## Checklist de aceptación
+
+- [ ] Existen los usuarios `carlos`, `maria`, `admin_abacom` y puedo mostrar `id`/`groups`
+- [ ] Probé acceso a `archivo_publico.txt` vs `archivo_privado.txt` como otro usuario (evidencia del OK y del fallo)
+- [ ] Completé Ejercicio A con permisos correctos (evidencia de `ls -la`)
+- [ ] Completé Ejercicio B con grupo compartido y permisos `770` (evidencia de `ls -ld` y acceso)
+- [ ] `admin_abacom` puede ejecutar `sudo whoami` y devuelve `root`

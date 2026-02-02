@@ -186,12 +186,12 @@ Seguir estructura de GUIA_INSTRUCTOR.md con adapaciones por unidad.
 ### Métricas a Monitorear
 - Asistencia (meta: >90%)
 - Completitud de laboratorios (meta: >80%)
-- Calidad de trabajo (rúbrica)
+- Calidad de trabajo (checklist de aceptación)
 - Satisfacción del estudiante (encuesta final)
 
 ### Instrumentos
 - Hoja de asistencia (Excel o spreadsheet)
-- Rúbrica de evaluación (rubrica-evaluacion.qmd)
+- Checklist de aceptación (al final de cada lab/práctica)
 - Encuesta Likert (5 preguntas simples)
 
 ### Reportes a Abacom
@@ -309,4 +309,3 @@ Para preguntas sobre preparación o ajustes, no dudes en comunicarte.
 El proyecto está completamente organizado, validado y listo para producción. Solo implementa siguiendo este plan y tendrás un curso exitoso.
 
 ¡Mucho éxito!
-
