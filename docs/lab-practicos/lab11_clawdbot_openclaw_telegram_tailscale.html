@@ -8,7 +8,7 @@
 
 <meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
 
-<title>Laboratorio 5: Almacenamiento (Particiones y Montajes) – Administración de Servidores Linux</title>
+<title>Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad) – Administración de Servidores Linux</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../lab-practicos/lab6_http_diagnostico_web.html" rel="next">
-<link href="../lab-practicos/lab4b_docker_compose.html" rel="prev">
+<link href="../practicas/unidad1.html" rel="next">
+<link href="../lab-practicos/lab10_troubleshooting_integrado.html" rel="prev">
 <link href="../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -291,7 +291,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lab-practicos/README.html">Laboratorios Prácticos</a></li><li class="breadcrumb-item"><a href="../lab-practicos/lab5_almacenamiento_montajes.html"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lab-practicos/README.html">Laboratorios Prácticos</a></li><li class="breadcrumb-item"><a href="../lab-practicos/lab11_clawdbot_openclaw_telegram_tailscale.html"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -850,7 +850,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../lab-practicos/lab5_almacenamiento_montajes.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a>
+  <a href="../lab-practicos/lab5_almacenamiento_montajes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -880,7 +880,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../lab-practicos/lab11_clawdbot_openclaw_telegram_tailscale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a>
+  <a href="../lab-practicos/lab11_clawdbot_openclaw_telegram_tailscale.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a>
   </div>
 </li>
       </ul>
@@ -1073,29 +1073,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#objetivos" id="toc-objetivos" class="nav-link active" data-scroll-target="#objetivos">Objetivos</a></li>
   <li><a href="#requisitos-previos" id="toc-requisitos-previos" class="nav-link" data-scroll-target="#requisitos-previos">Requisitos Previos</a></li>
-  <li><a href="#pasos-del-laboratorio" id="toc-pasos-del-laboratorio" class="nav-link" data-scroll-target="#pasos-del-laboratorio">Pasos del Laboratorio</a>
-  <ul class="collapse">
-  <li><a href="#paso-1-inventario-de-discos-y-montajes-10-min" id="toc-paso-1-inventario-de-discos-y-montajes-10-min" class="nav-link" data-scroll-target="#paso-1-inventario-de-discos-y-montajes-10-min">Paso 1: Inventario de discos y montajes (10 min)</a></li>
-  <li><a href="#paso-2-crear-un-disco-de-laboratorio-loop-15-min" id="toc-paso-2-crear-un-disco-de-laboratorio-loop-15-min" class="nav-link" data-scroll-target="#paso-2-crear-un-disco-de-laboratorio-loop-15-min">Paso 2: Crear un disco de laboratorio (loop) (15 min)</a></li>
-  <li><a href="#paso-3-particionar-gpt-1-partición-15-min" id="toc-paso-3-particionar-gpt-1-partición-15-min" class="nav-link" data-scroll-target="#paso-3-particionar-gpt-1-partición-15-min">Paso 3: Particionar (GPT + 1 partición) (15 min)</a></li>
-  <li><a href="#paso-4-crear-filesystem-y-montar-20-min" id="toc-paso-4-crear-filesystem-y-montar-20-min" class="nav-link" data-scroll-target="#paso-4-crear-filesystem-y-montar-20-min">Paso 4: Crear filesystem y montar (20 min)</a></li>
-  <li><a href="#paso-5-persistencia-con-fstab-20-min" id="toc-paso-5-persistencia-con-fstab-20-min" class="nav-link" data-scroll-target="#paso-5-persistencia-con-fstab-20-min">Paso 5: Persistencia con fstab (20 min)</a></li>
-  <li><a href="#paso-6-diagnóstico-de-espacio-15-min" id="toc-paso-6-diagnóstico-de-espacio-15-min" class="nav-link" data-scroll-target="#paso-6-diagnóstico-de-espacio-15-min">Paso 6: Diagnóstico de espacio (15 min)</a></li>
-  </ul></li>
+  <li><a href="#arquitectura-del-laboratorio-simplificada" id="toc-arquitectura-del-laboratorio-simplificada" class="nav-link" data-scroll-target="#arquitectura-del-laboratorio-simplificada">Arquitectura del laboratorio (simplificada)</a></li>
+  <li><a href="#paso-1-preparar-el-servidor-actualizacion-utilidades" id="toc-paso-1-preparar-el-servidor-actualizacion-utilidades" class="nav-link" data-scroll-target="#paso-1-preparar-el-servidor-actualizacion-utilidades">Paso 1: Preparar el servidor (actualizacion + utilidades)</a></li>
+  <li><a href="#paso-2-descargar-openclaw-y-levantar-el-gateway-en-docker" id="toc-paso-2-descargar-openclaw-y-levantar-el-gateway-en-docker" class="nav-link" data-scroll-target="#paso-2-descargar-openclaw-y-levantar-el-gateway-en-docker">Paso 2: Descargar OpenClaw y levantar el Gateway en Docker</a></li>
+  <li><a href="#paso-3-crear-el-bot-de-telegram-botfather-y-guardar-el-token" id="toc-paso-3-crear-el-bot-de-telegram-botfather-y-guardar-el-token" class="nav-link" data-scroll-target="#paso-3-crear-el-bot-de-telegram-botfather-y-guardar-el-token">Paso 3: Crear el bot de Telegram (BotFather) y guardar el token</a></li>
+  <li><a href="#paso-4-conectar-telegram-al-gateway" id="toc-paso-4-conectar-telegram-al-gateway" class="nav-link" data-scroll-target="#paso-4-conectar-telegram-al-gateway">Paso 4: Conectar Telegram al Gateway</a></li>
+  <li><a href="#paso-5-postura-minima-de-seguridad-pairing-mention-gating-allowlists" id="toc-paso-5-postura-minima-de-seguridad-pairing-mention-gating-allowlists" class="nav-link" data-scroll-target="#paso-5-postura-minima-de-seguridad-pairing-mention-gating-allowlists">Paso 5: Postura minima de seguridad (pairing + mention gating + allowlists)</a></li>
+  <li><a href="#paso-6-instalar-tailscale-en-ubuntu-server-lts" id="toc-paso-6-instalar-tailscale-en-ubuntu-server-lts" class="nav-link" data-scroll-target="#paso-6-instalar-tailscale-en-ubuntu-server-lts">Paso 6: Instalar Tailscale en Ubuntu Server LTS</a></li>
+  <li><a href="#paso-7-endurecer-acceso-de-red-ufw-solo-tailscale" id="toc-paso-7-endurecer-acceso-de-red-ufw-solo-tailscale" class="nav-link" data-scroll-target="#paso-7-endurecer-acceso-de-red-ufw-solo-tailscale">Paso 7: Endurecer acceso de red (UFW + solo Tailscale)</a></li>
+  <li><a href="#paso-8-verificacion-salud-logs" id="toc-paso-8-verificacion-salud-logs" class="nav-link" data-scroll-target="#paso-8-verificacion-salud-logs">Paso 8: Verificacion (salud + logs)</a></li>
+  <li><a href="#paso-9-opcional-acceso-por-tailscale-desde-tu-equipo-multi-os" id="toc-paso-9-opcional-acceso-por-tailscale-desde-tu-equipo-multi-os" class="nav-link" data-scroll-target="#paso-9-opcional-acceso-por-tailscale-desde-tu-equipo-multi-os">Paso 9 (opcional): Acceso por Tailscale desde tu equipo (Multi-OS)</a></li>
   <li><a href="#entregables-evidencia" id="toc-entregables-evidencia" class="nav-link" data-scroll-target="#entregables-evidencia">Entregables (Evidencia)</a></li>
-  <li><a href="#cierre-y-limpieza-5-min" id="toc-cierre-y-limpieza-5-min" class="nav-link" data-scroll-target="#cierre-y-limpieza-5-min">Cierre y limpieza (5 min)</a></li>
-  <li><a href="#checklist-de-aceptación" id="toc-checklist-de-aceptación" class="nav-link" data-scroll-target="#checklist-de-aceptación">Checklist de aceptación</a></li>
+  <li><a href="#checklist-de-aceptacion" id="toc-checklist-de-aceptacion" class="nav-link" data-scroll-target="#checklist-de-aceptacion">Checklist de aceptacion</a></li>
   <li>Code Appendix</li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/lab-practicos/lab5_almacenamiento_montajes.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/lab-practicos/lab11_clawdbot_openclaw_telegram_tailscale.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lab-practicos/README.html">Laboratorios Prácticos</a></li><li class="breadcrumb-item"><a href="../lab-practicos/lab5_almacenamiento_montajes.html"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lab-practicos/README.html">Laboratorios Prácticos</a></li><li class="breadcrumb-item"><a href="../lab-practicos/lab11_clawdbot_openclaw_telegram_tailscale.html"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></h1>
+<h1 class="title"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></h1>
 </div>
 
 
@@ -1112,24 +1112,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><strong>Unidad:</strong> 6 - Almacenamiento y Sistemas de Archivos<br>
-<strong>Duración Estimada:</strong> 90-120 minutos<br>
-<strong>Dificultad:</strong> Intermedio</p>
+<p><strong>Unidad:</strong> 4/7/12 - Docker, Redes y Seguridad, Troubleshooting<br>
+<strong>Duracion Estimada:</strong> 150-210 minutos<br>
+<strong>Dificultad:</strong> Avanzado</p>
 <section id="objetivos" class="level2">
 <h2 class="anchored" data-anchor-id="objetivos">Objetivos</h2>
 <ul>
-<li>Inventariar discos y filesystems</li>
-<li>Crear un disco de laboratorio con loop device</li>
-<li>Crear una partición + filesystem ext4</li>
-<li>Montar el filesystem y dejarlo persistente con fstab</li>
-<li>Diagnosticar uso de espacio con du</li>
+<li>Levantar <strong>OpenClaw Gateway</strong> en Docker sobre <strong>Ubuntu Server LTS</strong>.</li>
+<li>Conectar un bot de <strong>Telegram</strong> (BotFather) al gateway.</li>
+<li>Aplicar postura minima de seguridad (pairing, mention gating, allowlists).</li>
+<li>Implementar acceso administrativo por <strong>Tailscale</strong> (red privada) y endurecer firewall.</li>
 </ul>
 </section>
 <section id="requisitos-previos" class="level2">
 <h2 class="anchored" data-anchor-id="requisitos-previos">Requisitos Previos</h2>
 <ul>
-<li>VM Ubuntu Server LTS (22.04 o 24.04) con acceso SSH</li>
-<li>Usuario con permisos sudo</li>
+<li>VM <strong>Ubuntu Server LTS</strong> (22.04 o 24.04) con acceso SSH.</li>
+<li>Lab 4B completado (Docker + Docker Compose v2 instalados) o equivalente.</li>
+<li>Cuenta de Telegram.</li>
+<li>Cuenta de Tailscale (admin del tailnet) o acceso a un tailnet existente.</li>
 </ul>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1137,284 +1138,513 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>⚠️ ADVERTENCIA CRÍTICA
+<span class="screen-reader-only">Warning</span>⚠️ ADVERTENCIA CRITICA
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>En este laboratorio vas a usar <code>parted</code>/<code>mkfs</code>.</p>
-<p><strong>Lo que podría salir mal:</strong> - Si apuntas a un disco real (ej: <code>/dev/sda</code>) puedes borrar tu sistema. - Un cambio incorrecto en <code>/etc/fstab</code> puede dejar el sistema sin boot.</p>
-<p><strong>Cómo prevenirlo:</strong> 1. Usa SOLO el disco de laboratorio creado como archivo y su loop device. 2. Verifica 2 veces el dispositivo con <code>lsblk</code> antes de formatear. 3. Antes de editar <code>fstab</code>, crea un backup.</p>
+<p>Vas a trabajar con <strong>tokens/keys</strong> (Telegram y Tailscale).</p>
+<p><strong>Lo que podria salir mal:</strong> - Si se filtra el token del bot, un atacante puede controlar el bot. - Si se filtra un auth key de Tailscale, un atacante puede unir dispositivos a tu tailnet.</p>
+<p><strong>Como prevenirlo:</strong> 1. Usa placeholders en apuntes: <code>**TELEGRAM_BOT_TOKEN**</code>, <code>**TAILSCALE_AUTHKEY**</code>. 2. Guarda secretos en archivos <code>600</code> (root-only) y no los subas al repo. 3. Usa claves efimeras (ephemeral) y tags/ACLs en Tailscale.</p>
 </div>
 </div>
+<hr>
 </section>
-<section id="pasos-del-laboratorio" class="level2">
-<h2 class="anchored" data-anchor-id="pasos-del-laboratorio">Pasos del Laboratorio</h2>
-<section id="paso-1-inventario-de-discos-y-montajes-10-min" class="level3">
-<h3 class="anchored" data-anchor-id="paso-1-inventario-de-discos-y-montajes-10-min">Paso 1: Inventario de discos y montajes (10 min)</h3>
+<section id="arquitectura-del-laboratorio-simplificada" class="level2">
+<h2 class="anchored" data-anchor-id="arquitectura-del-laboratorio-simplificada">Arquitectura del laboratorio (simplificada)</h2>
+<ul>
+<li><strong>Ubuntu Server LTS (VM)</strong>: host donde corre Docker y Tailscale.</li>
+<li><strong>OpenClaw Gateway (Docker)</strong>: hace polling al Bot API de Telegram (no requiere puertos entrantes desde Internet).</li>
+<li><strong>Tailscale</strong>: acceso privado al host para administracion (SSH, logs, health checks).</li>
+</ul>
+<hr>
+</section>
+<section id="paso-1-preparar-el-servidor-actualizacion-utilidades" class="level2">
+<h2 class="anchored" data-anchor-id="paso-1-preparar-el-servidor-actualizacion-utilidades">Paso 1: Preparar el servidor (actualizacion + utilidades)</h2>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsblk <span class="at">-f</span></span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">NAME</span>   FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS</span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">sda</span></span>
-<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">├─sda1</span>  ext4   1.0         11111111-2222-3333-4444-555555555555   35G    12% /</span>
-<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">└─sda15</span> vfat   FAT32       AAAA-BBBB                               98M     4% /boot/efi</span>
-<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-7" class="code-annotation-target"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> df <span class="at">-hT</span></span>
-<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Filesystem</span>     Type   Size  Used Avail Use% Mounted on</span>
-<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/sda1</span>      ext4    49G  5.4G   41G  12% /</span>
-<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a><span class="ex">tmpfs</span>          tmpfs  1.9G     0  1.9G   0% /run</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-2" class="code-annotation-target"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt upgrade <span class="at">-y</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-1-3" class="code-annotation-target"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> ca-certificates curl git jq</span>
+<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="1" data-code-annotation="1"><strong>lsblk -f</strong> te confirma qué filesystem está montado como <code>/</code> (no lo toques).</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="1,4" data-code-annotation="1"><strong>apt update</strong> actualiza el indice de paquetes.</span>
 </dd>
 <dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="7,11" data-code-annotation="2"><strong>df -hT</strong> valida tamaño/uso y el tipo de filesystem montado en <code>/</code>.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="2,5" data-code-annotation="2"><strong>apt upgrade</strong> aplica actualizaciones del sistema.</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="3,6" data-code-annotation="3"><strong>apt install</strong> instala utilidades para el resto del lab.</span>
 </dd>
 </dl>
 <hr>
 </section>
-<section id="paso-2-crear-un-disco-de-laboratorio-loop-15-min" class="level3">
-<h3 class="anchored" data-anchor-id="paso-2-crear-un-disco-de-laboratorio-loop-15-min">Paso 2: Crear un disco de laboratorio (loop) (15 min)</h3>
+<section id="paso-2-descargar-openclaw-y-levantar-el-gateway-en-docker" class="level2">
+<h2 class="anchored" data-anchor-id="paso-2-descargar-openclaw-y-levantar-el-gateway-en-docker">Paso 2: Descargar OpenClaw y levantar el Gateway en Docker</h2>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo fallocate <span class="at">-l</span> 1G /var/tmp/u6-disk.img</span>
-<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-3" class="code-annotation-target"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo losetup <span class="at">-fP</span> /var/tmp/u6-disk.img</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git clone https://github.com/openclaw/openclaw.git</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-2" class="code-annotation-target"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd openclaw</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-2-3" class="code-annotation-target"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./docker-setup.sh</span>
 <span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-2-5" class="code-annotation-target"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo losetup <span class="at">-a</span> <span class="kw">|</span> <span class="fu">grep</span> u6-disk.img</span>
-<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/loop0:</span> <span class="pp">[</span><span class="ss">2065</span><span class="pp">]</span>:12345 <span class="er">(</span><span class="ex">/var/tmp/u6-disk.img</span><span class="kw">)</span></span>
-<span id="annotated-cell-2-7"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-2-8"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-2-9" class="code-annotation-target"><a href="#annotated-cell-2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsblk /dev/loop0</span>
-<span id="annotated-cell-2-10"><a href="#annotated-cell-2-10" aria-hidden="true" tabindex="-1"></a><span class="ex">NAME</span>   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS</span>
-<span id="annotated-cell-2-11"><a href="#annotated-cell-2-11" aria-hidden="true" tabindex="-1"></a><span class="ex">loop0</span>    7:0    0    1G  0 loop</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="1" data-code-annotation="1"><strong>fallocate</strong> crea un archivo que actuará como disco.</span>
+<span data-code-cell="annotated-cell-2" data-code-lines="1,4" data-code-annotation="1"><strong>git clone</strong> descarga el repo oficial de OpenClaw.</span>
 </dd>
 <dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="3" data-code-annotation="2"><strong>losetup -fP</strong> asocia el archivo a un loop device y escanea particiones.</span>
+<span data-code-cell="annotated-cell-2" data-code-lines="2,5" data-code-annotation="2"><strong>cd openclaw</strong> entra al directorio del proyecto.</span>
 </dd>
 <dt data-target-cell="annotated-cell-2" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="5,7" data-code-annotation="3"><strong>losetup -a</strong> valida que el loop device apunta al archivo correcto.</span>
-</dd>
-<dt data-target-cell="annotated-cell-2" data-target-annotation="4">4</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="9,12" data-code-annotation="4"><strong>lsblk /dev/loop0</strong> confirma que estás trabajando sobre loop (no un disco real).</span>
+<span data-code-cell="annotated-cell-2" data-code-lines="3,6" data-code-annotation="3"><strong>docker-setup.sh</strong> deja el gateway listo via Docker Compose (y genera <code>.env</code>).</span>
 </dd>
 </dl>
-<hr>
-</section>
-<section id="paso-3-particionar-gpt-1-partición-15-min" class="level3">
-<h3 class="anchored" data-anchor-id="paso-3-particionar-gpt-1-partición-15-min">Paso 3: Particionar (GPT + 1 partición) (15 min)</h3>
+<p>Verifica que el contenedor este arriba:</p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo parted <span class="at">-s</span> /dev/loop0 mklabel gpt</span>
-<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-3" class="code-annotation-target"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo parted <span class="at">-s</span> /dev/loop0 mkpart primary ext4 1MiB 100%</span>
-<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-5" class="code-annotation-target"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsblk /dev/loop0</span>
-<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">NAME</span>      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS</span>
-<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">loop0</span>       7:0    0    1G  0 loop</span>
-<span id="annotated-cell-3-8"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">└─loop0p1</span>  259:0    0 1023M  0 part</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose ps</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="1" data-code-annotation="1"><strong>parted mklabel gpt</strong> crea tabla de particiones GPT en el loop.</span>
-</dd>
-<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="3" data-code-annotation="2"><strong>parted mkpart</strong> crea una partición que ocupe el disco de laboratorio.</span>
-</dd>
-<dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
-<dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="5,9" data-code-annotation="3"><strong>lsblk</strong> confirma que existe <code>/dev/loop0p1</code>.</span>
+<span data-code-cell="annotated-cell-3" data-code-lines="1,2" data-code-annotation="1"><strong>docker compose ps</strong> confirma servicios, estado y puertos publicados.</span>
 </dd>
 </dl>
 <hr>
 </section>
-<section id="paso-4-crear-filesystem-y-montar-20-min" class="level3">
-<h3 class="anchored" data-anchor-id="paso-4-crear-filesystem-y-montar-20-min">Paso 4: Crear filesystem y montar (20 min)</h3>
+<section id="paso-3-crear-el-bot-de-telegram-botfather-y-guardar-el-token" class="level2">
+<h2 class="anchored" data-anchor-id="paso-3-crear-el-bot-de-telegram-botfather-y-guardar-el-token">Paso 3: Crear el bot de Telegram (BotFather) y guardar el token</h2>
+<p>En Telegram:</p>
+<ol type="1">
+<li>Busca <code>@BotFather</code>.</li>
+<li>Ejecuta <code>/newbot</code>.</li>
+<li>BotFather te entrega un token tipo <code>123456789:AA...</code>.</li>
+</ol>
+<p>En el servidor, guarda el token como secreto (archivo root-only):</p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mkfs.ext4 <span class="at">-F</span> /dev/loop0p1</span>
-<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-3" class="code-annotation-target"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mkdir <span class="at">-p</span> /mnt/u6-data</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo install <span class="at">-d</span> <span class="at">-m</span> 700 /etc/clawdbot</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-2" class="code-annotation-target"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo bash <span class="at">-lc</span> <span class="st">'umask 077; printf "%s\n" "TELEGRAM_BOT_TOKEN=**TELEGRAM_BOT_TOKEN**" &gt; /etc/clawdbot/secrets.env'</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-3" class="code-annotation-target"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ls <span class="at">-la</span> /etc/clawdbot</span>
 <span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-5" class="code-annotation-target"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount /dev/loop0p1 /mnt/u6-data</span>
-<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-4-7" class="code-annotation-target"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> df <span class="at">-hT</span> /mnt/u6-data</span>
-<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Filesystem</span>     Type  Size  Used Avail Use% Mounted on</span>
-<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/loop0p1</span>   ext4  990M   24K  923M   1% /mnt/u6-data</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="1" data-code-annotation="1"><strong>mkfs.ext4</strong> formatea la particion con ext4 (solo en loop).</span>
+<span data-code-cell="annotated-cell-4" data-code-lines="1,4" data-code-annotation="1"><strong>install -d</strong> crea un directorio solo accesible por root.</span>
 </dd>
 <dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="3" data-code-annotation="2"><strong>mkdir -p</strong> crea punto de montaje.</span>
+<span data-code-cell="annotated-cell-4" data-code-lines="2,5" data-code-annotation="2"><strong>secrets.env</strong> guarda el token (placeholder en el ebook; en tu VM usa el token real).</span>
 </dd>
 <dt data-target-cell="annotated-cell-4" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="5" data-code-annotation="3"><strong>mount</strong> monta el filesystem.</span>
-</dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="4">4</dt>
-<dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="7,10" data-code-annotation="4"><strong>df -hT</strong> valida el montaje y tipo de FS.</span>
+<span data-code-cell="annotated-cell-4" data-code-lines="3,6" data-code-annotation="3"><strong>ls -la</strong> verifica permisos (deberia ser <code>-rw-------</code>).</span>
 </dd>
 </dl>
 <hr>
 </section>
-<section id="paso-5-persistencia-con-fstab-20-min" class="level3">
-<h3 class="anchored" data-anchor-id="paso-5-persistencia-con-fstab-20-min">Paso 5: Persistencia con fstab (20 min)</h3>
-<p>Nota: este paso valida persistencia con <code>mount -a</code> (sin reiniciar). En un reboot real, tendrías que volver a asociar el archivo a un loop device o quitar la entrada del lab.</p>
+<section id="paso-4-conectar-telegram-al-gateway" class="level2">
+<h2 class="anchored" data-anchor-id="paso-4-conectar-telegram-al-gateway">Paso 4: Conectar Telegram al Gateway</h2>
+<p>Ejecuta el comando de registro del canal Telegram usando el CLI de OpenClaw.</p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-1" class="code-annotation-target"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo blkid /dev/loop0p1</span>
-<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/loop0p1:</span> UUID=<span class="st">"66666666-7777-8888-9999-aaaaaaaaaaaa"</span> TYPE=<span class="st">"ext4"</span> PARTUUID=<span class="st">"bbbbbbbb-cccc-dddd-eeee-ffffffffffff"</span></span>
-<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-1" class="code-annotation-target"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> set <span class="at">-a</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-5-2" class="code-annotation-target"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo bash <span class="at">-lc</span> <span class="st">'source /etc/clawdbot/secrets.env; env | grep -E "^TELEGRAM_BOT_TOKEN="'</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-5-3" class="code-annotation-target"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> set +a</span>
 <span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-5-5" class="code-annotation-target"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo cp /etc/fstab /etc/fstab.bak</span>
-<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-5-8" class="code-annotation-target"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> printf <span class="st">'\n# Lab 5: loop mount\nUUID=66666666-7777-8888-9999-aaaaaaaaaaaa /mnt/u6-data ext4 defaults 0 2\n'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/fstab <span class="op">&gt;</span>/dev/null</span>
-<span id="annotated-cell-5-9"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-5-11" class="code-annotation-target"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo umount /mnt/u6-data</span>
-<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-5-13"><a href="#annotated-cell-5-13" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-5-14" class="code-annotation-target"><a href="#annotated-cell-5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-a</span></span>
-<span id="annotated-cell-5-15"><a href="#annotated-cell-5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-5-16"><a href="#annotated-cell-5-16" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-5-17" class="code-annotation-target"><a href="#annotated-cell-5-17" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> df <span class="at">-hT</span> /mnt/u6-data</span>
-<span id="annotated-cell-5-18"><a href="#annotated-cell-5-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Filesystem</span>     Type  Size  Used Avail Use% Mounted on</span>
-<span id="annotated-cell-5-19"><a href="#annotated-cell-5-19" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/loop0p1</span>   ext4  990M   24K  923M   1% /mnt/u6-data</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-5" data-code-lines="1,3" data-code-annotation="1"><strong>blkid</strong> obtiene el UUID para montar de forma estable.</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="1,4" data-code-annotation="1"><strong>set -a</strong> exporta variables del shell (para este ejemplo).</span>
 </dd>
 <dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-5" data-code-lines="5,6" data-code-annotation="2"><strong>cp /etc/fstab</strong> crea backup antes de tocar persistencia.</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="2,5" data-code-annotation="2"><strong>source secrets.env</strong> carga el token desde el archivo.</span>
 </dd>
 <dt data-target-cell="annotated-cell-5" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-5" data-code-lines="8,9" data-code-annotation="3"><strong>tee -a /etc/fstab</strong> agrega la entrada (usa tu UUID real).</span>
-</dd>
-<dt data-target-cell="annotated-cell-5" data-target-annotation="4">4</dt>
-<dd>
-<span data-code-cell="annotated-cell-5" data-code-lines="11,12" data-code-annotation="4"><strong>umount</strong> desmonta para probar persistencia.</span>
-</dd>
-<dt data-target-cell="annotated-cell-5" data-target-annotation="5">5</dt>
-<dd>
-<span data-code-cell="annotated-cell-5" data-code-lines="14,15" data-code-annotation="5"><strong>mount -a</strong> valida que fstab es correcto (sin reiniciar).</span>
-</dd>
-<dt data-target-cell="annotated-cell-5" data-target-annotation="6">6</dt>
-<dd>
-<span data-code-cell="annotated-cell-5" data-code-lines="17,20" data-code-annotation="6"><strong>df -hT</strong> confirma que el montaje se recupera via fstab.</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="3,6" data-code-annotation="3"><strong>set +a</strong> vuelve al modo normal.</span>
 </dd>
 </dl>
-<hr>
-</section>
-<section id="paso-6-diagnóstico-de-espacio-15-min" class="level3">
-<h3 class="anchored" data-anchor-id="paso-6-diagnóstico-de-espacio-15-min">Paso 6: Diagnóstico de espacio (15 min)</h3>
+<p>Ahora registra el canal:</p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-6-1" class="code-annotation-target"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo du <span class="at">-xh</span> <span class="at">--max-depth</span><span class="op">=</span>1 /var <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-hr</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 10</span>
-<span id="annotated-cell-6-2"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">1.2G</span>    /var</span>
-<span id="annotated-cell-6-3"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">620M</span>    /var/lib</span>
-<span id="annotated-cell-6-4"><a href="#annotated-cell-6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">210M</span>    /var/log</span>
-<span id="annotated-cell-6-5"><a href="#annotated-cell-6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-6-1" class="code-annotation-target"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo bash <span class="at">-lc</span> <span class="st">'source /etc/clawdbot/secrets.env; cd openclaw &amp;&amp; docker compose run --rm openclaw-cli channels add --channel telegram --token "$TELEGRAM_BOT_TOKEN"'</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-6" data-code-lines="1,6" data-code-annotation="1"><strong>du + sort</strong> identifica directorios mas grandes para diagnosticar espacio.</span>
+<span data-code-cell="annotated-cell-6" data-code-lines="1,2" data-code-annotation="1"><strong>channels add (telegram)</strong> registra el token para que el gateway haga polling al Bot API.</span>
 </dd>
 </dl>
+<hr>
 </section>
-</section>
-<section id="entregables-evidencia" class="level2">
-<h2 class="anchored" data-anchor-id="entregables-evidencia">Entregables (Evidencia)</h2>
+<section id="paso-5-postura-minima-de-seguridad-pairing-mention-gating-allowlists" class="level2">
+<h2 class="anchored" data-anchor-id="paso-5-postura-minima-de-seguridad-pairing-mention-gating-allowlists">Paso 5: Postura minima de seguridad (pairing + mention gating + allowlists)</h2>
+<p>Aplica (o valida) estos criterios minimos:</p>
 <ul>
-<li><code>lsblk -f</code> y <code>df -hT</code></li>
-<li><code>losetup -a | grep u6-disk.img</code></li>
-<li><code>lsblk /dev/loop0</code></li>
-<li><code>df -hT /mnt/u6-data</code> (antes y despues de <code>mount -a</code>)</li>
-<li>Top 3 de <code>du</code> en <code>/var</code> (con breve interpretacion)</li>
+<li>DMs en modo <strong>pairing</strong>.</li>
+<li>Grupos con <strong>requireMention: true</strong>.</li>
+<li>Grupos/usuarios restringidos por allowlist (segun tu politica).</li>
 </ul>
-</section>
-<section id="cierre-y-limpieza-5-min" class="level2">
-<h2 class="anchored" data-anchor-id="cierre-y-limpieza-5-min">Cierre y limpieza (5 min)</h2>
+<p>Config conceptual (referencia):</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>JSON5</strong></pre>
+</div>
+<pre id="annotated-cell-7" class="json5 code-annotation-code" data-code-line-numbers=""><code>{
+  channels: {
+    telegram: {
+      enabled: true,
+      dmPolicy: "pairing",
+      groups: { "*": { requireMention: true } },
+    },
+  },
+}</code></pre>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="9" data-code-annotation="1"><strong>dmPolicy + requireMention</strong> reduce superficie: no responde a DMs desconocidos ni a grupos sin mencion.</span>
+</dd>
+</dl>
+<p>Prueba el flujo de pairing:</p>
+<ol type="1">
+<li>Desde Telegram, manda un DM al bot.</li>
+<li>En el servidor, lista solicitudes:</li>
+</ol>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-1" class="code-annotation-target"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo umount /mnt/u6-data</span>
-<span id="annotated-cell-7-2"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-7-3" class="code-annotation-target"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo losetup <span class="at">-d</span> /dev/loop0</span>
-<span id="annotated-cell-7-4"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-7-5" class="code-annotation-target"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo rm <span class="at">-f</span> /var/tmp/u6-disk.img</span>
-<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-7-7" class="code-annotation-target"><a href="#annotated-cell-7-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo cp /etc/fstab.bak /etc/fstab</span>
-<span id="annotated-cell-7-8"><a href="#annotated-cell-7-8" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-7-9" class="code-annotation-target"><a href="#annotated-cell-7-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-a</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-8-1" class="code-annotation-target"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd openclaw</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-8-2" class="code-annotation-target"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose run <span class="at">--rm</span> openclaw-cli pairing list telegram</span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="1" data-code-annotation="1"><strong>umount</strong> desmonta el punto.</span>
+<span data-code-cell="annotated-cell-8" data-code-lines="1,3" data-code-annotation="1"><strong>cd openclaw</strong> usa el compose correcto.</span>
 </dd>
-<dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="3" data-code-annotation="2"><strong>losetup -d</strong> libera el loop device.</span>
-</dd>
-<dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
-<dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="5" data-code-annotation="3"><strong>rm</strong> borra el archivo-disco de laboratorio.</span>
-</dd>
-<dt data-target-cell="annotated-cell-7" data-target-annotation="4">4</dt>
-<dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="7" data-code-annotation="4"><strong>cp /etc/fstab.bak</strong> revierte el cambio de persistencia (evita errores futuros de montaje).</span>
-</dd>
-<dt data-target-cell="annotated-cell-7" data-target-annotation="5">5</dt>
-<dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="9,10" data-code-annotation="5"><strong>mount -a</strong> valida que <code>fstab</code> quedó limpio.</span>
+<span data-code-cell="annotated-cell-8" data-code-lines="2,4" data-code-annotation="2"><strong>pairing list</strong> muestra solicitudes pendientes.</span>
 </dd>
 </dl>
+<p>Aprueba el codigo (usa el codigo real que te entregue el CLI):</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-9-1" class="code-annotation-target"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd openclaw</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-9-2" class="code-annotation-target"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose run <span class="at">--rm</span> openclaw-cli pairing approve telegram <span class="pp">**</span>PAIRING_CODE<span class="pp">**</span></span>
+<span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="1,3" data-code-annotation="1"><strong>cd openclaw</strong> mantiene contexto.</span>
+</dd>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="2,4" data-code-annotation="2"><strong>pairing approve</strong> habilita el DM para ese usuario.</span>
+</dd>
+</dl>
+<hr>
 </section>
-<section id="checklist-de-aceptación" class="level2">
-<h2 class="anchored" data-anchor-id="checklist-de-aceptación">Checklist de aceptación</h2>
+<section id="paso-6-instalar-tailscale-en-ubuntu-server-lts" class="level2">
+<h2 class="anchored" data-anchor-id="paso-6-instalar-tailscale-en-ubuntu-server-lts">Paso 6: Instalar Tailscale en Ubuntu Server LTS</h2>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-10" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-10-1" class="code-annotation-target"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-fsSL</span> https://tailscale.com/install.sh <span class="kw">|</span> <span class="fu">sh</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-10" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-10-2" class="code-annotation-target"><a href="#annotated-cell-10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tailscale version</span>
+<span id="annotated-cell-10-3"><a href="#annotated-cell-10-3" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="1,3" data-code-annotation="1"><strong>install.sh</strong> instala Tailscale desde el repositorio oficial.</span>
+</dd>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="2,4" data-code-annotation="2"><strong>tailscale version</strong> valida que quedo instalado.</span>
+</dd>
+</dl>
+<p>Une el servidor al tailnet (usa un auth key real en tu VM):</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-11-1" class="code-annotation-target"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tailscale up <span class="at">--authkey</span> <span class="pp">**</span>TAILSCALE_AUTHKEY<span class="pp">**</span> <span class="at">--hostname</span> clawdbot-lab <span class="at">--ssh</span> <span class="at">--accept-dns</span><span class="op">=</span>false</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-11-2" class="code-annotation-target"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tailscale status</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-11-3" class="code-annotation-target"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tailscale ip <span class="at">-4</span></span>
+<span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="1,4" data-code-annotation="1"><strong>tailscale up</strong> une el host al tailnet; <code>--ssh</code> habilita Tailscale SSH (opcional).</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="2,5" data-code-annotation="2"><strong>tailscale status</strong> muestra nodos y estado.</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="3,6" data-code-annotation="3"><strong>tailscale ip -4</strong> entrega la IP privada del host en el tailnet.</span>
+</dd>
+</dl>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>💡 RECOMENDACION
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Para seguridad, usa auth keys <strong>efimeras</strong> (ephemeral) y tags/ACLs.</p>
+<p><strong>Casos de uso:</strong> - Laboratorios temporales (evitar llaves permanentes). - Separar servidores por rol con tags (<code>tag:clawdbot</code>).</p>
+<p><strong>Cuando aplicar:</strong> - Cada vez que agregas un servidor a tu tailnet.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="paso-7-endurecer-acceso-de-red-ufw-solo-tailscale" class="level2">
+<h2 class="anchored" data-anchor-id="paso-7-endurecer-acceso-de-red-ufw-solo-tailscale">Paso 7: Endurecer acceso de red (UFW + solo Tailscale)</h2>
+<p>Objetivo: dejar el host accesible para administracion solo por Tailscale.</p>
+<ol type="1">
+<li>Activa UFW en modo seguro:</li>
+</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-12" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-12-1" class="code-annotation-target"><a href="#annotated-cell-12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw default deny incoming</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-12-2" class="code-annotation-target"><a href="#annotated-cell-12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw default allow outgoing</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-12-3" class="code-annotation-target"><a href="#annotated-cell-12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow in on tailscale0 to any port 22 proto tcp</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-12-4" class="code-annotation-target"><a href="#annotated-cell-12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw enable</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-12-5" class="code-annotation-target"><a href="#annotated-cell-12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw status verbose</span>
+<span id="annotated-cell-12-6"><a href="#annotated-cell-12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-7"><a href="#annotated-cell-12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-8"><a href="#annotated-cell-12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-9"><a href="#annotated-cell-12-9" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-12" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="1,6" data-code-annotation="1"><strong>default deny incoming</strong> cierra trafico entrante por defecto.</span>
+</dd>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="2,7" data-code-annotation="2"><strong>default allow outgoing</strong> permite salidas (Docker pulls, Telegram polling, updates).</span>
+</dd>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="3,8" data-code-annotation="3"><strong>allow in on tailscale0</strong> permite SSH solo por la interfaz privada de Tailscale.</span>
+</dd>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="4,9" data-code-annotation="4"><strong>ufw enable</strong> activa el firewall.</span>
+</dd>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="5">5</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="5,10" data-code-annotation="5"><strong>ufw status verbose</strong> evidencia reglas y estado.</span>
+</dd>
+</dl>
+<ol start="2" type="1">
+<li>Confirma que OpenClaw no necesita puertos publicados al publico:</li>
+</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-13" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-13-1" class="code-annotation-target"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd openclaw</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-13-2" class="code-annotation-target"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose ps</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-13-3" class="code-annotation-target"><a href="#annotated-cell-13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 30</span>
+<span id="annotated-cell-13-4"><a href="#annotated-cell-13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-5"><a href="#annotated-cell-13-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="1,4" data-code-annotation="1"><strong>cd</strong> ubica el stack.</span>
+</dd>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="2,5" data-code-annotation="2"><strong>docker compose ps</strong> revisa si hay puertos expuestos innecesarios.</span>
+</dd>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="3,6" data-code-annotation="3"><strong>ss -lntp</strong> evidencia puertos en escucha.</span>
+</dd>
+</dl>
+<hr>
+</section>
+<section id="paso-8-verificacion-salud-logs" class="level2">
+<h2 class="anchored" data-anchor-id="paso-8-verificacion-salud-logs">Paso 8: Verificacion (salud + logs)</h2>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-14" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-14-1" class="code-annotation-target"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd openclaw</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-14" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-14-2" class="code-annotation-target"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose exec openclaw-gateway node dist/index.js health <span class="at">--token</span> <span class="st">"</span><span class="va">$OPENCLAW_GATEWAY_TOKEN</span><span class="st">"</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-14" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-14-3" class="code-annotation-target"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose logs <span class="at">-n</span> 200 openclaw-gateway</span>
+<span id="annotated-cell-14-4"><a href="#annotated-cell-14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-5"><a href="#annotated-cell-14-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="1,4" data-code-annotation="1"><strong>cd</strong> mantiene contexto del compose.</span>
+</dd>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="2,5" data-code-annotation="2"><strong>health</strong> valida que el gateway responde correctamente.</span>
+</dd>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="3,6" data-code-annotation="3"><strong>docker compose logs</strong> muestra errores de token, rate limits, red, etc.</span>
+</dd>
+</dl>
+<hr>
+</section>
+<section id="paso-9-opcional-acceso-por-tailscale-desde-tu-equipo-multi-os" class="level2">
+<h2 class="anchored" data-anchor-id="paso-9-opcional-acceso-por-tailscale-desde-tu-equipo-multi-os">Paso 9 (opcional): Acceso por Tailscale desde tu equipo (Multi-OS)</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Windows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-15-1" class="code-annotation-target"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-fsSL</span> https://tailscale.com/install.sh <span class="kw">|</span> <span class="fu">sh</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-15-2" class="code-annotation-target"><a href="#annotated-cell-15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tailscale up</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-15-3" class="code-annotation-target"><a href="#annotated-cell-15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh usuario@<span class="pp">**</span>TAILSCALE_IP_DEL_SERVIDOR<span class="pp">**</span></span>
+<span id="annotated-cell-15-4"><a href="#annotated-cell-15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-5"><a href="#annotated-cell-15-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="1,4" data-code-annotation="1"><strong>install.sh</strong> instala el cliente.</span>
+</dd>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="2,5" data-code-annotation="2"><strong>tailscale up</strong> autentica el equipo en tu tailnet.</span>
+</dd>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="3,6" data-code-annotation="3"><strong>ssh</strong> conecta usando la IP privada de Tailscale.</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-16-1" class="code-annotation-target"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> brew install <span class="at">--cask</span> tailscale</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-16-2" class="code-annotation-target"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> open <span class="at">-a</span> Tailscale</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-16-3" class="code-annotation-target"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh usuario@<span class="pp">**</span>TAILSCALE_IP_DEL_SERVIDOR<span class="pp">**</span></span>
+<span id="annotated-cell-16-4"><a href="#annotated-cell-16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-5"><a href="#annotated-cell-16-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="1,4" data-code-annotation="1"><strong>brew install –cask</strong> instala la app.</span>
+</dd>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="2,5" data-code-annotation="2"><strong>open -a</strong> abre Tailscale para login.</span>
+</dd>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="3,6" data-code-annotation="3"><strong>ssh</strong> conecta via tailnet.</span>
+</dd>
+</dl>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy code-annotated"><code class="sourceCode powershell"><a class="code-annotation-anchor" data-target-cell="annotated-cell-17" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-17-1" class="code-annotation-target"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> winget install Tailscale<span class="op">.</span><span class="fu">Tailscale</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-17" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-17-2" class="code-annotation-target"><a href="#annotated-cell-17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Start-Process</span> <span class="st">"</span><span class="va">$env</span><span class="op">:</span><span class="va">ProgramFiles</span><span class="st">\Tailscale\tailscale.exe"</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-17" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-17-3" class="code-annotation-target"><a href="#annotated-cell-17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> ssh usuario@<span class="op">**</span>TAILSCALE_IP_DEL_SERVIDOR<span class="op">**</span></span>
+<span id="annotated-cell-17-4"><a href="#annotated-cell-17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-5"><a href="#annotated-cell-17-5" aria-hidden="true" tabindex="-1"></a></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-17" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="1,4" data-code-annotation="1"><strong>winget install</strong> instala Tailscale.</span>
+</dd>
+<dt data-target-cell="annotated-cell-17" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="2,5" data-code-annotation="2"><strong>Start-Process</strong> abre la app para autenticar.</span>
+</dd>
+<dt data-target-cell="annotated-cell-17" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="3,6" data-code-annotation="3"><strong>ssh</strong> conecta usando la IP privada de Tailscale.</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="entregables-evidencia" class="level2">
+<h2 class="anchored" data-anchor-id="entregables-evidencia">Entregables (Evidencia)</h2>
+<ul>
+<li><code>docker compose ps</code> del stack OpenClaw.</li>
+<li>Evidencia de canal Telegram registrado (salida de <code>channels add</code> o <code>channels status</code>).</li>
+<li>Evidencia de pairing (list + approve).</li>
+<li><code>tailscale status</code> y <code>tailscale ip -4</code>.</li>
+<li><code>ufw status verbose</code> mostrando SSH permitido solo por <code>tailscale0</code>.</li>
+<li>Logs del gateway (<code>docker compose logs -n 200 openclaw-gateway</code>).</li>
+</ul>
+</section>
+<section id="checklist-de-aceptacion" class="level2">
+<h2 class="anchored" data-anchor-id="checklist-de-aceptacion">Checklist de aceptacion</h2>
 <ul class="task-list">
-<li><label><input type="checkbox">Trabajé únicamente sobre un loop device (evidencia de <code>losetup -a | grep u6-disk.img</code> y <code>lsblk /dev/loop0</code>)</label></li>
-<li><label><input type="checkbox">Puedo mostrar el filesystem montado en <code>/mnt/u6-data</code> con <code>df -hT /mnt/u6-data</code></label></li>
-<li><label><input type="checkbox">Probé persistencia con <code>mount -a</code> sin errores (evidencia incluida)</label></li>
-<li><label><input type="checkbox">Incluí un top 3 de uso de espacio en <code>/var</code> con interpretación breve</label></li>
-<li><label><input type="checkbox">Hice limpieza: desmonté, liberé loop, borré imagen y restauré <code>/etc/fstab</code> (evidencia de <code>mount -a</code> final)</label></li>
+<li><label><input type="checkbox">El gateway OpenClaw corre en Docker y aparece en <code>docker compose ps</code>.</label></li>
+<li><label><input type="checkbox">El bot de Telegram queda conectado (canal Telegram registrado).</label></li>
+<li><label><input type="checkbox">DMs quedan protegidos con pairing (evidencia de approve).</label></li>
+<li><label><input type="checkbox">El servidor queda unido a Tailscale y tiene IP privada.</label></li>
+<li><label><input type="checkbox">UFW queda activo con entrada restringida (SSH solo por <code>tailscale0</code>).</label></li>
+<li><label><input type="checkbox">Inclui evidencia de health/logs y resolvi al menos 1 problema de conexion si aparecio.</label></li>
 </ul>
 
 
@@ -1846,13 +2076,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../lab-practicos/lab4b_docker_compose.html" class="pagination-link" aria-label="Laboratorio 4B: Docker y Docker Compose">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Laboratorio 4B: Docker y Docker Compose</span></span>
+      <a href="../lab-practicos/lab10_troubleshooting_integrado.html" class="pagination-link" aria-label="Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../lab-practicos/lab6_http_diagnostico_web.html" class="pagination-link" aria-label="Laboratorio 6: HTTP Basico y Diagnostico Web">
-        <span class="nav-page-text"><span class="chapter-title">Laboratorio 6: HTTP Basico y Diagnostico Web</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../practicas/unidad1.html" class="pagination-link" aria-label="Practica Unidad 1: Fundamentos de Linux">
+        <span class="nav-page-text"><span class="chapter-title">Practica Unidad 1: Fundamentos de Linux</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1865,7 +2095,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="nav-footer-center">
       <ul class="footer-items list-unstyled">
     <li class="nav-item">
-    <a class="nav-link active" href="../about.html" aria-current="page">
+    <a class="nav-link" href="../about.html">
 <p>Sobre el Curso</p>
 </a>
   </li>  
@@ -1880,7 +2110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </a>
   </li>  
 </ul>
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/lab-practicos/lab5_almacenamiento_montajes.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/lab-practicos/lab11_clawdbot_openclaw_telegram_tailscale.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
