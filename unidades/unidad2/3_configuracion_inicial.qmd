@@ -330,8 +330,47 @@ ssh abacom-prod
 ssh abacom-backup
 
 # **Copiar archivos con SCP también funciona**
-scp miarchivo.txt abacom-prod:~/
+scp miarchivo.txt abacom-prod:~/  # <1>
+
+# Copiar un archivo usando una clave especifica
+scp -i ~/.ssh/diego_abacom miarchivo.txt diego@192.168.1.100:~/  # <2>
+
+# Copiar un directorio completo (recursivo)
+scp -r carpeta/ abacom-prod:~/  # <3>
+
+# Copiar desde el servidor hacia tu maquina local
+scp abacom-prod:/var/log/syslog ./syslog  # <4>
 ```
+
+
+
+1. **scp** copia un archivo al home remoto usando el alias `abacom-prod` de `~/.ssh/config`.
+2. **-i** fuerza una clave especifica (util si tienes multiples llaves o no usas alias).
+3. **-r** copia directorios recursivamente.
+4. En `origen:destino`, poner el alias/host antes del path descarga el archivo desde el servidor.
+
+::: {.callout-tip}
+## 💡 Recomendación
+
+Para transferencias grandes o repetitivas, usa **rsync**: es mas rapido, reintenta, y solo envia diferencias.
+:::
+
+```bash
+# Sincronizar un directorio al servidor (solo diferencias)
+rsync -avz --progress --partial -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  # <1>
+
+# Excluir archivos (ej: caches) durante la sincronizacion
+rsync -avz --progress --partial --exclude '.cache/' -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  # <2>
+
+# Traer logs desde el servidor a local
+rsync -avz --progress -e "ssh -i ~/.ssh/diego_abacom" diego@192.168.1.100:/var/log/ ./logs/  # <3>
+```
+
+
+
+1. **rsync** con `-avz` preserva metadata, muestra detalle, comprime, y con `--partial` permite reanudar.
+2. **--exclude** evita copiar rutas que no necesitas (reduce tiempo y ancho de banda).
+3. `origen remoto : destino local` descarga arboles completos de forma eficiente.
 
 ### 2.5 Seguridad: Deshabilitar Acceso por Contraseña
 
@@ -1191,4 +1230,3 @@ shuffleAnswers: true
 ```
 
 ---
-

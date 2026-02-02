@@ -1,20 +1,17 @@
-# Administración de Servidores Linux
+# Administracion de Servidores Linux
 
 Material del curso profesional para Abacom.
 
 Instructor: Diego Saavedra (https://statick88.github.io)
 
-## Bienvenida
+## Acceso rapido
 
-Este repositorio contiene el material del curso (ebook en Quarto + diapositivas Reveal.js) orientado a operar servidores Linux de forma ordenada y segura: terminal, permisos, SSH, hardening, Docker y despliegue web.
-
-## Acceso rápido
-
+- Ebook (publicado): `https://statick88.github.io/administracion-servidores-linux/`
 - Ebook (HTML generado): `docs/index.html`
 - Diapositivas (Reveal.js): `docs/presentaciones/index.html`
-- Guía de entorno: `SETUP.qmd` (fuente: `SETUP.md`)
+- Guia de entorno: `SETUP.qmd` (fuente: `SETUP.md`)
 
-## Cómo ejecutar en local
+## Ejecutar en local
 
 - Preview del ebook: `quarto preview`
 - Render del ebook: `quarto render --to html`

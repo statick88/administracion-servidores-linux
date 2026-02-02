@@ -1,16 +1,16 @@
 ---
-title: "Instalación de Ubuntu 22.04 LTS Paso a Paso"
+title: "Instalación de Ubuntu Server LTS Paso a Paso"
 author: "Diego Saavedra"
 date: "2024-01-29"
 bibliography: references.bib
 biblio-style: apalike
 ---
 
-# Instalación de Ubuntu 22.04 LTS Paso a Paso
+# Instalación de Ubuntu Server LTS Paso a Paso
 
 ## Introducción
 
-Esta lección te guiará a través del proceso completo de instalación de Ubuntu 22.04 LTS. El instalador de Ubuntu es amigable e intuitivo, pero entender cada paso te ayuda a tomar decisiones informadas sobre particiones, usuarios y configuración del sistema [@ubuntu_install_guide].
+Esta lección te guiará a través del proceso completo de instalación de Ubuntu Server LTS. El instalador de Ubuntu Server es amigable e intuitivo, pero entender cada paso te ayuda a tomar decisiones informadas sobre particiones, usuarios y configuración del sistema [@ubuntu_install_guide].
 
 **🗺️ En este tema aprenderás:**
 
@@ -27,7 +27,7 @@ Esta lección te guiará a través del proceso completo de instalación de Ubunt
 ## Requisitos Previos
 
 Asegúrate de tener:
-✓ USB booteable con Ubuntu 22.04 LTS (de lección anterior)
+✓ USB booteable con Ubuntu Server LTS (de lección anterior)
 ✓ Hardware compatible (4GB RAM, 50GB espacio, 64-bit)
 ✓ Conexión a internet (durante la instalación)
 ✓ Backup de datos si instalas en partición existente
@@ -455,7 +455,7 @@ Please remove the installation media, then press ENTER to continue.
 Después del reinicio (~1 minuto), verás:
 
 ```
-Ubuntu 22.04 LTS
+Ubuntu Server LTS
 
 abacom-ubuntu login: diego
 Password: ••••••••••
@@ -509,7 +509,7 @@ uname -r  # <1>
 5.15.0-91-generic
 ```
 
-Versión 5.15+ es correcta para Ubuntu 22.04 LTS.
+Versión 5.15+ es correcta para Ubuntu Server LTS.
 
 ### Verificar Particiones
 
@@ -570,9 +570,9 @@ Si ves 3 respuestas exitosas = Internet funciona ✓
 
 ### Ejemplo 1: Instalación en Abacom (Empresa Real)
 
-#### Servidor Linux (Ubuntu 22.04 LTS)
+#### Servidor Linux (Ubuntu Server LTS)
 
-**Escenario**: Abacom necesita 5 servidores Ubuntu 22.04 LTS
+**Escenario**: Abacom necesita 5 servidores Ubuntu Server LTS
 
 **Configuración estándar por servidor:**
 
@@ -622,8 +622,8 @@ Get-Volume | Select-Object DriveLetter, Size, SizeRemaining
 **En Windows (Descargar Ubuntu):**
 ```powershell
 # Paso 2: Descargar ISO (en Windows)
-PS> Invoke-WebRequest -Uri "https://releases.ubuntu.com/22.04/ubuntu-22.04.3-live-server-amd64.iso" `
-    -OutFile "C:\Users\usuario\Downloads\ubuntu-22.04.3.iso"
+PS> Invoke-WebRequest -Uri "https://releases.ubuntu.com/22.04/ubuntu-22.04.4-live-server-amd64.iso" `
+    -OutFile "C:\Users\usuario\Downloads\ubuntu-22.04.4-live-server-amd64.iso"
 
 # Paso 3: Flash ISO a USB (usar Balena Etcher)
 # - Descargar Balena Etcher desde https://www.balena.io/etcher/
@@ -665,8 +665,13 @@ ubuntu@abacom-dev:~$ uname -a
 Linux abacom-dev 5.15.0-1234-generic #1234-Ubuntu SMP x86_64
 
 # Desde macOS, copiar archivos a VM:
-$ multipass transfer archivo.txt abacom-dev:/home/ubuntu/
+$ multipass transfer archivo.txt abacom-dev:/home/ubuntu/  # <1>
+# <1>
 ```
+
+
+
+1. **multipass transfer** copia archivos del host a la VM (y viceversa) sin configurar SSH manualmente
 
 **OPCIÓN B: Docker Desktop (Ligero)**
 ```bash
@@ -1073,13 +1078,13 @@ swapon --show  # <1>
 12. VERIFICACIÓN (5 min)
     □ Abre Terminal: Ctrl+Alt+T
     □ Ejecuta: lsb_release -a
-    □ Verifica que ves "Ubuntu 22.04" y "jammy"
+   □ Verifica que ves "Ubuntu 22.04" y "jammy" (Ubuntu Server LTS)
     □ Ejecuta: df -h
     □ Verifica particiones están montadas
     □ Ejecuta: ping -c 3 8.8.8.8
     □ Verifica que hay conexión a Internet
 
-✓ ¡Listo! Ubuntu 22.04 LTS está instalado y funcionando
+✓ ¡Listo! Ubuntu Server LTS está instalado y funcionando
 ```
 
 ---
@@ -1096,8 +1101,11 @@ Pasos detallados:
 1. Descarga e instala VirtualBox:
    └─ https://www.virtualbox.org/
 
+   (Windows) Instala tambien el **VirtualBox Extension Pack** (misma version exacta que VirtualBox):
+   └─ https://www.virtualbox.org/wiki/Downloads
+
 2. Crea máquina virtual nueva:
-   ├─ Nombre: "Ubuntu 22.04 Lab"
+   ├─ Nombre: "Ubuntu Server LTS Lab"
    ├─ Tipo: Linux
    ├─ Versión: Ubuntu (64-bit)
    ├─ RAM: 4096 MB (4 GB)
@@ -1108,7 +1116,7 @@ Pasos detallados:
    ├─ Menú: Máquina → Configuración
    ├─ Sección: Almacenamiento
    ├─ Unidad óptica CD/DVD
-   └─ Selecciona ISO de Ubuntu 22.04.x
+   └─ Selecciona `ubuntu-22.04.x-live-server-amd64.iso`
 
 4. Arranca la VM (Power On)
 
@@ -1135,7 +1143,7 @@ Pasos detallados:
 3. Configuración personalizada:
    ├─ Compatibilidad: Última versión disponible
    ├─ Sistema operativo: Linux → Ubuntu 64-bit
-   ├─ Nombre: "Ubuntu 22.04 Lab"
+   ├─ Nombre: "Ubuntu Server LTS Lab"
    ├─ CPU: 2-4 procesadores
    ├─ RAM: 4096 MB (4 GB)
    ├─ Red: NAT (acceso a internet)
@@ -1146,7 +1154,7 @@ Pasos detallados:
 4. Monta el ISO:
    ├─ Click derecho en VM → Settings
    ├─ CD/DVD → Use ISO image file
-   └─ Selecciona ubuntu-22.04.x-desktop-amd64.iso
+   └─ Selecciona ubuntu-22.04.x-live-server-amd64.iso
 
 5. Arranca la VM (Power On)
 
@@ -1260,7 +1268,7 @@ Pasos:
 
 Ahora tienes:
 
-- ✅ Ubuntu 22.04 LTS completamente instalado
+- ✅ Ubuntu Server LTS completamente instalado
 - ✅ Sistema verificado y funcionando
 - ✅ Conexión a internet establecida
 - ✅ Usuario administrador creado
@@ -1290,7 +1298,7 @@ shuffleAnswers: true
 - [ ] Instalación mínima sin aplicaciones
 - [ ] Instalación para servidores
 
-## ¿Cuál es el sistema de archivos predeterminado recomendado en Ubuntu 22.04?
+## ¿Cuál es el sistema de archivos predeterminado recomendado en Ubuntu Server LTS?
 
 - [ ] ext3
 - [x] ext4

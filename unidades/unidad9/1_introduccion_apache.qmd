@@ -1,0 +1,134 @@
+---
+title: "Unidad 9.1: Introduccion a Apache"
+subtitle: "Instalacion, servicio y prueba rapida"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 9.1: Introduccion a Apache
+
+## Introduccion
+
+Apache HTTP Server es uno de los servidores web mas usados. En esta unidad lo instalaremos, lo validaremos con evidencia, y aprenderemos las ubicaciones clave de configuracion.
+
+## Objetivos de aprendizaje
+
+- Instalar Apache en Ubuntu Server
+- Validar servicio, puerto y respuesta HTTP
+- Identificar rutas de configuracion y document root
+
+---
+
+## Instalacion (Ubuntu)
+
+```bash
+$ sudo apt update  # <1>
+# <1>
+
+$ sudo apt install -y apache2  # <2>
+Reading package lists... Done
+# <2>
+```
+
+
+
+1. **apt update** actualiza el indice de paquetes.
+2. **apt install apache2** instala el servidor Apache.
+
+---
+
+## Validar servicio y puerto
+
+```bash
+$ systemctl status apache2 --no-pager  # <1>
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
+     Active: active (running)
+# <1>
+
+$ sudo ss -lntp | grep ':80'  # <2>
+LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:("apache2",pid=1234,fd=4)
+# <2>
+```
+
+
+
+1. **systemctl status apache2** confirma que el servicio esta activo.
+2. **ss -lntp** valida que el puerto 80/tcp esta en escucha.
+
+---
+
+## Probar respuesta HTTP (local)
+
+```bash
+$ curl -I http://localhost  # <1>
+HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)
+Content-Type: text/html
+# <1>
+```
+
+
+
+1. **curl -I** prueba conectividad HTTP y muestra headers.
+
+---
+
+## Rutas clave en Ubuntu
+
+- Config principal: `/etc/apache2/apache2.conf`
+- Sitios: `/etc/apache2/sites-available/` y `/etc/apache2/sites-enabled/`
+- Modulos: `/etc/apache2/mods-available/` y `/etc/apache2/mods-enabled/`
+- Document root por defecto: `/var/www/html`
+- Logs: `/var/log/apache2/access.log` y `/var/log/apache2/error.log`
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Probar un servidor HTTP local
+
+#### Linux
+```bash
+$ curl -I http://localhost  # <1>
+HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)
+# <1>
+```
+
+
+
+1. **curl -I** valida respuesta HTTP.
+
+#### macOS
+```bash
+$ curl -I http://localhost  # <1>
+curl: (7) Failed to connect to localhost port 80: Connection refused
+# <1>
+```
+
+
+
+1. **curl -I** funciona igual; si no hay servidor en 80, vera "Connection refused".
+
+#### Windows
+```powershell
+PS> curl.exe -I http://localhost  # <1>
+HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)
+# <1>
+```
+
+
+
+1. **curl.exe** en Windows permite pruebas HTTP simples (headers).
+
+:::
+
+## Mejores practicas
+
+- Valida siempre 3 cosas: servicio -> puerto -> respuesta HTTP.
+- Cambios de config: `apachectl configtest` antes de recargar.

@@ -1,0 +1,84 @@
+---
+title: "Unidad 10.1: Introduccion a Nginx"
+subtitle: "Instalacion y conceptos operativos"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 10.1: Introduccion a Nginx
+
+## Introduccion
+
+Nginx se usa mucho como servidor web y reverse proxy. En servidores, lo tipico es: Nginx en 80/443, aplicaciones atras (Node, Python, etc.), y certificados TLS con Certbot.
+
+## Objetivos de aprendizaje
+
+- Instalar Nginx en Ubuntu Server
+- Validar servicio, puertos y respuesta HTTP
+- Identificar ubicaciones clave de configuracion
+
+---
+
+## Instalacion (Ubuntu)
+
+```bash
+$ sudo apt update  # <1>
+# <1>
+
+$ sudo apt install -y nginx  # <2>
+Reading package lists... Done
+# <2>
+```
+
+
+
+1. **apt update** actualiza el indice de paquetes.
+2. **apt install nginx** instala Nginx.
+
+---
+
+## Validar servicio y puertos
+
+```bash
+$ systemctl status nginx --no-pager  # <1>
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: active (running)
+# <1>
+
+$ sudo ss -lntp | grep -E ':(80|443)\b'  # <2>
+LISTEN 0 511 0.0.0.0:80  0.0.0.0:* users:("nginx",pid=2345,fd=6)
+# <2>
+```
+
+
+
+1. **systemctl status nginx** confirma que el servicio esta activo.
+2. **ss -lntp** valida puertos en escucha (80/443).
+
+---
+
+## Probar respuesta HTTP
+
+```bash
+$ curl -I http://localhost  # <1>
+HTTP/1.1 200 OK
+Server: nginx/1.24.0 (Ubuntu)
+Content-Type: text/html
+# <1>
+```
+
+
+
+1. **curl -I** valida respuesta HTTP de Nginx.
+
+---
+
+## Rutas clave en Ubuntu
+
+- Config principal: `/etc/nginx/nginx.conf`
+- Sitios: `/etc/nginx/sites-available/` y `/etc/nginx/sites-enabled/`
+- Default site: `/etc/nginx/sites-available/default`
+- Web root comun: `/var/www/html`
+- Logs: `/var/log/nginx/access.log` y `/var/log/nginx/error.log`

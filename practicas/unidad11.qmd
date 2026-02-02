@@ -1,0 +1,77 @@
+---
+title: "Practica Unidad 11: MariaDB"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Practica Unidad 11: MariaDB
+
+## Objetivo
+
+Instalar MariaDB, crear una base y un usuario con privilegios minimos, y generar un backup verificable.
+
+---
+
+## Parte 1: Instalacion y validacion
+
+```bash
+$ sudo apt update  # <1>
+# <1>
+
+$ sudo apt install -y mariadb-server  # <2>
+# <2>
+
+$ systemctl status mariadb --no-pager  # <3>
+● mariadb.service - MariaDB database server
+     Active: active (running)
+# <3>
+
+$ sudo mariadb -e 'SELECT VERSION();'  # <4>
+VERSION()
+10.11.6-MariaDB
+# <4>
+```
+
+
+
+1. **apt update** actualiza el indice.
+2. **apt install mariadb-server** instala MariaDB.
+3. **systemctl status** valida servicio.
+4. **mariadb -e** valida conectividad local.
+
+---
+
+## Parte 2: DB y usuario
+
+```bash
+$ sudo mariadb  # <1>
+MariaDB [(none)]> CREATE DATABASE appdb;
+MariaDB [(none)]> CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass-ChangeMe';
+MariaDB [(none)]> GRANT SELECT,INSERT,UPDATE,DELETE ON appdb.* TO 'appuser'@'localhost';
+MariaDB [(none)]> FLUSH PRIVILEGES;
+MariaDB [(none)]> EXIT;
+# <1>
+```
+
+
+
+1. **mariadb** ejecuta comandos SQL para crear DB/usuario y permisos.
+
+---
+
+## Parte 3: Backup
+
+```bash
+$ sudo mysqldump --databases appdb > /tmp/appdb.sql  # <1>
+# <1>
+
+$ ls -lh /tmp/appdb.sql  # <2>
+-rw-r--r-- 1 root root 12K Feb  2 12:45 /tmp/appdb.sql
+# <2>
+```
+
+
+
+1. **mysqldump** genera backup SQL.
+2. **ls -lh** valida que el archivo existe.

@@ -1,0 +1,154 @@
+---
+title: "Unidad 5.2: systemd units y journalctl"
+subtitle: "Gestion de servicios con systemctl y lectura de logs"
+author: "Diego Saavedra"
+date: "2026-02-01"
+date-format: medium
+---
+
+# Unidad 5.2: systemd units y journalctl
+
+## Introduccion
+
+El brochure del curso indica que la Unidad 5 incluye **systemd units** y **journalctl**. Esto es el corazon de la operacion en Linux moderno: servicios como SSH, Nginx, Docker y bases de datos se controlan con systemd.
+
+**Tiempo estimado:** 60-90 minutos
+
+---
+
+## Conceptos clave
+
+- **Unit:** recurso gestionado por systemd (ej: `nginx.service`, `ssh.service`).
+- **Active vs enabled:**
+  - active: corre ahora
+  - enabled: arranca al boot
+
+---
+
+## systemctl: controlar servicios
+
+```bash
+$ systemctl status ssh --no-pager  # <1>
+* ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; enabled)
+     Active: active (running) since Sun 2026-02-01 09:10:00 UTC; 2h 15min ago
+
+$ sudo systemctl restart ssh  # <2>
+
+$ sudo systemctl enable nginx  # <3>
+Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service -> /lib/systemd/system/nginx.service.
+
+$ sudo systemctl disable nginx  # <4>
+Removed /etc/systemd/system/multi-user.target.wants/nginx.service.
+# <1>
+```
+
+
+
+1. **systemctl status ... --no-pager** muestra estado y si esta enabled
+2. **systemctl restart** reinicia el servicio (aplica cambios)
+3. **systemctl enable** habilita arranque automatico
+4. **systemctl disable** deshabilita arranque automatico
+
+---
+
+## journalctl: logs del servicio
+
+```bash
+$ journalctl -u ssh --since "30 min ago" --no-pager  # <1>
+Feb 01 11:12:42 server sshd[2222]: Accepted publickey for ubuntu from 10.0.0.12 port 52014 ssh2
+
+$ journalctl -u nginx -f  # <2>
+Feb 01 11:20:03 server nginx[2458]: 2026/02/01 11:20:03 [notice] 2458#2458: signal process started
+# <1>
+```
+
+
+
+1. **journalctl -u ... --since** trae logs recientes del servicio
+2. **journalctl -f** sigue logs en tiempo real (similar a tail -f)
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver estado de un servicio
+
+#### Linux
+```bash
+$ systemctl status nginx --no-pager  # <1>
+* nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
+     Active: active (running) since Sun 2026-02-01 09:12:14 UTC; 2h 10min ago
+# <1>
+```
+
+
+
+1. **systemctl status** muestra estado del servicio
+
+#### macOS
+```bash
+$ launchctl list | head -n 5  # <1>
+PID     Status  Label
+  89    0       com.apple.audio.coreaudiod
+  95    0       com.apple.WindowServer
+# <1>
+```
+
+
+
+1. **launchctl list** lista servicios/agents de launchd (equivalente conceptual)
+
+#### Windows
+```powershell
+PS> Get-Service -Name w32time | Select-Object Name,Status,StartType  # <1>
+
+Name   Status  StartType
+----   ------  ---------
+w32time Running Automatic
+# <1>
+```
+
+
+
+1. **Get-Service** consulta estado de un servicio
+
+:::
+
+| Aspecto | Linux (systemd) | macOS (launchd) | Windows |
+|---------|------------------|----------------|---------|
+| Estado servicio | `systemctl status` | `launchctl list` | `Get-Service` |
+| Logs | `journalctl -u` | (logs del sistema) | Event Log |
+
+---
+
+## Mejores practicas
+
+:::{.callout-tip}
+## RECOMENDACION
+
+**Si un servicio falla, lee logs antes de reiniciar en bucle.**
+
+Casos de uso:
+- nginx/ssh/mysql no levantan.
+
+Cuando aplicar:
+1. `systemctl status <svc>`
+2. `journalctl -u <svc> --since "30 min ago"`
+3. Corregir configuracion y recien reiniciar.
+:::
+
+---
+
+## Resumen
+
+- `systemctl` controla servicios y su comportamiento al arranque.
+- `journalctl` es el log principal para diagnosticar fallas.
+
+## Referencias
+
+- [systemctl(1)](https://www.freedesktop.org/software/systemd/man/systemctl.html)
+- [journalctl(1)](https://www.freedesktop.org/software/systemd/man/journalctl.html)

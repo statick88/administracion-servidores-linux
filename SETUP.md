@@ -2,7 +2,7 @@
 
 Tienes **4 opciones** para ejecutar Linux y seguir este curso. Elige la que mejor se adapte a tu máquina.
 
-> **Consejo:** Si no sabes cuál elegir, ir a la sección [Recomendaciones](#-recomendaciones) al final.
+> **Consejo:** Si no sabes cuál elegir, ir a la sección [Recomendaciones](#recomendaciones) al final.
 
 ---
 
@@ -576,7 +576,9 @@ docker run -it -v /path/to/local:/workspace ubuntu:22.04 /bin/bash
 
 ---
 
-## 🎯 Recomendaciones
+<a id="-recomendaciones"></a>
+
+## 🎯 Recomendaciones {#recomendaciones}
 
 ### Si tienes Windows:
 → **WSL2** para desarrollo rápido  

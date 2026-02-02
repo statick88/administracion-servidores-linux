@@ -1,0 +1,178 @@
+---
+title: "Unidad 6.1: Sistemas de archivos"
+subtitle: "ext4, XFS y Btrfs para servidores"
+author: "Diego Saavedra"
+date: "2026-02-01"
+date-format: medium
+---
+
+# Unidad 6.1: Sistemas de archivos
+
+## Introduccion
+
+En servidores, el sistema de archivos define gran parte de la experiencia operativa: rendimiento, confiabilidad, recuperacion ante fallas y herramientas de mantenimiento.
+
+En esta unidad trabajaremos con los sistemas de archivos mas usados en Linux:
+
+- ext4 (estandar y muy estable)
+- XFS (fuerte en archivos grandes y workloads intensivos)
+- Btrfs (avanzado: snapshots, subvolumes, checksum)
+
+## Objetivos de aprendizaje
+
+Al final de esta leccion, podras:
+
+- Identificar el sistema de archivos en uso y sus montajes
+- Elegir entre ext4/XFS/Btrfs segun caso de uso
+- Crear un sistema de archivos en un dispositivo de laboratorio (loopback)
+
+---
+
+## Conceptos clave
+
+- **Dispositivo de bloques:** disco/particion (ej: `/dev/sda`, `/dev/sda1`).
+- **Sistema de archivos (FS):** estructura que organiza datos (directorios/archivos/metadatos).
+- **Mount point:** ruta donde se "pega" un FS (ej: `/`, `/var`, `/data`).
+- **Journaling:** registro para recuperacion tras cortes (muy importante en servidores).
+- **UUID:** identificador estable para montar sin depender de nombres (recomendado en `/etc/fstab`).
+
+---
+
+## Ver que sistema de archivos estas usando
+
+```bash
+$ lsblk -f  # <1>
+NAME   FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+sda
+└─sda1  ext4   1.0         5b4f5d4e-2f3e-4c17-9b3b-9d4c7d7b0c2a   38G    12% /
+# <1>
+
+$ df -hT  # <2>
+Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/sda1      ext4   49G  5.4G   41G  12% /
+# <2>
+
+$ findmnt -n -o SOURCE,FSTYPE,TARGET /  # <3>
+/dev/sda1 ext4 /
+# <3>
+```
+
+
+
+1. **lsblk -f** lista discos/particiones y su tipo de FS (FSTYPE), UUID y montajes.
+2. **df -hT** muestra uso de disco y el tipo de FS por montaje.
+3. **findmnt** confirma el origen y tipo del FS montado en `/`.
+
+---
+
+## ext4 vs XFS vs Btrfs (decision rapida)
+
+| Aspecto | ext4 | XFS | Btrfs |
+|---------|------|-----|-------|
+| **Uso recomendado** | general / default | alto rendimiento / archivos grandes | snapshots y features avanzadas |
+| **Madurez** | muy alta | muy alta | alta (pero mas complejo) |
+| **Snapshots nativos** | no | no | si |
+| **Herramientas** | `e2fsprogs` | `xfsprogs` | `btrfs-progs` |
+| **Complejidad operativa** | baja | media | alta |
+
+:::{.callout-tip}
+## RECOMENDACION
+
+**Si estas empezando en administracion de servidores, usa ext4 por defecto.**
+
+Casos de uso:
+- Particiones del sistema (`/`, `/var`, `/home`).
+
+Cuando aplicar:
+- Cuando priorizas estabilidad, tooling y simplicidad.
+:::
+
+---
+
+## Laboratorio seguro: crear un FS usando un disco de prueba (loop)
+
+Este laboratorio crea un "disco" dentro de un archivo, para que puedas practicar sin tocar discos reales.
+
+```bash
+$ sudo fallocate -l 512M /tmp/u6-disk.img  # <1>
+# <1>
+
+$ sudo losetup -fP /tmp/u6-disk.img  # <2>
+# <2>
+
+$ sudo losetup -a | grep u6-disk.img  # <3>
+/dev/loop0: [2065]:12345 (/tmp/u6-disk.img)
+# <3>
+```
+
+
+
+1. **fallocate -l 512M** crea un archivo que representara un disco de laboratorio.
+2. **losetup -fP** asocia el archivo a un dispositivo loop (ej: `/dev/loop0`).
+3. **losetup -a** verifica que el loop quedo creado.
+
+Ahora (en la siguiente leccion) lo particionaremos y le crearemos un sistema de archivos.
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver discos y volumenes
+
+#### Linux
+```bash
+$ lsblk  # <1>
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0   50G  0 disk
+└─sda1   8:1    0   50G  0 part /
+# <1>
+```
+
+
+
+1. **lsblk** lista discos/particiones y montajes en Linux.
+
+#### macOS
+```bash
+$ diskutil list  # <1>
+/dev/disk0 (internal, physical):
+  0: GUID_partition_scheme
+  1: EFI EFI 314.6 MB
+  2: Apple_APFS Container disk1 494.4 GB
+# <1>
+```
+
+
+
+1. **diskutil list** lista discos y particiones en macOS.
+
+#### Windows
+```powershell
+PS> Get-Disk | Select-Object Number,FriendlyName,PartitionStyle,Size  # <1>
+
+Number FriendlyName      PartitionStyle Size
+------ ------------      -------------- ----
+0      NVMe Samsung SSD  GPT            512105932800
+# <1>
+```
+
+
+
+1. **Get-Disk** lista discos y su estilo de particion (GPT/MBR) en Windows.
+
+:::
+
+| Aspecto | Linux | macOS | Windows |
+|---------|-------|-------|---------|
+| Listar discos | `lsblk` | `diskutil list` | `Get-Disk` |
+| FS por montaje | `df -T` | `df -T` | `Get-Volume` |
+
+---
+
+## Resumen
+
+- Un sistema de archivos define como se guardan y recuperan datos.
+- ext4 es el default mas simple y confiable.
+- XFS y Btrfs agregan ventajas, pero con mayor complejidad operativa.

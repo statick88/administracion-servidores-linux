@@ -1,0 +1,95 @@
+---
+title: "Practica Unidad 12: Troubleshooting"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Practica Unidad 12: Troubleshooting
+
+## Objetivo
+
+Entregar un reporte de diagnostico reproducible con evidencias minimas (contexto, logs, red y recursos).
+
+## Entregables
+
+- Salida de comandos (copiar/pegar) + explicacion breve.
+
+---
+
+## Parte 1: Contexto
+
+```bash
+$ hostnamectl  # <1>
+ Static hostname: srv01
+ Operating System: Ubuntu 24.04.1 LTS
+# <1>
+
+$ uptime  # <2>
+ 12:55:03 up 1 day,  3:21,  1 user,  load average: 0.08, 0.11, 0.09
+# <2>
+```
+
+
+
+1. **hostnamectl** registra host/OS.
+2. **uptime** registra carga y uptime.
+
+---
+
+## Parte 2: Logs de un servicio
+
+```bash
+$ sudo journalctl -u nginx --since "2 hours ago" --no-pager | tail -n 40  # <1>
+... logs ...
+# <1>
+```
+
+
+
+1. **journalctl -u** entrega evidencia de logs del servicio.
+
+---
+
+## Parte 3: Red
+
+```bash
+$ ip -br addr  # <1>
+enp0s3  UP  192.168.56.10/24
+# <1>
+
+$ ip route | head -n 5  # <2>
+default via 192.168.56.1 dev enp0s3
+# <2>
+
+$ sudo ss -lntp | head -n 20  # <3>
+... puertos ...
+# <3>
+```
+
+
+
+1. **ip -br addr** evidencia IP.
+2. **ip route** evidencia gateway.
+3. **ss -lntp** evidencia puertos.
+
+---
+
+## Parte 4: Recursos
+
+```bash
+$ free -h  # <1>
+               total        used        free      shared  buff/cache   available
+Mem:           3.8Gi       1.1Gi       2.0Gi        52Mi       740Mi       2.5Gi
+# <1>
+
+$ df -h  # <2>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        49G  5.4G   41G  12% /
+# <2>
+```
+
+
+
+1. **free -h** evidencia memoria.
+2. **df -h** evidencia espacio.

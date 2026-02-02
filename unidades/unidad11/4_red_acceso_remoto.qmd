@@ -1,0 +1,79 @@
+---
+title: "Unidad 11.4: Red y acceso remoto"
+subtitle: "bind-address, firewall y buenas practicas"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 11.4: Red y acceso remoto
+
+## Introduccion
+
+Exponer una base de datos a red debe ser una decision consciente. En la mayoria de escenarios, la DB no debe ser publica y solo debe ser accesible desde una red privada o desde el mismo host.
+
+## Objetivos de aprendizaje
+
+- Identificar direccion/puerto en escucha
+- Configurar bind-address (cuando aplica)
+- Proteger con firewall
+
+---
+
+## Ver escucha
+
+```bash
+$ sudo ss -lntp | grep ':3306' || true  # <1>
+# <1>
+```
+
+
+
+1. **ss -lntp** valida si MariaDB escucha en 3306/tcp.
+
+---
+
+## bind-address (ejemplo en Ubuntu)
+
+En MariaDB, el archivo suele estar en `/etc/mysql/mariadb.conf.d/50-server.cnf`.
+
+```bash
+$ sudo grep -n '^bind-address' /etc/mysql/mariadb.conf.d/50-server.cnf || true  # <1>
+bind-address            = 127.0.0.1
+# <1>
+```
+
+
+
+1. **grep bind-address** muestra si esta limitado a loopback.
+
+:::{.callout-tip}
+## RECOMENDACION
+
+**Si tu app y DB estan en el mismo servidor, manten bind-address en 127.0.0.1.**
+
+Casos de uso:
+- Stack monolitico (Nginx + app + DB en el mismo host).
+
+Cuando aplicar:
+- Cuando no necesitas conexiones desde otra maquina.
+:::
+
+---
+
+## Firewall (UFW)
+
+```bash
+$ sudo ufw status  # <1>
+Status: active
+# <1>
+
+$ sudo ufw allow from 192.168.56.0/24 to any port 3306 proto tcp  # <2>
+Rule added
+# <2>
+```
+
+
+
+1. **ufw status** valida estado del firewall.
+2. **ufw allow from ...** permite 3306 solo desde una red especifica.

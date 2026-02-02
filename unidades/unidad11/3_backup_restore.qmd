@@ -1,0 +1,54 @@
+---
+title: "Unidad 11.3: Backup y restore"
+subtitle: "mysqldump como evidencia operativa"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 11.3: Backup y restore
+
+## Introduccion
+
+Un servidor sin backups verificables no esta en produccion. Aqui usaremos `mysqldump` para generar un backup y restaurarlo en un entorno de prueba.
+
+## Objetivos de aprendizaje
+
+- Generar backup con `mysqldump`
+- Restaurar y validar
+
+---
+
+## Backup
+
+```bash
+$ sudo mysqldump --databases appdb > /tmp/appdb.sql  # <1>
+# <1>
+
+$ ls -lh /tmp/appdb.sql  # <2>
+-rw-r--r-- 1 root root 12K Feb  2 12:45 /tmp/appdb.sql
+# <2>
+```
+
+
+
+1. **mysqldump** exporta la base `appdb` a un archivo SQL.
+2. **ls -lh** valida que el backup existe y su tamano.
+
+---
+
+## Restore (ejemplo)
+
+```bash
+$ sudo mariadb < /tmp/appdb.sql  # <1>
+# <1>
+
+$ sudo mariadb -e 'SHOW DATABASES;' | grep appdb  # <2>
+appdb
+# <2>
+```
+
+
+
+1. **mariadb < backup.sql** restaura desde el dump.
+2. **SHOW DATABASES** valida que la base existe.

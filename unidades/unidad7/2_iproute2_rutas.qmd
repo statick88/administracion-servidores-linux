@@ -1,0 +1,128 @@
+---
+title: "Unidad 7.2: iproute2 y rutas"
+subtitle: "Diagnostico de conectividad con ip/ss"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 7.2: iproute2 y rutas
+
+## Introduccion
+
+`iproute2` es el set moderno de herramientas para administrar red en Linux (reemplaza en gran parte a `ifconfig`/`route`).
+
+## Objetivos de aprendizaje
+
+- Inspeccionar IP, rutas y vecinos (ARP/NDP)
+- Entender la ruta por defecto y como afecta salida a Internet
+- Validar puertos y sockets con `ss`
+
+---
+
+## Rutas: leer y explicar lo que ves
+
+```bash
+$ ip route  # <1>
+default via 192.168.56.1 dev enp0s3
+192.168.56.0/24 dev enp0s3 proto kernel scope link src 192.168.56.10
+# <1>
+
+$ ip -6 route  # <2>
+fe80::/64 dev enp0s3 proto kernel metric 256
+default via fe80::1 dev enp0s3 metric 100
+# <2>
+```
+
+
+
+1. **ip route** muestra rutas IPv4; `default via ...` es la salida por defecto.
+2. **ip -6 route** muestra rutas IPv6.
+
+---
+
+## Vecinos (ARP/NDP): "a quien le hablo en L2"
+
+```bash
+$ ip neigh  # <1>
+192.168.56.1 dev enp0s3 lladdr 0a:00:27:aa:bb:cc REACHABLE
+# <1>
+```
+
+
+
+1. **ip neigh** muestra la tabla de vecinos (ARP en IPv4, NDP en IPv6).
+
+---
+
+## Ver sockets y puertos
+
+```bash
+$ sudo ss -lntup  # <1>
+Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process
+tcp   LISTEN 0      4096   0.0.0.0:22        0.0.0.0:*       users:("sshd",pid=812,fd=3)
+udp   UNCONN 0      0      127.0.0.53%lo:53  0.0.0.0:*       users:("systemd-resolved",pid=610,fd=13)
+# <1>
+```
+
+
+
+1. **ss -lntup** lista sockets en escucha TCP/UDP y el proceso asociado.
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver rutas
+
+#### Linux
+```bash
+$ ip route  # <1>
+default via 192.168.1.1 dev eth0
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10
+# <1>
+```
+
+
+
+1. **ip route** lista rutas IPv4 del host.
+
+#### macOS
+```bash
+$ netstat -rn | head -n 10  # <1>
+Routing tables
+
+Internet:
+Destination        Gateway            Flags        Netif Expire
+default            192.168.1.1        UGSc           en0
+192.168.1.0/24     link#4             UCS            en0
+# <1>
+```
+
+
+
+1. **netstat -rn** muestra tabla de rutas en macOS.
+
+#### Windows
+```powershell
+PS> route print  # <1>
+IPv4 Route Table
+===========================================================================
+Active Routes:
+Network Destination        Netmask          Gateway       Interface
+          0.0.0.0          0.0.0.0      192.168.1.1     192.168.1.30
+# <1>
+```
+
+
+
+1. **route print** muestra la tabla de rutas en Windows.
+
+:::
+
+## Mejores practicas
+
+- Si no hay `default route`, no hay salida a otras redes.
+- Si hay IP pero no hay vecino para el gateway (`ip neigh`), revisa L2 (VLAN/bridge/virtual switch).

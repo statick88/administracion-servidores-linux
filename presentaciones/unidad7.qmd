@@ -1,0 +1,92 @@
+---
+title: "Unidad 7: Redes basicas"
+subtitle: "Administracion de Servidores Linux (Abacom)"
+author: "Diego Saavedra"
+date: today
+---
+
+## Metodologia
+
+Concepto -> Demo -> Laboratorio guiado -> Practica independiente
+
+## Agenda
+
+- Interfaces e IP (`ip`)
+- Rutas y gateway (`ip route`)
+- Puertos y procesos (`ss`)
+- DNS y resolucion (`resolvectl`, `getent`, `dig`)
+- Configuracion en Ubuntu (Netplan / nmcli)
+
+## Demo: IP y rutas
+
+```bash
+$ ip -br addr  # <1>
+lo     UNKNOWN 127.0.0.1/8 ::1/128
+enp0s3  UP      192.168.56.10/24
+# <1>
+
+$ ip route  # <2>
+default via 192.168.56.1 dev enp0s3
+192.168.56.0/24 dev enp0s3 proto kernel scope link src 192.168.56.10
+# <2>
+```
+
+
+
+::: notes
+
+1. **ip -br addr** muestra IP por interfaz.
+2. **ip route** muestra rutas y gateway.
+
+:::
+
+## Demo: Puertos en escucha
+
+```bash
+$ sudo ss -lntp  # <1>
+State   Recv-Q  Send-Q Local Address:Port  Peer Address:Port  Process
+LISTEN  0       4096   0.0.0.0:22          0.0.0.0:*          users:("sshd",pid=812,fd=3)
+# <1>
+```
+
+
+
+::: notes
+
+1. **ss -lntp** valida puertos TCP en escucha y proceso asociado.
+
+:::
+
+## Demo: DNS
+
+```bash
+$ resolvectl status  # <1>
+Link 2 (enp0s3)
+Current DNS Server: 192.168.56.1
+# <1>
+
+$ getent hosts example.com  # <2>
+93.184.216.34 example.com
+# <2>
+```
+
+
+
+::: notes
+
+1. **resolvectl status** muestra DNS efectivo.
+2. **getent hosts** valida resolucion via el resolver del sistema.
+
+:::
+
+## Recursos
+
+- Material Unidad 7.1: [Fundamentos de redes](../unidades/unidad7/1_fundamentos_redes.html)
+- Material Unidad 7.2: [iproute2 y rutas](../unidades/unidad7/2_iproute2_rutas.html)
+- Material Unidad 7.3: [nmcli y netplan](../unidades/unidad7/3_nmcli_netplan.html)
+- Material Unidad 7.4: [DNS y resolucion](../unidades/unidad7/4_dns_resolucion.html)
+- Practica Unidad 7: [Practica Unidad 7](../practicas/unidad7.html)
+
+::: {.footer-links}
+Instructor: https://statick88.github.io
+:::

@@ -10,13 +10,13 @@ biblio-style: apalike
 
 ## Introducción
 
-Antes de instalar Ubuntu 22.04 LTS, es fundamental verificar que tu equipo cumple con los requisitos mínimos y preparar el medio de instalación. Esta lección te guiará a través de todo lo necesario para una instalación exitosa.
+Antes de instalar Ubuntu Server LTS, es fundamental verificar que tu equipo cumple con los requisitos mínimos y preparar el medio de instalación. Esta lección te guiará a través de todo lo necesario para una instalación exitosa.
 
 **🗺️ En este tema aprenderás:**
 
 - Requisitos de hardware mínimos y recomendados
 - Cómo verificar si tu computadora es compatible
-- Descarga segura de Ubuntu 22.04 LTS
+- Descarga segura de Ubuntu Server LTS
 - Creación de USB de instalación
 - Acceso a BIOS/UEFI
 - Preparación del disco duro
@@ -155,6 +155,14 @@ VirtualBox es como un "traductor":
 
 :::
 
+:::{.callout-note}
+## 📝 Nota
+
+En **Apple Silicon (ARM64)**, asegúrate de usar una ISO **ARM64** (por ejemplo, `ubuntu-22.04.x-live-server-arm64.iso`).
+
+Si intentas instalar un sistema **amd64/x86_64** en una VM ARM sin emulación, no va a bootear.
+:::
+
 
 **Ventajas:**
 
@@ -222,7 +230,7 @@ Ver guía completa de configuración en: [**SETUP.qmd**](../../SETUP.qmd)
 
 ### Especificaciones Mínimas
 
-Para ejecutar Ubuntu 22.04 LTS, tu computadora necesita al menos [@ubuntu_requirements_2024]:
+Para ejecutar Ubuntu Server LTS, tu computadora necesita al menos [@ubuntu_requirements_2024]:
 
 | Componente | Mínimo | Recomendado |
 |-----------|---------|------------|
@@ -234,7 +242,7 @@ Para ejecutar Ubuntu 22.04 LTS, tu computadora necesita al menos [@ubuntu_requir
 
 ### ¿Por qué importan estos requisitos?
 
-El **kernel de Linux** es muy eficiente y puede funcionar en hardware antiguo. Sin embargo, para una experiencia de escritorio moderna con Ubuntu GNOME, necesitas recursos suficientes.
+El **kernel de Linux** es muy eficiente y puede funcionar en hardware antiguo. Sin embargo, para una experiencia fluida (instalador, SSH, paquetes y laboratorios), necesitas recursos suficientes.
 
 La **RAM mínima de 1 GB** es apenas funcional - con aplicaciones modernas, necesitarás **4 GB** para productividad real. El **procesador de 1 GHz** también es mínimo absoluto.
 
@@ -312,17 +320,16 @@ fdisk -l  # <3>
 
 ---
 
-## Descargar Ubuntu 22.04 LTS
+## Descargar Ubuntu Server LTS
 
 ### Paso 1: Obtener la Imagen ISO
 
 Accede a **https://releases.ubuntu.com/22.04/** y descarga el archivo correcto:
 
-- **ubuntu-22.04.4-desktop-amd64.iso** → Para procesadores Intel/AMD 64-bit (RECOMENDADO)
-- **ubuntu-22.04.4-desktop-arm64.iso** → Para procesadores ARM (MacBook Apple Silicon, Raspberry Pi)
-- **ubuntu-22.04.4-live-server-amd64.iso** → Versión servidor sin interfaz gráfica
+- **ubuntu-22.04.4-live-server-amd64.iso** → Para procesadores Intel/AMD 64-bit (RECOMENDADO)
+- **ubuntu-22.04.4-live-server-arm64.iso** → Para procesadores ARM64 (Apple Silicon M1/M2/M3, servidores ARM)
 
-El archivo tendrá un tamaño aproximado de **3.5 GB**.
+El archivo tendrá un tamaño aproximado de **1.5-2.0 GB**.
 
 ### Paso 2: Verificar Integridad (Importante para Seguridad)
 
@@ -330,7 +337,7 @@ Cada ISO oficial tiene un archivo **SHA256SUMS** que garantiza que la descarga n
 
 ```bash
 # En Linux o macOS
-sha256sum ubuntu-22.04.4-desktop-amd64.iso > descargado.sha256  # <1>
+sha256sum ubuntu-22.04.4-live-server-amd64.iso > descargado.sha256  # <1>
 ```
 
 1. **sha256sum** genera un hash criptográfico del archivo ISO descargado
@@ -344,7 +351,7 @@ diff descargado.sha256 SHA256SUMS  # <2>
 En **Windows**, usa:
 
 ```powershell
-(Get-FileHash ubuntu-22.04.4-desktop-amd64.iso -Algorithm SHA256).Hash  # <1>
+(Get-FileHash ubuntu-22.04.4-live-server-amd64.iso -Algorithm SHA256).Hash  # <1>
 ```
 
 1. **Get-FileHash** es el equivalente de PowerShell para calcular checksums
@@ -374,7 +381,7 @@ Para crear un USB booteable, necesitas herramientas según tu SO:
 **Paso 3:** Abre Etcher y selecciona:
 
 ```
-1. Flash from file → Selecciona ubuntu-22.04.4-desktop-amd64.iso
+1. Flash from file → Selecciona ubuntu-22.04.4-live-server-amd64.iso
 
 2. Select target → Elige tu USB (¡CUIDADO! Borra datos)
 
@@ -396,7 +403,7 @@ sudo umount /dev/sdX1  # <2>
 2. **umount** desmonta la partición antes de escribir (reemplaza X con tu letra)
 
 ```bash
-sudo dd if=ubuntu-22.04.4-desktop-amd64.iso of=/dev/sdX bs=4M status=progress  # <3>
+sudo dd if=ubuntu-22.04.4-live-server-amd64.iso of=/dev/sdX bs=4M status=progress  # <3>
 ```
 
 3. **dd** (disk dump) copia el ISO byte a byte. **bs=4M** define el tamaño de bloque. **status=progress** muestra avance
@@ -461,7 +468,7 @@ Para arrancar desde USB, necesitas cambiar el **orden de boot** en BIOS/UEFI. Es
 
 **UEFI** (Unified Extensible Firmware Interface) - Moderno, seguro, soporta GPT, Secure Boot
 
-Ubuntu 22.04 LTS soporta ambos, pero **UEFI es recomendado** para equipos modernos (post-2012) [@uefi_standard_2022].
+Ubuntu Server LTS soporta ambos, pero **UEFI es recomendado** para equipos modernos (post-2012) [@uefi_standard_2022].
 
 Si durante la instalación ves:
 
@@ -645,8 +652,8 @@ $ cd ~/Downloads
 $ wget https://releases.ubuntu.com/22.04/SHA256SUMS
 
 # 2. Validar descarga
-$ sha256sum -c SHA256SUMS 2>/dev/null | grep ubuntu-22.04.4-desktop-amd64.iso
-ubuntu-22.04.4-desktop-amd64.iso: OK
+$ sha256sum -c SHA256SUMS 2>/dev/null | grep ubuntu-22.04.4-live-server-amd64.iso
+ubuntu-22.04.4-live-server-amd64.iso: OK
 
 # Si ves OK = descarga correcta
 # Si ves FAILED = archivo corrupto, descargar nuevamente
@@ -666,10 +673,10 @@ $ cd ~/Downloads
 $ curl -O https://releases.ubuntu.com/22.04/SHA256SUMS
 
 # 2. Validar descarga
-$ shasum -a 256 -c SHA256SUMS | grep ubuntu-22.04.4-desktop-amd64.iso
+$ shasum -a 256 -c SHA256SUMS | grep ubuntu-22.04.4-live-server-amd64.iso
 
 # Alternativa con openssl
-$ openssl dgst -sha256 ubuntu-22.04.4-desktop-amd64.iso
+$ openssl dgst -sha256 ubuntu-22.04.4-live-server-amd64.iso
 ```
 
 **Explicación**:
@@ -684,10 +691,10 @@ $ openssl dgst -sha256 ubuntu-22.04.4-desktop-amd64.iso
 PS> Invoke-WebRequest -Uri "https://releases.ubuntu.com/22.04/SHA256SUMS" -OutFile "$env:USERPROFILE\Downloads\SHA256SUMS"
 
 # 2. Calcular hash del archivo ISO descargado
-PS> (Get-FileHash -Algorithm SHA256 "$env:USERPROFILE\Downloads\ubuntu-22.04.4-desktop-amd64.iso").Hash
+PS> (Get-FileHash -Algorithm SHA256 "$env:USERPROFILE\Downloads\ubuntu-22.04.4-live-server-amd64.iso").Hash
 
 # 3. Comparar con el archivo SHA256SUMS
-PS> (Get-Content "$env:USERPROFILE\Downloads\SHA256SUMS" | Select-String "ubuntu-22.04.4-desktop-amd64.iso").Line
+PS> (Get-Content "$env:USERPROFILE\Downloads\SHA256SUMS" | Select-String "ubuntu-22.04.4-live-server-amd64.iso").Line
 ```
 
 **Explicación**:
@@ -712,7 +719,7 @@ sdb              8:16   1  15.6G  0 disk /media/user/USB
 $ sudo umount /dev/sdb1 /dev/sdb2 2>/dev/null
 
 # 3. Escribir ISO en USB con dd
-$ sudo dd if=~/Downloads/ubuntu-22.04.4-desktop-amd64.iso of=/dev/sdb bs=4M status=progress conv=fsync
+$ sudo dd if=~/Downloads/ubuntu-22.04.4-live-server-amd64.iso of=/dev/sdb bs=4M status=progress conv=fsync
 3500M bytes transferred in 2.5 seconds
 
 # 4. Expulsar USB
@@ -739,7 +746,7 @@ $ diskutil unmountDisk /dev/disk1
 Unmount of all volumes on disk1 was successful
 
 # 3. Escribir ISO en USB
-$ sudo dd if=~/Downloads/ubuntu-22.04.4-desktop-amd64.iso of=/dev/rdisk1 bs=4m
+$ sudo dd if=~/Downloads/ubuntu-22.04.4-live-server-amd64.iso of=/dev/rdisk1 bs=4m
 $ # Esperar a que termine (puede tomar 5-10 minutos)
 
 # 4. Expulsar el USB
@@ -871,7 +878,7 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 
 :::{.callout-tip collapse="true"}
 ### Pregunta 1: Requisitos de Hardware
-¿Cuál es la RAM recomendada mínima para que Ubuntu 22.04 LTS funcione de forma productiva?
+¿Cuál es la RAM recomendada mínima para que Ubuntu Server LTS funcione de forma productiva?
 
 **a)** 512 MB  
 **b)** 1 GB  
@@ -913,7 +920,7 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 
 1. Verificar que tu hardware es compatible
 
-2. Descargar Ubuntu 22.04 LTS correctamente
+2. Descargar Ubuntu Server LTS correctamente
 
 3. Validar la descarga
 
@@ -936,13 +943,13 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 
 2. DESCARGAR UBUNTU (10 min)
    □ Ve a https://releases.ubuntu.com/22.04/
-   □ Descarga: ubuntu-22.04.4-desktop-amd64.iso
+    □ Descarga: ubuntu-22.04.4-live-server-amd64.iso
    □ Descarga también: SHA256SUMS (archivo de checksums)
    □ Espera a que ambos completen 100%
 
 3. VALIDAR DESCARGA (5 min)
    □ Abre terminal en el directorio de descargas
-   □ Ejecuta: sha256sum ubuntu-22.04.4-desktop-amd64.iso
+    □ Ejecuta: sha256sum ubuntu-22.04.4-live-server-amd64.iso
    □ Compara el resultado con SHA256SUMS
    □ Deben ser idénticos (copia y pega ambos para verificar)
 
@@ -996,7 +1003,7 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
 2. Instala VirtualBox en tu máquina host
 
 3. Crea una máquina virtual nueva:
-   ├─ Nombre: "Ubuntu 22.04 Practice"
+   ├─ Nombre: "Ubuntu Server LTS Practice"
    ├─ Tipo: Linux
    ├─ Versión: Ubuntu (64-bit)
    ├─ RAM: 4096 MB (4 GB mínimo)
@@ -1010,13 +1017,26 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
    ├─ Sistema operativo: Linux
    └─ Versión: Ubuntu (64-bit)
 
-5. Monta el ISO de Ubuntu:
+5. Monta el ISO de Ubuntu Server:
    ├─ Menú: Máquina → Configuración
    ├─ Sección: Almacenamiento
    ├─ Unidad óptica → Selecciona el ISO descargado
    └─ Aceptar cambios
 
-6. Inicia la máquina virtual y sigue el instalador de Ubuntu
+6. Inicia la máquina virtual y sigue el instalador de Ubuntu Server
+
+:::{.callout-tip}
+## 💡 Recomendación
+
+Si usas VirtualBox en Windows, instala tambien el **VirtualBox Extension Pack** (misma version exacta que tu VirtualBox).
+
+**Que habilita tipicamente:**
+
+- USB 2.0/3.0 passthrough (dispositivos USB dentro de la VM)
+- VirtualBox RDP (acceso remoto a la consola de la VM)
+
+**Descarga:** https://www.virtualbox.org/wiki/Downloads
+:::
 ```
 
 ### Opción 2: VMware Workstation (Profesional)
@@ -1057,7 +1077,7 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
    ├─ Tipo: Custom Configuration (para control total)
    ├─ Compatibilidad: Latest version
    ├─ Sistema operativo: Linux → Ubuntu 64-bit
-   ├─ Nombre: "Ubuntu 22.04 Practice"
+   ├─ Nombre: "Ubuntu Server LTS Practice"
    ├─ Ubicación: Selecciona directorio
    └─ Siguiente
 
@@ -1070,10 +1090,10 @@ Ambos arrancan Ubuntu, pero **UEFI es el estándar actual** desde 2012.
    ├─ Red: NAT (para acceso a internet)
    └─ Finalizar configuración
 
-6. Monta el ISO de Ubuntu:
+6. Monta el ISO de Ubuntu Server:
    ├─ Click derecho en VM → Settings
    ├─ CD/DVD (SATA): Selecciona "Use ISO image file"
-   ├─ Browse → Selecciona ubuntu-22.04.x-desktop-amd64.iso
+   ├─ Browse → Selecciona ubuntu-22.04.x-live-server-amd64.iso
    ├─ OK
 
 7. Inicia la máquina virtual (Power on) y sigue el instalador
@@ -1180,7 +1200,7 @@ Ahora tienes:
 ✓ Hardware verificado y compatible
 ✓ ISO validado criptográficamente
 
-En la próxima lección, usaremos este USB para **instalar Ubuntu 22.04 LTS paso a paso**.
+En la próxima lección, usaremos este USB para **instalar Ubuntu Server LTS paso a paso**.
 
 ---
 
@@ -1191,14 +1211,14 @@ En la próxima lección, usaremos este USB para **instalar Ubuntu 22.04 LTS paso
 shuffleAnswers: true
 ---
 
-## ¿Cuál es el requisito mínimo de RAM recomendado para Ubuntu 22.04 LTS?
+## ¿Cuál es el requisito mínimo de RAM recomendado para Ubuntu Server LTS?
 
 - [ ] 512 MB
 - [x] 2 GB (recomendado para uso confortable)
 - [ ] 4 GB (obligatorio)
 - [ ] 8 GB (solo para servidores)
 
-## ¿Qué algoritmo hash se debe usar para validar la ISO de Ubuntu 22.04?
+## ¿Qué algoritmo hash se debe usar para validar la ISO de Ubuntu Server LTS?
 
 - [ ] MD5
 - [ ] SHA-1
@@ -1238,10 +1258,10 @@ shuffleAnswers: true
 - [ ] Dentro del sistema operativo actual
 - [ ] No se puede acceder
 
-## ¿Cuál es el tamaño típico de la ISO de Ubuntu 22.04 LTS (Desktop)?
+## ¿Cuál es el tamaño típico de la ISO de Ubuntu Server LTS?
 
 - [ ] ~500 MB
-- [x] ~3-4 GB
+- [x] ~1.5-2.0 GB
 - [ ] ~8 GB
 - [ ] ~15 GB
 

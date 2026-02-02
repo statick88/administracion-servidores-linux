@@ -1,0 +1,73 @@
+---
+title: "Unidad 9: Apache"
+subtitle: "Administracion de Servidores Linux (Abacom)"
+author: "Diego Saavedra"
+date: today
+---
+
+## Agenda
+
+- Instalacion y validacion (servicio/puerto/curl)
+- Logs (access/error)
+- Modulos y sitios (a2enmod/a2ensite)
+- VirtualHosts (ServerName, DocumentRoot)
+- Hardening basico (ServerTokens, headers)
+
+## Demo: Instalar y validar
+
+```bash
+$ sudo apt update  # <1>
+# <1>
+
+$ sudo apt install -y apache2  # <2>
+# <2>
+
+$ systemctl status apache2 --no-pager  # <3>
+● apache2.service - The Apache HTTP Server
+     Active: active (running)
+# <3>
+
+$ curl -I http://localhost  # <4>
+HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)
+# <4>
+```
+
+
+
+::: notes
+
+1. **apt update** actualiza el indice.
+2. **apt install apache2** instala el servidor.
+3. **systemctl status** valida que esta activo.
+4. **curl -I** valida respuesta HTTP.
+
+:::
+
+## Demo: VirtualHost (Host header)
+
+```bash
+$ curl -H 'Host: site1.local' http://127.0.0.1  # <1>
+<h1>Site1 OK</h1>
+# <1>
+```
+
+
+
+::: notes
+
+1. **curl -H Host** permite probar seleccion de VirtualHost sin DNS.
+
+:::
+
+## Recursos
+
+- Material Unidad 9.1: [Introduccion a Apache](../unidades/unidad9/1_introduccion_apache.html)
+- Material Unidad 9.2: [Configuracion, logs y modulos](../unidades/unidad9/2_configuracion_logs_modulos.html)
+- Material Unidad 9.3: [VirtualHosts y sitios](../unidades/unidad9/3_virtualhosts_sites.html)
+- Material Unidad 9.4: [Seguridad basica en Apache](../unidades/unidad9/4_seguridad_basica_apache.html)
+- Practica Unidad 9: [Practica Unidad 9](../practicas/unidad9.html)
+
+::: {.footer-links}
+Instructor: https://statick88.github.io
+:::

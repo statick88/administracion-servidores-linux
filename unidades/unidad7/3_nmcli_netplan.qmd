@@ -1,0 +1,156 @@
+---
+title: "Unidad 7.3: nmcli y netplan"
+subtitle: "Configuracion de red en Ubuntu Server"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 7.3: nmcli y netplan
+
+## Introduccion
+
+En Ubuntu Server, la configuracion de red normalmente se define con Netplan (archivos YAML) y se aplica a traves de `systemd-networkd` o NetworkManager.
+
+En servidores, la prioridad es evitar cortes de conectividad (especialmente si administras por SSH).
+
+:::{.callout-warning}
+## ADVERTENCIA CRITICA
+
+**Cambiar IP/gateway por SSH puede dejarte sin acceso remoto.**
+
+**Lo que podria salir mal:**
+- Pierdes conectividad y no puedes volver a entrar por SSH.
+- Dejas una interfaz sin gateway o con una mascara incorrecta.
+
+**Como prevenirlo:**
+1. Trabaja con consola directa (hipervisor / iLO / consola cloud) si es posible.
+2. Aplica cambios y valida en el momento (`ip -br addr`, `ip route`, `ping`).
+3. Mantén un plan de rollback (archivo previo + ventana de mantenimiento).
+:::
+
+## Objetivos de aprendizaje
+
+- Identificar si usas NetworkManager o systemd-networkd
+- Leer/editar Netplan y aplicarlo con seguridad
+- Usar `nmcli` para inspeccion y cambios controlados (cuando aplique)
+
+---
+
+## Ver que renderer estas usando
+
+```bash
+$ ls -1 /etc/netplan  # <1>
+00-installer-config.yaml
+# <1>
+
+$ sudo netplan get  # <2>
+network:
+  version: 2
+  ethernets:
+    enp0s3:
+      dhcp4: true
+# <2>
+```
+
+
+
+1. **ls /etc/netplan** muestra archivos de configuracion Netplan.
+2. **netplan get** imprime la configuracion efectiva en formato legible.
+
+---
+
+## Aplicar Netplan (forma segura)
+
+```bash
+$ sudo netplan try  # <1>
+Do you want to keep these settings? Press ENTER before the timeout to accept.
+# <1>
+
+$ sudo netplan apply  # <2>
+# <2>
+```
+
+
+
+1. **netplan try** aplica temporalmente y permite rollback automatico si no confirmas.
+2. **netplan apply** aplica cambios permanentes.
+
+---
+
+## Inspeccion con nmcli (si esta instalado y activo)
+
+```bash
+$ nmcli general status  # <1>
+STATE      CONNECTIVITY  WIFI-HW  WIFI     WWAN-HW  WWAN
+connected  full          enabled  enabled  enabled  enabled
+# <1>
+
+$ nmcli device status  # <2>
+DEVICE  TYPE      STATE      CONNECTION
+enp0s3  ethernet  connected  Wired connection 1
+# <2>
+```
+
+
+
+1. **nmcli general status** muestra estado general de NetworkManager.
+2. **nmcli device status** muestra estado por interfaz.
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver configuracion de red
+
+#### Linux
+```bash
+$ sudo netplan get  # <1>
+network:
+  version: 2
+  ethernets:
+    enp0s3:
+      dhcp4: true
+# <1>
+```
+
+
+
+1. **netplan get** muestra configuracion Netplan.
+
+#### macOS
+```bash
+$ networksetup -listallnetworkservices  # <1>
+An asterisk (*) denotes that a network service is disabled.
+Wi-Fi
+USB 10/100/1000 LAN
+# <1>
+```
+
+
+
+1. **networksetup** lista servicios de red configurados en macOS.
+
+#### Windows
+```powershell
+PS> Get-NetIPConfiguration  # <1>
+
+InterfaceAlias       : Ethernet
+IPv4Address          : 192.168.1.30
+IPv4DefaultGateway   : 192.168.1.1
+DnsServer            : 192.168.1.1
+# <1>
+```
+
+
+
+1. **Get-NetIPConfiguration** muestra IP/gateway/DNS por interfaz en Windows.
+
+:::
+
+## Mejores practicas
+
+- Preferir `netplan try` sobre `netplan apply` cuando estas remoto.
+- Guarda copia: `sudo cp /etc/netplan/00-installer-config.yaml /etc/netplan/00-installer-config.yaml.bak`.

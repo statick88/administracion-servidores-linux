@@ -1,0 +1,96 @@
+---
+title: "Practica Unidad 7: Redes basicas"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Practica Unidad 7: Redes basicas
+
+## Objetivo
+
+Recolectar evidencias basicas de conectividad y resolucion en tu servidor.
+
+## Entregables
+
+- Captura o texto de salidas (copiar/pegar) de los comandos pedidos.
+- Explicacion breve (1-2 lineas) por evidencia.
+
+---
+
+## Parte 1: Inventario de red
+
+```bash
+$ ip -br link  # <1>
+lo     UNKNOWN 00:00:00:00:00:00
+enp0s3  UP      08:00:27:12:34:56
+# <1>
+
+$ ip -br addr  # <2>
+lo     UNKNOWN 127.0.0.1/8 ::1/128
+enp0s3  UP      192.168.56.10/24
+# <2>
+
+$ ip route  # <3>
+default via 192.168.56.1 dev enp0s3
+192.168.56.0/24 dev enp0s3 proto kernel scope link src 192.168.56.10
+# <3>
+
+$ ip neigh  # <4>
+192.168.56.1 dev enp0s3 lladdr 0a:00:27:aa:bb:cc REACHABLE
+# <4>
+```
+
+
+
+1. **ip -br link** muestra interfaces y estado.
+2. **ip -br addr** muestra IP por interfaz.
+3. **ip route** muestra rutas y gateway por defecto.
+4. **ip neigh** muestra vecinos (ARP/NDP).
+
+---
+
+## Parte 2: Puertos y servicios
+
+```bash
+$ sudo ss -lntp  # <1>
+State   Recv-Q  Send-Q Local Address:Port  Peer Address:Port  Process
+LISTEN  0       4096   0.0.0.0:22          0.0.0.0:*          users:("sshd",pid=812,fd=3)
+# <1>
+```
+
+
+
+1. **ss -lntp** valida que SSH esta escuchando y muestra el proceso.
+
+---
+
+## Parte 3: DNS
+
+```bash
+$ resolvectl status  # <1>
+Global
+resolv.conf mode: stub
+
+Link 2 (enp0s3)
+Current DNS Server: 192.168.56.1
+# <1>
+
+$ getent hosts example.com  # <2>
+93.184.216.34 example.com
+# <2>
+```
+
+
+
+1. **resolvectl status** muestra DNS efectivo por interfaz.
+2. **getent hosts** valida resolucion usando el resolver del sistema.
+
+---
+
+## Checklist
+
+- [ ] Interfaces UP y con IP
+- [ ] Existe `default route`
+- [ ] SSH (22/tcp) esta en escucha
+- [ ] DNS resuelve `example.com`

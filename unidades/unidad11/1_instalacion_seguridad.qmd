@@ -1,0 +1,90 @@
+---
+title: "Unidad 11.1: Instalacion y seguridad inicial"
+subtitle: "MariaDB en servidores"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 11.1: Instalacion y seguridad inicial
+
+## Introduccion
+
+MariaDB es una base de datos relacional compatible con MySQL, muy usada en servidores Linux. La operacion profesional empieza con una instalacion limpia, un servicio estable y un hardening inicial.
+
+## Objetivos de aprendizaje
+
+- Instalar MariaDB
+- Validar servicio y socket/puerto
+- Ejecutar hardening inicial con `mysql_secure_installation`
+
+---
+
+## Instalacion (Ubuntu)
+
+```bash
+$ sudo apt update  # <1>
+# <1>
+
+$ sudo apt install -y mariadb-server  # <2>
+Reading package lists... Done
+# <2>
+```
+
+
+
+1. **apt update** actualiza el indice de paquetes.
+2. **apt install mariadb-server** instala servidor MariaDB.
+
+---
+
+## Validar servicio y socket
+
+```bash
+$ systemctl status mariadb --no-pager  # <1>
+● mariadb.service - MariaDB 10.11.6 database server
+     Active: active (running)
+# <1>
+
+$ sudo ss -lntp | grep ':3306' || true  # <2>
+# <2>
+
+$ sudo ls -l /run/mysqld/mysqld.sock  # <3>
+srwxrwxrwx 1 mysql mysql 0 Feb  2 12:30 /run/mysqld/mysqld.sock
+# <3>
+```
+
+
+
+1. **systemctl status mariadb** valida que el servicio esta corriendo.
+2. **ss -lntp** valida el puerto 3306 si esta habilitado (en muchos casos MariaDB escucha solo en loopback).
+3. **mysqld.sock** confirma socket local, comun en instalaciones seguras.
+
+---
+
+## Hardening inicial
+
+```bash
+$ sudo mysql_secure_installation  # <1>
+... (preguntas interactivas) ...
+# <1>
+```
+
+
+
+1. **mysql_secure_installation** aplica endurecimiento basico (password root, eliminar usuarios anonimos, deshabilitar login remoto de root, etc.).
+
+---
+
+## Prueba rapida
+
+```bash
+$ sudo mariadb -e 'SELECT VERSION();'  # <1>
+VERSION()
+10.11.6-MariaDB-0ubuntu0.24.04.1
+# <1>
+```
+
+
+
+1. **mariadb -e** ejecuta un query y valida que puedes conectarte localmente.

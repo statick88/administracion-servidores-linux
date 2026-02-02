@@ -1,0 +1,146 @@
+---
+title: "Unidad 7.1: Fundamentos de redes"
+subtitle: "IP, puertos, TCP/UDP y modelo operativo"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 7.1: Fundamentos de redes
+
+## Introduccion
+
+En administracion de servidores, red significa: identificar tu interfaz, saber tu IP, entender por que un servicio no responde, y validar el camino entre cliente y servidor.
+
+En esta unidad veremos lo necesario para operar redes basicas en Linux sin depender de una GUI.
+
+## Objetivos de aprendizaje
+
+Al final de esta leccion, podras:
+
+- Diferenciar IP, gateway, DNS y puerto
+- Identificar interfaces, direccionamiento y puertos activos
+- Validar conectividad con pruebas simples y reproducibles
+
+---
+
+## Conceptos clave
+
+- **IP**: direccion logica (IPv4/IPv6) de un host.
+- **Mascara / prefijo**: define la red (ej: `/24`).
+- **Gateway**: salida hacia otras redes (ruta por defecto).
+- **DNS**: resuelve nombres a IP.
+- **Puerto**: canal logico en un host (ej: 22/SSH, 80/HTTP, 443/HTTPS).
+
+---
+
+## Identificar interfaces e IP
+
+```bash
+$ ip -br link  # <1>
+lo               UNKNOWN        00:00:00:00:00:00
+enp0s3           UP             08:00:27:12:34:56
+# <1>
+
+$ ip -br addr  # <2>
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+enp0s3           UP             192.168.56.10/24 fe80::a00:27ff:fe12:3456/64
+# <2>
+```
+
+
+
+1. **ip -br link** muestra interfaces y su estado (UP/DOWN).
+2. **ip -br addr** muestra direccionamiento IPv4/IPv6 por interfaz.
+
+---
+
+## Validar ruta por defecto (gateway)
+
+```bash
+$ ip route  # <1>
+default via 192.168.56.1 dev enp0s3
+192.168.56.0/24 dev enp0s3 proto kernel scope link src 192.168.56.10
+# <1>
+```
+
+
+
+1. **ip route** muestra rutas; la ruta `default` indica el gateway.
+
+---
+
+## Revisar puertos en escucha
+
+```bash
+$ sudo ss -lntp  # <1>
+State   Recv-Q  Send-Q   Local Address:Port  Peer Address:Port  Process
+LISTEN  0       4096     0.0.0.0:22          0.0.0.0:*          users:("sshd",pid=812,fd=3)
+# <1>
+```
+
+
+
+1. **ss -lntp** lista puertos TCP en escucha y el proceso asociado.
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver IP del equipo
+
+#### Linux
+```bash
+$ ip -br addr  # <1>
+lo     UNKNOWN 127.0.0.1/8 ::1/128
+eth0   UP      192.168.1.10/24
+# <1>
+```
+
+
+
+1. **ip -br addr** muestra IP de forma compacta.
+
+#### macOS
+```bash
+$ ifconfig | head -n 18  # <1>
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+  inet 127.0.0.1 netmask 0xff000000
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+  inet 192.168.1.20 netmask 0xffffff00 broadcast 192.168.1.255
+# <1>
+```
+
+
+
+1. **ifconfig** lista interfaces y direcciones (en macOS sigue siendo comun).
+
+#### Windows
+```powershell
+PS> ipconfig  # <1>
+
+Windows IP Configuration
+
+Ethernet adapter Ethernet:
+   IPv4 Address. . . . . . . . . . . : 192.168.1.30
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+# <1>
+```
+
+
+
+1. **ipconfig** muestra IP, mascara y gateway en Windows.
+
+:::
+
+## Mejores practicas
+
+- Valida en este orden: interfaz UP -> IP -> gateway -> DNS -> puertos.
+- Documenta evidencias: salida de `ip -br addr`, `ip route` y `ss -lntp`.
+
+## Resumen
+
+- Con `ip` y `ss` puedes diagnosticar el 80% de problemas de red iniciales.

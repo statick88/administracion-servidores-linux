@@ -1,0 +1,47 @@
+---
+title: "Practica Unidad 6: Almacenamiento"
+description: "Particiones, montaje y diagnostico de espacio"
+author: "Diego Saavedra"
+date: today
+---
+
+# Practica Unidad 6
+
+## Objetivo
+
+Practicar el flujo completo: identificar disco -> particionar -> crear FS -> montar -> validar uso de espacio.
+
+## Ejercicios (60-90 min)
+
+1. Inventario del sistema:
+   - Ejecuta `lsblk -f` y `df -hT`.
+   - Identifica que filesystem esta montado en `/`.
+
+2. Disco de laboratorio (loop):
+   - Crea un archivo-disco de 1G con `fallocate`.
+   - Asocialo con `losetup -fP`.
+
+3. Particionado y FS:
+   - Crea tabla GPT y una particion con `parted --script`.
+   - Crea un ext4 con `mkfs.ext4`.
+
+4. Montaje:
+   - Monta en `/mnt/u6-data`.
+   - Verifica con `df -hT /mnt/u6-data`.
+
+5. Espacio:
+   - Usa `sudo du -xh --max-depth=1 /var | sort -hr | head -n 10`.
+   - Reporta los 3 directorios mas grandes.
+
+6. (Opcional) RAID/LVM:
+   - Crea un RAID1 de laboratorio con `mdadm` (2 discos loop).
+   - Muestra `cat /proc/mdstat`.
+
+## Evidencia
+
+- Capturas o salidas de:
+  - `lsblk -f`
+  - `df -hT`
+  - `lsblk /dev/loopX`
+  - `df -hT /mnt/u6-data`
+  - `cat /proc/mdstat` (si hiciste el opcional)
