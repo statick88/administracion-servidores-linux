@@ -141,6 +141,17 @@
   - Resolver incidentes simulados (servicio/puertos/DNS/espacio)
   - Entregar reporte reproducible con evidencias
 
+### Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)
+- **Unidad:** 4/7/12 - Docker, Redes y Seguridad, Troubleshooting
+- **Duración:** 150-210 minutos
+- **Dificultad:** Avanzado
+- **Archivo:** `lab11_clawdbot_openclaw_telegram_tailscale.md`
+- **Objetivos:**
+  - Levantar OpenClaw en Docker sobre Ubuntu Server LTS
+  - Conectar Telegram (BotFather) al gateway
+  - Aplicar postura minima de seguridad (pairing, mention gating, allowlists)
+  - Restringir administracion mediante Tailscale + UFW
+
 ---
 
 ## 📊 Evaluación
