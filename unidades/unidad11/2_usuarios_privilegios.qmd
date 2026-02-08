@@ -1,0 +1,67 @@
+---
+title: "Unidad 11.2: Usuarios y privilegios"
+subtitle: "Operar acceso de forma segura"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 11.2: Usuarios y privilegios
+
+## Introduccion
+
+La base de seguridad en bases de datos es: usuarios por aplicacion, privilegios minimos, y acceso restringido por host.
+
+## Objetivos de aprendizaje
+
+- Crear base de datos y usuario
+- Otorgar privilegios minimos
+- Validar permisos
+
+---
+
+## Crear DB y usuario
+
+```bash
+$ sudo mariadb  # <1>
+MariaDB [(none)]> CREATE DATABASE appdb;
+MariaDB [(none)]> CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass-ChangeMe';
+MariaDB [(none)]> GRANT SELECT,INSERT,UPDATE,DELETE ON appdb.* TO 'appuser'@'localhost';
+MariaDB [(none)]> FLUSH PRIVILEGES;
+MariaDB [(none)]> EXIT;
+# <1>
+```
+
+
+
+1. **mariadb** abre consola SQL para crear DB/usuario y aplicar permisos.
+
+:::{.callout-warning}
+## ADVERTENCIA CRITICA
+
+**No uses passwords debiles ni reutilices credenciales.**
+
+**Lo que podria salir mal:**
+- Compromiso de base de datos por credenciales triviales.
+
+**Como prevenirlo:**
+1. Usa passwords largos y un gestor.
+2. Usa usuarios distintos por app/entorno.
+:::
+
+---
+
+## Validar acceso
+
+```bash
+$ mariadb -u appuser -p -e 'SHOW DATABASES;'  # <1>
+Enter password:
+Database
+information_schema
+appdb
+# <1>
+```
+
+
+
+1. **mariadb -u ... -p** valida que el usuario puede conectarse y ver su DB.

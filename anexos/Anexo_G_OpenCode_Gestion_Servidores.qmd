@@ -1,0 +1,490 @@
+---
+title: "Anexo G: OpenCode - Mini-Curso para Gestion de Servidores"
+subtitle: "Flujos de trabajo seguros para diagnosticar, automatizar y documentar cambios"
+author: "Diego Saavedra"
+date: "2026-02-01"
+date-format: medium
+---
+
+# Anexo G: OpenCode - Mini-Curso para Gestion de Servidores
+
+## Introduccion
+
+**OpenCode** es un asistente interactivo para tareas de ingenieria de software. En gestion de servidores, su valor aparece cuando necesitas:
+
+- diagnosticar incidentes con evidencia (logs, metricas, configuraciones)
+- generar procedimientos repetibles (runbooks)
+- automatizar tareas con scripts (Bash/PowerShell) y herramientas de provisioning
+- reducir errores humanos (checklists, validaciones, comandos con modo seguro)
+
+Ver guia completa de configuracion en: [**SETUP.qmd**](../SETUP.qmd)
+
+**Tiempo estimado:** 45-60 minutos
+
+---
+
+## Objetivos de aprendizaje
+
+Al finalizar este mini-curso podras:
+
+- recolectar evidencia basica del sistema sin interrumpir el servicio
+- pedir a OpenCode un plan de diagnostico paso a paso (y verificarlo)
+- generar comandos seguros (read-only primero, luego cambios)
+- documentar y estandarizar una correccion en un runbook
+- crear una automatizacion pequena (script) para tareas repetidas
+
+---
+
+## Reglas de seguridad (antes de usar AI)
+
+:::{.callout-warning}
+## ADVERTENCIA CRITICA
+
+**Nunca pegues secretos en OpenCode.**
+
+**Lo que podria salir mal:**
+- Filtras credenciales (tokens, claves privadas, passwords) en historiales, logs o capturas.
+- Compartes informacion sensible (IPs publicas, nombres internos, rutas) que se usa para ataques.
+
+**Como prevenirlo:**
+1. Redacta secretos antes de pegar texto (reemplaza por `REDACTED`).
+2. Comparte solo el minimo necesario (1-2 comandos, 20-50 lineas de log, el error completo).
+3. Prefiere comandos de lectura primero (`status`, `show`, `--dry-run`).
+:::
+
+---
+
+## Flujo recomendado: evidencia -> analisis -> accion
+
+1. **Evidencia:** captura estado del sistema, servicio y logs (sin modificar nada).
+2. **Analisis con OpenCode:** pega evidencia y pide hipotesis + plan de verificacion.
+3. **Accion controlada:** ejecuta cambios pequenos, reversibles y con verificacion.
+4. **Documentacion:** convierte lo aprendido en runbook (pasos, comandos, rollback).
+
+---
+
+## Instalacion de OpenCode
+
+OpenCode se puede instalar como binario (script), como paquete Node, o via Homebrew.
+
+::: {.panel-tabset}
+
+### Linux/macOS (script)
+
+```bash
+$ curl -fsSL https://opencode.ai/install | bash  # <1>
+# <1>
+```
+
+
+
+1. **curl ... | bash** instala el binario de OpenCode usando el instalador oficial.
+
+### Node.js (npm/pnpm/bun)
+
+```bash
+$ npm install -g opencode-ai  # <1>
+$ pnpm install -g opencode-ai  # <2>
+$ bun install -g opencode-ai  # <3>
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **npm install -g** instala OpenCode globalmente.
+2. **pnpm install -g** instala OpenCode globalmente usando pnpm.
+3. **bun install -g** instala OpenCode globalmente usando bun.
+
+### macOS/Linux (Homebrew)
+
+```bash
+$ brew install anomalyco/tap/opencode  # <1>
+# <1>
+```
+
+
+
+1. **brew install anomalyco/tap/opencode** instala la version mas actual desde el tap oficial.
+
+### Windows
+
+```powershell
+PS> choco install opencode  # <1>
+PS> scoop install opencode  # <2>
+PS> npm install -g opencode-ai  # <3>
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **choco install** instala OpenCode con Chocolatey.
+2. **scoop install** instala OpenCode con Scoop.
+3. **npm install -g** instala OpenCode via Node.js.
+
+:::
+
+---
+
+## Configurar proveedor (LLM)
+
+OpenCode requiere un proveedor/modelo (y sus credenciales) para funcionar.
+
+En la TUI, el camino mas simple es:
+
+```text
+/connect  # <1>
+# <1>
+```
+
+
+
+1. **/connect** abre el flujo para configurar un proveedor (por ejemplo, OpenCode Zen u otro provider).
+
+---
+
+## Inicializar un proyecto (/init)
+
+Entra a tu repo/proyecto y levanta OpenCode:
+
+```bash
+$ cd /path/to/project  # <1>
+$ opencode  # <2>
+# <1>
+# <2>
+```
+
+
+
+1. **cd** cambia al proyecto que vas a administrar.
+2. **opencode** inicia la interfaz TUI.
+
+Luego, inicializa el proyecto:
+
+```text
+/init  # <1>
+# <1>
+```
+
+
+
+1. **/init** analiza el proyecto y crea `AGENTS.md` en la raiz.
+
+Recomendacion:
+
+- Commitea `AGENTS.md` en Git. Es parte del "contrato" del proyecto para que OpenCode entienda estructura, convenciones y limites.
+
+---
+
+## Modos de trabajo: Plan vs Build
+
+OpenCode tiene dos modos:
+
+- **Plan mode:** el agente propone un plan sin tocar archivos.
+- **Build mode:** el agente ejecuta cambios (edita/crea archivos).
+
+Se alterna con **Tab** (veras el indicador en la esquina inferior derecha).
+
+Uso recomendado para servidores:
+
+1. Plan mode: pedir diagnostico, hipotesis, comandos read-only, verificacion.
+2. Build mode: solo cuando el plan es correcto y el cambio es reversible.
+
+---
+
+## Deshacer y rehacer cambios (/undo, /redo)
+
+Si OpenCode hizo cambios que no quieres:
+
+```text
+/undo  # <1>
+/redo  # <2>
+# <1>
+# <2>
+```
+
+
+
+1. **/undo** revierte los cambios del ultimo pedido.
+2. **/redo** reaplica los cambios deshechos.
+
+---
+
+## Compartir sesiones (/share) y politica de privacidad
+
+Compartir es una accion explicita. Al usar `/share`, OpenCode sincroniza el historial a servidores para generar un link publico.
+
+```text
+/share  # <1>
+/unshare  # <2>
+# <1>
+# <2>
+```
+
+
+
+1. **/share** publica un link de la conversacion.
+2. **/unshare** elimina el link y deja la conversacion sin acceso publico.
+
+Para ambientes sensibles (empresas / infra / clientes), deshabilita el share por proyecto:
+
+```text
+{ "$schema": "https://opncd.ai/config.json", "share": "disabled" }  # <1>
+```
+
+
+
+1. **share: disabled** desactiva el compartir (recomendado en proyectos con informacion sensible).
+
+---
+
+## Ejemplo 1: Inventario rapido del servidor (multi-SO)
+
+::: {.panel-tabset}
+
+### Linux
+
+```bash
+$ uname -m  # <1>
+x86_64
+
+$ free -h  # <2>
+               total        used        free      shared  buff/cache   available
+Mem:           15Gi       4.2Gi       8.2Gi       412Mi       3.1Gi        10Gi
+Swap:         2.0Gi          0B       2.0Gi
+
+$ df -h /  # <3>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        80G   22G   55G  29% /
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **uname -m** confirma la arquitectura (util para binarios y contenedores)
+2. **free -h** muestra uso de RAM en formato legible
+3. **df -h /** revisa espacio del filesystem principal
+
+### macOS
+
+```bash
+$ system_profiler SPHardwareDataType  # <1>
+
+Hardware Overview:
+  Model Name: MacBook Pro
+  Model Identifier: MacBookPro18,3
+  Processor Name: Apple M3 Pro
+  Number of Cores: 12 core CPU
+  Memory: 16 GB
+
+$ df -h /  # <2>
+Filesystem      Size   Used  Avail Capacity iused      ifree %iused  Mounted on
+/dev/disk3s1   460Gi  210Gi  245Gi    47%  1.9M       2.4G    0%    /
+# <1>
+# <2>
+```
+
+
+
+1. **system_profiler SPHardwareDataType** entrega un resumen del hardware
+2. **df -h /** valida uso de disco (util antes de builds, logs o backups)
+
+### Windows
+
+```powershell
+PS> systeminfo  # <1>
+
+Computer Name:          USUARIO-PC
+Processor(s):           1 Logical Processor
+System Type:            x86-64-based PC
+Total Physical Memory:  16384 MB
+
+PS> Get-PSDrive -PSProvider FileSystem  # <2>
+
+Name Used (GB) Free (GB) Provider      Root
+---- --------- --------- --------      ----
+C       55.20     180.10 FileSystem    C:\\
+# <1>
+# <2>
+```
+
+
+
+1. **systeminfo** muestra inventario basico (CPU, tipo de sistema, RAM)
+2. **Get-PSDrive** revisa espacio disponible por unidad
+
+:::
+
+Como usarlo con OpenCode:
+
+- Pega la salida y pregunta: "Con estos datos, que riesgos ves (disco, RAM, arquitectura) para desplegar X? Dame una checklist de preflight".
+
+---
+
+## Ejemplo 2: Diagnostico de un servicio (Nginx) en Linux
+
+```bash
+$ systemctl status nginx --no-pager  # <1>
+* nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
+     Active: active (running) since Sun 2026-02-01 09:12:14 UTC; 2h 10min ago
+
+$ journalctl -u nginx --since "30 min ago" --no-pager  # <2>
+Feb 01 11:11:03 server nginx[1234]: 2026/02/01 11:11:03 [error] 1234#1234: *918 connect() failed (111: Connection refused) while connecting to upstream
+
+$ nginx -t  # <3>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **systemctl status nginx --no-pager** valida estado del servicio sin paginador
+2. **journalctl -u nginx --since** obtiene errores recientes del servicio
+3. **nginx -t** valida sintaxis de configuracion antes de recargar
+
+Prompt sugerido para OpenCode (pega 10-30 lineas reales del log):
+
+- "Analiza este error de Nginx y propon 3 hipotesis ordenadas por probabilidad. Para cada una, dame un comando de verificacion (solo lectura) y el criterio de confirmacion".
+
+---
+
+## Ejemplo 2.1: Checklist de preflight (antes de tocar produccion)
+
+Objetivo: pedir a OpenCode una checklist corta, ejecutable y segura.
+
+Prompt sugerido (Plan mode):
+
+```text
+Estoy por desplegar X en este servidor.
+
+Evidencia: (pego outputs de uname/free/df/systemctl/journalctl).
+
+Necesito una checklist de preflight de 10 items max:
+- Solo comandos read-only
+- Criterio de OK/FAIL por cada comando
+- Riesgo si se ignora
+# <1>
+```
+
+
+
+1. **Checklist de preflight** fuerza a que el resultado sea accionable y verificable (no solo consejos).
+
+---
+
+## Ejemplo 3: Convertir un procedimiento en runbook (plantilla)
+
+Usa esta plantilla para estandarizar correcciones y evitar repeticion:
+
+1. **Contexto:** que paso, impacto, desde cuando
+2. **Evidencia:** comandos ejecutados + salidas relevantes
+3. **Causa raiz:** que lo provoco (y como se confirma)
+4. **Fix:** pasos exactos (preferir cambios reversibles)
+5. **Verificacion:** como confirmar que quedo bien (metricas, healthchecks)
+6. **Rollback:** como volver atras si algo sale mal
+
+---
+
+## Custom commands (para runbooks repetibles)
+
+OpenCode permite comandos custom por proyecto. Esto es util para estandarizar runbooks.
+
+Ejemplo: crear `.opencode/commands/preflight.md`:
+
+```markdown
+---
+description: Checklist preflight (servidores)
+agent: plan
+---
+Genera una checklist de preflight (max 12 items) para el cambio: $ARGUMENTS.
+Reglas:
+- solo comandos read-only
+- incluye criterio OK/FAIL por item
+- incluye rollback / mitigacion rapida si detectas riesgo
+# <1>
+```
+
+
+
+1. **.opencode/commands/** permite ejecutar prompts repetibles como comandos en la TUI.
+
+## Laboratorio practico (20-30 min)
+
+Objetivo: generar un runbook de "Servidor lento" basado en evidencia.
+
+```bash
+$ uptime  # <1>
+ 11:40:12 up 18 days,  3:12,  2 users,  load average: 2.10, 1.95, 1.20
+
+$ top -b -n 1 | head -n 15  # <2>
+top - 11:40:12 up 18 days,  3:12,  2 users,  load average: 2.10, 1.95, 1.20
+Tasks: 231 total,   2 running, 229 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 12.0 us,  2.5 sy,  0.0 ni, 84.8 id,  0.6 wa,  0.0 hi,  0.1 si,  0.0 st
+
+$ ss -s  # <3>
+Total: 842 (kernel 0)
+TCP:   125 (estab 48, closed 32, orphaned 0, timewait 32)
+UDP:   10
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **uptime** muestra uptime y load average (primer indicador de presion)
+2. **top -b -n 1** toma un snapshot no interactivo (pega solo las primeras lineas)
+3. **ss -s** resume sockets (util para identificar picos de conexiones)
+
+Entrega:
+
+- Pega en OpenCode: `uptime`, las primeras 15 lineas de `top` y `ss -s`.
+- Pide: "Dame un plan de diagnostico de 10 minutos con comandos read-only, y luego una propuesta de mitigacion con rollback".
+- Escribe el runbook usando la plantilla del Ejemplo 3.
+
+---
+
+## Mejores practicas
+
+:::{.callout-tip}
+## RECOMENDACION
+
+**Usa OpenCode como copiloto, no como piloto automatico.**
+
+Casos de uso:
+- Checklists de despliegue y preflight
+- Interpretacion de logs y errores
+- Generacion de scripts con validaciones y modo seguro
+
+Cuando aplicar:
+- Incidentes repetitivos
+- Tareas manuales que se hacen mas de 2 veces
+- Cambios con riesgo (mejorar documentacion y rollback)
+:::
+
+---
+
+## Resumen
+
+- Captura evidencia primero (sin cambios)
+- Pide a OpenCode hipotesis + plan de verificacion
+- Ejecuta cambios pequenos, verificables y reversibles
+- Documenta un runbook para el proximo incidente
+
+## Referencias
+
+- [systemd - systemctl](https://www.freedesktop.org/software/systemd/man/systemctl.html)
+- [journalctl](https://www.freedesktop.org/software/systemd/man/journalctl.html)
+- [nginx - Testing Configuration](https://nginx.org/en/docs/beginners_guide.html)
+- [OpenCode - Docs](https://opencode.ai/docs)
+- [OpenCode - Share](https://opencode.ai/docs/share)
+- [OpenCode - Commands](https://opencode.ai/docs/commands)

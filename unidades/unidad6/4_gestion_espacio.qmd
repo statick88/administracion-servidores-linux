@@ -1,0 +1,182 @@
+---
+title: "Unidad 6.4: Gestion de espacio"
+subtitle: "df, du, logs y quotas"
+author: "Diego Saavedra"
+date: "2026-02-01"
+date-format: medium
+---
+
+# Unidad 6.4: Gestion de espacio
+
+## Introduccion
+
+En produccion, quedarse sin espacio en disco rompe servicios: bases de datos, logs, Docker, actualizaciones y backups.
+
+En esta leccion veras un flujo simple y repetible para diagnosticar consumo de disco.
+
+## Objetivos de aprendizaje
+
+Al final, podras:
+
+- Medir uso de disco con `df`
+- Encontrar directorios pesados con `du`
+- Controlar crecimiento de logs con `journalctl`
+
+---
+
+## df: cuanto espacio queda (por FS)
+
+```bash
+$ df -hT  # <1>
+Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/sda1      ext4   49G  5.4G   41G  12% /
+tmpfs          tmpfs  1.9G  1.2M  1.9G   1% /run
+# <1>
+```
+
+
+
+1. **df -hT** muestra uso por filesystem (tipo incluido).
+
+---
+
+## du: donde se esta yendo el espacio
+
+```bash
+$ sudo du -xh --max-depth=1 /var | sort -hr | head -n 10  # <1>
+3.2G    /var/lib
+1.1G    /var/log
+240M    /var/cache
+# <1>
+```
+
+
+
+1. **du -xh** estima uso por directorio; con `sort/head` ves rapidamente los mas grandes.
+
+:::{.callout-tip}
+## RECOMENDACION
+
+**Si el servidor usa Docker, revisa primero `/var/lib/docker`.**
+
+Casos de uso:
+- Servidores que acumulan imagenes y volumes.
+
+Cuando aplicar:
+- Cuando `df -h` sube rapido sin cambios visibles en tu app.
+:::
+
+---
+
+## Logs del systemd journal (comun en Ubuntu Server)
+
+```bash
+$ journalctl --disk-usage  # <1>
+Archived and active journals take up 512.0M in the file system.
+# <1>
+
+$ sudo journalctl --vacuum-time=7d  # <2>
+Vacuuming done, freed 256.0M of archived journals from /var/log/journal.
+# <2>
+```
+
+
+
+1. **journalctl --disk-usage** mide cuanto ocupa el journal.
+2. **journalctl --vacuum-time=7d** elimina logs antiguos (ajusta segun politica).
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRITICA
+
+**No borres logs a ciegas en produccion.**
+
+Lo que podria salir mal:
+- Pierdes evidencia para auditoria/incidentes.
+
+Como prevenirlo:
+1. Define retencion (por dias o tamano) y documentala.
+2. Valida con el equipo (seguridad/operaciones) antes de acortar retencion.
+3. Si borras, deja evidencia (ticket/cambio).
+:::
+
+---
+
+## Quotas (idea general)
+
+Las quotas limitan cuanto puede consumir un usuario o grupo en un filesystem (muy util en servidores multi-usuario).
+
+Ejemplo de flujo (alto nivel):
+
+```bash
+$ sudo apt update  # <1>
+# <1>
+
+$ sudo apt install -y quota  # <2>
+# <2>
+```
+
+
+
+1. **apt update** actualiza indices de paquetes.
+2. **quota** instala herramientas de cuotas (si decides aplicarlas).
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver espacio disponible
+
+#### Linux
+```bash
+$ df -h  # <1>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        49G  5.4G   41G  12% /
+# <1>
+```
+
+
+
+1. **df -h** muestra espacio libre por filesystem.
+
+#### macOS
+```bash
+$ df -h  # <1>
+Filesystem      Size   Used  Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1  466Gi  14Gi  218Gi     6%  488k  2.1G    0%   /
+# <1>
+```
+
+
+
+1. **df -h** tambien existe en macOS.
+
+#### Windows
+```powershell
+PS> Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free  # <1>
+
+Name Used         Free
+---- ----         ----
+C    135791468544 120345678901
+# <1>
+```
+
+
+
+1. **Get-PSDrive** entrega usados/libres por unidad.
+
+:::
+
+| Aspecto | Linux | macOS | Windows |
+|---------|-------|-------|---------|
+| Espacio libre | `df -h` | `df -h` | `Get-PSDrive` |
+| Top directorios | `du -xh` | `du -h` | (GUI/PowerShell) |
+
+---
+
+## Resumen
+
+- `df` responde "cuanto queda".
+- `du` responde "quien se lo esta comiendo".
+- Controla logs (journal) y define politicas de retencion.

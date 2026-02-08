@@ -1,0 +1,1196 @@
+---
+title: "Unidad 1.3: Distribuciones de Linux"
+description: "Panorama de distribuciones Linux: qué son, diferencias principales, comparativa entre Ubuntu, CentOS, Debian y Fedora, y por qué Ubuntu 22.04 LTS es ideal para Abacom"
+author: "Diego Saavedra"
+date: "2024-01-29"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# 🎯 Distribuciones de Linux
+
+## Introducción
+
+Linux es como una **receta base de un pastel**: todos usan el mismo kernel Linux, pero cada distribuidor agrega ingredientes diferentes. Una "distribución" es Linux empaquetado con herramientas, paquetes y configuraciones específicas. En Abacom, hemos elegido **Ubuntu 22.04 LTS** porque es la mejor combinación de estabilidad, soporte y facilidad de administración para empresas como la nuestra.
+
+**Tiempo de lectura:** ~22 minutos  
+**Nivel:** Principiante-Intermedio  
+**Requisitos previos:** Concepto de kernel Linux (de lecturas anteriores)
+
+---
+
+## 🗺️ En este tema aprenderás
+
+En esta unidad cubriremos:
+
+1. **¿Qué es una Distribución?** - Kernel + herramientas + configuración
+
+2. **Familias de Distribuciones** - Debian, Red Hat, Arch, etc.
+
+3. **Distribuciones Principales** - Ubuntu, CentOS, Debian, Fedora
+
+4. **Comparativa Técnica** - Diferencias en package managers, release cycles
+
+5. **¿Por qué Ubuntu 22.04 LTS para Abacom?** - Análisis de decisión
+
+---
+
+## ¿Qué es una Distribución de Linux?
+
+**Definición clara:**
+
+Una distribución es **Linux (el kernel) + un conjunto de software y herramientas** [@distrowatch]. Piénsalo así:
+
+```
+Linux = Motor del auto
+Distribución = Auto completo (con interior, ruedas, etc.)
+```
+
+Analógicamente:
+
+- El kernel Linux es lo mismo en todas las distros
+- Pero cada distro elige diferentes paquetes, herramientas, configuración
+
+::: {.callout-note}
+## ¿Por qué importa?
+
+- **Impacto directo:** La distro que elijas determina qué herramientas tienes disponibles
+- **En Abacom:** Elegimos Ubuntu porque tiene herramientas que necesitamos, soporte comercial, y comunidad enorme
+- **Ventaja profesional:** Un admin sabe que entre Ubuntu, CentOS y Debian, el kernel es idéntico; las diferencias son administrativas
+
+:::
+
+## Package Manager (Gestor de Paquetes)
+
+**Definición clara:**
+
+El "package manager" es la herramienta que usa una distribución para **instalar, actualizar y desinstalar software**. Cada familia tiene el suyo:
+
+```bash
+# Debian/Ubuntu: apt (Advanced Package Tool)
+$ apt install nginx  # <1>
+
+# Red Hat/CentOS/Fedora: yum o dnf
+$ yum install nginx  # <2>
+# O en Fedora:
+$ dnf install nginx  # <3>
+
+# Arch: pacman
+$ pacman -S nginx  # <4>
+
+# Son equivalentes - la sintaxis cambia pero el resultado es igual
+```
+
+1. En **Debian/Ubuntu**, **apt install** es el comando para instalar cualquier paquete. Ubuntu está basado en Debian, por eso usa el mismo package manager.
+
+2. En **CentOS/RHEL** (derivadas de Red Hat), se usa **yum install**. La funcionalidad es idéntica a apt, pero la sintaxis y los repositorios son diferentes.
+
+3. En **Fedora** (la versión experimental de Red Hat), se usa **dnf install**. Es una versión más moderna que yum con mejor rendimiento.
+
+4. En **Arch Linux**, se usa **pacman -S** (la bandera **-S** significa "sincronizar/instalar"). Aunque tiene diferente sintaxis, el resultado es el mismo: nginx está instalado.
+
+**Importancia:**
+
+- Si aprendes **apt**, NO sabes **yum** automáticamente
+- Pero el concepto es idéntico
+- En producción, necesitas dominar el package manager de tu distro
+
+---
+
+## 💡 Ejemplos Prácticos
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Identificar tu Distribución
+
+#### Linux (Ubuntu)
+```bash
+# En Ubuntu
+$ cat /etc/os-release  # <1>
+NAME="Ubuntu"
+VERSION="22.04.3 LTS"
+ID=ubuntu
+VERSION_CODENAME=jammy  # <2>
+
+# También funciona:
+$ lsb_release -d  # <3>
+Description:	Ubuntu 22.04.3 LTS
+```
+
+1. **/etc/os-release** es el archivo estándar (desde systemd) que identifica la distribución y versión
+
+2. **jammy** es el nombre código de Ubuntu 22.04 (cada versión de Ubuntu tiene un nombre animal)
+
+3. **lsb_release -d** (Linux Standard Base) obtiene la descripción de la distribución en formato legible
+
+#### macOS
+```bash
+# En macOS (Darwin)
+$ cat /etc/os-release  # <1>
+# Nota: En macOS no existe /etc/os-release (es Linux)
+# En su lugar:
+
+$ sw_vers  # <2>
+ProductName:        macOS
+ProductVersion:     14.2
+BuildVersion:       23C64
+
+$ uname -a  # <3>
+Darwin MacBook-Air 23.2.0 Darwin Kernel Version 23.2.0
+```
+
+1. **/etc/os-release** NO existe en macOS (es un archivo específico de Linux)
+
+2. **sw_vers** es el comando equivalente en macOS para obtener información del SO
+
+3. **uname -a** muestra información del kernel Darwin en macOS
+
+#### Windows
+```powershell
+# En Windows (PowerShell)
+PS> Get-ComputerInfo | Select-Object OsName, OsVersion  # <1>
+
+OsName       OsVersion
+------       ---------
+Microsoft Windows 11 Pro  22H2
+
+# También funciona:
+PS> systeminfo | findstr /B /C:"OS Name" /C:"OS Version"  # <2>
+OS Name:                          Microsoft Windows 11 Pro
+OS Version:                       10.0.22621 Build 22621
+```
+
+1. **Get-ComputerInfo | Select-Object** obtiene información del computador y selecciona solo OsName (nombre del SO) y OsVersion
+
+2. **systeminfo | findstr** ejecuta systeminfo y filtra (/B busca al inicio) las líneas que contienen "OS Name" o "OS Version"
+
+**Explicación común:**
+
+- Cada SO tiene su propio método para identificar versión
+- **Linux**: **/etc/os-release** (archivo)
+- **macOS**: **sw_vers** (comando)
+- **Windows**: **Get-ComputerInfo** (PowerShell)
+
+### Ejemplo 2: Instalar Paquete en Diferentes Entornos
+
+#### Linux (Ubuntu/Debian)
+```bash
+# Ubuntu (apt)
+$ sudo apt update  # <1>
+$ sudo apt install curl  # <2>
+
+# Verificar instalación
+$ curl --version  # <3>
+curl 7.81.0 (x86_64-pc-linux-gnu)
+```
+
+1. **sudo apt update** actualiza la lista local de paquetes disponibles en repositorios (sin instalar nada)
+
+2. **sudo apt install curl** descarga e instala el programa curl desde los repositorios de Ubuntu
+
+3. **curl --version** verifica que se instaló correctamente mostrando la versión
+
+#### Linux (CentOS/RHEL)
+```bash
+# CentOS/RHEL (yum/dnf)
+$ sudo yum update  # <1>
+$ sudo yum install curl  # <2>
+
+# O en Fedora:
+$ sudo dnf install curl  # <3>
+
+# Verificar instalación
+$ curl --version  # <4>
+curl 7.61.1 (x86_64-redhat-linux-gnu)
+```
+
+1. **sudo yum update** es el equivalente en CentOS/RHEL a **apt update**
+
+2. **sudo yum install curl** instala curl usando el gestor de paquetes yum (Red Hat)
+
+3. **sudo dnf install curl** es la versión moderna en Fedora (dnf es más rápido que yum)
+
+4. **curl --version** verifica la instalación igual que en Ubuntu
+
+#### macOS
+```bash
+# macOS (Homebrew - package manager)
+$ brew install curl  # <1>
+
+# Si Homebrew no está instalado, instalarlo primero:
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"  # <2>
+
+# Verificar instalación
+$ curl --version  # <3>
+curl 8.1.2 (x86_64-apple-darwin23.2.0)
+```
+
+1. **brew install** instala paquetes usando Homebrew (el package manager de macOS, NO es nativo)
+
+2. **bash -c** ejecuta el script de instalación de Homebrew desde GitHub (es la forma estándar de instalar Homebrew)
+
+3. **curl --version** verifica la instalación correcta
+
+#### Windows
+```powershell
+# Windows (Chocolatey - package manager)
+PS> choco install curl  # <1>
+
+# Si Chocolatey no está instalado:
+PS> Set-ExecutionPolicy Bypass -Scope Process -Force; `  # <2>
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; `
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Verificar instalación
+PS> curl --version  # <3>
+# O usar el comando nativo de Windows:
+PS> (Invoke-WebRequest -Uri "https://www.google.com").StatusCode  # <4>
+200
+```
+
+1. **choco install** instala paquetes usando Chocolatey (el package manager más popular en Windows)
+
+2. **Set-ExecutionPolicy Bypass** permite ejecutar scripts PowerShell sin restricciones (necesario para instalar Chocolatey)
+
+3. **curl --version** verifica la instalación (curl es ahora nativo en Windows)
+
+4. **Invoke-WebRequest** es el equivalente nativo de Windows a curl para hacer requests HTTP
+
+**Comparación:**
+| SO | Comando | Package Manager |
+|----|---------|-----------------|
+| Linux (Ubuntu) | `apt install curl` | apt |
+| Linux (CentOS) | `yum install curl` | yum/dnf |
+| macOS | `brew install curl` | Homebrew |
+| Windows | `choco install curl` | Chocolatey |
+
+**Concepto clave:** El software es el MISMO, pero la forma de instalarlo cambia por SO.
+
+### Ejemplo 3: Caso Real Abacom - Entornos Multi-SO
+
+#### Servidor Linux (Ubuntu)
+```bash
+# En nuestros servidores Ubuntu de producción
+$ sudo apt update  # <1>
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+
+$ sudo apt install vim-nox  # <2>
+Reading package lists... Done
+Building dependency tree... Done
+Setting up vim-nox (2:8.2.3455-1ubuntu1) ...
+
+# Instalar nginx (servidor web)
+$ sudo apt install nginx  # <3>
+Processing triggers for ufw...
+
+# Verificar
+$ nginx -v  # <4>
+nginx version: nginx/1.18.0 (Ubuntu)
+
+$ systemctl status nginx  # <5>
+● nginx.service - A high performance web server
+     Loaded: loaded (/lib/systemd/unit/nginx.service; enabled)
+     Active: active (running)
+```
+
+1. **sudo apt update** actualiza la lista de paquetes disponibles en los repositorios de Ubuntu
+
+2. **sudo apt install vim-nox** instala vim completo (vim-nox tiene la versión completa con soporte X)
+
+3. **sudo apt install nginx** instala nginx (popular servidor web) desde repositorios de Ubuntu
+
+4. **nginx -v** verifica la versión instalada de nginx
+
+5. **systemctl status nginx** muestra el estado del servicio nginx (must be "active running")
+
+#### Estación de desarrollo macOS
+```bash
+# En máquinas de desarrollo (macOS)
+$ brew install nginx vim curl  # <1>
+
+# Verificar instalación
+$ nginx -v  # <2>
+nginx version: nginx/1.25.3
+
+$ vim --version | head -1  # <3>
+VIM - Vi IMproved 9.0
+
+# En macOS, no usamos systemctl (es systemd de Linux)
+# En su lugar, usamos launchctl o brew services:
+$ brew services list  # <4>
+Name  Status  User Plist
+nginx started root /Library/LaunchDaemons/homebrew.mxcl.nginx.plist
+```
+
+1. **brew install** instala múltiples paquetes a la vez (nginx, vim y curl)
+
+2. **nginx -v** verifica la versión de nginx instalada por Homebrew
+
+3. **vim --version | head -1** muestra solo la primera línea de la salida de vim (la línea que contiene la versión)
+
+4. **brew services list** muestra todos los servicios instalados con Homebrew y su estado (en macOS, reemplaza a systemctl)
+
+#### Máquina Windows (Administración Remota)
+```powershell
+# En Windows, administramos remotamente servidores Linux
+PS> # Usando SSH para conectar al servidor Ubuntu
+PS> ssh admin@production-server.com  # <1>
+
+# Una vez conectado (en el servidor Linux):
+$ sudo apt install vim nginx curl  # <2>
+$ systemctl status nginx  # <3>
+
+# Desde Windows, también podemos:
+PS> Invoke-WebRequest -Uri "http://production-server.com" | Select-Object StatusCode  # <4>
+StatusCode
+----------
+200
+```
+
+1. **ssh admin@production-server.com** conecta a un servidor Linux remoto mediante SSH (está disponible por defecto en Windows 10+)
+
+2. **sudo apt install** instala paquetes en el servidor remoto (ejecutado desde Windows a través de SSH)
+
+3. **systemctl status nginx** verifica el estado del servicio nginx en el servidor remoto
+
+4. **Invoke-WebRequest** es el equivalente de Windows a curl, haciendo un request HTTP a la web del servidor
+
+**Por qué es importante Abacom:**
+
+- **Servidor:** Ubuntu (producción) - stabiliidad
+- **Desarrollo:** macOS (portátil) - herramientas modernas
+- **Administración:** Windows (oficina) - acceso remoto SSH
+
+:::
+
+---
+
+## 🔧 Familias Principales de Distribuciones
+
+### Familia Debian
+
+La más grande, con comunidad enorme:
+
+```bash
+# Características de Debian:
+# - Versiones: Stable (3 años), Testing, Unstable
+# - Package manager: apt (Advanced Package Tool)
+# - Versión actual stable: 12 (Bookworm)
+# - Enfoque: Estabilidad pura
+
+$ lsb_release -d  # <1>
+Description:    Debian GNU/Linux 12 (bookworm)
+```
+
+1. **lsb_release -d** (Linux Standard Base release) muestra la versión de Debian en formato legible (12 = Debian 12, "bookworm" es el nombre código)
+
+**Distribuciones derivadas de Debian:**
+
+- Ubuntu (+ soporte comercial, + user-friendly)
+- Linux Mint (+ interfaz gráfica bonita)
+- Pop!_OS (+ enfoque gaming)
+
+**Ventaja:** Millones de paquetes disponibles
+
+### Familia Red Hat / RHEL
+
+Enfocado en empresas:
+
+```bash
+# Características:
+# - Versiones: RHEL (10 años soporte), Fedora (6 meses)
+# - Package manager: yum/dnf (Fedora uses dnf)
+# - Enfoque: Estabilidad + soporte comercial
+
+$ cat /etc/os-release | grep NAME  # <1>
+NAME="Red Hat Enterprise Linux"
+```
+
+1. **cat /etc/os-release | grep NAME** muestra el archivo /etc/os-release y filtra solo la línea que contiene el nombre de la distribución
+
+**Distribuciones en esta familia:**
+
+- RHEL (Red Hat Enterprise Linux) - Pagado, soporte profesional
+- CentOS (Community Enterprise OS) - Gratis, mismo que RHEL
+- Fedora (El laboratorio de RHEL) - Cambios rápidos, más experimental
+
+**Ventaja:** Soporte comercial de Red Hat
+
+### Familia Arch
+
+Para usuarios avanzados:
+
+```bash
+# Características:
+# - Rolling release (actualizaciones continuas)
+# - Package manager: pacman
+# - Filosofía: K.I.S.S (Keep It Simple, Stupid)
+# - Enfoque: Control total, minimalismo
+
+$ cat /etc/os-release  # <1>
+NAME="Arch Linux"
+```
+
+1. **cat /etc/os-release** muestra el archivo que identifica la distribución, en este caso Arch Linux
+
+**Cuándo usarla:**
+
+- Cuando necesitas última versión de software
+- Cuando sabes exactamente qué necesitas
+- Cuando quieres aprender cómo funciona todo
+
+**NO es para producción** - cambios demasiado frecuentes
+
+---
+
+## 🔧 Comparativa de Distribuciones Principales
+
+### Ubuntu vs CentOS vs Debian
+
+::: {.callout-warning}
+## Tabla comparativa técnica
+
+| Aspecto | Ubuntu | CentOS | Debian |
+|---------|--------|--------|--------|
+| **Base** | Debian | Red Hat | Original |
+| **Release Cycle** | 6 meses (LTS: 5 años) | 7 años | 2-3 años |
+| **Package Manager** | apt | yum/dnf | apt |
+| **Soporte Comercial** | Canonical | Red Hat | Comunidad |
+| **Uso Empresarial** | Altísimo | Altísimo | Medio |
+| **Cloud** | AWS preferred | Red Hat Cloud | Bajo |
+| **Servidor web** | Apache/Nginx | Apache | Apache/Nginx |
+| **Para Abacom** | ✅ Excelente | ⚠️ No instalado | ❌ No usado |
+
+:::
+
+**Análisis de decisión:**
+
+```bash
+# UBUNTU 22.04 LTS
+# Ventajas:
+# - Soporte de Canonical hasta Abril 2027
+# - Herramientas listas (apt, systemd)
+# - Cloud: Soportado en AWS, Azure, Google Cloud
+# - Comunidad: Enorme, miles de tutoriales
+# - Servidor: Diseñado específicamente para servidores
+
+# CENTOS
+# Ventajas:
+# - Derivado de RHEL (enterprise-grade)
+# - Soporte largo (7 años)
+# Desventajas:
+# - Más complejo de administrar
+# - Ecosystem de Red Hat puede ser caro
+
+# DEBIAN
+# Ventajas:
+# - Estable (testing stable es MUY estable)
+# - Minimalista
+# Desventajas:
+# - Release cycle largo (puede tener software viejo)
+# - Comunidad, no comercial
+```
+
+---
+
+## ⚠️ Errores Comunes
+
+### "Necesito cambiar de distribución si mi código está en Debian"
+
+::: {.callout-caution}
+## Síntoma que verás
+
+```
+"Mi código está en Ubuntu, pero necesito correrlo en CentOS"
+"¿Debo reescribir todo?"
+```
+
+**Causa raíz:** Malentendido. El kernel y el código son independientes de la distro.
+
+**Solución comprobada:**
+
+```bash
+# ❌ Forma INCORRECTA (pensar que el código cambia)
+# "Ubuntu code" vs "CentOS code" - NO EXISTE
+
+# ✅ Forma CORRECTA (código es código)
+# Un programa escrito en Python en Ubuntu
+# Corre igual en CentOS, Debian, etc.
+
+# Ejemplo: Script en Python
+$ cat script.py  # <1>
+#!/usr/bin/env python3
+print("Hello from any Linux!")
+
+# Corre igual en cualquier distro
+$ python3 script.py  # <2>
+Hello from any Linux!
+```
+
+1. **cat script.py** muestra el contenido del archivo script.py (un simple programa Python)
+
+2. **python3 script.py** ejecuta el script Python (funciona IGUAL en Ubuntu, CentOS, Debian, etc.)
+
+**Por qué funciona:**
+El código sigue estándares POSIX. La única diferencia es el package manager (apt vs yum), pero el código sigue siendo igual.
+:::
+
+### "Mi distro no tiene el paquete X"
+
+::: {.callout-warning}
+**Síntoma:** **apt search nginx** devuelve vacío, o versión vieja  
+**Causa:** Dependencias de distribución o versiones viejas en release cycle largo  
+**Solución:**
+```bash
+# Agregar repositorio externo (PPA en Ubuntu)
+$ sudo add-apt-repository ppa:nginx/stable  # <1>
+$ sudo apt update  # <2>
+$ sudo apt install nginx  # <3>
+
+# O compilar desde source (más complicado)
+# Pero la idea: siempre hay solución
+```
+
+1. **sudo add-apt-repository** agrega un repositorio externo (PPA = Personal Package Archive) que contiene versiones más nuevas
+
+2. **sudo apt update** actualiza la lista de paquetes locales para incluir los del nuevo repositorio
+
+3. **sudo apt install nginx** instala la versión más nueva desde el repositorio externo agregado
+:::
+
+---
+
+## 📊 Mejores Prácticas
+
+::: {.callout-important}
+## Patrones Recomendados
+
+✅ **HACER (Prácticas Probadas):**
+
+- Usar Ubuntu LTS en producción → soporte 5 años
+- Usar CentOS/RHEL si tienes soporte de Red Hat → enterprise-grade
+- Aprender el package manager de tu distro → gestión eficiente
+- Mantener consistencia en todo el datacenter → administración simplificada
+
+❌ **NO HACER (Antipatrones):**
+
+- Mezclar distros sin razón → complejidad innecesaria
+- Usar Fedora en producción → cambios muy frecuentes
+- Ignorar que existen distros alternativas → inflexibilidad
+:::
+
+---
+
+## 📋 Tabla de Distribuciones Populares
+
+| Distro | Tipo | Base | Uso | Soporte |
+|--------|------|------|-----|---------|
+| Ubuntu | LTS | Debian | Servidores/Desktop | Canonical (5 años) |
+| CentOS | Enterprise | RHEL | Servidores | Red Hat (7 años) |
+| Debian | Stable | Original | Servidores/Desktop | Comunidad (2-3 años) |
+| Fedora | Rolling | RHEL | Desktop/Desarrollo | 13 meses |
+| Arch | Rolling | Original | Avanzados | Comunidad |
+| Mint | Desktop | Ubuntu | Desktop | Comunidad |
+
+---
+
+## 🎓 Quiz: Verifica tu Comprensión
+
+::: {.callout-note}
+## Antes de continuar
+
+Responde estas preguntas para verificar que comprendiste los conceptos clave.
+:::
+
+### ¿Cuál es la diferencia entre Ubuntu y CentOS?
+
+<details>
+  <summary>📖 Ver respuesta</summary>
+
+  Ambos son distribuciones Linux con kernel Linux, pero:
+
+  - **Ubuntu:** Basado en Debian, package manager **apt**, soporte de Canonical
+  - **CentOS:** Basado en RHEL, package manager **yum/dnf**, soporte de Red Hat
+
+  ```bash
+# Misma funcionalidad, diferente package manager
+# Ubuntu:
+  $ apt install nginx
+
+# CentOS:
+  $ yum install nginx
+
+# Resultado: nginx está instalado en ambos
+  ```
+
+  **Por qué es importante:**
+  El package manager es la principal diferencia visible. El kernel, el shell, los comandos básicos son idénticos.
+  </summary>
+</details>
+
+### ¿Cuál es el comando para identificar tu distribución?
+
+<details>
+  <summary>💡 Ver respuesta</summary>
+
+  ```bash
+  $ cat /etc/os-release
+# O más simple:
+  $ lsb_release -d
+  Description:    Ubuntu 22.04.3 LTS
+  ```
+
+  **Validación:**
+  Si ejecutas esto, verás exactamente:
+
+  - Nombre de la distro
+  - Versión específica
+  - ID de versión (nombre código)
+
+  **Útil cuando:**
+
+  - Heredas un servidor desconocido
+  - Necesitas verificar versión para soporte
+  - Escribes scripts que dependen de distro específica
+  </summary>
+</details>
+
+### ¿Por qué Abacom elige Ubuntu 22.04 LTS en lugar de CentOS?
+
+<details>
+  <summary>🎯 Ver respuesta</summary>
+
+    Ubuntu 22.04 LTS es mejor para Abacom porque:
+
+    - ✅ LTS = 5 años de soporte (hasta Abril 2027)
+    - ✅ **apt** es más simple que **yum**
+    - ✅ Comunidad enorme = fácil encontrar ayuda
+    - ✅ Cloud-native (AWS, Azure, Google Cloud)
+    - ✅ Herramientas modernas listas (systemd, etc.)
+
+    **Comparación:**
+    ```bash
+    
+    # Ubuntu: Lo que necesitamos
+    $ apt update && apt upgrade  # Fácil
+
+    # CentOS: Similar pero sintaxis diferente
+    $ yum update && yum upgrade  # Equivalente
+    ```
+
+    **Razón de negocio:**
+
+    - Soporte de Canonical disponible si lo necesitamos
+    - Comunidad más grande para troubleshooting
+    - Mejor integración con herramientas modernas
+  </summary>
+</details>
+
+---
+
+## 👨‍💻 Práctica Guiada con el Instructor
+
+### Identificar tu Distribución
+
+**Objetivo:** Conocer exactamente qué distribución tienes.
+
+**Instrucciones:**
+```bash
+# Paso 1: Ver distribución y versión
+$ cat /etc/os-release
+
+# Paso 2: Ver más detalles
+
+$ lsb_release -a
+
+# Paso 3: Ver package manager
+
+$ apt --version    # Si es Ubuntu/Debian
+# O
+$ yum --version    # Si es CentOS/RHEL
+```
+
+**Verificación:**
+
+- ✓ Sabes el nombre de tu distro
+- ✓ Sabes la versión exacta
+- ✓ Sabes qué package manager usar
+
+### Comparar Diferentes Distros (Teórico)
+
+**Objetivo:** Entender diferencias sin necesidad de instalar.
+
+**Instrucciones:**
+```bash
+# Crear tabla de comparación
+$ cat > /tmp/distros-comparacion.txt << 'EOF'
+=== COMPARACIÓN DE DISTRIBUCIONES ===
+
+UBUNTU 22.04 LTS:
+
+- Base: Debian
+- Package manager: apt
+- Release cycle: 6 meses (LTS: 5 años)
+- Soporte: Canonical
+- Ideal para: Servidores empresariales
+
+CENTOS 7:
+
+- Base: RHEL
+- Package manager: yum
+- Release cycle: 7 años
+- Soporte: Red Hat
+- Ideal para: Infraestructura legacy
+
+DEBIAN 12:
+
+- Base: Original
+- Package manager: apt
+- Release cycle: 2-3 años
+- Soporte: Comunidad
+- Ideal para: Estabilidad pura
+EOF
+
+$ cat /tmp/distros-comparacion.txt
+```
+
+**Ejercicio:**
+
+1. ¿Qué distro está en tu servidor?
+
+2. ¿Cuánto tiempo de soporte tiene?
+
+3. ¿Cuál elegirías para nuevo servidor?
+
+### Administrar Paquetes
+
+**Objetivo:** Practicar instalación en tu distro.
+
+**Instrucciones:**
+```bash
+# Paso 1: Actualizar lista de paquetes
+
+$ sudo apt update    # Ubuntu/Debian
+
+# Paso 2: Ver versiones disponibles
+
+$ apt search curl | grep "^curl"
+
+# Paso 3: Instalar
+
+$ sudo apt install curl -y
+
+# Paso 4: Verificar
+
+$ curl --version
+
+# Paso 5: Desinstalar (limpieza)
+
+$ sudo apt remove curl -y
+```
+
+**Verificación:**
+
+- ✓ Paquete se instaló correctamente
+- ✓ Comando **curl --version** funciona
+- ✓ Entiendes el flujo: update → search → install
+
+---
+
+## 🧪 Laboratorio de Práctica Integrado
+
+**Duración:** 60-90 minutos  
+**Dificultad:** Intermedio  
+**Objetivo General:** Entender ecosistema de distribuciones y package management
+
+### Fase 1: Inventario del Sistema (15 min)
+
+```bash
+$ mkdir -p ~/lab-distros
+$ cd ~/lab-distros
+
+# Recopilar información
+$ cat /etc/os-release > mi-distro.txt
+$ lsb_release -a >> mi-distro.txt
+$ apt --version >> mi-distro.txt
+$ uname -a >> mi-distro.txt
+
+$ cat mi-distro.txt
+```
+
+### Fase 2: Explorar Package Manager (20 min)
+
+```bash
+# Listar paquetes instalados
+$ dpkg --list > paquetes-instalados.txt
+$ wc -l paquetes-instalados.txt
+# ¿Cuántos paquetes tienes instalados?
+
+# Ver información de paquete específico
+$ apt show curl > info-curl.txt
+$ cat info-curl.txt
+# ¿Qué versión hay disponible?
+```
+
+### Fase 3: Análisis Comparativo (20 min)
+
+```bash
+# Crear documento comparativo
+$ cat > analisis-distros.txt << 'EOF'
+=== ANÁLISIS: ¿QUÉ DISTRO USAR? ===
+
+Mi distro actual: Ubuntu 22.04 LTS
+
+¿Por qué Ubuntu?
+
+1. Base: Debian (estable)
+
+2. LTS: Soporte 5 años (hasta 2027)
+
+3. Package manager: apt (fácil)
+
+4. Comunidad: Enorme (muchos tutoriales)
+
+5. Cloud: Soportado en AWS, Azure, GCP
+
+¿Cuándo cambiaría?
+
+- A CentOS: Si necesitara soporte Red Hat empresarial
+- A Debian: Si quisiera estabilidad pura (sin extras)
+- A Fedora: Nunca en producción (cambios rápidos)
+EOF
+
+$ cat analisis-distros.txt
+```
+
+### Fase 4: Documento Final para Abacom (15 min)
+
+```bash
+$ cat > reporte-distribucion.txt << 'EOF'
+=== REPORTE: DISTRIBUCIÓN EN ABACOM ===
+
+1. DISTRIBUCIÓN ACTUAL:
+
+$(cat /etc/os-release | grep "PRETTY_NAME")
+
+2. INFORMACIÓN TÉCNICA:
+
+- Release: Ubuntu 22.04 LTS (Jammy Jellyfish)
+- Soporte: Hasta Abril 2027
+- Package Manager: apt
+- Kernel: $(uname -r)
+
+3. PAQUETES INSTALADOS:
+
+- Total: $(dpkg --list | wc -l)
+- Actualización: $(date)
+
+4. RECOMENDACIÓN:
+
+✅ Mantener Ubuntu 22.04 LTS hasta fin de soporte (2027)
+✅ Aplicar parches de seguridad mensualmente
+✅ No cambiar a otra distro sin razón técnica
+
+5. ALTERNATIVAS CONSIDERADAS:
+
+- CentOS: No necesario (Ubuntu más fácil)
+- Debian: Viable pero Ubuntu es superset
+- Fedora: No recomendado (cambios rápidos)
+EOF
+
+$ cat reporte-distribucion.txt
+```
+
+### Verificación del Laboratorio
+
+- [ ] Información de distro recopilada
+- [ ] Package manager explorado
+- [ ] Análisis comparativo completado
+- [ ] Reporte final escrito
+- [ ] Entiendo por qué usamos Ubuntu en Abacom
+
+---
+
+## 📚 Recursos Adicionales
+
+### Documentación Oficial
+
+- **[DistroWatch](https://distrowatch.com/)**
+  - Sección: Últimas noticias, compares de distros
+  - Por qué: Base de datos de 300+ distribuciones
+
+- **[Ubuntu Server Documentation](https://ubuntu.com/server/docs)**
+  - Sección: Administración de paquetes
+  - Por qué: Documentación oficial de ubuntu
+
+- **[The Linux Foundation](https://www.linuxfoundation.org/)**
+  - Sección: Ecosistema de distribuciones
+  - Por qué: Información neutral sobre todas las distros
+
+### Tutoriales Complementarios
+
+- **[Ubuntu Server Docs - Package management](https://ubuntu.com/server/docs/package-management/)**
+  - Duración: 10 minutos
+  - Cubre: Instalación básica con apt
+
+### Comunidades
+
+- **[Ubuntu Forums](https://ubuntuforums.org/)**
+  - Para: Preguntas sobre Ubuntu
+  - Cómo: Comunidad oficial
+
+- **[r/linux - Reddit](https://www.reddit.com/r/linux/)**
+  - Para: Debates sobre distros
+  - Cómo: Comunidad receptiva
+
+---
+
+## ❓ Preguntas Frecuentes
+
+**P: ¿Cuál es la mejor distribución?**
+
+R: No hay "mejor", pero hay "mejor para caso X":
+
+- **Producción empresarial:** Ubuntu LTS o CentOS/RHEL
+- **Aprender Linux:** Ubuntu, Debian
+- **Desarrollo:** Fedora, Arch
+- **Escritorio:** Linux Mint, Pop!_OS
+- **IoT:** Alpine, Raspbian
+
+**P: ¿Puedo cambiar de distribución sin perder datos?**
+
+R: Sí y no:
+
+- El kernel y comandos son similares
+- Pero migrar de Ubuntu a CentOS requiere reconfiguraciones
+- Mejor: backup + instalación limpia + restore de datos
+
+**P: ¿En Abacom alguna vez cambiaremos de Ubuntu?**
+
+R: Posible, pero poco probable:
+
+- Ubuntu funciona bien
+- Comunidad es grande
+- Soporte es bueno
+- Cambiar costaría reentrenamiento
+
+---
+
+## 🎯 Resumen
+
+::: {.callout-tip}
+## Lo más importante (3 puntos clave)
+
+1. **Distribución = Kernel Linux + software + configuración** → El kernel es igual, pero cada distro agrega herramientas diferentes
+
+2. **Package manager es la principal diferencia** → **apt** (Ubuntu/Debian) vs **yum** (CentOS/RHEL) son las opciones principales
+
+3. **Ubuntu 22.04 LTS es ideal para Abacom** → LTS = 5 años de soporte, **apt** es simple, comunidad es enorme
+
+**Recuerda:** Aprender a administrar paquetes es fundamental para tu rol como admin.
+:::
+
+### Checklist de Competencias Alcanzadas
+
+- ✅ Entiendo qué es una distribución de Linux
+- ✅ Puedo identificar mi distribución actual
+- ✅ Conozco diferencias entre familias principales
+- ✅ Entiendo por qué Ubuntu 22.04 para Abacom
+- ✅ Puedo instalar y desinstalar paquetes
+- ✅ Estoy listo para aprender instalación
+
+### Próximos Pasos
+
+::: {.callout-note}
+🔜 **Siguiente tema:** [Ventajas de Linux para Abacom](4_ventajas_linux.html)  
+📋 **Laboratorio siguiente:** Instalación de Ubuntu 22.04 LTS  
+⏱️ **Tiempo recomendado:** 1.5 horas de lectura + 2 horas de práctica
+:::
+
+---
+
+## 📞 Soporte
+
+::: {.callout-important}
+## ¿Tienes dudas sobre este tema?
+
+- 💬 **Preguntas técnicas:** GitHub Issues
+- 🐛 **Comparaciones de distros:** Verifica DistroWatch
+- 💡 **Sugerencias:** Envía feedback
+:::
+
+---
+
+**Última actualización:** 2026-01-29  
+**Versión:** 1.0  
+**Estado:** ✅ Completo y validado contra fuentes oficiales
+
+::: {.callout-note}
+## Acerca de las fuentes
+
+Verificado contra:
+
+- DistroWatch official database
+- Ubuntu Server documentation
+- The Linux Foundation ecosystem guide
+:::
+
+---
+
+## 📝 Quiz: Distribuciones de Linux
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Qué es una Distribución de Linux?
+
+- [ ] Un virus de Linux
+- [x] Combinación del kernel Linux con GNU tools y aplicaciones específicas
+- [ ] Una versión antigua de Linux
+- [ ] Un tipo de compilador
+
+## ¿Cuál es la distribución más popular para servidores?
+
+- [ ] Fedora
+- [x] Debian / Ubuntu / Red Hat Enterprise Linux
+- [ ] Arch Linux
+- [ ] Gentoo
+
+## ¿Cuál distribución es patrocinada por Red Hat (now IBM)?
+
+- [ ] Debian
+- [x] Fedora y Red Hat Enterprise Linux (RHEL)
+- [ ] Ubuntu
+- [ ] Arch
+
+## ¿Quién mantiene Ubuntu?
+
+- [ ] The Linux Foundation
+- [x] Canonical Ltd.
+- [ ] Red Hat
+- [ ] Debian Project
+
+## ¿Cuál es el gestor de paquetes de Ubuntu/Debian?
+
+- [ ] yum/dnf
+- [x] apt (Advanced Package Tool)
+- [ ] pacman
+- [ ] zypper
+
+## ¿Cuál es el gestor de paquetes de Red Hat/Fedora/CentOS?
+
+- [ ] apt
+- [x] yum (dnf en versiones nuevas)
+- [ ] pacman
+- [ ] zypper
+
+## ¿Qué es Fedora?
+
+- [ ] Una herramienta de networking
+- [x] Distribución patrocinada por Red Hat, versión cutting-edge
+- [ ] Un sistema embebido
+- [ ] Una base de datos
+
+## ¿Cuál distribución es conocida por su flexibilidad y control del usuario?
+
+- [ ] Ubuntu (enfocada en facilidad)
+- [x] Arch Linux (filosofía "do it yourself")
+- [ ] Red Hat (para servidores)
+- [ ] Linux Mint (para principiantes)
+
+## ¿Qué es la diferencia entre distribuciones basadas en Debian vs Red Hat?
+
+- [x] Diferente gestor de paquetes (apt vs yum), estructura de directorios, etc.
+- [ ] El kernel es diferente
+- [ ] Red Hat es más lenta
+- [ ] Debian es solo para estaciones de trabajo
+
+## ¿Cuál distribución es recomendada para principiantes?
+
+- [ ] Gentoo (requiere compilación)
+- [ ] Arch (requiere configuración manual)
+- [x] Linux Mint / Ubuntu (interfaz amigable)
+- [ ] Debian (versión antigua)
+
+## ¿Qué es CentOS/Rocky Linux?
+
+- [ ] Distribuciones basadas en Red Hat Enterprise Linux
+- [x] Versión community de RHEL, gratis y de código abierto
+- [ ] Versión antigua de Fedora
+- [ ] Competidor directo de Ubuntu
+
+## ¿Cuál es el ciclo de soporte de Ubuntu LTS (Long Term Support)?
+
+- [ ] 2 años
+- [ ] 3 años
+- [x] 5 años (estándar) o más (pro)
+- [ ] Indefinido
+
+## ¿Qué versión de Ubuntu es LTS (Long Term Support)?
+
+- [ ] Todas las versiones
+- [ ] Números impares (21.04, 23.04)
+- [x] Números pares cada 2 años (20.04, 22.04, 24.04)
+- [ ] Solo las versiones con número redondo (20.00, 22.00)
+
+## ¿Cuál distribución usa un sistema de rolling release?
+
+- [x] Arch Linux, Fedora Rawhide
+- [ ] Ubuntu (versiones fijas)
+- [ ] Red Hat (versiones anuales)
+- [ ] Debian (versiones cada 2 años)
+
+## ¿Qué significa "Rolling Release" en Linux?
+
+- [ ] Actualización de seguridad
+- [x] Actualizaciones continuas, sin versiones discretas
+- [ ] Distribución que se entraga en CD
+- [ ] Cambios de kernel diarios
+
+## ¿Cuál es la diferencia entre Debian Stable, Testing y Unstable?
+
+- [ ] Velocidad de descarga
+- [x] Estabilidad vs Nuevas características (Stable es más lento, Unstable es más rápido)
+- [ ] Soporte para diferentes procesadores
+- [ ] Seguridad
+
+## ¿Qué es el proyecto Debian?
+
+- [ ] Empresa comercial
+- [x] Proyecto comunitario de software libre, una de las distribuciones más antiguas
+- [ ] Patrocinado por Intel
+- [ ] Solo para servidores
+
+## ¿Cuál distribución es más apropiada para análisis forense y penetration testing?
+
+- [ ] Ubuntu Desktop
+- [x] Kali Linux (basada en Debian)
+- [ ] Fedora
+- [ ] openSUSE
+
+## ¿Cuál distribución es creada y mantenida principalmente por voluntarios?
+
+- [ ] Red Hat (comercial)
+- [ ] Canonical (comercial)
+- [x] Debian, Arch, Fedora (comunidad)
+- [ ] CentOS (patrocinado)
+
+## ¿Qué característica tiene el instalador de Ubuntu Server que lo hace popular?
+
+- [ ] Es el más rápido
+- [x] Es simple, interactivo, y guía al usuario
+- [ ] No requiere interfaz gráfica
+- [ ] Es obligatorio usar SSH
+```
+
+---

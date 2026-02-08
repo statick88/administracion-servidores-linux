@@ -1,0 +1,140 @@
+---
+title: "Unidad 7.4: DNS y resolucion de nombres"
+subtitle: "systemd-resolved, resolv.conf y herramientas"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 7.4: DNS y resolucion de nombres
+
+## Introduccion
+
+Muchos problemas "de red" en realidad son problemas de DNS: tienes IP y ruta, pero el nombre no resuelve o resuelve a una IP equivocada.
+
+## Objetivos de aprendizaje
+
+- Ver que servidores DNS estas usando
+- Probar resolucion con herramientas basicas
+- Identificar fallas tipicas (NXDOMAIN, timeout, cache)
+
+---
+
+## Ver estado de systemd-resolved (Ubuntu)
+
+```bash
+$ resolvectl status  # <1>
+Global
+       Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+resolv.conf mode: stub
+
+Link 2 (enp0s3)
+    Current Scopes: DNS
+         Protocols: +DefaultRoute
+Current DNS Server: 192.168.56.1
+       DNS Servers: 192.168.56.1
+# <1>
+```
+
+
+
+1. **resolvectl status** muestra DNS efectivo por interfaz y modo de resolv.conf.
+
+---
+
+## Probar resolucion
+
+```bash
+$ getent hosts example.com  # <1>
+93.184.216.34   example.com
+# <1>
+
+$ dig +short example.com  # <2>
+93.184.216.34
+# <2>
+
+$ nslookup example.com  # <3>
+Server:         192.168.56.1
+Address:        192.168.56.1#53
+
+Non-authoritative answer:
+Name:   example.com
+Address: 93.184.216.34
+# <3>
+```
+
+
+
+1. **getent hosts** prueba resolucion usando el resolver del sistema (glibc/nsswitch).
+2. **dig** consulta DNS directamente y muestra respuestas de forma compacta.
+3. **nslookup** es una alternativa sencilla para consultas rapidas.
+
+---
+
+## Revisar resolv.conf
+
+```bash
+$ ls -l /etc/resolv.conf  # <1>
+lrwxrwxrwx 1 root root 39 Feb  2 10:10 /etc/resolv.conf -> ../run/systemd/resolve/stub-resolv.conf
+# <1>
+```
+
+
+
+1. **ls -l /etc/resolv.conf** muestra si es symlink (comun con systemd-resolved).
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Resolver un nombre
+
+#### Linux
+```bash
+$ getent hosts example.com  # <1>
+93.184.216.34 example.com
+# <1>
+```
+
+
+
+1. **getent hosts** valida resolucion via el resolver del sistema.
+
+#### macOS
+```bash
+$ scutil --dns | head -n 18  # <1>
+DNS configuration
+
+resolver #1
+  nameserver[0] : 192.168.1.1
+  if_index : 4 (en0)
+  flags    : Request A records
+# <1>
+```
+
+
+
+1. **scutil --dns** muestra configuracion DNS efectiva en macOS.
+
+#### Windows
+```powershell
+PS> Resolve-DnsName example.com  # <1>
+
+Name                           Type   TTL   Section    IPAddress
+----                           ----   ---   -------    ---------
+example.com                    A      900   Answer     93.184.216.34
+# <1>
+```
+
+
+
+1. **Resolve-DnsName** consulta DNS y muestra respuesta.
+
+:::
+
+## Mejores practicas
+
+- Usa `getent hosts` para validar "lo que usara" tu app.
+- Si `dig` funciona pero `getent` no, revisa `nsswitch.conf` y caches.

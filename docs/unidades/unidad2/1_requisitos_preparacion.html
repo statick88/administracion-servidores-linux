@@ -1,0 +1,3332 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Diego Saavedra">
+<meta name="dcterms.date" content="2024-01-29">
+<meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
+
+<title>Requisitos y Preparación para Instalación – Administración de Servidores Linux</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../unidades/unidad2/2_instalacion_ubuntu.html" rel="next">
+<link href="../../unidades/unidad1/99_recursos.html" rel="prev">
+<link href="../../logo.jpeg" rel="icon" type="image/jpeg">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown-init.js"></script>
+<link href="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+<script src="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
+<link href="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad2/1_requisitos_preparacion.html">Unidad 2: Instalación y Configuración</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad2/1_requisitos_preparacion.html"><span class="chapter-title">Requisitos y Preparación para Instalación</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../../index.html" class="sidebar-logo-link">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Administración de Servidores Linux</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/statick88/administracion-servidores-linux" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Administración de Servidores Linux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introducción al Curso</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acerca del Instructor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../license.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licencia</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../SETUP.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Guía de Configuración del Entorno</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../glosario.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Glosario del Curso</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 1: Introducción a Linux</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1: Introducción a Sistemas Operativos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/2_historia_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.2: Historia y Evolución de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/3_distribuciones_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.3: Distribuciones de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/4_ventajas_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.4: Ventajas de Linux para Abacom</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Unidad 2: Instalación y Configuración</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/1_requisitos_preparacion.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Requisitos y Preparación para Instalación</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/2_instalacion_ubuntu.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instalación de Ubuntu Server LTS Paso a Paso</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/3_configuracion_inicial.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración Inicial del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/4_actualizacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Actualización y Seguridad del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/5_primeros_pasos_terminal.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Primeros Pasos en Terminal</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 2: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 3: Comandos Básicos de Linux</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/1_navegacion_directorios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Navegación de Directorios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/2_inspeccion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inspección de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/3_busqueda_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Búsqueda de Archivos y Contenido</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/4_permisos_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Permisos de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/5_manipulacion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Manipulación de Archivos y Directorios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 3: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 4: Docker y Containerización</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/1_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/2_docker_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dockerfile y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/3_DevContainers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">DevContainers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 4: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 5: Procesos y Servicios</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad5/1_procesos_comandos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 5.1: Procesos - ps, top, pgrep y kill</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad5/2_systemd_units_journalctl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 5.2: systemd units y journalctl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad5/3_cron_anacron_at.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 5.3: cron/anacron y at</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad5/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 5: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 6: Almacenamiento y Sistemas de Archivos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/1_sistemas_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.1: Sistemas de archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/2_particiones_disco.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.2: Particiones y discos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/3_montaje_desmontaje.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.3: Montaje y desmontaje</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/4_gestion_espacio.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.4: Gestion de espacio</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/5_raid_lvm.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.5: RAID y LVM (basico)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 7: Redes basicas</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/1_fundamentos_redes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7.1: Fundamentos de redes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/2_iproute2_rutas.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7.2: iproute2 y rutas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/3_nmcli_netplan.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7.3: nmcli y netplan</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/4_dns_resolucion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7.4: DNS y resolucion de nombres</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 8: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 9: Apache (Servidor Web)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 10: Nginx y SSL</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 11: MariaDB</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 12: Diagnostico y Troubleshooting</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/2_logs_journalctl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.2: Logs y journalctl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/3_red_puertos_dns.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.3: Red, puertos y DNS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text">Laboratorios Prácticos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorios Prácticos - Administración de Servidores Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab0_diagnostico_sistema.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 0: Diagnostico Basico del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab1_instalacion_ubuntu.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 1: Instalación de Ubuntu Server</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab2b_hardening_basico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2B: Hardening Basico Post-Instalacion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab2_usuarios_permisos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2: Gestión de Usuarios y Permisos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab3_procesos_servicios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 3: Administración de Procesos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab4_redes_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4: Redes y SSH</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab4b_docker_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4B: Docker y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab5_almacenamiento_montajes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab6_http_diagnostico_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 6: HTTP Basico y Diagnostico Web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab7_apache_virtualhost.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 7: Apache - Sitio y VirtualHost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab8_nginx_reverseproxy_tls.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 8: Nginx - Reverse Proxy + TLS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab9_mariadb_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 9: MariaDB - Usuarios, Privilegios y Backup/Restore</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab10_troubleshooting_integrado.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab11_clawdbot_openclaw_telegram_tailscale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false">
+ <span class="menu-text">Prácticas</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 1: Fundamentos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 2: Instalacion y Primer Hardening</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 3: Terminal y Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 4: Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 6: Almacenamiento</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 7: Redes basicas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 8: HTTP Basico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 9: Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 10: Nginx y SSL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad11.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 11: MariaDB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad12.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 12: Troubleshooting</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">Retos GNU/Linux (Wargames)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_J_Retos_GNU_Linux_Bandit.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retos GNU/Linux (Bandit)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false">
+ <span class="menu-text">Presentaciones (Reveal.js)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-17" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../presentaciones.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Presentaciones (Reveal.js)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 1: Fundamentos)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-18" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_B_Editores_Vi_Nvim.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo B: Editores Vi y Nvim - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_H_SSH_SCP_Keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo H: SSH, SCP y Llaves - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_D_Herramientas_Monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_F_Ranger_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Ranger: Gestor de Archivos Terminal para Servidores</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 2: Intermedio)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 3: Avanzado)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-20" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_G_OpenCode_Gestion_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo G: OpenCode - Mini-Curso para Gestion de Servidores</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_I_Openclaw_Telegram_Abacombot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#requisitos-y-preparación-para-instalación" id="toc-requisitos-y-preparación-para-instalación" class="nav-link active" data-scroll-target="#requisitos-y-preparación-para-instalación">Requisitos y Preparación para Instalación</a>
+  <ul class="collapse">
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#selecciona-tu-entorno-de-aprendizaje" id="toc-selecciona-tu-entorno-de-aprendizaje" class="nav-link" data-scroll-target="#selecciona-tu-entorno-de-aprendizaje">🖥️ Selecciona tu Entorno de Aprendizaje</a>
+  <ul class="collapse">
+  <li><a href="#entorno-1-windows-wsl2-windows-subsystem-for-linux" id="toc-entorno-1-windows-wsl2-windows-subsystem-for-linux" class="nav-link" data-scroll-target="#entorno-1-windows-wsl2-windows-subsystem-for-linux">Entorno 1: Windows + WSL2 (Windows Subsystem for Linux)</a></li>
+  <li><a href="#entorno-2-linux-nativo-cualquier-distribución" id="toc-entorno-2-linux-nativo-cualquier-distribución" class="nav-link" data-scroll-target="#entorno-2-linux-nativo-cualquier-distribución">Entorno 2: Linux Nativo (Cualquier Distribución)</a></li>
+  <li><a href="#entorno-3-macos-máquinas-virtuales" id="toc-entorno-3-macos-máquinas-virtuales" class="nav-link" data-scroll-target="#entorno-3-macos-máquinas-virtuales">Entorno 3: macOS + Máquinas Virtuales</a></li>
+  <li><a href="#opciones-de-hipervisor-en-macos" id="toc-opciones-de-hipervisor-en-macos" class="nav-link" data-scroll-target="#opciones-de-hipervisor-en-macos">Opciones de Hipervisor en macOS</a></li>
+  <li><a href="#entorno-4-docker-contenedores" id="toc-entorno-4-docker-contenedores" class="nav-link" data-scroll-target="#entorno-4-docker-contenedores">Entorno 4: Docker (Contenedores)</a></li>
+  </ul></li>
+  <li><a href="#cuál-entorno-elegir" id="toc-cuál-entorno-elegir" class="nav-link" data-scroll-target="#cuál-entorno-elegir">📚 ¿Cuál entorno elegir?</a></li>
+  <li><a href="#requisitos-de-hardware" id="toc-requisitos-de-hardware" class="nav-link" data-scroll-target="#requisitos-de-hardware">Requisitos de Hardware</a>
+  <ul class="collapse">
+  <li><a href="#especificaciones-mínimas" id="toc-especificaciones-mínimas" class="nav-link" data-scroll-target="#especificaciones-mínimas">Especificaciones Mínimas</a></li>
+  <li><a href="#por-qué-importan-estos-requisitos" id="toc-por-qué-importan-estos-requisitos" class="nav-link" data-scroll-target="#por-qué-importan-estos-requisitos">¿Por qué importan estos requisitos?</a></li>
+  </ul></li>
+  <li><a href="#verificar-compatibilidad-del-hardware" id="toc-verificar-compatibilidad-del-hardware" class="nav-link" data-scroll-target="#verificar-compatibilidad-del-hardware">Verificar Compatibilidad del Hardware</a>
+  <ul class="collapse">
+  <li><a href="#método-1-verificar-desde-windows" id="toc-método-1-verificar-desde-windows" class="nav-link" data-scroll-target="#método-1-verificar-desde-windows">Método 1: Verificar desde Windows</a></li>
+  <li><a href="#método-2-verificar-desde-macos" id="toc-método-2-verificar-desde-macos" class="nav-link" data-scroll-target="#método-2-verificar-desde-macos">Método 2: Verificar desde macOS</a></li>
+  <li><a href="#método-3-verificar-desde-linux-existente" id="toc-método-3-verificar-desde-linux-existente" class="nav-link" data-scroll-target="#método-3-verificar-desde-linux-existente">Método 3: Verificar desde Linux existente</a></li>
+  <li><a href="#verificar-particiones-de-disco" id="toc-verificar-particiones-de-disco" class="nav-link" data-scroll-target="#verificar-particiones-de-disco">Verificar Particiones de Disco</a></li>
+  </ul></li>
+  <li><a href="#descargar-ubuntu-server-lts" id="toc-descargar-ubuntu-server-lts" class="nav-link" data-scroll-target="#descargar-ubuntu-server-lts">Descargar Ubuntu Server LTS</a>
+  <ul class="collapse">
+  <li><a href="#paso-1-obtener-la-imagen-iso" id="toc-paso-1-obtener-la-imagen-iso" class="nav-link" data-scroll-target="#paso-1-obtener-la-imagen-iso">Paso 1: Obtener la Imagen ISO</a></li>
+  <li><a href="#paso-2-verificar-integridad-importante-para-seguridad" id="toc-paso-2-verificar-integridad-importante-para-seguridad" class="nav-link" data-scroll-target="#paso-2-verificar-integridad-importante-para-seguridad">Paso 2: Verificar Integridad (Importante para Seguridad)</a></li>
+  </ul></li>
+  <li><a href="#crear-usb-de-instalación" id="toc-crear-usb-de-instalación" class="nav-link" data-scroll-target="#crear-usb-de-instalación">Crear USB de Instalación</a>
+  <ul class="collapse">
+  <li><a href="#software-requerido" id="toc-software-requerido" class="nav-link" data-scroll-target="#software-requerido">Software Requerido</a></li>
+  <li><a href="#método-usar-balena-etcher-multiplataforma" id="toc-método-usar-balena-etcher-multiplataforma" class="nav-link" data-scroll-target="#método-usar-balena-etcher-multiplataforma">Método: Usar Balena Etcher (Multiplataforma)</a></li>
+  <li><a href="#método-usar-comando-dd-en-linuxmacos-avanzado" id="toc-método-usar-comando-dd-en-linuxmacos-avanzado" class="nav-link" data-scroll-target="#método-usar-comando-dd-en-linuxmacos-avanzado">Método: Usar comando <strong>dd</strong> en Linux/macOS (Avanzado)</a></li>
+  </ul></li>
+  <li><a href="#acceso-a-biosuefi" id="toc-acceso-a-biosuefi" class="nav-link" data-scroll-target="#acceso-a-biosuefi">Acceso a BIOS/UEFI</a>
+  <ul class="collapse">
+  <li><a href="#cambiar-orden-de-boot" id="toc-cambiar-orden-de-boot" class="nav-link" data-scroll-target="#cambiar-orden-de-boot">Cambiar Orden de Boot</a></li>
+  <li><a href="#uefi-vs-bios-clásico" id="toc-uefi-vs-bios-clásico" class="nav-link" data-scroll-target="#uefi-vs-bios-clásico">UEFI vs BIOS Clásico</a></li>
+  </ul></li>
+  <li><a href="#preparación-del-disco-duro" id="toc-preparación-del-disco-duro" class="nav-link" data-scroll-target="#preparación-del-disco-duro">Preparación del Disco Duro</a>
+  <ul class="collapse">
+  <li><a href="#opción-1-instalación-única-recomendado-para-abacom" id="toc-opción-1-instalación-única-recomendado-para-abacom" class="nav-link" data-scroll-target="#opción-1-instalación-única-recomendado-para-abacom">Opción 1: Instalación Única (Recomendado para Abacom)</a></li>
+  <li><a href="#opción-2-dual-boot-windows-ubuntu" id="toc-opción-2-dual-boot-windows-ubuntu" class="nav-link" data-scroll-target="#opción-2-dual-boot-windows-ubuntu">Opción 2: Dual Boot (Windows + Ubuntu)</a></li>
+  <li><a href="#opción-3-instalación-en-partición-existente" id="toc-opción-3-instalación-en-partición-existente" class="nav-link" data-scroll-target="#opción-3-instalación-en-partición-existente">Opción 3: Instalación en Partición Existente</a></li>
+  </ul></li>
+  <li><a href="#checklist-de-preparación" id="toc-checklist-de-preparación" class="nav-link" data-scroll-target="#checklist-de-preparación">Checklist de Preparación</a></li>
+  <li><a href="#ejemplos-prácticos" id="toc-ejemplos-prácticos" class="nav-link" data-scroll-target="#ejemplos-prácticos">💡 Ejemplos Prácticos</a></li>
+  <li><a href="#componentes-clave" id="toc-componentes-clave" class="nav-link" data-scroll-target="#componentes-clave">🔧 Componentes Clave</a>
+  <ul class="collapse">
+  <li><a href="#iso-imagen-de-disco" id="toc-iso-imagen-de-disco" class="nav-link" data-scroll-target="#iso-imagen-de-disco">ISO (Imagen de Disco)</a></li>
+  <li><a href="#sha256-validación-criptográfica" id="toc-sha256-validación-criptográfica" class="nav-link" data-scroll-target="#sha256-validación-criptográfica">SHA256 (Validación Criptográfica)</a></li>
+  <li><a href="#bios-vs-uefi" id="toc-bios-vs-uefi" class="nav-link" data-scroll-target="#bios-vs-uefi">BIOS vs UEFI</a></li>
+  </ul></li>
+  <li><a href="#errores-comunes" id="toc-errores-comunes" class="nav-link" data-scroll-target="#errores-comunes">⚠️ Errores Comunes</a></li>
+  <li><a href="#mejores-prácticas" id="toc-mejores-prácticas" class="nav-link" data-scroll-target="#mejores-prácticas">📊 Mejores Prácticas</a></li>
+  <li><a href="#tabla-de-referencia-rápida" id="toc-tabla-de-referencia-rápida" class="nav-link" data-scroll-target="#tabla-de-referencia-rápida">📋 Tabla de Referencia Rápida</a></li>
+  <li><a href="#quiz-verificar-tu-comprensión" id="toc-quiz-verificar-tu-comprensión" class="nav-link" data-scroll-target="#quiz-verificar-tu-comprensión">🎓 Quiz: Verificar tu Comprensión</a></li>
+  <li><a href="#práctica-guiada-preparar-tu-instalación" id="toc-práctica-guiada-preparar-tu-instalación" class="nav-link" data-scroll-target="#práctica-guiada-preparar-tu-instalación">👨‍💻 Práctica Guiada: Preparar tu Instalación</a></li>
+  <li><a href="#laboratorio-instalación-en-máquina-virtual-recomendado" id="toc-laboratorio-instalación-en-máquina-virtual-recomendado" class="nav-link" data-scroll-target="#laboratorio-instalación-en-máquina-virtual-recomendado">🧪 Laboratorio: Instalación en Máquina Virtual (Recomendado)</a>
+  <ul class="collapse">
+  <li><a href="#opción-1-oracle-virtualbox-gratuito" id="toc-opción-1-oracle-virtualbox-gratuito" class="nav-link" data-scroll-target="#opción-1-oracle-virtualbox-gratuito">Opción 1: Oracle VirtualBox (Gratuito)</a></li>
+  <li><a href="#opción-2-vmware-workstation-profesional" id="toc-opción-2-vmware-workstation-profesional" class="nav-link" data-scroll-target="#opción-2-vmware-workstation-profesional">Opción 2: VMware Workstation (Profesional)</a></li>
+  <li><a href="#comparativa-virtualbox-vs-vmware-workstation" id="toc-comparativa-virtualbox-vs-vmware-workstation" class="nav-link" data-scroll-target="#comparativa-virtualbox-vs-vmware-workstation">Comparativa: VirtualBox vs VMware Workstation</a></li>
+  <li><a href="#ventajas-de-practicar-en-máquina-virtual" id="toc-ventajas-de-practicar-en-máquina-virtual" class="nav-link" data-scroll-target="#ventajas-de-practicar-en-máquina-virtual">Ventajas de practicar en máquina virtual</a></li>
+  <li><a href="#troubleshooting-común" id="toc-troubleshooting-común" class="nav-link" data-scroll-target="#troubleshooting-común">Troubleshooting común</a></li>
+  </ul></li>
+  <li><a href="#recursos-adicionales" id="toc-recursos-adicionales" class="nav-link" data-scroll-target="#recursos-adicionales">📚 Recursos Adicionales</a></li>
+  <li><a href="#conclusión" id="toc-conclusión" class="nav-link" data-scroll-target="#conclusión">Conclusión</a></li>
+  <li><a href="#quiz-requisitos-y-preparación" id="toc-quiz-requisitos-y-preparación" class="nav-link" data-scroll-target="#quiz-requisitos-y-preparación">📝 Quiz: Requisitos y Preparación</a></li>
+  </ul></li>
+  <li>Code Appendix</li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/unidades/unidad2/1_requisitos_preparacion.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad2/1_requisitos_preparacion.html">Unidad 2: Instalación y Configuración</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad2/1_requisitos_preparacion.html"><span class="chapter-title">Requisitos y Preparación para Instalación</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Requisitos y Preparación para Instalación</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 29, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="requisitos-y-preparación-para-instalación" class="level1">
+<h1>Requisitos y Preparación para Instalación</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>Antes de instalar Ubuntu Server LTS, es fundamental verificar que tu equipo cumple con los requisitos mínimos y preparar el medio de instalación. Esta lección te guiará a través de todo lo necesario para una instalación exitosa.</p>
+<p><strong>🗺️ En este tema aprenderás:</strong></p>
+<ul>
+<li>Requisitos de hardware mínimos y recomendados</li>
+<li>Cómo verificar si tu computadora es compatible</li>
+<li>Descarga segura de Ubuntu Server LTS</li>
+<li>Creación de USB de instalación</li>
+<li>Acceso a BIOS/UEFI</li>
+<li>Preparación del disco duro</li>
+</ul>
+<hr>
+</section>
+<section id="selecciona-tu-entorno-de-aprendizaje" class="level2">
+<h2 class="anchored" data-anchor-id="selecciona-tu-entorno-de-aprendizaje">🖥️ Selecciona tu Entorno de Aprendizaje</h2>
+<p>Este curso soporta <strong>4 entornos diferentes</strong>. Elige el que mejor se adapte a tu máquina:</p>
+<section id="entorno-1-windows-wsl2-windows-subsystem-for-linux" class="level3">
+<h3 class="anchored" data-anchor-id="entorno-1-windows-wsl2-windows-subsystem-for-linux">Entorno 1: Windows + WSL2 (Windows Subsystem for Linux)</h3>
+<p><strong>Ideal para:</strong> Desarrolladores en Windows que quieren Linux sin virtualización</p>
+<p><strong>Requisitos:</strong></p>
+<ul>
+<li>Windows 10 Build 19041+ o Windows 11</li>
+<li>Procesador con virtualización</li>
+<li>RAM: 4 GB mínimo</li>
+</ul>
+<p><strong>Ventajas:</strong></p>
+<ul>
+<li>✅ Linux completo en Windows</li>
+<li>✅ Mejor rendimiento que VM</li>
+<li>✅ Acceso simultáneo Windows + Linux</li>
+</ul>
+<p><strong>Desventajas:</strong></p>
+<ul>
+<li>❌ No ideal para aprender instalación</li>
+<li>❌ Interfaz gráfica limitada</li>
+</ul>
+<p><strong>Para usar WSL2 en este curso:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En PowerShell como admin:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>wsl <span class="op">--</span>install</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Accede a WSL2:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>wsl</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Realiza prácticas de comandos aquí</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Para instalar SO: usa máquina virtual</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="entorno-2-linux-nativo-cualquier-distribución" class="level3">
+<h3 class="anchored" data-anchor-id="entorno-2-linux-nativo-cualquier-distribución">Entorno 2: Linux Nativo (Cualquier Distribución)</h3>
+<p><strong>Ideal para:</strong> Aprender administración de Linux en serio</p>
+<p><strong>Requisitos:</strong></p>
+<ul>
+<li>Linux ya instalado (Ubuntu, Fedora, Debian, etc.)</li>
+<li>RAM: 2 GB mínimo (4 GB recomendado)</li>
+<li>Disco: 50+ GB disponible</li>
+</ul>
+<p><strong>Ventajas:</strong></p>
+<ul>
+<li>✅ Control total del sistema</li>
+<li>✅ Mejor rendimiento</li>
+<li>✅ Ambiente profesional real</li>
+</ul>
+<p><strong>Desventajas:</strong></p>
+<ul>
+<li>❌ Requiere Linux pre-instalado</li>
+<li>❌ Menos protección para experimentos</li>
+</ul>
+<p><strong>Para instalar otra distribución Linux:</strong></p>
+<ul>
+<li>Opción A: Usa máquina virtual (VirtualBox/Workstation)</li>
+<li>Opción B: Particiona disco e instala dual-boot</li>
+<li>Opción C: Usa Docker para laboratorios rápidos</li>
+</ul>
+</section>
+<section id="entorno-3-macos-máquinas-virtuales" class="level3">
+<h3 class="anchored" data-anchor-id="entorno-3-macos-máquinas-virtuales">Entorno 3: macOS + Máquinas Virtuales</h3>
+<p><strong>Ideal para:</strong> Usuarios de Mac que quieren aprender Linux puro</p>
+<p><strong>Requisitos:</strong></p>
+<ul>
+<li>macOS 10.14+ (Intel o Apple Silicon M1/M2/M3)</li>
+<li>RAM: 8 GB mínimo (16 GB recomendado)</li>
+<li>Disco: 50+ GB disponible para VM</li>
+</ul>
+</section>
+<section id="opciones-de-hipervisor-en-macos" class="level3">
+<h3 class="anchored" data-anchor-id="opciones-de-hipervisor-en-macos">Opciones de Hipervisor en macOS</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Arquitectura</th>
+<th>Opciones Disponibles</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Intel Mac</strong></td>
+<td>VirtualBox (gratis), Parallels (pagado), VMware Fusion (pagado)</td>
+</tr>
+<tr class="even">
+<td><strong>Apple Silicon (M1/M2/M3)</strong></td>
+<td>UTM (gratis), Parallels (pagado), VMware Fusion (pagado)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recomendación:</strong></p>
+<ul>
+<li><strong>Para principiantes:</strong> VirtualBox (Intel) o UTM (Apple Silicon)</li>
+<li><strong>Para profesionales:</strong> Parallels o VMware Fusion (mejor rendimiento)</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ ¿Por qué VirtualBox NO funciona en Apple Silicon?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Razón técnica:</strong> VirtualBox está escrito ÚNICAMENTE para arquitectura x86-64 (Intel/AMD), y Apple Silicon usa ARM64 - son incompatibles a nivel de CPU.</p>
+<section id="la-diferencia-de-arquitecturas" class="level3">
+<h3 class="anchored" data-anchor-id="la-diferencia-de-arquitecturas">La diferencia de arquitecturas:</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 24%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspecto</th>
+<th>Intel Mac</th>
+<th>Apple Silicon (M1/M2/M3)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Arquitectura CPU</strong></td>
+<td>x86-64</td>
+<td>ARM64</td>
+</tr>
+<tr class="even">
+<td><strong>VirtualBox emula</strong></td>
+<td>x86-64 (mismo que host)</td>
+<td>x86-64 (diferente al host)</td>
+</tr>
+<tr class="odd">
+<td><strong>Método</strong></td>
+<td>Virtualización HW (rápido)</td>
+<td>Emulación total (lentísimo)</td>
+</tr>
+<tr class="even">
+<td><strong>Velocidad</strong></td>
+<td>~95% nativa</td>
+<td>~10-20% nativa</td>
+</tr>
+<tr class="odd">
+<td><strong>VirtualBox</strong></td>
+<td>✅ Funciona perfecto</td>
+<td>❌ NO funciona</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="por-qué-no-fue-actualizado" class="level3">
+<h3 class="anchored" data-anchor-id="por-qué-no-fue-actualizado">¿Por qué no fue actualizado?</h3>
+<p>Oracle (dueño de VirtualBox) dijo explícitamente: <strong>“No hay planes para soportar Apple Silicon ARM64 natively”</strong></p>
+<p>Razones:</p>
+<ol type="1">
+<li><p><strong>Costo enorme:</strong> Reescribir VirtualBox tomaría años de desarrollo</p></li>
+<li><p><strong>Mercado pequeño:</strong> Solo ~15% de Macs son Apple Silicon (2025)</p></li>
+<li><p><strong>Complejidad:</strong> Perderíamos 20+ años de optimizaciones x86-64</p></li>
+<li><p><strong>Alternativas existentes:</strong> Parallels y UTM ya lo hacen</p></li>
+</ol>
+</section>
+<section id="qué-hacer-si-tienes-apple-silicon" class="level3">
+<h3 class="anchored" data-anchor-id="qué-hacer-si-tienes-apple-silicon">¿Qué hacer si tienes Apple Silicon?</h3>
+<ul>
+<li><strong>UTM (Gratis):</strong> Emulador universal, lento pero gratuito</li>
+<li><strong>Parallels (Pagado):</strong> Optimizado específicamente para M1/M2/M3, muy rápido (~80-90%)</li>
+<li><strong>VMware Fusion (Pagado):</strong> Soporte ARM64, más lento que Parallels</li>
+</ul>
+</section>
+<section id="analogía-simple" class="level3">
+<h3 class="anchored" data-anchor-id="analogía-simple">Analogía simple:</h3>
+<p>VirtualBox es como un “traductor”:</p>
+<ul>
+<li><strong>Intel Mac:</strong> Traduce Inglés → Inglés (rápido, solo copia)</li>
+<li><strong>Apple Silicon:</strong> Traduce Japonés → Inglés (lentísimo, tiene que convertir TODO)</li>
+</ul>
+<p><strong>Conclusión:</strong> No es limitación de tu Mac, es que VirtualBox <strong>nunca fue diseñado</strong> para ARM64.</p>
+</section>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>📝 Nota
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>En <strong>Apple Silicon (ARM64)</strong>, asegúrate de usar una ISO <strong>ARM64</strong> (por ejemplo, <code>ubuntu-22.04.x-live-server-arm64.iso</code>).</p>
+<p>Si intentas instalar un sistema <strong>amd64/x86_64</strong> en una VM ARM sin emulación, no va a bootear.</p>
+</div>
+</div>
+<p><strong>Ventajas:</strong></p>
+<ul>
+<li>✅ macOS + Linux en la misma máquina</li>
+<li>✅ Protección completa</li>
+<li>✅ Entorno profesional</li>
+</ul>
+<p><strong>Desventajas:</strong></p>
+<ul>
+<li>❌ Requiere máquina potente</li>
+<li>❌ Algunas opciones pagadas</li>
+</ul>
+</section>
+<section id="entorno-4-docker-contenedores" class="level3">
+<h3 class="anchored" data-anchor-id="entorno-4-docker-contenedores">Entorno 4: Docker (Contenedores)</h3>
+<p><strong>Ideal para:</strong> Aprender comandos Linux rápidamente</p>
+<p><strong>Requisitos:</strong></p>
+<ul>
+<li>Cualquier máquina: Windows, macOS, Linux</li>
+<li>RAM: 4 GB mínimo</li>
+<li>Docker instalado</li>
+</ul>
+<p><strong>Ventajas:</strong></p>
+<ul>
+<li>✅ Ultraligero y rápido</li>
+<li>✅ Inicio instantáneo</li>
+<li>✅ Perfecto para experimentar</li>
+</ul>
+<p><strong>Desventajas:</strong></p>
+<ul>
+<li>❌ No es SO completo</li>
+<li>❌ No puedes instalar bootloader</li>
+</ul>
+<p><strong>Para usar Docker:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejecuta Ubuntu directamente</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-it</span> ubuntu:22.04 /bin/bash</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Dentro estás en Linux completo</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Practica comandos sin riesgo</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="cuál-entorno-elegir" class="level2">
+<h2 class="anchored" data-anchor-id="cuál-entorno-elegir">📚 ¿Cuál entorno elegir?</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Entorno</th>
+<th>Para principiantes</th>
+<th>Para instalación</th>
+<th>Para producción</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Windows + WSL2</strong></td>
+<td>✅ Muy bueno</td>
+<td>❌ No</td>
+<td>✅ Excelente</td>
+</tr>
+<tr class="even">
+<td><strong>Linux nativo</strong></td>
+<td>✅ Excelente</td>
+<td>✅ Perfecto</td>
+<td>✅ Excelente</td>
+</tr>
+<tr class="odd">
+<td><strong>macOS + VM</strong></td>
+<td>✅ Muy bueno</td>
+<td>✅ Bueno</td>
+<td>✅ Muy bueno</td>
+</tr>
+<tr class="even">
+<td><strong>Docker</strong></td>
+<td>✅ Muy fácil</td>
+<td>❌ No</td>
+<td>✅ Excelente</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recomendación:</strong></p>
+<ul>
+<li>Si eres <strong>principiante</strong>: WSL2 O Docker para aprender comandos</li>
+<li>Si quieres aprender <strong>instalación</strong>: Usa <strong>máquina virtual</strong> (cualquier SO host)</li>
+<li>Si quieres entorno <strong>profesional</strong>: Linux nativo O Docker</li>
+</ul>
+<p>Ver guía completa de configuración en: <a href="../../SETUP.html"><strong>SETUP.qmd</strong></a></p>
+<hr>
+</section>
+<section id="requisitos-de-hardware" class="level2">
+<h2 class="anchored" data-anchor-id="requisitos-de-hardware">Requisitos de Hardware</h2>
+<section id="especificaciones-mínimas" class="level3">
+<h3 class="anchored" data-anchor-id="especificaciones-mínimas">Especificaciones Mínimas</h3>
+<p>Para ejecutar Ubuntu Server LTS, tu computadora necesita al menos <span class="citation" data-cites="ubuntu_requirements_2024">(<a href="#ref-ubuntu_requirements_2024" role="doc-biblioref">Canonical 2024</a>)</span>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Componente</th>
+<th>Mínimo</th>
+<th>Recomendado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Procesador</strong></td>
+<td>1 GHz</td>
+<td>2 GHz multi-core</td>
+</tr>
+<tr class="even">
+<td><strong>RAM</strong></td>
+<td>1 GB</td>
+<td>4 GB</td>
+</tr>
+<tr class="odd">
+<td><strong>Espacio en disco</strong></td>
+<td>2.5 GB</td>
+<td>50 GB</td>
+</tr>
+<tr class="even">
+<td><strong>Pantalla</strong></td>
+<td>VGA</td>
+<td>1024x768</td>
+</tr>
+<tr class="odd">
+<td><strong>Conexión</strong></td>
+<td>CD-ROM o USB</td>
+<td>USB 3.0+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="por-qué-importan-estos-requisitos" class="level3">
+<h3 class="anchored" data-anchor-id="por-qué-importan-estos-requisitos">¿Por qué importan estos requisitos?</h3>
+<p>El <strong>kernel de Linux</strong> es muy eficiente y puede funcionar en hardware antiguo. Sin embargo, para una experiencia fluida (instalador, SSH, paquetes y laboratorios), necesitas recursos suficientes.</p>
+<p>La <strong>RAM mínima de 1 GB</strong> es apenas funcional - con aplicaciones modernas, necesitarás <strong>4 GB</strong> para productividad real. El <strong>procesador de 1 GHz</strong> también es mínimo absoluto.</p>
+<hr>
+</section>
+</section>
+<section id="verificar-compatibilidad-del-hardware" class="level2">
+<h2 class="anchored" data-anchor-id="verificar-compatibilidad-del-hardware">Verificar Compatibilidad del Hardware</h2>
+<section id="método-1-verificar-desde-windows" class="level3">
+<h3 class="anchored" data-anchor-id="método-1-verificar-desde-windows">Método 1: Verificar desde Windows</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy code-annotated"><code class="sourceCode powershell"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a>systeminfo</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="1" data-code-annotation="1"><strong>systeminfo</strong> muestra detalles del sistema en Windows (procesador, RAM, BIOS)</span>
+</dd>
+</dl>
+<p>Busca en la salida:</p>
+<ul>
+<li><strong>Processor</strong>: Procesador instalado (ej: Intel Core i5, AMD Ryzen 7)</li>
+<li><strong>System Type</strong>: x86-64 (64-bit es lo esperado) o ARM64</li>
+<li><strong>Total Physical Memory</strong>: RAM total en GB</li>
+</ul>
+</section>
+<section id="método-2-verificar-desde-macos" class="level3">
+<h3 class="anchored" data-anchor-id="método-2-verificar-desde-macos">Método 2: Verificar desde macOS</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">system_profiler</span> SPHardwareDataType</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="1" data-code-annotation="1"><strong>system_profiler</strong> muestra información completa de hardware en macOS</span>
+</dd>
+</dl>
+<p>Busca:</p>
+<ul>
+<li><strong>Processor Name</strong>: Tipo de procesador</li>
+<li><strong>Processor Speed</strong>: Velocidad en GHz</li>
+<li><strong>Memory</strong>: RAM total</li>
+</ul>
+</section>
+<section id="método-3-verificar-desde-linux-existente" class="level3">
+<h3 class="anchored" data-anchor-id="método-3-verificar-desde-linux-existente">Método 3: Verificar desde Linux existente</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-1" class="code-annotation-target"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uname</span> <span class="at">-m</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="1" data-code-annotation="1"><strong>uname -m</strong> muestra la arquitectura del procesador (x86_64 para 64-bit, armv7l para ARM 32-bit)</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-6-1" class="code-annotation-target"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">free</span> <span class="at">-h</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-6" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="1" data-code-annotation="2"><strong>free -h</strong> muestra RAM disponible en formato legible (human-readable)</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-7-1" class="code-annotation-target"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /proc/cpuinfo <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"^processor"</span> <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="1" data-code-annotation="3">Este comando cuenta el número de núcleos disponibles (multiplicar por 2 si tiene hyper-threading)</span>
+</dd>
+</dl>
+</section>
+<section id="verificar-particiones-de-disco" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-particiones-de-disco">Verificar Particiones de Disco</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-8-1" class="code-annotation-target"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="1" data-code-annotation="1"><strong>lsblk</strong> (list block devices) muestra todos los discos y particiones de forma visual</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-9-1" class="code-annotation-target"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">df</span> <span class="at">-h</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-9" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="1" data-code-annotation="2"><strong>df -h</strong> (disk free) muestra espacio disponible en particiones existentes</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-10" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-10-1" class="code-annotation-target"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fdisk</span> <span class="at">-l</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-10" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="1" data-code-annotation="3"><strong>fdisk -l</strong> (list) muestra particiones en formato detallado (requiere sudo)</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="descargar-ubuntu-server-lts" class="level2">
+<h2 class="anchored" data-anchor-id="descargar-ubuntu-server-lts">Descargar Ubuntu Server LTS</h2>
+<section id="paso-1-obtener-la-imagen-iso" class="level3">
+<h3 class="anchored" data-anchor-id="paso-1-obtener-la-imagen-iso">Paso 1: Obtener la Imagen ISO</h3>
+<p>Accede a <strong>https://releases.ubuntu.com/22.04/</strong> y descarga el archivo correcto:</p>
+<ul>
+<li><strong>ubuntu-22.04.4-live-server-amd64.iso</strong> → Para procesadores Intel/AMD 64-bit (RECOMENDADO)</li>
+<li><strong>ubuntu-22.04.4-live-server-arm64.iso</strong> → Para procesadores ARM64 (Apple Silicon M1/M2/M3, servidores ARM)</li>
+</ul>
+<p>El archivo tendrá un tamaño aproximado de <strong>1.5-2.0 GB</strong>.</p>
+</section>
+<section id="paso-2-verificar-integridad-importante-para-seguridad" class="level3">
+<h3 class="anchored" data-anchor-id="paso-2-verificar-integridad-importante-para-seguridad">Paso 2: Verificar Integridad (Importante para Seguridad)</h3>
+<p>Cada ISO oficial tiene un archivo <strong>SHA256SUMS</strong> que garantiza que la descarga no fue modificada:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En Linux o macOS</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-11-2" class="code-annotation-target"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> ubuntu-22.04.4-live-server-amd64.iso <span class="op">&gt;</span> descargado.sha256</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="2" data-code-annotation="1"><strong>sha256sum</strong> genera un hash criptográfico del archivo ISO descargado</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-12" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-12-1" class="code-annotation-target"><a href="#annotated-cell-12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">diff</span> descargado.sha256 SHA256SUMS</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-12" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="1" data-code-annotation="2"><strong>diff</strong> compara el hash descargado con el oficial - si no hay salida, la descarga es válida</span>
+</dd>
+</dl>
+<p>En <strong>Windows</strong>, usa:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-13" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy code-annotated"><code class="sourceCode powershell"><a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-13-1" class="code-annotation-target"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span>Get-FileHash ubuntu-22<span class="op">.</span><span class="dv">04.4</span><span class="op">-</span>live-server-amd64<span class="op">.</span><span class="fu">iso</span> <span class="op">-</span>Algorithm SHA256<span class="op">).</span><span class="fu">Hash</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="1" data-code-annotation="1"><strong>Get-FileHash</strong> es el equivalente de PowerShell para calcular checksums</span>
+</dd>
+</dl>
+<p>Luego compara manualmente con el valor en SHA256SUMS.</p>
+<hr>
+</section>
+</section>
+<section id="crear-usb-de-instalación" class="level2">
+<h2 class="anchored" data-anchor-id="crear-usb-de-instalación">Crear USB de Instalación</h2>
+<section id="software-requerido" class="level3">
+<h3 class="anchored" data-anchor-id="software-requerido">Software Requerido</h3>
+<p>Para crear un USB booteable, necesitas herramientas según tu SO:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Sistema</th>
+<th>Software</th>
+<th>Descarga</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Windows</strong></td>
+<td>Rufus</td>
+<td>https://rufus.ie/</td>
+</tr>
+<tr class="even">
+<td><strong>macOS</strong></td>
+<td>Etcher</td>
+<td>https://www.balena.io/etcher/</td>
+</tr>
+<tr class="odd">
+<td><strong>Linux</strong></td>
+<td>Etcher o dd</td>
+<td><strong>apt install balena-etcher-bin</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="método-usar-balena-etcher-multiplataforma" class="level3">
+<h3 class="anchored" data-anchor-id="método-usar-balena-etcher-multiplataforma">Método: Usar Balena Etcher (Multiplataforma)</h3>
+<p><strong>Paso 1:</strong> Descarga e instala Balena Etcher</p>
+<p><strong>Paso 2:</strong> Conecta tu USB (mínimo 4 GB)</p>
+<p><strong>Paso 3:</strong> Abre Etcher y selecciona:</p>
+<pre data-code-line-numbers=""><code>1. Flash from file → Selecciona ubuntu-22.04.4-live-server-amd64.iso
+
+2. Select target → Elige tu USB (¡CUIDADO! Borra datos)
+
+3. Flash → Espera a que complete (~5 minutos)</code></pre>
+</section>
+<section id="método-usar-comando-dd-en-linuxmacos-avanzado" class="level3">
+<h3 class="anchored" data-anchor-id="método-usar-comando-dd-en-linuxmacos-avanzado">Método: Usar comando <strong>dd</strong> en Linux/macOS (Avanzado)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-15-1" class="code-annotation-target"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="1" data-code-annotation="1"><strong>lsblk</strong> lista los discos para identificar cuál es tu USB (ej: /dev/sdb)</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-16-1" class="code-annotation-target"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> umount /dev/sdX1</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-16" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="1" data-code-annotation="2"><strong>umount</strong> desmonta la partición antes de escribir (reemplaza X con tu letra)</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-17" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-17-1" class="code-annotation-target"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dd if=ubuntu-22.04.4-live-server-amd64.iso of=/dev/sdX bs=4M status=progress</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-17" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="1" data-code-annotation="3"><strong>dd</strong> (disk dump) copia el ISO byte a byte. <strong>bs=4M</strong> define el tamaño de bloque. <strong>status=progress</strong> muestra avance</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-18" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-18" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-18-1" class="code-annotation-target"><a href="#annotated-cell-18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> sync</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-18" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-18" data-code-lines="1" data-code-annotation="4"><strong>sync</strong> asegura que todos los datos se escriben en el USB antes de continuar</span>
+</dd>
+</dl>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ ADVERTENCIA CRÍTICA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>dd</strong> sin validación puede <strong>destruir tu disco principal</strong>.</p>
+<p>Verifica <strong>3 veces</strong> que <strong>/dev/sdX</strong> es el USB correcto antes de ejecutar el comando. Una vez ejecutado, NO hay forma de recuperar datos del disco formateado.</p>
+<p><strong>Checklist de seguridad:</strong></p>
+<ol type="1">
+<li><p>¿Es <strong>/dev/sda</strong> tu disco principal? (NO usar este)</p></li>
+<li><p>¿Es <strong>/dev/sdb</strong> o <strong>/dev/sdc</strong> tu USB? (Verificar con <code>lsblk</code>)</p></li>
+<li><p>¿Respaldaste tus datos importantes? (Hacer backup antes)</p></li>
+</ol>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="acceso-a-biosuefi" class="level2">
+<h2 class="anchored" data-anchor-id="acceso-a-biosuefi">Acceso a BIOS/UEFI</h2>
+<p>Para arrancar desde USB, necesitas cambiar el <strong>orden de boot</strong> en BIOS/UEFI. Esto depende de tu fabricante:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Fabricante</th>
+<th>Tecla</th>
+<th>Cuando</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Dell</strong></td>
+<td>F2 o F12</td>
+<td>Inmediatamente al encender</td>
+</tr>
+<tr class="even">
+<td><strong>HP/Compaq</strong></td>
+<td>F10 o F2</td>
+<td>Inmediatamente al encender</td>
+</tr>
+<tr class="odd">
+<td><strong>Lenovo (ThinkPad)</strong></td>
+<td>F1 o F2</td>
+<td>Inmediatamente al encender</td>
+</tr>
+<tr class="even">
+<td><strong>Asus</strong></td>
+<td>F2 o Delete</td>
+<td>Inmediatamente al encender</td>
+</tr>
+<tr class="odd">
+<td><strong>Acer</strong></td>
+<td>F2 o Delete</td>
+<td>Inmediatamente al encender</td>
+</tr>
+<tr class="even">
+<td><strong>Apple (Intel)</strong></td>
+<td>Command + Option + P + R</td>
+<td>Al encender</td>
+</tr>
+</tbody>
+</table>
+<section id="cambiar-orden-de-boot" class="level3">
+<h3 class="anchored" data-anchor-id="cambiar-orden-de-boot">Cambiar Orden de Boot</h3>
+<pre data-code-line-numbers=""><code>1. Enciende el equipo
+
+2. Inmediatamente presiona la tecla correspondiente (antes de que cargue SO)
+
+3. Navega a "Boot" o "Boot Order"
+
+4. Mueve "USB Device" al primer lugar
+
+5. Guarda (F10) y sale (Esc)
+
+6. Reinicia con USB conectado</code></pre>
+</section>
+<section id="uefi-vs-bios-clásico" class="level3">
+<h3 class="anchored" data-anchor-id="uefi-vs-bios-clásico">UEFI vs BIOS Clásico</h3>
+<p><strong>BIOS Clásico</strong> (legacy) - Antiguo, simple, máximo 4 particiones primarias</p>
+<p><strong>UEFI</strong> (Unified Extensible Firmware Interface) - Moderno, seguro, soporta GPT, Secure Boot</p>
+<p>Ubuntu Server LTS soporta ambos, pero <strong>UEFI es recomendado</strong> para equipos modernos (post-2012) <span class="citation" data-cites="uefi_standard_2022">(<a href="#ref-uefi_standard_2022" role="doc-biblioref">Forum 2022</a>)</span>.</p>
+<p>Si durante la instalación ves:</p>
+<pre data-code-line-numbers=""><code>Installation Type: EFI Installation (recomendado)</code></pre>
+<p>Significa que estás en UEFI. Si ves:</p>
+<pre data-code-line-numbers=""><code>Installation Type: MBR/BIOS Installation</code></pre>
+<p>Estás en BIOS clásico. Ambos funcionan correctamente.</p>
+<hr>
+</section>
+</section>
+<section id="preparación-del-disco-duro" class="level2">
+<h2 class="anchored" data-anchor-id="preparación-del-disco-duro">Preparación del Disco Duro</h2>
+<section id="opción-1-instalación-única-recomendado-para-abacom" class="level3">
+<h3 class="anchored" data-anchor-id="opción-1-instalación-única-recomendado-para-abacom">Opción 1: Instalación Única (Recomendado para Abacom)</h3>
+<p>Borrarás completamente el disco e instalarás solo Ubuntu. <strong>TODOS TUS DATOS SE PERDERÁN</strong> - haz backup primero.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Esto se hace durante la instalación, no en terminal</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># El instalador ofrecerá: "Erase disk and install Ubuntu"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="opción-2-dual-boot-windows-ubuntu" class="level3">
+<h3 class="anchored" data-anchor-id="opción-2-dual-boot-windows-ubuntu">Opción 2: Dual Boot (Windows + Ubuntu)</h3>
+<p>Compartir el disco entre Windows y Ubuntu:</p>
+<p><strong>Antes de instalar Ubuntu:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En Windows, abre Disk Management (diskmgmt.msc)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Haz clic derecho en C: → Shrink Volume</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Libera espacio (ej: 50 GB para Ubuntu)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verás unallocated space en Disk Management</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Durante instalación, selecciona “Something else” y particiona manualmente.</p>
+</section>
+<section id="opción-3-instalación-en-partición-existente" class="level3">
+<h3 class="anchored" data-anchor-id="opción-3-instalación-en-partición-existente">Opción 3: Instalación en Partición Existente</h3>
+<p>Si ya tienes Linux, puedes reparticionar e instalar en partición nueva.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-24" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-24" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-24-1" class="code-annotation-target"><a href="#annotated-cell-24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> fdisk /dev/sda</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-24" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-24" data-code-lines="1" data-code-annotation="1"><strong>fdisk</strong> abre el particionador interactivo (requiere sudo)</span>
+</dd>
+</dl>
+<pre data-code-line-numbers=""><code>Comandos útiles en fdisk:
+m   → Mostrar menu
+p   → Listar particiones actuales
+n   → Nueva partición
+d   → Borrar partición
+w   → Guardar cambios</code></pre>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ ADVERTENCIA CRÍTICA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Manejo incorrecto de particiones puede causar pérdida total de datos.</strong></p>
+<p><strong>Lo que podría salir mal:</strong></p>
+<ul>
+<li>Borrar la partición equivocada</li>
+<li>Sobrescribir datos existentes</li>
+<li>Dejar el sistema inbooteable</li>
+</ul>
+<p><strong>Cómo prevenirlo:</strong></p>
+<ol type="1">
+<li><p>Practica primero en máquina virtual (VirtualBox o VMware)</p></li>
+<li><p>Verifica 3 veces la partición antes de ejecutar comandos</p></li>
+<li><p>Haz backup de datos importantes antes de particionar</p></li>
+<li><p>Lee cada paso del particionador antes de confirmar</p></li>
+</ol>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="checklist-de-preparación" class="level2">
+<h2 class="anchored" data-anchor-id="checklist-de-preparación">Checklist de Preparación</h2>
+<p>Antes de iniciar la instalación, verifica:</p>
+<ul class="task-list">
+<li><label><input type="checkbox">Hardware cumple mínimos (especialmente RAM y espacio)</label></li>
+<li><label><input type="checkbox">Descargaste la ISO correcta (amd64 para la mayoría)</label></li>
+<li><label><input type="checkbox">Validaste SHA256 del ISO</label></li>
+<li><label><input type="checkbox">USB está formateado en FAT32 o exFAT</label></li>
+<li><label><input type="checkbox">ISO está grabado en USB con Etcher o dd</label></li>
+<li><label><input type="checkbox">USB es booteable (probado en otra máquina si es posible)</label></li>
+<li><label><input type="checkbox">BIOS/UEFI está configurado para booting desde USB</label></li>
+<li><label><input type="checkbox">Hiciste backup de datos importantes</label></li>
+<li><label><input type="checkbox">Tienes conexión a internet para descarga de actualizaciones</label></li>
+<li><label><input type="checkbox">Tiempo disponible: ~30-45 minutos para instalación completa</label></li>
+</ul>
+<hr>
+</section>
+<section id="ejemplos-prácticos" class="level2">
+<h2 class="anchored" data-anchor-id="ejemplos-prácticos">💡 Ejemplos Prácticos</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">Ejemplo 1: Verificar Arquitectura en Sistema Existente</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Ejemplo 2: Validar Descarga de Ubuntu</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Ejemplo 3: Crear USB Booteable</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<section id="linux" class="level4">
+<h4 class="anchored" data-anchor-id="linux">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar arquitectura del procesador</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-m</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">x86_64</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Más información del sistema</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-a</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Linux</span> servidor 5.15.0-89-generic <span class="co">#99-Ubuntu SMP Mon Oct 5 09:29:34 UTC 2024 x86_64 GNU/Linux</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirmar que es 64-bit</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> getconf LONG_BIT</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="ex">64</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Interpretación</strong>:</p>
+<ul>
+<li>x86_64 = Procesador Intel/AMD de 64-bit → Descargar <strong>ubuntu-22.04-amd64.iso</strong></li>
+<li>arm64 = Procesador ARM (Raspberry Pi) → Descargar <strong>ubuntu-22.04-arm64.iso</strong></li>
+</ul>
+</section>
+<section id="macos" class="level4">
+<h4 class="anchored" data-anchor-id="macos">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar arquitectura en macOS</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-m</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">arm64</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># O si es Intel Mac</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-m</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="ex">x86_64</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Versión completa</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> system_profiler SPHardwareDataType <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"Chip\|Processor"</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Chip:</span> Apple M3 Pro</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Interpretación</strong>:</p>
+<ul>
+<li>arm64 = Apple Silicon (M1, M2, M3) - Máquinas modernas</li>
+<li>x86_64 = Intel Mac - Máquinas antiguas (pre-2021)</li>
+</ul>
+</section>
+<section id="windows" class="level4">
+<h4 class="anchored" data-anchor-id="windows">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar arquitectura en Windows</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">[</span>System<span class="op">.</span><span class="fu">Environment</span><span class="op">]::</span>Is64BitOperatingSystem</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>True</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Más información</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">(</span>Get-ComputerInfo <span class="op">-</span>Property SystemSkuFamily<span class="op">).</span><span class="fu">SystemSkuFamily</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>x64-based PC</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Procesador específico</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-ComputerInfo <span class="op">|</span> <span class="fu">Select-Object</span> <span class="op">-</span>Property CsProcessors</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Interpretación</strong>:</p>
+<ul>
+<li>x64-based PC = 64-bit (estándar moderno)</li>
+<li>x86-based PC = 32-bit (muy raro hoy)</li>
+</ul>
+<hr>
+</section>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<section id="linux-1" class="level4">
+<h4 class="anchored" data-anchor-id="linux-1">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Descargar checksums oficiales</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd ~/Downloads</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget https://releases.ubuntu.com/22.04/SHA256SUMS</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Validar descarga</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sha256sum <span class="at">-c</span> SHA256SUMS <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">|</span> <span class="fu">grep</span> ubuntu-22.04.4-live-server-amd64.iso</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">ubuntu-22.04.4-live-server-amd64.iso:</span> OK</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Si ves OK = descarga correcta</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Si ves FAILED = archivo corrupto, descargar nuevamente</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li>SHA256 es un hash criptográfico</li>
+<li>Cualquier cambio en el archivo = hash diferente</li>
+<li>Garantiza que nadie modificó el archivo en tránsito</li>
+</ul>
+</section>
+<section id="macos-1" class="level4">
+<h4 class="anchored" data-anchor-id="macos-1">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Descargar checksums</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd ~/Downloads</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-O</span> https://releases.ubuntu.com/22.04/SHA256SUMS</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Validar descarga</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> shasum <span class="at">-a</span> 256 <span class="at">-c</span> SHA256SUMS <span class="kw">|</span> <span class="fu">grep</span> ubuntu-22.04.4-live-server-amd64.iso</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternativa con openssl</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> openssl dgst <span class="at">-sha256</span> ubuntu-22.04.4-live-server-amd64.iso</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li>macOS usa <strong>shasum</strong> en lugar de <strong>sha256sum</strong></li>
+<li>El resultado debe coincidir con el archivo SHA256SUMS</li>
+</ul>
+</section>
+<section id="windows-1" class="level4">
+<h4 class="anchored" data-anchor-id="windows-1">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Descargar checksums con PowerShell</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Invoke-WebRequest</span> <span class="op">-</span>Uri <span class="st">"https://releases.ubuntu.com/22.04/SHA256SUMS"</span> <span class="op">-</span>OutFile <span class="st">"</span><span class="va">$env</span><span class="op">:</span><span class="va">USERPROFILE</span><span class="st">\Downloads\SHA256SUMS"</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calcular hash del archivo ISO descargado</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">(</span>Get-FileHash <span class="op">-</span>Algorithm SHA256 <span class="st">"</span><span class="va">$env</span><span class="op">:</span><span class="va">USERPROFILE</span><span class="st">\Downloads\ubuntu-22.04.4-live-server-amd64.iso"</span><span class="op">).</span><span class="fu">Hash</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Comparar con el archivo SHA256SUMS</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="op">(</span><span class="fu">Get-Content</span> <span class="st">"</span><span class="va">$env</span><span class="op">:</span><span class="va">USERPROFILE</span><span class="st">\Downloads\SHA256SUMS"</span> <span class="op">|</span> <span class="fu">Select-String</span> <span class="st">"ubuntu-22.04.4-live-server-amd64.iso"</span><span class="op">).</span><span class="fu">Line</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li>PowerShell usa <strong>Get-FileHash</strong> para validar</li>
+<li>Compara el hash calculado con el de SHA256SUMS</li>
+<li>Deben ser idénticos</li>
+</ul>
+<hr>
+</section>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<section id="linux-2" class="level4">
+<h4 class="anchored" data-anchor-id="linux-2">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Identificar el USB</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsblk <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">"^NAME|sd"</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">NAME</span>           MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">sdb</span>              8:16   1  15.6G  0 disk /media/user/USB</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Desmontar el USB (importante!)</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo umount /dev/sdb1 /dev/sdb2 <span class="dv">2</span><span class="op">&gt;</span>/dev/null</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Escribir ISO en USB con dd</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo dd if=~/Downloads/ubuntu-22.04.4-live-server-amd64.iso of=/dev/sdb bs=4M status=progress conv=fsync</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="ex">3500M</span> bytes transferred in 2.5 seconds</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Expulsar USB</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> eject /dev/sdb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li><strong>lsblk</strong>: Lista discos (sda = disco principal, sdb = USB)</li>
+<li><strong>dd</strong>: Escribe bit-a-bit (no es una copia regular)</li>
+<li><strong>bs=4M</strong>: Tamaño de bloque (más rápido)</li>
+<li><strong>conv=fsync</strong>: Asegura que se escribió completamente</li>
+</ul>
+</section>
+<section id="macos-2" class="level4">
+<h4 class="anchored" data-anchor-id="macos-2">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Insertar USB y identificarlo</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> diskutil list</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/disk0</span> <span class="er">(</span><span class="ex">internal,</span> physical<span class="kw">)</span><span class="bu">:</span> ...</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/disk1</span> <span class="er">(</span><span class="ex">external,</span> physical<span class="kw">)</span><span class="bu">:</span> 15.6 GB USB DISK</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Desmontar el USB</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> diskutil unmountDisk /dev/disk1</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Unmount</span> of all volumes on disk1 was successful</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Escribir ISO en USB</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo dd if=~/Downloads/ubuntu-22.04.4-live-server-amd64.iso of=/dev/rdisk1 bs=4m</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># Esperar a que termine (puede tomar 5-10 minutos)</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Expulsar el USB</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> diskutil eject /dev/disk1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li><strong>diskutil list</strong>: Lista discos disponibles</li>
+<li><strong>/dev/rdisk1</strong>: Usar la versión “raw” para más velocidad</li>
+<li>macOS requiere desmontar antes de escribir</li>
+</ul>
+</section>
+<section id="windows-2" class="level4">
+<h4 class="anchored" data-anchor-id="windows-2">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Usar Balena Etcher (GUI, recomendado)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Descargar desde: https://www.balena.io/etcher/</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># - Seleccionar ISO</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># - Seleccionar USB</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># - Click "Flash"</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternativa: PowerShell (avanzado)</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Identificar el USB en PowerShell</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-Disk <span class="op">|</span> <span class="fu">Where-Object</span> <span class="op">{</span><span class="va">$_</span><span class="op">.</span><span class="fu">BusType</span> <span class="op">-eq</span> <span class="st">"USB"</span><span class="op">}</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>Number Friendly Name  Serial Number  HealthStatus OperationalStatus</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="op">------</span> <span class="op">--------------</span> <span class="op">--------------</span> <span class="op">------------</span> <span class="op">-----------------</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span>      KINGSTON USB   <span class="dv">123456789</span>      Healthy      Online</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Formatear USB</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Format-Volume <span class="op">-</span>DriveLetter <span class="fu">H</span> <span class="op">-</span>FileSystem FAT32 <span class="op">-</span>Confirm<span class="op">:</span><span class="va">$false</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Usar Etcher o Rufus (GUI)</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="co"># PowerShell puro es complejo para escribir ISO</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación</strong>:</p>
+<ul>
+<li><strong>Balena Etcher</strong>: Herramienta recomendada para Windows</li>
+<li><strong>Rufus</strong>: Alternativa popular</li>
+<li>Ambas manejan los detalles técnicos automáticamente</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+<hr>
+<hr>
+</section>
+<section id="componentes-clave" class="level2">
+<h2 class="anchored" data-anchor-id="componentes-clave">🔧 Componentes Clave</h2>
+<section id="iso-imagen-de-disco" class="level3">
+<h3 class="anchored" data-anchor-id="iso-imagen-de-disco">ISO (Imagen de Disco)</h3>
+<p>Un archivo <strong>ISO</strong> es una imagen exacta de un CD/DVD/USB. Contiene todo el sistema operativo Ubuntu comprimido en un archivo.</p>
+<p>Para instalar, debes <strong>escribir</strong> (flash) este archivo en un USB, no solo copiarlo.</p>
+<p><strong>Analogía</strong>: Es como la diferencia entre enviar a alguien el plano de una casa vs enviarle la casa construida.</p>
+</section>
+<section id="sha256-validación-criptográfica" class="level3">
+<h3 class="anchored" data-anchor-id="sha256-validación-criptográfica">SHA256 (Validación Criptográfica)</h3>
+<p>Un <strong>checksum</strong> es una firma digital que verifica que un archivo no fue modificado.</p>
+<p><strong>SHA256</strong> genera un código de 64 caracteres único para cada archivo. Si alguien cambia 1 byte del ISO, el SHA256 es completamente diferente.</p>
+<p><strong>Analogía</strong>: Como la cédula de identidad de un archivo - cada persona tiene uno único.</p>
+</section>
+<section id="bios-vs-uefi" class="level3">
+<h3 class="anchored" data-anchor-id="bios-vs-uefi">BIOS vs UEFI</h3>
+<ul>
+<li><strong>BIOS</strong> (Basic Input/Output System) → Estándar antiguo, simple pero limitado</li>
+<li><strong>UEFI</strong> (Unified Extensible Firmware Interface) → Estándar moderno, más seguro y flexible</li>
+</ul>
+<p>Ambos arrancan Ubuntu, pero <strong>UEFI es el estándar actual</strong> desde 2012.</p>
+<hr>
+</section>
+</section>
+<section id="errores-comunes" class="level2">
+<h2 class="anchored" data-anchor-id="errores-comunes">⚠️ Errores Comunes</h2>
+<p><strong>Error 1: “Invalid Partition Table”</strong></p>
+<ul>
+<li><strong>Causa</strong>: El USB no fue escrito correctamente</li>
+<li><strong>Solución</strong>: Usa Etcher en vez de <strong>dd</strong>, verifica con <strong>fdisk -l /dev/sdX</strong> que sea booteable</li>
+</ul>
+<p><strong>Error 2: “No bootable device found”</strong></p>
+<ul>
+<li><strong>Causa</strong>: BIOS no está configurado para boot desde USB</li>
+<li><strong>Solución</strong>: Entra a BIOS/UEFI (tecla según fabricante), ve a Boot Order, mueve USB al primer lugar</li>
+</ul>
+<p><strong>Error 3: “Cannot load kernel”</strong></p>
+<ul>
+<li><strong>Causa</strong>: Descargaste el ISO incorrecto (ej: arm64 en máquina x86_64)</li>
+<li><strong>Solución</strong>: Verifica con <strong>uname -m</strong>, descarga amd64 si ves “x86_64”</li>
+</ul>
+<p><strong>Error 4: “Not enough space”</strong></p>
+<ul>
+<li><strong>Causa</strong>: El disco no tiene 2.5 GB libres mínimo</li>
+<li><strong>Solución</strong>: Libera espacio, elimina archivos temporales, o particiona el disco primero</li>
+</ul>
+<hr>
+</section>
+<section id="mejores-prácticas" class="level2">
+<h2 class="anchored" data-anchor-id="mejores-prácticas">📊 Mejores Prácticas</h2>
+<ol type="1">
+<li><p><strong>Siempre valida SHA256</strong> - Toma 30 segundos y previene problemas</p></li>
+<li><p><strong>Usa Etcher si eres principiante</strong> - Es gráfico y más seguro que <strong>dd</strong></p></li>
+<li><p><strong>Deja 50 GB mínimo</strong> - Los 2.5 GB son solo para el SO, necesitas espacio para aplicaciones</p></li>
+<li><p><strong>Haz backup antes de particionar</strong> - No hay “Deshacer” en operaciones de disco</p></li>
+<li><p><strong>Actualiza BIOS si es muy viejo</strong> - Equipos pre-2010 pueden tener issues con UEFI</p></li>
+</ol>
+<hr>
+</section>
+<section id="tabla-de-referencia-rápida" class="level2">
+<h2 class="anchored" data-anchor-id="tabla-de-referencia-rápida">📋 Tabla de Referencia Rápida</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 65%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tarea</th>
+<th>Comando/Herramienta</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ver arquitectura</td>
+<td><strong>uname -m</strong></td>
+<td>Saber si es 32 o 64 bit</td>
+</tr>
+<tr class="even">
+<td>Ver RAM</td>
+<td><strong>free -h</strong></td>
+<td>Verificar memoria disponible</td>
+</tr>
+<tr class="odd">
+<td>Listar discos</td>
+<td><strong>lsblk</strong></td>
+<td>Identificar USB o disco a particionar</td>
+</tr>
+<tr class="even">
+<td>Validar ISO</td>
+<td><strong>sha256sum -c SHA256SUMS</strong></td>
+<td>Verificar que descarga es válida</td>
+</tr>
+<tr class="odd">
+<td>Crear USB</td>
+<td>Balena Etcher</td>
+<td>Grabar ISO en USB (GUI)</td>
+</tr>
+<tr class="even">
+<td>Crear USB</td>
+<td><strong>dd if=X.iso of=/dev/sdX</strong></td>
+<td>Grabar ISO en USB (CLI)</td>
+</tr>
+<tr class="odd">
+<td>Ver particiones</td>
+<td><strong>fdisk -l</strong></td>
+<td>Listar particiones existentes</td>
+</tr>
+<tr class="even">
+<td>Acceso BIOS</td>
+<td>Tecla al encender (Del/F2)</td>
+<td>Cambiar boot order</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="quiz-verificar-tu-comprensión" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-verificar-tu-comprensión">🎓 Quiz: Verificar tu Comprensión</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Pregunta 1: Requisitos de Hardware
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>¿Cuál es la RAM recomendada mínima para que Ubuntu Server LTS funcione de forma productiva?</p>
+<p><strong>a)</strong> 512 MB<br>
+<strong>b)</strong> 1 GB<br>
+<strong>c)</strong> 4 GB (Correcto ✓)<br>
+<strong>d)</strong> 8 GB</p>
+<p><strong>Explicación</strong>: Aunque el mínimo técnico es 1 GB, para usar aplicaciones modernas (navegador, editor, terminal) necesitas 4 GB para productividad real.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Pregunta 2: Validación de ISO
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>¿Por qué es importante validar el SHA256 de la descarga de Ubuntu?</p>
+<p><strong>a)</strong> Para ahorrar tiempo en descarga<br>
+<strong>b)</strong> Para verificar que el archivo no fue modificado en tránsito (Correcto ✓)<br>
+<strong>c)</strong> Para aumentar la velocidad de instalación<br>
+<strong>d)</strong> No es importante, es opcional</p>
+<p><strong>Explicación</strong>: SHA256 es una firma criptográfica que prueba que el archivo que descargaste es exactamente el que Ubuntu publicó. Protege contra tampering.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Pregunta 3: Creación de USB
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>¿Cuál es la diferencia entre “Copiar” el ISO al USB vs “Escribir” (flash) el ISO?</p>
+<p><strong>a)</strong> No hay diferencia, son la mismo<br>
+<strong>b)</strong> Copiar solo funciona en Windows<br>
+<strong>c)</strong> Escribir (flash) graba a nivel de sector, permitiendo boot. Copiar solo crea un archivo dentro del USB (Correcto ✓)<br>
+<strong>d)</strong> Escribir es más lento que copiar</p>
+<p><strong>Explicación</strong>: Flash escribe el ISO directamente en los sectores del USB, reemplazando todo. Copiar deja el USB con su sistema de archivos. Solo USB “flashed” es booteable.</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="práctica-guiada-preparar-tu-instalación" class="level2">
+<h2 class="anchored" data-anchor-id="práctica-guiada-preparar-tu-instalación">👨‍💻 Práctica Guiada: Preparar tu Instalación</h2>
+<p><strong>Objetivos:</strong></p>
+<ol type="1">
+<li><p>Verificar que tu hardware es compatible</p></li>
+<li><p>Descargar Ubuntu Server LTS correctamente</p></li>
+<li><p>Validar la descarga</p></li>
+<li><p>Preparar un USB booteable</p></li>
+</ol>
+<p><strong>Tiempo estimado:</strong> 30 minutos</p>
+<p><strong>Instrucciones:</strong></p>
+<pre data-code-line-numbers=""><code>1. VERIFICAR HARDWARE (5 min)
+   □ Abre terminal/PowerShell en tu equipo actual
+   □ Ejecuta comandos según tu SO:
+
+     - Linux: uname -m &amp;&amp; free -h
+     - macOS: system_profiler SPHardwareDataType | grep -E "Processor|Memory"
+     - Windows: systeminfo | findstr /C:"Processor" /C:"Total Physical Memory"
+   □ Nota: ¿Es 64-bit? ¿Tienes 4GB+ RAM? ¿Espacio libre &gt;50GB?
+   □ Si respondiste SÍ a todo, puedes instalar sin problemas
+
+2. DESCARGAR UBUNTU (10 min)
+   □ Ve a https://releases.ubuntu.com/22.04/
+    □ Descarga: ubuntu-22.04.4-live-server-amd64.iso
+   □ Descarga también: SHA256SUMS (archivo de checksums)
+   □ Espera a que ambos completen 100%
+
+3. VALIDAR DESCARGA (5 min)
+   □ Abre terminal en el directorio de descargas
+    □ Ejecuta: sha256sum ubuntu-22.04.4-live-server-amd64.iso
+   □ Compara el resultado con SHA256SUMS
+   □ Deben ser idénticos (copia y pega ambos para verificar)
+
+4. CREAR USB BOOTEABLE (10 min)
+   □ Descarga Balena Etcher: https://www.balena.io/etcher/
+   □ Instala y abre Etcher
+   □ Conecta USB (4GB+) - **TODOS LOS DATOS SE BORRARÁN**
+   □ En Etcher:
+
+     - Click "Flash from file" → Selecciona el ISO
+     - Click "Select target" → Elige tu USB
+     - Click "Flash" → Espera ~5 minutos
+   □ Etcher confirmará "Flash complete!"
+
+5. VERIFICAR USB (5 min)
+   □ En terminal: lsblk | grep -E "sd|usb"
+   □ Busca tu USB (identificarlo por tamaño)
+   □ Si ves tipo "disk" (no partición), el USB está listo
+
+✓ ¡Listo! Tienes tu USB de instalación preparada</code></pre>
+<hr>
+</section>
+<section id="laboratorio-instalación-en-máquina-virtual-recomendado" class="level2">
+<h2 class="anchored" data-anchor-id="laboratorio-instalación-en-máquina-virtual-recomendado">🧪 Laboratorio: Instalación en Máquina Virtual (Recomendado)</h2>
+<p><strong>Se recomienda practicar primero en una máquina virtual antes de instalar en el sistema real.</strong> Las prácticas de instalación de sistemas GNU/Linux se realizarán en <strong>VirtualBox y VMware Workstation</strong>.</p>
+<section id="opción-1-oracle-virtualbox-gratuito" class="level3">
+<h3 class="anchored" data-anchor-id="opción-1-oracle-virtualbox-gratuito">Opción 1: Oracle VirtualBox (Gratuito)</h3>
+<p><strong>Características:</strong></p>
+<ul>
+<li>Completamente gratuito y de código abierto</li>
+<li>Disponible en Windows, macOS, Linux</li>
+<li>Fácil de usar con interfaz intuitiva</li>
+<li>Ideal para principiantes</li>
+</ul>
+<p><strong>Requisitos mínimos:</strong></p>
+<ul>
+<li>RAM: 8 GB en tu máquina host (para VM de 4 GB)</li>
+<li>Espacio disco: 60 GB disponibles</li>
+<li>Procesador con soporte de virtualización (Intel VT-x o AMD-V)</li>
+</ul>
+<p><strong>Descarga:</strong> https://www.virtualbox.org/</p>
+<p><strong>Pasos iniciales en VirtualBox:</strong></p>
+<pre data-code-line-numbers=""><code>1. Descarga VirtualBox desde https://www.virtualbox.org/
+
+2. Instala VirtualBox en tu máquina host
+
+3. Crea una máquina virtual nueva:
+   ├─ Nombre: "Ubuntu Server LTS Practice"
+   ├─ Tipo: Linux
+   ├─ Versión: Ubuntu (64-bit)
+   ├─ RAM: 4096 MB (4 GB mínimo)
+   ├─ Disco duro: Crear disco virtual
+   ├─ Tamaño: 50 GB
+   └─ Tipo de disco: VDI (VirtualBox Disk Image)
+
+4. Configuración adicional (antes de iniciar):
+   ├─ CPU: 2-4 núcleos
+   ├─ Memoria video: 128 MB (mínimo)
+   ├─ Sistema operativo: Linux
+   └─ Versión: Ubuntu (64-bit)
+
+5. Monta el ISO de Ubuntu Server:
+   ├─ Menú: Máquina → Configuración
+   ├─ Sección: Almacenamiento
+   ├─ Unidad óptica → Selecciona el ISO descargado
+   └─ Aceptar cambios
+
+6. Inicia la máquina virtual y sigue el instalador de Ubuntu Server
+
+:::{.callout-tip}
+## 💡 Recomendación
+
+Si usas VirtualBox en Windows, instala tambien el **VirtualBox Extension Pack** (misma version exacta que tu VirtualBox).
+
+**Que habilita tipicamente:**
+
+- USB 2.0/3.0 passthrough (dispositivos USB dentro de la VM)
+- VirtualBox RDP (acceso remoto a la consola de la VM)
+
+**Descarga:** https://www.virtualbox.org/wiki/Downloads
+:::</code></pre>
+</section>
+<section id="opción-2-vmware-workstation-profesional" class="level3">
+<h3 class="anchored" data-anchor-id="opción-2-vmware-workstation-profesional">Opción 2: VMware Workstation (Profesional)</h3>
+<p><strong>Características:</strong></p>
+<ul>
+<li>Plataforma profesional con características avanzadas</li>
+<li>Disponible en Windows y Linux</li>
+<li>Mejor rendimiento y más opciones de configuración</li>
+<li>Ideal para ambientes profesionales y servidores</li>
+</ul>
+<p><strong>Versiones:</strong></p>
+<ul>
+<li><strong>Workstation Pro</strong>: Versión pagada con todas las características</li>
+<li><strong>Workstation Player</strong>: Versión gratuita (limitada)</li>
+</ul>
+<p><strong>Requisitos mínimos:</strong></p>
+<ul>
+<li>RAM: 8-16 GB en tu máquina host</li>
+<li>Espacio disco: 60+ GB disponibles</li>
+<li>Procesador con soporte de virtualización (Intel VT-x o AMD-V)</li>
+</ul>
+<p><strong>Descarga:</strong></p>
+<ul>
+<li><strong>Workstation Pro</strong>: https://www.vmware.com/products/workstation-pro.html</li>
+<li><strong>Workstation Player (Gratis)</strong>: https://www.vmware.com/products/workstation-player.html</li>
+</ul>
+<p><strong>Pasos iniciales en VMware Workstation:</strong></p>
+<pre data-code-line-numbers=""><code>1. Descarga VMware Workstation desde el sitio oficial
+
+2. Instala Workstation en tu máquina host
+
+3. Abre VMware Workstation
+
+4. Crea una máquina virtual nueva (File → New Virtual Machine):
+   ├─ Tipo: Custom Configuration (para control total)
+   ├─ Compatibilidad: Latest version
+   ├─ Sistema operativo: Linux → Ubuntu 64-bit
+   ├─ Nombre: "Ubuntu Server LTS Practice"
+   ├─ Ubicación: Selecciona directorio
+   └─ Siguiente
+
+5. Configuración de hardware:
+   ├─ CPU: 2-4 procesadores
+   ├─ RAM: 4096 MB (4 GB mínimo)
+   ├─ Disco duro: SCSI (recomendado)
+   ├─ Tamaño: 50 GB
+   ├─ Almacenamiento: Asignar espacio simple
+   ├─ Red: NAT (para acceso a internet)
+   └─ Finalizar configuración
+
+6. Monta el ISO de Ubuntu Server:
+   ├─ Click derecho en VM → Settings
+   ├─ CD/DVD (SATA): Selecciona "Use ISO image file"
+   ├─ Browse → Selecciona ubuntu-22.04.x-live-server-amd64.iso
+   ├─ OK
+
+7. Inicia la máquina virtual (Power on) y sigue el instalador</code></pre>
+</section>
+<section id="comparativa-virtualbox-vs-vmware-workstation" class="level3">
+<h3 class="anchored" data-anchor-id="comparativa-virtualbox-vs-vmware-workstation">Comparativa: VirtualBox vs VMware Workstation</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Característica</th>
+<th>VirtualBox</th>
+<th>VMware Workstation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Precio</strong></td>
+<td>Gratuito</td>
+<td>Pro: Pagado, Player: Gratuito</td>
+</tr>
+<tr class="even">
+<td><strong>Facilidad de uso</strong></td>
+<td>Muy fácil</td>
+<td>Fácil a moderada</td>
+</tr>
+<tr class="odd">
+<td><strong>Rendimiento</strong></td>
+<td>Bueno</td>
+<td>Excelente</td>
+</tr>
+<tr class="even">
+<td><strong>Características avanzadas</strong></td>
+<td>Básicas</td>
+<td>Avanzadas</td>
+</tr>
+<tr class="odd">
+<td><strong>Snapshots/Clones</strong></td>
+<td>Sí</td>
+<td>Sí (más rápido)</td>
+</tr>
+<tr class="even">
+<td><strong>Documentación</strong></td>
+<td>Excelente</td>
+<td>Muy buena</td>
+</tr>
+<tr class="odd">
+<td><strong>Soporte comunitario</strong></td>
+<td>Muy activo</td>
+<td>Profesional</td>
+</tr>
+<tr class="even">
+<td><strong>Ideal para</strong></td>
+<td>Aprendizaje, desarrollo</td>
+<td>Producción, ambientes reales</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recomendación para este curso:</strong></p>
+<ul>
+<li><strong>VirtualBox</strong> si es tu primera vez (más simple)</li>
+<li><strong>VMware Workstation</strong> si necesitas características profesionales</li>
+</ul>
+</section>
+<section id="ventajas-de-practicar-en-máquina-virtual" class="level3">
+<h3 class="anchored" data-anchor-id="ventajas-de-practicar-en-máquina-virtual">Ventajas de practicar en máquina virtual</h3>
+<p>✅ <strong>Sin riesgo de pérdida de datos:</strong></p>
+<ul>
+<li>Tu máquina real permanece intacta</li>
+<li>Los errores afectan solo la VM</li>
+</ul>
+<p>✅ <strong>Práctica ilimitada:</strong></p>
+<ul>
+<li>Instala, falla, borra y repite</li>
+<li>Snapshots: guarda estado antes de cambios</li>
+</ul>
+<p>✅ <strong>Aprendizaje iterativo:</strong></p>
+<ul>
+<li>Experimenta sin presión</li>
+<li>Comprende cada paso del instalador</li>
+</ul>
+<p>✅ <strong>Requisitos flexibles:</strong></p>
+<ul>
+<li>Usa máquinas viejas como host</li>
+<li>Perfecto para laboratorios</li>
+</ul>
+</section>
+<section id="troubleshooting-común" class="level3">
+<h3 class="anchored" data-anchor-id="troubleshooting-común">Troubleshooting común</h3>
+<p><strong>Problema: “VT-x/AMD-V not enabled”</strong></p>
+<pre data-code-line-numbers=""><code>Solución: Accede a BIOS de tu máquina host
+
+1. Reinicia la máquina
+
+2. Presiona F2, F10, Del, o Esc (depende del fabricante)
+
+3. Busca "Virtualization" o "SVM"
+
+4. Habilita la opción
+
+5. Guarda y reinicia</code></pre>
+<p><strong>Problema: Máquina virtual muy lenta</strong></p>
+<pre data-code-line-numbers=""><code>Solución: Ajusta configuración de recursos
+
+1. Asigna más CPU (2-4 núcleos)
+
+2. Aumenta RAM (mínimo 4 GB)
+
+3. Disabilita efectos visuales en guest OS
+
+4. Usa disco SSD en lugar de HDD</code></pre>
+<p><strong>Problema: No detecta el ISO</strong></p>
+<pre data-code-line-numbers=""><code>Solución:
+
+- VirtualBox: Menú Máquina → Configuración → Almacenamiento
+- Workstation: Click derecho VM → Settings → CD/DVD
+- Verifica que el archivo .iso existe y no está dañado</code></pre>
+<hr>
+</section>
+</section>
+<section id="recursos-adicionales" class="level2">
+<h2 class="anchored" data-anchor-id="recursos-adicionales">📚 Recursos Adicionales</h2>
+<ul>
+<li><strong>Documentación Oficial</strong>: https://help.ubuntu.com/22.04/installation-guide/</li>
+<li><strong>Ubuntu Release Notes</strong>: https://wiki.ubuntu.com/JammyJellyfish/ReleaseNotes</li>
+<li><strong>Hardware Compatibility List</strong>: https://ubuntu.com/certification</li>
+<li><strong>UEFI Explained</strong> <span class="citation" data-cites="wiki_uefi">(<a href="#ref-wiki_uefi" role="doc-biblioref">Wikipedia 2024</a>)</span>: https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface</li>
+<li><strong>Balena Etcher Docs</strong>: https://www.balena.io/etcher/docs/</li>
+<li><strong>Rufus (Windows)</strong>: https://rufus.ie/</li>
+</ul>
+<hr>
+</section>
+<section id="conclusión" class="level2">
+<h2 class="anchored" data-anchor-id="conclusión">Conclusión</h2>
+<p>Ahora tienes: ✓ Requisitos claros para instalar Ubuntu ✓ USB de instalación booteable ✓ Hardware verificado y compatible ✓ ISO validado criptográficamente</p>
+<p>En la próxima lección, usaremos este USB para <strong>instalar Ubuntu Server LTS paso a paso</strong>.</p>
+<hr>
+</section>
+<section id="quiz-requisitos-y-preparación" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-requisitos-y-preparación">📝 Quiz: Requisitos y Preparación</h2>
+<div class="quizdown">
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el requisito mínimo de RAM recomendado para Ubuntu Server LTS?
+
+- [ ] 512 MB
+- [x] 2 GB (recomendado para uso confortable)
+- [ ] 4 GB (obligatorio)
+- [ ] 8 GB (solo para servidores)
+
+## ¿Qué algoritmo hash se debe usar para validar la ISO de Ubuntu Server LTS?
+
+- [ ] MD5
+- [ ] SHA-1
+- [x] SHA-256
+- [ ] SHA-512
+
+## ¿Cuál es la herramienta más recomendada para crear USB booteable en macOS?
+
+- [ ] Rufus
+- [x] Balena Etcher
+- [ ] UNetbootin
+- [ ] dd (comando directo)
+
+## ¿Cuánto espacio en disco se recomienda para una instalación completa de Ubuntu?
+
+- [ ] 5 GB
+- [ ] 10 GB
+- [x] 20-30 GB (mínimo recomendado)
+- [ ] 50+ GB
+
+## VERDADERO o FALSO: Las máquinas virtuales NO permiten instalar Ubuntu
+
+- [ ] VERDADERO
+- [x] FALSO (las máquinas virtuales soportan Ubuntu perfectamente)
+
+## ¿Qué es UEFI?
+
+- [ ] Un gestor de particiones
+- [ ] Un sistema de archivos
+- [x] Un firmware moderno que reemplaza a BIOS
+- [ ] Una herramienta de instalación
+
+## Cuando booteas desde USB, ¿En cuál parte típicamente presionas F2, F10 o Del para entrar al BIOS?
+
+- [x] Durante el POST (Power-On Self Test) al encender
+- [ ] Después de que aparece el logo del SO
+- [ ] Dentro del sistema operativo actual
+- [ ] No se puede acceder
+
+## ¿Cuál es el tamaño típico de la ISO de Ubuntu Server LTS?
+
+- [ ] ~500 MB
+- [x] ~1.5-2.0 GB
+- [ ] ~8 GB
+- [ ] ~15 GB
+
+## ¿Qué comando se usa en Linux para verificar el hash SHA-256 de la ISO?
+
+- [ ] hash iso-file
+- [x] sha256sum iso-file
+- [ ] checksum iso-file
+- [ ] verify iso-file
+
+## Al particionar manualmente en Ubuntu, ¿Cuál es el tamaño mínimo recomendado para la partición raíz (/)?
+
+- [ ] 5 GB
+- [ ] 10 GB
+- [x] 20-30 GB
+- [ ] 50+ GB (obligatorio)
+</div>
+<hr>
+
+
+</section>
+</section>
+<section class="level1 unnumbered">
+<h1 class="unnumbered">Code Appendix</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-ubuntu_requirements_2024" class="csl-entry" role="listitem">
+Canonical. 2024. <span>“Ubuntu 22.04 LTS Requirements.”</span> 2024.
+</div>
+<div id="ref-uefi_standard_2022" class="csl-entry" role="listitem">
+Forum, UEFI. 2022. <span>“UEFI Specification V2.9.”</span> 2022.
+</div>
+<div id="ref-wiki_uefi" class="csl-entry" role="listitem">
+Wikipedia. 2024. <span>“UEFI.”</span> 2024.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../unidades/unidad1/99_recursos.html" class="pagination-link" aria-label="Unidad 1: Recursos">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 1: Recursos</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../unidades/unidad2/2_instalacion_ubuntu.html" class="pagination-link" aria-label="Instalación de Ubuntu Server LTS Paso a Paso">
+        <span class="nav-page-text"><span class="chapter-title">Instalación de Ubuntu Server LTS Paso a Paso</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+<p>Sobre el Curso</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../../license.html">
+<p>Licencia</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://statick88.github.io">
+<p>Instructor: statick88.github.io</p>
+</a>
+  </li>  
+</ul>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/unidades/unidad2/1_requisitos_preparacion.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

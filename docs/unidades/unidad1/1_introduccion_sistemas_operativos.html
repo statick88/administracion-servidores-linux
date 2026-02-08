@@ -1,0 +1,3095 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Diego Saavedra">
+<meta name="dcterms.date" content="2024-01-29">
+<meta name="description" content="Fundamentos de sistemas operativos: qué son, componentes principales, funciones esenciales y su papel en la infraestructura tecnológica moderna">
+
+<title>Unidad 1: Introducción a Sistemas Operativos – Administración de Servidores Linux</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../unidades/unidad1/2_historia_linux.html" rel="next">
+<link href="../../glosario.html" rel="prev">
+<link href="../../logo.jpeg" rel="icon" type="image/jpeg">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-7ac2f9da8c2617a4fdd15004b4601015.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-25a4e8620ae17d49cd0c3861fdf92567.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-7c46af36f45a90370d809a0f738714ec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
+<script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown-init.js"></script>
+<link href="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+<script src="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
+<link href="../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html">Unidad 1: Introducción a Linux</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html"><span class="chapter-title">Unidad 1: Introducción a Sistemas Operativos</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../../index.html" class="sidebar-logo-link">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo.jpeg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Administración de Servidores Linux</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/statick88/administracion-servidores-linux" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Administración de Servidores Linux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introducción al Curso</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acerca del Instructor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../license.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licencia</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../SETUP.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Guía de Configuración del Entorno</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../glosario.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Glosario del Curso</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Unidad 1: Introducción a Linux</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 1: Introducción a Sistemas Operativos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/2_historia_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.2: Historia y Evolución de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/3_distribuciones_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.3: Distribuciones de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/4_ventajas_linux.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1.4: Ventajas de Linux para Abacom</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad1/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 1: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 2: Instalación y Configuración</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/1_requisitos_preparacion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Requisitos y Preparación para Instalación</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/2_instalacion_ubuntu.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instalación de Ubuntu Server LTS Paso a Paso</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/3_configuracion_inicial.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración Inicial del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/4_actualizacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Actualización y Seguridad del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/5_primeros_pasos_terminal.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Primeros Pasos en Terminal</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad2/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 2: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 3: Comandos Básicos de Linux</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/1_navegacion_directorios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Navegación de Directorios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/2_inspeccion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inspección de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/3_busqueda_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Búsqueda de Archivos y Contenido</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/4_permisos_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Permisos de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/5_manipulacion_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Manipulación de Archivos y Directorios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad3/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 3: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 4: Docker y Containerización</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/1_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/2_docker_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dockerfile y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/3_DevContainers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">DevContainers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad4/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 4: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 5: Procesos y Servicios</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad5/1_procesos_comandos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 5.1: Procesos - ps, top, pgrep y kill</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad5/2_systemd_units_journalctl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 5.2: systemd units y journalctl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad5/3_cron_anacron_at.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 5.3: cron/anacron y at</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad5/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 5: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 6: Almacenamiento y Sistemas de Archivos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/1_sistemas_archivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.1: Sistemas de archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/2_particiones_disco.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.2: Particiones y discos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/3_montaje_desmontaje.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.3: Montaje y desmontaje</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/4_gestion_espacio.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.4: Gestion de espacio</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/5_raid_lvm.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6.5: RAID y LVM (basico)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad6/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 6: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 7: Redes basicas</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/1_fundamentos_redes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7.1: Fundamentos de redes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/2_iproute2_rutas.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7.2: iproute2 y rutas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/3_nmcli_netplan.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7.3: nmcli y netplan</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/4_dns_resolucion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7.4: DNS y resolucion de nombres</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad7/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 7: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 8: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 9: Apache (Servidor Web)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 10: Nginx y SSL</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 11: MariaDB</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 12: Diagnostico y Troubleshooting</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/2_logs_journalctl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.2: Logs y journalctl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/3_red_puertos_dns.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.3: Red, puertos y DNS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text">Laboratorios Prácticos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorios Prácticos - Administración de Servidores Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab0_diagnostico_sistema.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 0: Diagnostico Basico del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab1_instalacion_ubuntu.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 1: Instalación de Ubuntu Server</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab2b_hardening_basico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2B: Hardening Basico Post-Instalacion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab2_usuarios_permisos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2: Gestión de Usuarios y Permisos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab3_procesos_servicios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 3: Administración de Procesos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab4_redes_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4: Redes y SSH</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab4b_docker_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4B: Docker y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab5_almacenamiento_montajes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab6_http_diagnostico_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 6: HTTP Basico y Diagnostico Web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab7_apache_virtualhost.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 7: Apache - Sitio y VirtualHost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab8_nginx_reverseproxy_tls.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 8: Nginx - Reverse Proxy + TLS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab9_mariadb_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 9: MariaDB - Usuarios, Privilegios y Backup/Restore</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab10_troubleshooting_integrado.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lab-practicos/lab11_clawdbot_openclaw_telegram_tailscale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false">
+ <span class="menu-text">Prácticas</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 1: Fundamentos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 2: Instalacion y Primer Hardening</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 3: Terminal y Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 4: Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 6: Almacenamiento</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 7: Redes basicas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 8: HTTP Basico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 9: Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 10: Nginx y SSL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad11.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 11: MariaDB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../practicas/unidad12.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 12: Troubleshooting</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">Retos GNU/Linux (Wargames)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_J_Retos_GNU_Linux_Bandit.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retos GNU/Linux (Bandit)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false">
+ <span class="menu-text">Presentaciones (Reveal.js)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-17" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../presentaciones.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Presentaciones (Reveal.js)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 1: Fundamentos)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-18" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_B_Editores_Vi_Nvim.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo B: Editores Vi y Nvim - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_H_SSH_SCP_Keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo H: SSH, SCP y Llaves - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_D_Herramientas_Monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_F_Ranger_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Ranger: Gestor de Archivos Terminal para Servidores</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 2: Intermedio)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 3: Avanzado)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-20" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_G_OpenCode_Gestion_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo G: OpenCode - Mini-Curso para Gestion de Servidores</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_I_Openclaw_Telegram_Abacombot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introducción-a-sistemas-operativos" id="toc-introducción-a-sistemas-operativos" class="nav-link active" data-scroll-target="#introducción-a-sistemas-operativos">🎯 Introducción a Sistemas Operativos</a>
+  <ul class="collapse">
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#en-este-tema-aprenderás" id="toc-en-este-tema-aprenderás" class="nav-link" data-scroll-target="#en-este-tema-aprenderás">🗺️ En este tema aprenderás</a></li>
+  <li><a href="#qué-es-un-sistema-operativo" id="toc-qué-es-un-sistema-operativo" class="nav-link" data-scroll-target="#qué-es-un-sistema-operativo">¿Qué es un Sistema Operativo?</a></li>
+  <li><a href="#kernel-vs-shell" id="toc-kernel-vs-shell" class="nav-link" data-scroll-target="#kernel-vs-shell">Kernel vs Shell</a></li>
+  <li><a href="#ejemplos-prácticos" id="toc-ejemplos-prácticos" class="nav-link" data-scroll-target="#ejemplos-prácticos">💡 Ejemplos Prácticos</a></li>
+  <li><a href="#componentes-principales-del-sistema-operativo" id="toc-componentes-principales-del-sistema-operativo" class="nav-link" data-scroll-target="#componentes-principales-del-sistema-operativo">🔧 Componentes Principales del Sistema Operativo</a>
+  <ul class="collapse">
+  <li><a href="#el-kernel---el-corazón" id="toc-el-kernel---el-corazón" class="nav-link" data-scroll-target="#el-kernel---el-corazón">El Kernel - El Corazón</a></li>
+  <li><a href="#drivers---los-traductores" id="toc-drivers---los-traductores" class="nav-link" data-scroll-target="#drivers---los-traductores">Drivers - Los Traductores</a></li>
+  <li><a href="#shell---la-interfaz" id="toc-shell---la-interfaz" class="nav-link" data-scroll-target="#shell---la-interfaz">Shell - La Interfaz</a></li>
+  </ul></li>
+  <li><a href="#funciones-esenciales-del-sistema-operativo" id="toc-funciones-esenciales-del-sistema-operativo" class="nav-link" data-scroll-target="#funciones-esenciales-del-sistema-operativo">🔧 Funciones Esenciales del Sistema Operativo</a>
+  <ul class="collapse">
+  <li><a href="#gestión-de-procesos" id="toc-gestión-de-procesos" class="nav-link" data-scroll-target="#gestión-de-procesos">Gestión de Procesos</a></li>
+  <li><a href="#gestión-de-memoria" id="toc-gestión-de-memoria" class="nav-link" data-scroll-target="#gestión-de-memoria">Gestión de Memoria</a></li>
+  <li><a href="#gestión-de-dispositivos" id="toc-gestión-de-dispositivos" class="nav-link" data-scroll-target="#gestión-de-dispositivos">Gestión de Dispositivos</a></li>
+  <li><a href="#gestión-de-archivos" id="toc-gestión-de-archivos" class="nav-link" data-scroll-target="#gestión-de-archivos">Gestión de Archivos</a></li>
+  </ul></li>
+  <li><a href="#errores-comunes" id="toc-errores-comunes" class="nav-link" data-scroll-target="#errores-comunes">⚠️ Errores Comunes</a>
+  <ul class="collapse">
+  <li><a href="#confundir-no-hay-memoria-con-no-hay-espacio-en-disco" id="toc-confundir-no-hay-memoria-con-no-hay-espacio-en-disco" class="nav-link" data-scroll-target="#confundir-no-hay-memoria-con-no-hay-espacio-en-disco">Confundir “No hay memoria” con “No hay espacio en disco”</a></li>
+  <li><a href="#el-sistema-se-congela" id="toc-el-sistema-se-congela" class="nav-link" data-scroll-target="#el-sistema-se-congela">El sistema “se congela”</a></li>
+  </ul></li>
+  <li><a href="#mejores-prácticas" id="toc-mejores-prácticas" class="nav-link" data-scroll-target="#mejores-prácticas">📊 Mejores Prácticas</a></li>
+  <li><a href="#tabla-de-referencia-rápida" id="toc-tabla-de-referencia-rápida" class="nav-link" data-scroll-target="#tabla-de-referencia-rápida">📋 Tabla de Referencia Rápida</a></li>
+  <li><a href="#quiz-verifica-tu-comprensión" id="toc-quiz-verifica-tu-comprensión" class="nav-link" data-scroll-target="#quiz-verifica-tu-comprensión">🎓 Quiz: Verifica tu Comprensión</a>
+  <ul class="collapse">
+  <li><a href="#cuál-es-la-diferencia-entre-kernel-y-shell" id="toc-cuál-es-la-diferencia-entre-kernel-y-shell" class="nav-link" data-scroll-target="#cuál-es-la-diferencia-entre-kernel-y-shell">¿Cuál es la diferencia entre Kernel y Shell?</a></li>
+  <li><a href="#cuál-es-el-comando-para-ver-si-tu-ram-está-llena" id="toc-cuál-es-el-comando-para-ver-si-tu-ram-está-llena" class="nav-link" data-scroll-target="#cuál-es-el-comando-para-ver-si-tu-ram-está-llena">¿Cuál es el comando para ver si tu RAM está llena?</a></li>
+  <li><a href="#en-qué-escenario-revisarías-free--h-en-lugar-de-df--h" id="toc-en-qué-escenario-revisarías-free--h-en-lugar-de-df--h" class="nav-link" data-scroll-target="#en-qué-escenario-revisarías-free--h-en-lugar-de-df--h">¿En qué escenario revisarías <code>free -h</code> en lugar de <code>df -h</code>?</a></li>
+  </ul></li>
+  <li><a href="#práctica-guiada-con-el-instructor" id="toc-práctica-guiada-con-el-instructor" class="nav-link" data-scroll-target="#práctica-guiada-con-el-instructor">👨‍💻 Práctica Guiada con el Instructor</a>
+  <ul class="collapse">
+  <li><a href="#identificar-tu-sistema-operativo" id="toc-identificar-tu-sistema-operativo" class="nav-link" data-scroll-target="#identificar-tu-sistema-operativo">Identificar tu Sistema Operativo</a></li>
+  <li><a href="#monitorear-recursos-en-tiempo-real" id="toc-monitorear-recursos-en-tiempo-real" class="nav-link" data-scroll-target="#monitorear-recursos-en-tiempo-real">Monitorear Recursos en Tiempo Real</a></li>
+  <li><a href="#ejercicio-avanzado---investigar-problema-de-rendimiento" id="toc-ejercicio-avanzado---investigar-problema-de-rendimiento" class="nav-link" data-scroll-target="#ejercicio-avanzado---investigar-problema-de-rendimiento">Ejercicio Avanzado - Investigar Problema de Rendimiento</a></li>
+  </ul></li>
+  <li><a href="#laboratorio-de-práctica-integrado" id="toc-laboratorio-de-práctica-integrado" class="nav-link" data-scroll-target="#laboratorio-de-práctica-integrado">🧪 Laboratorio de Práctica Integrado</a>
+  <ul class="collapse">
+  <li><a href="#fase-1-preparación-del-entorno-15-min" id="toc-fase-1-preparación-del-entorno-15-min" class="nav-link" data-scroll-target="#fase-1-preparación-del-entorno-15-min">Fase 1: Preparación del Entorno (15 min)</a></li>
+  <li><a href="#fase-2-información-del-sistema-20-min" id="toc-fase-2-información-del-sistema-20-min" class="nav-link" data-scroll-target="#fase-2-información-del-sistema-20-min">Fase 2: Información del Sistema (20 min)</a></li>
+  <li><a href="#fase-3-monitoreo-de-recursos-20-min" id="toc-fase-3-monitoreo-de-recursos-20-min" class="nav-link" data-scroll-target="#fase-3-monitoreo-de-recursos-20-min">Fase 3: Monitoreo de Recursos (20 min)</a></li>
+  <li><a href="#fase-4-análisis-de-procesos-20-min" id="toc-fase-4-análisis-de-procesos-20-min" class="nav-link" data-scroll-target="#fase-4-análisis-de-procesos-20-min">Fase 4: Análisis de Procesos (20 min)</a></li>
+  <li><a href="#fase-5-proyecto-integrador---diagnóstico-real-15-min" id="toc-fase-5-proyecto-integrador---diagnóstico-real-15-min" class="nav-link" data-scroll-target="#fase-5-proyecto-integrador---diagnóstico-real-15-min">Fase 5: Proyecto Integrador - Diagnóstico Real (15 min)</a></li>
+  <li><a href="#verificación-del-laboratorio" id="toc-verificación-del-laboratorio" class="nav-link" data-scroll-target="#verificación-del-laboratorio">Verificación del Laboratorio</a></li>
+  </ul></li>
+  <li><a href="#recursos-adicionales" id="toc-recursos-adicionales" class="nav-link" data-scroll-target="#recursos-adicionales">📚 Recursos Adicionales</a>
+  <ul class="collapse">
+  <li><a href="#documentación-oficial" id="toc-documentación-oficial" class="nav-link" data-scroll-target="#documentación-oficial">Documentación Oficial</a></li>
+  <li><a href="#tutoriales-complementarios" id="toc-tutoriales-complementarios" class="nav-link" data-scroll-target="#tutoriales-complementarios">Tutoriales Complementarios</a></li>
+  <li><a href="#comunidades-y-foros" id="toc-comunidades-y-foros" class="nav-link" data-scroll-target="#comunidades-y-foros">Comunidades y Foros</a></li>
+  </ul></li>
+  <li><a href="#preguntas-frecuentes" id="toc-preguntas-frecuentes" class="nav-link" data-scroll-target="#preguntas-frecuentes">❓ Preguntas Frecuentes</a></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">🎯 Resumen</a>
+  <ul class="collapse">
+  <li><a href="#checklist-de-competencias-alcanzadas" id="toc-checklist-de-competencias-alcanzadas" class="nav-link" data-scroll-target="#checklist-de-competencias-alcanzadas">Checklist de Competencias Alcanzadas</a></li>
+  <li><a href="#próximos-pasos" id="toc-próximos-pasos" class="nav-link" data-scroll-target="#próximos-pasos">Próximos Pasos</a></li>
+  </ul></li>
+  <li><a href="#soporte" id="toc-soporte" class="nav-link" data-scroll-target="#soporte">📞 Soporte</a></li>
+  <li><a href="#quiz-introducción-a-sistemas-operativos" id="toc-quiz-introducción-a-sistemas-operativos" class="nav-link" data-scroll-target="#quiz-introducción-a-sistemas-operativos">📝 Quiz: Introducción a Sistemas Operativos</a></li>
+  </ul></li>
+  <li>Code Appendix</li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/unidades/unidad1/1_introduccion_sistemas_operativos.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html">Unidad 1: Introducción a Linux</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad1/1_introduccion_sistemas_operativos.html"><span class="chapter-title">Unidad 1: Introducción a Sistemas Operativos</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Unidad 1: Introducción a Sistemas Operativos</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 29, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introducción-a-sistemas-operativos" class="level1">
+<h1>🎯 Introducción a Sistemas Operativos</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>Un <strong>Sistema Operativo</strong> es el software fundamental que controla todos los recursos de una computadora y gestiona las interacciones entre el usuario, aplicaciones y hardware. En Abacom, entender profundamente qué es un SO y cómo funciona es crítico para administrar servidores, resolver problemas de infraestructura y tomar decisiones arquitectónicas correctas.</p>
+<p><strong>Tiempo de lectura:</strong> ~20 minutos<br>
+<strong>Nivel:</strong> Principiante<br>
+<strong>Requisitos previos:</strong> Conceptos básicos de computadoras</p>
+<hr>
+</section>
+<section id="en-este-tema-aprenderás" class="level2">
+<h2 class="anchored" data-anchor-id="en-este-tema-aprenderás">🗺️ En este tema aprenderás</h2>
+<p>En esta unidad cubriremos:</p>
+<ol type="1">
+<li><p><strong>¿Qué es un Sistema Operativo?</strong> - Definición, rol y responsabilidades</p></li>
+<li><p><strong>Componentes Principales</strong> - Kernel, shell, drivers y utilidades</p></li>
+<li><p><strong>Funciones Esenciales</strong> - Gestión de recursos, procesos y memoria</p></li>
+<li><p><strong>Diferencias entre SOs</strong> - Comparativa entre Windows, macOS y Linux</p></li>
+<li><p><strong>Por qué existe Linux</strong> - Historia, filosofía y ventajas</p></li>
+</ol>
+<hr>
+</section>
+<section id="qué-es-un-sistema-operativo" class="level2">
+<h2 class="anchored" data-anchor-id="qué-es-un-sistema-operativo">¿Qué es un Sistema Operativo?</h2>
+<p><strong>Definición clara:</strong></p>
+<p>Un Sistema Operativo (SO) es un programa especial que actúa como <strong>intermediario entre el usuario y el hardware</strong>. Su función principal es gestionar todos los recursos de la computadora (memoria, procesador, disco duro, dispositivos periféricos) y permitir que otros programas funcionen correctamente <span class="citation" data-cites="posix_2017">(<a href="#ref-posix_2017" role="doc-biblioref"><em>POSIX.1-2017</em> 2017</a>)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>¿Por qué importa?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Impacto directo:</strong> Sin un SO, no podrías ejecutar ningún programa. El SO es lo que permite que todo funcione.</li>
+<li><strong>En Abacom:</strong> Necesitamos entender cómo el SO gestiona servidores para optimizar rendimiento y resolver problemas.</li>
+<li><strong>Ventaja profesional:</strong> Un administrador que entiende el SO puede diagnosticar 80% de problemas sin herramientas externas.</li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+<section id="kernel-vs-shell" class="level2">
+<h2 class="anchored" data-anchor-id="kernel-vs-shell">Kernel vs Shell</h2>
+<p><strong>Definición clara:</strong></p>
+<p>Aunque a menudo se confunden, son dos cosas diferentes:</p>
+<ul>
+<li><strong>Kernel:</strong> El núcleo del SO. Controla directamente el hardware y gestiona procesos, memoria y dispositivos.</li>
+<li><strong>Shell:</strong> La “interfaz” entre el usuario y el kernel. Es lo que ves en terminal - interpreta tus comandos y le dice al kernel qué hacer.</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Punto importante
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>El kernel trabaja en “modo privilegiado” (ring 0), lo que significa tiene acceso total al hardware. Los programas normales corren en “modo usuario” (ring 3) con permisos limitados. Esta separación es crítica para la seguridad.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="ejemplos-prácticos" class="level2">
+<h2 class="anchored" data-anchor-id="ejemplos-prácticos">💡 Ejemplos Prácticos</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">Ejemplo 1: Verifica tu SO</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Ejemplo 2: Ver procesos del SO</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Ejemplo 3: Caso Real Abacom</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<section id="linux" class="level4">
+<h4 class="anchored" data-anchor-id="linux">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver información del SO en Linux</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-a</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Linux</span> servidor-abacom 5.15.0-89-generic <span class="co">#99-Ubuntu SMP Mon Oct 5 09:29:34 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Información adicional</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /etc/os-release <span class="kw">|</span> <span class="fu">grep</span> PRETTY_NAME</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="va">PRETTY_NAME</span><span class="op">=</span><span class="st">"Ubuntu 22.04.4 LTS"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación:</strong></p>
+<ul>
+<li><strong>uname -a</strong>: Muestra nombre del kernel, versión y arquitectura</li>
+<li>En Linux: Kernel es “Linux 5.15.0” en arquitectura “x86_64” (64 bits)</li>
+<li><strong>Resultado</strong>: Información técnica para administración de servidores</li>
+</ul>
+</section>
+<section id="macos" class="level4">
+<h4 class="anchored" data-anchor-id="macos">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver información del SO en macOS</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-a</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Darwin</span> macbook-pro 23.3.0 Darwin Kernel Version 23.3.0 arm64</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Versión del sistema macOS</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sw_vers</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">ProductName:</span>    macOS</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">ProductVersion:</span> 14.2.1</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">BuildVersion:</span>   23C71</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación:</strong></p>
+<ul>
+<li><strong>uname -a</strong>: Muestra “Darwin” (kernel de macOS) en arquitectura arm64 (Apple Silicon) o x86_64 (Intel)</li>
+<li><strong>sw_vers</strong>: Muestra versión específica de macOS instalado</li>
+<li><strong>Resultado</strong>: macOS es basado en Unix, compatible con comandos Linux</li>
+</ul>
+</section>
+<section id="windows" class="level4">
+<h4 class="anchored" data-anchor-id="windows">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver información del SO en Windows (PowerShell)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> systeminfo <span class="op">|</span> findstr <span class="op">/</span>B <span class="op">/</span>C<span class="op">:</span><span class="st">"OS Name"</span> <span class="op">/</span>C<span class="op">:</span><span class="st">"OS Version"</span> <span class="op">/</span>C<span class="op">:</span><span class="st">"System Type"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>OS Name<span class="op">:</span>                   Microsoft Windows <span class="dv">11</span> Professional</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>OS Version<span class="op">:</span>                <span class="dv">10.0</span><span class="op">.</span><span class="dv">22621</span> Build <span class="dv">22621</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">System</span> Type<span class="op">:</span>               x64-based PC</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternativa más detallada</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-ComputerInfo <span class="op">-</span>Property osname<span class="op">,</span> osversion<span class="op">,</span> systemskufamily</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación:</strong></p>
+<ul>
+<li><strong>systeminfo</strong>: Muestra información detallada del sistema</li>
+<li><strong>findstr</strong>: Filtra solo líneas específicas (similar a grep en Linux)</li>
+<li><strong>Resultado</strong>: Windows usa arquitectura x64 (equivalente a x86_64 en Linux)</li>
+</ul>
+<hr>
+</section>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<section id="linux-1" class="level4">
+<h4 class="anchored" data-anchor-id="linux-1">Linux</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listar procesos en ejecución en Linux</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">USER</span>       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">root</span>         1  0.0  0.1  10960  5216 <span class="pp">?</span>        Ss   10:23   0:01 /sbin/init</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">root</span>         2  0.0  0.0      0     0 <span class="pp">?</span>        S    10:23   0:00 <span class="pp">[</span><span class="ss">kthreadd</span><span class="pp">]</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">systemd+</span>   560  0.0  0.2  89456  3564 <span class="pp">?</span>        Ss   10:23   0:00 /lib/systemd/systemd-resolved</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver solo procesos de tu usuario</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps ux</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">USER</span>       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">diego</span>     5432  0.0  0.5 234567 8912 pts/0    S+   14:35   0:00 bash</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Cómo funciona:</strong></p>
+<ul>
+<li><strong>ps aux</strong>: Lista todos los procesos del sistema con detalles completos</li>
+<li><strong>PID</strong>: Identificador único de proceso</li>
+<li><strong>%CPU / %MEM</strong>: Porcentaje de CPU y memoria que usa</li>
+<li><strong>STAT</strong>: Estado del proceso (Ss = running, S = sleeping)</li>
+</ul>
+</section>
+<section id="macos-1" class="level4">
+<h4 class="anchored" data-anchor-id="macos-1">macOS</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listar procesos en macOS</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">USER</span>              PID  %CPU %MEM      VSZ      RSS   TT  STAT STARTED      TIME COMMAND</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">root</span>                1   0.0  0.1  4348784   16564   <span class="pp">??</span>  Ss   Wed01PM   0:32.54 /sbin/launchd</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">root</span>               46   0.0  0.0  4484408    5232   <span class="pp">??</span>  Ss   Wed01PM   0:16.32 /usr/sbin/syslogd</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">_windowserver</span>     108   1.5  1.2  5672744  201456   <span class="pp">??</span>  Ss   Wed01PM  15:24.32 /System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/Resources/WindowServer</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver procesos más legiblemente</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> top <span class="at">-l</span> 1 <span class="at">-n</span> 10</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Cómo funciona:</strong></p>
+<ul>
+<li>Similar a Linux pero con columnas ligeramente diferentes</li>
+<li><strong>STARTED</strong>: Cuándo se inició el proceso</li>
+<li><strong>WindowServer</strong>: Proceso especial de macOS para gráficos</li>
+</ul>
+</section>
+<section id="windows-1" class="level4">
+<h4 class="anchored" data-anchor-id="windows-1">Windows</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver procesos en Windows (PowerShell)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Get-Process</span> <span class="op">|</span> <span class="fu">Select-Object</span> Name<span class="op">,</span> Id<span class="op">,</span> CPU<span class="op">,</span> Memory <span class="op">|</span> <span class="fu">Sort-Object</span> Memory <span class="op">-</span>Descending <span class="op">|</span> <span class="fu">Select-Object</span> <span class="op">-</span>First <span class="dv">10</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">Name</span>                Id  CPU      Memory</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="op">----</span>                <span class="op">--</span>  <span class="op">---</span>      <span class="op">------</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>svchost           <span class="dv">1234</span>   <span class="dv">1.5</span>   <span class="dv">523264</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="dt">explorer</span>          <span class="dv">5678</span>   <span class="dv">2.3</span>   <span class="dv">456789</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="dt">chrome</span>            <span class="dv">9012</span>   <span class="dv">8.5</span>   <span class="dv">1234567</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="dt">python</span>            <span class="dv">3456</span>   <span class="dv">0.1</span>   <span class="dv">234567</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternativa: usar tasklist</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> tasklist <span class="op">/</span>V <span class="op">|</span> findstr <span class="st">"python"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Cómo funciona:</strong></p>
+<ul>
+<li><strong>Get-Process</strong>: Obtiene lista de procesos activos</li>
+<li><strong>Id</strong>: Identificador único (equivalente a PID en Linux)</li>
+<li><strong>Memory</strong>: Uso de memoria en bytes</li>
+<li><strong>tasklist</strong>: Comando clásico de Windows para listar procesos</li>
+</ul>
+<hr>
+</section>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<section id="linux-servidor-de-producción" class="level4">
+<h4 class="anchored" data-anchor-id="linux-servidor-de-producción">Linux (Servidor de Producción)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En un servidor Linux de Abacom, verificar recursos del sistema</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> free <span class="at">-h</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>              <span class="ex">total</span>        used        free      shared  buff/cache   available</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Mem:</span>           15.6G       3.2G       9.1G       256M       3.3G      12.0G</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Swap:</span>           4.0G       0.0B       4.0G</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver carga del servidor</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uptime</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a> <span class="ex">14:35:42</span> up 247 days, 3:42, 2 users, load average: 0.85, 0.92, 0.88</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver procesos principales de la aplicación</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"python\|node\|java"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Por qué lo usamos en Abacom:</strong></p>
+<ul>
+<li>Monitorear memoria disponible para aplicaciones críticas</li>
+<li>Detectar si el servidor está bajo carga (load average)</li>
+<li>Uptime de 247 días = Excelente estabilidad</li>
+<li>Planificar upgrades de hardware si es necesario</li>
+</ul>
+</section>
+<section id="macos-máquina-de-desarrollo" class="level4">
+<h4 class="anchored" data-anchor-id="macos-máquina-de-desarrollo">macOS (Máquina de Desarrollo)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En una Mac de desarrollo de Abacom</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> memory_pressure</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">System</span> memory pressure level: 2 <span class="er">(</span><span class="ex">elevated</span><span class="kw">)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Physical</span> memory: 16GB</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver recursos del sistema</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> top <span class="at">-l</span> 1 <span class="at">-stats</span> cpu,mem <span class="at">-n</span> 5</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Memoria disponible</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> vm_stat</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Por qué lo usamos en Abacom:</strong></p>
+<ul>
+<li>Verificar que tenemos suficiente RAM para Docker/VirtualBox</li>
+<li>Monitorear si las herramientas de desarrollo están consumiendo demasiado</li>
+<li>Detectar memory leaks en aplicaciones</li>
+</ul>
+</section>
+<section id="windows-máquina-de-administrador" class="level4">
+<h4 class="anchored" data-anchor-id="windows-máquina-de-administrador">Windows (Máquina de Administrador)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>POWERSHELL</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En Windows para administración remota de Abacom</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> Get-ComputerInfo <span class="op">-</span>Property TotalPhysicalMemory<span class="op">,</span> FreePhysicalMemory</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>TotalPhysicalMemory <span class="op">:</span> <span class="dv">17179869184</span> <span class="op">(</span><span class="dv">16</span> GB<span class="op">)</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>FreePhysicalMemory  <span class="op">:</span> <span class="dv">8589934592</span> <span class="op">(</span><span class="dv">8</span> GB<span class="op">)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver procesos por memoria</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">Get-Process</span> <span class="op">|</span> <span class="fu">Sort-Object</span> Memory <span class="op">-</span>Descending <span class="op">|</span> <span class="fu">Select-Object</span> <span class="op">-</span>First <span class="dv">5</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Información del sistema</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> systeminfo <span class="op">|</span> findstr <span class="op">/</span>C<span class="op">:</span><span class="st">"Processor"</span> <span class="op">/</span>C<span class="op">:</span><span class="st">"System Type"</span> <span class="op">/</span>C<span class="op">:</span><span class="st">"Total Physical Memory"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Por qué lo usamos en Abacom:</strong></p>
+<ul>
+<li>Monitorear servidores remotos desde Windows</li>
+<li>Verificar que tengas suficiente RAM en tu máquina</li>
+<li>Automatizar tareas de administración</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+<hr>
+<hr>
+</section>
+<section id="componentes-principales-del-sistema-operativo" class="level2">
+<h2 class="anchored" data-anchor-id="componentes-principales-del-sistema-operativo">🔧 Componentes Principales del Sistema Operativo</h2>
+<section id="el-kernel---el-corazón" class="level3">
+<h3 class="anchored" data-anchor-id="el-kernel---el-corazón">El Kernel - El Corazón</h3>
+<p>El kernel es la parte más importante. Gestiona:</p>
+<ul>
+<li><strong>Procesos:</strong> Ejecuta programas y los alterna entre CPU</li>
+<li><strong>Memoria:</strong> Asigna RAM a cada proceso</li>
+<li><strong>Devices (Dispositivos):</strong> Controla disco, red, impresoras, etc.</li>
+<li><strong>Interrupts (Interrupciones):</strong> Responde a eventos urgentes</li>
+</ul>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver información del kernel en Linux</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-2" class="code-annotation-target"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-r</span></span>
+<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">5.15.0-89-generic</span></span>
+<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver módulos del kernel cargados</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-6" class="code-annotation-target"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsmod <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span>
+<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Module</span>                  Size  Used by</span>
+<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">overlay</span>                81920  0</span>
+<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a><span class="ex">kvm_intel</span>             323584  0</span>
+<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a><span class="ex">kvm</span>                  1019904  1 kvm_intel</span>
+<span id="annotated-cell-1-11"><a href="#annotated-cell-1-11" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="2" data-code-annotation="1"><strong>uname -r</strong> muestra la versión exacta del kernel de tu sistema</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="6" data-code-annotation="2"><strong>lsmod</strong> lista los módulos del kernel que están actualmente cargados en memoria</span>
+</dd>
+</dl>
+<p>El kernel Linux se actualiza para seguridad y rendimiento, pero rara vez requiere reinicio.</p>
+</section>
+<section id="drivers---los-traductores" class="level3">
+<h3 class="anchored" data-anchor-id="drivers---los-traductores">Drivers - Los Traductores</h3>
+<p>Los drivers (controladores) permiten que el SO hable con el hardware específico:</p>
+<ul>
+<li><strong>Video Driver:</strong> Comunica con tu tarjeta gráfica</li>
+<li><strong>Network Driver:</strong> Comunica con tu tarjeta de red</li>
+<li><strong>Storage Driver:</strong> Comunica con disco duro/SSD</li>
+</ul>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listar dispositivos reconocidos</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-2" class="code-annotation-target"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lspci <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">"(Network|VGA|Audio)"</span></span>
+<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">00:02.0</span> VGA compatible controller: Intel Corporation UHD Graphics 630</span>
+<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">00:1f.6</span> Ethernet controller: Intel Corporation Ethernet Connection</span>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver drivers cargados</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-7" class="code-annotation-target"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsmod <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> eth</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="2" data-code-annotation="1"><strong>lspci</strong> lista todos los dispositivos PCI conectados al sistema, filtramos solo Network, VGA y Audio</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="7" data-code-annotation="2"><strong>lsmod | grep -i eth</strong> muestra solo los módulos de ethernet cargados en el kernel</span>
+</dd>
+</dl>
+<p>Sin drivers correctos, el hardware no funciona.</p>
+</section>
+<section id="shell---la-interfaz" class="level3">
+<h3 class="anchored" data-anchor-id="shell---la-interfaz">Shell - La Interfaz</h3>
+<p>El shell es lo que <strong>tú ves y usas</strong>. Convierte tus comandos en órdenes que el kernel entiende:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Usando shell bash</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-2" class="code-annotation-target"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-la</span> /home</span>
+<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">total</span> 28</span>
+<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">drwxr-xr-x</span>  3 root root 4096 Jan 29 14:22 .</span>
+<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">drwxr-xr-x</span> 23 root root 4096 Jan 29 14:22 ..</span>
+<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">drwxr-xr-x</span>  5 diego staff 160 Jan 29 14:22 diego</span>
+<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-8" class="code-annotation-target"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># El shell interpreta "ls -la /home" y le dice al kernel:</span></span>
+<span id="annotated-cell-3-9"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># "Lee el directorio /home y muestra detalles"</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="2" data-code-annotation="1"><strong>ls -la /home</strong> lista todos los directorios en /home con detalles (permisos, dueño, fecha, etc.)</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="8" data-code-annotation="2">El shell convierte este comando en instrucciones que el kernel entiende</span>
+</dd>
+</dl>
+<p>Diferentes shells: <strong>bash</strong>, <strong>zsh</strong>, <strong>sh</strong>, <strong>fish</strong>.</p>
+<hr>
+</section>
+</section>
+<section id="funciones-esenciales-del-sistema-operativo" class="level2">
+<h2 class="anchored" data-anchor-id="funciones-esenciales-del-sistema-operativo">🔧 Funciones Esenciales del Sistema Operativo</h2>
+<section id="gestión-de-procesos" class="level3">
+<h3 class="anchored" data-anchor-id="gestión-de-procesos">Gestión de Procesos</h3>
+<p>El SO decide <strong>qué programa corre y cuándo</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver procesos en tiempo real</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-2" class="code-annotation-target"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> top <span class="at">-b</span> <span class="at">-n</span> 1 <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span></span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">top</span> <span class="at">-</span> 14:40:15 up 247 days, 3:47,  2 users,  load average: 0.92, 0.91, 0.89</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-5" class="code-annotation-target"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Tasks:</span> 156 total,   1 running, 155 sleeping,   0 stopped,   0 zombie</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-6" class="code-annotation-target"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">%Cpu</span><span class="er">(</span><span class="ex">s</span><span class="kw">)</span><span class="bu">:</span>  3.2 us,  2.1 sy,  0.0 ni, 94.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="2" data-code-annotation="1"><strong>top -b -n 1</strong> ejecuta top en modo batch (sin interfaz interactiva) una sola vez</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="5" data-code-annotation="2">La línea “Tasks” muestra cuántos procesos están ejecutándose (156 total, 1 corriendo, 155 dormidos)</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="6" data-code-annotation="3">La línea “%Cpu(s)” muestra el porcentaje de CPU usado en modo usuario (us), sistema (sy), inactivo (id), etc.</span>
+</dd>
+</dl>
+<p><strong>Cómo funciona:</strong></p>
+<ol type="1">
+<li><p>El SO maneja un “planificador” (scheduler) que decides cuál proceso ejecutar</p></li>
+<li><p>Si tienes un CPU de 4 núcleos, puede ejecutar 4 cosas simultáneamente</p></li>
+<li><p>En paralelo, el SO cambia entre procesos muy rápidamente (time slicing)</p></li>
+<li><p>Resultado: Parece que 100 programas corren “al mismo tiempo”</p></li>
+</ol>
+</section>
+<section id="gestión-de-memoria" class="level3">
+<h3 class="anchored" data-anchor-id="gestión-de-memoria">Gestión de Memoria</h3>
+<p>El SO asigna RAM a cada proceso de forma segura:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver uso de memoria</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-2" class="code-annotation-target"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /proc/meminfo</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-5-3" class="code-annotation-target"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">MemTotal:</span>       16409912 kB    <span class="co"># RAM Total en el sistema</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-5-4" class="code-annotation-target"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">MemFree:</span>         9654832 kB    <span class="co"># RAM Disponible sin usar</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-5-5" class="code-annotation-target"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">MemAvailable:</span>   12506144 kB    <span class="co"># RAM que puede usar si es necesario</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="2" data-code-annotation="1"><strong>/proc/meminfo</strong> es un archivo virtual que muestra información detallada de memoria del kernel</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="3" data-code-annotation="2">MemTotal es la cantidad total de RAM disponible</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="4" data-code-annotation="3">MemFree es RAM completamente sin usar (no incluye caché)</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="5" data-code-annotation="4">MemAvailable es RAM que el kernel puede liberar rápidamente si la necesita otra aplicación …</span>
+</dd>
+</dl>
+<p><strong>Importancia:</strong></p>
+<ul>
+<li>Cada proceso cree que tiene acceso a toda la memoria (memoria virtual)</li>
+<li>El SO maneja la traducción real a direcciones físicas</li>
+<li>Si se acaba RAM, usa disco (swap) - mucho más lento</li>
+</ul>
+</section>
+<section id="gestión-de-dispositivos" class="level3">
+<h3 class="anchored" data-anchor-id="gestión-de-dispositivos">Gestión de Dispositivos</h3>
+<p>El SO es el “policía” que controla acceso a hardware:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-6-1"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver dispositivos de almacenamiento</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-6-2" class="code-annotation-target"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsblk</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-6-3" class="code-annotation-target"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">NAME</span>   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-6-4" class="code-annotation-target"><a href="#annotated-cell-6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">sda</span>      8:0    0  500G  0 disk</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-6-5" class="code-annotation-target"><a href="#annotated-cell-6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">├─sda1</span>   8:1    0    1G  0 part /boot</span>
+<span id="annotated-cell-6-6"><a href="#annotated-cell-6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">├─sda2</span>   8:2    0  499G  0 part /</span>
+<span id="annotated-cell-6-7"><a href="#annotated-cell-6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">sdb</span>      8:16   0    2T  0 disk</span>
+<span id="annotated-cell-6-8"><a href="#annotated-cell-6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">└─sdb1</span>   8:17   0    2T  0 part /data</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="2" data-code-annotation="1"><strong>lsblk</strong> (block list) muestra todos los dispositivos de almacenamiento en forma de árbol</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="3" data-code-annotation="2">NAME: nombre del dispositivo, SIZE: tamaño, TYPE: tipo (disk=disco, part=partición), MOUNTPOINT: dónde está montado</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="4" data-code-annotation="3"><strong>sda</strong> es el primer disco duro (500 GB), identificado como 8:0 en el kernel</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="5" data-code-annotation="4"><strong>sda1</strong> y <strong>sda2</strong> son particiones (divisiones) del disco sda, la primera (1G) es /boot (donde arranca el SO)</span>
+</dd>
+</dl>
+<p>El SO decide qué proceso puede acceder a qué dispositivo en qué momento.</p>
+</section>
+<section id="gestión-de-archivos" class="level3">
+<h3 class="anchored" data-anchor-id="gestión-de-archivos">Gestión de Archivos</h3>
+<p>El SO organiza datos en carpetas y archivos:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-7-1"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver sistema de archivos</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-2" class="code-annotation-target"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> df <span class="at">-h</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-7-3" class="code-annotation-target"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Filesystem</span>      Size  Used Avail Use% Mounted on</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-7-4" class="code-annotation-target"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/sda2</span>       500G  120G  380G  24% /</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-7-5" class="code-annotation-target"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/sdb1</span>         2T  1.5T  500G  75% /data</span>
+<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">tmpfs</span>           7.8G     0  7.8G   0% /dev/shm</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="2" data-code-annotation="1"><strong>df -h</strong> (disk free) muestra el espacio disponible en todos los sistemas de archivos montados (-h = human readable, en GB/TB)</span>
+</dd>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="3" data-code-annotation="2">Filesystem: dispositivo, Size: tamaño total, Used: usado, Avail: disponible, Mounted on: dónde está montado</span>
+</dd>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="4" data-code-annotation="3"><strong>/dev/sda2</strong> es la partición principal (/) con 500G total, 120G usados, 380G disponibles (24% ocupado)</span>
+</dd>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="5" data-code-annotation="4"><strong>/dev/sdb1</strong> es una segunda partición montada como /data, casi llena (75% usada, solo 500G disponibles)</span>
+</dd>
+</dl>
+<p>El SO traduce “abre archivo.txt” en “busca en sector X del disco Y”.</p>
+<hr>
+</section>
+</section>
+<section id="errores-comunes" class="level2">
+<h2 class="anchored" data-anchor-id="errores-comunes">⚠️ Errores Comunes</h2>
+<section id="confundir-no-hay-memoria-con-no-hay-espacio-en-disco" class="level3">
+<h3 class="anchored" data-anchor-id="confundir-no-hay-memoria-con-no-hay-espacio-en-disco">Confundir “No hay memoria” con “No hay espacio en disco”</h3>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Síntoma que verás
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre data-code-line-numbers=""><code>Cannot allocate memory
+# O en aplicaciones:
+java.lang.OutOfMemoryError: Java heap space</code></pre>
+<p><strong>Causa raíz:</strong> Se llenó la RAM, no el disco. Estas son dos cosas diferentes.</p>
+<p><strong>Solución comprobada:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-42" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-42-1"><a href="#annotated-cell-42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ❌ Forma INCORRECTA (buscar espacio en disco)</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-42" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-42-2" class="code-annotation-target"><a href="#annotated-cell-42-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> df <span class="at">-h</span></span>
+<span id="annotated-cell-42-3"><a href="#annotated-cell-42-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Filesystem</span>      Size  Used Avail</span>
+<span id="annotated-cell-42-4"><a href="#annotated-cell-42-4" aria-hidden="true" tabindex="-1"></a><span class="ex">/</span>               500G  100G  400G  ← Aún hay espacio!</span>
+<span id="annotated-cell-42-5"><a href="#annotated-cell-42-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-42-6"><a href="#annotated-cell-42-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ Forma CORRECTA (revisar RAM)</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-42" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-42-7" class="code-annotation-target"><a href="#annotated-cell-42-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> free <span class="at">-h</span></span>
+<span id="annotated-cell-42-8"><a href="#annotated-cell-42-8" aria-hidden="true" tabindex="-1"></a>               <span class="ex">total</span>    used    free</span>
+<span id="annotated-cell-42-9"><a href="#annotated-cell-42-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Mem:</span>          15.6G   14.8G   0.8G  ← ¡RAM llena!</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-42" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-42" data-code-lines="2" data-code-annotation="1">df -h** muestra espacio en disco (500G disponibles), así que el problema NO es falta de disco</span>
+</dd>
+<dt data-target-cell="annotated-cell-42" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-42" data-code-lines="7" data-code-annotation="2"><strong>free -h</strong> muestra RAM, y aquí está el problema: solo 0.8G de 15.6G disponibles, la RAM está casi llena</span>
+</dd>
+</dl>
+<p><strong>Por qué funciona la solución:</strong> El error es de RAM, no de disco. <strong>df</strong> ve espacio en disco, pero <strong>free</strong> muestra RAM agotada. Son dos sistemas diferentes del SO.</p>
+</div>
+</div>
+</section>
+<section id="el-sistema-se-congela" class="level3">
+<h3 class="anchored" data-anchor-id="el-sistema-se-congela">El sistema “se congela”</h3>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Síntoma:</strong> Todo se ralentiza o se detiene completamente<br>
+<strong>Causa:</strong> Generalmente swapping excesivo (usando disco en lugar de RAM) o CPU sobrecargada<br>
+<strong>Solución:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-43" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-43-1"><a href="#annotated-cell-43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar carga de CPU</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-43" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-43-2" class="code-annotation-target"><a href="#annotated-cell-43-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uptime</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-43" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-43-3" class="code-annotation-target"><a href="#annotated-cell-43-3" aria-hidden="true" tabindex="-1"></a><span class="ex">load</span> average: 12.5, 11.2, 10.1  ← Si es <span class="op">&gt;</span> núcleos CPU, está sobrecargado</span>
+<span id="annotated-cell-43-4"><a href="#annotated-cell-43-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-43-5"><a href="#annotated-cell-43-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar swap (disco usado como memoria)</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-43" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-43-6" class="code-annotation-target"><a href="#annotated-cell-43-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> swapon <span class="at">-s</span></span>
+<span id="annotated-cell-43-7"><a href="#annotated-cell-43-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Filename</span>  Size  Used Priority</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-43" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-43-8" class="code-annotation-target"><a href="#annotated-cell-43-8" aria-hidden="true" tabindex="-1"></a><span class="ex">/dev/sda1</span> 4000000 3900000 <span class="at">-1</span>  ← Si Used es alto, es el problema</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-43" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-43" data-code-lines="2" data-code-annotation="1"><strong>uptime</strong> muestra cuánto tiempo lleva el sistema activo y el “load average” (promedio de procesos en cola)</span>
+</dd>
+<dt data-target-cell="annotated-cell-43" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-43" data-code-lines="3" data-code-annotation="2">Si load average (12.5, 11.2, 10.1) es mayor que los núcleos CPU que tienes (ej: 4 núcleos), el CPU está sobrecargado</span>
+</dd>
+<dt data-target-cell="annotated-cell-43" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-43" data-code-lines="6" data-code-annotation="3"><strong>swapon -s</strong> muestra si el sistema está usando swap (disco como RAM, mucho más lento)</span>
+</dd>
+<dt data-target-cell="annotated-cell-43" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-43" data-code-lines="8" data-code-annotation="4">Si “Used” de swap es alto, significa que se llenó la RAM y ahora está usando disco, causando ralentizaciones severas</span>
+</dd>
+</dl>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="mejores-prácticas" class="level2">
+<h2 class="anchored" data-anchor-id="mejores-prácticas">📊 Mejores Prácticas</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Patrones Recomendados
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>✅ <strong>HACER (Prácticas Probadas):</strong></p>
+<ul>
+<li>Monitorear RAM disponible continuamente → previene problemas antes</li>
+<li>Mantener kernél actualizado → parches de seguridad</li>
+<li>Revisar procesos que consumen recursos → identificar culpables</li>
+</ul>
+<p>❌ <strong>NO HACER (Antipatrones):</strong></p>
+<ul>
+<li>Ignorar alertas de memoria llena → causa crashes</li>
+<li>Ejecutar procesos como <strong>root</strong> innecesariamente → riesgo seguridad</li>
+<li>Llenar swap sin investigar → enmascara problema real</li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+<section id="tabla-de-referencia-rápida" class="level2">
+<h2 class="anchored" data-anchor-id="tabla-de-referencia-rápida">📋 Tabla de Referencia Rápida</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 36%">
+<col style="width: 44%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Comando</th>
+<th>Propósito</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>uname -a</code></td>
+<td>Ver información del SO y kernel</td>
+<td>Diagnóstico del sistema</td>
+</tr>
+<tr class="even">
+<td><code>ps aux</code></td>
+<td>Listar todos los procesos</td>
+<td>Monitoreo de aplicaciones</td>
+</tr>
+<tr class="odd">
+<td><code>top</code> o <code>htop</code></td>
+<td>Monitor en tiempo real</td>
+<td>Diagnóstico de rendimiento</td>
+</tr>
+<tr class="even">
+<td><code>free -h</code></td>
+<td>Ver uso de memoria RAM</td>
+<td>Verificar disponibilidad memoria</td>
+</tr>
+<tr class="odd">
+<td><code>df -h</code></td>
+<td>Ver espacio en disco</td>
+<td>Monitorear particiones</td>
+</tr>
+<tr class="even">
+<td><code>lsmod</code></td>
+<td>Listar módulos del kernel</td>
+<td>Diagnóstico de drivers</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="quiz-verifica-tu-comprensión" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-verifica-tu-comprensión">🎓 Quiz: Verifica tu Comprensión</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Antes de continuar
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Responde estas preguntas para verificar que comprendiste los conceptos clave. Si tienes dudas, vuelve a las secciones anteriores.</p>
+</div>
+</div>
+<section id="cuál-es-la-diferencia-entre-kernel-y-shell" class="level3">
+<h3 class="anchored" data-anchor-id="cuál-es-la-diferencia-entre-kernel-y-shell">¿Cuál es la diferencia entre Kernel y Shell?</h3>
+<details>
+<summary>
+📖 Ver respuesta
+</summary>
+<p><strong>Kernel</strong> es el software central que controla directamente el hardware. <strong>Shell</strong> es la interfaz que usa el usuario para comunicarse con el kernel.</p>
+<p><strong>Ejemplo diferenciador:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># El kernel hace esto:</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># - Gestiona CPU, memoria, disco</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># - Maneja interrupciones de hardware</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># - Asigna recursos a procesos</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># El shell hace esto:</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-la</span> /home</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ↑ Shell interpreta esto</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ↓ Le dice al kernel: "Lee directorio /home"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Por qué es importante la diferencia:</strong> El kernel es invisible - nunca lo usas directamente. El shell es lo que ves. Si entiendes esta separación, entiendes cómo funciona todo.</p>
+</details>
+</section>
+<section id="cuál-es-el-comando-para-ver-si-tu-ram-está-llena" class="level3">
+<h3 class="anchored" data-anchor-id="cuál-es-el-comando-para-ver-si-tu-ram-está-llena">¿Cuál es el comando para ver si tu RAM está llena?</h3>
+<details>
+<summary>
+💡 Ver respuesta
+</summary>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> free <span class="at">-h</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Explicación técnica:</strong> <strong>free</strong> muestra memoria RAM. <strong>-h</strong> significa “human-readable” (formato legible). Este comando le dice al kernel: “dame un reporte de memoria”.</p>
+<p><strong>Validación:</strong> Si ejecutas esto, deberías ver:</p>
+<pre data-code-line-numbers=""><code>             total    used    free   shared  buff/cache available
+Mem:         15.6G   3.2G    9.1G     256M      3.3G      12.0G</code></pre>
+<p>Si <strong>free</strong> es muy pequeño o <strong>used</strong> es muy grande, la RAM está llena.</p>
+</details>
+</section>
+<section id="en-qué-escenario-revisarías-free--h-en-lugar-de-df--h" class="level3">
+<h3 class="anchored" data-anchor-id="en-qué-escenario-revisarías-free--h-en-lugar-de-df--h">¿En qué escenario revisarías <code>free -h</code> en lugar de <code>df -h</code>?</h3>
+<details>
+<summary>
+🎯 Ver respuesta
+</summary>
+<p>Usarías <code>free -h</code> cuando una <strong>aplicación reporta error de memoria</strong>, no cuando te falta espacio en disco.</p>
+<p><strong>Ejemplo práctico:</strong></p>
+<ul>
+<li>✅ Usar <code>free -h</code> cuando: Java reporta “OutOfMemoryError” o aplicación se crashes con “Cannot allocate memory”
+<ul>
+<li>❌ No usar <code>free -h</code> cuando: El disco muestra “100% full” o error de “No space left on device”</li>
+</ul>
+<strong>Caso Abacom:</strong> En nuestros servidores, cuando una base de datos se ralentiza, PRIMERO revisamos <code>free -h</code>. Si RAM está bien, LUEGO revisamos <code>df -h</code> y otros factores.</li>
+</ul>
+</details>
+<hr>
+</section>
+</section>
+<section id="práctica-guiada-con-el-instructor" class="level2">
+<h2 class="anchored" data-anchor-id="práctica-guiada-con-el-instructor">👨‍💻 Práctica Guiada con el Instructor</h2>
+<section id="identificar-tu-sistema-operativo" class="level3">
+<h3 class="anchored" data-anchor-id="identificar-tu-sistema-operativo">Identificar tu Sistema Operativo</h3>
+<p><strong>Objetivo:</strong> Ejecutar comandos básicos para entender qué SO tienes y cómo funciona.</p>
+<p><strong>Pasos:</strong></p>
+<ol type="1">
+<li><p>Abrir una terminal (macOS/Linux) o PowerShell (Windows)</p></li>
+<li><p>Ejecutar comandos para obtener información</p></li>
+<li><p>Interpretar los resultados</p></li>
+</ol>
+<p><strong>Instrucciones:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 1: Ver información del SO</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-11-2" class="code-annotation-target"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-a</span></span>
+<span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Deberías ver: información del kernel, versión, arquitectura</span></span>
+<span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 2: Ver los primeros procesos del sistema</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-11-6" class="code-annotation-target"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span>
+<span id="annotated-cell-11-7"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Deberías ver: procesos del sistema operativo en ejecución</span></span>
+<span id="annotated-cell-11-8"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-9"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 3: Ver memoria disponible</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-11-10" class="code-annotation-target"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> free <span class="at">-h</span></span>
+<span id="annotated-cell-11-11"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Deberías ver: cuánta RAM tienes y cuánta está disponible</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="2" data-code-annotation="1"><strong>uname -a</strong> (all) muestra toda la información del sistema: nombre kernel, versión, máquina, procesador</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="6" data-code-annotation="2"><strong>ps aux</strong> lista todos los procesos en ejecución, <code>| head -10</code> muestra solo los primeros 10</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="10" data-code-annotation="3"><strong>free -h</strong> (human readable) muestra RAM total, usada, libre en formato legible (GB)</span>
+</dd>
+</dl>
+<p><strong>Verificación:</strong></p>
+<ul>
+<li>✓ Ves el nombre del kernel (Linux, Darwin para macOS, etc.)</li>
+<li>✓ Ves una lista de procesos numerados</li>
+<li>✓ Ves números de memoria (Mem: XXG)</li>
+</ul>
+</section>
+<section id="monitorear-recursos-en-tiempo-real" class="level3">
+<h3 class="anchored" data-anchor-id="monitorear-recursos-en-tiempo-real">Monitorear Recursos en Tiempo Real</h3>
+<p><strong>Objetivo:</strong> Observar cómo el SO gestiona recursos mientras ejecutas comandos.</p>
+<p><strong>Pasos:</strong></p>
+<ol type="1">
+<li><p>Abrir <strong>top</strong> o <strong>htop</strong> para ver monitoreo</p></li>
+<li><p>Notar cómo cambian los procesos</p></li>
+<li><p>Ejecutar un comando que consume recursos</p></li>
+</ol>
+<p><strong>Instrucciones:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejecuta esto en una terminal</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> top</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># En otra terminal, ejecuta un comando que consume recursos</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> yes <span class="op">&gt;</span> /dev/null  <span class="co"># Genera CPU load</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Vuelve a la terminal con top</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Verás que el proceso "yes" aparece</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co"># NOTA: presiona 'q' para salir de top</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Verificación:</strong></p>
+<ul>
+<li>✓ Ves el proceso “yes” en la lista de top</li>
+<li>✓ Ves que %CPU es alto para ese proceso</li>
+<li>✓ El cambio ocurre en tiempo real</li>
+</ul>
+</section>
+<section id="ejercicio-avanzado---investigar-problema-de-rendimiento" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-avanzado---investigar-problema-de-rendimiento">Ejercicio Avanzado - Investigar Problema de Rendimiento</h3>
+<p><strong>Objetivo:</strong> Simular un diagnóstico real de Abacom.</p>
+<p><strong>Instrucciones:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Escenario: El servidor está lento</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 1: Ver carga del sistema</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uptime</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultado esperado: load average values</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 2: Ver si es por memoria</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> free <span class="at">-h</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultado esperado: see available memory</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 3: Ver qué procesos consumen CPU</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> top <span class="at">-b</span> <span class="at">-n</span> 1 <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-k</span> 3 <span class="at">-nr</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-5</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultado esperado: top 5 procesos por CPU</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Paso 4: Conclusión</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co"># "El servidor está lento porque [memoria/CPU/disco]"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Verificación:</strong></p>
+<ul>
+<li>✓ Entiendes qué significan los números</li>
+<li>✓ Puedes identificar el culpable (memoria, CPU, disco)</li>
+<li>✓ Sabes qué pasos seguir para resolver</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="laboratorio-de-práctica-integrado" class="level2">
+<h2 class="anchored" data-anchor-id="laboratorio-de-práctica-integrado">🧪 Laboratorio de Práctica Integrado</h2>
+<p><strong>Duración:</strong> 60-90 minutos<br>
+<strong>Dificultad:</strong> Intermedio<br>
+<strong>Objetivo General:</strong> Dominar diagnóstico básico de sistemas operativos</p>
+<section id="fase-1-preparación-del-entorno-15-min" class="level3">
+<h3 class="anchored" data-anchor-id="fase-1-preparación-del-entorno-15-min">Fase 1: Preparación del Entorno (15 min)</h3>
+<p>Crea un espacio de trabajo para tus prácticas:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear directorios de trabajo</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mkdir <span class="at">-p</span> ~/laboratorio-so/resultados</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd ~/laboratorio-so</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear archivo de notas</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> touch diagnostico.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="fase-2-información-del-sistema-20-min" class="level3">
+<h3 class="anchored" data-anchor-id="fase-2-información-del-sistema-20-min">Fase 2: Información del Sistema (20 min)</h3>
+<p><strong>Tarea:</strong> Recopilar información completa del SO</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Archivo: resultados/info-so.txt</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejecuta estos comandos y guarda output:</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uname <span class="at">-a</span> <span class="op">&gt;</span> resultados/info-so.txt</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /etc/os-release <span class="op">&gt;&gt;</span> resultados/info-so.txt</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> lsb_release <span class="at">-a</span> <span class="op">&gt;&gt;</span> resultados/info-so.txt</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar que se guardó</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat resultados/info-so.txt</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Deberías ver toda la información del SO</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Ejercicio:</strong></p>
+<ol type="1">
+<li><p>Ejecuta cada comando</p></li>
+<li><p>Guarda los resultados en el archivo</p></li>
+<li><p>Interpreta: ¿Qué versión de kernel tienes? ¿32 o 64 bits?</p></li>
+</ol>
+</section>
+<section id="fase-3-monitoreo-de-recursos-20-min" class="level3">
+<h3 class="anchored" data-anchor-id="fase-3-monitoreo-de-recursos-20-min">Fase 3: Monitoreo de Recursos (20 min)</h3>
+<p><strong>Tarea:</strong> Registrar estado de recursos</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Archivo: resultados/recursos.txt</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejecuta estos comandos:</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> free <span class="at">-h</span> <span class="op">&gt;</span> resultados/recursos.txt</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> df <span class="at">-h</span> <span class="op">&gt;&gt;</span> resultados/recursos.txt</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> top <span class="at">-b</span> <span class="at">-n</span> 1 <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span> <span class="op">&gt;&gt;</span> resultados/recursos.txt</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat resultados/recursos.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Ejercicio:</strong></p>
+<ol type="1">
+<li><p>¿Cuánta RAM tienes?</p></li>
+<li><p>¿Cuánta RAM está disponible?</p></li>
+<li><p>¿Cuál es el proceso que más CPU consume?</p></li>
+</ol>
+</section>
+<section id="fase-4-análisis-de-procesos-20-min" class="level3">
+<h3 class="anchored" data-anchor-id="fase-4-análisis-de-procesos-20-min">Fase 4: Análisis de Procesos (20 min)</h3>
+<p><strong>Tarea:</strong> Identificar procesos críticos</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Archivo: resultados/procesos.txt</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Listar procesos ordenados por CPU</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="at">--sort</span><span class="op">=</span>-%cpu <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span> <span class="op">&gt;</span> resultados/procesos.txt</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Listar procesos ordenados por memoria</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="at">--sort</span><span class="op">=</span>-%mem <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span> <span class="op">&gt;&gt;</span> resultados/procesos.txt</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Contar total de procesos</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span> <span class="op">&gt;&gt;</span> resultados/procesos.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Ejercicio:</strong></p>
+<ol type="1">
+<li><p>¿Cuál es el proceso que más CPU consume?</p></li>
+<li><p>¿Cuál es el proceso que más memoria consume?</p></li>
+<li><p>¿Cuántos procesos totales hay en ejecución?</p></li>
+</ol>
+</section>
+<section id="fase-5-proyecto-integrador---diagnóstico-real-15-min" class="level3">
+<h3 class="anchored" data-anchor-id="fase-5-proyecto-integrador---diagnóstico-real-15-min">Fase 5: Proyecto Integrador - Diagnóstico Real (15 min)</h3>
+<p><strong>Desafío Final:</strong> Crea un resumen de diagnóstico como un administrador real.</p>
+<p><strong>Escenario:</strong> En Abacom, el servidor está reportando bajo rendimiento. Necesitas diagnosticar.</p>
+<p><strong>Solución esperada:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pasos para resolver</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat <span class="op">&gt;</span> resultados/diagnostico-final.txt <span class="op">&lt;&lt; 'EOF'</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="st">=== DIAGNÓSTICO DEL SISTEMA ===</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="st">1. SISTEMA OPERATIVO:</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="st">[Información del OS aquí - ejecuta: uname -a]</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="st">2. MEMORIA RAM:</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="st">Total: [número de free -h]</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="st">Disponible: [número de free -h]</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="st">Uso: [porcentaje]</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="st">3. ESPACIO EN DISCO:</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="st">[Ejecuta: df -h]</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="st">4. CARGA DEL SISTEMA:</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="st">[Ejecuta: uptime]</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="st">5. PROCESO PRINCIPAL CONSUMIENDO CPU:</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="st">[Ejecuta: ps aux --sort=-%cpu | head -2]</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="st">6. CONCLUSIÓN:</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="st">El problema es [RAM / CPU / DISCO / OTRO] porque...</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Validación Final</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat resultados/diagnostico-final.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Validación Final:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verifica que completaste todo</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-la</span> ~/laboratorio-so/resultados/</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Deberías ver: info-so.txt, recursos.txt, procesos.txt, diagnostico-final.txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="verificación-del-laboratorio" class="level3">
+<h3 class="anchored" data-anchor-id="verificación-del-laboratorio">Verificación del Laboratorio</h3>
+<p>Marca cuando completes cada punto:</p>
+<ul class="task-list">
+<li><label><input type="checkbox">Entorno preparado sin errores</label></li>
+<li><label><input type="checkbox">Información del SO recopilada correctamente</label></li>
+<li><label><input type="checkbox">Recursos monitoreados exitosamente</label></li>
+<li><label><input type="checkbox">Procesos identificados y analizados</label></li>
+<li><label><input type="checkbox">Diagnóstico final completado</label></li>
+<li><label><input type="checkbox">Resultado guardado en archivos</label></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="recursos-adicionales" class="level2">
+<h2 class="anchored" data-anchor-id="recursos-adicionales">📚 Recursos Adicionales</h2>
+<section id="documentación-oficial" class="level3">
+<h3 class="anchored" data-anchor-id="documentación-oficial">Documentación Oficial</h3>
+<ul>
+<li><strong><a href="https://man7.org/linux/man-pages/man7/standards.7.html">Linux man-pages - standards(7)</a></strong>
+<ul>
+<li>Sección relevante: Estándares POSIX y Unix</li>
+<li>Por qué es útil: Entender los estándares que cumple Linux</li>
+</ul></li>
+<li><strong><a href="https://ubuntu.com/server/docs">Ubuntu Server Documentation</a></strong>
+<ul>
+<li>Sección relevante: System fundamentals</li>
+<li>Por qué es útil: Documentación oficial de Ubuntu</li>
+</ul></li>
+</ul>
+</section>
+<section id="tutoriales-complementarios" class="level3">
+<h3 class="anchored" data-anchor-id="tutoriales-complementarios">Tutoriales Complementarios</h3>
+<ul>
+<li><strong><a href="https://www.linuxfoundation.org/">Linux Foundation - The Linux Foundation</a></strong>
+<ul>
+<li>Duración: Varies</li>
+<li>Cubre: Conceptos fundamentales de Linux</li>
+</ul></li>
+<li><strong><a href="http://www.brendangregg.com/systems-performance-2nd-edition-book.html">Brendan Gregg - Systems Performance</a></strong>
+<ul>
+<li>Duración: Book (500+ pages)</li>
+<li>Cubre: Diagnóstico avanzado de sistemas</li>
+</ul></li>
+</ul>
+</section>
+<section id="comunidades-y-foros" class="level3">
+<h3 class="anchored" data-anchor-id="comunidades-y-foros">Comunidades y Foros</h3>
+<ul>
+<li><strong><a href="https://wiki.archlinux.org/title/Main_page">Arch Wiki - Main page</a></strong>
+<ul>
+<li>Para: Preguntas técnicas específicas</li>
+<li>Cómo usar: Busca tu pregunta o crea una nueva</li>
+</ul></li>
+<li><strong><a href="https://www.reddit.com/r/linux/">r/linux - Reddit</a></strong>
+<ul>
+<li>Para: Discusiones generales y noticias</li>
+<li>Cómo usar: Community muy activa y receptiva</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="preguntas-frecuentes" class="level2">
+<h2 class="anchored" data-anchor-id="preguntas-frecuentes">❓ Preguntas Frecuentes</h2>
+<p><strong>P: ¿Necesito memorizar todos los comandos?</strong></p>
+<p>R: No.&nbsp;Lo importante es entender QUÉ hace cada comando. Con tiempo, memorizarás los más comunes. Siempre puedes usar <strong>man</strong> (manual) para recordar sintaxis.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver manual de cualquier comando</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> man free</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> man ps</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> man df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>P: ¿Por qué macOS es diferente a Linux si ambos son Unix?</strong></p>
+<p>R: Ambos siguen estándares POSIX, pero tienen diferencias:</p>
+<ul>
+<li>macOS usa kernel XNU (derivado de BSD y Mach)</li>
+<li>Linux usa kernel Linux (de Linus Torvalds)</li>
+<li>Comandos básicos son similares, pero algunos flags difieren</li>
+</ul>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En Linux</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> free <span class="at">-h</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># En macOS (no existe 'free', usar esto)</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> vm_stat</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co"># O instalar: brew install gnu-coreutils</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>P: ¿Cómo aplico esto en Abacom?</strong></p>
+<p>R: En nuestro caso, usamos estos comandos diariamente:</p>
+<ul>
+<li><strong>top</strong> o <strong>htop</strong> cuando reportan problemas de rendimiento</li>
+<li><code>free -h</code> para verificar si falta RAM</li>
+<li><code>df -h</code> para monitorear espacio en disco</li>
+<li><code>ps aux</code> para encontrar procesos problemáticos</li>
+</ul>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> <span class="co"># Diagnóstico rápido de servidor Abacom</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uptime <span class="kw">&amp;&amp;</span> <span class="fu">free</span> <span class="at">-h</span> <span class="kw">&amp;&amp;</span> <span class="fu">df</span> <span class="at">-h</span> <span class="kw">&amp;&amp;</span> <span class="ex">top</span> <span class="at">-b</span> <span class="at">-n</span> 1 <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">🎯 Resumen</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lo más importante (3 puntos clave)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p><strong>Sistema Operativo = Intermediario entre usuario y hardware</strong> → Sin SO, no funciona nada. Todo pasa a través del SO.</p></li>
+<li><p><strong>Kernel vs Shell</strong> → Kernel gestiona hardware (invisible), Shell es la interfaz (lo que ves).</p></li>
+<li><p><strong>Diagnóstico de problemas</strong> → Usa <code>free -h</code> para memoria, <code>df -h</code> para disco, <strong>top</strong> para CPU.</p></li>
+</ol>
+<p><strong>Recuerda:</strong> Estos conceptos serán la base para entender administración avanzada de servidores.</p>
+</div>
+</div>
+<section id="checklist-de-competencias-alcanzadas" class="level3">
+<h3 class="anchored" data-anchor-id="checklist-de-competencias-alcanzadas">Checklist de Competencias Alcanzadas</h3>
+<ul>
+<li>✅ Entiendo qué es un Sistema Operativo y por qué es crítico</li>
+<li>✅ Puedo distinguir entre Kernel, Shell y Drivers</li>
+<li>✅ Reconozco errores comunes (RAM llena vs disco lleno)</li>
+<li>✅ Puedo usar comandos básicos para diagnosticar problemas</li>
+<li>✅ Estoy listo para aprender Linux específicamente</li>
+</ul>
+</section>
+<section id="próximos-pasos" class="level3">
+<h3 class="anchored" data-anchor-id="próximos-pasos">Próximos Pasos</h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>🔜 <strong>Siguiente tema:</strong> <a href="2_historia_linux.html">Historia y Evolución de Linux</a><br>
+📋 <strong>Laboratorio siguiente:</strong> Instalación de Ubuntu 22.04 LTS<br>
+⏱️ <strong>Tiempo recomendado:</strong> 2 horas de lectura + 3 horas de práctica</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="soporte" class="level2">
+<h2 class="anchored" data-anchor-id="soporte">📞 Soporte</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>¿Tienes dudas sobre este tema?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>💬 <strong>Preguntas técnicas:</strong> Abre un issue en [GitHub Issues]</li>
+<li>🐛 <strong>Errores no cubiertos:</strong> Reporta en el repositorio</li>
+<li>💡 <strong>Sugerencias para mejorar:</strong> Envía feedback a diego@abacom.cl</li>
+<li>🔗 <strong>Recursos adicionales:</strong> Disponibles en la sección <a href="#recursos-adicionales">Recursos Adicionales</a></li>
+</ul>
+</div>
+</div>
+<hr>
+<p><strong>Última actualización:</strong> 2026-01-29<br>
+<strong>Versión:</strong> 1.0<br>
+<strong>Estado:</strong> ✅ Completo y validado contra fuentes oficiales</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Acerca de las fuentes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Todo el contenido de este módulo ha sido verificado contra:</p>
+<ul>
+<li>Estándares POSIX.1-2017 y IEEE 1003.1</li>
+<li>Documentación oficial de The Linux Foundation</li>
+<li>Man-pages oficiales de Linux</li>
+</ul>
+<p>Las fuentes específicas se encuentran en <a href="#recursos-adicionales">Recursos Adicionales</a>.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="quiz-introducción-a-sistemas-operativos" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-introducción-a-sistemas-operativos">📝 Quiz: Introducción a Sistemas Operativos</h2>
+<div class="quizdown">
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es la función principal de un Sistema Operativo?
+
+- [ ] Escribir programas
+- [x] Gestionar recursos del hardware y proporcionar interfaz al usuario
+- [ ] Almacenar archivos
+- [ ] Conectarse a internet
+
+## ¿Cuáles son los tres componentes principales de un SO?
+
+- [x] Kernel, Shell, y Utilidades/Aplicaciones
+- [ ] CPU, Disco duro, Memoria
+- [ ] Windows, Linux, Mac
+- [ ] navegador, Editor de texto, Reproductor multimedia
+
+## ¿Qué es un Kernel?
+
+- [ ] Una aplicación para usuarios
+- [x] El núcleo del SO que gestiona hardware y recursos
+- [ ] El sistema de archivos
+- [ ] Un tipo de procesador
+
+## ¿Cuál es la función del Shell?
+
+- [ ] Proteger el hardware
+- [ ] Almacenar datos
+- [x] Proporcionar interfaz entre usuario y kernel
+- [ ] Crear redes
+
+## ¿Qué es un SO Monousuario?
+
+- [x] SO que permite un solo usuario a la vez
+- [ ] SO para una sola máquina
+- [ ] SO sin contraseña
+- [ ] SO muy básico
+
+## ¿Cuál es un ejemplo de SO Multiusuario?
+
+- [ ] DOS
+- [x] Linux
+- [ ] Windows 95
+- [ ] FreeDOS
+
+## ¿Qué es Multitarea?
+
+- [ ] Usar varios programas secuencialmente
+- [x] Ejecutar varios programas simultáneamente
+- [ ] Cambiar de usuario rápidamente
+- [ ] Trabajar en varios archivos
+
+## ¿Qué característica define un SO de Tiempo Real?
+
+- [ ] Velocidad extrema
+- [x] Respuesta garantizada en tiempo específico
+- [ ] Interfaz gráfica
+- [ ] Soporte multimedia
+
+## ¿Qué es un SO embebido?
+
+- [ ] SO que se esconde
+- [x] SO optimizado para dispositivos con recursos limitados
+- [ ] SO para servidores
+- [ ] SO experimental
+
+## Ejemplos de SO embebidos incluyen:
+
+- [ ] Linux Desktop, Windows
+- [x] Android, iOS, firmware de electrodomésticos
+- [ ] macOS, Windows Server
+- [ ] Todos los anteriores
+
+## ¿Cuál es la diferencia entre Hardware y Software?
+
+- [x] Hardware = componentes físicos, Software = programas e instrucciones
+- [ ] Son lo mismo
+- [ ] Hardware es más importante
+- [ ] Software es más rápido
+
+## ¿Qué es un archivo en un SO?
+
+- [ ] Un documento impreso
+- [x] Colección de datos almacenados con un nombre único
+- [ ] Un tipo de malware
+- [ ] Una carpeta
+
+## ¿Cuál es la función del Gestor de Archivos?
+
+- [ ] Proteger contra virus
+- [x] Organizar y permitir acceso a archivos del disco
+- [ ] Comprimir archivos automáticamente
+- [ ] Respaldar datos
+
+## ¿Qué es el Boot o Arranque del SO?
+
+- [ ] Apagar la computadora
+- [ ] Iniciar un programa
+- [x] Cargar el SO en memoria cuando se enciende la máquina
+- [ ] Reiniciar el sistema
+
+## ¿Cuál es la ventaja de usar particiones en un disco?
+
+- [ ] Hacer el disco más rápido
+- [x] Organizar datos, instalar múltiples SOs, aislar fallos
+- [ ] Aumentar espacio disponible
+- [ ] Proteger contra virus
+
+## ¿Qué es BIOS?
+
+- [ ] Un programa antivirus
+- [x] Firmware que inicia el hardware antes de cargar el SO
+- [ ] Un tipo de sistema de archivos
+- [ ] Un navegador web
+
+## ¿Cuál es la función del Gestor de Procesos?
+
+- [ ] Escribir documentos
+- [x] Asignar recursos CPU a programas en ejecución
+- [ ] Proteger archivos
+- [ ] Crear conexiones de red
+
+## ¿Qué es la Memoria Virtual?
+
+- [ ] Memoria que no existe
+- [x] Uso de disco duro para simular RAM adicional
+- [ ] Memoria del navegador
+- [ ] Almacenamiento en la nube
+
+## ¿Cuál es la diferencia entre Memoria RAM y Disco Duro?
+
+- [x] RAM es rápida pero temporal, Disco es lento pero permanente
+- [ ] Son iguales
+- [ ] RAM es permanente
+- [ ] Disco duro es más rápido
+
+## ¿Cuál es una función de Seguridad en un SO?
+
+- [ ] Eliminar archivos automáticamente
+- [x] Control de acceso, autenticación, gestión de permisos
+- [ ] Comprimir todos los datos
+- [ ] Conectar a internet automáticamente
+</div>
+<hr>
+
+
+</section>
+</section>
+<section class="level1 unnumbered">
+<h1 class="unnumbered">Code Appendix</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-posix_2017" class="csl-entry" role="listitem">
+<em>POSIX.1-2017</em>. 2017. The Open Group.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../glosario.html" class="pagination-link" aria-label="Glosario del Curso">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Glosario del Curso</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../unidades/unidad1/2_historia_linux.html" class="pagination-link" aria-label="Unidad 1.2: Historia y Evolución de Linux">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 1.2: Historia y Evolución de Linux</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+<p>Sobre el Curso</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../../license.html">
+<p>Licencia</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://statick88.github.io">
+<p>Instructor: statick88.github.io</p>
+</a>
+  </li>  
+</ul>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/unidades/unidad1/1_introduccion_sistemas_operativos.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

@@ -1,0 +1,74 @@
+---
+title: "Unidad 6: Almacenamiento"
+subtitle: "Administracion de Servidores Linux (Abacom)"
+author: "Diego Saavedra"
+date: today
+---
+
+## Metodologia
+
+Concepto -> Demo -> Laboratorio guiado -> Practica independiente
+
+## Agenda
+
+- Sistemas de archivos (ext4/XFS/Btrfs)
+- Particiones (GPT) y verificacion
+- Montaje y /etc/fstab (UUID)
+- Gestion de espacio (df/du/logs)
+- RAID/LVM (panorama)
+
+## Demo: Identificar FS y montajes
+
+```bash
+$ lsblk -f  # <1>
+NAME   FSTYPE FSVER UUID                                 MOUNTPOINTS
+sda
+└─sda1  ext4   1.0   5b4f5d4e-2f3e-4c17-9b3b-9d4c7d7b0c2a /
+# <1>
+
+$ findmnt -n -o SOURCE,FSTYPE,TARGET /  # <2>
+/dev/sda1 ext4 /
+# <2>
+```
+
+
+
+::: notes
+
+1. **lsblk -f** muestra el tipo de FS y UUID.
+2. **findmnt** confirma que dispositivo esta montado en `/`.
+
+:::
+
+## Demo: Montaje persistente (fstab)
+
+```bash
+$ sudo blkid /dev/sdb1  # <1>
+/dev/sdb1: UUID="11112222-3333-4444-aaaa-bbbbccccdddd" TYPE="ext4"
+# <1>
+
+$ sudo mount -a  # <2>
+# <2>
+```
+
+
+
+::: notes
+
+1. **blkid** entrega UUID para usar en `/etc/fstab`.
+2. **mount -a** valida fstab sin reiniciar.
+
+:::
+
+## Recursos
+
+- Material Unidad 6.1: [Sistemas de archivos](../unidades/unidad6/1_sistemas_archivos.html)
+- Material Unidad 6.2: [Particiones y discos](../unidades/unidad6/2_particiones_disco.html)
+- Material Unidad 6.3: [Montaje y fstab](../unidades/unidad6/3_montaje_desmontaje.html)
+- Material Unidad 6.4: [Gestion de espacio](../unidades/unidad6/4_gestion_espacio.html)
+- Material Unidad 6.5: [RAID y LVM](../unidades/unidad6/5_raid_lvm.html)
+- Practica Unidad 6: [Practica Unidad 6](../practicas/unidad6.html)
+
+::: {.footer-links}
+Instructor: https://statick88.github.io
+:::

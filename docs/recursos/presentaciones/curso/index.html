@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administracion de Servidores Linux (Abacom) - Presentacion General</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/night.css"
+      id="theme"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css"
+    />
+
+    <style>
+      :root {
+        --r-background-color: #0b0f14;
+        --r-main-font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --r-heading-font: "Fira Sans", "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --r-code-font:
+          "IBM Plex Mono",
+          ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Monaco,
+          Consolas,
+          "Liberation Mono",
+          monospace;
+
+        --r-main-color: #e6edf3;
+        --r-heading-color: #c9d1d9;
+        --r-link-color: #7ee787;
+        --r-link-color-hover: #56d364;
+        --r-selection-background-color: rgba(126, 231, 135, 0.25);
+      }
+
+      .reveal .slides section {
+        text-align: left;
+      }
+
+      .reveal .slides section a {
+        text-decoration-thickness: 2px;
+        text-underline-offset: 0.18em;
+      }
+
+      .reveal h1,
+      .reveal h2,
+      .reveal h3 {
+        letter-spacing: -0.02em;
+      }
+
+      .meta {
+        font-size: 0.75em;
+        opacity: 0.85;
+        margin-top: 1.25rem;
+      }
+
+      .kicker {
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 0.55em;
+        opacity: 0.8;
+      }
+
+      .reveal .kicker {
+        color: #7ee787;
+      }
+
+      .brand-logo {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        width: 54px;
+        height: 54px;
+        object-fit: contain;
+        padding: 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        z-index: 20;
+      }
+
+      .cover {
+        display: grid;
+        grid-template-columns: 1fr 220px;
+        gap: 28px;
+        align-items: start;
+      }
+
+      .cover .portrait {
+        width: 220px;
+        height: 220px;
+        border-radius: 22px;
+        object-fit: cover;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+      }
+
+      .cover .portrait-figure {
+        margin: 0;
+        justify-self: end;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .cover .portrait-caption {
+        font-size: 12px;
+        line-height: 1.1;
+        opacity: 0.82;
+        max-width: 240px;
+        text-align: center;
+      }
+
+      .cover .meta {
+        margin-top: 0.75rem;
+      }
+
+        @media (max-width: 900px) {
+        .cover {
+          grid-template-columns: 1fr;
+        }
+
+        .cover .portrait {
+          width: 180px;
+          height: 180px;
+          margin-top: 10px;
+        }
+
+        .cover .portrait-figure {
+          justify-self: start;
+          align-items: flex-start;
+        }
+
+        .cover .portrait-caption {
+          text-align: left;
+        }
+      }
+
+      .footer .brandmark {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .footer .brandmark img {
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+        opacity: 0.98;
+        flex: 0 0 auto;
+      }
+
+      .reveal pre code {
+        font-size: 0.9em;
+        line-height: 1.25;
+      }
+
+      .footer {
+        position: fixed;
+        left: 50%;
+        right: auto;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        width: min(1280px, calc(100vw - (2 * clamp(14px, 2.5vw, 24px))));
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        column-gap: 16px;
+        align-items: center;
+        font-size: 11px;
+        opacity: 0.8;
+        pointer-events: none;
+        z-index: 25;
+      }
+
+      .footer {
+        color: rgba(230, 237, 243, 0.8);
+      }
+
+      .footer a {
+        pointer-events: auto;
+      }
+
+      .footer-left {
+        justify-self: start;
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .footer-center {
+        justify-self: center;
+        text-align: center;
+        min-width: 0;
+      }
+
+      .footer-right {
+        justify-self: end;
+        min-width: 0;
+      }
+
+      .footer-center .company {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+      }
+
+      .footer-center a {
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .footer-meta {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        min-width: 0;
+        max-width: min(360px, 44vw);
+        line-height: 1.05;
+        gap: 2px;
+      }
+
+      .footer-meta a {
+        display: inline-block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      @media (max-width: 720px) {
+        .footer {
+          grid-template-columns: 1fr;
+          row-gap: 8px;
+        }
+
+        .footer-left,
+        .footer-center,
+        .footer-right {
+          justify-self: center;
+          text-align: center;
+        }
+
+        .footer-meta {
+          align-items: center;
+          max-width: 80vw;
+        }
+      }
+
+      .footer-meta .label {
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+    </style>
+  </head>
+
+  <body>
+    <img class="brand-logo" src="../../../logo.jpeg" alt="Abacom" />
+
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <div class="cover">
+            <div>
+              <p class="kicker">Presentacion General</p>
+              <h1>Administracion de Servidores Linux</h1>
+              <h3>Curso Profesional para Abacom</h3>
+            </div>
+            <figure class="portrait-figure">
+              <img class="portrait" src="../../../images/statick_ds.jpg" alt="Instructor" />
+              <figcaption class="portrait-caption">Instructor: Diego Saavedra</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section>
+          <h2>Que vas a lograr</h2>
+          <ul>
+            <li class="fragment fade-up">Instalar y configurar servidores Linux desde cero</li>
+            <li class="fragment fade-up">Administrar usuarios, permisos, SSH y seguridad basica</li>
+            <li class="fragment fade-up">Operar servicios con criterio de produccion</li>
+            <li class="fragment fade-up">Diagnosticar problemas con logs y herramientas CLI</li>
+            <li class="fragment fade-up">Automatizar tareas con scripts y buenas practicas</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Metodologia (Aprender Haciendo)</h2>
+          <p class="fragment fade-up">
+            Concepto -&gt; Ejemplo practico -&gt; Laboratorio guiado -&gt; Desafio independiente
+          </p>
+          <p class="meta fragment fade-up">Objetivo: que la practica construya criterio de produccion.</p>
+        </section>
+
+        <section>
+          <h2>Por que este curso</h2>
+          <ul>
+            <li class="fragment fade-up">Enfoque practico: menos teoria aislada, mas operacion real</li>
+            <li class="fragment fade-up">Casos reales: escenarios empresariales</li>
+            <li class="fragment fade-up">Orientado a roles: SysAdmin / Infra / DevOps junior</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Estructura del curso</h2>
+          <ul>
+            <li class="fragment fade-up">Unidades tematicas progresivas</li>
+            <li class="fragment fade-up">Laboratorios guiados (2-3 horas)</li>
+            <li class="fragment fade-up">Practicas por unidad</li>
+            <li class="fragment fade-up">Proyecto final integrador</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Mapa de unidades</h2>
+          <ol>
+            <li class="fragment fade-up">Fundamentos y Linux</li>
+            <li class="fragment fade-up">Instalacion y configuracion</li>
+            <li class="fragment fade-up">Terminal y archivos</li>
+            <li class="fragment fade-up">Docker y containerizacion</li>
+            <li class="fragment fade-up">Procesos, servicios y cron (plan)</li>
+            <li class="fragment fade-up">Almacenamiento y filesystems (plan)</li>
+            <li class="fragment fade-up">Redes y seguridad (plan)</li>
+            <li class="fragment fade-up">Servicios empresariales</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Laboratorios</h2>
+          <ul>
+            <li class="fragment fade-up">Lab 0: Diagnostico del sistema</li>
+            <li class="fragment fade-up">Lab 1: Instalacion de Ubuntu Server</li>
+            <li class="fragment fade-up">Lab 2: Usuarios y permisos</li>
+            <li class="fragment fade-up">Lab 3: Procesos, servicios y monitorizacion</li>
+            <li class="fragment fade-up">Lab 4: Redes y SSH</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Proyecto final (integrador)</h2>
+          <p>Configurar un servidor empresarial completo que integre:</p>
+          <ul>
+            <li class="fragment fade-up">Nginx o Apache</li>
+            <li class="fragment fade-up">Usuarios y permisos por rol</li>
+            <li class="fragment fade-up">SSH seguro + firewall</li>
+            <li class="fragment fade-up">Backups + mantenimiento</li>
+            <li class="fragment fade-up">Logging y trazabilidad</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Requisitos tecnicos (resumen)</h2>
+          <ul>
+            <li class="fragment fade-up">Ideal: VM con Ubuntu Server 22.04 LTS</li>
+            <li class="fragment fade-up">Alternativas: Linux nativo o Docker para practicas rapidas</li>
+            <li class="fragment fade-up">Recomendado: 8-16 GB RAM y 50-100 GB libres</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Herramientas que vas a usar</h2>
+          <ul>
+            <li class="fragment fade-up">Terminal + SSH (el 70% del trabajo real)</li>
+            <li class="fragment fade-up">Editor: VS Code (opcional) + Remote SSH</li>
+            <li class="fragment fade-up">Git para versionar configuraciones y evidencias</li>
+            <li class="fragment fade-up">Herramientas de diagnostico: journalctl, ss, lsof, top/htop</li>
+            <li class="fragment fade-up">Seguridad base: ufw, claves SSH, actualizaciones</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Entorno de laboratorio (recomendado)</h2>
+          <ul>
+            <li class="fragment fade-up">1 VM Ubuntu Server (LAN privada) + snapshots antes de cambios grandes</li>
+            <li class="fragment fade-up">Usuario normal + sudo (evitar trabajar como root)</li>
+            <li class="fragment fade-up">Host-only o NAT segun tu red; SSH siempre habilitado</li>
+            <li class="fragment fade-up">Carpeta de trabajo: README + comandos clave + decisiones</li>
+          </ul>
+          <p class="meta fragment fade-up">Meta: reproducir lo mismo en cualquier PC en 10 minutos.</p>
+        </section>
+
+        <section>
+          <h2>Reglas de oro (operacion real)</h2>
+          <ul>
+            <li class="fragment fade-up">Antes de cambiar: entiende el impacto y ten rollback</li>
+            <li class="fragment fade-up">Mas vale log + evidencia que memoria</li>
+            <li class="fragment fade-up">Menos privilegios: sudo puntual, no root permanente</li>
+            <li class="fragment fade-up">Actualiza y parchea con disciplina (y ventanas de cambio)</li>
+            <li class="fragment fade-up">Backups y restauracion probada: no existe backup sin restore</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Troubleshooting en 6 pasos</h2>
+          <ol>
+            <li class="fragment fade-up">Define el sintoma (que falla) y el objetivo (que deberia pasar)</li>
+            <li class="fragment fade-up">Reproduce y reduce: el caso minimo</li>
+            <li class="fragment fade-up">Revisa logs primero (journalctl, /var/log)</li>
+            <li class="fragment fade-up">Estado del servicio: systemctl + puertos + red</li>
+            <li class="fragment fade-up">Cambios recientes: config, updates, permisos</li>
+            <li class="fragment fade-up">Documenta la causa raiz + fix + prevencion</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Evidencia y entregables</h2>
+          <ul>
+            <li class="fragment fade-up">README corto con decisiones (por que) y comandos (como)</li>
+            <li class="fragment fade-up">Capturas o salidas clave: ip a, systemctl status, logs relevantes</li>
+            <li class="fragment fade-up">Configuraciones versionadas (cuando aplique)</li>
+            <li class="fragment fade-up">Checklist final: seguridad base + acceso + servicio OK</li>
+          </ul>
+          <p class="meta fragment fade-up">
+            Rubrica:
+            <a href="../../../lab-practicos/rubrica-evaluacion.html">lab-practicos/rubrica-evaluacion</a>
+          </p>
+        </section>
+
+        <section>
+          <h2>Como pedir ayuda (formato rapido)</h2>
+          <ul>
+            <li class="fragment fade-up">Contexto: que intentas lograr + en que unidad/lab estas</li>
+            <li class="fragment fade-up">Comando exacto + salida exacta (copia/pega)</li>
+            <li class="fragment fade-up">Version: Ubuntu, paquete, servicio (cuando aplique)</li>
+            <li class="fragment fade-up">Que ya probaste (para no repetir)</li>
+            <li class="fragment fade-up">Si es red/SSH: IP, puertos, desde donde te conectas</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Como usar el material</h2>
+          <ol>
+            <li class="fragment fade-up">Lee la unidad completa</li>
+            <li class="fragment fade-up">Ejecuta los ejemplos en tu entorno</li>
+            <li class="fragment fade-up">Completa la practica</li>
+            <li class="fragment fade-up">Haz el laboratorio guiado</li>
+            <li class="fragment fade-up">Cierra con el desafio independiente</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Siguiente paso</h2>
+          <ul>
+            <li class="fragment fade-up">Revisa SETUP y deja listo tu entorno</li>
+            <li class="fragment fade-up">Comienza con Unidad 1 y su practica</li>
+          </ul>
+          <p class="meta fragment fade-up">
+            Accesos rapidos: <a href="../../../SETUP.html">SETUP</a> |
+            <a href="../../../unidades/unidad1/99_recursos.html">Recursos Unidad 1</a> |
+            <a href="../../../index.html">Inicio</a>
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-left brandmark">
+        <img src="../../../logo.jpeg" alt="Abacom" />
+        <span class="footer-meta">
+          <span class="label">Instructor</span>
+          <a href="https://statick88.github.io" target="_blank" rel="noreferrer">statick88.github.io</a>
+        </span>
+      </div>
+      <div class="footer-center">
+        <div class="company">Abacom</div>
+        <a href="https://abacom.edu.ec" target="_blank" rel="noreferrer">abacom.edu.ec</a>
+      </div>
+      <div class="footer-right"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+
+    <script>
+      Reveal.initialize({
+        width: 1280,
+        height: 720,
+        center: false,
+        hash: true,
+        slideNumber: true,
+        transition: "fade",
+        navigationMode: "linear",
+        plugins: [RevealHighlight],
+      });
+    </script>
+  </body>
+</html>

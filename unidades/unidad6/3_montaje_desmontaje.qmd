@@ -1,0 +1,195 @@
+---
+title: "Unidad 6.3: Montaje y desmontaje"
+subtitle: "mount, umount y /etc/fstab"
+author: "Diego Saavedra"
+date: "2026-02-01"
+date-format: medium
+---
+
+# Unidad 6.3: Montaje y desmontaje
+
+## Introduccion
+
+En Linux, un disco no "aparece" automaticamente como una letra (como en Windows). En su lugar, se monta en un directorio: `/mnt`, `/data`, `/var/lib`, etc.
+
+En esta leccion practicaremos:
+
+- montar y desmontar
+- identificar por UUID
+- configurar montaje persistente con `/etc/fstab`
+
+## Objetivos de aprendizaje
+
+Al final, podras:
+
+- Montar y desmontar un FS
+- Encontrar el UUID con `blkid`
+- Escribir una entrada segura en `/etc/fstab` y validarla con `mount -a`
+
+---
+
+## Laboratorio: crear FS, montar, desmontar
+
+```bash
+$ sudo fallocate -l 512M /tmp/u6-mount.img  # <1>
+# <1>
+
+$ sudo losetup -fP /tmp/u6-mount.img  # <2>
+# <2>
+
+$ sudo losetup -a | grep u6-mount.img  # <3>
+/dev/loop2: [2065]:11111 (/tmp/u6-mount.img)
+# <3>
+
+$ sudo parted /dev/loop2 --script mklabel gpt  # <4>
+# <4>
+
+$ sudo parted /dev/loop2 --script mkpart primary ext4 1MiB 100%  # <5>
+# <5>
+
+$ sudo mkfs.ext4 -F /dev/loop2p1  # <6>
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 130560 4k blocks and 32768 inodes
+Filesystem UUID: 9a1b2c3d-4e5f-6789-aaaa-bbbbccccdddd
+# <6>
+
+$ sudo mkdir -p /mnt/u6-data  # <7>
+# <7>
+
+$ sudo mount /dev/loop2p1 /mnt/u6-data  # <8>
+# <8>
+
+$ df -hT /mnt/u6-data  # <9>
+Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/loop2p1   ext4  474M   24K  448M   1% /mnt/u6-data
+# <9>
+
+$ sudo umount /mnt/u6-data  # <10>
+# <10>
+```
+
+
+
+1. **fallocate** crea el disco de laboratorio.
+2. **losetup** crea el dispositivo loop.
+3. **losetup -a** confirma que `/dev/loop2` apunta al archivo.
+4. **parted mklabel gpt** prepara GPT.
+5. **parted mkpart** crea la particion.
+6. **mkfs.ext4** crea el sistema de archivos ext4 (nota: imprime un UUID).
+7. **mkdir -p** crea el directorio donde se montara el FS.
+8. **mount** monta el dispositivo en el directorio.
+9. **df -hT** verifica que esta montado y el tipo de FS.
+10. **umount** desmonta de forma segura.
+
+---
+
+## Montaje persistente con /etc/fstab (con UUID)
+
+Primero obtenemos el UUID del dispositivo:
+
+```bash
+$ sudo blkid /dev/loop2p1  # <1>
+/dev/loop2p1: UUID="9a1b2c3d-4e5f-6789-aaaa-bbbbccccdddd" TYPE="ext4" PARTUUID="cafe-babe-..."
+# <1>
+```
+
+
+
+1. **blkid** imprime UUID y tipo de sistema de archivos.
+
+Ejemplo de entrada en `/etc/fstab` (referencia):
+
+```text
+UUID=9a1b2c3d-4e5f-6789-aaaa-bbbbccccdddd  /data  ext4  defaults,noatime  0  2
+```
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRITICA
+
+**Un error en `/etc/fstab` puede dejar tu servidor sin boot.**
+
+Lo que podria salir mal:
+- El sistema intenta montar algo inexistente y cae a modo emergencia.
+
+Como prevenirlo:
+1. Usa **UUID** (no `/dev/sdb1`).
+2. Agrega `nofail` si es un disco opcional.
+3. Siempre prueba con `sudo mount -a` antes de reiniciar.
+:::
+
+Validacion recomendada:
+
+```bash
+$ sudo mount -a  # <1>
+# <1>
+
+$ findmnt | grep -E "\s/data\s"  # <2>
+/data /dev/sdb1 ext4 rw,noatime,relatime
+# <2>
+```
+
+
+
+1. **mount -a** intenta montar todo lo definido en `/etc/fstab` (prueba rapida sin reiniciar).
+2. **findmnt** confirma que el montaje existe.
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver montajes actuales
+
+#### Linux
+```bash
+$ findmnt | head -n 6  # <1>
+TARGET SOURCE    FSTYPE OPTIONS
+/      /dev/sda1 ext4   rw,relatime
+/boot  /dev/sda2 ext4   rw,relatime
+# <1>
+```
+
+
+
+1. **findmnt** muestra montajes con origen y tipo.
+
+#### macOS
+```bash
+$ mount | head -n 5  # <1>
+/dev/disk3s1s1 on / (apfs, local, read-only, journaled)
+# <1>
+```
+
+
+
+1. **mount** lista sistemas montados en macOS.
+
+#### Windows
+```powershell
+PS> Get-Volume | Select-Object DriveLetter,FileSystem,SizeRemaining,Size  # <1>
+
+DriveLetter FileSystem SizeRemaining        Size
+----------- --------- -------------        ----
+C           NTFS      120345678901  256060514304
+# <1>
+```
+
+
+
+1. **Get-Volume** lista volumenes y FS en Windows.
+
+:::
+
+| Aspecto | Linux | macOS | Windows |
+|---------|-------|-------|---------|
+| Ver montajes | `findmnt` | `mount` | `Get-Volume` |
+| Persistencia | `/etc/fstab` | `/etc/fstab` (casos) | Disk Management |
+
+---
+
+## Resumen
+
+- Montar es "conectar" un FS a un directorio.
+- Usa UUID en `/etc/fstab`.
+- Siempre valida con `mount -a` antes de reiniciar.

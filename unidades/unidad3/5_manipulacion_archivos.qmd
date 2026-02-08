@@ -1,0 +1,788 @@
+---
+title: "Manipulación de Archivos y Directorios"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# Manipulación de Archivos y Directorios
+
+## Introducción
+
+Más allá de navegar y buscar, necesitas crear, copiar, mover y eliminar archivos. Estos comandos son las herramientas básicas para la administración de archivos en el sistema.
+
+**🗺️ En este tema aprenderás:**
+
+- Comando `cp` - copiar archivos y directorios
+- Comando `mv` - mover y renombrar
+- Comando `rm` - eliminar archivos
+- Comando `rmdir` - eliminar directorios
+- Comando `mkdir` - crear directorios
+- Comando `touch` - crear archivos vacíos
+- Comando `ln` - crear enlaces
+- Buenas prácticas de seguridad
+
+---
+
+## El Comando `mkdir` - Crear Directorios
+
+El comando `mkdir` (make directory) crea nuevos directorios.
+
+**Sintaxis:**
+```bash
+mkdir [opciones] [directorio(s)]
+```
+
+### Opciones principales:
+
+- `-p` : Crear directorios padres si es necesario
+- `-m` : Establecer permisos al crear
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Crear un directorio simple
+
+#### Linux
+```bash
+$ mkdir Documentos
+$ ls -d Documentos
+Documentos
+# <1>
+```
+1. Crea un directorio en la ubicación actual
+
+#### macOS
+```bash
+$ mkdir Documents
+$ ls -d Documents
+Documents
+# <1>
+```
+1. Funciona igual que Linux
+
+#### Windows
+```powershell
+PS> mkdir Documents
+PS> Get-Item Documents
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         29/1/2024     10:30                Documents
+# <1>
+```
+1. `mkdir` es un alias de `New-Item -ItemType Directory`
+
+:::
+
+### Ejemplo 2: Crear estructura de directorios anidados (-p)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ mkdir -p ~/Proyectos/Python/web-app/src
+$ tree ~/Proyectos
+Proyectos/
+└── Python/
+    └── web-app/
+        └── src/
+# <1>
+```
+1. `-p` crea todos los directorios intermedios
+
+#### macOS
+```bash
+$ mkdir -p ~/Projects/Python/web-app/src
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> mkdir -Path C:\Users\usuario\Projects\Python\web-app\src -Force
+# El -Force es equivalente a -p
+# <1>
+```
+1. PowerShell requiere `-Force` para crear padres
+
+:::
+
+### Ejemplo 3: Crear directorio con permisos específicos (-m)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ mkdir -m 700 privado
+$ ls -ld privado
+drwx------ 1 usuario usuario 4096 Jan 29 10:30 privado
+# <1>
+```
+1. `-m 700` establece permisos solo-propietario
+
+#### macOS
+```bash
+$ mkdir -m 700 privado
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+# Windows no soporta -m, pero puedes hacerlo después:
+PS> mkdir privado
+PS> # No hay equivalente directo en PowerShell
+# <1>
+```
+1. Los permisos de Windows funciona diferente (NTFS ACLs)
+
+:::
+
+---
+
+## El Comando `touch` - Crear Archivos Vacíos
+
+El comando `touch` crea archivos vacíos o actualiza la marca de tiempo de archivos existentes.
+
+**Sintaxis:**
+```bash
+touch [opciones] [archivo(s)]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Crear un archivo vacío
+
+#### Linux
+```bash
+$ touch README.md
+$ ls -l README.md
+-rw-r--r-- 1 usuario grupo 0 Jan 29 10:30 README.md
+# <1>
+```
+1. Crea un archivo vacío de 0 bytes
+
+#### macOS
+```bash
+$ touch README.md
+$ ls -l README.md
+-rw-r--r-- 1 usuario staff 0 Jan 29 10:30 README.md
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+# No existe touch, pero:
+PS> New-Item -Path C:\Users\usuario -Name README.md -ItemType File
+# o en WSL:
+PS> wsl touch README.md
+# <1>
+```
+1. PowerShell usa `New-Item`
+
+:::
+
+### Ejemplo 2: Actualizar marca de tiempo de archivo existente
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ ls -l archivo.txt
+-rw-r--r-- 1 usuario grupo 1024 Jan 25 10:00 archivo.txt
+
+$ touch archivo.txt
+$ ls -l archivo.txt
+-rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 archivo.txt
+# <1>
+```
+1. Actualiza el timestamp sin modificar contenido
+
+#### macOS
+```bash
+$ touch archivo.txt
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> (Get-Item archivo.txt).LastWriteTime = Get-Date
+# <1>
+```
+1. PowerShell actualiza la fecha manualmente
+
+:::
+
+---
+
+## El Comando `cp` - Copiar Archivos y Directorios
+
+El comando `cp` (copy) copia archivos y directorios.
+
+**Sintaxis:**
+```bash
+cp [opciones] [origen] [destino]
+```
+
+### Opciones principales:
+
+- `-r` o `-R` : Copiar recursivamente (directorios)
+- `-i` : Preguntar antes de sobrescribir
+- `-v` : Modo verboso (mostrar progreso)
+- `-p` : Preservar permisos y timestamps
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Copiar un archivo simple
+
+#### Linux
+```bash
+$ cp archivo.txt archivo-copia.txt
+$ ls -l archivo*
+-rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 archivo-copia.txt
+-rw-r--r-- 1 usuario grupo 1024 Jan 25 10:00 archivo.txt
+# <1>
+```
+1. Crea una copia exacta del archivo
+
+#### macOS
+```bash
+$ cp archivo.txt archivo-copia.txt
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Copy-Item archivo.txt archivo-copia.txt
+# o
+PS> cp archivo.txt archivo-copia.txt
+# <1>
+```
+1. `cp` es un alias de `Copy-Item`
+
+:::
+
+### Ejemplo 2: Copiar a un directorio diferente
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ cp archivo.txt ~/Documentos/
+$ ls ~/Documentos/archivo.txt
+/home/usuario/Documentos/archivo.txt
+# <1>
+```
+1. Si el destino es un directorio, copia el archivo dentro
+
+#### macOS
+```bash
+$ cp archivo.txt ~/Documents/
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Copy-Item archivo.txt C:\Users\usuario\Documents\
+# <1>
+```
+1. Igual funcionalidad
+
+:::
+
+### Ejemplo 3: Copiar directorios recursivamente (-r)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ cp -r Proyectos Proyectos-copia
+$ ls -ld Proyectos*
+drwxr-xr-x 5 usuario grupo 4096 Jan 29 10:30 Proyectos
+drwxr-xr-x 5 usuario grupo 4096 Jan 29 10:30 Proyectos-copia
+# <1>
+```
+1. `-r` copia recursivamente todo el directorio
+
+#### macOS
+```bash
+$ cp -r Proyectos Proyectos-copia
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Copy-Item -Path Proyectos -Destination Proyectos-copia -Recurse
+# <1>
+```
+1. `-Recurse` es el equivalente a `-r`
+
+:::
+
+### Ejemplo 4: Copiar con confirmación (-i) y preservación de atributos (-p)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ cp -ip archivo.txt archivo-copia.txt
+cp: overwrite 'archivo-copia.txt'? y
+$ ls -l archivo-copia.txt
+-rw-r--r-- 1 usuario grupo 1024 Jan 25 10:00 archivo-copia.txt
+# <1>
+# <2>
+```
+1. `-i` pregunta antes de sobrescribir
+
+2. `-p` preserva permisos y timestamps originales
+
+#### macOS
+```bash
+$ cp -ip archivo.txt archivo-copia.txt
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Copy-Item archivo.txt archivo-copia.txt -Confirm
+# <1>
+```
+1. PowerShell no preserva permisos igual (usa NTFS ACLs)
+
+:::
+
+---
+
+## El Comando `mv` - Mover y Renombrar
+
+El comando `mv` (move) mueve o renombra archivos y directorios.
+
+**Sintaxis:**
+```bash
+mv [opciones] [origen] [destino]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Renombrar un archivo
+
+#### Linux
+```bash
+$ mv archivo-viejo.txt archivo-nuevo.txt
+$ ls archivo*
+archivo-nuevo.txt
+# <1>
+```
+1. Renombra el archivo (mismo directorio)
+
+#### macOS
+```bash
+$ mv archivo-viejo.txt archivo-nuevo.txt
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Rename-Item archivo-viejo.txt archivo-nuevo.txt
+# o
+PS> mv archivo-viejo.txt archivo-nuevo.txt
+# <1>
+```
+1. `mv` es un alias de `Move-Item`
+
+:::
+
+### Ejemplo 2: Mover archivo a otro directorio
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ mv archivo.txt ~/Documentos/
+$ ls ~/Documentos/archivo.txt
+/home/usuario/Documentos/archivo.txt
+# <1>
+```
+1. Mueve el archivo, no copia
+
+#### macOS
+```bash
+$ mv archivo.txt ~/Documents/
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Move-Item archivo.txt C:\Users\usuario\Documents\
+# <1>
+```
+1. Funciona igual
+
+:::
+
+### Ejemplo 3: Mover y renombrar simultáneamente
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ mv archivo.txt ~/Documentos/archivo-nuevo.txt
+# <1>
+```
+1. Mueve y renombra en una operación
+
+#### macOS
+```bash
+$ mv archivo.txt ~/Documents/archivo-nuevo.txt
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Move-Item archivo.txt C:\Users\usuario\Documents\archivo-nuevo.txt
+# <1>
+```
+1. Mismo comportamiento
+
+:::
+
+---
+
+## El Comando `rm` - Eliminar Archivos
+
+El comando `rm` (remove) elimina archivos. **ADVERTENCIA: No hay "papelera de reciclaje" - es permanente.**
+
+**Sintaxis:**
+```bash
+rm [opciones] [archivo(s)]
+```
+
+### Opciones principales:
+
+- `-i` : Preguntar antes de eliminar (seguro)
+- `-f` : Forzar sin preguntar (peligroso)
+- `-r` : Recursivo (eliminar directorios)
+- `-v` : Verboso (mostrar qué se elimina)
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Eliminar un archivo (seguro)
+
+#### Linux
+```bash
+$ rm -i archivo.txt
+remove archivo.txt? y
+# <1>
+# <2>
+```
+1. `-i` pregunta antes de eliminar
+
+2. **Siempre usa `-i` hasta que te sientas seguro**
+
+#### macOS
+```bash
+$ rm -i archivo.txt
+remove archivo.txt? y
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Remove-Item archivo.txt -Confirm
+# <1>
+```
+1. `-Confirm` pregunta antes de eliminar
+
+:::
+
+### Ejemplo 2: Eliminar sin preguntar (peligroso)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ rm archivo.txt
+# Sin confirmación, archivo eliminado para siempre
+# <1>
+```
+1. **PELIGRO: No hay forma de recuperar**
+
+#### macOS
+```bash
+$ rm archivo.txt
+# <1>
+```
+1. Funcionamiento idéntico
+
+#### Windows
+```powershell
+PS> Remove-Item archivo.txt -Force
+# <1>
+```
+1. `-Force` elimina sin preguntar
+
+:::
+
+### Ejemplo 3: Eliminar directorios recursivamente (-r)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ rm -ri directorio
+remove directorio? y
+remove directorio/archivo1.txt? y
+remove directorio/archivo2.txt? y
+# <1>
+# <2>
+```
+1. `-r` elimina recursivamente
+
+2. `-i` pregunta para cada archivo
+
+#### macOS
+```bash
+$ rm -ri directorio
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Remove-Item -Path directorio -Recurse -Confirm
+# <1>
+```
+1. `-Recurse` elimina directorios y contenido
+
+:::
+
+---
+
+## El Comando `rmdir` - Eliminar Directorios Vacíos
+
+El comando `rmdir` solo elimina directorios vacíos, es más seguro que `rm -r`.
+
+**Sintaxis:**
+```bash
+rmdir [directorio]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Eliminar directorio vacío
+
+#### Linux
+```bash
+$ rmdir directorio-vacio
+$ ls directorio-vacio
+ls: cannot access 'directorio-vacio': No such file or directory
+# <1>
+```
+1. Solo funciona si está completamente vacío
+
+#### macOS
+```bash
+$ rmdir directorio-vacio
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+PS> Remove-Item -Path directorio-vacio -Confirm
+# <1>
+```
+1. Funciona igual
+
+:::
+
+---
+
+## El Comando `ln` - Crear Enlaces
+
+El comando `ln` (link) crea enlaces entre archivos. Existen dos tipos:
+
+### Enlaces simbólicos (soft links):
+
+- Apuntan a otro archivo por nombre
+- Pueden cruzar sistemas de archivos
+- Se rompen si el archivo original se elimina
+
+### Enlaces duros (hard links):
+
+- Apuntan directamente al contenido del archivo
+- No pueden cruzar sistemas de archivos
+- Persisten aunque se elimine el original
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Crear enlace simbólico (-s)
+
+#### Linux
+```bash
+$ ln -s archivo.txt enlace.txt
+$ ls -l enlace.txt
+lrwxrwxrwx 1 usuario grupo 10 Jan 29 10:30 enlace.txt -> archivo.txt
+# <1>
+# <2>
+```
+1. `-s` crea enlace simbólico
+
+2. La `l` al inicio indica que es enlace
+
+#### macOS
+```bash
+$ ln -s archivo.txt enlace.txt
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+# En WSL:
+PS> wsl ln -s archivo.txt enlace.txt
+
+# En PowerShell (Windows 10+):
+PS> New-Item -ItemType SymbolicLink -Path enlace.txt -Target archivo.txt
+# <1>
+```
+1. PowerShell requiere permisos de administrador
+
+:::
+
+### Ejemplo 2: Crear enlace duro (sin -s)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ ln archivo.txt enlace-duro.txt
+$ ls -i archivo.txt enlace-duro.txt
+123456 archivo.txt
+123456 enlace-duro.txt
+# <1>
+# <2>
+```
+1. Sin `-s`, crea enlace duro
+
+2. Ambos tienen el mismo inodo (123456)
+
+#### macOS
+```bash
+$ ln archivo.txt enlace-duro.txt
+# <1>
+```
+1. Funciona igual
+
+#### Windows
+```powershell
+# No soporta hard links igual que Unix
+# En WSL:
+PS> wsl ln archivo.txt enlace-duro.txt
+# <1>
+```
+1. NTFS tiene junctions que son similares
+
+:::
+
+---
+
+## Resumen de Manipulación de Archivos
+
+| Comando | Propósito | Ejemplo |
+|---------|-----------|---------|
+| `mkdir -p dir/subdir` | Crear directorios | `mkdir -p ~/Proyectos/web` |
+| `touch archivo.txt` | Crear archivo vacío | `touch README.md` |
+| `cp archivo.txt copia.txt` | Copiar archivo | `cp config.txt config.bak` |
+| `cp -r dir dir-copia` | Copiar directorio | `cp -r src src-backup` |
+| `mv archivo.txt nuevo.txt` | Renombrar | `mv archivo.txt LEEME.txt` |
+| `mv archivo.txt dir/` | Mover | `mv archivo.txt ~/Documentos/` |
+| `rm archivo.txt` | Eliminar archivo | `rm archivo.txt` |
+| `rm -r directorio` | Eliminar directorio | `rm -r directorio/` |
+| `rmdir dir-vacio` | Eliminar dir vacío | `rmdir dir-vacio` |
+| `ln -s archivo enlace` | Enlace simbólico | `ln -s config config.link` |
+
+---
+
+## Mejores Prácticas de Seguridad
+
+1. **Siempre usa `-i` con `rm` hasta que tengas experiencia**
+   ```bash
+   rm -i archivo.txt  # Pregunta antes de eliminar
+   ```
+
+2. **Haz copias antes de operaciones peligrosas**
+   ```bash
+   cp archivo.txt archivo.txt.backup
+   # ... hacer cambios ...
+   ```
+
+3. **Usa `rsync` para copias importantes**
+   ```bash
+   rsync -av origen/ destino/
+   ```
+
+4. **Verifica antes de eliminar recursivamente**
+   ```bash
+   ls -lR directorio/  # Ver contenido primero
+   rm -ri directorio   # Luego eliminar
+   ```
+
+5. **Usa control de versiones para código**
+   ```bash
+   git commit -m "Backup antes de cambios"
+   # ... hacer cambios ...
+   ```
+
+---
+
+## 🎯 Ejercicios Prácticos
+
+1. Crea estructura: `Proyecto/src/main` usando `mkdir -p`
+
+2. Crea 3 archivos vacíos con `touch`
+
+3. Copia un archivo con `cp` y verifica con `ls`
+
+4. Renombra archivo con `mv`
+
+5. Crea enlace simbólico con `ln -s`
+
+6. Elimina archivos con `rm -i` (seguro)
+
+7. Elimina directorio vacío con `rmdir`
+
+---
+
+## Referencias
+
+Para más información sobre manipulación de archivos:
+
+- [@posix2018] - POSIX File Operations
+- [@bash2023] - GNU Bash Manual
+- [@coreutils2024] - GNU Coreutils Manual

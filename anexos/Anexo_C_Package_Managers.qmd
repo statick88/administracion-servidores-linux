@@ -1,0 +1,985 @@
+---
+title: "Anexo C: Gestores de Paquetes - Debian, CentOS, Arch"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: ../unidades/unidad1/references.bib
+biblio-style: apalike
+---
+
+# Anexo C: Gestores de Paquetes - Debian, CentOS, Arch
+
+## Introducción
+
+Cada distribución Linux tiene su **gestor de paquetes** - la herramienta que instala, actualiza y elimina software. Aunque los comandos son diferentes, la **lógica es idéntica**.
+
+**Distribuciones que encontrarás en Abacom:**
+
+- 🐧 **Debian/Ubuntu** → **apt**, **apt-get** (Familia Debian)
+- 🎩 **CentOS/RHEL/Fedora** → **yum**, **dnf** (Familia Red Hat)
+- 🏠 **Arch Linux** → **pacman** (Arch)
+
+Este anexo es **práctico y comparativo**: Aprenderás a hacer lo mismo en cada sistema.
+
+**🗺️ En este anexo aprenderás:**
+
+- Diferencias entre gestores de paquetes
+- Instalar, actualizar, desinstalar paquetes
+- Buscar paquetes disponibles
+- Gestionar repositorios
+- Resolver dependencias
+- Automatizar actualizaciones
+
+**⏱️ Duración estimada**: 90 minutos de práctica
+
+---
+
+## Conceptos Clave
+
+### ¿Qué es un Paquete?
+
+Un **paquete** es un archivo comprimido (**.deb**, **.rpm**, **.tar.gz**) que contiene:
+
+```
+paquete.deb/rpm
+├── Archivos binarios ejecutables
+├── Archivos de configuración
+├── Dependencias requeridas
+├── Scripts de instalación/desinstalación
+└── Metadatos (versión, autor, etc)
+```
+
+**Analogía**: Como una caja con todo lo necesario para instalar software.
+
+### Repositorios
+
+**Repositorios** son servidores que almacenan miles de paquetes. El gestor descarga de allí:
+
+```
+Servidor Oficial Ubuntu
+│
+├─ nginx (web server)
+├─ postgres (database)
+├─ git (version control)
+└─ ... miles de paquetes más
+```
+
+Cuando haces **apt install nginx**, el gestor:
+
+1. Busca en repositorios configurados
+
+2. Descarga el paquete
+
+3. Instala automáticamente dependencias
+
+---
+
+## Debian/Ubuntu: apt y apt-get
+
+### Diferencia: apt vs apt-get
+
+| Aspecto | apt-get | apt |
+|--------|---------|-----|
+| **Antigüedad** | 1997 (muy antiguo) | 2014 (moderno) |
+| **Uso** | Scripts/servidores | Usuario final |
+| **Interfaz** | Verbosa | Resumida, colorida |
+| **Estabilidad** | Garantizada | Garantizada |
+
+**Para Abacom**: Aprende **apt** (más moderno), pero apt-get funciona igual.
+
+### Actualizar Repositorios
+
+```bash
+# Descargar lista de paquetes disponibles
+sudo apt update  # <1>
+```
+
+1. **apt update** lee repositorios y descarga lista de paquetes disponibles (no instala nada)
+
+**Salida:**
+```
+Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:2 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Reading package lists... Done
+```
+
+**¿Cuándo ejecutar?**
+
+- Antes de instalar algo nuevo
+- Diariamente en servidores (para seguridad)
+- Después de agregar nuevos repositorios
+
+### Instalar Paquete
+
+```bash
+# Instalar un paquete
+sudo apt install nginx  # <1>
+```
+
+1. **apt install** descarga e instala nginx + dependencias automáticamente
+
+**Con confirmación automática:**
+
+```bash
+sudo apt install -y nginx  # <1>
+```
+
+1. **-y** (yes) responde "sí" automáticamente a confirmaciones
+
+### Instalar Múltiples Paquetes
+
+```bash
+# Instalar varios a la vez
+sudo apt install -y nginx postgresql git vim htop
+```
+
+**Ejemplo práctico para Abacom:**
+
+```bash
+#!/bin/bash
+# Script para configurar servidor web
+
+sudo apt update  # <1>
+sudo apt install -y \  # <2>
+  nginx \
+  postgresql \
+  python3-pip \
+  curl \
+  wget
+```
+
+1. **apt update** actualiza lista primero
+
+2. **\** permite continuar comando en siguiente línea
+
+### Actualizar Paquetes
+
+```bash
+# Ver actualizaciones disponibles
+apt list --upgradable  # <1>
+```
+
+1. **apt list** muestra información de paquetes
+
+**Actualizar todos los paquetes:**
+
+```bash
+sudo apt upgrade  # <1>
+```
+
+1. **apt upgrade** actualiza paquetes a nuevas versiones
+
+**¿Diferencia entre **update** y **upgrade**?**
+
+- **update** = Descarga lista de nuevas versiones (no instala)
+- **upgrade** = Instala las nuevas versiones
+
+### Desinstalar Paquete
+
+```bash
+# Desinstalar pero mantener archivos de config
+sudo apt remove nginx  # <1>
+```
+
+1. **apt remove** desinstala paquete pero conserva ~/.config
+
+**Desinstalar completamente (purgar):**
+
+```bash
+sudo apt purge nginx  # <1>
+```
+
+1. **apt purge** desinstala y elimina todos los archivos incluyendo configuración
+
+### Limpiar Espacio
+
+```bash
+# Eliminar paquetes sin usar
+sudo apt autoremove  # <1>
+
+# Limpiar caché de descargas
+sudo apt autoclean  # <2>
+```
+
+1. **autoremove** elimina dependencias huérfanas
+
+2. **autoclean** elimina archivos .deb descargados
+
+### Buscar Paquete
+
+```bash
+# Buscar paquetes que contengan "nginx"
+apt search nginx  # <1>
+
+# Ver detalles de un paquete
+apt show nginx  # <2>
+```
+
+1. **apt search** busca descripción de paquetes
+
+2. **apt show** muestra versión, tamaño, dependencias
+
+### Repositorios Personalizados (PPA)
+
+A veces necesitas software no en repositorios oficiales. Usa **PPA** (Personal Package Archives):
+
+```bash
+# Agregar PPA (ej: para Node.js LTS)
+sudo add-apt-repository ppa:chris-lea/node.js-lts  # <1>
+sudo apt update  # <2>
+sudo apt install nodejs  # <3>
+```
+
+1. **add-apt-repository** agrega nuevo repositorio
+
+2. **apt update** descarga lista del nuevo repo
+
+3. **apt install** instala desde nuevo repositorio
+
+---
+
+## CentOS/RHEL: yum y dnf
+
+### Diferencia: yum vs dnf
+
+| Aspecto | yum | dnf |
+|--------|-----|-----|
+| **Antigüedad** | 2003 (viejo) | 2015 (moderno) |
+| **Velocidad** | Lenta | Rápida |
+| **Sintaxis** | Confusa | Limpia |
+| **Defecto en Fedora** | Legacy | ✅ Por defecto |
+| **Defecto en CentOS 9+** | Deprecated | ✅ Por defecto |
+
+**Para Abacom**: Aprende **dnf** (recomendado en CentOS 9+), pero yum sigue funcionando.
+
+### Actualizar Repositorios
+
+```bash
+# En CentOS con yum
+sudo yum check-update  # <1>
+
+# En CentOS con dnf (recomendado)
+sudo dnf check-update  # <2>
+```
+
+1. **yum check-update** verifica actualizaciones disponibles
+
+2. **dnf check-update** equivalente en dnf
+
+### Instalar Paquete
+
+```bash
+# Instalar nginx
+sudo dnf install -y nginx  # <1>
+
+# Antiguo (yum)
+sudo yum install -y nginx
+```
+
+1. **dnf install** descarga e instala paquete + dependencias
+
+### Instalar Múltiples Paquetes
+
+```bash
+# Instalar varios a la vez
+sudo dnf install -y nginx postgresql python3-pip curl wget
+```
+
+### Actualizar Paquetes
+
+```bash
+# Actualizar un paquete específico
+sudo dnf upgrade nginx  # <1>
+
+# Actualizar TODO el sistema
+sudo dnf upgrade  # <2>
+```
+
+1. **dnf upgrade nginx** actualiza solo nginx
+
+2. **dnf upgrade** actualiza todos los paquetes
+
+### Desinstalar Paquete
+
+```bash
+# Desinstalar
+sudo dnf remove nginx  # <1>
+```
+
+1. **dnf remove** desinstala pero mantiene archivos config
+
+### Limpiar Espacio
+
+```bash
+# Eliminar cache
+sudo dnf clean all  # <1>
+
+# Ver estadísticas
+sudo dnf clean packages  # <2>
+```
+
+1. **dnf clean all** borra caché completo
+
+2. **dnf clean packages** borra solo paquetes .rpm descargados
+
+### Buscar Paquete
+
+```bash
+# Buscar paquete
+sudo dnf search nginx  # <1>
+
+# Ver detalles
+sudo dnf info nginx  # <2>
+```
+
+1. **dnf search** busca descripción
+
+2. **dnf info** muestra versión, tamaño, repositorio
+
+### Gestionar Repositorios
+
+```bash
+# Ver repositorios habilitados
+sudo dnf repolist  # <1>
+
+# Ver todos incluyendo deshabilitados
+sudo dnf repolist all  # <2>
+
+# Habilitar repositorio
+sudo dnf config-manager --set-enabled powertools  # <3>
+
+# Agregar repositorio externo
+sudo dnf install -y https://repo-url/package.rpm
+```
+
+1. **dnf repolist** lista repositorios activos
+
+2. **dnf repolist all** incluye deshabilitados (useful para ver opciones)
+
+3. **dnf config-manager** habilita/deshabilita repositorios
+
+---
+
+## Arch Linux: pacman
+
+### Filosofía de Arch
+
+Arch tiene filosofía diferente:
+
+- **Minimalista**: Solo lo esencial
+- **DIY**: Usuario decide configuración
+- **Rolling release**: Actualizaciones continuas (no versiones fijas)
+- **Bleeding edge**: Siempre software más reciente
+
+### Actualizar Sistema Completo
+
+```bash
+# Actualizar TODOS los paquetes (¡importante en Arch!)
+sudo pacman -Syu  # <1>
+```
+
+1. **-S** = sincronizar (descargar), **-y** = actualizar base, **-u** = actualizar paquetes
+
+**En Arch es CRÍTICO hacer esto regularmente** - Es distribución rolling-release.
+
+### Instalar Paquete
+
+```bash
+# Instalar nginx
+sudo pacman -S nginx  # <1>
+
+# Instalar múltiples
+sudo pacman -S nginx postgresql git vim htop
+```
+
+1. **-S** (Sync) descarga e instala paquete
+
+### Desinstalar Paquete
+
+```bash
+# Desinstalar pero mantener config
+sudo pacman -R nginx  # <1>
+
+# Desinstalar y remover dependencias huérfanas
+sudo pacman -Rs nginx  # <2>
+
+# Desinstalar todo incluyendo config
+sudo pacman -Rn nginx  # <3>
+```
+
+1. **-R** (Remove) desinstala paquete
+
+2. **-Rs** también elimina dependencias no usadas
+
+3. **-Rn** elimina config (purge)
+
+### Limpiar Espacio
+
+```bash
+# Eliminar paquetes descargados
+sudo pacman -Sc  # <1>
+
+# Eliminar TODO incluyendo instalados (¡cuidado!)
+sudo pacman -Scc  # <2>
+```
+
+1. **-Sc** borra cache de instalados (seguro)
+
+2. **-Scc** borra TODOS los .pkg descargados (peligroso)
+
+### Buscar Paquete
+
+```bash
+# Buscar en repositorios
+sudo pacman -Ss nginx  # <1>
+
+# Ver info detallada
+sudo pacman -Si nginx  # <2>
+
+# Listar archivos en paquete instalado
+sudo pacman -Ql nginx  # <3>
+```
+
+1. **-Ss** (Search Sync) busca descripción
+
+2. **-Si** (info Sync) muestra detalles de repositorio
+
+3. **-Ql** (Query List) lista archivos instalados
+
+### Ver Paquetes Instalados
+
+```bash
+# Listar paquetes instalados
+sudo pacman -Q  # <1>
+
+# Ver espacio usado por paquete
+sudo pacman -Qi nginx  # <2>
+```
+
+1. **-Q** (Query) lista paquetes instalados
+
+2. **-Qi** muestra info completa incluyendo tamaño
+
+### AUR: Arch User Repository
+
+Arch tiene repositorio comunitario **AUR** para software menos común:
+
+```bash
+# NO es soporte oficial de Arch
+# Usar solo paquetes de confianza
+
+# Instalar helper AUR (ej: yay)
+sudo pacman -S yay
+
+# Buscar en AUR
+yay -Ss nombre-paquete
+
+# Instalar desde AUR
+yay -S nombre-paquete
+```
+
+---
+
+## 💡 Comparativa Rápida: Los Mismos Comandos
+
+### Escenario 0: ¿Qué Package Manager Tengo?
+
+::: {.panel-tabset}
+
+#### Linux (Detectar automáticamente)
+```bash
+# Detectar qué package manager tienes
+$ if [ -f /etc/debian_version ]; then
+    echo "Debian/Ubuntu - usa apt"
+  elif [ -f /etc/redhat-release ]; then
+    echo "CentOS/RHEL - usa yum/dnf"
+  elif [ -f /etc/arch-release ]; then
+    echo "Arch Linux - usa pacman"
+  fi
+```
+
+#### macOS (Homebrew)
+```bash
+# macOS NO tiene apt, yum ni pacman
+# Usa Homebrew como package manager
+
+$ which brew
+/usr/local/bin/brew
+
+# Si no está instalado:
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Homebrew es equivalente a apt en Linux
+$ brew --version
+Homebrew 4.0.0
+```
+
+#### Windows (Chocolatey o Windows Package Manager)
+```powershell
+# Windows tiene múltiples opciones:
+
+# Opción 1: Windows Package Manager (wpkg - nativo)
+PS> winget --version
+v1.6.x
+
+# Opción 2: Chocolatey (terceros, más popular)
+PS> choco --version
+Chocolatey v2.0.0
+
+# Si no está instalado (Chocolatey):
+PS> Set-ExecutionPolicy Bypass -Scope Process -Force; `
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; `
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
+
+:::
+
+---
+
+### Escenario 1: Instalar Nginx
+
+::: {.panel-tabset}
+
+#### Linux (Debian/Ubuntu)
+```bash
+# Debian/Ubuntu
+$ sudo apt update
+$ sudo apt install -y nginx
+$ sudo systemctl enable nginx
+$ sudo systemctl start nginx
+
+# Verificar
+$ systemctl status nginx
+● nginx.service - A high performance web server
+     Loaded: loaded (/lib/systemd/unit/nginx.service; enabled)
+     Active: active (running)
+```
+
+#### Linux (CentOS/RHEL)
+```bash
+# CentOS/RHEL
+$ sudo dnf install -y nginx
+$ sudo systemctl enable nginx
+$ sudo systemctl start nginx
+
+# Verificar
+$ systemctl status nginx
+● nginx.service - The NGINX HTTP and reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled)
+     Active: active (running)
+```
+
+#### Linux (Arch)
+```bash
+# Arch
+$ sudo pacman -Syu  # Actualizar repo
+$ sudo pacman -S nginx
+$ sudo systemctl enable nginx
+$ sudo systemctl start nginx
+```
+
+#### macOS
+```bash
+# macOS (via Homebrew)
+$ brew install nginx
+$ brew services start nginx
+$ nginx -v
+nginx version: nginx/1.25.3
+
+# Verificar
+$ ps aux | grep nginx
+# Nginx está corriendo
+
+# Nota: En macOS no usamos systemctl
+# En su lugar: brew services
+```
+
+#### Windows
+```powershell
+# Windows (via Chocolatey)
+PS> choco install nginx -y
+PS> # Nginx se instala en C:\tools\nginx\
+
+# Iniciar servicio (o usar GUI)
+PS> Start-Service -Name nginx
+
+# Verificar
+PS> Get-Service nginx
+Status   Name
+------   ----
+Running  nginx
+
+# O acceder a http://localhost
+PS> Invoke-WebRequest -Uri "http://localhost"
+StatusCode        : 200
+```
+
+:::
+
+**Resumen:**
+| SO | Comando | Gestor | Servicio |
+|----|---------|--------|----------|
+| Linux | `apt install nginx` | apt | systemctl |
+| macOS | `brew install nginx` | brew | brew services |
+| Windows | `choco install nginx` | Chocolatey | Services |
+
+---
+
+### Escenario 2: Instalar Servidor Web Completo
+
+::: {.panel-tabset}
+
+#### Linux (Debian/Ubuntu)
+```bash
+# Instalar nginx + base de datos + Python
+$ sudo apt update && sudo apt install -y nginx postgresql python3-pip
+$ sudo apt upgrade -y
+```
+
+#### macOS
+```bash
+# macOS equivalente
+$ brew install nginx postgresql python@3.11
+$ brew services start nginx
+$ brew services start postgresql
+
+# Verificar versiones
+$ nginx -v && psql --version && python3 --version
+```
+
+#### Windows
+```powershell
+# Windows equivalente
+PS> choco install nginx postgresql python -y
+
+# Iniciar servicios
+PS> Start-Service -Name nginx
+PS> Start-Service -Name postgresql
+```
+
+:::
+
+---
+
+### Escenario 3: Automatizar Actualizaciones Diarias
+
+**Script Inteligente (Multi-SO):**
+
+```bash
+#!/bin/bash
+# Script que detecta el SO y actualiza automáticamente
+
+if command -v apt &> /dev/null; then
+  # Sistema Debian/Ubuntu  # <1>
+  sudo apt update && sudo apt upgrade -y
+  echo "✓ Actualización Debian completada"
+  
+elif command -v dnf &> /dev/null; then
+  # Sistema CentOS/RHEL 8+
+  sudo dnf upgrade -y  # <2>
+  echo "✓ Actualización CentOS completada"
+  
+elif command -v yum &> /dev/null; then
+  # Sistema CentOS/RHEL 7
+  sudo yum update -y  # <3>
+  echo "✓ Actualización CentOS 7 completada"
+  
+elif command -v pacman &> /dev/null; then
+  # Sistema Arch  # <4>
+  sudo pacman -Syu
+  echo "✓ Actualización Arch completada"
+
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS  # <5>
+  brew update && brew upgrade
+  echo "✓ Actualización macOS completada"
+  
+else
+  echo "✗ Package manager no reconocido"
+  exit 1
+fi
+```
+
+1. **apt** = Debian/Ubuntu
+
+2. **dnf** = CentOS/RHEL 8+
+
+3. **yum** = CentOS/RHEL 7
+
+4. **pacman** = Arch Linux
+
+5. **macOS** = Detectado por OSTYPE
+
+---
+
+### Escenario 3 (Anterior): Automatizar Actualizaciones Diarias
+
+**Script Universal (versión anterior):**
+
+```bash
+#!/bin/bash
+# Script que funciona en cualquier distribución
+
+if command -v apt &> /dev/null; then
+  # Sistema Debian/Ubuntu
+  sudo apt update && sudo apt upgrade -y  # <1>
+  echo "✓ Actualización Debian completada"
+  
+elif command -v dnf &> /dev/null; then
+  # Sistema CentOS/RHEL 8+
+  sudo dnf upgrade -y  # <2>
+  echo "✓ Actualización CentOS completada"
+  
+elif command -v yum &> /dev/null; then
+  # Sistema CentOS/RHEL 7
+  sudo yum update -y  # <3>
+  echo "✓ Actualización CentOS 7 completada"
+  
+elif command -v pacman &> /dev/null; then
+  # Sistema Arch
+  sudo pacman -Syu --noconfirm  # <4>
+  echo "✓ Actualización Arch completada"
+fi
+```
+
+1. **apt update && apt upgrade** para Debian
+
+2. **dnf upgrade** para CentOS moderno
+
+3. **yum update** para CentOS 7
+
+4. **pacman -Syu** para Arch
+
+**Guardar como**: **/usr/local/bin/actualizar-sistema.sh**
+
+**Hacer ejecutable**: **chmod +x /usr/local/bin/actualizar-sistema.sh**
+
+**Usar en cron para actualizaciones automáticas**:
+```bash
+0 2 * * *  /usr/local/bin/actualizar-sistema.sh  # Diariamente a las 2 AM
+```
+
+---
+
+## 📊 Tabla Comparativa: Comandos Equivalentes
+
+| Tarea | Debian/Ubuntu | CentOS/RHEL | Arch |
+|------|---------------|------------|------|
+| **Actualizar lista** | **apt update** | **dnf check-update** | **pacman -Sy** |
+| **Instalar** | **apt install pkg** | **dnf install pkg** | **pacman -S pkg** |
+| **Actualizar todo** | **apt upgrade** | **dnf upgrade** | **pacman -Syu** |
+| **Desinstalar** | **apt remove pkg** | **dnf remove pkg** | **pacman -R pkg** |
+| **Buscar** | **apt search txt** | **dnf search txt** | **pacman -Ss txt** |
+| **Info paquete** | **apt show pkg** | **dnf info pkg** | **pacman -Si pkg** |
+| **Limpiar** | **apt autoremove** | **dnf clean all** | **pacman -Sc** |
+
+---
+
+## 🔧 Gestionar Dependencias
+
+Todos los gestores resuelven **dependencias automáticamente**:
+
+```bash
+# Ejemplo: Instalar PHP con Apache
+
+# Debian
+sudo apt install php-apache  # Instala:
+# ├─ apache2
+# ├─ php
+# ├─ libapache2-mod-php
+# └─ ... otras dependencias
+
+# CentOS
+sudo dnf install php  # Instala:
+# ├─ httpd
+# ├─ php
+# ├─ php-common
+# └─ ... otras dependencias
+
+# Arch
+sudo pacman -S php apache  # Instala:
+# ├─ apache
+# ├─ php
+# └─ ... otras dependencias
+```
+
+**Ventaja**: No necesitas pensar en dependencias. El gestor se encarga.
+
+---
+
+## ⚠️ Errores Comunes
+
+**Error 1: "Package not found"**
+
+```bash
+# Causa: Repositorios no actualizados
+sudo apt update  # Debian
+sudo dnf check-update  # CentOS
+sudo pacman -Sy  # Arch
+
+# Luego reintentar instalación
+```
+
+**Error 2: "Permission denied"**
+
+```bash
+# Causa: Falta sudo
+apt install nginx  # ❌ No tienes permisos
+
+# Solución:
+sudo apt install nginx  # ✅ Con sudo
+```
+
+**Error 3: "Dependency conflicts"**
+
+```bash
+# Causa: Versión incompatible
+# Solución: Usar gestor de dependencias
+
+# Debian
+sudo apt autoremove  # Limpia conflictos
+
+# CentOS
+sudo dnf autoremove  # Limpia conflictos
+
+# Arch
+sudo pacman -Sc  # Limpia cache
+```
+
+---
+
+## 🎓 Quiz: Verificar Comprensión
+
+:::{.callout-tip collapse="true"}
+### Pregunta 1: ¿Cuándo usar apt vs apt-get?
+
+**a)** apt es más antiguo  
+**b)** apt-get es mejor  
+**c)** apt es más moderno y para usuario final (Correcto ✓)  
+**d)** Son exactamente iguales  
+
+**Explicación**: apt es versión mejorada de apt-get lanzada en 2014. Ambos funcionan, pero apt tiene interfaz mejor.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 2: ¿Qué hace "apt update"?
+
+**a)** Actualiza e instala paquetes nuevos  
+**b)** Solo descarga lista de paquetes disponibles (Correcto ✓)  
+**c)** Actualiza el sistema operativo  
+**d)** Limpia el caché  
+
+**Explicación**: "apt update" solo descarga metadatos. Es primer paso antes de instalar. "apt upgrade" es el que instala.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 3: En Arch, ¿cuál es el comando para actualizar TODO?
+
+**a)** **pacman -S**  
+**b)** **pacman -Syu** (Correcto ✓)  
+**c)** **pacman -R**  
+**d)** **pacman -Q**  
+
+**Explicación**: En Arch es **crítico** hacer **pacman -Syu** regularmente porque es rolling-release.
+:::
+
+---
+
+## 👨‍💻 Práctica: Instalar Software Real
+
+**Ejercicio 1: Instalar Stack LEMP en Debian/Ubuntu**
+
+```bash
+# L = Linux
+# E = Nginx (Engine X)
+# M = MySQL/MariaDB
+# P = PHP
+
+# Ubuntu
+sudo apt update
+sudo apt install -y nginx mariadb-server php-fpm php-mysql
+sudo systemctl start nginx
+sudo systemctl start mariadb
+```
+
+**Ejercicio 2: Instalar Stack LAMP en CentOS**
+
+```bash
+# L = Linux
+# A = Apache (httpd)
+# M = MySQL/MariaDB
+# P = PHP
+
+# CentOS
+sudo dnf install -y httpd mariadb-server php
+sudo systemctl start httpd
+sudo systemctl start mariadb
+```
+
+**Ejercicio 3: Script Seguro para Múltiples Distribuciones**
+
+```bash
+#!/bin/bash
+# Script que instala nginx en cualquier distribución
+
+set -e  # Salir si hay error
+
+echo "Detectando distribución..."
+
+if [ -f /etc/os-release ]; then
+  . /etc/os-release
+  OS=$ID
+fi
+
+echo "Sistema detectado: $OS"
+
+case "$OS" in
+  ubuntu|debian)
+    echo "Instalando en Debian/Ubuntu..."
+    sudo apt update
+    sudo apt install -y nginx
+    ;;
+  centos|rhel)
+    echo "Instalando en CentOS/RHEL..."
+    sudo dnf install -y nginx
+    ;;
+  arch)
+    echo "Instalando en Arch..."
+    sudo pacman -Syu
+    sudo pacman -S --noconfirm nginx
+    ;;
+  *)
+    echo "Distribución no soportada: $OS"
+    exit 1
+    ;;
+esac
+
+echo "✓ Nginx instalado exitosamente"
+sudo systemctl status nginx
+```
+
+---
+
+## 📚 Recursos Adicionales
+
+- **Ubuntu Packaging Guide**: https://packaging.ubuntu.com/
+- **CentOS DNF Documentation**: https://dnf.readthedocs.io/
+- **Arch Wiki**: https://wiki.archlinux.org/
+- **Linux Reproducible Builds**: https://reproducible-builds.org/
+- **Package Management Comparison**: https://wiki.archlinux.org/title/Pacman/Rosetta
+
+---
+
+## Conclusión
+
+Ahora sabes:
+✓ Instalar, actualizar, desinstalar paquetes en Debian, CentOS y Arch
+✓ Buscar y gestionar repositorios
+✓ Resolver dependencias automáticamente
+✓ Automatizar actualizaciones
+✓ Comandos equivalentes en cada distribución
+
+**Para Abacom**: Elige una distribución (recomendado Ubuntu 22.04 LTS) y domina su gestor.
+
+**Próximo paso**: Usa estos comandos en scripts de configuración de servidores.
+
+---

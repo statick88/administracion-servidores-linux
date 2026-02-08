@@ -1,0 +1,229 @@
+---
+title: "Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado"
+subtitle: "Asistente Sysadmin por chat con pairing, allowlists y sesiones aisladas"
+author: "Diego Saavedra"
+date: "2026-02-02"
+bibliography: ../unidades/unidad1/references.bib
+biblio-style: apalike
+---
+
+# Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado
+
+## Introduccion
+
+Este anexo te guia para montar un asistente tipo **Sysadmin** por **Telegram**, usando **OpenClaw** (Gateway + canales + sesiones + skills) en **Docker**.
+
+El bot de Telegram se llama por defecto **Abacombot** (configurable en BotFather). En este documento, **Abacombot** se refiere solo al bot de Telegram (no a un usuario Linux).
+
+**Enfoque de seguridad:**
+
+- DMs protegidos con **pairing**.
+- Grupos con **mention gating** (`requireMention: true`) por defecto.
+- Control de acceso por allowlists (DM y grupos).
+
+**Ubuntu Server LTS recomendado:** 22.04 o 24.04.
+
+---
+
+## Objetivos
+
+- Clonar OpenClaw y levantar el Gateway en Docker.
+- Conectar Telegram al Gateway con un token de BotFather.
+- Aplicar postura minima de seguridad (pairing + mention gating + allowlists).
+- Verificar salud, logs y troubleshooting basico.
+
+---
+
+## Requisitos
+
+### En Telegram
+
+- Una cuenta de Telegram.
+- Token del bot creado con `@BotFather`.
+
+### En el servidor (Ubuntu Server LTS)
+
+- Acceso SSH.
+- Docker Engine + Docker Compose v2.
+- Espacio en disco para imagenes y logs.
+
+---
+
+## Paso 1: Crear el bot en Telegram (BotFather)
+
+1. Abre Telegram y busca `@BotFather`.
+2. Ejecuta `/newbot` y define:
+   - **Nombre**: `Abacombot` (o el que prefieras)
+   - **Username**: debe terminar en `bot` (ej: `abacom_sysadmin_bot`)
+3. BotFather te entregara un token tipo: `123456789:AA...REDACTED...xyz`
+
+:::{.callout-warning}
+## ADVERTENCIA CRITICA
+
+**No pegues el token en repositorios ni capturas publicas.**
+
+**Lo que podria salir mal:**
+- Un atacante toma control del bot.
+- Se filtran datos del servidor por chat.
+
+**Como prevenirlo:**
+1. Guarda el token como secreto (archivo root-only o secret manager).
+2. Usa `dmPolicy: "pairing"`.
+3. Usa allowlists (DM y grupos) y mention gating en grupos.
+:::
+
+---
+
+## Paso 2: Clonar OpenClaw
+
+```bash
+$ git clone https://github.com/openclaw/openclaw.git  # <1>
+$ cd openclaw  # <2>
+# <1>
+# <2>
+```
+
+
+
+1. **git clone** descarga el repo oficial de OpenClaw.
+2. **cd openclaw** entra al directorio donde viven `docker-setup.sh` y `docker-compose.yml`.
+
+---
+
+## Paso 3: Levantar OpenClaw en Docker (recomendado)
+
+```bash
+$ ./docker-setup.sh  # <1>
+# <1>
+```
+
+
+
+1. **docker-setup.sh** construye la imagen, ejecuta onboarding y deja el gateway listo via Docker Compose (ademas escribe `.env`).
+
+Si necesitas levantar el gateway manualmente (sin el script), la ruta de referencia es:
+
+```bash
+$ docker build -t openclaw:local -f Dockerfile .  # <1>
+$ docker compose run --rm openclaw-cli onboard  # <2>
+$ docker compose up -d openclaw-gateway  # <3>
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **docker build** crea una imagen local para el gateway.
+2. **openclaw-cli onboard** corre el wizard dentro del contenedor CLI.
+3. **docker compose up -d openclaw-gateway** inicia el gateway en segundo plano.
+
+---
+
+## Paso 4: Conectar Telegram al Gateway (token)
+
+```bash
+$ docker compose run --rm openclaw-cli channels add --channel telegram --token "<token>"  # <1>
+# <1>
+```
+
+
+
+1. **channels add (telegram)** registra el bot token para que el gateway pueda hacer polling al Bot API.
+
+---
+
+## Paso 5: Postura minima de seguridad (recomendada)
+
+Config minima (conceptual) para Telegram:
+
+```json5
+{
+  channels: {
+    telegram: {
+      enabled: true,
+      dmPolicy: "pairing",
+      groups: { "*": { requireMention: true } },
+    },
+  },
+}  # <1>
+```
+
+
+
+1. **dmPolicy + requireMention** evita que DMs desconocidos o mensajes en grupos sin mencion activen el bot.
+
+Nota importante sobre grupos:
+
+- En OpenClaw, `channels.telegram.groupPolicy` por defecto es **"allowlist"**. Si vas a usar grupos, define `groupAllowFrom` (quienes pueden escribir) o cambia explicitamente a `groupPolicy: "open"` si tu objetivo es permitir a cualquiera del grupo.
+
+---
+
+## Paso 6: Verificacion (salud + logs)
+
+```bash
+$ docker compose exec openclaw-gateway node dist/index.js health --token "$OPENCLAW_GATEWAY_TOKEN"  # <1>
+$ docker compose logs -n 200 openclaw-gateway  # <2>
+# <1>
+# <2>
+```
+
+
+
+1. **health** ejecuta el probe oficial del gateway usando el token.
+2. **docker compose logs** muestra logs recientes del gateway (errores de token, red, Bot API, etc.).
+
+---
+
+## Paso 7: Pairing (primer DM)
+
+Con `dmPolicy: "pairing"`, el primer DM requiere aprobacion.
+
+```bash
+$ docker compose run --rm openclaw-cli pairing list telegram  # <1>
+$ docker compose run --rm openclaw-cli pairing approve telegram **CODE**  # <2>
+# <1>
+# <2>
+```
+
+
+
+1. **pairing list** lista solicitudes pendientes para Telegram.
+2. **pairing approve** aprueba el codigo y habilita el DM.
+
+---
+
+## Troubleshooting
+
+### El bot no responde
+
+Checklist rapido:
+
+- El gateway esta arriba: `docker compose ps`
+- Hay token configurado y red a `api.telegram.org`.
+- Si es DM: pairing pendiente.
+- Si es grupo: requiere mencion y (si aplica) allowlist de grupo/senders.
+
+```bash
+$ docker compose ps  # <1>
+$ docker compose logs -n 200 openclaw-gateway  # <2>
+$ docker compose run --rm openclaw-cli channels status  # <3>
+# <1>
+# <2>
+# <3>
+```
+
+
+
+1. **docker compose ps** confirma contenedores y estado.
+2. **logs** entrega el error real (token, DNS, 401/429, etc.).
+3. **channels status** muestra estado del canal Telegram y warnings de config.
+
+---
+
+## Referencias
+
+- [OpenClaw - Docker](https://docs.openclaw.ai/install/docker)
+- [OpenClaw - Telegram](https://docs.openclaw.ai/channels/telegram)
+- [OpenClaw - Getting Started](https://docs.openclaw.ai/start/getting-started)
+- [OpenClaw - Configuration](https://docs.openclaw.ai/gateway/configuration)

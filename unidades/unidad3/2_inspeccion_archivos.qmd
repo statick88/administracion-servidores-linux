@@ -1,0 +1,609 @@
+---
+title: "Inspección de Archivos"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# Inspección de Archivos
+
+## Introducción
+
+Una vez que dominas la navegación, el siguiente paso es entender el contenido de los archivos. Linux proporciona herramientas poderosas para inspeccionar, ver y analizar archivos sin necesidad de editarlos. Estas herramientas son esenciales para la administración del sistema.
+
+**🗺️ En este tema aprenderás:**
+
+- Comando `cat` (concatenate) - ver contenido completo
+- Comando `less` y `more` - navegar archivos grandes
+- Comando `head` y `tail` - ver partes de archivos
+- Comando `wc` (word count) - contar líneas, palabras, bytes
+- Comando `file` - identificar tipo de archivo
+- Comando `stat` - ver metadatos de archivos
+
+---
+
+## El Comando `cat` - Ver Contenido Completo
+
+El comando `cat` (concatenate) es el más simple para ver el contenido completo de un archivo. Es especialmente útil para archivos pequeños.
+
+**Sintaxis:**
+```bash
+cat [opciones] [archivo(s)]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver contenido de un archivo simple
+
+#### Linux
+```bash
+$ cat /etc/hostname
+ubuntu-servidor
+# <1>
+```
+1. Muestra el nombre del host del sistema
+
+#### macOS
+```bash
+$ cat /etc/hostname
+MacBook-Pro.local
+# <1>
+```
+1. En macOS también existe /etc/hostname
+
+#### Windows
+```powershell
+PS> Get-Content C:\Users\usuario\archivo.txt
+# o para archivos del sistema
+PS> (Get-ComputerInfo).CsDNSHostName
+USUARIO-PC
+# <1>
+```
+1. PowerShell usa `Get-Content` en lugar de `cat`
+
+:::
+
+### Ejemplo 2: Ver múltiples archivos
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ cat archivo1.txt archivo2.txt
+Contenido del archivo 1
+Contenido del archivo 2
+# <1>
+```
+1. `cat` puede concatenar varios archivos
+
+#### macOS
+```bash
+$ cat file1.txt file2.txt
+Content of file 1
+Content of file 2
+# <1>
+```
+1. Funciona igual que Linux
+
+#### Windows
+```powershell
+PS> Get-Content archivo1.txt, archivo2.txt
+Content of file 1
+Content of file 2
+# <1>
+```
+1. PowerShell puede leer múltiples archivos
+
+:::
+
+### Ejemplo 3: Ver archivo con números de línea (cat -n)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ cat -n /etc/resolv.conf
+     1  nameserver 8.8.8.8
+     2  nameserver 8.8.4.4
+# <1>
+```
+1. `-n` agrega números de línea, útil para referencia
+
+#### macOS
+```bash
+$ cat -n /etc/resolv.conf
+     1  nameserver 1.1.1.1
+     2  nameserver 1.0.0.1
+# <1>
+```
+1. El contenido varía según la configuración DNS
+
+#### Windows
+```powershell
+PS> (Get-Content archivo.txt) | Select-Object -Property @{Name="Line"; Expression={$_}}, @{N="LineNum";E={$_}} | 
+    Select-Object LineNum, Line
+
+# Alternativa más simple:
+PS> @(Get-Content archivo.txt) | ForEach-Object {"{0,4}: {1}" -f ++$line, $_}
+   1: Primera línea
+   2: Segunda línea
+# <1>
+```
+1. PowerShell requiere un poco más de trabajo para numerar líneas
+
+:::
+
+**Cuándo usar:** Usa `cat` para archivos pequeños (< 1000 líneas). Para archivos grandes, usa `less` o `more`.
+
+---
+
+## Los Comandos `less` y `more` - Navegar Archivos Grandes
+
+Estos comandos permiten navegar por archivos grandes sin cargar todo en pantalla.
+
+**Sintaxis:**
+```bash
+less [archivo]
+more [archivo]
+```
+
+### Controles principales en `less`:
+
+- `Space` o `Page Down` : Siguiente página
+- `b` o `Page Up` : Página anterior
+- `g` : Ir al inicio
+- `G` : Ir al final
+- `/patrón` : Buscar patrón
+- `n` : Siguiente coincidencia
+- `q` : Salir
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver archivo grande con less
+
+#### Linux
+```bash
+$ less /var/log/syslog
+# Navega con space, busca con /, sale con q
+# <1>
+```
+1. `less` es más eficiente que `cat` para archivos > 1MB
+
+#### macOS
+```bash
+$ less /var/log/system.log
+# Mismo funcionamiento que Linux
+# <1>
+```
+1. Los logs del sistema están en `/var/log/` en macOS
+
+#### Windows
+```powershell
+# PowerShell tiene 'more' pero es distinto
+PS> Get-Content archivo-grande.txt | more
+# Para mejor experiencia, usar:
+PS> Get-Content archivo-grande.txt -ReadCount 0 | Out-Host -Paging  # <2>
+# <1>
+```
+1. Windows no tiene `less` por defecto
+
+2. `Out-Host -Paging` es el equivalente más cercano
+
+:::
+
+**Diferencia entre `less` y `more`:**
+
+- `less` es más moderno y flexible
+- `more` es más antiguo pero universal
+- En Linux/macOS, `less` es preferible
+
+---
+
+## Los Comandos `head` y `tail` - Ver Partes de Archivos
+
+Estos comandos muestran el inicio o final de un archivo, útiles para inspeccionar sin ver todo.
+
+**Sintaxis:**
+```bash
+head -n [número] [archivo]
+tail -n [número] [archivo]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver primeras 10 líneas (head)
+
+#### Linux
+```bash
+$ head /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+# ... (7 líneas más)
+# <1>
+```
+1. Por defecto muestra 10 líneas
+
+#### macOS
+```bash
+$ head /etc/passwd
+root:*:0:0:System Administrator:/var/root:/bin/bash
+daemon:*:1:1:System Services:/var/empty:/usr/sbin/nologin
+# ... (8 líneas más)
+# <1>
+```
+1. Formato similar a Linux
+
+#### Windows
+```powershell
+PS> Get-Content archivo.txt -Head 10
+# o
+PS> Get-Content archivo.txt -TotalCount 10
+# <1>
+```
+1. PowerShell usa `-Head` o `-TotalCount`
+
+:::
+
+### Ejemplo 2: Ver últimas 5 líneas (tail)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ tail -n 5 /var/log/syslog
+Jan 29 10:45:32 ubuntu kernel: [1234.567] System log message 1
+Jan 29 10:46:00 ubuntu kernel: [1267.834] System log message 2
+Jan 29 10:46:15 ubuntu systemd[1]: Started Service X.
+# ... (2 líneas más)
+# <1>
+```
+1. Útil para ver los eventos más recientes en logs
+
+#### macOS
+```bash
+$ tail -n 5 /var/log/system.log
+Jan 29 10:45:32 MacBook kernel[0]: message 1
+Jan 29 10:46:00 MacBook systemd[1]: Started Service X.
+# ... (3 líneas más)
+# <1>
+```
+1. El log system en macOS está estructurado igual
+
+#### Windows
+```powershell
+PS> Get-Content archivo.txt -Tail 5
+# o más detallado:
+PS> Get-Content archivo.txt | Select-Object -Last 5
+# <1>
+```
+1. PowerShell usa `-Tail` para ver las últimas líneas
+
+:::
+
+### Ejemplo 3: Monitorizar archivo en tiempo real (tail -f)
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ tail -f /var/log/apache2/access.log  # <1>
+192.168.1.100 - - [29/Jan/2024:10:45:30 +0000] "GET / HTTP/1.1" 200 1234
+192.168.1.101 - - [29/Jan/2024:10:46:00 +0000] "GET /api HTTP/1.1" 200 5678
+# ... (continúa mostrando nuevas líneas)
+# Presiona Ctrl+C para salir
+# <2>
+```
+1. `-f` (follow) monitoriza cambios en tiempo real
+
+2. Perfecto para ver logs mientras ocurren eventos
+
+#### macOS
+```bash
+$ tail -f ~/Library/Logs/system.log
+# Mismo comportamiento que Linux
+# <1>
+```
+1. Excelente para monitorizar logs del sistema
+
+#### Windows
+```powershell
+# PowerShell no tiene -f nativo, pero:
+PS> Get-Content archivo.txt -Wait -Tail 10  # <1>
+# Para monitorizar más eficientemente:
+PS> while($true) { Clear-Host; Get-Content archivo.txt | Select-Object -Last 20; Start-Sleep 1 }
+# <2>
+```
+1. `-Wait` intenta emular `-f`
+
+2. La alternativa con loop es más controlable pero consume más CPU
+
+:::
+
+| Función | Linux | macOS | Windows |
+|---------|-------|-------|---------|
+| Primeras líneas | `head -n 10` | `head -n 10` | `-Head 10` |
+| Últimas líneas | `tail -n 10` | `tail -n 10` | `-Tail 10` |
+| Monitorizar | `tail -f` | `tail -f` | `-Wait` |
+| Eficiencia | Muy alta | Muy alta | Moderada |
+
+**Cuándo usar:** 
+
+- `head` para ver encabezados o primeras filas
+- `tail` para ver logs recientes
+- `tail -f` para monitorizar eventos en tiempo real
+
+---
+
+## El Comando `wc` - Contar Líneas, Palabras y Bytes
+
+El comando `wc` (word count) te permite contar líneas, palabras y caracteres en archivos.
+
+**Sintaxis:**
+```bash
+wc [opciones] [archivo]
+```
+
+### Opciones principales:
+
+- `-l` : Contar líneas
+- `-w` : Contar palabras
+- `-c` : Contar bytes
+- `-m` : Contar caracteres
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Contar líneas en un archivo
+
+#### Linux
+```bash
+$ wc -l /etc/passwd
+45 /etc/passwd
+# <1>
+```
+1. El archivo tiene 45 líneas
+
+#### macOS
+```bash
+$ wc -l /etc/passwd
+      47 /etc/passwd
+# <1>
+```
+1. macOS puede tener diferente número de usuarios
+
+#### Windows
+```powershell
+PS> (Get-Content archivo.txt).Count
+47
+# o más explícito:
+PS> @(Get-Content archivo.txt).Length
+47
+# <1>
+```
+1. PowerShell cuenta diferente (puede dar resultados distintos)
+
+:::
+
+### Ejemplo 2: Contar líneas, palabras y bytes
+
+::: {.panel-tabset}
+
+#### Linux
+```bash
+$ wc /etc/hostname
+ 1  1 15 /etc/hostname
+# líneas palabras bytes
+# <1>
+```
+1. Formato: líneas, palabras, bytes, nombre
+
+#### macOS
+```bash
+$ wc /etc/hostname
+       1       1      15 /etc/hostname
+# <1>
+```
+1. Mismo formato con espaciado diferente
+
+#### Windows
+```powershell
+PS> $content = Get-Content archivo.txt
+PS> $lines = @($content).Count
+PS> $words = ($content | Measure-Object -Word).Words
+PS> $bytes = (Get-Item archivo.txt).Length
+PS> "$lines $words $bytes"
+1 1 15
+# <1>
+```
+1. PowerShell requiere múltiples comandos para lo mismo
+
+:::
+
+| Opción | Linux | macOS | Windows | Descripción |
+|--------|-------|-------|---------|-------------|
+| `-l` | ✅ | ✅ | Measure-Object | Contar líneas |
+| `-w` | ✅ | ✅ | -Word | Contar palabras |
+| `-c` | ✅ | ✅ | Get-Item .Length | Contar bytes |
+| `-m` | ✅ | ✅ | Parcial | Contar caracteres |
+
+---
+
+## El Comando `file` - Identificar Tipo de Archivo
+
+El comando `file` determina el tipo de un archivo analizando su contenido, no solo su extensión.
+
+**Sintaxis:**
+```bash
+file [opciones] [archivo(s)]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Identificar tipo de archivo
+
+#### Linux
+```bash
+$ file /bin/bash
+/bin/bash: ELF 64-bit LSB pie executable, x86-64, version 1
+$ file /etc/hostname
+/etc/hostname: ASCII text
+$ file /var/log/syslog
+/var/log/syslog: ASCII text
+# <1>
+```
+1. Detecta ejecutables ELF, archivos de texto, logs, etc.
+
+#### macOS
+```bash
+$ file /bin/bash
+/bin/bash: Mach-O 64-bit executable x86_64
+$ file /etc/hostname
+/etc/hostname: ASCII text
+# <1>
+```
+1. macOS usa formato Mach-O para ejecutables
+
+#### Windows
+```powershell
+# Windows no tiene 'file' nativo, alternativas:
+PS> (Get-Item archivo.exe).VersionInfo
+# o simple:
+PS> Get-Item archivo.exe | ForEach-Object {$_.Extension}
+.exe
+
+# Mejor opción si tienes WSL o Git Bash:
+PS> wsl file archivo.exe  # <2>
+# <1>
+```
+1. `file` no existe en PowerShell nativo
+
+2. Se puede usar desde WSL si está disponible
+
+:::
+
+**Cuándo usar:** Usa `file` cuando:
+
+- No estés seguro del tipo de archivo
+- Recibas archivos sin extensión
+- Necesites validar integridad de archivos
+
+---
+
+## El Comando `stat` - Ver Metadatos Detallados
+
+El comando `stat` muestra información detallada sobre archivos (permisos, propietario, fechas, inodos, etc.).
+
+**Sintaxis:**
+```bash
+stat [opciones] [archivo]
+```
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver metadatos completos de un archivo
+
+#### Linux
+```bash
+$ stat archivo.txt
+  File: archivo.txt
+  Size: 1024        Blocks: 8          IO Block: 4096
+Device: 10302h/66306d      Inode: 2097154     Links: 1
+Access: (0644/-rw-r--r--)  Uid: ( 1000/ usuario)   Gid: ( 1000/ usuario)
+Access: 2024-01-29 10:45:32.123456789 +0000
+Modify: 2024-01-28 15:30:15.987654321 +0000
+Change: 2024-01-28 15:30:15.987654321 +0000
+Birth: -
+# <1>
+```
+1. Muestra todos los metadatos disponibles
+
+#### macOS
+```bash
+$ stat archivo.txt
+  File: archivo.txt
+  Size: 1024       FileType: Regular File
+Mode: (0644/-rw-r--r--)         Uid: (  501/ usuario)  Gid: (   20/ staff)
+Device: 1000006h/16777222d Inode: 123456      Links: 1
+Access: Mon Jan 29 10:45:32 2024
+Modify: Sun Jan 28 15:30:15 2024
+Change: Sun Jan 28 15:30:15 2024
+Birth: Sun Jan 28 15:30:15 2024
+# <1>
+```
+1. Formato ligeramente distinto a Linux
+
+#### Windows
+```powershell
+PS> (Get-Item archivo.txt) | Select-Object *
+
+Name                      : archivo.txt
+FullName                  : C:\Users\usuario\archivo.txt
+CreationTime              : 28/01/2024 15:30:15
+LastAccessTime            : 29/01/2024 10:45:32
+LastWriteTime             : 28/01/2024 15:30:15
+# <1>
+```
+1. PowerShell usa `Get-Item` para metadatos similares
+
+:::
+
+| Información | Linux | macOS | Windows |
+|-------------|-------|-------|---------|
+| Tamaño | ✅ | ✅ | ✅ |
+| Permisos | ✅ | ✅ | Parcial |
+| Propietario | ✅ | ✅ | ✅ |
+| Inodo | ✅ | ✅ | - |
+| Fechas (crear, modificar) | ✅ | ✅ | ✅ |
+
+---
+
+## Resumen de Comandos de Inspección
+
+| Comando | Propósito | Cuándo usar |
+|---------|-----------|-------------|
+| `cat archivo` | Ver contenido completo | Archivos pequeños |
+| `less archivo` | Ver con navegación | Archivos grandes |
+| `head -n 10 archivo` | Ver primeras 10 líneas | Inspección rápida |
+| `tail -n 10 archivo` | Ver últimas 10 líneas | Ver logs recientes |
+| `tail -f archivo` | Monitorizar en tiempo real | Watching logs |
+| `wc -l archivo` | Contar líneas | Analizar tamaño |
+| `file archivo` | Identificar tipo | Verificar tipo |
+| `stat archivo` | Ver metadatos | Análisis profundo |
+
+---
+
+## 🎯 Ejercicios Prácticos
+
+1. Crea un archivo `prueba.txt` con 50 líneas de texto
+
+2. Usa `head` y `tail` para ver partes del archivo
+
+3. Usa `wc -l` para contar las líneas
+
+4. Identifica el tipo con `file prueba.txt`
+
+5. Inspecciona metadatos con `stat prueba.txt`
+
+6. Crea un script y usa `file` para verificar su tipo
+
+---
+
+## Referencias
+
+Para más información sobre inspección de archivos:
+
+- [@posix2018] - POSIX File Operations
+- [@bash2023] - GNU Bash Text Processing

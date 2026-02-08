@@ -1,0 +1,58 @@
+---
+title: "Unidad 12: Troubleshooting"
+subtitle: "Administracion de Servidores Linux (Abacom)"
+author: "Diego Saavedra"
+date: today
+---
+
+## Agenda
+
+- Metodologia (orden y evidencias)
+- Logs (journalctl)
+- Red (ip/ss/DNS)
+- Recursos (CPU/RAM/Disco)
+
+## Demo: Evidencia minima
+
+```bash
+$ hostnamectl  # <1>
+ Static hostname: srv01
+ Operating System: Ubuntu 24.04.1 LTS
+# <1>
+
+$ sudo journalctl -u nginx -n 20 --no-pager  # <2>
+... logs ...
+# <2>
+
+$ ip -br addr  # <3>
+enp0s3  UP  192.168.56.10/24
+# <3>
+
+$ df -h  # <4>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        49G  5.4G   41G  12% /
+# <4>
+```
+
+
+
+::: notes
+
+1. **hostnamectl** contexto.
+2. **journalctl -u** evidencia de logs.
+3. **ip -br addr** evidencia IP.
+4. **df -h** evidencia de espacio.
+
+:::
+
+## Recursos
+
+- Material Unidad 12.1: [Metodologia de diagnostico](../unidades/unidad12/1_metodologia_diagnostico.html)
+- Material Unidad 12.2: [Logs y journalctl](../unidades/unidad12/2_logs_journalctl.html)
+- Material Unidad 12.3: [Red, puertos y DNS](../unidades/unidad12/3_red_puertos_dns.html)
+- Material Unidad 12.4: [CPU, memoria y storage](../unidades/unidad12/4_recursos_sistema_storage.html)
+- Practica Unidad 12: [Practica Unidad 12](../practicas/unidad12.html)
+
+::: {.footer-links}
+Instructor: https://statick88.github.io
+:::

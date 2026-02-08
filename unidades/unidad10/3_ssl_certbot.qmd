@@ -1,0 +1,82 @@
+---
+title: "Unidad 10.3: SSL con Certbot"
+subtitle: "HTTPS en Nginx con Let's Encrypt"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 10.3: SSL con Certbot
+
+## Introduccion
+
+Certbot automatiza la emision y renovacion de certificados TLS (Let's Encrypt). Para que funcione, necesitas un dominio apuntando a tu servidor y el puerto 80/443 accesible desde Internet.
+
+:::{.callout-warning}
+## ADVERTENCIA CRITICA
+
+**No podras emitir un certificado real si tu servidor no es accesible publicamente.**
+
+**Lo que podria salir mal:**
+- DNS del dominio no apunta al servidor.
+- Firewall/router bloquea 80/443.
+- Estas en una VM sin NAT/port-forward.
+
+**Como prevenirlo:**
+1. Valida DNS antes: `dig +short tu-dominio.com`.
+2. Abre 80/443 en UFW.
+3. Prueba HTTP publico antes de ejecutar Certbot.
+:::
+
+## Objetivos de aprendizaje
+
+- Instalar Certbot para Nginx
+- Emitir certificado (cuando aplica)
+- Validar renovacion y configuración generada
+
+---
+
+## Instalacion
+
+```bash
+$ sudo apt update  # <1>
+# <1>
+
+$ sudo apt install -y certbot python3-certbot-nginx  # <2>
+# <2>
+```
+
+
+
+1. **apt update** actualiza el indice.
+2. **apt install certbot** instala Certbot y el plugin para Nginx.
+
+---
+
+## Emitir certificado (modo Nginx)
+
+```bash
+$ sudo certbot --nginx -d tu-dominio.com  # <1>
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Congratulations! Your certificate and chain have been saved at:
+  /etc/letsencrypt/live/tu-dominio.com/fullchain.pem
+# <1>
+```
+
+
+
+1. **certbot --nginx** edita/crea bloques TLS en Nginx y obtiene el certificado.
+
+---
+
+## Validar renovacion
+
+```bash
+$ sudo certbot renew --dry-run  # <1>
+Congratulations, all simulated renewals succeeded.
+# <1>
+```
+
+
+
+1. **certbot renew --dry-run** prueba renovacion sin consumir limites.

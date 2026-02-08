@@ -1,0 +1,60 @@
+---
+title: "Unidad 12.4: CPU, memoria y storage"
+subtitle: "Diagnostico de saturacion y espacio"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 12.4: CPU, memoria y storage
+
+## Introduccion
+
+Muchas caidas son por saturacion (CPU/RAM) o por disco lleno (logs, backups, cache).
+
+## Objetivos de aprendizaje
+
+- Identificar saturacion
+- Encontrar directorios grandes
+- Validar espacio disponible
+
+---
+
+## CPU y memoria
+
+```bash
+$ uptime  # <1>
+ 12:55:03 up 1 day,  3:21,  1 user,  load average: 0.08, 0.11, 0.09
+# <1>
+
+$ free -h  # <2>
+               total        used        free      shared  buff/cache   available
+Mem:           3.8Gi       1.1Gi       2.0Gi        52Mi       740Mi       2.5Gi
+Swap:          2.0Gi          0B       2.0Gi
+# <2>
+```
+
+
+
+1. **uptime** indica carga y uptime.
+2. **free -h** muestra uso de RAM.
+
+---
+
+## Disco y directorios grandes
+
+```bash
+$ df -h  # <1>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        49G  5.4G   41G  12% /
+# <1>
+
+$ sudo du -xh /var | sort -h | tail -n 10  # <2>
+... mayores consumos ...
+# <2>
+```
+
+
+
+1. **df -h** valida espacio por filesystem.
+2. **du + sort** ayuda a encontrar directorios grandes.

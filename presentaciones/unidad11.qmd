@@ -1,0 +1,67 @@
+---
+title: "Unidad 11: MariaDB"
+subtitle: "Administracion de Servidores Linux (Abacom)"
+author: "Diego Saavedra"
+date: today
+---
+
+## Agenda
+
+- Instalacion y hardening inicial
+- Usuarios y privilegios
+- Backup/restore
+- Acceso por red y firewall
+
+## Demo: Instalar y validar
+
+```bash
+$ sudo apt install -y mariadb-server  # <1>
+# <1>
+
+$ systemctl status mariadb --no-pager  # <2>
+● mariadb.service - MariaDB database server
+     Active: active (running)
+# <2>
+
+$ sudo mariadb -e 'SELECT VERSION();'  # <3>
+VERSION()
+10.11.6-MariaDB
+# <3>
+```
+
+
+
+::: notes
+
+1. **apt install mariadb-server** instala MariaDB.
+2. **systemctl status** valida servicio.
+3. **mariadb -e** valida conectividad local.
+
+:::
+
+## Demo: Backup
+
+```bash
+$ sudo mysqldump --databases appdb > /tmp/appdb.sql  # <1>
+# <1>
+```
+
+
+
+::: notes
+
+1. **mysqldump** genera un backup SQL.
+
+:::
+
+## Recursos
+
+- Material Unidad 11.1: [Instalacion y seguridad](../unidades/unidad11/1_instalacion_seguridad.html)
+- Material Unidad 11.2: [Usuarios y privilegios](../unidades/unidad11/2_usuarios_privilegios.html)
+- Material Unidad 11.3: [Backup y restore](../unidades/unidad11/3_backup_restore.html)
+- Material Unidad 11.4: [Red y acceso remoto](../unidades/unidad11/4_red_acceso_remoto.html)
+- Practica Unidad 11: [Practica Unidad 11](../practicas/unidad11.html)
+
+::: {.footer-links}
+Instructor: https://statick88.github.io
+:::

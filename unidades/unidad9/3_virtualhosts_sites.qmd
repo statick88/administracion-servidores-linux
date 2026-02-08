@@ -1,0 +1,103 @@
+---
+title: "Unidad 9.3: VirtualHosts y sitios"
+subtitle: "Multiples sitios en un solo servidor"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 9.3: VirtualHosts y sitios
+
+## Introduccion
+
+Un VirtualHost permite servir multiples sitios (dominios) desde el mismo Apache. La base operacional es: document root -> vhost -> enable -> configtest -> reload.
+
+## Objetivos de aprendizaje
+
+- Crear un sitio simple con DocumentRoot propio
+- Habilitar el sitio y deshabilitar el default
+- Validar con curl usando Host header
+
+---
+
+## Crear un DocumentRoot de ejemplo
+
+```bash
+$ sudo mkdir -p /var/www/site1/public  # <1>
+# <1>
+
+$ echo '<h1>Site1 OK</h1>' | sudo tee /var/www/site1/public/index.html >/dev/null  # <2>
+# <2>
+```
+
+
+
+1. **mkdir -p** crea el directorio del sitio.
+2. **tee** escribe un index.html con permisos root.
+
+---
+
+## Crear VirtualHost
+
+```bash
+$ sudo tee /etc/apache2/sites-available/site1.conf >/dev/null <<'EOF'  # <1>
+<VirtualHost *:80>
+  ServerName site1.local
+  DocumentRoot /var/www/site1/public
+
+  ErrorLog ${APACHE_LOG_DIR}/site1-error.log
+  CustomLog ${APACHE_LOG_DIR}/site1-access.log combined
+
+  <Directory /var/www/site1/public>
+    Require all granted
+  </Directory>
+</VirtualHost>
+EOF
+# <1>
+```
+
+
+
+1. **tee + heredoc** crea el archivo del VirtualHost.
+
+---
+
+## Habilitar sitio y validar
+
+```bash
+$ sudo a2ensite site1.conf  # <1>
+Enabling site site1.
+# <1>
+
+$ sudo a2dissite 000-default.conf  # <2>
+Site 000-default disabled.
+# <2>
+
+$ sudo apachectl configtest  # <3>
+Syntax OK
+# <3>
+
+$ sudo systemctl reload apache2  # <4>
+# <4>
+```
+
+
+
+1. **a2ensite** habilita el vhost.
+2. **a2dissite** deshabilita el sitio por defecto.
+3. **apachectl configtest** valida sintaxis.
+4. **systemctl reload** aplica cambios.
+
+---
+
+## Probar con Host header
+
+```bash
+$ curl -H 'Host: site1.local' http://127.0.0.1  # <1>
+<h1>Site1 OK</h1>
+# <1>
+```
+
+
+
+1. **curl -H 'Host: ...'** simula un request con nombre de host para seleccionar el VirtualHost.

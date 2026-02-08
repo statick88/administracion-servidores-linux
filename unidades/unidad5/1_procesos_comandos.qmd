@@ -1,0 +1,264 @@
+---
+title: "Unidad 5.1: Procesos - ps, top, pgrep y kill"
+subtitle: "Identificacion y control seguro de procesos"
+author: "Diego Saavedra"
+date: "2026-02-01"
+date-format: medium
+---
+
+# Unidad 5.1: Procesos - ps, top, pgrep y kill
+
+## Introduccion
+
+En el brochure del curso, la Unidad 5 inicia con lo esencial para operar un servidor bajo presion: **ver procesos** (ps/top), **encontrarlos** (pgrep) y **controlarlos** (kill).
+
+Esto se usa en situaciones reales como:
+
+- "El servidor esta lento" (CPU/RAM/IO)
+- "Un servicio no responde" (procesos colgados)
+- "Necesito detener un proceso sin reiniciar el servidor"
+
+**Tiempo estimado:** 60-90 minutos
+
+---
+
+## Conceptos minimos
+
+- **PID:** identificador del proceso.
+- **CPU/MEM:** consumo aproximado (snapshot).
+- **SIGTERM vs SIGKILL:** terminar ordenado vs forzado.
+
+---
+
+## ps: snapshot reproducible
+
+```bash
+$ ps aux | head -n 6  # <1>
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.2  168500  12120 ?        Ss   08:00   0:02 /sbin/init
+root       725  0.1  0.9  982300  74200 ?        Ssl  08:01   0:10 /usr/bin/containerd
+www-data  2459  2.4  0.7  210312 118004 ?        S    10:44   0:12 nginx: worker process
+# <1>
+```
+
+
+
+1. **ps aux** lista procesos del sistema con usuario, CPU/MEM y comando
+
+Ordenar por CPU y memoria:
+
+```bash
+$ ps aux --sort=-%cpu | head -n 6  # <1>
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root      1821 15.2  1.8  933612 293020 ?      Ssl  08:10  18:22 /usr/bin/dockerd -H fd://
+mysql     1330  6.4  7.9 1928300 1301200 ?     Ssl  07:55  24:10 /usr/sbin/mysqld
+# <1>
+```
+
+
+
+1. **ps aux --sort=-%cpu** entrega un top rapido por CPU (snapshot)
+
+---
+
+## top: monitoreo en vivo
+
+```bash
+$ top  # <1>
+# <1>
+```
+
+
+
+1. **top** abre un monitor interactivo para observar CPU, memoria y procesos
+
+---
+
+## pgrep: encontrar PID por nombre/patron
+
+```bash
+$ pgrep -a nginx  # <1>
+2458 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+2459 nginx: worker process
+# <1>
+```
+
+
+
+1. **pgrep -a** imprime PID y el comando completo asociado (util antes de matar)
+
+---
+
+## kill: terminar un proceso (recomendado: SIGTERM primero)
+
+```bash
+$ pgrep -a "python3"  # <1>
+8123 python3 app.py
+
+$ kill -TERM 8123  # <2>
+
+$ ps -p 8123  # <3>
+  PID TTY          TIME CMD
+ 8123 ?        00:00:12 python3
+
+$ kill -KILL 8123  # <4>
+# <1>
+```
+
+
+
+1. **pgrep -a** identifica el PID y el comando real
+2. **kill -TERM** pide terminacion ordenada (primera opcion)
+3. **ps -p** verifica si el proceso sigue presente
+4. **kill -KILL** fuerza terminacion (ultima instancia)
+
+:::{.callout-warning}
+## ADVERTENCIA CRITICA
+
+**Evita usar `kill -KILL` (SIGKILL) como primer paso.**
+
+**Lo que podria salir mal:**
+- Corrupcion de archivos temporales/locks.
+- Perdida de logs o buffers sin flush.
+
+**Como prevenirlo:**
+1. Usa `SIGTERM` primero y espera unos segundos.
+2. Verifica con `ps -p **PID**`.
+3. Usa `SIGKILL` solo si el proceso no responde.
+:::
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver procesos
+
+#### Linux
+```bash
+$ ps aux | head -n 5  # <1>
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.2  168500  12120 ?        Ss   08:00   0:02 /sbin/init
+# <1>
+```
+
+
+
+1. **ps aux** muestra un snapshot de procesos del sistema
+
+#### macOS
+```bash
+$ ps aux | head -n 5  # <1>
+USER               PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME COMMAND
+usuario            9012  12.3  0.8  4123456 132000 s001  S+   9:10AM   0:30.12 -zsh
+# <1>
+```
+
+
+
+1. **ps aux** funciona en macOS con columnas similares
+
+#### Windows
+```powershell
+PS> Get-Process | Select-Object -First 5 Name,Id,CPU,WS  # <1>
+
+Name      Id     CPU        WS
+----      --     ---        --
+pwsh      12456   12.10  182222848
+# <1>
+```
+
+
+
+1. **Get-Process** lista procesos (equivalente conceptual a ps)
+
+### Ejemplo 2: Detener un proceso
+
+#### Linux
+```bash
+$ pgrep -a nginx  # <1>
+2458 nginx: master process /usr/sbin/nginx
+
+$ sudo kill -TERM 2458  # <2>
+# <1>
+```
+
+
+
+1. **pgrep -a** encuentra el proceso objetivo
+2. **kill -TERM** solicita el cierre ordenado
+
+#### macOS
+```bash
+$ pgrep -a "Google Chrome"  # <1>
+9120 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+
+$ kill -TERM 9120  # <2>
+# <1>
+```
+
+
+
+1. **pgrep -a** identifica PID por nombre
+2. **kill -TERM** solicita terminacion
+
+#### Windows
+```powershell
+PS> Get-Process -Name notepad | Select-Object Name,Id  # <1>
+
+Name    Id
+----    --
+notepad 7332
+
+PS> Stop-Process -Id 7332  # <2>
+# <1>
+```
+
+
+
+1. **Get-Process -Name** encuentra el proceso
+2. **Stop-Process** detiene el proceso
+
+:::
+
+| Aspecto | Linux | macOS | Windows |
+|---------|-------|-------|---------|
+| Listar procesos | `ps` | `ps` | `Get-Process` |
+| Buscar PID | `pgrep -a` | `pgrep -a` | `Get-Process -Name` |
+| Terminar proceso | `kill -TERM` | `kill -TERM` | `Stop-Process` |
+
+---
+
+## Mejores practicas
+
+:::{.callout-tip}
+## RECOMENDACION
+
+**Diagnostico rapido antes de actuar.**
+
+Casos de uso:
+- Servidor lento.
+- Servicio colgado.
+
+Cuando aplicar:
+1. Snapshot: `ps aux --sort=-%cpu` y `ps aux --sort=-%mem`.
+2. Observacion: `top` por 30-60 segundos.
+3. Accion: `kill -TERM` y verificacion.
+:::
+
+---
+
+## Resumen
+
+- `ps` sirve para evidencia reproducible.
+- `top` sirve para observar en tiempo real.
+- `pgrep` acelera la busqueda de PIDs.
+- `kill` controla procesos (SIGTERM primero).
+
+## Referencias
+
+- [ps(1)](https://man7.org/linux/man-pages/man1/ps.1.html)
+- [top(1)](https://man7.org/linux/man-pages/man1/top.1.html)
+- [pgrep(1)](https://man7.org/linux/man-pages/man1/pgrep.1.html)
+- [kill(1)](https://man7.org/linux/man-pages/man1/kill.1.html)

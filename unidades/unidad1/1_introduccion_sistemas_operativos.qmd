@@ -1,0 +1,1190 @@
+---
+title: "Unidad 1: Introducción a Sistemas Operativos"
+description: "Fundamentos de sistemas operativos: qué son, componentes principales, funciones esenciales y su papel en la infraestructura tecnológica moderna"
+author: "Diego Saavedra"
+date: "2024-01-29"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# 🎯 Introducción a Sistemas Operativos
+
+## Introducción
+
+Un **Sistema Operativo** es el software fundamental que controla todos los recursos de una computadora y gestiona las interacciones entre el usuario, aplicaciones y hardware. En Abacom, entender profundamente qué es un SO y cómo funciona es crítico para administrar servidores, resolver problemas de infraestructura y tomar decisiones arquitectónicas correctas.
+
+**Tiempo de lectura:** ~20 minutos  
+**Nivel:** Principiante  
+**Requisitos previos:** Conceptos básicos de computadoras
+
+---
+
+## 🗺️ En este tema aprenderás
+
+En esta unidad cubriremos:
+
+1. **¿Qué es un Sistema Operativo?** - Definición, rol y responsabilidades
+
+2. **Componentes Principales** - Kernel, shell, drivers y utilidades
+
+3. **Funciones Esenciales** - Gestión de recursos, procesos y memoria
+
+4. **Diferencias entre SOs** - Comparativa entre Windows, macOS y Linux
+
+5. **Por qué existe Linux** - Historia, filosofía y ventajas
+
+---
+
+## ¿Qué es un Sistema Operativo?
+
+**Definición clara:**
+
+Un Sistema Operativo (SO) es un programa especial que actúa como **intermediario entre el usuario y el hardware**. Su función principal es gestionar todos los recursos de la computadora (memoria, procesador, disco duro, dispositivos periféricos) y permitir que otros programas funcionen correctamente [@posix_2017].
+
+::: {.callout-note}
+## ¿Por qué importa?
+
+- **Impacto directo:** Sin un SO, no podrías ejecutar ningún programa. El SO es lo que permite que todo funcione.
+- **En Abacom:** Necesitamos entender cómo el SO gestiona servidores para optimizar rendimiento y resolver problemas.
+- **Ventaja profesional:** Un administrador que entiende el SO puede diagnosticar 80% de problemas sin herramientas externas.
+
+:::
+
+---
+
+## Kernel vs Shell
+
+**Definición clara:**
+
+Aunque a menudo se confunden, son dos cosas diferentes:
+
+- **Kernel:** El núcleo del SO. Controla directamente el hardware y gestiona procesos, memoria y dispositivos.
+- **Shell:** La "interfaz" entre el usuario y el kernel. Es lo que ves en terminal - interpreta tus comandos y le dice al kernel qué hacer.
+
+::: {.callout-warning}
+## Punto importante
+
+El kernel trabaja en "modo privilegiado" (ring 0), lo que significa tiene acceso total al hardware. Los programas normales corren en "modo usuario" (ring 3) con permisos limitados. Esta separación es crítica para la seguridad.
+:::
+
+---
+
+## 💡 Ejemplos Prácticos
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Verifica tu SO
+
+#### Linux
+
+```bash
+# Ver información del SO en Linux
+$ uname -a
+Linux servidor-abacom 5.15.0-89-generic #99-Ubuntu SMP Mon Oct 5 09:29:34 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+
+# Información adicional
+$ cat /etc/os-release | grep PRETTY_NAME
+PRETTY_NAME="Ubuntu 22.04.4 LTS"
+```
+
+**Explicación:**
+
+- **uname -a**: Muestra nombre del kernel, versión y arquitectura
+- En Linux: Kernel es "Linux 5.15.0" en arquitectura "x86_64" (64 bits)
+- **Resultado**: Información técnica para administración de servidores
+
+#### macOS
+
+```bash
+# Ver información del SO en macOS
+$ uname -a
+Darwin macbook-pro 23.3.0 Darwin Kernel Version 23.3.0 arm64
+
+# Versión del sistema macOS
+$ sw_vers
+ProductName:    macOS
+ProductVersion: 14.2.1
+BuildVersion:   23C71
+```
+
+**Explicación:**
+
+- **uname -a**: Muestra "Darwin" (kernel de macOS) en arquitectura arm64 (Apple Silicon) o x86_64 (Intel)
+- **sw_vers**: Muestra versión específica de macOS instalado
+- **Resultado**: macOS es basado en Unix, compatible con comandos Linux
+
+#### Windows
+
+```powershell
+# Ver información del SO en Windows (PowerShell)
+PS> systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
+OS Name:                   Microsoft Windows 11 Professional
+OS Version:                10.0.22621 Build 22621
+System Type:               x64-based PC
+
+# Alternativa más detallada
+PS> Get-ComputerInfo -Property osname, osversion, systemskufamily
+```
+
+**Explicación:**
+
+- **systeminfo**: Muestra información detallada del sistema
+- **findstr**: Filtra solo líneas específicas (similar a grep en Linux)
+- **Resultado**: Windows usa arquitectura x64 (equivalente a x86_64 en Linux)
+
+---
+
+### Ejemplo 2: Ver procesos del SO
+
+#### Linux
+
+```bash
+# Listar procesos en ejecución en Linux
+$ ps aux | head -10
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.1  10960  5216 ?        Ss   10:23   0:01 /sbin/init
+root         2  0.0  0.0      0     0 ?        S    10:23   0:00 [kthreadd]
+systemd+   560  0.0  0.2  89456  3564 ?        Ss   10:23   0:00 /lib/systemd/systemd-resolved
+
+# Ver solo procesos de tu usuario
+$ ps ux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+diego     5432  0.0  0.5 234567 8912 pts/0    S+   14:35   0:00 bash
+```
+
+**Cómo funciona:**
+
+- **ps aux**: Lista todos los procesos del sistema con detalles completos
+- **PID**: Identificador único de proceso
+- **%CPU / %MEM**: Porcentaje de CPU y memoria que usa
+- **STAT**: Estado del proceso (Ss = running, S = sleeping)
+
+#### macOS
+
+```bash
+# Listar procesos en macOS
+$ ps aux | head -10
+USER              PID  %CPU %MEM      VSZ      RSS   TT  STAT STARTED      TIME COMMAND
+root                1   0.0  0.1  4348784   16564   ??  Ss   Wed01PM   0:32.54 /sbin/launchd
+root               46   0.0  0.0  4484408    5232   ??  Ss   Wed01PM   0:16.32 /usr/sbin/syslogd
+_windowserver     108   1.5  1.2  5672744  201456   ??  Ss   Wed01PM  15:24.32 /System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/Resources/WindowServer
+
+# Ver procesos más legiblemente
+$ top -l 1 -n 10
+```
+
+**Cómo funciona:**
+
+- Similar a Linux pero con columnas ligeramente diferentes
+- **STARTED**: Cuándo se inició el proceso
+- **WindowServer**: Proceso especial de macOS para gráficos
+
+#### Windows
+
+```powershell
+# Ver procesos en Windows (PowerShell)
+PS> Get-Process | Select-Object Name, Id, CPU, Memory | Sort-Object Memory -Descending | Select-Object -First 10
+
+Name                Id  CPU      Memory
+----                --  ---      ------
+svchost           1234   1.5   523264
+explorer          5678   2.3   456789
+chrome            9012   8.5   1234567
+python            3456   0.1   234567
+
+# Alternativa: usar tasklist
+PS> tasklist /V | findstr "python"
+```
+
+**Cómo funciona:**
+
+- **Get-Process**: Obtiene lista de procesos activos
+- **Id**: Identificador único (equivalente a PID en Linux)
+- **Memory**: Uso de memoria en bytes
+- **tasklist**: Comando clásico de Windows para listar procesos
+
+---
+
+### Ejemplo 3: Caso Real Abacom
+
+#### Linux (Servidor de Producción)
+
+```bash
+# En un servidor Linux de Abacom, verificar recursos del sistema
+$ free -h
+              total        used        free      shared  buff/cache   available
+Mem:           15.6G       3.2G       9.1G       256M       3.3G      12.0G
+Swap:           4.0G       0.0B       4.0G
+
+# Ver carga del servidor
+$ uptime
+ 14:35:42 up 247 days, 3:42, 2 users, load average: 0.85, 0.92, 0.88
+
+# Ver procesos principales de la aplicación
+$ ps aux | grep "python\|node\|java"
+```
+
+**Por qué lo usamos en Abacom:**
+
+- Monitorear memoria disponible para aplicaciones críticas
+- Detectar si el servidor está bajo carga (load average)
+- Uptime de 247 días = Excelente estabilidad
+- Planificar upgrades de hardware si es necesario
+
+#### macOS (Máquina de Desarrollo)
+
+```bash
+# En una Mac de desarrollo de Abacom
+$ memory_pressure
+System memory pressure level: 2 (elevated)
+Physical memory: 16GB
+
+# Ver recursos del sistema
+$ top -l 1 -stats cpu,mem -n 5
+
+# Memoria disponible
+$ vm_stat
+```
+
+**Por qué lo usamos en Abacom:**
+
+- Verificar que tenemos suficiente RAM para Docker/VirtualBox
+- Monitorear si las herramientas de desarrollo están consumiendo demasiado
+- Detectar memory leaks en aplicaciones
+
+#### Windows (Máquina de Administrador)
+
+```powershell
+# En Windows para administración remota de Abacom
+PS> Get-ComputerInfo -Property TotalPhysicalMemory, FreePhysicalMemory
+
+TotalPhysicalMemory : 17179869184 (16 GB)
+FreePhysicalMemory  : 8589934592 (8 GB)
+
+# Ver procesos por memoria
+PS> Get-Process | Sort-Object Memory -Descending | Select-Object -First 5
+
+# Información del sistema
+PS> systeminfo | findstr /C:"Processor" /C:"System Type" /C:"Total Physical Memory"
+```
+
+**Por qué lo usamos en Abacom:**
+
+- Monitorear servidores remotos desde Windows
+- Verificar que tengas suficiente RAM en tu máquina
+- Automatizar tareas de administración
+
+:::
+
+---
+
+---
+
+## 🔧 Componentes Principales del Sistema Operativo
+
+### El Kernel - El Corazón
+
+El kernel es la parte más importante. Gestiona:
+
+- **Procesos:** Ejecuta programas y los alterna entre CPU
+- **Memoria:** Asigna RAM a cada proceso
+- **Devices (Dispositivos):** Controla disco, red, impresoras, etc.
+- **Interrupts (Interrupciones):** Responde a eventos urgentes
+
+```bash
+# Ver información del kernel en Linux
+$ uname -r  # <1>
+5.15.0-89-generic
+
+# Ver módulos del kernel cargados
+$ lsmod | head -10  # <2>
+Module                  Size  Used by
+overlay                81920  0
+kvm_intel             323584  0
+kvm                  1019904  1 kvm_intel
+...
+```
+
+1. **uname -r** muestra la versión exacta del kernel de tu sistema
+
+2. **lsmod** lista los módulos del kernel que están actualmente cargados en memoria
+
+El kernel Linux se actualiza para seguridad y rendimiento, pero rara vez requiere reinicio.
+
+### Drivers - Los Traductores
+
+Los drivers (controladores) permiten que el SO hable con el hardware específico:
+
+- **Video Driver:** Comunica con tu tarjeta gráfica
+- **Network Driver:** Comunica con tu tarjeta de red
+- **Storage Driver:** Comunica con disco duro/SSD
+
+```bash
+# Listar dispositivos reconocidos
+$ lspci | grep -E "(Network|VGA|Audio)"  # <1>
+00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630
+00:1f.6 Ethernet controller: Intel Corporation Ethernet Connection
+
+# Ver drivers cargados
+$ lsmod | grep -i eth  # <2>
+```
+
+1. **lspci** lista todos los dispositivos PCI conectados al sistema, filtramos solo Network, VGA y Audio
+
+2. **lsmod | grep -i eth** muestra solo los módulos de ethernet cargados en el kernel
+
+Sin drivers correctos, el hardware no funciona.
+
+### Shell - La Interfaz
+
+El shell es lo que **tú ves y usas**. Convierte tus comandos en órdenes que el kernel entiende:
+
+```bash
+# Usando shell bash
+$ ls -la /home  # <1>
+total 28
+drwxr-xr-x  3 root root 4096 Jan 29 14:22 .
+drwxr-xr-x 23 root root 4096 Jan 29 14:22 ..
+drwxr-xr-x  5 diego staff 160 Jan 29 14:22 diego
+
+# El shell interpreta "ls -la /home" y le dice al kernel:  # <2>
+# "Lee el directorio /home y muestra detalles"
+```
+
+1. **ls -la /home** lista todos los directorios en /home con detalles (permisos, dueño, fecha, etc.)
+
+2. El shell convierte este comando en instrucciones que el kernel entiende
+
+Diferentes shells: **bash**, **zsh**, **sh**, **fish**.
+
+---
+
+## 🔧 Funciones Esenciales del Sistema Operativo
+
+### Gestión de Procesos
+
+El SO decide **qué programa corre y cuándo**:
+
+```bash
+# Ver procesos en tiempo real
+$ top -b -n 1 | head -20  # <1>
+
+top - 14:40:15 up 247 days, 3:47,  2 users,  load average: 0.92, 0.91, 0.89
+Tasks: 156 total,   1 running, 155 sleeping,   0 stopped,   0 zombie  # <2>
+%Cpu(s):  3.2 us,  2.1 sy,  0.0 ni, 94.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st  # <3>
+```
+
+1. **top -b -n 1** ejecuta top en modo batch (sin interfaz interactiva) una sola vez
+
+2. La línea "Tasks" muestra cuántos procesos están ejecutándose (156 total, 1 corriendo, 155 dormidos)
+
+3. La línea "%Cpu(s)" muestra el porcentaje de CPU usado en modo usuario (us), sistema (sy), inactivo (id), etc.
+
+**Cómo funciona:**
+
+1. El SO maneja un "planificador" (scheduler) que decides cuál proceso ejecutar
+
+2. Si tienes un CPU de 4 núcleos, puede ejecutar 4 cosas simultáneamente
+
+3. En paralelo, el SO cambia entre procesos muy rápidamente (time slicing)
+
+4. Resultado: Parece que 100 programas corren "al mismo tiempo"
+
+### Gestión de Memoria
+
+El SO asigna RAM a cada proceso de forma segura:
+
+```bash
+# Ver uso de memoria
+$ cat /proc/meminfo  # <1>
+MemTotal:       16409912 kB    # RAM Total en el sistema  # <2>
+MemFree:         9654832 kB    # RAM Disponible sin usar  # <3>
+MemAvailable:   12506144 kB    # RAM que puede usar si es necesario  # <4>
+```
+
+1. **/proc/meminfo** es un archivo virtual que muestra información detallada de memoria del kernel
+
+2. MemTotal es la cantidad total de RAM disponible
+
+3. MemFree es RAM completamente sin usar (no incluye caché)
+
+4. MemAvailable es RAM que el kernel puede liberar rápidamente si la necesita otra aplicación
+...
+
+
+**Importancia:**
+
+- Cada proceso cree que tiene acceso a toda la memoria (memoria virtual)
+- El SO maneja la traducción real a direcciones físicas
+- Si se acaba RAM, usa disco (swap) - mucho más lento
+
+### Gestión de Dispositivos
+
+El SO es el "policía" que controla acceso a hardware:
+
+```bash
+# Ver dispositivos de almacenamiento
+$ lsblk  # <1>
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT  # <2>
+sda      8:0    0  500G  0 disk  # <3>
+├─sda1   8:1    0    1G  0 part /boot  # <4>
+├─sda2   8:2    0  499G  0 part /
+sdb      8:16   0    2T  0 disk
+└─sdb1   8:17   0    2T  0 part /data
+```
+
+1. **lsblk** (block list) muestra todos los dispositivos de almacenamiento en forma de árbol
+
+2. NAME: nombre del dispositivo, SIZE: tamaño, TYPE: tipo (disk=disco, part=partición), MOUNTPOINT: dónde está montado
+
+3. **sda** es el primer disco duro (500 GB), identificado como 8:0 en el kernel
+
+4. **sda1** y **sda2** son particiones (divisiones) del disco sda, la primera (1G) es /boot (donde arranca el SO)
+
+El SO decide qué proceso puede acceder a qué dispositivo en qué momento.
+
+### Gestión de Archivos
+
+El SO organiza datos en carpetas y archivos:
+
+```bash
+# Ver sistema de archivos
+$ df -h  # <1>
+Filesystem      Size  Used Avail Use% Mounted on  # <2>
+/dev/sda2       500G  120G  380G  24% /  # <3>
+/dev/sdb1         2T  1.5T  500G  75% /data  # <4>
+tmpfs           7.8G     0  7.8G   0% /dev/shm
+```
+
+1. **df -h** (disk free) muestra el espacio disponible en todos los sistemas de archivos montados (-h = human readable, en GB/TB)
+
+2. Filesystem: dispositivo, Size: tamaño total, Used: usado, Avail: disponible, Mounted on: dónde está montado
+
+3. **/dev/sda2** es la partición principal (/) con 500G total, 120G usados, 380G disponibles (24% ocupado)
+
+4. **/dev/sdb1** es una segunda partición montada como /data, casi llena (75% usada, solo 500G disponibles)
+
+El SO traduce "abre archivo.txt" en "busca en sector X del disco Y".
+
+---
+
+## ⚠️ Errores Comunes
+
+### Confundir "No hay memoria" con "No hay espacio en disco"
+
+::: {.callout-caution}
+## Síntoma que verás
+
+```
+Cannot allocate memory
+# O en aplicaciones:
+java.lang.OutOfMemoryError: Java heap space
+```
+
+**Causa raíz:** Se llenó la RAM, no el disco. Estas son dos cosas diferentes.
+
+**Solución comprobada:**
+```bash
+# ❌ Forma INCORRECTA (buscar espacio en disco)
+$ df -h  # <1>
+Filesystem      Size  Used Avail
+/               500G  100G  400G  ← Aún hay espacio!
+
+# ✅ Forma CORRECTA (revisar RAM)
+$ free -h  # <2>
+               total    used    free
+Mem:          15.6G   14.8G   0.8G  ← ¡RAM llena!
+```
+
+1. df -h** muestra espacio en disco (500G disponibles), así que el problema NO es falta de disco
+
+2. **free -h** muestra RAM, y aquí está el problema: solo 0.8G de 15.6G disponibles, la RAM está casi llena
+
+**Por qué funciona la solución:**
+El error es de RAM, no de disco. **df** ve espacio en disco, pero **free** muestra RAM agotada. Son dos sistemas diferentes del SO.
+:::
+
+### El sistema "se congela"
+
+::: {.callout-warning}
+**Síntoma:** Todo se ralentiza o se detiene completamente  
+**Causa:** Generalmente swapping excesivo (usando disco en lugar de RAM) o CPU sobrecargada  
+**Solución:**
+```bash
+# Verificar carga de CPU
+$ uptime  # <1>
+load average: 12.5, 11.2, 10.1  ← Si es > núcleos CPU, está sobrecargado  # <2>
+
+# Verificar swap (disco usado como memoria)
+$ swapon -s  # <3>
+Filename  Size  Used Priority
+/dev/sda1 4000000 3900000 -1  ← Si Used es alto, es el problema  # <4>
+```
+
+1. **uptime** muestra cuánto tiempo lleva el sistema activo y el "load average" (promedio de procesos en cola)
+
+2. Si load average (12.5, 11.2, 10.1) es mayor que los núcleos CPU que tienes (ej: 4 núcleos), el CPU está sobrecargado
+
+3. **swapon -s** muestra si el sistema está usando swap (disco como RAM, mucho más lento)
+
+4. Si "Used" de swap es alto, significa que se llenó la RAM y ahora está usando disco, causando ralentizaciones severas
+:::
+
+---
+
+## 📊 Mejores Prácticas
+
+::: {.callout-important}
+## Patrones Recomendados
+
+✅ **HACER (Prácticas Probadas):**
+
+- Monitorear RAM disponible continuamente → previene problemas antes
+- Mantener kernél actualizado → parches de seguridad
+- Revisar procesos que consumen recursos → identificar culpables
+
+❌ **NO HACER (Antipatrones):**
+
+- Ignorar alertas de memoria llena → causa crashes
+- Ejecutar procesos como **root** innecesariamente → riesgo seguridad
+- Llenar swap sin investigar → enmascara problema real
+:::
+
+---
+
+## 📋 Tabla de Referencia Rápida
+
+| Comando | Propósito | Uso |
+|---------|-----------|-----|
+| `uname -a` | Ver información del SO y kernel | Diagnóstico del sistema |
+| `ps aux` | Listar todos los procesos | Monitoreo de aplicaciones |
+| `top` o `htop` | Monitor en tiempo real | Diagnóstico de rendimiento |
+| `free -h` | Ver uso de memoria RAM | Verificar disponibilidad memoria |
+| `df -h` | Ver espacio en disco | Monitorear particiones |
+| `lsmod` | Listar módulos del kernel | Diagnóstico de drivers |
+
+---
+
+## 🎓 Quiz: Verifica tu Comprensión
+
+::: {.callout-note}
+## Antes de continuar
+
+Responde estas preguntas para verificar que comprendiste los conceptos clave. 
+Si tienes dudas, vuelve a las secciones anteriores.
+:::
+
+### ¿Cuál es la diferencia entre Kernel y Shell?
+
+<details>
+<summary>📖 Ver respuesta</summary>
+
+**Kernel** es el software central que controla directamente el hardware. **Shell** es la interfaz que usa el usuario para comunicarse con el kernel.
+
+**Ejemplo diferenciador:**
+```bash
+# El kernel hace esto:
+# - Gestiona CPU, memoria, disco
+# - Maneja interrupciones de hardware
+# - Asigna recursos a procesos
+
+# El shell hace esto:
+$ ls -la /home
+# ↑ Shell interpreta esto
+# ↓ Le dice al kernel: "Lee directorio /home"
+```
+
+**Por qué es importante la diferencia:**
+El kernel es invisible - nunca lo usas directamente. El shell es lo que ves. Si entiendes esta separación, entiendes cómo funciona todo.
+
+</details>
+
+### ¿Cuál es el comando para ver si tu RAM está llena?
+
+<details>
+<summary>💡 Ver respuesta</summary>
+
+```bash
+$ free -h
+```
+
+**Explicación técnica:** **free** muestra memoria RAM. **-h** significa "human-readable" (formato legible). Este comando le dice al kernel: "dame un reporte de memoria".
+
+**Validación:** Si ejecutas esto, deberías ver:
+```
+             total    used    free   shared  buff/cache available
+Mem:         15.6G   3.2G    9.1G     256M      3.3G      12.0G
+```
+
+Si **free** es muy pequeño o **used** es muy grande, la RAM está llena.
+
+</details>
+
+### ¿En qué escenario revisarías `free -h` en lugar de `df -h`?
+
+<details>
+  <summary>🎯 Ver respuesta</summary>
+
+  Usarías `free -h` cuando una **aplicación reporta error de memoria**, no cuando te falta espacio en disco.
+
+  **Ejemplo práctico:**
+
+  - ✅ Usar `free -h` cuando: Java reporta "OutOfMemoryError" o aplicación se crashes con "Cannot allocate memory"
+  - ❌ No usar `free -h` cuando: El disco muestra "100% full" o error de "No space left on device"
+
+  **Caso Abacom:** En nuestros servidores, cuando una base de datos se ralentiza, PRIMERO revisamos `free -h`. Si RAM está bien, LUEGO revisamos `df -h` y otros factores.
+</details>
+
+---
+
+## 👨‍💻 Práctica Guiada con el Instructor
+
+### Identificar tu Sistema Operativo
+
+**Objetivo:** Ejecutar comandos básicos para entender qué SO tienes y cómo funciona.
+
+**Pasos:**
+
+1. Abrir una terminal (macOS/Linux) o PowerShell (Windows)
+
+2. Ejecutar comandos para obtener información
+
+3. Interpretar los resultados
+
+**Instrucciones:**
+```bash
+# Paso 1: Ver información del SO
+$ uname -a  # <1>
+# Deberías ver: información del kernel, versión, arquitectura
+
+# Paso 2: Ver los primeros procesos del sistema
+$ ps aux | head -10  # <2>
+# Deberías ver: procesos del sistema operativo en ejecución
+
+# Paso 3: Ver memoria disponible
+$ free -h  # <3>
+# Deberías ver: cuánta RAM tienes y cuánta está disponible
+```
+
+1. **uname -a** (all) muestra toda la información del sistema: nombre kernel, versión, máquina, procesador
+
+2. **ps aux** lista todos los procesos en ejecución, `| head -10` muestra solo los primeros 10
+
+3. **free -h** (human readable) muestra RAM total, usada, libre en formato legible (GB)
+
+**Verificación:**
+
+- ✓ Ves el nombre del kernel (Linux, Darwin para macOS, etc.)
+- ✓ Ves una lista de procesos numerados
+- ✓ Ves números de memoria (Mem: XXG)
+
+### Monitorear Recursos en Tiempo Real
+
+**Objetivo:** Observar cómo el SO gestiona recursos mientras ejecutas comandos.
+
+**Pasos:**
+
+1. Abrir **top** o **htop** para ver monitoreo
+
+2. Notar cómo cambian los procesos
+
+3. Ejecutar un comando que consume recursos
+
+**Instrucciones:**
+```bash
+# Ejecuta esto en una terminal
+$ top
+
+# En otra terminal, ejecuta un comando que consume recursos
+$ yes > /dev/null  # Genera CPU load
+
+# Vuelve a la terminal con top
+# Verás que el proceso "yes" aparece
+# NOTA: presiona 'q' para salir de top
+```
+
+**Verificación:**
+
+- ✓ Ves el proceso "yes" en la lista de top
+- ✓ Ves que %CPU es alto para ese proceso
+- ✓ El cambio ocurre en tiempo real
+
+### Ejercicio Avanzado - Investigar Problema de Rendimiento
+
+**Objetivo:** Simular un diagnóstico real de Abacom.
+
+**Instrucciones:**
+```bash
+# Escenario: El servidor está lento
+# Paso 1: Ver carga del sistema
+$ uptime
+# Resultado esperado: load average values
+
+# Paso 2: Ver si es por memoria
+$ free -h
+# Resultado esperado: see available memory
+
+# Paso 3: Ver qué procesos consumen CPU
+$ top -b -n 1 | sort -k 3 -nr | head -5
+# Resultado esperado: top 5 procesos por CPU
+
+# Paso 4: Conclusión
+# "El servidor está lento porque [memoria/CPU/disco]"
+```
+
+**Verificación:**
+
+- ✓ Entiendes qué significan los números
+- ✓ Puedes identificar el culpable (memoria, CPU, disco)
+- ✓ Sabes qué pasos seguir para resolver
+
+---
+
+## 🧪 Laboratorio de Práctica Integrado
+
+**Duración:** 60-90 minutos  
+**Dificultad:** Intermedio  
+**Objetivo General:** Dominar diagnóstico básico de sistemas operativos
+
+### Fase 1: Preparación del Entorno (15 min)
+
+Crea un espacio de trabajo para tus prácticas:
+
+```bash
+# Crear directorios de trabajo
+$ mkdir -p ~/laboratorio-so/resultados
+$ cd ~/laboratorio-so
+
+# Crear archivo de notas
+$ touch diagnostico.txt
+```
+
+### Fase 2: Información del Sistema (20 min)
+
+**Tarea:** Recopilar información completa del SO
+
+```bash
+# Archivo: resultados/info-so.txt
+# Ejecuta estos comandos y guarda output:
+
+$ uname -a > resultados/info-so.txt
+$ cat /etc/os-release >> resultados/info-so.txt
+$ lsb_release -a >> resultados/info-so.txt
+
+# Verificar que se guardó
+$ cat resultados/info-so.txt
+# Deberías ver toda la información del SO
+```
+
+**Ejercicio:**
+
+1. Ejecuta cada comando
+
+2. Guarda los resultados en el archivo
+
+3. Interpreta: ¿Qué versión de kernel tienes? ¿32 o 64 bits?
+
+### Fase 3: Monitoreo de Recursos (20 min)
+
+**Tarea:** Registrar estado de recursos
+
+```bash
+# Archivo: resultados/recursos.txt
+# Ejecuta estos comandos:
+
+$ free -h > resultados/recursos.txt
+$ df -h >> resultados/recursos.txt
+$ top -b -n 1 | head -20 >> resultados/recursos.txt
+
+# Verificar
+$ cat resultados/recursos.txt
+```
+
+**Ejercicio:**
+
+1. ¿Cuánta RAM tienes?
+
+2. ¿Cuánta RAM está disponible?
+
+3. ¿Cuál es el proceso que más CPU consume?
+
+### Fase 4: Análisis de Procesos (20 min)
+
+**Tarea:** Identificar procesos críticos
+
+```bash
+# Archivo: resultados/procesos.txt
+# Listar procesos ordenados por CPU
+
+$ ps aux --sort=-%cpu | head -10 > resultados/procesos.txt
+
+# Listar procesos ordenados por memoria
+$ ps aux --sort=-%mem | head -10 >> resultados/procesos.txt
+
+# Contar total de procesos
+$ ps aux | wc -l >> resultados/procesos.txt
+```
+
+**Ejercicio:**
+
+1. ¿Cuál es el proceso que más CPU consume?
+
+2. ¿Cuál es el proceso que más memoria consume?
+
+3. ¿Cuántos procesos totales hay en ejecución?
+
+### Fase 5: Proyecto Integrador - Diagnóstico Real (15 min)
+
+**Desafío Final:** Crea un resumen de diagnóstico como un administrador real.
+
+**Escenario:** En Abacom, el servidor está reportando bajo rendimiento. Necesitas diagnosticar.
+
+**Solución esperada:**
+```bash
+# Pasos para resolver
+$ cat > resultados/diagnostico-final.txt << 'EOF'
+=== DIAGNÓSTICO DEL SISTEMA ===
+
+1. SISTEMA OPERATIVO:
+[Información del OS aquí - ejecuta: uname -a]
+
+2. MEMORIA RAM:
+Total: [número de free -h]
+Disponible: [número de free -h]
+Uso: [porcentaje]
+
+3. ESPACIO EN DISCO:
+[Ejecuta: df -h]
+
+4. CARGA DEL SISTEMA:
+[Ejecuta: uptime]
+
+5. PROCESO PRINCIPAL CONSUMIENDO CPU:
+[Ejecuta: ps aux --sort=-%cpu | head -2]
+
+6. CONCLUSIÓN:
+El problema es [RAM / CPU / DISCO / OTRO] porque...
+EOF
+
+# Validación Final
+$ cat resultados/diagnostico-final.txt
+```
+
+**Validación Final:**
+```bash
+# Verifica que completaste todo
+$ ls -la ~/laboratorio-so/resultados/
+# Deberías ver: info-so.txt, recursos.txt, procesos.txt, diagnostico-final.txt
+```
+
+### Verificación del Laboratorio
+
+Marca cuando completes cada punto:
+
+- [ ] Entorno preparado sin errores
+- [ ] Información del SO recopilada correctamente
+- [ ] Recursos monitoreados exitosamente
+- [ ] Procesos identificados y analizados
+- [ ] Diagnóstico final completado
+- [ ] Resultado guardado en archivos
+
+---
+
+## 📚 Recursos Adicionales
+
+### Documentación Oficial
+
+- **[Linux man-pages - standards(7)](https://man7.org/linux/man-pages/man7/standards.7.html)**
+  - Sección relevante: Estándares POSIX y Unix
+  - Por qué es útil: Entender los estándares que cumple Linux
+
+- **[Ubuntu Server Documentation](https://ubuntu.com/server/docs)**
+  - Sección relevante: System fundamentals
+  - Por qué es útil: Documentación oficial de Ubuntu
+
+### Tutoriales Complementarios
+
+- **[Linux Foundation - The Linux Foundation](https://www.linuxfoundation.org/)**
+  - Duración: Varies
+  - Cubre: Conceptos fundamentales de Linux
+
+- **[Brendan Gregg - Systems Performance](http://www.brendangregg.com/systems-performance-2nd-edition-book.html)**
+  - Duración: Book (500+ pages)
+  - Cubre: Diagnóstico avanzado de sistemas
+
+### Comunidades y Foros
+
+- **[Arch Wiki - Main page](https://wiki.archlinux.org/title/Main_page)**
+  - Para: Preguntas técnicas específicas
+  - Cómo usar: Busca tu pregunta o crea una nueva
+
+- **[r/linux - Reddit](https://www.reddit.com/r/linux/)**
+  - Para: Discusiones generales y noticias
+  - Cómo usar: Community muy activa y receptiva
+
+---
+
+## ❓ Preguntas Frecuentes
+
+**P: ¿Necesito memorizar todos los comandos?**
+
+R: No. Lo importante es entender QUÉ hace cada comando. Con tiempo, memorizarás los más comunes. Siempre puedes usar **man** (manual) para recordar sintaxis.
+
+```bash
+# Ver manual de cualquier comando
+$ man free
+$ man ps
+$ man df
+```
+
+**P: ¿Por qué macOS es diferente a Linux si ambos son Unix?**
+
+R: Ambos siguen estándares POSIX, pero tienen diferencias:
+
+- macOS usa kernel XNU (derivado de BSD y Mach)
+- Linux usa kernel Linux (de Linus Torvalds)
+- Comandos básicos son similares, pero algunos flags difieren
+
+```bash
+# En Linux
+$ free -h
+
+# En macOS (no existe 'free', usar esto)
+$ vm_stat
+# O instalar: brew install gnu-coreutils
+```
+
+**P: ¿Cómo aplico esto en Abacom?**
+
+R: En nuestro caso, usamos estos comandos diariamente:
+
+- **top** o **htop** cuando reportan problemas de rendimiento
+- `free -h` para verificar si falta RAM
+- `df -h` para monitorear espacio en disco
+- `ps aux` para encontrar procesos problemáticos
+
+```bash
+$ # Diagnóstico rápido de servidor Abacom
+$ uptime && free -h && df -h && top -b -n 1 | head -20
+```
+
+---
+
+## 🎯 Resumen
+
+::: {.callout-tip}
+## Lo más importante (3 puntos clave)
+
+1. **Sistema Operativo = Intermediario entre usuario y hardware** → Sin SO, no funciona nada. Todo pasa a través del SO.
+
+2. **Kernel vs Shell** → Kernel gestiona hardware (invisible), Shell es la interfaz (lo que ves).
+
+3. **Diagnóstico de problemas** → Usa `free -h` para memoria, `df -h` para disco, **top** para CPU.
+
+**Recuerda:** Estos conceptos serán la base para entender administración avanzada de servidores.
+:::
+
+### Checklist de Competencias Alcanzadas
+
+- ✅ Entiendo qué es un Sistema Operativo y por qué es crítico
+- ✅ Puedo distinguir entre Kernel, Shell y Drivers
+- ✅ Reconozco errores comunes (RAM llena vs disco lleno)
+- ✅ Puedo usar comandos básicos para diagnosticar problemas
+- ✅ Estoy listo para aprender Linux específicamente
+
+### Próximos Pasos
+
+::: {.callout-note}
+🔜 **Siguiente tema:** [Historia y Evolución de Linux](2_historia_linux.html)  
+📋 **Laboratorio siguiente:** Instalación de Ubuntu 22.04 LTS  
+⏱️ **Tiempo recomendado:** 2 horas de lectura + 3 horas de práctica
+:::
+
+---
+
+## 📞 Soporte
+
+::: {.callout-important}
+## ¿Tienes dudas sobre este tema?
+
+- 💬 **Preguntas técnicas:** Abre un issue en [GitHub Issues]
+- 🐛 **Errores no cubiertos:** Reporta en el repositorio
+- 💡 **Sugerencias para mejorar:** Envía feedback a diego@abacom.cl
+- 🔗 **Recursos adicionales:** Disponibles en la sección [Recursos Adicionales](#recursos-adicionales)
+:::
+
+---
+
+**Última actualización:** 2026-01-29  
+**Versión:** 1.0  
+**Estado:** ✅ Completo y validado contra fuentes oficiales
+
+::: {.callout-note}
+## Acerca de las fuentes
+
+Todo el contenido de este módulo ha sido verificado contra:
+
+- Estándares POSIX.1-2017 y IEEE 1003.1
+- Documentación oficial de The Linux Foundation
+- Man-pages oficiales de Linux
+
+Las fuentes específicas se encuentran en [Recursos Adicionales](#recursos-adicionales).
+:::
+
+---
+
+## 📝 Quiz: Introducción a Sistemas Operativos
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es la función principal de un Sistema Operativo?
+
+- [ ] Escribir programas
+- [x] Gestionar recursos del hardware y proporcionar interfaz al usuario
+- [ ] Almacenar archivos
+- [ ] Conectarse a internet
+
+## ¿Cuáles son los tres componentes principales de un SO?
+
+- [x] Kernel, Shell, y Utilidades/Aplicaciones
+- [ ] CPU, Disco duro, Memoria
+- [ ] Windows, Linux, Mac
+- [ ] navegador, Editor de texto, Reproductor multimedia
+
+## ¿Qué es un Kernel?
+
+- [ ] Una aplicación para usuarios
+- [x] El núcleo del SO que gestiona hardware y recursos
+- [ ] El sistema de archivos
+- [ ] Un tipo de procesador
+
+## ¿Cuál es la función del Shell?
+
+- [ ] Proteger el hardware
+- [ ] Almacenar datos
+- [x] Proporcionar interfaz entre usuario y kernel
+- [ ] Crear redes
+
+## ¿Qué es un SO Monousuario?
+
+- [x] SO que permite un solo usuario a la vez
+- [ ] SO para una sola máquina
+- [ ] SO sin contraseña
+- [ ] SO muy básico
+
+## ¿Cuál es un ejemplo de SO Multiusuario?
+
+- [ ] DOS
+- [x] Linux
+- [ ] Windows 95
+- [ ] FreeDOS
+
+## ¿Qué es Multitarea?
+
+- [ ] Usar varios programas secuencialmente
+- [x] Ejecutar varios programas simultáneamente
+- [ ] Cambiar de usuario rápidamente
+- [ ] Trabajar en varios archivos
+
+## ¿Qué característica define un SO de Tiempo Real?
+
+- [ ] Velocidad extrema
+- [x] Respuesta garantizada en tiempo específico
+- [ ] Interfaz gráfica
+- [ ] Soporte multimedia
+
+## ¿Qué es un SO embebido?
+
+- [ ] SO que se esconde
+- [x] SO optimizado para dispositivos con recursos limitados
+- [ ] SO para servidores
+- [ ] SO experimental
+
+## Ejemplos de SO embebidos incluyen:
+
+- [ ] Linux Desktop, Windows
+- [x] Android, iOS, firmware de electrodomésticos
+- [ ] macOS, Windows Server
+- [ ] Todos los anteriores
+
+## ¿Cuál es la diferencia entre Hardware y Software?
+
+- [x] Hardware = componentes físicos, Software = programas e instrucciones
+- [ ] Son lo mismo
+- [ ] Hardware es más importante
+- [ ] Software es más rápido
+
+## ¿Qué es un archivo en un SO?
+
+- [ ] Un documento impreso
+- [x] Colección de datos almacenados con un nombre único
+- [ ] Un tipo de malware
+- [ ] Una carpeta
+
+## ¿Cuál es la función del Gestor de Archivos?
+
+- [ ] Proteger contra virus
+- [x] Organizar y permitir acceso a archivos del disco
+- [ ] Comprimir archivos automáticamente
+- [ ] Respaldar datos
+
+## ¿Qué es el Boot o Arranque del SO?
+
+- [ ] Apagar la computadora
+- [ ] Iniciar un programa
+- [x] Cargar el SO en memoria cuando se enciende la máquina
+- [ ] Reiniciar el sistema
+
+## ¿Cuál es la ventaja de usar particiones en un disco?
+
+- [ ] Hacer el disco más rápido
+- [x] Organizar datos, instalar múltiples SOs, aislar fallos
+- [ ] Aumentar espacio disponible
+- [ ] Proteger contra virus
+
+## ¿Qué es BIOS?
+
+- [ ] Un programa antivirus
+- [x] Firmware que inicia el hardware antes de cargar el SO
+- [ ] Un tipo de sistema de archivos
+- [ ] Un navegador web
+
+## ¿Cuál es la función del Gestor de Procesos?
+
+- [ ] Escribir documentos
+- [x] Asignar recursos CPU a programas en ejecución
+- [ ] Proteger archivos
+- [ ] Crear conexiones de red
+
+## ¿Qué es la Memoria Virtual?
+
+- [ ] Memoria que no existe
+- [x] Uso de disco duro para simular RAM adicional
+- [ ] Memoria del navegador
+- [ ] Almacenamiento en la nube
+
+## ¿Cuál es la diferencia entre Memoria RAM y Disco Duro?
+
+- [x] RAM es rápida pero temporal, Disco es lento pero permanente
+- [ ] Son iguales
+- [ ] RAM es permanente
+- [ ] Disco duro es más rápido
+
+## ¿Cuál es una función de Seguridad en un SO?
+
+- [ ] Eliminar archivos automáticamente
+- [x] Control de acceso, autenticación, gestión de permisos
+- [ ] Comprimir todos los datos
+- [ ] Conectar a internet automáticamente
+```
+
+---

@@ -1,0 +1,199 @@
+---
+title: "Administración de Servidores Linux"
+subtitle: |
+  <div class="cover">
+    <div class="cover-org">Abacom</div>
+    <div class="cover-focus">Hardening · Docker · Nginx + SSL · Docker Compose</div>
+  </div>
+author: ""
+date: ""
+format:
+  revealjs:
+    include-in-header:
+      - text: |
+          <style>
+            .reveal #title-slide .quarto-title-authors,
+            .reveal #title-slide .date {
+              display: none !important;
+            }
+
+            .reveal #title-slide {
+              text-align: left;
+              position: relative;
+              padding: 2.2rem 2.2rem;
+              overflow: hidden;
+            }
+
+            .reveal #title-slide::before {
+              content: "";
+              position: absolute;
+              inset: 0;
+              background:
+                radial-gradient(900px 420px at 15% 20%, rgba(39, 128, 227, 0.16), rgba(39, 128, 227, 0) 60%),
+                radial-gradient(700px 360px at 90% 85%, rgba(39, 128, 227, 0.10), rgba(39, 128, 227, 0) 62%);
+              pointer-events: none;
+            }
+
+            @media (prefers-color-scheme: dark) {
+              .reveal #title-slide::before {
+                background:
+                  radial-gradient(900px 420px at 15% 20%, rgba(38, 139, 210, 0.20), rgba(38, 139, 210, 0) 60%),
+                  radial-gradient(700px 360px at 90% 85%, rgba(42, 161, 152, 0.14), rgba(42, 161, 152, 0) 62%);
+              }
+            }
+
+            .reveal #title-slide h1 {
+              margin-bottom: 0.35rem;
+              letter-spacing: -0.03em;
+            }
+
+            .reveal #title-slide .subtitle {
+              max-width: 980px;
+              margin: 0;
+              line-height: 1.35;
+            }
+
+            .reveal #title-slide .cover {
+              position: relative;
+              margin-top: 0.2rem;
+            }
+
+            .reveal #title-slide .cover-org {
+              display: inline-block;
+              font-weight: 700;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              font-size: 0.78em;
+              color: var(--slides-accent);
+            }
+
+            .reveal #title-slide .cover-focus {
+              margin-top: 0.35rem;
+              color: var(--slides-muted);
+              font-size: 0.95em;
+            }
+
+            .reveal #title-slide .cover-focus {
+              max-width: 980px;
+            }
+          </style>
+---
+
+## Bienvenida
+
+::: center
+
+![Foto del instructor](../images/statick_ds.jpg){.avatar width="180"}
+
+:::
+
+- ¡Hola a todos! Es un gusto darles la bienvenida.
+- En este curso vas a instalar y operar un servidor Linux real (o VM) con enfoque profesional.
+- Priorizamos seguridad, orden y diagnóstico: no solo "que funcione", sino que sea operable.
+- Todo se valida con evidencias: comandos, estado de servicios, puertos y logs.
+
+## Acerca del facilitador
+
+::: {.nonincremental}
+
+::: center
+
+![Foto del instructor](../images/statick_ds.jpg){.avatar width="160"}
+
+**Diego Medardo Saavedra García**
+
+Instructor
+
+:::
+
+- 9+ años en desarrollo y operación de sistemas; docencia y capacitación técnica.
+- Enfoque de clase: seguridad, despliegue y diagnóstico reproducible.
+
+:::
+
+## Aval y enfoque
+
+- Curso avalado por Abacom (institución acreditada por el Ministerio de Trabajo).
+- Resolución: SETEC-CAL-2019-0183.
+- Enfoque 2026: operación moderna, despliegue y seguridad como base.
+
+## Para quién es
+
+- Estudiantes de TI / admins junior / devs que necesitan entender servidores.
+- Requisito: comodidad básica usando terminal (copiar/pegar comandos y leer salida).
+
+## Qué lograremos juntos
+
+- Hardening y seguridad: Firewall (UFW) y Fail2Ban.
+- Contenerización: instalación y operación de Docker.
+- Infraestructura web: despliegue de Nginx con SSL (Certbot).
+- Orquestación: Docker Compose (servicios + MySQL/Postgres).
+- Operación diaria: SSH, permisos, paquetes, logs y diagnóstico.
+
+## Metodología (aprender haciendo)
+
+Concepto -> Demo -> Laboratorio guiado -> Práctica -> Reto
+
+## Cómo trabajamos (reglas simples)
+
+- Todo cambio se prueba con un comando verificable (estado/puerto/log).
+- Cada práctica termina con evidencias (capturas/salidas) y un checklist.
+- Si algo falla: registras el error, hipótesis y pasos para reproducir.
+
+## Entorno de trabajo (recomendado)
+
+- Ubuntu Server LTS (VM o equipo dedicado)
+- Acceso por SSH desde tu máquina (Linux/macOS/Windows)
+- Un editor (VS Code recomendado) y Git instalado
+
+## Demo rápida: validar SSH
+
+```bash
+$ ssh usuario@IP_DEL_SERVIDOR  # <1>
+The authenticity of host 'IP_DEL_SERVIDOR (IP_DEL_SERVIDOR)' can't be established.
+ED25519 key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+usuario@IP_DEL_SERVIDOR's password:
+# <1>
+```
+
+
+
+::: notes
+
+1. **ssh** abre una sesión remota segura; la primera vez valida la huella del host y luego autentica.
+
+:::
+
+## Evaluación
+
+- Laboratorios: cumplimiento + evidencias + explicación breve
+- Prácticas: resolución + orden + reproducibilidad
+- Reto final: despliegue operativo (servicio funcionando + checklist + diagnóstico)
+
+## Recursos
+
+- Diapositivas: [Presentaciones (index)](index.html)
+- Ebook (inicio): [Página principal del curso](../index.html)
+- Configuración: [SETUP](../SETUP.html)
+- Laboratorios: [Laboratorios prácticos](../lab-practicos/README.html)
+- Evaluación: checklist de aceptación al final de cada lab y práctica
+- Glosario: [Glosario](../glosario.html)
+
+## Diapositivas por unidad
+
+- [Unidad 1](unidad1.html)
+- [Unidad 2](unidad2.html)
+- [Unidad 3](unidad3.html)
+- [Unidad 4](unidad4.html)
+- [Unidad 6](unidad6.html)
+- [Unidad 7](unidad7.html)
+- [Unidad 8](unidad8.html)
+- [Unidad 9](unidad9.html)
+- [Unidad 10](unidad10.html)
+- [Unidad 11](unidad11.html)
+- [Unidad 12](unidad12.html)
+
+::: {.footer-links}
+Instructor: https://statick88.github.io | Abacom: https://abacom.edu.ec
+:::

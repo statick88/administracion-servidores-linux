@@ -1,0 +1,172 @@
+---
+title: "Unidad 6.2: Particiones y discos"
+subtitle: "MBR vs GPT, fdisk y parted"
+author: "Diego Saavedra"
+date: "2026-02-01"
+date-format: medium
+---
+
+# Unidad 6.2: Particiones y discos
+
+## Introduccion
+
+Antes de crear un sistema de archivos, normalmente debes preparar el disco: tabla de particiones (MBR/GPT) y particiones.
+
+En esta leccion practicaremos particionado de forma segura usando dispositivos loop (discos de laboratorio).
+
+## Objetivos de aprendizaje
+
+Al final, podras:
+
+- Diferenciar MBR y GPT
+- Identificar discos/particiones con `lsblk` y `fdisk`
+- Crear una particion GPT con `parted` en un disco de laboratorio
+
+---
+
+## MBR vs GPT
+
+| Aspecto | MBR | GPT |
+|---------|-----|-----|
+| **Compatibilidad** | muy alta (legacy) | moderna (UEFI) |
+| **Particiones** | limitado (4 primarias) | muchas (practico) |
+| **Tamanos** | limitado | soporta discos muy grandes |
+| **Recomendacion** | solo si necesitas legacy | default en servidores modernos |
+
+---
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRITICA
+
+**Particionar/formatar el disco equivocado puede destruir datos de forma irreversible.**
+
+Lo que podria salir mal:
+- Ejecutar `parted`/`fdisk` sobre el disco del sistema (`/dev/sda`) y perder el servidor.
+
+Como prevenirlo:
+1. Identifica el disco con `lsblk` y valida por tamano/modelo.
+2. Practica primero con discos de laboratorio (loopback).
+3. Si es produccion, toma snapshot/backup antes de tocar particiones.
+:::
+
+---
+
+## Identificar discos y particiones
+
+```bash
+$ lsblk  # <1>
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0   50G  0 disk
+└─sda1   8:1    0   50G  0 part /
+# <1>
+
+$ sudo fdisk -l | sed -n '1,25p'  # <2>
+Disk /dev/sda: 50 GiB, 53687091200 bytes, 104857600 sectors
+Disklabel type: gpt
+Device     Start       End   Sectors  Size Type
+/dev/sda1   2048 104855551 104853504   50G Linux filesystem
+# <2>
+```
+
+
+
+1. **lsblk** da una vista clara de discos y montajes.
+2. **fdisk -l** muestra tabla de particiones (requiere permisos); aqui filtramos la salida para leer rapido.
+
+---
+
+## Laboratorio: crear una particion GPT en un disco loop
+
+```bash
+$ sudo fallocate -l 1G /tmp/u6-part.img  # <1>
+# <1>
+
+$ sudo losetup -fP /tmp/u6-part.img  # <2>
+# <2>
+
+$ sudo losetup -a | grep u6-part.img  # <3>
+/dev/loop1: [2065]:54321 (/tmp/u6-part.img)
+# <3>
+
+$ sudo parted /dev/loop1 --script mklabel gpt  # <4>
+# <4>
+
+$ sudo parted /dev/loop1 --script mkpart primary ext4 1MiB 100%  # <5>
+# <5>
+
+$ lsblk /dev/loop1  # <6>
+NAME      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+loop1       7:1    0    1G  0 loop
+└─loop1p1 259:0    0 1023M  0 part
+# <6>
+```
+
+
+
+1. **fallocate** crea el archivo-disco de laboratorio.
+2. **losetup -fP** asocia el archivo a un loop y habilita particiones (`p1`, `p2`).
+3. **losetup -a** confirma el dispositivo asignado.
+4. **parted mklabel gpt** crea tabla de particiones GPT.
+5. **parted mkpart** crea una particion que ocupa el disco completo.
+6. **lsblk** valida que aparecio `/dev/loop1p1`.
+
+---
+
+## Ejemplos practicos multi-SO
+
+::: {.panel-tabset}
+
+### Ejemplo 1: Ver estilo de particion (MBR/GPT)
+
+#### Linux
+```bash
+$ sudo fdisk -l /dev/sda | grep -E "Disklabel type"  # <1>
+Disklabel type: gpt
+# <1>
+```
+
+
+
+1. **fdisk -l** muestra si el disco usa GPT o DOS/MBR.
+
+#### macOS
+```bash
+$ diskutil list | head -n 8  # <1>
+/dev/disk0 (internal, physical):
+   0: GUID_partition_scheme
+   1: EFI EFI 314.6 MB
+   2: Apple_APFS Container disk1 494.4 GB
+# <1>
+```
+
+
+
+1. **GUID_partition_scheme** equivale a GPT en macOS.
+
+#### Windows
+```powershell
+PS> Get-Disk | Select-Object Number,PartitionStyle  # <1>
+
+Number PartitionStyle
+------ --------------
+0      GPT
+# <1>
+```
+
+
+
+1. **Get-Disk** muestra el estilo de particion del disco.
+
+:::
+
+| Aspecto | Linux | macOS | Windows |
+|---------|-------|-------|---------|
+| Ver GPT/MBR | `fdisk -l` | `diskutil list` | `Get-Disk` |
+
+---
+
+## Resumen
+
+- GPT es el estandar moderno recomendado.
+- `lsblk` y `fdisk -l` son tus primeras herramientas para identificar discos.
+- Practica particionado con loopback antes de tocar discos reales.

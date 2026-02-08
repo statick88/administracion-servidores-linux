@@ -1,0 +1,53 @@
+---
+title: "Unidad 12.3: Red, puertos y DNS"
+subtitle: "Diagnostico rapido de conectividad"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 12.3: Red, puertos y DNS
+
+## Introduccion
+
+Cuando "no responde", casi siempre es una de estas: IP/ruta, firewall, puerto no escuchando, o DNS.
+
+## Objetivos de aprendizaje
+
+- Validar IP y rutas
+- Verificar puertos
+- Probar DNS y HTTP
+
+---
+
+## Checklist rapido
+
+```bash
+$ ip -br addr  # <1>
+enp0s3  UP  192.168.56.10/24
+# <1>
+
+$ ip route | head -n 5  # <2>
+default via 192.168.56.1 dev enp0s3
+# <2>
+
+$ sudo ss -lntp  # <3>
+... puertos en escucha ...
+# <3>
+
+$ resolvectl status | sed -n '1,40p'  # <4>
+... DNS efectivo ...
+# <4>
+
+$ curl -I http://localhost  # <5>
+HTTP/1.1 200 OK
+# <5>
+```
+
+
+
+1. **ip -br addr** valida IP.
+2. **ip route** valida gateway/rutas.
+3. **ss -lntp** valida puertos.
+4. **resolvectl status** valida DNS efectivo.
+5. **curl -I** valida respuesta HTTP local.

@@ -1,0 +1,234 @@
+---
+title: "Glosario del Curso"
+date: today
+---
+
+# Glosario del Curso
+
+## Introduccion
+
+Este glosario define los terminos clave que vas a ver a lo largo del curso (Linux, redes, seguridad, servicios, Docker y Bash). La idea es que puedas volver aqui cuando un concepto aparezca en una unidad, practica o laboratorio.
+
+## Como usar este glosario
+
+- Si ves un comando o concepto nuevo, busca su nombre aqui.
+- Si estas en un laboratorio, prioriza: seguridad, permisos, red, servicios, logs.
+- Si estas en Bash, prioriza: variables, quoting, pipes, exit codes.
+
+---
+
+## Sistema Operativo y Linux
+
+| Termino | Definicion practica |
+|---|---|
+| Sistema operativo (SO) | Software base que administra CPU, memoria, disco, red y procesos. |
+| Kernel | Nucleo del SO; gestiona hardware y recursos. En Linux, el kernel es "Linux". |
+| Userland | Herramientas y librerias que usas diariamente (coreutils, systemd, etc.). |
+| Distribucion (distro) | Paquete completo: kernel + userland + instalador + repositorios (Ubuntu, Debian, etc.). |
+| LTS | Long Term Support; soporte extendido con parches de seguridad por anos. |
+| Terminal | Programa donde escribes comandos (Terminal.app, GNOME Terminal, Windows Terminal). |
+| Shell | Interprete que lee tus comandos (bash, zsh). |
+| CLI | Interfaz de linea de comandos (trabajo por texto). |
+| Prompt | Texto que indica que la shell espera un comando (ej: `$`, `PS>`). |
+| Ruta (path) | Direccion de un archivo/directorio (ej: `/etc/ssh/sshd_config`). |
+| Home | Directorio personal del usuario (ej: `/home/diego`). |
+| Root (/) | Directorio raiz del sistema de archivos (no es el usuario root). |
+| Usuario root | Cuenta con privilegios totales en Linux. |
+| sudo | Ejecuta un comando con privilegios elevados (segun politica). |
+| Paquete | Unidad instalable (binarios/configs) desde repositorios. |
+| Repositorio | Fuente de paquetes (servidor/indice) para instalar/actualizar software. |
+| apt | Gestor de paquetes en Debian/Ubuntu (instalar/actualizar/remover). |
+| dpkg | Herramienta base de paquetes .deb (bajo apt). |
+
+---
+
+## Archivos, Permisos y Propiedad
+
+| Termino | Definicion practica |
+|---|---|
+| Permisos | Reglas `rwx` para usuario/grupo/otros. |
+| Propietario (owner) | Usuario dueno del archivo/directorio. |
+| Grupo | Conjunto de usuarios para permisos compartidos. |
+| chmod | Cambia permisos (ej: `chmod 640 archivo`). |
+| chown | Cambia propietario y/o grupo (ej: `chown root:root archivo`). |
+| umask | Mascara de permisos por defecto al crear archivos/directorios. |
+| Ejecutable | Archivo con permiso `x` (puede ejecutarse como programa/script). |
+| PATH | Variable de entorno con rutas donde se buscan ejecutables. |
+| Glob/wildcards | Patron de archivos (ej: `*.log`, `nginx*.conf`). |
+| Symlink | Enlace simbolico a otro path (tipo "atajo"). |
+| Mount (montaje) | Conectar un dispositivo/particion a un directorio (ej: montar `/dev/sdb1` en `/mnt`). |
+| Filesystem | Estructura de almacenamiento (ext4, xfs). |
+
+---
+
+## Procesos, Servicios y systemd
+
+| Termino | Definicion practica |
+|---|---|
+| Proceso | Programa en ejecucion con PID. |
+| PID | Identificador numerico de proceso. |
+| Señal (signal) | Mensaje para un proceso (ej: terminar, recargar). |
+| Daemon | Proceso en segundo plano (ej: sshd, nginx). |
+| systemd | Sistema de init en muchas distros; gestiona servicios, logs y mas. |
+| Unidad (unit) | Objeto gestionado por systemd (service, timer, socket). |
+| systemctl | CLI para administrar unidades systemd. |
+| Servicio (service) | Definicion de un daemon en systemd (start/stop/enable). |
+| enable/disable | Configura si un servicio inicia al boot. |
+| start/stop/restart | Control inmediato del servicio en la sesion actual. |
+| reload | Recarga configuracion sin reiniciar (si el servicio lo soporta). |
+| journal | Log central de systemd (journald). |
+| journalctl | CLI para consultar logs del journal. |
+
+---
+
+## Logs y Diagnostico
+
+| Termino | Definicion practica |
+|---|---|
+| Log | Registro de eventos: errores, accesos, warnings, etc. |
+| syslog | Estilo tradicional de logs (ej: `/var/log/syslog`). |
+| stdout/stderr | Salida normal vs salida de error de un comando. |
+| exit code | Codigo de salida: `0` exito; `>0` error (convencion). |
+| Observabilidad | Capacidad de entender que pasa: logs, metricas, trazas. |
+| Causa raiz | Motivo real del problema (no solo el sintoma). |
+
+---
+
+## Redes (lo minimo para operar)
+
+| Termino | Definicion practica |
+|---|---|
+| IP | Direccion de red (IPv4/IPv6). |
+| CIDR | Notacion de red (ej: `192.168.1.0/24`). |
+| Gateway | Ruta de salida por defecto ("puerta" hacia otras redes). |
+| DNS | Servicio que resuelve nombres a IP (ej: `example.com` -> `93.184.216.34`). |
+| Puerto | Numero logico que identifica un servicio (ej: 22 SSH, 80 HTTP). |
+| TCP/UDP | Protocolos de transporte; TCP es orientado a conexion, UDP no. |
+| Socket | Endpoint de comunicacion (IP:puerto). |
+| Firewall | Filtra trafico entrante/saliente segun reglas. |
+| UFW | Firewall "facil" en Ubuntu (frontend de iptables/nftables). |
+| SSH | Protocolo para acceso remoto seguro (shell remota). |
+| sshd | Servicio de SSH en el servidor. |
+| Clave SSH | Par publico/privado para autenticacion sin password. |
+| known_hosts | Archivo local que guarda huellas de hosts SSH conocidos. |
+| Bastion/jump host | Servidor intermedio para acceder a redes privadas. |
+
+---
+
+## Seguridad Basica
+
+| Termino | Definicion practica |
+|---|---|
+| Principio de menor privilegio | Dar solo los permisos necesarios, por el tiempo necesario. |
+| Hardening | Endurecer configuracion para reducir superficie de ataque. |
+| Parche (patch) | Actualizacion para corregir bugs o vulnerabilidades. |
+| CVE | Identificador publico de vulnerabilidades. |
+| Fail2ban | Bloquea intentos repetidos (ej: fuerza bruta a SSH). |
+| MFA | Autenticacion multifactor (no siempre aplica a SSH basico). |
+
+---
+
+## Docker y Contenedores
+
+| Termino | Definicion practica |
+|---|---|
+| Contenedor | Proceso aislado que empaqueta app + dependencias, comparte kernel. |
+| Imagen | Plantilla inmutable para crear contenedores. |
+| Dockerfile | Receta para construir una imagen. |
+| Docker Compose | Define y ejecuta stacks multi-servicio (archivo `compose.yml`). |
+| Volumen | Persistencia de datos manejada por Docker. |
+| Bind mount | Montaje directo de un path del host dentro del contenedor. |
+| Registry | Repositorio de imagenes (Docker Hub, GHCR, etc.). |
+| Tag | Etiqueta de version de imagen (ej: `ubuntu:22.04`). |
+| Puerto publicado | Mapea un puerto del host a un puerto del contenedor. |
+
+---
+
+## Bash y Scripting
+
+| Termino | Definicion practica |
+|---|---|
+| Script | Archivo ejecutable con comandos automatizados. |
+| Shebang | Primera linea `#!/bin/bash`; define con que interprete ejecutar. |
+| Variable | Nombre que guarda un valor (ej: `NOMBRE="Diego"`). |
+| Variable de entorno | Variable exportada a procesos hijos (ej: `export PATH=...`). |
+| Quoting | Uso de comillas para controlar expansion y espacios (`"` vs `'`). |
+| Expansion | Reemplazos automaticos: variables, globs, command substitution. |
+| Command substitution | Ejecuta comando y usa su salida: `$(date)`. |
+| Pipe | Conecta stdout de un comando al stdin de otro: `cmd1 | cmd2`. |
+| Redireccion | Envia stdout/stderr a archivos o a otros streams (`>`, `2>`, `&>`). |
+| Subshell | Shell hija (ej: `(cd /tmp && ls)`), no afecta el shell padre. |
+| Funcion | Bloque reutilizable de codigo (ej: `log() { ... }`). |
+| Argumento | Parametro pasado al script (`$1`, `$2`, `$@`). |
+| getopts | Parser de flags estilo `-h -f archivo` en Bash. |
+| set -euo pipefail | Modo estricto (fallar temprano) para scripts mas seguros. |
+| trap | Ejecuta limpieza al salir o al recibir señales. |
+
+---
+
+## Ejemplos Practicos Multi-SO
+
+::: {.panel-tabset}
+
+### Linux
+
+```bash
+$ bash --version  # <1>
+GNU bash, version 5.2.15(1)-release (x86_64-pc-linux-gnu)
+Copyright (C) 2022 Free Software Foundation, Inc.
+# <1>
+```
+
+
+
+1. **bash --version** muestra la version instalada de Bash (util para compatibilidad)
+
+### macOS
+
+```bash
+$ bash --version  # <1>
+GNU bash, version 3.2.57(1)-release (x86_64-apple-darwin22)
+Copyright (C) 2007 Free Software Foundation, Inc.
+# <1>
+```
+
+
+
+1. **bash --version** muestra la version instalada; en macOS suele ser 3.2.x por licencia
+
+### Windows
+
+```powershell
+PS> Get-Help Get-ChildItem  # <1>
+NAME
+    Get-ChildItem
+# <1>
+```
+
+
+
+1. **Get-Help Get-ChildItem** muestra ayuda integrada de PowerShell (equivalente a consultar manual)
+
+:::
+
+---
+
+## Mejores Practicas
+
+- Aprende a leer `man`/help antes de copiar comandos.
+- Entiende `stdout/stderr` y exit codes; ahi esta el 80% del troubleshooting.
+- Usa el glosario como checklist: permisos + red + servicio + logs.
+
+---
+
+## Resumen
+
+Este glosario es tu referencia rapida para hablar el mismo idioma que el sistema (y que tu equipo) cuando operas servidores Linux.
+
+---
+
+## Referencias
+
+- https://man7.org/linux/man-pages/
+- https://www.gnu.org/software/bash/manual/
+- https://revealjs.com/

@@ -1,0 +1,1107 @@
+---
+title: "Anexo B: Editores Vi y Nvim - Mini-Curso Práctico"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: ../unidades/unidad1/references.bib
+biblio-style: apalike
+---
+
+# Anexo B: Editores Vi y Nvim - Mini-Curso Práctico
+
+## Introducción
+
+**Vi/Vim/Nvim** son editores de texto basados en terminal disponibles en TODO servidor Linux. No tienen interfaz gráfica, por lo que son **imprescindibles** para administrar servidores remotos vía SSH.
+
+- **Vi**: Editor clásico (1976), disponible en cualquier Unix
+- **Vim**: "Vi Improved" (1991), extensión mejorada de Vi
+- **Neovim**: "Next generation Vim" (2014), moderno, extensible
+
+Este mini-curso te enseña **solo lo que necesitas** para editar archivos rápidamente en Abacom.
+
+**🗺️ En este anexo aprenderás:**
+
+- Modos de Vi/Vim (Normal, Insert, Command)
+- Navegación y movimiento
+- Edición básica (insertar, copiar, pegar, borrar)
+- Búsqueda y reemplazo
+- Guardar y salir
+- Configuración básica
+- Diferencias Vi vs Vim vs Nvim
+
+**⏱️ Duración estimada**: 90 minutos de práctica
+
+---
+
+## ¿Vi? ¿Vim? ¿Nvim? ¿Cuál Uso?
+
+**En producción (servidores remotos):**
+
+- Usa **Vi** o **Vim** - Siempre está disponible
+- Nvim puede no estar instalado en servidores antiguos
+
+**En tu máquina de desarrollo:**
+
+- Usa **Nvim** - Moderno, más funcionalidad, configuración mejorada
+- O **Vim** si Nvim no está disponible
+
+**Para Abacom:**
+
+- Aprende **Vim** (compatible con Vi, pero mejor)
+- Ten Nvim en tu máquina local para trabajo cómodo
+
+---
+
+## 💡 Editores en Diferentes SOs
+
+::: {.panel-tabset}
+
+### Linux (Vim/Nvim)
+
+```bash
+# Verificar si está instalado
+$ which vim
+/usr/bin/vim
+
+$ which nvim
+/usr/bin/nvim
+
+# Instalar si no está
+$ sudo apt install vim vim-nox  # Linux
+$ sudo apt install neovim       # Para Nvim
+
+# Usar Vim
+$ vim archivo.txt
+# O Nvim
+$ nvim archivo.txt
+
+# Configuración en ~/.vimrc o ~/.config/nvim/init.vim
+```
+
+**Disponibilidad:**
+
+- ✅ Vim: Siempre disponible en servidores
+- ✅ Nvim: Disponible en máquinas modernas
+- Recomendado: **Vim** en producción, **Nvim** en desarrollo
+
+### macOS (Vim/Nvim)
+
+```bash
+# macOS viene con Vi preinstalado
+$ which vi
+/usr/bin/vi
+
+# Verificar Vim
+$ which vim
+/usr/bin/vim
+
+# O instalar via Homebrew
+$ brew install vim
+$ brew install neovim
+
+# Usar Vim
+$ vim archivo.txt
+
+# Configuración típica:
+$ ~/.vimrc
+$ ~/.config/nvim/init.vim
+
+# Nota: En macOS, Vim puede ser versión antigua
+# Mejor usar Homebrew para instalar versión más nueva
+```
+
+**Disponibilidad:**
+
+- ⚠️ Vi: Versión antigua (preinstalada)
+- ⚠️ Vim: Versión antigua o no instalada
+- ✅ Nvim: Disponible via Homebrew
+- Recomendado: **Instalar Vim/Nvim via Homebrew**
+
+### Windows (WSL/Git Bash/VS Code)
+
+```powershell
+# Windows NO tiene Vim nativo
+# Opciones:
+
+# OPCIÓN 1: Windows Subsystem for Linux (WSL)
+PS> wsl vim archivo.txt
+# Accede a Vim via WSL (requiere Ubuntu/Debian en WSL)
+
+# OPCIÓN 2: Git Bash (incluye Vim)
+PS> "C:\Program Files\Git\usr\bin\vim.exe" archivo.txt
+
+# OPCIÓN 3: Instalar directamente (NeoVim portable)
+PS> choco install neovim  # Via Chocolatey
+PS> nvim archivo.txt
+
+# OPCIÓN 4: VS Code con extensión VIM
+PS> code archivo.txt
+# Instalar "Vim" extension en VS Code (mejor UX)
+
+# Configuración en Windows:
+# %APPDATA%\.vimrc o ~/.config/nvim/init.vim (via WSL)
+```
+
+**Disponibilidad:**
+
+- ❌ Vim: No disponible nativamente
+- ⚠️ Vi: Solo via WSL
+- ✅ Nvim: Via Chocolatey o manual
+- ✅ VS Code + Vim extension: Recomendado para principiantes
+
+:::
+
+**Comparación rápida:**
+| Aspecto | Linux | macOS | Windows |
+|--------|-------|-------|---------|
+| Vim disponible | ✅ Sí | ⚠️ Versión vieja | ❌ No |
+| Nvim disponible | ✅ Fácil | ✅ Homebrew | ✅ Chocolatey |
+| Recomendado para producción | Vim | Vim | WSL + Vim |
+| Recomendado para desarrollo | Nvim | Nvim | VS Code + Vim |
+
+---
+
+## Los 3 Modos de Vim
+
+### Modo Normal (Command Mode)
+
+Aquí **accedes** pero NO ESCRIBES. Es donde pasas más tiempo.
+
+- Navegar con **hjkl** (izquierda, abajo, arriba, derecha)
+- Buscar, copiar, pegar, borrar, deshacer
+- **Presiona ESC** desde cualquier modo para volver aquí
+
+### Modo Insert (Edit Mode)
+
+Aquí **escribes** como en un editor normal.
+
+- Todas las teclas escriben caracteres
+- **Presiona ESC** para volver a Modo Normal
+- Se activa con: **i**, **a**, **o**, **c**, etc
+
+### Modo Command (: Mode)
+
+Aquí **ejecutas** comandos de Vim.
+
+- **Presiona :** en Modo Normal para entrar
+- Comandos: **:w** (guardar), **:q** (salir), **:set** (configurar)
+- **Presiona Enter** para ejecutar, **ESC** para cancelar
+
+---
+
+## Concepto 1: Navegar en Modo Normal
+
+### Movimiento Básico
+
+```
+Dentro de Vim en Modo Normal, NO USES FLECHAS.
+Usa hjkl (es costumbre de Vi desde 1976)
+
+    k (arriba)
+h       l (derecha)
+    j (abajo)
+
+Practica: Abre un archivo con vim miarchivo.txt
+Presiona h, j, k, l varias veces para sentir
+```
+
+### Movimiento por Palabras
+
+```
+w     → Siguiente palabra (word)
+b     → Anterior palabra (back)
+e     → Fin de palabra (end)
+^     → Inicio de línea
+$     → Fin de línea
+0     → Columna 0 (muy inicio)
+```
+
+### Movimiento por Páginas
+
+```
+Ctrl+f → Página adelante (forward)
+Ctrl+b → Página atrás (back)
+Ctrl+u → Media página arriba (up)
+Ctrl+d → Media página abajo (down)
+gg     → Ir al inicio del archivo
+G      → Ir al final del archivo
+5G     → Ir a línea 5
+```
+
+### Búsqueda y Posición
+
+```
+/patron    → Busca "patron" hacia adelante
+?patron    → Busca "patron" hacia atrás
+n          → Siguiente resultado
+N          → Anterior resultado
+:123       → Ir a línea 123
+```
+
+**Práctica:**
+
+Abre cualquier archivo con:
+```bash
+vim /etc/apt/sources.list
+```
+
+- Presiona **/** y escribe **deb** para buscar líneas de repositorio
+- Presiona **n** para siguiente resultado
+- Presiona **G** para ir al final
+- Presiona **gg** para volver al inicio
+
+---
+
+## Concepto 2: Editar en Modo Insert
+
+### Entrar a Modo Insert
+
+```
+i    → Insert antes del cursor
+I    → Insert al inicio de la línea
+a    → Append después del cursor
+A    → Append al final de la línea
+o    → Open nueva línea abajo
+O    → Open nueva línea arriba
+```
+
+**Ejemplo práctico:**
+
+```bash
+# Abre archivo
+vim /tmp/test.txt
+
+# Presiona i (enter Modo Insert)
+# Escribe: Hola Abacom
+# Presiona ESC (volver a Modo Normal)
+# Presiona :w (guardar)
+```
+
+### Editar Dentro de Palabras
+
+```
+c    → Change (cambiar) = borrar y entrar Insert
+cw   → Cambiar palabra bajo cursor
+```
+
+**Ejemplo:**
+
+```bash
+Línea original: El servidor web está activo
+
+# Posiciona cursor en "web"
+# Presiona cw (change word)
+# Tipo: nginx
+# Resultado: El servidor nginx está activo
+```
+
+---
+
+## Concepto 3: Copiar, Cortar, Pegar
+
+### Copiar (Yank)
+
+```
+y     → Yank (copiar) línea completa
+yw    → Yank palabra
+yy    → Yank línea (igual a y)
+3yy   → Yank 3 líneas
+```
+
+### Cortar (Delete)
+
+```
+d     → Delete línea
+dw    → Delete palabra
+dd    → Delete línea completa
+3dd   → Delete 3 líneas
+x     → Delete carácter bajo cursor
+```
+
+### Pegar
+
+```
+p     → Paste (pegar) después de posición actual
+P     → Paste antes de posición actual
+```
+
+**Ejemplo completo:**
+
+```bash
+# Abre archivo
+vim /tmp/ejemplo.txt
+
+# Posiciona en línea que quieres copiar
+# Presiona yy (copia línea)
+# Muévete a otra línea
+# Presiona p (pega)
+# Resultado: línea duplicada
+```
+
+---
+
+## Concepto 4: Buscar y Reemplazar
+
+### Búsqueda Simple
+
+```
+/patron     → Busca "patron"
+n           → Próximo resultado
+N           → Anterior resultado
+```
+
+### Reemplazar en Línea
+
+```
+:s/antiguo/nuevo      → Reemplaza en línea actual
+:s/antiguo/nuevo/g    → Reemplaza todos en línea
+```
+
+### Reemplazar en Archivo
+
+```
+:%s/antiguo/nuevo     → Primera ocurrencia por línea
+:%s/antiguo/nuevo/g   → TODAS las ocurrencias
+:%s/antiguo/nuevo/gc  → Con confirmación (c=confirm)
+```
+
+**Ejemplo práctico:**
+
+```bash
+# Archivo con varios "localhost"
+vim /etc/hosts
+
+# Reemplazar todo
+:% s/localhost/127.0.0.1/g
+
+# Resultado: todos "localhost" → "127.0.0.1"
+```
+
+---
+
+## Concepto 5: Deshacer y Rehacer
+
+```
+u       → Undo (deshacer)
+Ctrl+r  → Redo (rehacer)
+U       → Undo toda línea (todas cambios en línea actual)
+```
+
+**Práctica:**
+
+```bash
+vim /tmp/test.txt
+
+# Haz cambios varios
+# Presiona u varias veces para ver cómo deshace
+# Presiona Ctrl+r para rehacer
+```
+
+---
+
+## Concepto 6: Guardar y Salir
+
+### Guardar
+
+```
+:w              → Write (guardar)
+:w nuevo.txt    → Guardar como nuevo archivo
+:w!             → Guardar forzadamente (sobrescribe)
+```
+
+### Salir
+
+```
+:q              → Quit (salir) si no hay cambios
+:q!             → Quit sin guardar (! = force)
+:wq             → Write y Quit (guardar y salir)
+:wq!            → Guardar forzadamente y salir
+ZZ              → Equivalente a :wq
+```
+
+### Combinaciones Útiles
+
+```
+:w | q          → Guardar y salir (pipe)
+:e archivo.txt  → Abrir otro archivo (edit)
+```
+
+---
+
+## 💡 Ejemplos Prácticos Reales
+
+### Ejemplo 1: Editar Archivo de Configuración Nginx
+
+**Escenario**: Necesitas cambiar puerto 80 a 8080 en nginx.conf
+
+```bash
+# Abre archivo
+vim /etc/nginx/nginx.conf
+
+# Búsqueda
+/listen 80
+
+# Presiona n para siguiente resultado hasta encontrar el correcto
+
+# Navega al número 80
+# Presiona ci" (change inside quotes) o simplemente:
+# Posiciona en el 80
+# Presiona c2w (cambiar 2 palabras)
+# Escribe: 8080
+
+# Resultado: listen 8080;
+
+# Guardar
+:wq
+```
+
+---
+
+### Ejemplo 2: Agregar Línea de Comentario
+
+**Escenario**: Comentar línea en configuración
+
+```bash
+vim /etc/ssh/sshd_config
+
+# Buscar PermitRootLogin
+/PermitRootLogin
+
+# Presiona I (insert al inicio de línea)
+# Escribe: #
+# Presiona ESC
+# Presiona :wq para guardar
+
+# Resultado: #PermitRootLogin yes
+```
+
+---
+
+### Ejemplo 3: Duplicar Configuración
+
+**Escenario**: Copiar servidor virtual en nginx
+
+```bash
+vim /etc/nginx/sites-available/default
+
+# Buscar el bloque server completo
+/server {
+
+# Copiar bloque (suponiendo 20 líneas)
+20yy
+
+# Ir al final del archivo
+G
+
+# Pegar
+p
+
+# Editar el nuevo bloque (cambiar puerto, nombres, etc)
+# Buscar y reemplazar dentro del bloque
+
+# Guardar
+:wq
+```
+
+---
+
+## 🔧 Configuración Básica de Vim
+
+### Archivo de Configuración
+
+Vim lee configuración de **~/.vimrc**:
+
+```bash
+vim ~/.vimrc
+```
+
+**Configuración recomendada para Abacom:**
+
+```vim
+" ============ APARIENCIA ============
+set number              " Mostrar números de línea
+set relativenumber      " Números relativos (mejor para movimiento)
+set colorscheme desert  " Tema de color
+
+" ============ COMPORTAMIENTO ============
+set tabstop=4           " Tab = 4 espacios
+set shiftwidth=4        " Indentación = 4 espacios
+set expandtab           " Usar espacios en vez de tabs
+set autoindent          " Auto-indentar nuevas líneas
+set smartcase           " Búsqueda sensible a mayúsculas si las hay
+
+" ============ BÚSQUEDA ============
+set incsearch           " Buscar mientras escribes
+set hlsearch            " Resaltar resultados de búsqueda
+
+" ============ INTERFAZ ============
+set ruler               " Mostrar posición actual
+set statusline=%F\ -\ FileType:\ %Y
+set mouse=a             " Soporte de mouse
+```
+
+---
+
+## Neovim: La Versión Moderna
+
+### Instalación
+
+```bash
+# Ubuntu/Debian
+sudo apt install neovim
+
+# CentOS/RHEL
+sudo dnf install neovim
+
+# Arch
+sudo pacman -S neovim
+```
+
+### Uso Básico
+
+Nvim es **100% compatible** con Vim:
+
+```bash
+nvim archivo.txt    # Igual a vim
+
+# Todos los comandos funcionan igual
+```
+
+### Configuración de Nvim
+
+En vez de **~/.vimrc**, Nvim usa **~/.config/nvim/init.vim**:
+
+```bash
+mkdir -p ~/.config/nvim
+nvim ~/.config/nvim/init.vim
+```
+
+**Contenido básico:**
+
+```vim
+" Heredar configuración de vim
+set number
+set expandtab
+set tabstop=4
+```
+
+### Diferencias Nvim vs Vim
+
+| Aspecto | Vim | Nvim |
+|--------|-----|------|
+| **Velocidad** | Buena | Excelente |
+| **Soporte LSP** | Plugins | Nativo |
+| **Terminal integrada** | Plugin | Nativa |
+| **Lua scripting** | No | Sí |
+| **Disponibilidad** | Estándar | Variable |
+
+---
+
+## Vi Clásico: Compatibilidad Total
+
+Si **solo** tienes Vi disponible (muy raro en 2024):
+
+```bash
+vi archivo.txt      # Vi clásico (muy limitado)
+```
+
+**Diferencias Vi clásico vs Vim:**
+
+- Sin números de línea
+- Sin colores
+- Búsqueda más limitada
+- Pero: Todos los comandos básicos funcionan igual
+
+**Recomendación**: Usa Vim si está disponible. Vi es "last resort".
+
+---
+
+## ⚠️ Errores Comunes
+
+**Error 1: "¿Cómo salgo de Vim?"**
+
+Pregunta legendaria en StackOverflow 😅
+
+```bash
+# SALIDA (en este orden)
+ESC         # Asegurate que estás en Modo Normal
+:wq         # Write Quit (guardar y salir)
+Enter       # Ejecutar comando
+
+# Si no quieres guardar cambios:
+:q!         # Quit sin guardar
+```
+
+**Error 2: Accidental Press ZZ**
+
+```bash
+ZZ          # Esto guarda y sale (sin querer)
+# Solución: Undo
+u           # Deshacer
+:e!         # Recargar archivo sin cambios
+```
+
+**Error 3: Pegar Mal Indentado**
+
+```bash
+# Al pegar desde clipboard, la indentación se daña
+# Solución: Desactiva indentación automática
+:set paste      # Antes de pegar
+:set nopaste    # Después de pegar
+
+# O mejor: Copia directamente en Vim (yy)
+```
+
+**Error 4: Búsqueda que No Funciona**
+
+```bash
+/patron     # Si no encuentra nada
+# Presiona n para ir a siguiente resultado
+N           # O anterior resultado
+
+# Si sigue sin encontrar:
+:set ignorecase     # Ignorar mayúsculas/minúsculas
+```
+
+---
+
+## 📊 Tabla de Referencia Rápida
+
+| Acción | Comando | Notas |
+|--------|---------|-------|
+| **Insertar** | **i**, **a**, **o** | Entra Modo Insert |
+| **Guardar** | **:w** | Write |
+| **Salir** | **:q** | Quit |
+| **Guardar y salir** | **:wq** o **ZZ** | Most common |
+| **Copiar línea** | **yy** | Yank |
+| **Pegar** | **p** | Paste after |
+| **Deshacer** | **u** | Undo |
+| **Buscar** | **/patron** | Forward search |
+| **Reemplazar** | **:%s/viejo/nuevo/g** | All occurrences |
+| **Ir a línea** | **5G** o **:5** | Go to line 5 |
+| **Siguiente palabra** | **w** | Word |
+| **Fin de línea** | **$** | Dollar sign |
+
+---
+
+## 🎓 Quiz: Verificar Comprensión
+
+:::{.callout-tip collapse="true"}
+### Pregunta 1: Modos de Vim
+¿Cómo vuelves a Modo Normal desde cualquier modo?
+
+**a)** Presiona **Ctrl+C**  
+**b)** Presiona **ESC** (Correcto ✓)  
+**c)** Presiona **Enter**  
+**d)** Presiona **i**  
+
+**Explicación**: ESC **siempre** vuelve a Modo Normal desde Insert o Command.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 2: Guardar y Salir
+¿Cuál es la forma más rápida de guardar y salir?
+
+**a)** **:wq** (correcto pero lento)  
+**b)** **:q!** (no guarda)  
+**c)** **ZZ** (Correcto ✓ - más rápido)  
+**d)** **Ctrl+S** (no funciona en Vim)  
+
+**Explicación**: **ZZ** es atajo de **:wq** que se teclea más rápido.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 3: Reemplazar
+¿Cómo reemplazas TODAS las ocurrencias de "old" por "new" en un archivo?
+
+**a)** **:s/old/new/g** (solo línea actual)  
+**b)** **:%s/old/new/g** (Correcto ✓ - archivo completo)  
+**c)** **:s/old/new** (solo primera en línea)  
+**d)** **/old** y luego **r** (no existe)  
+
+**Explicación**: **%** significa "todas las líneas", **/g** significa "global" (todas en línea).
+:::
+
+---
+
+## 👨‍💻 Práctica: Editar Archivos Reales
+
+**Ejercicio 1: Crear y Editar Archivo**
+
+```bash
+# Crear archivo
+vim ~/.bashrc
+
+# Ir al final (G)
+# Pegar línea: alias ll='ls -la'
+# Guardar (:wq)
+
+# Verificar
+grep "alias ll" ~/.bashrc
+```
+
+**Ejercicio 2: Buscar y Reemplazar**
+
+```bash
+# Crear archivo de prueba
+echo -e "apache\nnode\napache" > /tmp/services.txt
+
+# Abrirlo
+vim /tmp/services.txt
+
+# Reemplazar todos "apache" por "nginx"
+:%s/apache/nginx/g
+
+# Guardar
+:wq
+
+# Verificar
+cat /tmp/services.txt
+```
+
+**Ejercicio 3: Comentar Línea de Configuración**
+
+```bash
+# Crear archivo
+echo "enable_ssl = true" > /tmp/config.txt
+
+# Abrirlo
+vim /tmp/config.txt
+
+# Ir al inicio de línea (0)
+# Entrar Insert (I)
+# Escribir: #
+# ESC y guardar (:wq)
+
+# Resultado: #enable_ssl = true
+```
+
+---
+
+## LazyVim: Nvim Configurado y Potente
+
+### ¿Qué es LazyVim?
+
+**LazyVim** es una distribución moderna de Neovim que viene **preconfigurada** con:
+
+- ✅ Gestor de plugins (Lazy.nvim)
+- ✅ LSP (Language Server Protocol) integrado
+- ✅ Autocompletado de código
+- ✅ Snippets y debugging
+- ✅ Temas bonitos
+- ✅ Configuración modular
+
+**Para Abacom**: Ideal en tu máquina de desarrollo local. En servidores usa Vim clásico.
+
+### Instalación de LazyVim
+
+**Requisitos previos:**
+```bash
+# Instalar Neovim (0.9+)
+# Ubuntu/Debian
+sudo apt install neovim
+
+# CentOS/RHEL
+sudo dnf install neovim
+
+# Arch
+sudo pacman -S neovim
+```
+
+**Instalar LazyVim:**
+
+```bash
+# Backup tu configuración actual (si existe)
+mv ~/.config/nvim ~/.config/nvim.bak
+
+# Clonar LazyVim starter template
+git clone https://github.com/LazyVim/starter ~/.config/nvim  # <1>
+
+# Eliminar .git para personalizarla
+rm -rf ~/.config/nvim/.git
+
+# Abrir Neovim (LazyVim instalará plugins automáticamente)
+nvim
+```
+
+1. **git clone** descarga la configuración de LazyVim preconfigurada
+
+Cuando abras nvim por primera vez:
+
+- LazyVim descargará plugins (~200 MB)
+- Compilará componentes nativos
+- Espera 1-2 minutos la primera vez
+
+---
+
+### Estructura de LazyVim
+
+```
+~/.config/nvim/
+├── init.lua              ← Archivo principal
+├── lua/
+│   └── config/
+│       ├── lazy.lua      ← Configuración de plugins
+│       ├── options.lua   ← Opciones generales
+│       └── keymaps.lua   ← Atajos de teclado
+└── lazy-lock.json        ← Versiones de plugins
+```
+
+---
+
+### Instalar Plugins en LazyVim
+
+**Agregar nuevo plugin es muy simple:**
+
+#### Paso 1: Editar archivo de specs
+
+```bash
+nvim ~/.config/nvim/lua/plugins/example.lua
+```
+
+#### Paso 2: Definir plugin con Lazy
+
+```lua
+-- ~/.config/nvim/lua/plugins/example.lua
+
+return {
+  -- Plugin para emojis (ejemplo simple)
+  {
+    "nvim-treesitter/nvim-treesitter",  -- <1>
+    version = false,
+    build = ":TSUpdate",                 -- <2>
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = { "bash", "python", "lua" },  -- <3>
+        highlight = { enable = true },
+      })
+    end,
+  },
+}
+```
+
+1. **nvim-treesitter/nvim-treesitter** es el identificador GitHub del plugin
+
+2. **build** ejecuta comando después de instalar
+
+3. **ensure_installed** lista lenguajes a soportar
+
+---
+
+### Ejemplo: Instalar Plugin para Markdown
+
+**Escenario**: Quieres mejor soporte para archivos Markdown
+
+```bash
+# Editar configuración
+nvim ~/.config/nvim/lua/plugins/markdown.lua
+```
+
+**Contenido:**
+
+```lua
+return {
+  {
+    "iamcco/markdown-preview.nvim",     -- <1>
+    cmd = { "MarkdownPreview" },        -- <2>
+    ft = { "markdown" },                -- <3>
+    build = "cd app && npm install",    -- <4>
+    config = function()
+      vim.g.mkdp_auto_start = 0
+      vim.g.mkdp_auto_close = 1
+    end,
+  },
+}
+```
+
+1. Plugin para preview de Markdown en navegador
+
+2. **cmd** = cargar solo cuando ejecutes **:MarkdownPreview**
+
+3. **ft** = cargar solo para archivos markdown
+
+4. **build** = instalar dependencias Node.js
+
+**Uso después:**
+
+```bash
+nvim archivo.md
+
+# Dentro de Nvim:
+:MarkdownPreview    # Abre preview en navegador
+```
+
+---
+
+### Ejemplo: Instalar LSP para Python
+
+**LSP = Language Server Protocol** proporciona autocompletado, definiciones, etc.
+
+```bash
+nvim ~/.config/nvim/lua/plugins/python.lua
+```
+
+**Contenido:**
+
+```lua
+return {
+  {
+    "neovim/nvim-lspconfig",            -- <1>
+    config = function()
+      local lspconfig = require('lspconfig')
+      
+      -- Configurar Python LSP
+      lspconfig.pyright.setup({         -- <2>
+        on_attach = function(client, bufnr)
+          -- Atajos para navegar definiciones
+          local opts = { noremap=true, silent=true }
+          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)  -- <3>
+          vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+        end,
+      })
+    end,
+  },
+}
+```
+
+1. **nvim-lspconfig** configura servidores de lenguaje
+
+2. **pyright** es el LSP de Python (autocompletado, type checking)
+
+3. **gd** = shortcut para "go to definition"
+
+**Primero**, instala el servidor Python:
+
+```bash
+# Instalar Pyright (LSP de Python)
+pip install pyright
+
+# O con npm
+npm install -g pyright
+```
+
+---
+
+### Personalizar Atajos en LazyVim
+
+Edita **~/.config/nvim/lua/config/keymaps.lua**:
+
+```lua
+local keymap = vim.keymap.set
+
+-- Atajos personalizados
+keymap("n", "<Leader>w", ":w<CR>", { noremap = true })  -- <1>
+keymap("n", "<Leader>q", ":q<CR>", { noremap = true })
+keymap("n", "<Leader>x", ":wq<CR>", { noremap = true })
+
+-- Navegar entre ventanas con Ctrl+hjkl
+keymap("n", "<C-h>", "<C-w>h", { noremap = true })
+keymap("n", "<C-j>", "<C-w>j", { noremap = true })
+keymap("n", "<C-k>", "<C-w>k", { noremap = true })
+keymap("n", "<C-l>", "<C-w>l", { noremap = true })
+```
+
+1. **<Leader>w** = "Espacio + w" para guardar. Espacio es la tecla líder por defecto
+
+Después, recarga Nvim:
+```bash
+:source ~/.config/nvim/lua/config/keymaps.lua
+```
+
+---
+
+### Temas en LazyVim
+
+LazyVim viene con varios temas. Cambiar en **~/.config/nvim/lua/config/options.lua**:
+
+```lua
+-- Tema (colorscheme)
+vim.cmd.colorscheme "tokyonight"  -- <1>
+
+-- Otros temas disponibles:
+-- "tokyonight"
+-- "everforest"
+-- "gruvbox"
+-- "catppuccin"
+-- "nord"
+```
+
+1. **tokyonight** es tema por defecto. Otros están en lazy.nvim
+
+Cambiar y recargar:
+```bash
+nvim
+# Dentro:
+:colorscheme gruvbox  # Cambiar tema en vivo
+```
+
+---
+
+### Comparación: LazyVim vs Vim vs Nvim Vanilla
+
+| Aspecto | Vim | Nvim Vanilla | LazyVim |
+|--------|-----|-------------|---------|
+| **Instalación** | Preinstalado | 5 minutos | 10 minutos |
+| **Configuración** | ~/.vimrc | ~/.config/nvim | ~/.config/nvim |
+| **Plugins** | Plugins manuales | Lazy.nvim | Preconfigurado |
+| **LSP** | Via plugins | Manual | Automático |
+| **Curva aprendizaje** | Baja | Media | Baja (templated) |
+| **Producción** | ✅ | ✅ | ❌ (mejor solo desarrollo) |
+
+**Para Abacom:**
+
+- **Servidor SSH**: Usa **Vim**
+- **Tu máquina**: Usa **LazyVim** o **Vim** según preferencia
+
+---
+
+### Trucos LazyVim
+
+**Ver todos los plugins:**
+```bash
+# En Nvim:
+:Lazy          # Abre manager de plugins
+```
+
+**Actualizar plugins:**
+```bash
+# En Nvim:
+:Lazy update   # Actualiza todos los plugins
+```
+
+**Ver configuración:**
+```bash
+# Ver atajos actuales
+:map
+
+# Ver configuración cargada
+:lua print(vim.inspect(vim.o))
+```
+
+---
+
+## 📚 Recursos Adicionales
+
+- **Vim Online Tutor**: https://www.openvim.com/
+- **Vim Cheat Sheet**: https://vim.rtorr.com/
+- **Neovim Docs**: https://neovim.io/
+- **LazyVim**: https://www.lazyvim.org/
+- **Lazy.nvim Plugin Manager**: https://github.com/folke/lazy.nvim
+- **Interactive Vim Tutorial**: https://github.com/vim/vim-tutor
+
+---
+
+## Conclusión
+
+Ahora sabes:
+✓ Los 3 modos de Vim (Normal, Insert, Command)
+✓ Navegar eficientemente
+✓ Editar archivos rápidamente
+✓ Buscar y reemplazar
+✓ Guardar sin dramas
+
+**Próximo paso**: Usa Vim para editar archivos de configuración en Abacom.
+
+**Consejo profesional**: Practica 15 minutos diarios hasta que sea "muscle memory". Después, Vim será tu editor favorito.
+
+---

@@ -1,0 +1,110 @@
+---
+title: "Practica Unidad 10: Nginx y SSL"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Practica Unidad 10: Nginx y SSL
+
+## Objetivo
+
+Instalar Nginx, configurar un sitio (server block) y entregar evidencias. (Certbot es opcional si no tienes dominio publico).
+
+---
+
+## Parte 1: Instalacion y validacion
+
+```bash
+$ sudo apt update  # <1>
+# <1>
+
+$ sudo apt install -y nginx  # <2>
+# <2>
+
+$ systemctl status nginx --no-pager  # <3>
+● nginx.service - A high performance web server and a reverse proxy server
+     Active: active (running)
+# <3>
+
+$ curl -I http://localhost  # <4>
+HTTP/1.1 200 OK
+Server: nginx/1.24.0 (Ubuntu)
+# <4>
+```
+
+
+
+1. **apt update** actualiza el indice.
+2. **apt install nginx** instala Nginx.
+3. **systemctl status** valida servicio.
+4. **curl -I** valida respuesta.
+
+---
+
+## Parte 2: Server block
+
+```bash
+$ sudo tee /etc/nginx/sites-available/app.conf >/dev/null <<'EOF'  # <1>
+server {
+  listen 80;
+  server_name app.local;
+  location / { return 200 "app ok\n"; }
+}
+EOF
+# <1>
+
+$ sudo ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/app.conf  # <2>
+# <2>
+
+$ sudo nginx -t  # <3>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <3>
+
+$ sudo systemctl reload nginx  # <4>
+# <4>
+
+$ curl -i -H 'Host: app.local' http://127.0.0.1/  # <5>
+HTTP/1.1 200 OK
+Server: nginx
+
+app ok
+# <5>
+```
+
+
+
+1. **tee + heredoc** crea el sitio.
+2. **ln -sf** habilita el sitio.
+3. **nginx -t** valida configuracion.
+4. **systemctl reload** aplica.
+5. **curl -H Host** prueba el server block.
+
+---
+
+## Parte 3 (opcional): Certbot
+
+```bash
+$ sudo apt install -y certbot python3-certbot-nginx  # <1>
+# <1>
+
+$ sudo certbot --nginx -d tu-dominio.com  # <2>
+# <2>
+
+$ sudo certbot renew --dry-run  # <3>
+# <3>
+```
+
+
+
+1. **apt install certbot** instala Certbot.
+2. **certbot --nginx** emite certificado y configura TLS.
+3. **certbot renew --dry-run** valida renovacion.
+
+## Checklist de aceptación
+
+- [ ] Nginx está activo (evidencia de `systemctl status nginx --no-pager`)
+- [ ] `nginx -t` pasa sin errores
+- [ ] El server block responde con `curl -i -H 'Host: app.local' http://127.0.0.1/`
+- [ ] (Opcional) Si usé Certbot, incluí evidencia de emisión o `renew --dry-run`

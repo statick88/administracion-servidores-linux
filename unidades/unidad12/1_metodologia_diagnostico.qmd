@@ -1,0 +1,68 @@
+---
+title: "Unidad 12.1: Metodologia de diagnostico"
+subtitle: "Orden, evidencias y reproducibilidad"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 12.1: Metodologia de diagnostico
+
+## Introduccion
+
+Troubleshooting no es "probar cosas" al azar. Es un proceso: observar, recolectar evidencias, aislar la causa y validar el arreglo.
+
+## Objetivos de aprendizaje
+
+- Usar un checklist de diagnostico
+- Documentar evidencias minimas
+- Evitar cambios destructivos sin rollback
+
+---
+
+## Flujo recomendado
+
+1. Sintoma: que falla, desde donde, desde cuando.
+2. Alcance: un host o todos, un usuario o todos, una red o todas.
+3. Evidencias: comando + salida + timestamp.
+4. Hipotesis: 1-2 causas probables.
+5. Prueba: un cambio controlado.
+6. Validacion: mismo comando/metricas para confirmar.
+
+---
+
+## Kit de evidencias minimo
+
+```bash
+$ hostnamectl  # <1>
+ Static hostname: srv01
+ Operating System: Ubuntu 24.04.1 LTS
+# <1>
+
+$ uptime  # <2>
+ 12:55:03 up 1 day,  3:21,  1 user,  load average: 0.08, 0.11, 0.09
+# <2>
+
+$ ip -br addr  # <3>
+lo     UNKNOWN 127.0.0.1/8 ::1/128
+enp0s3  UP      192.168.56.10/24
+# <3>
+```
+
+
+
+1. **hostnamectl** registra host/OS para contexto.
+2. **uptime** muestra uptime y carga.
+3. **ip -br addr** muestra IP por interfaz.
+
+:::{.callout-tip}
+## RECOMENDACION
+
+**Antes de cambiar algo, guarda evidencia.**
+
+Casos de uso:
+- Incidentes de produccion.
+
+Cuando aplicar:
+- Siempre que diagnosticas una caida o degradacion.
+:::

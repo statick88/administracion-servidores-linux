@@ -1,0 +1,101 @@
+---
+title: "Unidad 5: Procesos y Servicios"
+subtitle: "Administracion de Servidores Linux (Abacom)"
+author: "Diego Saavedra"
+date: today
+---
+
+## Metodologia
+
+Concepto -> Demo -> Laboratorio guiado -> Practica independiente
+
+## Agenda
+
+- Procesos: ps/top/pgrep/kill
+- Servicios: systemd units + journalctl
+- Automatizacion: cron/anacron/at
+
+## Demo: Top 3 procesos por CPU
+
+```bash
+$ ps aux --sort=-%cpu | head -n 6  # <1>
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root      1821 15.2  1.8  933612 293020 ?      Ssl  08:10  18:22 /usr/bin/dockerd -H fd://
+mysql     1330  6.4  7.9 1928300 1301200 ?     Ssl  07:55  24:10 /usr/sbin/mysqld
+# <1>
+```
+
+
+
+::: notes
+
+1. **ps aux --sort=-%cpu** genera un snapshot reproducible y ordena por consumo de CPU.
+
+:::
+
+## Demo: Encontrar PID y terminar ordenado
+
+```bash
+$ pgrep -a nginx  # <1>
+2458 nginx: master process /usr/sbin/nginx
+
+$ sudo kill -TERM 2458  # <2>
+# <1>
+```
+
+
+
+::: notes
+
+1. **pgrep -a** muestra PID y comando completo (evita matar el proceso equivocado).
+2. **kill -TERM** es el primer intento (terminacion ordenada).
+
+:::
+
+## Demo: Estado de servicio y logs
+
+```bash
+$ systemctl status nginx --no-pager  # <1>
+* nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
+     Active: active (running) since Sun 2026-02-01 09:12:14 UTC; 2h 10min ago
+
+$ journalctl -u nginx --since "30 min ago" --no-pager  # <2>
+Feb 01 11:20:03 server nginx[2458]: 2026/02/01 11:20:03 [notice] 2458#2458: signal process started
+# <1>
+```
+
+
+
+::: notes
+
+1. **systemctl status** confirma si el servicio esta activo y habilitado.
+2. **journalctl -u** es el log principal para diagnosticar fallas.
+
+:::
+
+## Demo: Programar un backup diario
+
+```bash
+$ crontab -l  # <1>
+30 2 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1
+# <1>
+```
+
+
+
+::: notes
+
+1. **crontab -l** valida que el job existe y deja evidencia en un log.
+
+:::
+
+## Recursos
+
+- Material Unidad 5 (procesos): [Unidad 5.1](../unidades/unidad5/1_procesos_comandos.html)
+- Material Unidad 5 (systemd): [Unidad 5.2](../unidades/unidad5/2_systemd_units_journalctl.html)
+- Material Unidad 5 (cron/at): [Unidad 5.3](../unidades/unidad5/3_cron_anacron_at.html)
+
+::: {.footer-links}
+Instructor: https://statick88.github.io
+:::

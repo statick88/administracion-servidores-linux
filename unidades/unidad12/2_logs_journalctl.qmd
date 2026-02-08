@@ -1,0 +1,52 @@
+---
+title: "Unidad 12.2: Logs y journalctl"
+subtitle: "Diagnostico basado en evidencia"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 12.2: Logs y journalctl
+
+## Introduccion
+
+En Linux, muchas respuestas estan en logs. `journalctl` permite filtrar por servicio, tiempo y severidad.
+
+## Objetivos de aprendizaje
+
+- Ver logs de arranque
+- Ver logs de un servicio
+- Seguir logs en tiempo real
+
+---
+
+## Journal del sistema
+
+```bash
+$ sudo journalctl -b -n 50 --no-pager  # <1>
+... logs del ultimo arranque ...
+# <1>
+```
+
+
+
+1. **journalctl -b** muestra logs del boot actual.
+
+---
+
+## Logs de un servicio
+
+```bash
+$ sudo journalctl -u ssh --since "1 hour ago" --no-pager  # <1>
+... logs de ssh ...
+# <1>
+
+$ sudo journalctl -u nginx -f  # <2>
+... follow logs ...
+# <2>
+```
+
+
+
+1. **journalctl -u** filtra por unidad (servicio).
+2. **-f** sigue logs en tiempo real.

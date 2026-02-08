@@ -1,0 +1,101 @@
+---
+title: "Unidad 9.2: Configuracion, logs y modulos"
+subtitle: "Donde se configura Apache en Ubuntu"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 9.2: Configuracion, logs y modulos
+
+## Introduccion
+
+Operar Apache significa saber leer logs, validar configuracion, y entender como se habilitan sitios y modulos.
+
+## Objetivos de aprendizaje
+
+- Encontrar y leer logs de Apache
+- Validar configuracion antes de recargar
+- Habilitar/deshabilitar modulos y sitios
+
+---
+
+## Validar configuracion
+
+```bash
+$ sudo apachectl configtest  # <1>
+Syntax OK
+# <1>
+
+$ sudo systemctl reload apache2  # <2>
+# <2>
+```
+
+
+
+1. **apachectl configtest** valida sintaxis antes de recargar.
+2. **systemctl reload** recarga sin cortar conexiones (cuando aplica).
+
+---
+
+## Logs
+
+```bash
+$ sudo tail -n 20 /var/log/apache2/error.log  # <1>
+[Mon Feb 02 10:20:01.123456 2026] [mpm_prefork:notice] [pid 1234] AH00163: Apache/2.4.58 (Ubuntu) configured -- resuming normal operations
+# <1>
+
+$ sudo tail -n 5 /var/log/apache2/access.log  # <2>
+127.0.0.1 - - [02/Feb/2026:10:20:11 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/8.1.0"
+# <2>
+```
+
+
+
+1. **tail error.log** muestra errores/avisos (muy util tras cambios).
+2. **tail access.log** muestra requests HTTP.
+
+---
+
+## Modulos
+
+```bash
+$ sudo apache2ctl -M | head -n 8  # <1>
+Loaded Modules:
+ core_module (static)
+ so_module (static)
+ http_module (static)
+ mpm_prefork_module (shared)
+ # <1>
+
+$ sudo a2enmod headers  # <2>
+Enabling module headers.
+To activate the new configuration, you need to run:
+  systemctl restart apache2
+# <2>
+```
+
+
+
+1. **apache2ctl -M** lista modulos cargados.
+2. **a2enmod** habilita un modulo y escribe symlinks en `mods-enabled/`.
+
+---
+
+## Sitios
+
+```bash
+$ ls -1 /etc/apache2/sites-available  # <1>
+000-default.conf
+default-ssl.conf
+# <1>
+
+$ sudo a2ensite 000-default.conf  # <2>
+Site 000-default already enabled
+# <2>
+```
+
+
+
+1. **sites-available** contiene definiciones de VirtualHost.
+2. **a2ensite** habilita un sitio (symlink a `sites-enabled/`).

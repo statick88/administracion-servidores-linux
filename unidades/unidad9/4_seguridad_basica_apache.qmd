@@ -1,0 +1,112 @@
+---
+title: "Unidad 9.4: Seguridad basica en Apache"
+subtitle: "Permisos, headers y superficie minima"
+author: "Diego Saavedra"
+date: "2026-02-02"
+date-format: medium
+---
+
+# Unidad 9.4: Seguridad basica en Apache
+
+## Introduccion
+
+Hardening basico en Apache consiste en: exponer lo minimo, evitar configuraciones inseguras, y dejar evidencias (headers/logs/configtest).
+
+## Objetivos de aprendizaje
+
+- Reducir informacion expuesta
+- Habilitar headers basicos de seguridad
+- Verificar con curl
+
+---
+
+## Quitar informacion innecesaria (ServerTokens/ServerSignature)
+
+En Ubuntu, puedes definir directivas globales en `/etc/apache2/conf-available/`.
+
+```bash
+$ sudo tee /etc/apache2/conf-available/security-hardening.conf >/dev/null <<'EOF'  # <1>
+ServerTokens Prod
+ServerSignature Off
+EOF
+# <1>
+
+$ sudo a2enconf security-hardening  # <2>
+Enabling conf security-hardening.
+# <2>
+
+$ sudo apachectl configtest  # <3>
+Syntax OK
+# <3>
+
+$ sudo systemctl reload apache2  # <4>
+# <4>
+```
+
+
+
+1. **tee + heredoc** crea un archivo de configuracion global.
+2. **a2enconf** habilita configuraciones en `conf-enabled/`.
+3. **apachectl configtest** valida sintaxis.
+4. **systemctl reload** aplica cambios.
+
+---
+
+## Headers basicos
+
+```bash
+$ sudo a2enmod headers  # <1>
+Enabling module headers.
+# <1>
+
+$ sudo tee /etc/apache2/conf-available/security-headers.conf >/dev/null <<'EOF'  # <2>
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+EOF
+# <2>
+
+$ sudo a2enconf security-headers  # <3>
+Enabling conf security-headers.
+# <3>
+
+$ sudo apachectl configtest  # <4>
+Syntax OK
+# <4>
+
+$ sudo systemctl reload apache2  # <5>
+# <5>
+```
+
+
+
+1. **a2enmod headers** habilita mod_headers.
+2. **tee + heredoc** define headers basicos.
+3. **a2enconf** habilita la configuracion.
+4. **apachectl configtest** valida sintaxis.
+5. **systemctl reload** aplica cambios.
+
+---
+
+## Verificar headers
+
+```bash
+$ curl -I http://localhost | sed -n '1,15p'  # <1>
+HTTP/1.1 200 OK
+Server: Apache
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+# <1>
+```
+
+
+
+1. **curl -I** verifica headers de respuesta.
+
+## Mejores practicas
+
+- Configtest antes de cada reload.
+- Logs siempre: si no esta en logs, no paso.

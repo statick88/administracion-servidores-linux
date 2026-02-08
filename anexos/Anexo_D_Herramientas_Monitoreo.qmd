@@ -1,0 +1,927 @@
+---
+title: "Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc"
+author: "Diego Saavedra"
+date: "2024-01-29"
+bibliography: ../unidades/unidad1/references.bib
+biblio-style: apalike
+---
+
+# Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc
+
+## Introducción
+
+En administración de servidores Linux, **monitorear el sistema** es fundamental. Necesitas saber:
+
+- ¿Cuánta CPU estoy usando?
+- ¿Qué procesos consumen memoria?
+- ¿Está saturado el disco?
+- ¿Quién se conecta al servidor?
+
+Este anexo enseña herramientas para **observar qué está sucediendo** en tiempo real en tu servidor.
+
+**🗺️ En este anexo aprenderás:**
+
+- **top** - Monitor de procesos clásico (siempre disponible)
+- **htop** - Versión mejorada de top (más amigable)
+- **free** - Información de RAM
+- **df** - Espacio en disco
+- **du** - Uso de disco por carpeta
+- **iostat** - Lectura/escritura de disco
+- **netstat/ss** - Conexiones de red
+- **vmstat** - Estadísticas virtuales de memoria
+- Monitoreo remoto y alertas
+
+**⏱️ Duración estimada**: 60 minutos de práctica
+
+---
+
+## ¿Por Qué Estas Herramientas?
+
+**Escenario real en Abacom:**
+
+```
+3:47 PM - Usuario reporta: "El servidor está lento"
+
+Tu respuesta:
+$ top        # Ver procesos que consumen CPU
+$ free -h    # Verificar RAM disponible
+$ df -h      # Verificar espacio en disco
+$ netstat -an | wc -l  # Ver conexiones activas
+
+Conclusión: "Hay 10,000 conexiones TCP activas 
+            consumiendo toda la memoria"
+
+Solución: Optimizar aplicación o agregar más RAM
+```
+
+Sin estas herramientas, estarías a ciegas.
+
+---
+
+## 💡 Monitoreo en Diferentes SOs
+
+::: {.panel-tabset}
+
+### Linux (Herramientas Nativas)
+
+```bash
+# Linux tiene todas estas herramientas nativas
+$ which top
+/usr/bin/top
+
+$ which htop
+/usr/bin/htop
+
+$ which free
+/usr/bin/free
+
+$ which df
+/bin/df
+
+# Monitor de procesos
+$ top
+$ htop  # (si está instalado)
+
+# RAM disponible
+$ free -h
+              total        used        free
+Mem:           15Gi       5.2Gi       8.2Gi
+
+# Espacio en disco
+$ df -h
+Filesystem     Size  Used Avail Use%
+/dev/sda1      100G   35G   65G  35%
+
+# Conexiones de red
+$ ss -an | wc -l
+2345
+```
+
+### macOS (Diferentes comandos)
+
+```bash
+# macOS NO tiene: top, htop, free (igual que Linux)
+# Top existe pero funciona diferente
+# Free no existe - usar vm_stat en su lugar
+
+# Monitor de procesos (macOS top)
+$ top -l 1  # Solo una iteración
+$ top       # Interactive (diferente a Linux)
+
+# Memoria (no existe 'free', usar vm_stat)
+$ vm_stat | grep "Pages free"
+Pages free:                     2048234  # En páginas de 4KB
+
+# Alternativa: Con Homebrew
+$ brew install htop
+$ htop  # Ahora funciona igual a Linux
+
+# Espacio en disco
+$ df -h
+Filesystem     Size  Used Avail Use%
+/dev/disk0s2   250G  100G  150G  40%
+
+# Conexiones de red (similar a Linux)
+$ netstat -an | wc -l
+1234
+
+# Mejor: usar lsof para ver procesos y puertos
+$ lsof -i :8080
+# Ver qué proceso usa puerto 8080
+```
+
+### Windows (PowerShell / Task Manager)
+
+```powershell
+# Windows no tiene top, free, df
+# Usa Get-Process, Get-PSDrive, etc.
+
+# Monitor de procesos
+PS> Get-Process | Sort-Object CPU -Descending | Select-Object Name, CPU, Memory | head -10
+
+Name              CPU        Memory
+----              ---        ------
+chrome        450.25  2842894336
+firefox       125.50   854321120
+
+# RAM disponible
+PS> $RAM = Get-WmiObject Win32_ComputerSystem
+PS> Write-Host "$($RAM.TotalPhysicalMemory / 1GB) GB total RAM"
+16 GB total RAM
+
+# Espacio en disco
+PS> Get-PSDrive | Where-Object {$_.Provider -match 'FileSystem'}
+
+Name Used (GB) Free (GB) Provider
+---- --------- --------- --------
+C       200      50       FileSystem
+D       500      100      FileSystem
+
+# Conexiones de red
+PS> (Get-NetTCPConnection).Count
+2345
+
+# O abrir Task Manager gráficamente
+PS> taskmgr  # GUI interactiva
+```
+
+:::
+
+**Comparación de comandos:**
+| Tarea | Linux | macOS | Windows |
+|------|-------|-------|---------|
+| Ver procesos | `top` / `htop` | `top -l 1` (diferente) | `Get-Process` |
+| Ver RAM | `free -h` | `vm_stat` | `Get-WmiObject Win32_ComputerSystem` |
+| Ver disco | `df -h` | `df -h` | `Get-PSDrive` |
+| Ver conexiones | `netstat -an` / `ss` | `netstat -an` / `lsof -i` | `Get-NetTCPConnection` |
+
+**Recomendación para Abacom:**
+
+- Linux: Usar herramientas nativas (top, free, df, netstat)
+- macOS: Instalar Homebrew y usar `htop`, `lsof`
+- Windows: Usar PowerShell cmdlets o Task Manager GUI
+
+---
+
+## Concepto 1: TOP - Monitor de Procesos
+
+### Ejecutar TOP
+
+```bash
+top  # <1>
+```
+
+1. **top** abre monitor interactivo de procesos
+
+**Pantalla inicial:**
+
+```
+top - 15:47:23 up 45 days, 2:34,  3 users,  load average: 0.89, 0.76, 0.68
+Tasks: 287 total,   2 running, 285 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  8.2 us,  3.4 sy,  0.0 ni, 88.1 id,  0.3 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem : 15967.5 total,  8234.6 free,  5421.2 used,  2311.7 buff/cache
+MiB Swap:  4096.0 total,  4096.0 free,     0.0 used.  9854.3 avail Mem
+
+   PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+ 12847 nginx    20   0  145620  12344   9876 S   8.2   0.1   2:45.32 nginx
+  8934 mysql    20   0  876543 234567  45678 S   5.6  12.3  45:23.12 mysqld
+```
+
+### Entender la Salida de TOP
+
+**Primera línea:**
+```
+top - 15:47:23              ← Hora actual
+up 45 days, 2:34            ← Tiempo encendido el servidor
+3 users                     ← Usuarios conectados
+load average: 0.89, 0.76, 0.68  ← Carga CPU (1min, 5min, 15min)
+```
+
+**"Load average" es crítico:**
+
+- **1 core = load 1.0** es 100% ocupado
+- **4 cores = load 4.0** es 100% ocupado
+- **load 0.5** = 50% del CPU disponible
+- Si ves **load 8.0** en máquina 4-core = **SATURADO**
+
+**Segunda línea - Procesos:**
+```
+Tasks: 287 total    ← Total de procesos
+2 running           ← Ejecutándose ahora
+285 sleeping        ← Esperando (normal)
+0 stopped           ← Detenidos
+0 zombie            ← Procesos fantasma (problema)
+```
+
+**Tercera línea - CPU:**
+```
+%Cpu(s): 8.2 us         ← User Space (código de aplicación)
+         3.4 sy         ← System (kernel Linux)
+         0.0 ni         ← Nice (prioridad baja)
+         88.1 id        ← Idle (desocupado) ← Ideal es ALTO
+         0.3 wa         ← Wait I/O (esperando disco)
+         0.0 hi         ← Hardware interrupts
+         0.0 si         ← Software interrupts
+         0.0 st         ← Stolen (virtualization)
+```
+
+**Memoria:**
+```
+MiB Mem: 15967.5 total       ← RAM total
+         8234.6 free         ← Disponible (libre)
+         5421.2 used         ← En uso
+         2311.7 buff/cache   ← Buffer/Cache (puede liberarse)
+```
+
+**Columnas de Procesos:**
+```
+PID      ← ID del proceso
+USER     ← Usuario propietario
+%CPU     ← Porcentaje de CPU usando
+%MEM     ← Porcentaje de RAM usando
+VIRT     ← Memoria virtual (puede no existir)
+RES      ← Memoria física (RAM real)
+COMMAND  ← Nombre del proceso
+```
+
+---
+
+### Comandos Interactivos en TOP
+
+Dentro de TOP, presiona:
+
+```
+ESPACIO   → Actualizar pantalla
+P         → Ordenar por %CPU (procesos más pesados)
+M         → Ordenar por %MEM (más memoria)
+T         → Ordenar por TIME (más tiempo corriendo)
+R         → Invertir orden (Mayor a menor)
+
+q         → Salir de top
+k         → Matar proceso (kill)
+r         → Cambiar prioridad (renice)
+f         → Agregar/quitar columnas
+```
+
+### Ejemplo: Encontrar Proceso que Consume CPU
+
+```bash
+# Ejecutar top
+top
+
+# Presionar P para ordenar por CPU
+# Ver el primero en lista
+
+# Presionar k para matar (si necesitas)
+# Ingresar PID del proceso
+```
+
+---
+
+### TOP sin Modo Interactivo
+
+```bash
+# Ver procesos una sola vez (sin interactivo)
+top -b -n 1  # <1>
+```
+
+1. **-b** (batch mode) no interactivo, **-n 1** una sola actualización
+
+**Útil en scripts:**
+
+```bash
+#!/bin/bash
+# Monitorear si PHP consume >80% CPU
+
+top -b -n 1 | grep php | awk '{print $9}' | while read CPU
+do
+  if (( $(echo "$CPU > 80" | bc -l) ))
+  then
+    echo "ALERTA: PHP consume ${CPU}% CPU"
+    # Enviar alerta por email, etc
+  fi
+done
+```
+
+---
+
+## Concepto 2: HTOP - TOP Mejorado
+
+### Instalar HTOP
+
+```bash
+# Ubuntu/Debian
+sudo apt install -y htop
+
+# CentOS/RHEL
+sudo dnf install -y htop
+
+# Arch
+sudo pacman -S htop
+```
+
+### Ejecutar HTOP
+
+```bash
+htop  # <1>
+```
+
+1. **htop** es reemplazo directo de top (mismos comandos)
+
+**Ventajas sobre TOP:**
+
+- ✅ Colores (más legible)
+- ✅ Barras de progreso (CPU, Memoria)
+- ✅ Scroll horizontal/vertical
+- ✅ Buscar procesos (f para filtrar)
+- ✅ Ver árbol de procesos (t para tree)
+- ✅ Interfaz más amigable
+
+**Pantalla de HTOP:**
+
+```
+  CPU[████████░░░░░░] 45%     Tasks: 142, 2 thr; 1 running
+  Mem[██████████░░░░] 68%     Load average: 0.89 0.76 0.68
+  Swp[░░░░░░░░░░░░░░] 0%      Uptime: 45d 2h 34m
+
+   PID USER      PRI  NI  VIRT   RES   SHR S CPU% MEM%   TIME+ Command
+ 12847 nginx     20   0  145M  12M  9.8M S  8.2  0.1  2:45 nginx: worker process
+  8934 mysql     20   0  876M 234M  45M S  5.6 12.3 45:23 /usr/sbin/mysqld
+  2341 diego     20   0  234M  89M  23M S  2.1  0.6  1:23 firefox
+```
+
+### Atajos en HTOP
+
+```
+P         → Ordenar por %CPU
+M         → Ordenar por %MEM
+T         → Ordenar por TIME
+H         → Mostrar/ocultar procesos de threads
+K         → Mostrar/ocultar kernel threads
+F         → Filtrar procesos (ej: "nginx")
+t         → Ver árbol de procesos (parent-child)
+i         → Mostrar solo procesos con I/O
+s         → Cambiar prioridad (strace)
+q         → Salir
+```
+
+---
+
+## Concepto 3: FREE - Información de RAM
+
+### Ver Memoria en Formato Humano
+
+```bash
+free -h  # <1>
+```
+
+1. **-h** (human-readable) muestra en GB/MB en vez de bytes
+
+**Salida:**
+
+```
+              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.3Gi       8.0Gi      234Mi       2.3Gi       9.4Gi
+Swap:         4.0Gi          0B       4.0Gi
+```
+
+### Interpretar la Salida
+
+```
+Mem: 15Gi          ← RAM total instalada
+     5.3Gi usado   ← En uso ahora
+     8.0Gi libre   ← No usado (desocupado)
+     234Mi shared  ← Memoria compartida (múltiples procesos)
+     2.3Gi cache   ← Datos cacheados (puede liberarse)
+     9.4Gi avail   ← Disponible para aplicaciones NEW
+```
+
+**Antes Linux 3.14:**
+```
+Total = Usado + Libre  ← Esto era INCORRECTO
+```
+
+**Linux 3.14+ (disponible):**
+```
+Total = Usado + (Cache - usable) + Libre
+Avail = Libre + Cache  ← Lo que REALMENTE tienes disponible
+```
+
+### Monitorear Memoria en Intervalos
+
+```bash
+# Mostrar cada 2 segundos
+free -h -s 2  # <1>
+```
+
+1. **-s 2** (seconds) actualiza cada 2 segundos
+
+**Salida:**
+```
+              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.3Gi       8.0Gi      234Mi       2.3Gi       9.4Gi
+Swap:         4.0Gi          0B       4.0Gi
+
+              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.3Gi       8.0Gi      234Mi       2.3Gi       9.4Gi
+Swap:         4.0Gi          0B       4.0Gi
+```
+
+Presiona **Ctrl+C** para salir.
+
+---
+
+## Concepto 4: DF - Espacio en Disco
+
+### Ver Espacio en Disco
+
+```bash
+df -h  # <1>
+```
+
+1. **-h** (human-readable) en GB/MB
+
+**Salida:**
+
+```
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   32G   15G  68% /
+/dev/sda2       450G   120G  330G  27% /home
+/dev/sdb1       500G   480G   20G  96% ⚠️ /mnt/backup
+tmpfs            15G     0   15G   0% /dev/shm
+```
+
+### Identificar Discos Llenos
+
+```bash
+# Mostrar en porcentaje de uso
+df -h | awk '{print $5, $6}' | sort -rn  # <1>
+```
+
+1. **awk** extrae columnas, **sort -rn** ordena descendente
+
+**Salida:**
+```
+96% /mnt/backup     ← ¡ALERTA! Disco lleno
+68% /
+27% /home
+0% /dev/shm
+```
+
+### Alerta si Disco >80% Lleno
+
+```bash
+#!/bin/bash
+# Script para monitorear discos
+
+df -h | tail -n +2 | while read LINE
+do
+  USAR=$(echo $LINE | awk '{print $5}' | sed 's/%//')  # <1>
+  MOUNT=$(echo $LINE | awk '{print $6}')
+  
+  if [ "$USAR" -gt 80 ]
+  then
+    echo "⚠️  ALERTA: $MOUNT está al ${USAR}% de capacidad"
+  fi
+done
+```
+
+1. **sed 's/%//'** elimina el signo % para comparar como número
+
+---
+
+## Concepto 5: DU - Uso de Disco por Carpeta
+
+### Encontrar Qué Ocupa Espacio
+
+```bash
+# ¿Quién está ocupando espacio en /home?
+du -sh /home/*  # <1>
+```
+
+1. **-s** (summarize) solo total, **-h** (human) en GB/MB
+
+**Salida:**
+
+```
+45G   /home/diego
+23G   /home/carlos
+8.2G  /home/ana
+1.5G  /home/backup
+```
+
+### Encontrar Top 10 Carpetas Más Grandes
+
+```bash
+du -sh /* | sort -rh | head -10  # <1>
+```
+
+1. **sort -rh** ordena numérico inverso
+
+**Salida:**
+
+```
+234G  /var
+120G  /home
+45G   /opt
+23G   /usr
+8.2G  /root
+4.5G  /tmp
+2.3G  /etc
+1.2G  /srv
+890M  /lib
+456M  /bin
+```
+
+### Profundizar en Carpeta
+
+```bash
+# ¿Qué hay en /var que ocupa 234G?
+du -sh /var/* | sort -rh | head -5
+
+# ¿Qué hay en /var/log?
+du -sh /var/log/* | sort -rh | head -5
+```
+
+**Encontrar carpeta problemática:**
+
+```bash
+du -sh /var/log/* | grep "G$"  # <1>
+```
+
+1. **grep "G$"** solo líneas con G (gigabytes)
+
+---
+
+## Concepto 6: IOSTAT - Lectura/Escritura de Disco
+
+### Instalar sysstat
+
+```bash
+# Ubuntu/Debian
+sudo apt install -y sysstat
+
+# CentOS/RHEL
+sudo dnf install -y sysstat
+
+# Arch
+sudo pacman -S sysstat
+```
+
+### Ver Actividad de Disco
+
+```bash
+iostat -x 1  # <1>
+```
+
+1. **-x** (extended) más detalles, **1** actualiza cada 1 segundo
+
+**Salida (primera línea muestra promedios):**
+
+```
+Device            r/s     w/s     rMB/s   wMB/s r_await w_await %util
+sda            125.4    45.2      8.3     2.1    12.5    23.4   45.2%
+sdb             45.2    10.1      3.2     0.8     8.2    15.1   12.3%
+sdc              2.1     1.0      0.1     0.1    45.2    78.9    2.1%
+
+Device            r/s     w/s     rMB/s   wMB/s r_await w_await %util
+sda            234.1    89.3     15.4     5.2    15.2    34.5   78.9%
+sdb              0.0     0.0      0.0     0.0     0.0     0.0    0.0%
+sdc              0.0     0.0      0.0     0.0     0.0     0.0    0.0%
+```
+
+### Interpretar iostat
+
+```
+r/s      ← Lecturas por segundo
+w/s      ← Escrituras por segundo
+rMB/s    ← Megabytes leídos por segundo
+wMB/s    ← Megabytes escritos por segundo
+r_await  ← Latencia de lectura (ms)
+w_await  ← Latencia de escritura (ms)
+%util    ← Porcentaje de utilización
+```
+
+**Análisis:**
+
+- **%util > 80%** = Disco saturado
+- **r_await > 50ms** = Lecturas lentas
+- **w_await > 100ms** = Escrituras muy lentas
+
+---
+
+## Concepto 7: NETSTAT/SS - Conexiones de Red
+
+### Ver Conexiones Activas
+
+```bash
+# Método moderno (recomendado)
+ss -tulpn  # <1>
+
+# Método antiguo (aún funciona)
+netstat -tulpn  # <2>
+```
+
+1. **ss** (socket statistics) es reemplazo moderno de netstat
+
+2. **netstat** funciona pero deprecado
+
+**Opciones:**
+
+- **t** = TCP
+- **u** = UDP
+- **l** = Listen (servicios esperando)
+- **p** = Process (mostrar qué proceso)
+- **n** = Numeric (IP en vez de nombres)
+
+**Salida:**
+
+```
+State     Recv-Q Send-Q Local Address    Foreign Address  State    PID/Program
+LISTEN      0     128  0.0.0.0:22       0.0.0.0:*       LISTEN   1234/sshd
+LISTEN      0     128  0.0.0.0:80       0.0.0.0:*       LISTEN   5678/nginx
+ESTAB       0      0  192.168.1.100:22 192.168.1.50:45678 ESTAB   9876/sshd
+```
+
+### Ver Solo Conexiones TCP Establecidas
+
+```bash
+ss -tn | grep ESTAB | wc -l  # <1>
+```
+
+1. **grep ESTAB** filtra conexiones establecidas, **wc -l** cuenta
+
+**Salida:**
+```
+247
+```
+
+Hay 247 conexiones TCP activas.
+
+### Encontrar Proceso Usando Puerto
+
+```bash
+# ¿Quién está usando puerto 8080?
+ss -tulpn | grep :8080  # <1>
+```
+
+1. **grep :8080** busca puerto 8080
+
+**Salida:**
+```
+LISTEN  0  128  0.0.0.0:8080  0.0.0.0:*  LISTEN  12345/java
+```
+
+Proceso Java con PID 12345 está usando puerto 8080.
+
+---
+
+## 💡 Ejemplos Prácticos Reales
+
+### Ejemplo 1: Monitoreo Completo del Servidor
+
+**Script que muestra salud general:**
+
+```bash
+#!/bin/bash
+# Script de salud del servidor para Abacom
+
+echo "=== MONITOREO DEL SERVIDOR ==="
+echo
+
+# CPU y Carga
+echo "📊 CPU y Carga:"
+top -b -n 1 | head -3
+echo
+
+# RAM
+echo "💾 Memoria:"
+free -h | head -2
+echo
+
+# Disco
+echo "💿 Disco:"
+df -h | grep "^/dev" | awk '{printf "%-15s %6s %6s %6s\n", $1, $3, $2, $5}'
+echo
+
+# Procesos por CPU
+echo "🔥 Top 3 procesos por CPU:"
+top -b -n 1 | head -7 | tail -3
+echo
+
+# Procesos por Memoria
+echo "🧠 Top 3 procesos por Memoria:"
+top -b -n 1 -o %MEM | head -7 | tail -3
+echo
+
+# Conexiones de red
+echo "🌐 Conexiones TCP activas:"
+ss -tn | grep ESTAB | wc -l
+echo
+
+echo "✓ Monitoreo completado: $(date)"
+```
+
+**Uso:**
+```bash
+chmod +x monitor.sh
+./monitor.sh
+
+# Salida esperada:
+# === MONITOREO DEL SERVIDOR ===
+# 
+# 📊 CPU y Carga:
+# load average: 0.89, 0.76, 0.68
+# ...
+```
+
+---
+
+### Ejemplo 2: Alerta si CPU >80%
+
+```bash
+#!/bin/bash
+# Alerta si CPU está saturado
+
+LIMITE=80
+CPU=$(top -b -n 1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1 | cut -d' ' -f1)
+
+if (( $(echo "$CPU > $LIMITE" | bc -l) ))
+then
+  echo "⚠️  ALERTA: CPU está al ${CPU}%"
+  # Enviar email, Slack, etc
+  echo "ALERTA CPU" | mail -s "Servidor saturado" admin@abacom.es
+fi
+```
+
+---
+
+### Ejemplo 3: Dashboard en Tiempo Real
+
+```bash
+#!/bin/bash
+# Monitoreo continuo en terminal
+
+while true
+do
+  clear
+  echo "=== MONITOREO EN VIVO ==="
+  echo "Hora: $(date '+%H:%M:%S')"
+  echo
+  
+  # Mostrar top 5 procesos
+  echo "Top 5 procesos por CPU:"
+  top -b -n 1 | tail -6
+  echo
+  
+  # Mostrar RAM
+  echo "Memoria (MB):"
+  free -m | head -2
+  echo
+  
+  sleep 2
+done
+```
+
+---
+
+## 📊 Tabla de Referencia Rápida
+
+| Herramienta | Uso | Ejemplo |
+|-----------|-----|---------|
+| **top** | Monitor procesos interactivo | **top** |
+| **htop** | Top mejorado con colores | **htop** |
+| **free -h** | RAM disponible | **free -h** |
+| **df -h** | Espacio en disco | **df -h** |
+| **du -sh** | Uso por carpeta | **du -sh /home/*** |
+| **iostat -x 1** | I/O del disco | **iostat -x 1** |
+| **ss -tn** | Conexiones TCP | **ss -tn** |
+| **vmstat 1** | Estadísticas VM | **vmstat 1 10** |
+
+---
+
+## 🎓 Quiz: Verificar Comprensión
+
+:::{.callout-tip collapse="true"}
+### Pregunta 1: ¿Qué significa "load average 4.0"?
+
+**a)** CPU está al 40%  
+**b)** Hay 4 procesos ejecutándose  
+**c)** En máquina 4-core = CPU 100% ocupado (Correcto ✓)  
+**d)** Sistema necesita 4 GB más RAM  
+
+**Explicación**: Load 1.0 por core = 100% uso. En máquina 4-core, load 4.0 = saturado.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 2: ¿Cuál es la diferencia entre "Usado" y "Disponible" en free -h?
+
+**a)** Son iguales  
+**b)** "Usado" incluye cache que puede liberarse. "Disponible" es realmente free (Correcto ✓)  
+**c)** "Disponible" es más pequeño siempre  
+**d)** "Usado" no cuenta swap  
+
+**Explicación**: Antes "Usado + Libre = Total". Ahora Linux 3.14+ muestra "Disponible" que es lo que realmente puedes usar.
+:::
+
+:::{.callout-tip collapse="true"}
+### Pregunta 3: ¿Cómo encuentras qué proceso usa puerto 8080?
+
+**a)** **netstat 8080**  
+**b)** **lsof -i :8080**  
+**c)** **ss -tulpn | grep :8080** (Correcto ✓)  
+**d)** **top | grep 8080**  
+
+**Explicación**: **ss -tulpn** muestra puertos y procesos. **grep :8080** filtra por puerto.
+:::
+
+---
+
+## 👨‍💻 Práctica: Crear Dashboard Personalizado
+
+**Ejercicio: Script que muestra salud en 1 página**
+
+```bash
+#!/bin/bash
+# dashboard.sh - Monitoreo de servidor
+
+clear
+printf "╔════════════════════════════════════════════════════╗\n"
+printf "║   DASHBOARD DE SERVIDOR ABACOM                    ║\n"
+printf "║   Generado: $(date '+%Y-%m-%d %H:%M:%S')              ║\n"
+printf "╚════════════════════════════════════════════════════╝\n\n"
+
+# CPU
+printf "CPU (Load Average):\n"
+uptime | awk -F'load average:' '{print "  "$2}'
+printf "\n"
+
+# RAM
+printf "Memoria RAM:\n"
+free -h | awk 'NR==2 {printf "  Total: %s | Usado: %s | Disponible: %s\n", $2, $3, $7}'
+printf "\n"
+
+# Disco
+printf "Disco (Top 3):\n"
+df -h | grep "^/dev" | sort -k5 -rn | head -3 | awk '{printf "  %s: %3s / %s\n", $6, $5, $2}'
+printf "\n"
+
+# Procesos
+printf "Procesos (Top CPU):\n"
+top -b -n 1 | tail -5 | awk '{printf "  %s: %s%%\n", $12, $9}' | head -3
+printf "\n"
+
+printf "✓ Fin de monitoreo\n"
+```
+
+**Ejecutar:**
+```bash
+chmod +x dashboard.sh
+./dashboard.sh
+```
+
+---
+
+## 📚 Recursos Adicionales
+
+- **Man Pages**: **man top**, **man htop**, **man free**, **man df**, **man iostat**, **man ss**
+- **Linux Performance Tools**: https://www.brendangregg.com/linuxperf.html
+- **htop Documentation**: https://htop.dev/
+- **Sysstat Manual**: https://github.com/sysstat/sysstat
+
+---
+
+## Conclusión
+
+Ahora sabes:
+✓ Ver procesos con top y htop
+✓ Monitorear CPU, RAM, disco
+✓ Encontrar qué consume recursos
+✓ Ver conexiones de red
+✓ Crear alertas y dashboards
+
+**Para Abacom**: Crea un script de monitoreo y úsalo diariamente para mantener servidores saludables.
+
+**Próximo paso**: Integra estas herramientas en scripts de mantenimiento automático.
+
+---
