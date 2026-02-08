@@ -13,7 +13,7 @@ date-format: medium
 Certbot automatiza la emision y renovacion de certificados TLS (Let's Encrypt). Para que funcione, necesitas un dominio apuntando a tu servidor y el puerto 80/443 accesible desde Internet.
 
 :::{.callout-warning}
-## ADVERTENCIA CRITICA
+## ⚠️ ADVERTENCIA CRÍTICA
 
 **No podras emitir un certificado real si tu servidor no es accesible publicamente.**
 
@@ -23,10 +23,15 @@ Certbot automatiza la emision y renovacion de certificados TLS (Let's Encrypt). 
 - Estas en una VM sin NAT/port-forward.
 
 **Como prevenirlo:**
-1. Valida DNS antes: `dig +short tu-dominio.com`.
-2. Abre 80/443 en UFW.
-3. Prueba HTTP publico antes de ejecutar Certbot.
+1. Valida DNS antes: `dig +short tu-dominio.com`.  # <1>
+2. Abre 80/443 en UFW.  # <2>
+3. Prueba HTTP pubblico antes de ejecutar Certbot.  # <3>
 :::
+
+
+1. **dig +short** consulta DNS para verificar que el dominio apunta al servidor.
+2. **ufw allow** abre los puertos necesarios para Let's Encrypt.
+3. **curl** prueba que el servidor responde HTTP públicamente.
 
 ## Objetivos de aprendizaje
 

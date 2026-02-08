@@ -1,0 +1,339 @@
+---
+title: "Rsync y Nginx - Guía de Laboratorio"
+subtitle: "Configuración de Servidores - Troubleshooting"
+author: "Diego Saavedra"
+date: "2026-02-08"
+date-format: medium
+---
+
+# Rsync y Nginx - Guía de Laboratorio
+
+## Resumen de Problemas y Soluciones
+
+---
+
+## 1. Error Rsync: Permission Denied
+
+### Problema
+```
+rsync: [receiver] mkdir "/var/www/html/site" failed: Permission denied (13)
+rsync: [receiver] mkstemp "/usr/share/nginx/html/.example.tar.gz.WXvxvL" failed: Permission denied (13)
+```
+
+### Causa
+El usuario no tiene permisos de escritura en los directorios destino del servidor remoto.
+
+### Solución
+
+#### Opción A: Crear directorio con permisos adecuados
+```bash
+# En el servidor destino (192.168.56.10):
+ssh usuario@192.168.56.10  # <1>
+sudo mkdir -p /var/www/html/site  # <2>
+sudo chown -R usuario:usuario /var/www/html/site  # <3>
+exit
+
+# Desde el servidor origen:
+rsync /tmp/example.tar.gz usuario@192.168.56.10:/var/www/html/site/  # <4>
+```
+
+1. **ssh** conecta al servidor remoto para configurar permisos.
+2. **mkdir -p** crea el directorio destino si no existe.
+3. **chown** cambia propietario para permitir escritura del usuario.
+4. **rsync** transfiere el archivo al directorio configurado.
+
+#### Opción B: Usar directorio home del usuario
+```bash
+rsync /tmp/example.tar.gz usuario@192.168.56.10:~/site/  # <1>
+```
+
+1. **~/** usa el directorio home del usuario, que siempre tiene permisos de escritura.
+
+#### Opción C: Rsync con sudo en el servidor remoto
+```bash
+rsync --rsync-path="sudo rsync" /tmp/example.tar.gz usuario@192.168.56.10:/var/www/html/site/  # <1>
+```
+
+1. **--rsync-path="sudo rsync"** ejecuta rsync con privilegios elevados en el destino.
+
+---
+
+## 2. Error Nginx: 404 Not Found
+
+### Problema
+Nginx sirve desde `/var/www/html` pero los archivos están en `/usr/share/nginx/html/`.
+
+### Solución
+
+#### Opción A: Copiar archivos al directorio correcto de nginx
+```bash
+sudo cp /usr/share/nginx/html/index.html /var/www/html/  # <1>
+sudo cp /home/usuario/mirepositorio/* /var/www/html/  # <2>
+sudo nginx -s reload  # <3>
+```
+
+1. **cp** copia archivos desde la ubicación de instalación al root de nginx.
+2. **cp /** copia todos los archivos del proyecto web.
+3. **nginx -s reload** recarga la configuración sin reiniciar el servicio.
+
+#### Opción B: Cambiar la raíz de documentos de nginx
+```bash
+# Editar /etc/nginx/sites-enabled/default:
+sudo nano /etc/nginx/sites-enabled/default  # <1>
+
+# Cambiar:
+# root /var/www/html;
+root /usr/share/nginx/html;
+
+# Verificar y recargar:
+sudo nginx -t && sudo nginx -s reload  # <2>
+```
+
+1. **nano** abre el archivo de configuración del sitio.
+2. **nginx -t** valida la sintaxis antes de aplicar cambios.
+
+---
+
+## 3. Backup entre Servidores
+
+### Escenario
+- **Origen:** `usuario@192.168.56.10:/usr/share/nginx/html/`
+- **Destino:** `usuario@192.168.56.20`
+
+### Backup en directorio home
+```bash
+# Desde el servidor destino (192.168.56.20):
+rsync -avz usuario@192.168.56.10:/usr/share/nginx/html/ ~/nginx-backup/  # <1>
+```
+
+1. **rsync -avz** sincroniza con verbose y compresión, descargando del origen.
+
+### Backup en /opt/backup
+```bash
+# En el servidor destino (192.168.56.20):
+sudo mkdir -p /opt/backup  # <1>
+sudo chown usuario:usuario /opt/backup  # <2>
+
+# Transferir:
+rsync -avz usuario@192.168.56.10:/usr/share/nginx/html/ /opt/backup/  # <3>
+```
+
+1. **mkdir -p** crea el directorio de backup con permisos de root.
+2. **chown** transfiere propiedad al usuario para futuras sincronizaciones.
+3. **rsync** sincroniza directamente al directorio de backup.
+
+---
+
+## 4. Comandos Rsync Útiles
+
+### Sincronización básica
+```bash
+rsync -avz origen/ destino/  # <1>
+```
+
+1. **-a** modo archivo (preserva permisos, timestamps, etc.), **-v** verbose, **-z** comprime.
+
+### Copiar archivo específico
+```bash
+rsync /tmp/example.tar.gz usuario@192.168.56.10:/var/www/html/site/  # <1>
+```
+
+1. Transfiere un archivo individual al servidor remoto.
+
+### Modo verbose y progreso
+```bash
+rsync -avz --progress origen/ destino/  # <1>
+```
+
+1. **--progress** muestra barra de progreso y velocidad de transferencia.
+
+### Eliminar archivos en destino que no existen en origen
+```bash
+rsync -avz --delete origen/ destino/  # <1>
+```
+
+1. **--delete** sincroniza exactamente, eliminando archivos obsoletos.
+
+### Comprimir durante transferencia
+```bash
+rsync -az origen/ destino/  # <1>
+```
+
+1. **-a -z** combina archivado con compresión.
+
+### Mantener permisos y propietarios
+```bash
+rsync -avz --preserve=mode,ownership origen/ destino/  # <1>
+```
+
+1. **--preserve=mode,ownership** asegura que permisos se mantengan en la copia.
+
+### Sincronización con SSH
+```bash
+rsync -avz -e "ssh -i ~/.ssh/id_ed25519" origen/ usuario@192.168.56.10:~/destino/  # <1>
+```
+
+1. **-e "ssh"** especifica el comando SSH a usar, con clave específica.
+
+---
+
+## 5. Comandos Nginx Útiles
+
+### Verificar configuración
+```bash
+sudo nginx -t  # <1>
+```
+
+1. **nginx -t** valida sintaxis sin aplicar cambios.
+
+### Ver configuración completa
+```bash
+sudo nginx -T  # <1>
+```
+
+1. **-T** muestra toda la configuración incluyendo server blocks.
+
+### Recargar configuración
+```bash
+sudo nginx -s reload  # <1>
+```
+
+1. **-s reload** recarga configuración gracefully sin cortar conexiones.
+
+### Reiniciar nginx
+```bash
+sudo systemctl restart nginx  # <1>
+```
+
+1. **systemctl restart** reinicia el servicio completamente.
+
+### Ver estado del servicio
+```bash
+sudo systemctl status nginx  # <1>
+```
+
+1. **status** muestra estado actual y logs recientes.
+
+### Ver logs de errores en tiempo real
+```bash
+sudo tail -f /var/log/nginx/error.log  # <1>
+```
+
+1. **tail -f** sigue el archivo de log en tiempo real.
+
+---
+
+## 6. Estructura de Directorios Nginx
+
+### Directorios comunes
+```
+/etc/nginx/              # Configuración principal
+/etc/nginx/nginx.conf    # Archivo de configuración principal
+/etc/nginx/sites-available/   # Sitios disponibles
+/etc/nginx/sites-enabled/     # Sitios activos (symlinks)
+/etc/nginx/conf.d/        # Configuración adicional
+/usr/share/nginx/html/    # Archivos web (en Ubuntu/Debian)
+/var/www/html/            # Raíz de documentos por defecto
+```
+
+---
+
+## 7. Variables de Entorno del Servidor
+
+### IP del servidor actual
+```bash
+hostname -I | awk '{print $1}'  # <1>
+```
+
+1. **hostname -I** obtiene todas las IPs del servidor.
+
+### IP del servidor destino
+```bash
+# Disponible en la red local
+# Verificar conectividad:
+ping -c 1 192.168.56.10  # <1>
+```
+
+1. **ping** verifica que el servidor destino es alcanzable.
+
+---
+
+## 8. Conexión SSH entre Servidores
+
+### Generar clave SSH (si no existe)
+```bash
+ssh-keygen -t ed25519 -C "usuario@laboratorio"  # <1>
+```
+
+1. **ssh-keygen** crea un par de claves ed25519 modernas.
+
+### Copiar clave al servidor destino
+```bash
+ssh-copy-id usuario@192.168.56.10  # <1>
+```
+
+1. **ssh-copy-id** automatiza la instalación de clave pública en authorized_keys.
+
+### Conectar al servidor destino
+```bash
+ssh usuario@192.168.56.10  # <1>
+```
+
+1. **ssh** conecta al servidor remoto con autenticación de clave.
+
+---
+
+## 9. Permisos de Archivos
+
+### chmod básico
+```bash
+chmod 600 archivo  # <1>
+chmod 644 archivo  # <2>
+chmod 755 archivo  # <3>
+```
+
+1. **600** lectura/escritura solo para propietario.
+2. **644** lectura para todos, escritura para propietario.
+3. **755** lectura/ejecución para todos, escritura para propietario.
+
+### chown para cambiar propietario
+```bash
+chown usuario:grupo archivo  # <1>
+chown -R usuario:grupo /directorio/  # <2>
+```
+
+1. **chown** cambia propietario y grupo de un archivo.
+2. **-R** aplica recursivamente a subdirectorios y archivos.
+
+---
+
+## 10. Seguridad
+
+### No exponer contraseñas en comandos
+- Usar claves SSH en lugar de contraseñas
+- Usar `ssh-copy-id` para configurar autenticación sin contraseña
+- Nunca compartir contraseñas en scripts o historial
+
+### Verificar fingerprint SSH
+```
+The authenticity of host '192.168.56.10 (192.168.56.10)' can't be established.
+ED25519 key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
+```
+
+### Verificar host key antes de conectar
+```bash
+ssh-keyscan -H 192.168.56.10 >> ~/.ssh/known_hosts  # <1>
+```
+
+1. **ssh-keyscan** obtiene y guarda el fingerprint del host remoto.
+
+---
+
+## Notas
+
+- El directorio `/usr/share/nginx/html/` es la ubicación estándar en Ubuntu/Debian
+- El directorio `/var/www/html/` es la raíz de documentos por defecto en nginx
+- Rsync requiere permisos de escritura en el destino
+- Usar `-avz` para transferencias completas y comprimidas
+- Verificar siempre la configuración de nginx antes de recargar con `nginx -t`
+- Las IPs 192.168.56.x son para redes locales de laboratorio
