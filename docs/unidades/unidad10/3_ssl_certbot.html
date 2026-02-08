@@ -1000,6 +1000,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../../anexos/Anexo_L_SSH_GitHub_Minicurso.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Minicurso: Configuración de SSH para GitHub</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../../anexos/Anexo_H_SSH_SCP_Keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo H: SSH, SCP y Llaves - Mini-Curso Práctico</span></a>
   </div>
 </li>
@@ -1131,15 +1136,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>ADVERTENCIA CRITICA
+<span class="screen-reader-only">Warning</span>⚠️ ADVERTENCIA CRÍTICA
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>No podras emitir un certificado real si tu servidor no es accesible publicamente.</strong></p>
 <p><strong>Lo que podria salir mal:</strong> - DNS del dominio no apunta al servidor. - Firewall/router bloquea 80/443. - Estas en una VM sin NAT/port-forward.</p>
-<p><strong>Como prevenirlo:</strong> 1. Valida DNS antes: <code>dig +short tu-dominio.com</code>. 2. Abre 80/443 en UFW. 3. Prueba HTTP publico antes de ejecutar Certbot.</p>
+<p><strong>Como prevenirlo:</strong> 1. Valida DNS antes: <code>dig +short tu-dominio.com</code>. # &lt;1&gt; 2. Abre 80/443 en UFW. # &lt;2&gt; 3. Prueba HTTP pubblico antes de ejecutar Certbot. # &lt;3&gt;</p>
 </div>
 </div>
+<ol type="1">
+<li><strong>dig +short</strong> consulta DNS para verificar que el dominio apunta al servidor.</li>
+<li><strong>ufw allow</strong> abre los puertos necesarios para Let’s Encrypt.</li>
+<li><strong>curl</strong> prueba que el servidor responde HTTP públicamente.</li>
+</ol>
 </section>
 <section id="objetivos-de-aprendizaje" class="level2">
 <h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">Objetivos de aprendizaje</h2>
