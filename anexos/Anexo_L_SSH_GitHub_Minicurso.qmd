@@ -1,0 +1,1245 @@
+---
+title: "Minicurso: Configuración de SSH para GitHub"
+author: "Diego Saavedra"
+date: "2026-02-08"
+---
+
+# Minicurso: Configuración de SSH para GitHub
+
+## Introducción
+
+El protocolo **SSH (Secure Shell)** permite establecer una conexión segura entre tu máquina local y servicios remotos como GitHub, GitLab o servidores. En lugar de escribir tu usuario y contraseña cada vez, usas un par de claves criptográficas: una **pública** (que compartes) y una **privada** (que guardas solo tú).
+
+:::{.callout-tip}
+## 💡 POR QUÉ USAR SSH EN LUGAR DE HTTPS
+
+| Aspecto | HTTPS con contraseña | SSH con claves |
+|---------|---------------------|-----------------|
+| **Autenticación** | Usuario + contraseña | Clave criptográfica |
+| **Seguridad** | Contraseña puede ser robada | Clave privada nunca sale de tu máquina |
+| **Conveniencia** | Escribir contraseña cada vez | Sin interacción después de configurar |
+| **Compatibilidad** | Funciona siempre | Requiere configuración inicial |
+| **GitHub** | Token requerido desde 2021 | Recomendado para servidores |
+:::
+
+**⏱️ Duración estimada:** 45-60 minutos
+
+**⏬ Requisitos previos:**
+- Cuenta en GitHub
+- Acceso a terminal (Linux, macOS o Windows con Git Bash)
+- Conocimientos básicos de línea de comandos
+
+---
+
+## Objetivos de aprendizaje
+
+Al completar este minicurso serás capaz de:
+
+1. Comprender el funcionamiento del protocolo SSH y las claves criptográficas
+2. Verificar si tienes claves SSH existentes en tu sistema
+3. Generar un nuevo par de claves SSH con el algoritmo Ed25519
+4. Configurar el agente SSH para no escribir la frase de contraseña repetidamente
+5. Agregar tu clave pública a tu cuenta de GitHub
+6. Verificar que la conexión SSH funciona correctamente
+7. Configurar Git para usar SSH por defecto
+8. Resolver problemas comunes de conexión SSH
+
+---
+
+## 1. Fundamentos de SSH
+
+### 1.1 ¿Qué es SSH?
+
+SSH (Secure Shell) es un protocolo de red que permite establecer una comunicación cifrada entre dos dispositivos a través de una red insegura. Fue diseñado como reemplazo seguro de protocolos como Telnet y FTP que enviaban datos (incluyendo contraseñas) en texto plano.
+
+:::{.callout-note}
+## 📝 CONCEPTO CLAVE
+
+SSH utiliza **criptografía asimétrica** basada en un par de claves:
+
+- **Clave pública:** Se puede compartir libremente. Cualquiera puede usarla para cifrar mensajes destinados a ti.
+- **Clave privada:** Debe permanecer secreta solo en tu máquina. Solo con ella se pueden descifrar los mensajes cifrados con tu clave pública.
+
+El proceso de autenticación funciona así:
+1. GitHub tiene tu clave pública guardada
+2. Tu máquina prueba que tiene la clave privada correspondiente
+3. GitHub descifra el mensaje de prueba (solo posible con tu clave pública)
+4. Si el descifrado es exitoso, quedas autenticado
+:::
+
+### 1.2 Algoritmos de clave SSH
+
+Existen varios algoritmos para generar claves SSH. Los más comunes son:
+
+| Algoritmo | Seguridad | Rendimiento | Compatibilidad | Recomendación |
+|-----------|-----------|-------------|----------------|---------------|
+| **DSA** | Baja | Rápido | Antigua | ❌ No usar |
+| **RSA 2048** | Buena | Medio | Universal | ✅ Aceptable |
+| **RSA 4096** | Muy buena | Lento | Universal | ✅ Bueno |
+| **Ed25519** | Excelente | Muy rápido | Moderna | ✅ **Recomendado** |
+| **ECDSA** | Buena | Rápido | Moderna | ⚠️ Cuidado con patentes |
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA DE SEGURIDAD
+
+**Evita usar ECDSA en GitHub.** Aunque es seguro criptográficamente, GitHub lo ha deshabilitado debido a una vulnerabilidad teórica relacionada con la generación de números aleatorios. **Usa Ed25519 o RSA como alternativas seguras.**
+
+**Nunca uses:**
+- Claves DSA (considered broken)
+- Claves RSA menores a 2048 bits
+- Claves sin frase de contraseña (para cuentas personales)
+:::
+
+---
+
+## 2. Verificar claves SSH existentes
+
+Antes de generar nuevas claves, es importante verificar si ya tienes claves SSH en tu sistema. Esto te permite reutilizar claves existentes si lo prefieres.
+
+### 2.1 Verificar en Linux y macOS
+
+```bash
+$ ls -la ~/.ssh/  # <1>
+# <1>
+```
+
+**Salida esperada:**
+```
+total 8
+drwx------  2 usuario usuario  4096 feb  8 10:00 .
+drwxrwxr-x 15 root   root     4096 feb  8 10:00 ..
+```
+
+Si no hay archivos en `~/.ssh/`, no tienes claves SSH generadas.
+
+**Si tienes claves, verás algo como:**
+```
+-rw-------  1 usuario usuario  387 feb  8 10:00 id_ed25519
+-rw-r--r--  1 usuario usuario   77 feb  8 10:00 id_ed25519.pub
+-rw-------  1 usuario usuario  1823 feb  8 10:00 id_rsa
+-rw-r--r--  1 usuario usuario  398 feb  8 10:00 id_rsa.pub
+```
+
+:::{.callout-tip}
+## 💡 INTERPRETACIÓN DE PERMISOS
+
+Los permisos de archivos SSH son críticos para la seguridad:
+
+- `drwx------` (700) para el directorio `~/.ssh/`
+- `-rw-------` (600) para claves privadas (`id_rsa`, `id_ed25519`)
+- `-rw-r--r--` (644) para claves públicas (`id_*.pub`)
+
+**Si los permisos son incorrectos, SSH rechazará usar tus claves.**
+:::
+
+### 2.2 Verificar en Windows (Git Bash)
+
+```bash
+$ ls -la ~/.ssh/  # <1>
+# <1>
+```
+
+**Ruta típica en Windows:**
+```
+C:\Users\TU_USUARIO\.ssh\
+```
+
+### 2.3 Listar claves cargadas en el agente
+
+```bash
+$ ssh-add -l  # <1>
+# <1>
+```
+
+**Salidas posibles:**
+
+```
+# Si hay claves cargadas:
+4096 SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx clave@maquina (ED25519)
+
+# Si el agente no está ejecutándose:
+Could not open a connection to your authentication agent.
+
+# Si no hay claves cargadas:
+The agent has no identities.
+```
+
+---
+
+## 3. Generar una nueva clave SSH
+
+### 3.1 Generar clave Ed25519 (Recomendado)
+
+El algoritmo Ed25519 es el más moderno y recomendado por su excelente balance entre seguridad y rendimiento.
+
+```bash
+$ ssh-keygen -t ed25519 -C "tu-email@ejemplo.com"  # <1> <2>
+# <1> <2>
+```
+
+**Salida esperada:**
+```
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/usuario/.ssh/id_ed25519):  # <3>
+Enter passphrase (empty for no passphrase):  # <4>
+Enter same passphrase again:  # <5>
+Your identification has been saved in /home/usuario/.ssh/id_ed25519
+Your public key has been saved in /home/usuario/.ssh/id_ed25519.pub
+
+The key fingerprint is:
+SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx tu-email@ejemplo.com
+
+The key's randomart image is:
++--[ED25519 256]--+
+|                 |
+|                 |
+|                 |
+|                 |
+|                 |
+|                 |
+|                 |
+|                 |
+|                 |
++-----------------+
+
+1. **ssh-keygen** es el comando para generar claves SSH
+2. **-t ed25519** especifica el tipo de algoritmo Ed25519
+3. **-C "email"** agrega un comentario (generalmente tu email)
+4. Elige la ubicación o presiona Enter para usar la ubicación por defecto
+5. **Frase de contraseña** es fuertemente recommandée activarla para mayor seguridad
+
+:::
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA SOBRE FRASE DE CONTRASEÑA
+
+**Siempre usa una frase de contraseña (passphrase) para claves personales.** 
+
+**Lo que podría salir mal:**
+
+- Sin frase de contraseña, cualquiera con acceso a tu máquina puede usar tu clave
+- En servidores comprometidos, los atacantes拿走 tus claves privadas
+- No hay forma de recuperar una clave sin passphrase si la pierdes
+
+**Cómo crear una frase de contraseña segura:**
+
+1. Usa al menos 12 caracteres
+2. Combina mayúsculas, minúsculas, números y símbolos
+3. Evita frases comunes o información personal
+4. Considera usar un password manager para recordarla
+
+**Ejemplo de passphrase segura:**
+```
+$ Tr3bol-2024!-Verde
+```
+:::
+
+### 3.2 Generar clave RSA (Alternativa)
+
+Si por alguna razón Ed25519 no está disponible (sistemas muy antiguos), usa RSA con 4096 bits:
+
+```bash
+$ ssh-keygen -t rsa -b 4096 -C "tu-email@ejemplo.com"  # <1>
+# <1>
+```
+
+**Diferencias con Ed25519:**
+
+| Aspecto | Ed25519 | RSA 4096 |
+|----------|---------|----------|
+| Tamaño de clave | 256 bits | 4096 bits |
+| Velocidad de generación | Rápida | Lenta |
+| Velocidad de autenticación | Rápida | Más lenta |
+| Compatibilidad | GitHub, GitLab modernos | Universal |
+| Tamaño en disco | Muy pequeño | Más grande |
+
+### 3.3 Especificar ubicación personalizada
+
+Para crear múltiples claves SSH (por ejemplo, una personal y otra laboral):
+
+```bash
+$ ssh-keygen -t ed25519 -f ~/.ssh/github_personal -C "personal@email.com"  # <1>
+# <1>
+```
+
+**Nombres sugeridos para múltiples claves:**
+
+| Uso | Archivo |
+|-----|---------|
+| GitHub personal | `~/.ssh/github_personal` |
+| GitHub laboral | `~/.ssh/github_trabajo` |
+| Servidor AWS | `~/.ssh/aws_server` |
+| Servidor VPS | `~/.ssh/vps_produccion` |
+
+---
+
+## 4. Configurar el agente SSH
+
+El **ssh-agent** es un programa que mantiene tus claves privadas en memoria, evitando que tengas que escribir la frase de contraseña cada vez.
+
+### 4.1 Iniciar el agente SSH
+
+```bash
+$ eval "$(ssh-agent -s)"  # <1>
+Agent pid 12345
+# <1>
+```
+
+**Qué hace este comando:**
+1. Inicia el proceso del agente SSH
+2. Configura variables de entorno para que los programas encuentren al agente
+3. Muestra el PID (Process ID) del agente
+
+:::{.callout-tip}
+## 💡 AGENTE AUTOMÁTICO
+
+Para que el agente se inicie automáticamente en cada sesión:
+
+**Agrega esto a tu `~/.bashrc` o `~/.zshrc`:**
+
+```bash
+# Iniciar ssh-agent automáticamente
+if [ -z "$SSH_AUTH_SOCK" ]; then
+   eval "$(ssh-agent -s)"
+   ssh-add ~/.ssh/id_ed25519  # O tu clave principal
+fi
+```
+:::
+
+### 4.2 Agregar tu clave al agente
+
+```bash
+$ ssh-add ~/.ssh/id_ed25519  # <1>
+Enter passphrase for /home/usuario/.ssh/id_ed25519:  # <2>
+Identity added: /home/usuario/.ssh/id_ed25519 (tu-email@ejemplo.com)
+# <1> <2>
+```
+
+**Verificar que la clave fue agregada:**
+
+```bash
+$ ssh-add -l  # <1>
+256 SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx /home/usuario/.ssh/id_ed25519 (ED25519)
+# <1>
+```
+
+### 4.3 Agregar múltiples claves
+
+```bash
+$ ssh-add ~/.ssh/github_personal  # <1>
+$ ssh-add ~/.ssh/github_trabajo   # <2>
+$ ssh-add -l  # <3>
+256 SHA256:AAA... /home/usuario/.ssh/github_personal (personal@email.com)
+256 SHA256:BBB... /home/usuario/.ssh/github_trabajo (trabajo@email.com)
+# <1> <2> <3>
+```
+
+### 4.4 Listar todas las propiedades de las claves
+
+```bash
+$ ssh-add -l -E md5  # <1>
+256 MD5:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx /home/usuario/.ssh/id_ed25519 (ED25519)
+# <1>
+```
+
+---
+
+## 5. Agregar clave pública a GitHub
+
+Una vez que tienes tu par de claves, necesitas subir la **clave pública** a tu cuenta de GitHub.
+
+### 5.1 Copiar la clave pública
+
+**Método 1: Usando cat (Linux/macOS)**
+
+```bash
+$ cat ~/.ssh/id_ed25519.pub  # <1>
+# <1>
+```
+
+**Salida:**
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB tu-email@ejemplo.com
+```
+
+**Método 2: Copiar al portapapeles (macOS)**
+
+```bash
+$ pbcopy < ~/.ssh/id_ed25519.pub  # <1>
+# <1>
+```
+
+**Método 3: Copiar al portapapeles (Linux con xclip)**
+
+```bash
+$ xclip -selection clipboard < ~/.ssh/id_ed25519.pub  # <1>
+# <1>
+```
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Copia SOLO la clave pública (`id_ed25519.pub`), NO la clave privada (`id_ed25519`).**
+
+**Señales de que estás copiando la clave privada (¡NO lo hagas!):**
+
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5bTm9...  # ⚠️ ESTO ES LA CLAVE PRIVADA
+-----END OPENSSH PRIVATE KEY-----
+```
+
+**Si accidentalmente subes tu clave privada a GitHub:**
+
+1. **Inmediatamente** elimina la clave de GitHub
+2. **Inmediatamente** genera un nuevo par de claves
+3. Considera que tu sistema puede estar comprometido
+4. No reutilices esta clave en ningún servicio
+:::
+
+### 5.2 Agregar clave en GitHub (Interfaz web)
+
+**Paso 1: Acceder a configuración de claves SSH**
+
+1. Ve a [github.com](https://github.com)
+2. Haz clic en tu foto de perfil (esquina superior derecha)
+3. Selecciona **Settings** (Configuración)
+
+```
+Settings
+├── Account
+│   ├── Personal settings
+│   │   ├── Profile
+│   │   ├── Account
+│   │   ├── Security  ← Tú estás aquí
+│   │   ├── Emails
+│   │   └── ...
+│   ├── Notifications
+│   ├── Billing and plans
+│   ├── Sessions
+│   └── Appearance
+├── Appearance
+├── Access
+│   ├── **SSH and GPG keys**  ← ENTRADA PRINCIPAL
+│   ├── Verified commits
+│   └── Security keys
+├── Repositories
+│   ├── People
+│   └── Organizations
+├── Discussions
+├── Packages
+├── Pages
+├── Saved replies
+├── Analytics
+├── Plans
+└── Security log
+```
+
+**Paso 2: Nueva clave SSH**
+
+1. En la barra lateral, haz clic en **SSH and GPG keys**
+2. Haz clic en **New SSH key** (verde, esquina superior derecha)
+
+```
+SSH and GPG keys
+├── SSH keys
+│   └── [Title]                    [Type]      [Added]    [Last used]
+│   ├── Laptop Personal (ed25519)  ed25519     2024-01-15  2024-02-07
+│   └── Servidor VPS (rsa)         rsa-4096    2024-01-20  2024-02-05
+└── GPG keys
+```
+
+**Paso 3: Completar información**
+
+```
+New SSH key
+├─ Title: *[Campo obligatorio - dale un nombre descriptivo]*
+│  └─ Ejemplo: "MacBook Pro 2024 - Casa"
+│      Ejemplo: "Servidor Ubuntu 22.04 - DigitalOcean"
+│      Ejemplo: "Laptop Trabajo - Windows"
+│
+├─ Key type: [Authentication Key] ← Selecciona "Authentication Key"
+│  └─ Authentication Key: [Campo para pegar la clave pública]
+│     └─ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5... tu-email@ejemplo.com
+│
+└─ [Add SSH key]  ← Verde, confirma y guarda
+```
+
+:::{.callout-tip}
+## 💡 NOMBRADO DE CLAVES
+
+Usa un formato consistente para identificar fácilmente tus claves:
+
+**Formato recomendado:**
+```
+[DISPOSITIVO] - [UBICACIÓN/SERVICIO] - [AÑO]
+```
+
+**Ejemplos:**
+- `MacBook Pro - Casa - 2024`
+- `ThinkPad Trabajo - Oficina - 2024`
+- `Servidor VPS - DigitalOcean - 2024`
+- `Laptop Personal - Viaje - 2024`
+- `WSL2 - Windows 11 - 2024`
+:::
+
+### 5.3 Verificar clave agregada
+
+```bash
+$ ssh -T git@github.com  # <1>
+# <1>
+```
+
+**Salida esperada (primera vez):**
+```
+The authenticity of host 'github.com (140.82.113.4)' can't be established.
+ED25519 key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
+Are you you want to continue connecting (yes/no/[fingerprint])? yes  # <2>
+Warning: Permanently added 'github.com,140.82.113.4' (ED25519) to the list of known hosts.
+Hi USUARIO! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+**Salida esperada (conexiones posteriores):**
+```
+Hi USUARIO! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+---
+
+## 6. Configurar Git para usar SSH
+
+### 6.1 Verificar URL del remoto
+
+Cuando clonas o agregas un remoto, puedes usar URL SSH o HTTPS:
+
+**URL SSH (recomendado después de configurar SSH):**
+```
+git@github.com:USUARIO/REPOSITORIO.git
+```
+
+**URL HTTPS (requiere token cada vez):**
+```
+https://github.com/USUARIO/REPOSITORIO.git
+```
+
+```bash
+$ git remote -v  # <1>
+origin  git@github.com:usuario/mi-proyecto.git (fetch)
+origin  git@github.com:usuario/mi-proyecto.git (push)
+# <1>
+```
+
+### 6.2 Cambiar remote de HTTPS a SSH
+
+```bash
+$ git remote set-url origin git@github.com:USUARIO/REPOSITORIO.git  # <1>
+$ git remote -v  # <2>
+origin  git@github.com:usuario/mi-proyecto.git (fetch)
+origin  git@github.com:usuario/mi-proyecto.git (push)
+# <1> <2>
+```
+
+### 6.3 Clonar usando SSH
+
+```bash
+$ git clone git@github.com:USUARIO/REPOSITORIO.git  # <1>
+Cloning into 'REPOSITORIO'...
+remote: Enumerating objects: 100, done.
+Receiving objects: 100% (100/100), 8.00 KiB | 2.00 MiB/s, done.
+# <1>
+```
+
+### 6.4 Configurar SSH para un repositorio específico
+
+```bash
+$ git config core.sshCommand "ssh -i ~/.ssh/github_personal"  # <1>
+$ git config --get core.sshCommand  # <2>
+ssh -i ~/.ssh/github_personal
+# <1> <2>
+```
+
+Esto es útil cuando tienes múltiples claves SSH para diferentes propósitos.
+
+---
+
+## 7. GitHub CLI: Agregar claves desde terminal
+
+GitHub CLI (`gh`) permite agregar claves SSH directamente desde la terminal sin usar la interfaz web.
+
+### 7.1 Instalar GitHub CLI
+
+**Linux (Ubuntu/Debian):**
+```bash
+$ sudo apt install gh -y  # <1>
+# <1>
+```
+
+**macOS:**
+```bash
+$ brew install gh  # <1>
+# <1>
+```
+
+**Windows:**
+```bash
+$ winget install GitHub.cli  # <1>
+# <1>
+```
+
+1. **gh** es la CLI oficial de GitHub para terminal
+
+### 7.2 Autenticarse con GitHub CLI
+
+```bash
+$ gh auth login  # <1>
+# <1>
+```
+
+**Opciones:**
+- `git.com` para GitHub.com
+- `SSH` para autenticación SSH
+- Sigue las instrucciones en pantalla
+
+### 7.3 Agregar clave SSH con GitHub CLI
+
+```bash
+$ gh ssh-key add ~/.ssh/id_ed25519.pub --type authentication  # <1>
+# <1>
+```
+
+**Agregar con título:**
+
+```bash
+$ gh ssh-key add ~/.ssh/id_ed25519.pub --title "MacBook Pro 2024"  # <1>
+# <1>
+```
+
+**Para firma de commits:**
+
+```bash
+$ gh ssh-key add ~/.ssh/id_ed25519.pub --type signing  # <1>
+# <1>
+```
+
+:::{.callout-note}
+## 📝 NOTA
+
+La misma clave SSH puede agregarse dos veces: una para autenticación y otra para firma de commits. Son funcionalidades separadas.
+:::
+
+---
+
+## 8. Claves de seguridad de hardware (SSH FIDO2)
+
+Las claves de seguridad de hardware (como YubiKey) proporcionan autenticación de dos factores física para SSH.
+
+### 8.1 Requisitos previos
+
+Necesitas:
+- Una clave de seguridad de hardware compatible (YubiKey, Solokey, etc.)
+- Cliente SSH 8.2 o superior
+
+### 8.2 Generar clave para hardware
+
+```bash
+$ ssh-keygen -t ed25519-sk -C "tu-email@ejemplo.com"  # <1>
+# <1>
+```
+
+**Si no funciona ed25519-sk, usar ecdsa-sk:**
+
+```bash
+$ ssh-keygen -t ecdsa-sk -C "tu-email@ejemplo.com"  # <1>
+# <1>
+```
+
+**Salida esperada:**
+```
+Generating public/private ed25519-sk key pair.
+You will need to touch your security key to authorize the key generation.
+Enter file in which to save the key (/home/usuario/.ssh/id_ed25519_sk):  # <2>
+Enter passphrase (empty for no passphrase):  # <3>
+Enter same passphrase again:  # <4>
+Your identification has been saved in /home/usuario/.ssh/id_ed25519_sk
+Your public key has been saved in /home/usuario/.ssh/id_ed25519_sk.pub
+# <1> <2> <3> <4>
+```
+
+**Explicaciones:**
+- **-t ed25519-sk** genera una clave respaldada por hardware
+- **Presiona Enter** para aceptar ubicación predeterminada
+- **Sin frase de contraseña** (el hardware proporciona la seguridad)
+- Confirma sin frase de contraseña
+
+### 8.3 Usar la clave de hardware
+
+```bash
+$ ssh-add ~/.ssh/id_ed25519_sk  # <1>
+# <1>
+```
+
+### 8.4 Verificar con GitHub
+
+```bash
+$ ssh -T git@github.com  # <1>
+# <1>
+```
+
+**Cuando uses SSH con la clave de seguridad:**
+- Conecta la clave de hardware
+- Toca la clave cuando se te solicite
+- La autenticación se completa
+
+:::{.callout-tip}
+## 💡 VENTAJAS DE CLAVES DE HARDWARE
+
+| Aspecto | Clave normal | Clave de hardware |
+|---------|--------------|-------------------|
+| **Portabilidad** | Archivo en cualquier dispositivo | Dispositivo físico |
+| **Robo** | Clonable si alguien tiene acceso | Necesita posesión física |
+| **2FA** | No incluye | Autenticación física |
+| **Costo** | Gratis | $20-100 USD |
+| **Compatibilidad** | Universal | Necesita soporte FIDO2 |
+:::
+
+---
+
+## 8. Archivo de configuración SSH
+
+El archivo `~/.ssh/config` permite configurar opciones específicas para diferentes hosts, evitando especificar opciones en cada comando.
+
+### 8.1 Crear archivo de configuración
+
+```bash
+$ touch ~/.ssh/config  # <1>
+$ chmod 600 ~/.ssh/config  # <2>
+# <1> <2>
+```
+
+**Estructura del archivo config:**
+
+```bash
+# Configuración para GitHub (clave principal)
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    AddKeysToAgent yes
+    IdentitiesOnly yes
+
+# Configuración para GitHub (clave alternativa)
+Host github-personal
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/github_personal
+    AddKeysToAgent yes
+
+# Configuración para servidor de trabajo
+Host servidor-trabajo
+    HostName 192.168.1.100
+    User admin
+    Port 22
+    IdentityFile ~/.ssh/servidor_trabajo
+    AddKeysToAgent yes
+
+# Configuración para DigitalOcean VPS
+Host mi-vps
+    HostName mi-vps.digitalocean.com
+    User root
+    Port 22
+    IdentityFile ~/.ssh/vps_digitalocean
+    AddKeysToAgent yes
+```
+
+### 8.2 Opciones de configuración explicadas
+
+```bash
+Host github.com                    # Nombre del host (alias)
+    HostName github.com            # Nombre real del servidor
+    User git                        # Usuario para autenticación
+    IdentityFile ~/.ssh/id_ed25519  # Archivo de clave privada
+    AddKeysToAgent yes              # Auto-agregar clave al agente
+    IdentitiesOnly yes              # Usar solo esta clave, no otras por defecto
+```
+
+**Opciones adicionales útiles:**
+
+```bash
+    Port 2222                       # Puerto SSH personalizado
+    ForwardAgent yes               # Reenviar agente SSH (para salto entre servidores)
+    ServerAliveInterval 60         # Mantener conexión viva (segundos)
+    ServerAliveCountMax 3           # Intentos antes de desconectar
+    Compression yes                 # Comprimir datos
+    LogLevel ERROR                  # Nivel de logging
+```
+
+### 8.3 Usar alias del config
+
+```bash
+# Usar SSH normal
+$ git clone git@github.com:usuario/repo.git
+
+# Especificar clave alternativa
+$ git clone git@github-personal:usuario/repo.git
+```
+
+---
+
+## 9. Ejemplos prácticos por plataforma
+
+### 9.1 Linux (Ubuntu/Debian/Fedora)
+
+```bash
+# Verificar instalación de SSH
+$ which ssh  # <1>
+/usr/bin/ssh
+
+# Verificar versión
+$ ssh -V  # <2>
+OpenSSH_9.2p1, OpenSSL 1.1.1n  15 Mar 2022
+
+# Generar clave
+$ ssh-keygen -t ed25519 -C "tu-email@ejemplo.com"  # <3>
+
+# Iniciar agente
+$ eval "$(ssh-agent -s)"  # <4>
+Agent pid 59566
+
+# Agregar clave al agente
+$ ssh-add ~/.ssh/id_ed25519  # <5>
+
+# Verificar conexión
+$ ssh -T git@github.com  # <6>
+Hi USUARIO! You've successfully authenticated...
+# <1> <2> <3> <4> <5> <6>
+```
+
+**Explicaciones:**
+- **which ssh** verifica que SSH está instalado
+- **ssh -V** muestra la versión de OpenSSH
+- **ssh-keygen** genera el par de claves Ed25519
+- **eval** inicia el agente SSH
+- **ssh-add** carga la clave privada en el agente
+- **ssh -T** prueba la conexión con GitHub
+
+### 9.2 macOS (con Keychain)
+
+```bash
+# SSH viene preinstalado
+$ ssh -V  # <1>
+OpenSSH_9.4p1, OpenSSL 1.1.1n  15 Mar 2022
+
+# Generar clave
+$ ssh-keygen -t ed25519 -C "tu-email@ejemplo.com"  # <2>
+
+# Crear/modificar archivo de configuración
+$ nano ~/.ssh/config  # <3>
+```
+
+**Contenido del archivo `~/.ssh/config` para macOS:**
+```
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  AddKeysToAgent yes
+  UseKeychain yes
+```
+
+```bash
+# Iniciar agente y agregar clave
+$ eval "$(ssh-agent -s)"  # <4>
+Agent pid 59566
+
+# La opción --apple-use-keychain guarda la contraseña en el Keychain
+$ ssh-add --apple-use-keychain ~/.ssh/id_ed25519  # <5>
+
+# Verificar conexión
+$ ssh -T git@github.com  # <6>
+Hi USUARIO! You've successfully authenticated...
+# <1> <2> <3> <4> <5> <6>
+```
+
+**Explicaciones:**
+- **ssh -V** verifica la versión de SSH
+- **ssh-keygen** genera la clave
+- **nano** edita el archivo de configuración SSH
+- **eval** inicia el agente SSH
+- **--apple-use-keychain** almacena la frase de contraseña en el Keychain de macOS
+- **ssh -T** verifica la autenticación
+
+:::{.callout-warning}
+## ⚠️ ERROR: "Bad configuration option: usekeychain"
+
+Si ves este error, tu versión de SSH no reconoce `UseKeychain`. Agrega esta línea a la sección `Host *.github.com`:
+
+```bash
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  AddKeysToAgent yes
+  UseKeychain yes
+  IgnoreUnknown UseKeychain
+```
+:::
+
+### 9.3 Windows (Git Bash / WSL)
+
+```bash
+# Verificar instalación de Git Bash
+$ which ssh  # <1>
+/mingw64/bin/ssh
+
+# Generar clave
+$ ssh-keygen -t ed25519 -C "tu-email@ejemplo.com"  # <2>
+
+# Iniciar agente SSH
+$ eval "$(ssh-agent -s)"  # <3>
+Agent pid 1234
+
+# Agregar clave
+$ ssh-add ~/.ssh/id_ed25519  # <4>
+
+# Copiar clave pública al portapapeles
+$ cat ~/.ssh/id_ed25519.pub | clip  # <5>
+
+# Verificar conexión
+$ ssh -T git@github.com  # <6>
+Hi USUARIO! You've successfully authenticated...
+```
+
+1. **which ssh** verifica que SSH está en Git Bash
+2. **ssh-keygen** genera la clave
+3. **eval** inicia el agente SSH
+4. **ssh-add** carga la clave
+5. **clip** copia al portapapeles de Windows
+6. **ssh -T** prueba la conexión
+
+**Para WSL (Windows Subsystem for Linux):**
+```bash
+# Si usas WSL, puedes usar clip.exe
+$ cat ~/.ssh/id_ed25519.pub | clip.exe  # <1>
+```
+
+1. **clip.exe** es el comando de Windows para copiar
+
+
+---
+
+## 9. Troubleshooting y problemas comunes
+
+### 9.1 Error: "Permission denied (publickey)"
+
+**Mensaje completo:**
+```
+git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+```
+
+**Causas posibles y soluciones:**
+
+```bash
+# 1. Verificar que la clave está en GitHub
+$ cat ~/.ssh/id_ed25519.pub
+# Copia la salida y verifica en github.com/settings/keys
+
+# 2. Verificar que el agente está ejecutándose
+$ ssh-add -l  # <1>
+# Si dice "agent has no identities", agrega tu clave:
+$ ssh-add ~/.ssh/id_ed25519  # <2>
+
+# 3. Verificar qué clave está usando SSH
+$ ssh -vT git@github.com 2>&1 | grep "Offering"  # <3>
+# <1> <2> <3>
+```
+
+1. **ssh-add -l** lista claves cargadas
+2. **ssh-add** agrega la clave privada al agente
+3. **ssh -vT** muestra detalles de la negociación
+
+**Solución paso a paso:**
+
+```bash
+# Paso 1: Verificar configuración
+$ git config --global -l  # Muestra config de git
+
+# Paso 2: Verificar URL del remoto
+$ git remote -v  # Debe ser git@github.com:..., no https://
+
+# Paso 3: Probar SSH directamente
+$ ssh -T git@github.com  # Debe decir "successfully authenticated"
+
+# Paso 4: Si falla, regenerar clave
+$ ssh-keygen -t ed25519 -f ~/.ssh/github_new -C "tu-email@ejemplo.com"
+$ ssh-add ~/.ssh/github_new
+
+# Paso 5: Actualizar remoto si es necesario
+$ git remote set-url origin git@github.com:USUARIO/REPO.git
+```
+
+### 9.2 Error: "Host key verification failed"
+
+**Mensaje completo:**
+```
+Host key verification failed.
+fatal: Could not read from remote repository.
+```
+
+**Solución:**
+
+```bash
+# Verificar fingerprint de GitHub
+$ ssh-keyscan github.com >> ~/.ssh/known_hosts  # <1>
+# <1>
+
+# Verificar el fingerprint agregado
+$ ssh-keygen -lf ~/.ssh/known_hosts | grep github.com  # <2>
+# <2>
+
+# Verificar fingerprint manualmente en:
+# https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints
+```
+
+1. **ssh-keyscan** agrega la clave del host a known_hosts
+2. **ssh-keygen -lf** muestra fingerprints de hosts conocidos
+
+### 9.3 Error: "Could not open a connection to your authentication agent"
+
+**Mensaje completo:**
+```
+ssh-add: Could not open a connection to your authentication agent.
+```
+
+**Solución:**
+
+```bash
+# Iniciar el agente
+$ eval "$(ssh-agent -s)"  # <1>
+Agent pid 12345
+# <1>
+
+# Si el comando no funciona, verificar que ssh-agent está instalado
+$ which ssh-agent  # <2>
+/usr/bin/ssh-agent
+# <2>
+
+# Ejecutar ssh-agent directamente
+$ ssh-agent bash  # <3>
+$ ssh-add ~/.ssh/id_ed25519  # <4>
+# <3> <4>
+```
+
+1. **eval** inicia el agente
+2. **which** verifica la ubicación
+3. **ssh-agent bash** abre una shell con el agente
+4. **ssh-add** agrega la clave
+
+### 9.4 Error: "Please make sure you have the correct access rights"
+
+**Mensaje completo:**
+```
+git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+Please make sure you have the correct access rights and the repository exists.
+```
+
+**Diagnóstico:**
+
+```bash
+# Verificar permisos del directorio .ssh
+$ ls -la ~/.ssh/  # <1>
+drwx------  2 user user  4096 feb  8 10:00 .
+-rw-r--r--  1 user user   398 feb  8 10:00 id_ed25519.pub
+-rw-------  1 user user   387 feb  8 10:00 id_ed25519
+
+# Si los permisos son incorrectos:
+$ chmod 700 ~/.ssh  # <2>
+$ chmod 600 ~/.ssh/id_ed25519  # <3>
+$ chmod 644 ~/.ssh/id_ed25519.pub  # <4>
+# <1> <2> <3> <4>
+```
+
+1. **ls -la** muestra permisos actuales
+2. **chmod 700** protege el directorio
+3. **chmod 600** protege la clave privada
+4. **chmod 644** hace pública la clave pública
+
+### 9.5 Tabla de referencia rápida de errores
+
+| Error | Causa | Solución |
+|-------|-------|----------|
+| `Permission denied (publickey)` | Clave no en GitHub | Agregar clave pública a GitHub |
+| `Host key verification failed` | Host no en known_hosts | `ssh-keyscan github.com >> ~/.ssh/known_hosts` |
+| `Could not open a connection to your authentication agent` | Agente no ejecutándose | `eval "$(ssh-agent -s)"` |
+| `Please make sure you have the correct access rights` | Permisos incorrectos | `chmod 600 ~/.ssh/id_*` |
+| `Agent admitted failure to sign using the key` | Clave no en agente | `ssh-add ~/.ssh/id_ed25519` |
+| `Connection closed by remote host` | Firewall bloqueando | Verificar firewall o puerto |
+| `Connection timed out` | Sin conexión a red | Verificar conectividad a internet |
+| `The remote server rejected the connection` | GitHub down | Verificar status.github.com |
+
+---
+
+## 10. Mejores prácticas de seguridad
+
+### 10.1 Protección de claves privadas
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA DE SEGURIDAD
+
+**Tus claves SSH son tan valiosas como tus contraseñas. Trátalas con el mismo cuidado.**
+
+**Nunca:**
+
+- Compartir tu clave privada con nadie
+- Subir tu clave privada a GitHub (ni pública ni privada)
+- Dejar claves sin protección en repositorios
+- Usar la misma clave para servicios diferentes
+- Almacenar claves en dispositivos compartidos
+
+**Siempre:**
+
+- Usar frases de contraseña robustas
+- Proteger archivos con permisos correctos
+- Revocar claves que ya no uses
+- Mantener un inventario de tus claves
+- Usar claves diferentes para propósitos diferentes
+:::
+
+### 10.2 Auditoría de claves
+
+```bash
+# Ver todas las claves públicas
+$ ls -la ~/.ssh/*.pub  # <1>
+
+# Ver fechas de modificación
+$ ls -lth ~/.ssh/  # <2>
+
+# Verificar qué servicios tienen tus claves
+$ for key in ~/.ssh/id_*.pub; do echo "=== $key ==="; cat "$key"; done  # <3>
+# <1> <2> <3>
+```
+
+1. **ls *.pub** lista solo archivos públicos
+2. **ls -lth** ordena por tiempo, muestra fecha
+3. **for loop** muestra todas las claves públicas
+
+### 10.3 Rotación de claves
+
+Se recomienda cambiar tus claves SSH periódicamente (cada 1-2 años):
+
+```bash
+# Paso 1: Generar nueva clave
+$ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_2024 -C "tu-email@ejemplo.com"  # <1>
+
+# Paso 2: Agregar nueva clave al agente
+$ ssh-add ~/.ssh/id_ed25519_2024  # <2>
+
+# Paso 3: Agregar clave pública a GitHub
+$ cat ~/.ssh/id_ed25519_2024.pub  # <3>
+
+# Paso 4: Probar que funciona
+$ ssh -T git@github.com  # <4>
+
+# Paso 5: Eliminar clave antigua después de confirmar que la nueva funciona
+$ rm ~/.ssh/id_ed25519 ~/.ssh/id_ed25519.pub  # <5>
+$ ssh-add -d ~/.ssh/id_ed25519  # <6>
+# <1> <2> <3> <4> <5> <6>
+```
+
+1. **Generar** nueva clave con año en el nombre
+2. **Agregar** al agente
+3. **Copiar** clave pública a GitHub
+4. **Probar** que funciona
+5. **Eliminar** archivos antiguos
+6. **Eliminar** del agente
+
+---
+
+## Resumen del minicurso
+
+### Comandos clave de referencia rápida
+
+| Comando | Descripción |
+|---------|-------------|
+| `ssh-keygen -t ed25519 -C "email"` | Generar nueva clave SSH |
+| `eval "$(ssh-agent -s)"` | Iniciar agente SSH |
+| `ssh-add ~/.ssh/id_ed25519` | Agregar clave al agente |
+| `cat ~/.ssh/id_ed25519.pub` | Ver clave pública |
+| `ssh -T git@github.com` | Verificar conexión con GitHub |
+| `git remote set-url origin git@github.com:user/repo.git` | Cambiar a SSH |
+| `ssh-keyscan github.com >> ~/.ssh/known_hosts` | Agregar host desconocido |
+
+### Flujo de configuración completo
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FLUJO DE CONFIGURACIÓN SSH PARA GITHUB                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. Generar clave                                           │
+│     $ ssh-keygen -t ed25519 -C "tu@email.com"               │
+│                                                             │
+│  2. Iniciar agente                                         │
+│     $ eval "$(ssh-agent -s)"                               │
+│                                                             │
+│  3. Agregar clave al agente                                │
+│     $ ssh-add ~/.ssh/id_ed25519                            │
+│                                                             │
+│  4. Copiar clave pública                                   │
+│     $ cat ~/.ssh/id_ed25519.pub                            │
+│                                                             │
+│  5. Agregar en GitHub (web)                                │
+│     Settings → SSH and GPG keys → New SSH key               │
+│                                                             │
+│  6. Verificar conexión                                     │
+│     $ ssh -T git@github.com                                │
+│                                                             │
+│  7. Configurar Git para SSH (si es necesario)              │
+│     $ git remote set-url origin git@github.com:...          │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Referencias
+
+- [Documentación oficial de GitHub: Conectar con SSH](https://docs.github.com/es/authentication/connecting-to-github-with-ssh)
+- [GitHub: Generar nueva clave SSH](https://docs.github.com/es/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+- [GitHub: Agregar clave SSH a tu cuenta](https://docs.github.com/es/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+- [GitHub: Verificar conexión SSH](https://docs.github.com/es/authentication/connecting-to-github-with-ssh/testing-your-ssh-connection)
+- [Wikipedia: SSH](https://es.wikipedia.org/wiki/Secure_Shell)
+- [Manual de OpenSSH](https://www.openssh.com/manual.html)
+
+---
+
+## Laboratorio práctico
+
+:::{.callout-note}
+## 💻 EJERCICIO: Configurar SSH para GitHub
+
+**Objetivo:** Configurar completamente SSH para usar con GitHub
+
+**Tiempo estimado:** 30 minutos
+
+**Entregable:** Repositorio clonado vía SSH y un nuevo repositorio push
+
+**Pasos:**
+
+1. Verificar si tienes claves SSH existentes
+2. Generar una nueva clave Ed25519
+3. Configurar el agente SSH
+4. Agregar la clave pública a tu cuenta de GitHub
+5. Verificar la conexión
+6. Clonar un repositorio existente usando SSH
+7. Hacer un commit y push
+8. Crear un nuevo repositorio en GitHub y subirlo
+
+**Verificación:**
+```bash
+$ ssh -T git@github.com
+Hi USUARIO! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+:::
