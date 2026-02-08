@@ -329,6 +329,149 @@ ssh-keyscan -H 192.168.56.10 >> ~/.ssh/known_hosts  # <1>
 
 ---
 
+## Práctica de Laboratorio: Rsync entre Servidores Nginx
+
+### Escenario del Laboratorio
+
+**Servidor 1 (Origen):**
+```bash
+statick@ubuntu-server:~$ hostname -I | awk '{print $1}'  # <1>
+192.168.56.10
+```
+1. **hostname -I** obtiene la IP del servidor origen.
+
+**Servidor 2 (Destino):**
+```bash
+statick@ubuntu-server:~$ hostname -I | awk '{print $1}'  # <1>
+192.168.56.20
+```
+1. **hostname -I** obtiene la IP del servidor destino.
+
+### Ejercicio 1: Verificar contenido del servidor origen
+
+```bash
+statick@ubuntu-server:~$ cat /usr/share/nginx/html/index.html  # <1>
+<h1>Hello World from Nginx</h1>
+<h2>Esto es una prueba</h2>
+<p>Mi nombre es Diego Saavedra</p>
+<h3>Esto es un cambio en la rama experimental</h3>
+<h3>Esto es para verificar cambios en github</h3>
+<p>Esto es un cambio para verificar que funciona bien git push</p>
+<p>Esto es una prueba del enlace simbolico del repositorio en mi nginx</p>
+# <1>
+```
+
+1. **cat** muestra el contenido del archivo HTML que será sincronizado.
+
+### Ejercicio 2: Error - Host no alcanzable
+
+```bash
+statick@ubuntu-server:~$ rsync -avz /usr/share/nginx/html/* statick@192.168.56.30:/var/www/html/site/  # <1>
+ssh: connect to host 192.168.56.30 port 22: No route to host  # <2>
+rsync: connection unexpectedly closed (0 bytes received so far) [sender]
+rsync error: unexplained error (code 255) at io.c(232) [sender=3.2.7]
+# <1> <2>
+```
+
+1. **rsync -avz** intenta sincronizar archivos al servidor destino.
+2. **No route to host** indica que la IP de destino no es alcanzable en la red.
+
+**Diagnóstico:**
+```bash
+ping -c 1 192.168.56.30  # <1>
+# <1>
+```
+
+1. **ping** verifica conectividad de red con el servidor destino.
+
+### Ejercicio 3: Error - Permiso denegado
+
+```bash
+statick@ubuntu-server:~$ rsync -avz /usr/share/nginx/html/* statick@192.168.56.20:/var/www/html/site/  # <1>
+statick@192.168.56.20's password:  # <2>
+sending incremental file list
+rsync: [Receiver] mkdir "/var/www/html/site" failed: Permission denied (13)  # <3>
+rsync error: error in file IO (code 11) at main.c(791) [Receiver=3.2.7]
+# <1> <2> <3>
+```
+
+1. **rsync -avz** sincroniza al directorio destino.
+2. **password** es requerido porque la clave SSH no está configurada o el usuario no tiene permisos.
+3. **Permission denied** indica que el usuario no puede crear el directorio en el destino.
+
+**Solución en el servidor destino:**
+```bash
+statick@ubuntu-server:~$ ssh statick@192.168.56.20  # <1>
+sudo mkdir -p /var/www/html/site  # <2>
+sudo chown -R statick:statick /var/www/html/site  # <3>
+exit  # <4>
+# <1> <2> <3> <4>
+```
+
+1. **ssh** conecta al servidor destino.
+2. **mkdir -p** crea el directorio destino si no existe.
+3. **chown** cambia el propietario para permitir escritura del usuario.
+4. **exit** cierra la conexión SSH.
+
+### Ejercicio 4: Sincronización exitosa a /opt/backup
+
+```bash
+statick@ubuntu-server:~$ rsync -avz /usr/share/nginx/html/* statick@192.168.56.20:/opt/backup/  # <1>
+statick@192.168.56.20's password:  # <2>
+sending incremental file list
+index.html -> ../../../../home/statick/myrepository/index.html  # <3>
+
+sent 112 bytes  received 19 bytes  52,40 bytes/sec
+total size is 48  speedup is 0,37
+# <1> <2> <3>
+```
+
+1. **rsync -avz** sincroniza al directorio /opt/backup/ que tiene permisos de escritura.
+2. **password** autenticación con contraseña (para laboratorio).
+3. El symlink **->** indica que el archivo es un enlace simbólico.
+
+### Ejercicio 5: Sincronización con nombre de archivo específico
+
+```bash
+statick@ubuntu-server:~$ rsync -avz /usr/share/nginx/html/* statick@192.168.56.20:/opt/backup/backup.tar.gz  # <1>
+statick@192.168.56.20's password:  # <2>
+sending incremental file list
+index.html -> ../../../../home/statick/myrepository/index.html  # <3>
+
+sent 112 bytes  received 19 bytes  37,43 bytes/sec
+total size is 48  speedup is 0,37
+# <1> <2> <3>
+```
+
+1. **rsync** con nombre de archivo destino específico.
+2. **password** autenticación requerida.
+3. **->** indica que el archivo origen es un symlink.
+
+### Ejercicio 6: Verificar sincronización exitosa
+
+```bash
+statick@ubuntu-server:~$ ssh statick@192.168.56.20  # <1>
+ls -la /opt/backup/  # <2>
+exit  # <3>
+# <1> <2> <3>
+```
+
+1. **ssh** conecta al servidor destino.
+2. **ls -la** lista los archivos sincronizados.
+3. **exit** cierra la sesión SSH.
+
+### Checklist de Verificación
+
+| Paso | Comando | Esperado |
+|------|---------|----------|
+| 1 | `ping -c 1 IP_DESTINO` | 0% packet loss |
+| 2 | `ssh usuario@IP_DESTINO` | Conexión exitosa |
+| 3 | `sudo mkdir -p /RUTA/DESTINO` | Directorio creado |
+| 4 | `sudo chown usuario:usuario /RUTA/DESTINO` | Permisos correctos |
+| 5 | `rsync -avz origen/ usuario@IP_DESTINO:/RUTA/` | Transferencia exitosa |
+
+---
+
 ## Notas
 
 - El directorio `/usr/share/nginx/html/` es la ubicación estándar en Ubuntu/Debian
