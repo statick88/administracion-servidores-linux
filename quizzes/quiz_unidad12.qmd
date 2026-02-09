@@ -1,0 +1,177 @@
+---
+title: "Quiz Unidad 12: Diagnóstico y Troubleshooting"
+description: "Evaluación sobre metodología de diagnóstico, logs, herramientas de análisis y resolución de problemas"
+author: "Diego Saavedra"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+# Quiz: Unidad 12 - Diagnóstico y Troubleshooting
+
+::: quizdown
+## ¿Qué es la metodología de diagnóstico?
+
+[x] Un proceso sistemático para identificar, analizar y resolver problemas
+[ ] Un tipo de backup
+[ ] Un comando de Linux
+[ ] Un sistema de monitoreo
+
+*La metodología incluye: Observar → Hipotizar → Testear → Documentar.*
+
+---
+
+## ¿Qué significa "observar" en la fase de diagnóstico?
+
+[x] Reunir información sin modificar nada (logs, estado, métricas)
+[ ] Reiniciar servicios inmediatamente
+[ ] Cambiar configuraciones al azar
+[ ] Pedir ayuda sin investigar
+
+*Observar es crucial: no hacer cambios hasta entender el problema.*
+
+---
+
+## ¿Qué comando muestra los logs del sistema en systemd?
+
+[x] journalctl
+[ ] dmesg
+[ ] syslog
+[ ] cat /var/log/messages
+
+*journalctl muestra todos los logs de systemd. journalctl -xe para ver final.*
+
+---
+
+## ¿Qué comando muestra logs de un servicio específico?
+
+[x] journalctl -u nombre_servicio
+[ ] journalctl --system
+[ ] dmesg | grep servicio
+[ ] cat /var/log/servicio.log
+
+*-u (unit) filtra por servicio específico.*
+
+---
+
+## ¿Qué significa "-e" en journalctl -xe?
+
+[x] Muestra el log al final (equivalente a tail)
+[ ] Exporta a archivo
+[ ] Encripta los logs
+[ ] Elimina logs antiguos
+
+*journalctl -xe va directamente al final de los logs.*
+
+---
+
+## ¿Qué significa "dmesg"?
+
+[x] Muestra mensajes del kernel (hardware, drivers)
+[ ] Muestra errores de usuario
+[ ] Lista procesos activos
+[ ] Muestra uso de memoria
+
+*dmesg muestra logs del kernel, útil para problemas de hardware.*
+
+---
+
+## ¿Qué comando muestra el uso de memoria RAM?
+
+[x] free -h
+[ ] df -h
+[ ] du -h
+[ ] top -n 1
+
+*free -h muestra memoria total, usada, libre en formato legible.*
+
+---
+
+## ¿Qué significa "load average" en el comando uptime?
+
+[x] La carga del sistema (procesos en cola) promediada en 1, 5 y 15 minutos
+[ ] El uso de CPU en porcentaje
+[ ] El número de usuarios conectados
+[ ] El tiempo de actividad del servidor
+
+*Load average > número de CPUs indica sobrecarga.*
+
+---
+
+## ¿Qué comando muestra procesos consumiendo más CPU?
+
+[x] top
+[ ] ps aux
+[ ] htop
+[ ] Todos los anteriores
+
+*top, ps aux y htop muestran uso de CPU por proceso.*
+
+---
+
+## ¿Qué significa "estado Z" en un proceso?
+
+[x] Proceso zombie (terminado pero no recolectado)
+[ ] Proceso ejecutándose
+[ ] Proceso durmiendo
+[ ] Proceso detenido
+
+*Zombies son procesos muertos esperando al padre. Pueden acumularse en bugs.*
+
+---
+
+## ¿Qué puerto está escuchando un servicio?
+
+[x] ss -tlnp
+[ ] netstat
+[ ] lsof
+[ ] Todos los anteriores
+
+*ss -tlnp muestra puertos TCP listening con proceso.*
+
+---
+
+## ¿Qué significa "500 Internal Server Error"?
+
+[x] Error genérico del servidor, revisar logs para más detalles
+[ ] El servidor está caído
+[ ] Problema de red
+[ ] Error del cliente
+
+*500 indica problema del lado del servidor. Logs de Apache/Nginx revelan causa.*
+
+---
+
+## ¿Qué herramienta para probar conectividad de red?
+
+[x] ping, traceroute, mtr
+[ ] top
+[ ] free
+[ ] df
+
+*ping prueba conectividad básica; traceroute muestra la ruta.*
+
+---
+
+## ¿Qué significa "troubleshooting"?
+
+[x] El proceso de identificar y resolver problemas técnicos
+[ ] Un tipo de configuración
+[ ] Un comando de Linux
+[ ] Un sistema de monitoreo
+
+*Troubleshooting sistemático evita решений parciales y recurrencia.*
+
+---
+
+## ¿Qué es un "runbook"?
+
+[x] Documento con procedimientos paso a paso para resolver problemas comunes
+[ ] Un tipo de libro de Linux
+[ ] Un comando de backup
+[ ] Un archivo de configuración
+
+*Los runbooks estandarizan respuestas y reducen tiempo de resolución.*
+:::

@@ -1,0 +1,181 @@
+---
+title: "Quiz Avanzado: Troubleshooting en Linux"
+description: "Escenarios prácticos de diagnóstico y resolución de problemas"
+author: "Diego Saavedra"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+# Quiz Avanzado: Troubleshooting en Linux
+
+::: quizdown
+## Escenario 1: El servidor no responde a ping pero SSH funciona. ¿Qué puede ser?
+
+[x] ICMP bloqueado por firewall, servicio SSH activo
+[ ] El servidor está caído
+[ ] Problema de DNS
+[ ] CPU al 100%
+
+*Ping usa ICMP, SSH usa TCP. Firewall puede bloquear ICMP.*
+
+---
+
+## Escenario 2: Proceso zombie consume CPU. ¿Qué haces?
+
+[x] Identificar y matar el proceso padre (PPID)
+[ ] Matar todos los procesos zombies
+[ ] Reiniciar el servidor
+[ ] formatear el disco
+
+*Zombies esperan al padre. Hay que arreglar el proceso padre.*
+
+---
+
+## Escenario 3: Disco lleno (/dev/sda1 100%). ¿Qué archivos borrar primero?
+
+[x] /var/log/* (logs antiguos), /tmp/* (archivos temporales)
+[ ] /etc/passwd
+[ ] /home/* (datos de usuarios)
+[ ] /var/www/* (sitios web)
+
+*Logs y tmp son seguros de limpiar si no están en uso.*
+
+---
+
+## Escenario 4: Apache devuelve 500 Error. ¿Qué logs ves?
+
+[x] /var/log/apache2/error.log
+[ ] /var/log/syslog
+[ ] /var/log/messages
+[ ] /var/log/kern.log
+
+*Apache tiene sus propios logs de error.*
+
+---
+
+## Escenario 5: Puerto 8080 aparece "en uso". ¿Qué proceso?
+
+[x] lsof -i :8080 o ss -tlnp | grep 8080
+[ ] netstat -a
+[ ] ping 8080
+[ ] ps aux | grep 8080
+
+*lsof y ss muestran qué proceso usa el puerto.*
+
+---
+
+## Escenario 6: Usuario no puede login por SSH. ¿Qué verificas?
+
+[x] Permisos de ~/.ssh/, authorized_keys, /etc/passwd
+[ ] El servicio Apache
+[ ] El espacio en disco
+[ ] La memoria RAM
+
+*SSH necesita ~/.ssh/ con permisos 700, authorized_keys 600.*
+
+---
+
+## Escenario 7: DNS resuelve lento. ¿Qué prueba basic?
+
+[x] dig +short dominio.com y nslookup dominio.com
+[ ] ping dominio.com
+[ ] curl dominio.com
+[ ] traceroute dominio.com
+
+*dig muestra tiempo de respuesta DNS específicamente.*
+
+---
+
+## Escenario 8: Memoria "desaparecida". ¿Qué comando la encuentra?
+
+[x] free -h && ps aux --sort=-%mem | head -10
+[ ] df -h
+[ ] du -sh /*
+[ ] cat /proc/meminfo
+
+*ps aux orden por %mem muestra procesos consumiendo RAM.*
+
+---
+
+## Escenario 9: Servidor lento pero CPU y RAM OK. ¿Qué puede ser?
+
+[x] I/O de disco, cuello de botella de red, proceso blocking
+[ ] Más RAM
+[ ] Más CPU
+[ ] Mejor tarjeta de red
+
+*Disco lento (HDD vs SSD) o red saturada causan lentitud.*
+
+---
+
+## Escenario 10: Error "Permission denied" en archivo que debería ser readable. ¿Qué verificas?
+
+[x] Permisos (ls -l), propietario (ls -l), SELinux/AppArmor (getenforce)
+[ ] El espacio en disco
+[ ] El servicio Apache
+[ ] La fecha del archivo
+
+*ls -l muestra permisos, getenforce verifica contexto SELinux.*
+
+---
+
+## Escenario 11: ¿Qué hace este comando?
+
+```bash
+for i in {1..5}; do ping -c 1 google.com > /dev/null && echo "OK: $i" || echo "FAIL: $i"; done
+```
+
+[x] Prueba conectividad a Google 5 veces, reporta OK/FAIL
+[ ] Hace ping infinito a Google
+[ ] Instala conectividad
+[ ] Configura firewall
+
+*Script bash simple para verificar conectividad.*
+
+---
+
+## Escenario 12: Logs demasiado grandes. ¿Qué hacer?
+
+[x] Configurar logrotate, comprimir logs antiguos, excluir logs innecesarios
+[ ] Borrar todos los logs
+[ ] Deshabilitar logging
+[ ] Mover a /tmp
+
+*logrotate automatiza rotación, compresión y eliminación.*
+
+---
+
+## Escenario 13: ¿Qué significa "connection refused" al conectar?
+
+[x] No hay servicio escuchando en ese puerto, o firewall bloqueando
+[ ] El servidor está sobrecargado
+[ ] La contraseña es incorrecta
+[ ] El DNS no resuelve
+
+*Connection refused = nadie responde en ese puerto.*
+
+---
+
+## Escenario 14: El servidor no boot. ¿Qué revisas primero?
+
+[x] GRUB menu, logs de boot (/var/log/boot.log), journalctl -b
+[ ] Los logs de Apache
+[ ] El espacio en disco
+[ ] La memoria RAM
+
+*journalctl -b muestra logs del último boot.*
+
+---
+
+## Escenario 15: Error "I/O error" en disco. ¿Qué herramienta diagnosis?
+
+[x] smartctl -a /dev/sda (SMART), dmesg | grep -i error
+[ ] fsck
+[ ] df -h
+[ ] top
+
+*dmesg muestra errores de hardware, smartctl estado del disco.*
+:::

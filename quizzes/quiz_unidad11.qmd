@@ -1,0 +1,166 @@
+---
+title: "Quiz Unidad 11: MariaDB/MySQL"
+description: "Evaluación sobre instalación, seguridad, usuarios, privilegios y backup de MariaDB"
+author: "Diego Saavedra"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+# Quiz: Unidad 11 - MariaDB y MySQL
+
+::: quizdown
+## ¿Qué es MariaDB?
+
+[x] Un sistema de gestión de bases de datos relacional, fork de MySQL
+[ ] Un lenguaje de programación
+[ ] Un servidor web
+[ ] Un sistema de archivos
+
+*MariaDB es compatible con MySQL y es el defecto en muchas distribuciones.*
+
+---
+
+## ¿Qué significa SQL?
+
+[x] Structured Query Language - Lenguaje de consulta estructurado
+[ ] Simple Query Automation
+[ ] Standard Quality Level
+[ ] Sequential Query Language
+
+*SQL se usa para consultar y manipular bases de datos relacionales.*
+
+---
+
+## ¿Qué comando inicia el servicio MariaDB?
+
+[x] sudo systemctl start mariadb
+[ ] sudo systemctl start mysql
+[ ] mariadb start
+[ ] start mariadb
+
+*En la mayoría de sistemas: systemctl start mariadb.*
+
+---
+
+## ¿Qué comando conecta a MariaDB como root?
+
+[x] sudo mysql -u root
+[ ] mysql -h localhost
+[ ] mariadb -p
+[ ] sudo mariadb connect
+
+*La conexión local como root usa socket, sin password en instalación nueva.*
+
+---
+
+## ¿Qué significa "privilegios" en MariaDB?
+
+[x] Permisos asignados a usuarios para operar con la base de datos
+[ ] Contraseñas de usuarios
+[ ] El nombre de la base de datos
+[ ] El puerto de conexión
+
+*Los privilegios determinan qué puede hacer cada usuario.*
+
+---
+
+## ¿Qué comando otorga todos los privilegios a un usuario?
+
+[x] GRANT ALL PRIVILEGES ON *.* TO 'usuario'@'localhost';
+[ ] CREATE USER 'usuario'@'localhost';
+[ ] DROP USER 'usuario'@'localhost';
+[ ] SHOW PRIVILEGES;
+
+*GRANT asigna permisos; requiere flush privileges después.*
+
+---
+
+## ¿Qué comando elimina un usuario de MariaDB?
+
+[x] DROP USER 'usuario'@'localhost';
+[ ] DELETE FROM mysql.user WHERE user='usuario';
+[ ] REMOVE USER 'usuario'@'localhost';
+[ ] REVOKE ALL ON *.* FROM 'usuario'@'localhost';
+
+*DROP USER elimina el usuario completamente.*
+
+---
+
+## ¿Qué significa "FLUSH PRIVILEGES"?
+
+[x] Recarga la tabla de privilegios desde mysql.user en memoria
+[ ] Limpia las tablas de la base de datos
+[ ] Reinicia el servicio
+[ ] Crea un backup
+
+*Necesario después de modificar usuarios directamente en las tablas.*
+
+---
+
+## ¿Qué es un ataque de inyección SQL?
+
+[x] Inyección de código SQL malicioso a través de inputs del usuario
+[ ] Un virus que infecta bases de datos
+[ ] Un tipo de DDoS
+[ ] Un error de sintaxis
+
+*La prevención incluye usar prepared statements y sanitize inputs.*
+
+---
+
+## ¿Qué significa "bind-address" en MariaDB?
+
+[x] La IP donde el servidor escucha conexiones
+[ ] El puerto de conexión
+[ ] El nombre del host
+[ ] La contraseña del servidor
+
+*bind-address = 127.0.0.1 solo local; 0.0.0.0 permite conexiones remotas.*
+
+---
+
+## ¿Qué es un backup "dump"?
+
+[x] Un archivo de texto con todas las instrucciones SQL para recrear la base de datos
+[ ] Una copia de seguridad binaria
+[ ] Un tipo de usuario
+[ ] Un archivo de log
+
+*mysqldump -u root -p basededatos > backup.sql*
+
+---
+
+## ¿Qué comando hace backup de una base de datos?
+
+[x] mysqldump -u root -p basededatos > backup.sql
+[ ] mysql backup basededatos
+[ ] mariadb-dump basededatos
+[ ] pg_dump basededatos
+
+*mysqldump exporta estructura y datos a SQL.*
+
+---
+
+## ¿Qué significa "ACID" en bases de datos?
+
+[x] Atomicity, Consistency, Isolation, Durability - Propiedades de transacciones
+[ ] Automated Computer ID
+[ ] Access Control Integrated Database
+[ ] American Computer Institute Division
+
+*ACID garantiza que las transacciones sean confiables.*
+
+---
+
+## ¿Qué comando muestra las bases de datos existentes?
+
+[x] SHOW DATABASES;
+[ ] LIST DATABASES;
+[ ] SELECT databases;
+[ ] USE information_schema;
+
+*SHOW DATABASES; (o en mysql: SELECT schema_name FROM information_schema.schemata;)*
+:::

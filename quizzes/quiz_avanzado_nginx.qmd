@@ -1,0 +1,136 @@
+---
+title: "Quiz Avanzado: Nginx y SSL en Producción"
+description: "Configuración avanzada de Nginx, SSL/TLS y hardening"
+author: "Diego Saavedra"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+# Quiz Avanzado: Nginx y SSL en Producción
+
+::: quizdown
+## Escenario 1: Tu servidor Nginx recibe muchos ataques DDoS. ¿Qué header Reduces?
+
+[x] limit_req_zone en nginx.conf
+[ ] gzip on;
+[ ] access_log off;
+[ ] server_tokens off;
+
+*limit_req_zone limita requests por IP.*
+
+---
+
+## Escenario 2: Renew automático de SSL con Certbot. ¿Qué comando?
+
+[x] sudo certbot renew --quiet
+[ ] sudo certbot install
+[ ] sudo certbot --nginx
+[ ] sudo certbot -d dominio.com
+
+*certbot renew renueva certificados próximos a expirar.*
+
+---
+
+## Escenario 3: ¿Qué hace esta configuración?
+
+```nginx
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}
+```
+
+[x] Redirige HTTP a HTTPS (301 permanent redirect)
+[ ] Muestra error 301
+[ ] Bloquea tráfico HTTP
+[ ] Habilita HTTP/2
+
+*Redirect 301 es mejor para SEO y SEO.*
+
+---
+
+## Escenario 4: ¿Cuál es el orden correcto de server blocks?
+
+[x] Más específicos primero, genéricos al final
+[ ] Por orden alfabético
+[ ] No importa el orden
+[ ] Primero los que tienen SSL
+
+*Nginx usa el primer match que encuentra.*
+
+---
+
+## Escenario 5: Tu sitio es lento. ¿Qué metricas revisas?
+
+[x] TTFB, tiempo de respuesta, tamaño de respuesta
+[ ] Solo el código de estado
+[ ] Solo el puerto abierto
+[ ] Solo el número de conexiones
+
+*TTFB (Time To First Byte) indica lentitud del backend.*
+
+---
+
+## Escenario 6: ¿Qué significa HSTS preload?
+
+[x] El navegador se conecta siempre por HTTPS antes de hacer request
+[ ] El servidor cachea las páginas
+[ ] El sitio carga más rápido
+[ ] El certificado es más seguro
+
+*HSTS previene downgrade attacks.*
+
+---
+
+## Escenario 7: ¿Qué archivo contiene los certificados de Let's Encrypt?
+
+[x] /etc/letsencrypt/live/dominio.com/
+[ ] /etc/ssl/certs/ssl-cert.crt
+[ ] /var/www/html/ssl/
+[ ] /etc/nginx/ssl/
+
+*Cada dominio tiene su propio directorio.*
+
+---
+
+## Escenario 8: ¿Qué hace proxy_set_header Host $host?
+
+[x] Mantiene el hostname original al hacer proxy_pass
+[ ] Cambia el hostname del servidor
+[ ] Deshabilita los headers
+[ ] Solo funciona con SSL
+
+*Esencial para virtualhosts basados en nombre.*
+
+---
+
+## Escenario 9: Tu config tiene error. ¿Qué comando valida?
+
+[x] sudo nginx -t
+[ ] sudo nginx -s reload
+[ ] sudo nginx validate
+[ ] sudo nginx check config
+
+*-t testea sintaxis sin ejecutar.*
+
+---
+
+## Escenario 10: ¿Qué significa upstream en este contexto?
+
+```nginx
+upstream backend {
+    server 192.168.1.10:9000;
+    server 192.168.1.11:9000;
+}
+```
+
+[x] Define un grupo de backend servers para load balancing
+[ ] Crea un servidor virtual
+[ ] Configura un proxy reverso
+[ ] Define las IPs del firewall
+
+*Upstream permite múltiples backend servers.*
+:::

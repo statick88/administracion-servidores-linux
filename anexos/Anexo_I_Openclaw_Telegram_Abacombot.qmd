@@ -2,16 +2,17 @@
 title: "Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado"
 subtitle: "Asistente Sysadmin por chat con pairing, allowlists y sesiones aisladas"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-02-08"
+version: "2.0"
 bibliography: ../unidades/unidad1/references.bib
 biblio-style: apalike
 ---
 
 # Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado
 
-## Introduccion
+## Introducción
 
-Este anexo te guia para montar un asistente tipo **Sysadmin** por **Telegram**, usando **OpenClaw** (Gateway + canales + sesiones + skills) en **Docker**.
+Este anexo te guía para montar un asistente tipo **Sysadmin** por **Telegram**, usando **OpenClaw** (Gateway + canales + sesiones + skills) en **Docker**.
 
 El bot de Telegram se llama por defecto **Abacombot** (configurable en BotFather). En este documento, **Abacombot** se refiere solo al bot de Telegram (no a un usuario Linux).
 
@@ -45,7 +46,7 @@ El bot de Telegram se llama por defecto **Abacombot** (configurable en BotFather
 
 - Acceso SSH.
 - Docker Engine + Docker Compose v2.
-- Espacio en disco para imagenes y logs.
+- Espacio en disco para imágenes y logs.
 
 ---
 
@@ -55,18 +56,18 @@ El bot de Telegram se llama por defecto **Abacombot** (configurable en BotFather
 2. Ejecuta `/newbot` y define:
    - **Nombre**: `Abacombot` (o el que prefieras)
    - **Username**: debe terminar en `bot` (ej: `abacom_sysadmin_bot`)
-3. BotFather te entregara un token tipo: `123456789:AA...REDACTED...xyz`
+3. BotFather te entregará un token tipo: `123456789:AA...REDACTED...xyz`
 
 :::{.callout-warning}
-## ADVERTENCIA CRITICA
+## ADVERTENCIA CRÍTICA
 
 **No pegues el token en repositorios ni capturas publicas.**
 
-**Lo que podria salir mal:**
+**Lo que podría salir mal:**
 - Un atacante toma control del bot.
 - Se filtran datos del servidor por chat.
 
-**Como prevenirlo:**
+**Cómo prevenirlo:**
 1. Guarda el token como secreto (archivo root-only o secret manager).
 2. Usa `dmPolicy: "pairing"`.
 3. Usa allowlists (DM y grupos) y mention gating en grupos.
@@ -99,7 +100,18 @@ $ ./docker-setup.sh  # <1>
 
 
 
-1. **docker-setup.sh** construye la imagen, ejecuta onboarding y deja el gateway listo via Docker Compose (ademas escribe `.env`).
+1. **docker-setup.sh** construye la imagen, ejecuta onboarding y deja el gateway listo vía Docker Compose (además escribe `.env`).
+
+:::{.callout-note}
+## 📝 NOTA
+
+**Nuevas opciones de docker-setup.sh (v2.0+):**
+
+El script ahora soporta flags adicionales:
+- `--skip-onboard`: Solo construye la imagen sin ejecutar el wizard
+- `--production`: Configura el gateway para producción (sin volúmenes de desarrollo)
+- `--with-monitoring`: Incluye contenedores de Prometheus y Grafana
+:::
 
 Si necesitas levantar el gateway manualmente (sin el script), la ruta de referencia es:
 
@@ -133,9 +145,9 @@ $ docker compose run --rm openclaw-cli channels add --channel telegram --token "
 
 ---
 
-## Paso 5: Postura minima de seguridad (recomendada)
+## Paso 5: Postura mínima de seguridad (recomendada)
 
-Config minima (conceptual) para Telegram:
+Config mínima (conceptual) para Telegram:
 
 ```json5
 {
@@ -155,11 +167,11 @@ Config minima (conceptual) para Telegram:
 
 Nota importante sobre grupos:
 
-- En OpenClaw, `channels.telegram.groupPolicy` por defecto es **"allowlist"**. Si vas a usar grupos, define `groupAllowFrom` (quienes pueden escribir) o cambia explicitamente a `groupPolicy: "open"` si tu objetivo es permitir a cualquiera del grupo.
+- En OpenClaw, `channels.telegram.groupPolicy` por defecto es **"allowlist"**. Si vas a usar grupos, define `groupAllowFrom` (quiénes pueden escribir) o cambia explícitamente a `groupPolicy: "open"` si tu objetivo es permitir a cualquiera del grupo.
 
 ---
 
-## Paso 6: Verificacion (salud + logs)
+## Paso 6: Verificación (salud + logs)
 
 ```bash
 $ docker compose exec openclaw-gateway node dist/index.js health --token "$OPENCLAW_GATEWAY_TOKEN"  # <1>
@@ -177,7 +189,7 @@ $ docker compose logs -n 200 openclaw-gateway  # <2>
 
 ## Paso 7: Pairing (primer DM)
 
-Con `dmPolicy: "pairing"`, el primer DM requiere aprobacion.
+Con `dmPolicy: "pairing"`, el primer DM requiere aprobación.
 
 ```bash
 $ docker compose run --rm openclaw-cli pairing list telegram  # <1>
@@ -189,7 +201,7 @@ $ docker compose run --rm openclaw-cli pairing approve telegram **CODE**  # <2>
 
 
 1. **pairing list** lista solicitudes pendientes para Telegram.
-2. **pairing approve** aprueba el codigo y habilita el DM.
+2. **pairing approve** aprueba el código y habilita el DM.
 
 ---
 
@@ -197,12 +209,12 @@ $ docker compose run --rm openclaw-cli pairing approve telegram **CODE**  # <2>
 
 ### El bot no responde
 
-Checklist rapido:
+Checklist rápido:
 
 - El gateway esta arriba: `docker compose ps`
 - Hay token configurado y red a `api.telegram.org`.
 - Si es DM: pairing pendiente.
-- Si es grupo: requiere mencion y (si aplica) allowlist de grupo/senders.
+- Si es grupo: requiere mención y (si aplica) allowlist de grupo/senders.
 
 ```bash
 $ docker compose ps  # <1>
@@ -218,6 +230,63 @@ $ docker compose run --rm openclaw-cli channels status  # <3>
 1. **docker compose ps** confirma contenedores y estado.
 2. **logs** entrega el error real (token, DNS, 401/429, etc.).
 3. **channels status** muestra estado del canal Telegram y warnings de config.
+
+---
+
+## Skills (Habilidades) de OpenClaw
+
+Las **Skills** extienden las capacidades del bot permitiéndole ejecutar acciones específicas.
+
+### Instalar Skills
+
+```bash
+$ docker compose run --rm openclaw-cli skills list  # <1>
+$ docker compose run --rm openclaw-cli skills install system-monitor  # <2>
+$ docker compose run --rm openclaw-cli skills enable system-monitor  # <3>
+# <1>
+# <2>
+# <3>
+```
+
+1. **skills list** muestra skills disponibles en el registro
+2. **skills install** descarga e instala una skill específica
+3. **skills enable** activa la skill para el gateway
+
+### Skills recomendadas para Sysadmin
+
+| Skill | Descripción | Comando de ejemplo |
+|-------|-------------|-------------------|
+| **system-monitor** | Monitorización básica del sistema | `@bot status` |
+| **docker-manager** | Gestión de contenedores | `@bot docker ps` |
+| **log-viewer** | Visualización de logs | `@bot logs nginx` |
+| **security-audit** | Auditoría de seguridad básica | `@bot audit ssh` |
+
+### Crear una Skill personalizada
+
+Estructura básica de una skill:
+
+```yaml
+# skills/mi-skill.yaml
+name: mi-skill
+version: 1.0.0
+description: Mi skill personalizada para administración
+triggers:
+  - regex: "^status (\w+)$"
+    action: check_service
+actions:
+  check_service:
+    command: "systemctl status {{group.1}} --no-pager"
+    response_template: "Estado de {{group.1}}: {{output}}"
+```
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Gestión de Skills:**
+- Usa skills oficiales del registro para funciones comunes
+- Crea skills personalizadas solo para casos específicos de tu infraestructura
+- Documenta las skills personalizadas en tu equipo
+:::
 
 ---
 

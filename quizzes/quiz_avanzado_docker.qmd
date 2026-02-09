@@ -1,0 +1,134 @@
+---
+title: "Quiz Avanzado: Docker en Producción"
+description: "Escenarios prácticos de Docker y Docker Compose para administradores de sistemas"
+author: "Diego Saavedra"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+# Quiz Avanzado: Docker en Producción
+
+::: quizdown
+## Escenario 1: Tu contenedor Nginx no inicia. ¿Qué haces primero?
+
+[x] Revisar logs: docker logs <container_id>
+[ ] Reiniciar Docker daemon
+[ ] Eliminar el contenedor y crear otro
+[ ] Aumentar recursos de la VM
+
+*Primero siempre revisar logs para entender el error.*
+
+---
+
+## Escenario 2: ¿Qué hace este docker-compose.yml?
+
+```yaml
+version: '3.8'
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./html:/usr/share/nginx/html
+```
+
+[x] Levanta un servidor Nginx con contenido desde ./html en puerto 80
+[ ] Crea un cluster de Nginx
+[ ] Instala Nginx en el host
+[ ] Solo descarga la imagen sin ejecutar
+
+*ports mapea host:container, volumes monta el contenido.*
+
+---
+
+## Escenario 3: ¿Cómo haces backup de datos de PostgreSQL en Docker?
+
+[x] docker exec pg pg_dump -U user db > backup.sql
+[ ] docker cp pg:/var/lib/postgresql backup/
+[ ] docker commit pg backup_image
+[ ] docker save pg > backup.tar
+
+*docker exec permite ejecutar comandos dentro del contenedor.*
+
+---
+
+## Escenario 4: Tu contenedor consume toda la RAM. ¿Qué limitar?
+
+[x] memory: 512m en docker-compose
+[ ] docker run --cpu-shares 512
+[ ] docker run --swap 512m
+[ ] docker update --memory 512m
+
+*La opción memory en compose limita RAM específicamente.*
+
+---
+
+## Escenario 5: Necesitas 3 réplicas de tu API. ¿Qué adds?
+
+[x] replicas: 3 en deploy mode
+[ ] docker run -d api (3 veces)
+[ ] docker-compose up -d --scale api=3
+[ ] docker network connect api 3
+
+*--scale permite múltiples instancias del servicio.*
+
+---
+
+## Escenario 6: ¿Qué significa --restart: always?
+
+[x] El contenedor se reinicia si se detiene o si Docker daemon reinicia
+[ ] El contenedor nunca se detiene
+[ ] El contenedor se reinicia solo una vez
+[ ] El contenedor inicia después del host
+
+*Crucial para servicios de producción.*
+
+---
+
+## Escenario 7: ¿Cuál es la diferencia entre CMD y ENTRYPOINT?
+
+[x] CMD son argumentos por defecto, ENTRYPOINT es el comando obligatorio
+[ ] No hay diferencia
+[ ] CMD es más lento
+[ ] ENTRYPOINT no puede ser modificado
+
+*ENTRYPOINT define el comando base, CMD los argumentos.*
+
+---
+
+## Escenario 8: Tu build falla por dependencia. ¿Qué mejora el Dockerfile?
+
+[x] Ordenar layers: COPY package*.json primero, luego instalar dependencias
+[ ] Todo en un solo RUN
+[ ] Usar latest en todas las imágenes
+[ ] No usar multi-stage build
+
+*Docker cachea layers, order inteligente mejora velocidad.*
+
+---
+
+## Escenario 9: Necesas secrets en Docker Swarm. ¿Cómo los pasas?
+
+[x] echo "password" | docker secret create db_password -
+[ ] environment:
+    - DB_PASSWORD=password
+[ ] docker run -e DB_PASSWORD=password
+[ ] volumes: ./secret:/run/secrets
+
+*Docker secrets están encriptados y seguros.*
+
+---
+
+## Escenario 10: ¿Qué red usa Docker Compose por defecto?
+
+[x] app_default (nombre_proyecto_default)
+[ ] bridge
+[ ] host
+[ ] none
+
+*Docker Compose crea una red específica por proyecto.*
+:::

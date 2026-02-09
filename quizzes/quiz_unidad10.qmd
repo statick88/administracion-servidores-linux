@@ -1,0 +1,166 @@
+---
+title: "Quiz Unidad 10: Nginx y SSL"
+description: "Evaluación sobre configuración de Nginx, reverse proxy, SSL/TLS y hardening"
+author: "Diego Saavedra"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+# Quiz: Unidad 10 - Nginx y SSL/TLS
+
+::: quizdown
+## ¿Qué es Nginx?
+
+[x] Un servidor web ligero y de alto rendimiento, también usado como reverse proxy y load balancer
+[ ] Un sistema de base de datos
+[ ] Un lenguaje de programación
+[ ] Un tipo de firewall
+
+*Nginx es famoso por su rendimiento bajo carga alta con poco uso de recursos.*
+
+---
+
+## ¿Cuál es el archivo de configuración principal de Nginx?
+
+[x] /etc/nginx/nginx.conf
+[ ] /etc/apache2/apache2.conf
+[ ] /etc/nginx/sites-enabled/
+[ ] /etc/httpd/nginx.conf
+
+*nginx.conf es el archivo de configuración global.*
+
+---
+
+## ¿Qué directorio contiene los VirtualHosts en Nginx?
+
+[x] /etc/nginx/sites-available/ y /etc/nginx/sites-enabled/
+[ ] /etc/apache2/sites-available/
+[ ] /etc/nginx/conf.d/
+[ ] /etc/nginx/sites-enabled/ solo
+
+*Los sites-available contienen configs, sites-enabled tiene symlinks.*
+
+---
+
+## ¿Qué significa "proxy_pass" en Nginx?
+
+[x] Define a dónde se redirigen las solicitudes (backend)
+[ ] Permite acceso remoto
+[ ] Configura SSL
+[ ] Define el puerto
+
+*proxy_pass http://backend; redirige tráfico al servidor backend.*
+
+---
+
+## ¿Qué puerto usa Nginx por defecto?
+
+[x] 80
+[ ] 443
+[ ] 8080
+[ ] 22
+
+*Nginx escucha en puerto 80 para HTTP y 443 para HTTPS.*
+
+---
+
+## ¿Qué comando prueba la sintaxis de configuración de Nginx?
+
+[x] sudo nginx -t
+[ ] sudo nginx test
+[ ] sudo nginx check
+[ ] sudo nginx validate
+
+*nginx -t verifica que la configuración no tenga errores de sintaxis.*
+
+---
+
+## ¿Qué comando recarga Nginx sin perder conexiones?
+
+[x] sudo nginx -s reload
+[ ] sudo systemctl restart nginx
+[ ] sudo nginx reload
+[ ] sudo nginx start
+
+*nginx -s reload recarga configuración suavemente.*
+
+---
+
+## ¿Qué es Certbot?
+
+[x] Una herramienta automática para obtener e instalar certificados SSL de Let's Encrypt
+[ ] Un servidor web
+[ ] Un tipo de base de datos
+[ ] Un firewall
+
+*Certbot automatiza la configuración de HTTPS gratis.*
+
+---
+
+## ¿Qué es Let's Encrypt?
+
+[x] Una autoridad certificadora gratuita que emite certificados SSL
+[ ] Un tipo de servidor web
+[ ] Una empresa de hosting
+[ ] Un protocolo de red
+
+*Let's Encrypt proporciona certificados SSL gratuitos y automatizados.*
+
+---
+
+## ¿Qué significa SSL?
+
+[x] Secure Sockets Layer - Capa de sockets segura (protocolo de encriptación)
+[ ] Secure Server Link
+[ ] Standard Security Layer
+[ ] Server Side Language
+
+*SSL/TLS encripta la comunicación entre cliente y servidor.*
+
+---
+
+## ¿Qué comando obtiene un certificado SSL con Certbot?
+
+[x] sudo certbot --nginx -d midominio.com
+[ ] sudo certbot install
+[ ] sudo nginx ssl enable
+[ ] sudo getssl dominio.com
+
+*--nginx usa el plugin de Nginx para configurar automáticamente.*
+
+---
+
+## ¿Qué son los headers de seguridad en Nginx?
+
+[x] Encabezados HTTP que protegen contra ataques comunes (XSS, clickjacking)
+[ ] Configuraciones de rendimiento
+[ ] Opciones de caché
+[ ] Settings de logging
+
+*Headers como X-Frame-Options, HSTS, CSP mejoran seguridad.*
+
+---
+
+## ¿Qué significa "upstream" en Nginx?
+
+[x] Un bloque que define servidores backend para proxy_pass
+[ ] El servidor web principal
+[ ] Un tipo de base de datos
+[ ] Un protocolo de red
+
+*upstream backend { server 192.168.1.10; } define los servidores backend.*
+
+---
+
+## ¿Qué es "gzip" en Nginx?
+
+[x] Compresión de respuestas para reducir ancho de banda y mejorar velocidad
+[ ] Un tipo de logging
+[ ] Un sistema de caché
+[ ] Un módulo de autenticación
+
+*gzip on; comprime texto (HTML, CSS, JS) típicamente 70%.*
+:::

@@ -1,0 +1,166 @@
+---
+title: "Quiz Unidad 5: Procesos y Servicios"
+description: "Evaluación sobre gestión de procesos, systemd, cron y programación de tareas"
+author: "Diego Saavedra"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+# Quiz: Unidad 5 - Procesos y Servicios
+
+::: quizdown
+## ¿Qué es un proceso en Linux?
+
+[x] Un programa en ejecución que tiene su propio espacio en memoria
+[ ] Un archivo almacenado en disco
+[ ] Un tipo de usuario del sistema
+[ ] Una configuración del kernel
+
+*Un proceso es una instancia de un programa en ejecución con PID único.*
+
+---
+
+## ¿Qué significa PID?
+
+[x] Process ID (Identificador de Proceso)
+[ ] Program Identification
+[ ] Process Index
+[ ] Program Internal Data
+
+*Cada proceso tiene un PID único en el sistema.*
+
+---
+
+## ¿Qué comando lista los procesos en ejecución?
+
+[x] ps (process status)
+[ ] top
+[ ] kill
+[ ] jobs
+
+*ps muestra una snapshot de los procesos. top muestra actualización continua.*
+
+---
+
+## ¿Qué comando muestra los procesos en tiempo real con uso de recursos?
+
+[x] top
+[ ] ps
+[ ] htop
+[ ] kill
+
+*top actualiza periódicamente mostrando CPU, memoria y procesos activos.*
+
+---
+
+## ¿Qué señal se envía con el comando kill por defecto?
+
+[x] SIGTERM (15) - Solicitud de terminación suave
+[ ] SIGKILL (9) - Terminación forzada
+[ ] SIGSTOP - Detener proceso
+[ ] SIGINT - Interrupción
+
+*SIGTERM permite al proceso limpiar recursos antes de terminar.*
+
+---
+
+## ¿Qué es systemd?
+
+[x] El sistema de inicio (init) y gestor de servicios en Linux moderno
+[ ] Un tipo de proceso
+[ ] Un comando para listar archivos
+[ ] El shell por defecto
+
+*systemd es el init system estándar en la mayoría de distribuciones Linux.*
+
+---
+
+## ¿Qué comando reinicia un servicio con systemd?
+
+[x] sudo systemctl restart nombre_servicio
+[ ] sudo systemctl start nombre_servicio
+[ ] sudo systemctl stop nombre_servicio
+[ ] sudo systemctl status nombre_servicio
+
+*restart = stop + start para recargar configuración.*
+
+---
+
+## ¿Qué comando muestra el estado de un servicio?
+
+[x] sudo systemctl status nombre_servicio
+[ ] sudo systemctl restart nombre_servicio
+[ ] sudo systemctl enable nombre_servicio
+[ ] sudo systemctl list
+
+*status muestra si está activo, en ejecución y logs recientes.*
+
+---
+
+## ¿Qué significa que un servicio esté "enabled"?
+
+[x] Se iniciará automáticamente al arrancar el sistema
+[ ] Está actualmente en ejecución
+[ ] Puede ser detenido manualmente
+[ ] Tiene mayor prioridad que otros servicios
+
+*enabled = configurado para iniciar automáticamente.*
+
+---
+
+## ¿Qué es cron?
+
+[x] Un demonio que ejecuta tareas programadas según una agenda
+[ ] Un tipo de proceso zombie
+[ ] Un comando para ver procesos
+[ ] El sistema de logging
+
+*cron permite automatizar tareas con la sintaxis de crontab.*
+
+---
+
+## ¿Cuál es la sintaxis correcta de crontab para ejecutar un comando cada día a las 3 AM?
+
+[x] 0 3 * * * comando
+[ ] 3 0 * * * comando
+[ ] * * * 3 0 comando
+[ ] 0 * * 3 comando
+
+*Formato: minuto hora día mes día_semana*
+
+---
+
+## ¿Qué es un proceso zombie?
+
+[x] Un proceso que terminó pero cuyo registro aún existe en la tabla de procesos
+[ ] Un proceso que consume muchos recursos
+[ ] Un proceso malicioso
+[ ] Un proceso del sistema crítico
+
+*Los zombies son procesos terminados esperando que su padre los recoja.*
+
+---
+
+## ¿Qué significa "nice" en el contexto de procesos?
+
+[x] El nivel de prioridad asignado a un proceso
+[ ] Un comando para eliminar procesos
+[ ] El estado de un proceso en ejecución
+[ ] El identificador único de un proceso
+
+*nice values van de -20 (más prioridad) a +19 (menos prioridad).*
+
+---
+
+## ¿Qué comando cambia la prioridad de un proceso en ejecución?
+
+[x] renice
+[ ] nice
+[ ] priority
+[ ] chmod
+
+*renice -n 10 -p PID ajusta la prioridad de un proceso existente.*
+:::
