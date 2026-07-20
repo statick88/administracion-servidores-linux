@@ -1,0 +1,506 @@
+---
+title: "UNIDAD V: Gestión de Procesos y Logs"
+subtitle: "Systemd units, journalctl, cron, anacron, htop — Enfoque Práctico Abacom™"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# UNIDAD V: Gestión de Procesos y Logs
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Gestionar **systemd units** (service, timer, socket, target, path) — crear, habilitar, depurar.
+- Consultar y filtrar logs con **journalctl** (boot, unit, prioridad, rango temporal, formato JSON).
+- Analizar procesos en vivo con **htop**, **ps**, **pidstat**, **systemd-cgtop**.
+- Programar tareas recurrentes con **systemd timers** (preferidos) y **cron/anacron** (compatibilidad).
+- Aplicar **cgroups v2** para limitar recursos (CPU, memoria, I/O) a servicios.
+- Correlacionar eventos: logs ↔ métricas ↔ estado de unidades.
+
+---
+
+## 1. Systemd — Unidades y Ciclo de Vida
+
+### 1.1 Tipos de unidades clave
+
+| Tipo | Sufijo | Uso típico |
+|------|--------|------------|
+| **Service** | `.service` | Demonio, proceso long-running |
+| **Timer** | `.timer` | Activación programada (reemplaza cron) |
+| **Socket** | `.socket` | Activación por socket (inetd-style) |
+| **Target** | `.target` | Punto de sincronización (multi-user, graphical) |
+| **Path** | `.path` | Activación por cambios en filesystem (inotify) |
+| **Mount** | `.mount` | Montaje de filesystems |
+| **Slice** | `.slice` | Jerarquía cgroups para límites de recursos |
+
+### 1.2 Estructura de unit file
+
+```ini
+# /etc/systemd/system/mi-app.service
+[Unit]
+Description=Mi Aplicación Node.js
+Documentation=https://docs.miapp.com
+Requires=network-online.target postgresql.service
+After=network-online.target postgresql.service
+Wants=redis.service
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=notify                    # systemd-notify ready
+ExecStartPre=/opt/scripts/pre-start.sh
+ExecStart=/usr/bin/node /opt/mi-app/server.js
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -TERM $MAINPID
+ExecStopPost=/opt/scripts/post-stop.sh
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=30
+TimeoutStopSec=20
+# Hardening
+User=appuser
+Group=appgroup
+WorkingDirectory=/opt/mi-app
+Environment=NODE_ENV=production
+EnvironmentFile=-/etc/mi-app/env
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/mi-app /var/log/mi-app /tmp
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mi-app
+
+[Install]
+WantedBy=multi-user.target
+```
+
+::: {.callout-tip}
+## ✅ Tipos `Type=` comunes
+
+| Type | Comportamiento | Cuándo usar |
+|------|----------------|-------------|
+| `simple` | Default. systemd considera iniciado tras fork | Servicios que no hacen fork |
+| `forking` | Daemon hace fork; systemd espera PID file | SysV daemons tradicionales |
+| `notify` | Servicio llama `sd_notify(READY=1)` | **Recomendado** para apps modernas (systemd-ready) |
+| `dbus` | Espera nombre en D-Bus | Servicios D-Bus |
+| `oneshot` | Ejecuta y termina (para timers/scripts) | Scripts de backup, migraciones |
+| `idle` | Ejecuta cuando sistema idle | Tareas de mantenimiento bajas prioridad |
+:::
+
+### 1.3 Comandos de gestión
+
+```bash
+# Recargar daemon tras cambios
+sudo systemctl daemon-reload
+
+# Ciclo de vida
+sudo systemctl start mi-app
+sudo systemctl stop mi-app
+sudo systemctl restart mi-app
+sudo systemctl reload mi-app          # SIGHUP (si soporta)
+sudo systemctl enable --now mi-app    # Enable + start
+sudo systemctl disable --now mi-app
+
+# Estado y diagnóstico
+systemctl status mi-app --no-pager -l
+systemctl is-active mi-app
+systemctl is-enabled mi-app
+systemctl list-dependencies mi-app --reverse
+
+# Ver unit file efectivo (con overrides)
+systemctl cat mi-app
+systemctl show mi-app --property=ExecStart,Restart,User,MemoryLimit
+```
+
+### 1.4 Overrides (drop-ins) — No edites el unit original
+
+```bash
+# Crear override
+sudo systemctl edit mi-app
+# Se abre editor; crea /etc/systemd/system/mi-app.service.d/override.conf
+
+# Ejemplo override.conf
+[Service]
+MemoryLimit=512M
+CPUQuota=50%
+Environment=DEBUG=1
+
+# Ver overrides aplicados
+systemctl cat mi-app
+```
+
+---
+
+## 2. Journalctl — Consultas Avanzadas
+
+### 2.1 Filtros esenciales
+
+```bash
+# Todo (últimas 1000 líneas)
+journalctl -n 1000 --no-pager
+
+# Por unidad (servicio)
+journalctl -u mi-app -f                    # Follow (tail -f)
+journalctl -u mi-app --since "1 hour ago"
+journalctl -u mi-app --since "2026-07-20 10:00" --until "2026-07-20 11:00"
+journalctl -u mi-app -p err..crit          # Prioridad error a critical
+journalctl -u mi-app -p 3                  # Solo errors (prioridad 3)
+
+# Por boot
+journalctl -b -1                           # Boot anterior
+journalctl -b 0 -u ssh                     # Boot actual, solo ssh
+
+# Formato estructurado
+journalctl -u mi-app -o json-pretty | jq '.MESSAGE'
+journalctl -u mi-app -o short-iso          # Timestamp ISO
+
+# Combinados
+journalctl -u nginx -u mi-app --since "30 min ago" -o short-iso -p warning..emerg
+```
+
+### 2.2 Campos útiles para correlación
+
+```bash
+# Ver todos los campos disponibles
+journalctl -u mi-app -o verbose | head -50
+
+# Campos clave:
+# _SYSTEMD_UNIT, _PID, _UID, _GID, _COMM, _EXE, _CMDLINE
+# _SYSTEMD_SLICE, _SYSTEMD_CGROUP
+# PRIORITY (0=emerg..7=debug), MESSAGE, MESSAGE_ID
+# _BOOT_ID, _MACHINE_ID
+
+# Filtrar por PID
+journalctl _PID=12345
+
+# Filtrar por cgroup (slice)
+journalctl _SYSTEMD_SLICE=mi-app.slice
+```
+
+### 2.3 Limpieza y persistencia
+
+```bash
+# Uso actual
+journalctl --disk-usage
+
+# Limpiar (vacía journal, conserva últimos 500M o 2 semanas)
+sudo journalctl --vacuum-size=500M
+sudo journalctl --vacuum-time=2weeks
+
+# Persistencia (en /etc/systemd/journald.conf)
+# Storage=persistent
+# SystemMaxUse=1G
+# SystemKeepFree=500M
+# SystemMaxFileSize=100M
+# MaxRetentionSec=1month
+```
+
+---
+
+## 3. Análisis de Procesos en Vivo
+
+### 3.1 htop — Interactivo (recomendado)
+
+```bash
+# Instalar
+sudo apt install -y htop
+
+# Atajos clave en htop:
+# F2  Setup (columnas, colores, tree view)
+# F3  Buscar proceso
+# F4  Filtrar por nombre
+# F5  Tree view (jerarquía)
+# F6  Ordenar (CPU%, MEM%, TIME, PRIORITY)
+# F7/F8  Nice -/+
+# F9  Kill (SIGTERM/SIGKILL)
+# u   Filtrar por usuario
+# H   Toggle hilos (threads)
+# K   Toggle kernel threads
+```
+
+### 3.2 ps / pidstat — Para scripts y evidencia
+
+```bash
+# Snapshot reproducible (evidencia)
+ps aux --sort=-%cpu | head -20
+ps aux --sort=-%mem | head -20
+
+# Formato personalizado para logs
+ps -eo pid,ppid,user,group,%cpu,%mem,vsz,rss,stat,start,time,cmd --sort=-%cpu | head -30
+
+# Por cgroup (systemd slice)
+systemd-cgls
+systemd-cgtop
+
+# pidstat (sysstat) — muestreo periódico
+pidstat -u -p ALL 1 5        # CPU cada 1s, 5 muestras
+pidstat -r -p ALL 1 5        # Memoria
+pidstat -d -p ALL 1 5        # I/O
+pidstat -w -p ALL 1 5        # Context switches
+```
+
+### 3.3 /proc — Inspección profunda
+
+```bash
+# Ver límites de un proceso
+cat /proc/12345/limits
+
+# Ver cgroup membership
+cat /proc/12345/cgroup
+
+# Ver fd (file descriptors)
+ls -la /proc/12345/fd/
+
+# Ver entorno
+cat /proc/12345/environ | tr '\0' '\n'
+
+# Ver maps (memoria)
+cat /proc/12345/maps | head -20
+```
+
+---
+
+## 4. Programación: systemd Timers vs Cron/Anacron
+
+### 4.1 systemd Timers (preferidos)
+
+```ini
+# /etc/systemd/system/backup-app.timer
+[Unit]
+Description=Backup diario de mi-app
+Requires=backup-app.service
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=1h
+AccuracySec=1m
+# OnBootSec=15min
+# OnUnitActiveSec=1d
+
+[Install]
+WantedBy=timers.target
+```
+
+```bash
+# Activar
+sudo systemctl daemon-reload
+sudo systemctl enable --now backup-app.timer
+
+# Ver timers
+systemctl list-timers --all
+systemctl list-timers --all | grep backup
+```
+
+### 4.2 Cron (compatibilidad / contenedores sin systemd)
+
+```bash
+# Crontab de root (archivo en /etc/cron.d/)
+# /etc/cron.d/backup-app
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=root
+
+# m h  dom mon dow   user    command
+30 2 * * * root /usr/local/sbin/backup-app >>/var/log/backup-app.log 2>&1
+```
+
+### 4.3 Anacron (para sistemas que no están siempre encendidos)
+
+```bash
+# /etc/anacrontab
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=root
+RANDOM_DELAY=45
+START_HOURS_RANGE=3-22
+
+# period  delay  job-identifier  command
+1       10     cron.daily      run-parts --report /etc/cron.daily
+7       20     cron.weekly     run-parts --report /etc/cron.weekly
+@monthly 30   cron.monthly    run-parts --report /etc/cron.monthly
+
+# Job personalizado
+1       15     backup-app      /usr/local/sbin/backup-app
+```
+
+::: {.callout-tip}
+## 🎯 Cuándo usar cada uno
+
+| Escenario | Herramienta |
+|-----------|-------------|
+| Servidor siempre encendido, systemd | **systemd timer** (logging, deps, jitter, persistencia) |
+| Contenedor minimal sin systemd | **cron** (en entrypoint o sidecar cron) |
+| Laptop/Workstation apagada a menudo | **anacron** (ejecuta al encender si pasó periodo) |
+| Tareas de usuario (no root) | `systemctl --user enable --now timer` o `crontab -e` |
+:::
+
+---
+
+## 5. cgroups v2 — Límites de Recursos
+
+### 5.1 Jerarquía y slices
+
+```bash
+# Ver árbol cgroups
+systemd-cgls
+
+# Crear slice personalizado para limitar grupo de servicios
+# /etc/systemd/system/mi-app.slice
+[Slice]
+MemoryLimit=2G
+CPUQuota=200%
+IOReadBandwidthMax=/dev/sda 100M
+IOWriteBandwidthMax=/dev/sda 50M
+```
+
+```bash
+# Asignar servicio al slice
+# En mi-app.service:
+[Service]
+Slice=mi-app.slice
+
+# O en override:
+sudo systemctl edit mi-app
+# [Service]
+# Slice=mi-app.slice
+```
+
+### 5.2 Verificar límites aplicados
+
+```bash
+# Ver límites efectivos
+systemctl show mi-app --property=MemoryLimit,CPUQuota,MemoryCurrent,CPUUsageNSec
+
+# En tiempo real
+systemd-cgtop
+
+# Por slice
+cat /sys/fs/cgroup/mi-app.slice/memory.current
+cat /sys/fs/cgroup/mi-app.slice/cpu.stat
+```
+
+---
+
+## 6. Laboratorio Práctico: Observabilidad Completa
+
+::: {.callout-note}
+## 🎯 Lab 05 — Systemd, Journalctl, Procesos, Timers (90 min)
+
+### Checklist
+
+- [ ] Crear servicio `mi-app.service` (Type=notify, hardening, slice propio)
+- [ ] Crear `mi-app.slice` con MemoryLimit=512M, CPUQuota=50%
+- [ ] Crear `backup-app.service` (Type=oneshot) + `backup-app.timer` (diario 03:00, jitter 1h)
+- [ ] Generar carga: `stress-ng --cpu 2 --vm 1 --vm-bytes 256M --timeout 60s`
+- [ ] Observar con `htop`, `systemd-cgtop`, `pidstat -u -p ALL 1 5`
+- [ ] Consultar logs: `journalctl -u mi-app -f`, `journalctl -u backup-app --since "1 hour ago" -o json-pretty`
+- [ ] Filtrar por prioridad: `journalctl -p err..crit --since "1 hour ago"`
+- [ ] Verificar límites: `systemctl show mi-app --property=MemoryLimit,CPUQuota,MemoryCurrent`
+- [ ] Simular fallo: `systemctl kill -s SIGKILL mi-app` → observar `Restart=on-failure` en journal
+
+### Evidencia
+
+```bash
+{
+  echo "=== Units ===" && systemctl list-units --type=service --state=running | grep -E 'mi-app|backup'
+  echo -e "\n=== Timers ===" && systemctl list-timers --all | grep backup
+  echo -e "\n=== Slice limits ===" && systemctl show mi-app --property=MemoryLimit,CPUQuota,Slice
+  echo -e "\n=== cgtop ===" && systemd-cgtop -b -n 1 | head -20
+  echo -e "\n=== Journal mi-app (last 20) ===" && journalctl -u mi-app -n 20 --no-pager
+  echo -e "\n=== Journal backup (last run) ===" && journalctl -u backup-app -n 30 --no-pager
+  echo -e "\n=== Process snapshot ===" && ps aux --sort=-%cpu | head -15
+} > ~/lab05-evidencia.txt
+```
+:::
+
+---
+
+## 7. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad V
+
+1. **Systemd units**: Service (Type=notify), Timer (Persistent, RandomizedDelaySec), Slice (límites). Overrides con `systemctl edit`.
+2. **journalctl**: Filtros por unidad (`-u`), tiempo (`--since`), prioridad (`-p`), formato (`-o json`), boot (`-b`).
+3. **Procesos**: `htop` (interactivo), `ps/pidstat` (evidencia), `/proc` (deep dive), `systemd-cgtop` (cgroups).
+4. **Timers > Cron > Anacron**: Systemd timers para servidores; cron para contenedores; anacron para laptops.
+5. **cgroups v2**: Slices para límites MemoryLimit, CPUQuota, IOBandwidth; verificar con `systemd-cgtop` y `/sys/fs/cgroup`.
+:::
+
+### 📋 Checklist de competencias Unidad V
+
+- [ ] Crear y gestionar service/timer/slice units con hardening.
+- [ ] Usar `systemctl edit` para overrides sin tocar unit original.
+- [ ] Consultar journalctl con filtros combinados (unidad, tiempo, prioridad, formato).
+- [ ] Analizar procesos con htop, ps, pidstat, systemd-cgtop.
+- [ ] Configurar systemd timers con jitter y persistencia.
+- [ ] Aplicar límites cgroups via slices y verificar efectividad.
+
+---
+
+## 8. Recursos y Referencias
+
+- **systemd docs**: <https://systemd.io/> — `man systemd.service`, `man systemd.timer`, `man systemd.slice`, `man journalctl`
+- **cgroups v2**: <https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html>
+- **pidstat**: `man pidstat` (paquete `sysstat`)
+- **htop**: <https://htop.dev/>
+- **systemd-cgtop**: `man systemd-cgtop`
+
+---
+
+## 9. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Qué `Type=` de systemd espera que el servicio llame `sd_notify(READY=1)`?
+
+- [ ] simple
+- [ ] forking
+- [x] notify
+- [ ] oneshot
+
+## En journalctl, ¿qué filtra `-p err..crit`?
+
+- [ ] Mensajes de prioridad error y critical solamente
+- [x] Prioridades desde error (3) hasta critical (2) inclusive
+- [ ] Solo prioridad error (3)
+- [ ] Todo menos debug e info
+
+## Para crear un override de un servicio sin editar el archivo original:
+
+- [ ] `sudo vim /etc/systemd/system/mi-app.service`
+- [x] `sudo systemctl edit mi-app`
+- [ ] `sudo systemctl override mi-app`
+- [ ] `sudo cp /usr/lib/systemd/system/mi-app.service /etc/systemd/system/`
+
+## ¿Qué directiva en un timer systemd hace que se ejecute al encender si se perdió la ejecución programada?
+
+- [ ] RandomizedDelaySec
+- [ ] AccuracySec
+- [x] Persistent=true
+- [ ] OnBootSec
+
+## En cgroups v2, ¿qué archivo muestra el uso actual de memoria de un slice?
+
+- [ ] /sys/fs/cgroup/mi-app.slice/memory.limit
+- [x] /sys/fs/cgroup/mi-app.slice/memory.current
+- [ ] /sys/fs/cgroup/mi-app.slice/memory.max
+- [ ] /sys/fs/cgroup/mi-app.slice/memory.stat
+```
