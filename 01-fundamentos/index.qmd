@@ -1,0 +1,405 @@
+---
+title: "UNIDAD I: Fundamentos de Linux y Virtualización Ligera"
+subtitle: "WSL2, Docker Desktop, Terminal Bash — Enfoque Práctico Abacom™"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# UNIDAD I: Fundamentos de Linux y Virtualización Ligera
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Entender **qué es Linux**, su filosofía y por qué domina servidores e infraestructura cloud.
+- Configurar un **entorno de desarrollo/producción local** usando **WSL2 (Ubuntu 24.04 LTS)** y **Docker Desktop** — sin máquinas virtuales pesadas.
+- Navegar y operar la **terminal Bash** con fluidez: rutas, permisos, editores, ayuda.
+- Aplicar la **Metodología Abacom™**: diagnóstico reproducible, evidencia documentada, hardening desde el día 1.
+
+---
+
+## 1. ¿Qué es Linux y por qué importa en Abacom
+
+**Linux** es el kernel que, combinado con herramientas GNU (coreutils, bash, glibc, etc.), forma el sistema operativo que impulsa:
+
+- **90%+ de la nube pública** (AWS, GCP, Azure).
+- **100% de los supercomputadores** (Top500).
+- La inmensa mayoría de contenedores (Docker, Kubernetes, Podman).
+- Dispositivos embebidos, routers, Android, ChromeOS.
+
+::: {.callout-note}
+## Filosofía Unix — Principios que guían todo el curso
+
+1. **Haz una cosa y hazla bien** — Herramientas pequeñas, compuestas via pipes.
+2. **Todo es un archivo** — Dispositivos, procesos, sockets, configuración: `/dev`, `/proc`, `/sys`.
+3. **Texto plano como interfaz universal** — `grep`, `awk`, `sed`, `jq` procesan logs, config, JSON.
+4. **Mecanismo, no política** — El kernel provee primitivas; el admin decide la política (firewall, usuarios, cuotas).
+:::
+
+### Diferencia clave: Kernel vs Distribución
+
+| Componente | Ejemplos | Responsabilidad |
+|------------|----------|-----------------|
+| **Kernel** | Linux 6.x | Scheduler, memory mgmt, drivers, syscalls |
+| **Userland (GNU)** | coreutils, bash, glibc, systemd | CLI, librerías C, init system |
+| **Distro** | Ubuntu, Debian, Fedora, Arch, Alpine | Empaquetado, políticas, ciclo de vida, repos |
+
+En este curso usamos **Ubuntu 24.04 LTS (Noble Numbat)** — soporte hasta 2029, base de WSL2 y de nuestras imágenes Docker.
+
+---
+
+## 2. Entorno Práctico: WSL2 + Docker Desktop (Sin VirtualBox/VMware)
+
+> **Regla de oro Abacom**: *No instalamos ISOs en VirtualBox/VMware*. Usamos virtualización ligera nativa.
+
+### 2.1 WSL2 — Linux real dentro de Windows
+
+**WSL2** ejecuta un kernel Linux real (Microsoft build) bajo Hyper-V ligero. Ventajas para este curso:
+
+- Arranque en < 2 segundos.
+- Integración total: `code .` desde Windows abre VS Code en Linux; `localhost` compartido.
+- Acceso al sistema de archivos Windows desde `/mnt/c/...`.
+- **Ubuntu 24.04 LTS** disponible out-of-the-box.
+
+::: {.callout-tip}
+## Instalación rápida (PowerShell como Admin)
+
+```powershell
+# 1. Habilitar WSL + Virtual Machine Platform
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+# 2. Instalar WSL2 + Ubuntu 24.04
+wsl --install -d Ubuntu-24.04
+
+# 3. Reiniciar y completar configuración (usuario/contraseña)
+wsl
+```
+:::
+
+### Verificar instalación
+
+```bash
+# Dentro de WSL2 (Ubuntu)
+cat /etc/os-release
+# PRETTY_NAME="Ubuntu 24.04.1 LTS"
+
+uname -r
+# 6.6.x-microsoft-standard-WSL2  <-- Kernel Linux real
+
+ls /mnt/c/Users/
+# Tu usuario Windows visible
+```
+
+### 2.2 Docker Desktop — Contenedores en Windows/macOS/Linux
+
+**Docker Desktop** incluye: Docker Engine, CLI, Compose v2, Buildx, Kubernetes (opcional), y **integración WSL2 nativa**.
+
+::: {.callout-tip}
+## Instalación Docker Desktop (Windows)
+
+1. Descargar: <https://www.docker.com/products/docker-desktop/>
+2. Instalar → **Use WSL 2 instead of Hyper-V** (recomendado).
+3. En Settings → Resources → WSL Integration → Enable para `Ubuntu-24.04`.
+4. Verificar:
+
+```bash
+docker version
+docker run --rm hello-world
+```
+:::
+
+::: {.callout-warning}
+## ⚠️ No uses VirtualBox / VMware para este curso
+
+- **VirtualBox en Apple Silicon (M1/M2/M3)**: No funciona (arquitectura x86_64 vs ARM64).
+- **VMware Workstation**: Licenciamiento complejo, overhead alto.
+- **Overhead típico VM**: 2-4 GB RAM solo para el hypervisor + guest OS.
+- **WSL2 + Docker Desktop**: ~500 MB RAM base, inicio instantáneo, integración IDE nativa.
+
+> Si ya tienes VMs legacy: migra a WSL2/Docker. Los laboratorios del curso asumen este stack.
+:::
+
+---
+
+## 3. Terminal Bash — Tu herramienta diaria
+
+### 3.1 Primeros pasos y ayuda
+
+```bash
+# ¿Dónde estoy?
+pwd
+# /home/tu-usuario
+
+# ¿Quién soy?
+whoami
+id
+# uid=1000(tu-usuario) gid=1000(tu-usuario) groups=1000(tu-usuario),27(sudo),998(docker)
+
+# Ayuda integrada (léela siempre)
+man ls          # Manual completo (q para salir)
+ls --help       # Resumen rápido
+info bash       # Documentación extensa
+tldr tar        # Ejemplos prácticos (instalar: npm i -g tldr)
+```
+
+::: {.callout-note}
+## Atajos de productividad (memóralos)
+
+| Atajo | Acción |
+|-------|--------|
+| `Tab` | Autocompletar rutas/comandos |
+| `Tab Tab` | Listar opciones si hay ambigüedad |
+| `Ctrl+R` | Buscar en historial (reverse search) |
+| `Ctrl+A` / `Ctrl+E` | Inicio / Fin de línea |
+| `Ctrl+U` / `Ctrl+K` | Borrar desde cursor a inicio / final |
+| `Ctrl+L` | Limpiar pantalla (equivale a `clear`) |
+| `!!` | Repetir último comando |
+| `!$` | Último argumento del comando anterior |
+| `Alt+.` | Ciclar último argumento |
+:::
+
+### 3.2 Navegación y sistema de archivos (FHS)
+
+**FHS (Filesystem Hierarchy Standard)** — Directorios clave que debes conocer:
+
+| Ruta | Contenido | Ejemplo uso en curso |
+|------|-----------|---------------------|
+| `/` | Raíz | Punto de montaje principal |
+| `/etc` | Configuración del sistema | `/etc/nginx/nginx.conf`, `/etc/ssh/sshd_config` |
+| `/var` | Datos variables (logs, spool, lib) | `/var/log/nginx/`, `/var/lib/docker/` |
+| `/home` | Directorios de usuario | `/home/tu-usuario/` |
+| `/root` | Home de root | Solo accesible con `sudo` |
+| `/tmp` | Temporales (se borra al reiniciar) | Scripts de prueba, pipes |
+| `/opt` | Software opcional/terceros | `/opt/mi-app/` |
+| `/usr` | Programas de solo lectura | `/usr/bin/`, `/usr/lib/` |
+| `/bin` `/sbin` | Binarios esenciales (symlinks a `/usr/bin`) | `ls`, `cp`, `systemctl` |
+| `/dev` | Archivos de dispositivo | `/dev/sda`, `/dev/null`, `/dev/tty` |
+| `/proc` `/sys` | Info kernel/runtime (virtual) | `/proc/cpuinfo`, `/sys/class/net/` |
+| `/run` | Runtime data (PIDs, sockets) | `/run/systemd/`, `/run/docker.sock` |
+| `/mnt` `/media` | Puntos de montaje manuales/extraíbles | `/mnt/disco-backup/` |
+
+```bash
+# Navegación básica
+cd /etc/nginx          # Ruta absoluta
+cd ../sites-available  # Relativa (sube uno, baja a sites-available)
+cd ~                   # Home ($HOME)
+cd -                   # Directorio anterior (toggle)
+cd                     # Sin args = home
+
+# Listar con detalle
+ls -la                 # -l largo, -a ocultos
+ls -lh /var/log        # -h human-readable (K, M, G)
+tree -L 2 /etc         # Vista árbol (instalar: sudo apt install tree)
+```
+
+### 3.3 Permisos y ACLs — Seguridad desde el día 1
+
+```bash
+# Ver permisos
+ls -l script.sh
+# -rwxr-xr-- 1 usuario usuario 123 Jul 20 10:00 script.sh
+#  ^   ^   ^   ^
+#  |   |   |   └─ Otros: r--
+#  |   |   └──── Grupo: r-x
+#  |   └──────── Dueño: rwx
+#  └─────────── Tipo: - archivo, d directorio, l symlink
+
+# Cambiar permisos (simbólico - más legible)
+chmod u+x script.sh           # Dueño +x
+chmod g-w,o-rwx archivo.conf  # Grupo -write, Otros -rwx
+
+# Cambiar permisos (octal - para scripts/automatización)
+chmod 750 script.sh           # rwxr-x---
+chmod 640 archivo.conf        # rw-r-----
+
+# Cambiar owner/group
+sudo chown usuario:grupo archivo
+sudo chown -R www-data:www-data /var/www/html  # Recursivo
+
+# ACLs - Control de acceso extendido (más granular que u/g/o)
+setfacl -m u:deploy:rwx /var/www/html    # Usuario deploy RWX
+setfacl -m g:devops:rx /etc/nginx        # Grupo devops RX
+getfacl /var/www/html                    # Ver ACLs
+setfacl -b /ruta                         # Borrar todas las ACLs
+```
+
+::: {.callout-tip}
+## Regla de oro permisos Abacom
+
+- **Archivos**: `640` (dueño rw, grupo r, otros -) o `600` si sensibles (claves, certs).
+- **Directorios**: `750` (dueño rwx, grupo rx, otros -) o `700` si privados.
+- **Scripts ejecutables**: `750` + shebang `#!/bin/bash`.
+- **Nunca** `777` ni `666` en producción.
+:::
+
+### 3.4 Editores — `nano` (inicio), `vim`/`nvim` (pro)
+
+```bash
+# nano - simple, modeless
+nano archivo.txt
+# Atajos: Ctrl+O guardar, Ctrl+X salir, Ctrl+K cortar línea, Ctrl+U pegar
+
+# vim / nvim - modal, potente (aprenderlo paga dividendos)
+vim archivo.txt
+# Modos: Normal (ESC), Insert (i/a/o), Visual (v/V), Command (:)
+# Básicos: :w guardar, :q salir, :wq guardar y salir, :q! forzar salida
+# Movimiento: h/j/k/l, w/b (palabras), 0/$ (inicio/fin línea), gg/G (inicio/fin archivo)
+# Edición: dd borrar línea, yy copiar, p pegar, u deshacer, Ctrl+R rehacer
+
+# Config mínima recomendada (~/.vimrc o init.lua para nvim)
+set number relativenumber
+set tabstop=2 shiftwidth=2 expandtab
+set ignorecase smartcase
+set cursorline
+```
+
+---
+
+## 4. Gestión Básica de Paquetes (APT) — Vista previa Unidad II
+
+```bash
+# Actualizar índice de paquetes
+sudo apt update
+
+# Actualizar paquetes instalados (seguro)
+sudo apt upgrade
+
+# Buscar paquetes
+apt search nginx
+apt show nginx
+
+# Instalar
+sudo apt install -y nginx curl jq htop tree vim-nox
+
+# Eliminar (purge = borra config también)
+sudo apt remove nginx
+sudo apt purge nginx
+
+# Limpiar caché
+sudo apt autoremove -y
+sudo apt clean
+```
+
+---
+
+## 5. Laboratorio Práctico: Entorno Listo para el Curso
+
+::: {.callout-note}
+## 🎯 Lab 01 — Entorno Base (30-45 min)
+
+**Objetivo**: Tener WSL2 Ubuntu 24.04 + Docker Desktop funcionando, con usuario en grupo `docker`, SSH keys generadas, y editor configurado.
+
+### Checklist de verificación
+
+- [ ] `wsl -l -v` muestra `Ubuntu-24.04` **Running** versión **2**
+- [ ] `docker version` muestra Client + Server (Engine)
+- [ ] `docker run --rm hello-world` → "Hello from Docker!"
+- [ ] `groups $USER` incluye `docker` (si no: `sudo usermod -aG docker $USER` y **re-login**)
+- [ ] `ssh-keygen -t ed25519 -C "tu-email@abacom.cl"` generado
+- [ ] `cat ~/.ssh/id_ed25519.pub` copiado a GitHub/GitLab
+- [ ] `git config --global user.name "Tu Nombre"` y `user.email`
+- [ ] Editor configurado (`vim`/`nvim` con config básica o VS Code + Remote-WSL)
+- [ ] `htop`, `tree`, `jq`, `curl`, `vim-nox` instalados
+
+### Evidencia a entregar (capturas/texto)
+
+```bash
+# Ejecuta y guarda salida en ~/lab01-evidencia.txt
+{
+  echo "=== WSL ===" && wsl -l -v
+  echo -e "\n=== Docker ===" && docker version --format '{{.Server.Version}}'
+  echo -e "\n=== Groups ===" && groups
+  echo -e "\n=== SSH Key ===" && cat ~/.ssh/id_ed25519.pub
+  echo -e "\n=== Git ===" && git config --global --list
+  echo -e "\n=== Paquetes clave ===" && dpkg -l | grep -E 'htop|tree|jq|vim|docker'
+} > ~/lab01-evidencia.txt
+```
+:::
+
+---
+
+## 6. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad I
+
+1. **Linux = Kernel + GNU Userland + Distro**. Ubuntu 24.04 LTS es nuestra base.
+2. **WSL2 + Docker Desktop** = Entorno pro sin VMs pesadas. Olvida VirtualBox/VMware.
+3. **Bash + FHS + Permisos/ACLs** = Fundación de todo lo que viene (scripts, services, contenedores, hardening).
+3. **Metodología Abacom**: Evidencia, reproducible, documentado.
+:::
+
+### 📋 Checklist de competencias Unidad I
+
+- [ ] Explicar diferencia kernel/distro/userland.
+- [ ] Instalar y verificar WSL2 Ubuntu 24.04 + Docker Desktop.
+- [ ] Navegar FHS con rutas absolutas/relativas y atajos (`~`, `-`, `..`).
+- [ ] Leer/interpretar `ls -la` (tipo, permisos, owner, grupo, size, mtime).
+- [ ] Aplicar `chmod` (simbólico/octal), `chown`, `setfacl`/`getfacl`.
+- [ ] Usar `man`, `--help`, `tldr` para auto-ayuda.
+- [ ] Generar SSH key ed25519 y configurar Git.
+
+---
+
+## 7. Recursos y Referencias
+
+- **FHS 3.0**: <https://refspecs.linuxfoundation.org/fhs.shtml>
+- **WSL Documentation**: <https://learn.microsoft.com/windows/wsl/>
+- **Docker Desktop Docs**: <https://docs.docker.com/desktop/>
+- **Bash Reference Manual**: <https://www.gnu.org/software/bash/manual/>
+- **ACL man pages**: `man 5 acl`, `man setfacl`, `man getfacl`
+- **Ubuntu 24.04 Release Notes**: <https://discourse.ubuntu.com/t/noble-numbat-release-notes/30831>
+
+---
+
+## 8. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Qué componente provee el scheduler, memory management y syscalls?
+
+- [ ] GNU coreutils
+- [x] Linux Kernel
+- [ ] systemd
+- [ ] Bash shell
+
+## ¿Cuál es la ventaja principal de WSL2 sobre VirtualBox para este curso?
+
+- [ ] Interfaz gráfica nativa
+- [x] Kernel Linux real, arranque <2s, integración VS Code/localhost
+- [ ] Soporte para Windows 7
+- [ ] Menor uso de disco
+
+## En `ls -l`, la cadena `-rw-r-----` indica:
+
+- [ ] Directorio con permisos 750
+- [x] Archivo regular: dueño rw, grupo r, otros sin permisos
+- [ ] Symlink roto
+- [ ] Archivo ejecutable por todos
+
+## Comando para dar permisos rwx al dueño, rx al grupo, nada a otros (simbólico):
+
+- [ ] `chmod 750 archivo`
+- [x] `chmod u=rwx,g=rx,o= archivo`
+- [ ] `chmod +rwx archivo`
+- [ ] `setfacl -m u::rwx,g::rx,o::--- archivo`
+
+## ¿Dónde se guardan los logs del sistema en FHS?
+
+- [ ] /home/logs
+- [x] /var/log
+- [ ] /etc/log
+- [ ] /usr/log
+```

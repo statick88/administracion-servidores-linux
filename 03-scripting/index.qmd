@@ -1,0 +1,622 @@
+---
+title: "UNIDAD III: Scripting y Automatización con Bash"
+subtitle: "FHS, Permisos, ACLs, Scripts de Backup y Logs — Enfoque Práctico Abacom™"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# UNIDAD III: Scripting y Automatización con Bash
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Escribir **scripts Bash robustos** (shebang, `set -euo pipefail`, funciones, validación de args).
+- Aplicar **FHS** para decidir dónde guardar scripts, logs, backups y datos de aplicación.
+- Gestionar **permisos y ACLs** en scripts y directorios de operación.
+- Crear **scripts de backup rotativos** (tar + gzip/zstd, retención, verificación de integridad).
+- Configurar **logging estructurado** (syslog/journald, rotación con logrotate).
+- Automatizar con **cron** y **systemd timers** (preferidos sobre cron en systemd).
+
+---
+
+## 1. Fundamentos de Scripting Bash Profesional
+
+### 1.1 Estructura mínima obligatoria
+
+```bash
+#!/usr/bin/env bash
+# -*- coding: utf-8 -*-
+# Script: backup-app.sh
+# Descripción: Backup rotativo de /var/www/app a /mnt/backups/app
+# Autor: Tu Nombre <tu@email.com>
+# Uso: ./backup-app.sh [--dry-run] [--retention N]
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# --- Configuración ---
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+readonly LOG_FILE="/var/log/${SCRIPT_NAME%.sh}.log"
+readonly BACKUP_SRC="/var/www/app"
+readonly BACKUP_DST="/mnt/backups/app"
+readonly RETENTION_DAYS="${RETENTION_DAYS:-7}"
+readonly DRY_RUN="${DRY_RUN:-false}"
+
+# --- Funciones ---
+log() {
+    local level="$1"; shift
+    local msg="$*"
+    local timestamp
+    timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    echo "[$timestamp] [$level] $msg" | tee -a "$LOG_FILE"
+}
+
+die() { log "ERROR" "$*"; exit 1; }
+info() { log "INFO" "$*"; }
+warn() { log "WARN" "$*"; }
+
+usage() {
+    cat <<EOF
+Uso: $SCRIPT_NAME [OPCIONES]
+  --dry-run       Simula sin escribir
+  --retention N   Días de retención (default: 7)
+  -h, --help      Muestra esta ayuda
+EOF
+}
+
+# --- Parseo de argumentos ---
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run) DRY_RUN=true; shift ;;
+            --retention) RETENTION_DAYS="$2"; shift 2 ;;
+            -h|--help) usage; exit 0 ;;
+            *) die "Opción desconocida: $1" ;;
+        esac
+    done
+}
+
+# --- Validaciones ---
+validate_env() {
+    [[ -d "$BACKUP_SRC" ]] || die "Origen no existe: $BACKUP_SRC"
+    [[ -w "$(dirname "$BACKUP_DST")" ]] || die "Destino no escribible: $BACKUP_DST"
+    command -v tar >/dev/null || die "tar no instalado"
+    command -v zstd >/dev/null || warn "zstd no instalado, usando gzip"
+}
+
+# --- Lógica principal ---
+main() {
+    parse_args "$@"
+    validate_env
+
+    local timestamp
+    timestamp="$(date '+%Y%m%d-%H%M%S')"
+    local archive="${BACKUP_DST}/app-${timestamp}.tar.zst"
+    local latest_link="${BACKUP_DST}/latest.tar.zst"
+
+    info "Iniciando backup de $BACKUP_SRC → $archive"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        info "[DRY-RUN] tar --create --zstd -f \"$archive\" -C \"$(dirname \"$BACKUP_SRC\")\" \"$(basename \"$BACKUP_SRC\")\""
+    else
+        tar --create --zstd -f "$archive" -C "$(dirname "$BACKUP_SRC")" "$(basename "$BACKUP_SRC")" \
+            || die "Falló tar"
+        ln -sfn "$archive" "$latest_link"
+        info "Backup completado: $archive"
+    fi
+
+    # Retención: borrar > RETENTION_DAYS
+    info "Aplicando retención ($RETENTION_DAYS días)..."
+    find "$BACKUP_DST" -maxdepth 1 -name 'app-*.tar.zst' -type f -mtime +"$RETENTION_DAYS" -delete
+    info "Backup finalizado."
+}
+
+main "$@"
+```
+
+::: {.callout-tip}
+## ✅ Checklist de script robusto (Abacom Standard)
+
+- [ ] `#!/usr/bin/env bash` (portable)
+- [ ] `set -euo pipefail` + `IFS=$'\n\t'`
+- [ ] Variables `readonly` y `local` en funciones
+- [ ] Funciones `log/info/warn/die` con timestamp
+- [ ] `parse_args` con `case` y validación
+- [ ] `validate_env` antes de operar
+- [ ] `main "$@"` al final
+- [ ] Código en funciones, no suelto
+- [ ] Comentarios en cabeceras y bloques lógicos
+:::
+
+### 1.2 Buenas prácticas de variables y arrays
+
+```bash
+# Arrays (índice 0)
+declare -a SERVICES=(nginx postgresql redis)
+declare -A PORTS=( [nginx]=80 [postgresql]=5432 [redis]=6379 )
+
+# Iterar array
+for svc in "${SERVICES[@]}"; do
+    systemctl is-active --quiet "$svc" || warn "$svc no activo"
+done
+
+# Iterar array asociativo (requiere Bash 4+)
+for svc in "${!PORTS[@]}"; do
+    ss -lntp | grep -q ":${PORTS[$svc]}" || warn "Puerto ${PORTS[$svc]} ($svc) no escuchando"
+done
+
+# Default con expansión de parámetros
+: "${BACKUP_DST:=/mnt/backups}"   # Asigna si no seteada
+: "${RETENTION:=7}"               # Default 7 días
+```
+
+### 1.3 Manejo de errores y limpieza (traps)
+
+```bash
+cleanup() {
+    local exit_code=$?
+    [[ -n "${TMPDIR:-}" && -d "$TMPDIR" ]] && rm -rf "$TMPDIR"
+    exit $exit_code
+}
+trap cleanup EXIT INT TERM
+
+# Crear temp dir seguro
+TMPDIR="$(mktemp -d -t backup-XXXXXX)"
+```
+
+---
+
+## 2. FHS — Dónde guardar qué
+
+| Tipo de dato | Ruta FHS | Ejemplo en curso |
+|--------------|----------|------------------|
+| **Scripts de admin/backup** | `/usr/local/sbin/` (sistema) o `/opt/scripts/` (proyecto) | `/opt/scripts/backup-app.sh` |
+| **Scripts de usuario** | `~/bin/` o `~/.local/bin/` | `~/bin/deploy.sh` |
+| **Logs de aplicación** | `/var/log/<app>/` | `/var/log/nginx/access.log` |
+| **Logs de scripts propios** | `/var/log/<script>.log` (con logrotate) | `/var/log/backup-app.log` |
+| **Backups locales** | `/var/backups/` o `/mnt/backups/` (mount aparte) | `/mnt/backups/app/` |
+| **Datos persistentes app** | `/var/lib/<app>/` o `/srv/<app>/` | `/var/lib/docker/volumes/`, `/srv/app/data` |
+| **Configuración** | `/etc/<app>/` | `/etc/nginx/nginx.conf` |
+| **Archivos temporales** | `/tmp/` (limpieza reboot) o `/var/tmp/` (persiste) | `mktemp -d -t miapp-XXXXXX` |
+
+::: {.callout-warning}
+## ⚠️ Nunca uses `/root/scripts/` ni `/home/usuario/scripts/` para producción
+
+- `/root` no se respalda igual, home de usuario cambia.
+- Usa `/opt/scripts/` (propio de la app/proyecto) o `/usr/local/sbin/` (sistema).
+- Permisos: `root:root 750` para scripts con credenciales; `root:root 755` para genéricos.
+:::
+
+---
+
+## 3. Permisos y ACLs en contexto de automatización
+
+### 3.1 Scripts ejecutables
+
+```bash
+# Script de sistema (root only)
+sudo install -m 750 -o root -g root backup-app.sh /usr/local/sbin/backup-app
+
+# Script de deploy (usuario deploy + grupo devops)
+sudo install -m 750 -o deploy -g devops deploy.sh /opt/scripts/deploy
+sudo setfacl -m g:devops:rx /opt/scripts/deploy
+```
+
+### 3.2 Directorios de trabajo (backup, logs, data)
+
+```bash
+# Directorio backups: root escribe, devops lee, otros nada
+sudo mkdir -p /mnt/backups/app
+sudo chown root:devops /mnt/backups/app
+sudo chmod 750 /mnt/backups/app
+sudo setfacl -d -m g:devops:rx /mnt/backups/app   # Default ACL para nuevos archivos
+
+# Directorio logs: app escribe (www-data), admins leen
+sudo mkdir -p /var/log/myapp
+sudo chown www-data:adm /var/log/myapp
+sudo chmod 770 /var/log/myapp
+sudo setfacl -d -m g:adm:rx /var/log/myapp
+```
+
+### 3.3 Verificación rápida
+
+```bash
+# Ver permisos + ACLs
+getfacl /mnt/backups/app
+# # file: mnt/backups/app
+# # owner: root
+# # group: devops
+# user::rwx
+# group::r-x
+# group:devops:r-x
+# mask::r-x
+# other::---
+# default:user::rwx
+# default:group::r-x
+# default:group:devops:r-x
+# default:mask::r-x
+# default:other::---
+```
+
+---
+
+## 4. Script de Backup Rotativo Completo (Producción)
+
+::: {.callout-note}
+## 📂 Archivo completo: `/opt/scripts/backup-app.sh`
+
+Ver sección 1.1 para versión comentada. Aquí versión compacta lista para instalar:
+:::
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+readonly LOG_FILE="/var/log/${SCRIPT_NAME%.sh}.log"
+readonly BACKUP_SRC="${BACKUP_SRC:-/var/www/app}"
+readonly BACKUP_DST="${BACKUP_DST:-/mnt/backups/app}"
+readonly RETENTION_DAYS="${RETENTION_DAYS:-7}"
+readonly COMPRESS="${COMPRESS:-zstd}"   # zstd | gzip | xz
+readonly DRY_RUN="${DRY_RUN:-false}"
+
+log() { echo "[$(date '+%F %T')] [$1] ${*:2}" | tee -a "$LOG_FILE"; }
+die() { log ERROR "$*"; exit 1; }
+info() { log INFO "$*"; }
+warn() { log WARN "$*"; }
+
+validate() {
+    [[ -d "$BACKUP_SRC" ]] || die "Origen no existe: $BACKUP_SRC"
+    mkdir -p "$BACKUP_DST" || die "No se puede crear destino: $BACKUP_DST"
+    [[ -w "$BACKUP_DST" ]] || die "Destino no escribible: $BACKUP_DST"
+    command -v tar >/dev/null || die "tar requerido"
+    [[ "$COMPRESS" == "zstd" ]] && ! command -v zstd >/dev/null && { warn "zstd no instalado, usando gzip"; COMPRESS=gzip; }
+}
+
+main() {
+    validate
+    local ts archive latest
+    ts="$(date '+%Y%m%d-%H%M%S')"
+    case $COMPRESS in
+        zstd) archive="${BACKUP_DST}/app-${ts}.tar.zst"; tar_opts=(--zstd) ;;
+        gzip) archive="${BACKUP_DST}/app-${ts}.tar.gz"; tar_opts=(--gzip) ;;
+        xz)   archive="${BACKUP_DST}/app-${ts}.tar.xz"; tar_opts=(--xz) ;;
+        *) die "Compresión inválida: $COMPRESS" ;;
+    esac
+    latest="${BACKUP_DST}/latest.tar.${COMPRESS}"
+
+    info "Backup $BACKUP_SRC → $archive (compress=$COMPRESS dry_run=$DRY_RUN)"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        info "[DRY-RUN] tar --create ${tar_opts[*]} -f \"$archive\" -C \"$(dirname "$BACKUP_SRC")\" \"$(basename "$BACKUP_SRC")\""
+    else
+        tar --create "${tar_opts[@]}" -f "$archive" -C "$(dirname "$BACKUP_SRC")" "$(basename "$BACKUP_SRC")" \
+            || die "tar falló"
+        ln -sfn "$archive" "$latest"
+        info "OK: $archive"
+    fi
+
+    # Retención
+    local deleted
+    deleted=$(find "$BACKUP_DST" -maxdepth 1 -name 'app-*.tar.*' -type f -mtime +"$RETENTION_DAYS" -delete -print | wc -l)
+    info "Retención: $deleted archivos eliminados (>${RETENTION_DAYS}d)"
+}
+
+main "$@"
+```
+
+### Instalación y prueba
+
+```bash
+# Instalar
+sudo install -m 750 -o root -g root /ruta/a/backup-app.sh /usr/local/sbin/backup-app
+sudo mkdir -p /mnt/backups/app /var/log
+sudo touch /var/log/backup-app.log
+sudo chown root:adm /var/log/backup-app.log
+sudo chmod 640 /var/log/backup-app.log
+
+# Probar dry-run
+sudo DRY_RUN=true /usr/local/sbin/backup-app
+
+# Ejecutar real
+sudo /usr/local/sbin/backup-app
+
+# Ver logs
+tail -f /var/log/backup-app.log
+```
+
+---
+
+## 5. Logging Estructurado y Rotación (logrotate)
+
+### 5.1 Escribir logs bien (desde scripts)
+
+```bash
+# En tu script, usa la función log() que escribe a $LOG_FILE
+# Para integración con systemd/journald, también escribe a stderr (systemd lo captura):
+exec 1> >(tee -a "$LOG_FILE") 2> >(tee -a "$LOG_FILE" >&2)
+# Ahora todo echo/printf va a archivo Y a journald (si script corre como service)
+```
+
+### 5.2 Configuración logrotate para tus scripts
+
+```bash
+# /etc/logrotate.d/backup-app
+/var/log/backup-app.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 640 root adm
+    sharedscripts
+    postrotate
+        systemctl reload rsyslog >/dev/null 2>&1 || true
+    endscript
+}
+```
+
+```bash
+# Probar configuración
+sudo logrotate --debug /etc/logrotate.d/backup-app
+# Forzar rotación
+sudo logrotate --force /etc/logrotate.d/backup-app
+```
+
+### 5.3 journald + lograte unificados
+
+```bash
+# Ver logs de tu script si corre via systemd timer
+journalctl -u backup-app.timer -u backup-app.service -f
+
+# Persistencia de journals (en /etc/systemd/journald.conf)
+# Storage=persistent
+# SystemMaxUse=500M
+```
+
+---
+
+## 6. Automatización: systemd Timers (Preferidos sobre Cron)
+
+::: {.callout-tip}
+## 🎯 Por qué systemd timers > cron
+
+- Logging integrado en journald (con metadatos: PID, USER, UNIT, _SYSTEMD_UNIT).
+- Dependencias: `Requires=network-online.target`, `After=docker.service`.
+- `AccuracySec=1h` para distribuir carga (no todo a las 00:00).
+- `Persistent=true` ejecuta si el timer se perdió por apagado.
+- `systemctl list-timers` visibilidad centralizada.
+:::
+
+### 6.1 Unit de servicio (oneshot)
+
+```ini
+# /etc/systemd/system/backup-app.service
+[Unit]
+Description=Backup rotativo de /var/www/app
+Documentation=man:backup-app(1)
+Requires=network-online.target
+After=network-online.target mnt-backups.mount
+Wants=mnt-backups.mount
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/backup-app
+User=root
+Group=root
+# Hardening
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/mnt/backups/app /var/log/backup-app.log
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH CAP_DAC_OVERRIDE
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=backup-app
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 6.2 Unit de timer
+
+```ini
+# /etc/systemd/system/backup-app.timer
+[Unit]
+Description=Ejecutar backup-app diariamente a las 02:30 (con jitter)
+Requires=backup-app.service
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=1h
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target
+```
+
+### 6.3 Activar y verificar
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now backup-app.timer
+
+# Verificar
+systemctl list-timers --all | grep backup-app
+systemctl status backup-app.timer
+journalctl -u backup-app.service -f
+```
+
+---
+
+## 7. Cron (cuándo usarlo y cómo hacerlo bien)
+
+Solo si **no hay systemd** (containers mínimos, sistemas embebidos) o para **tareas de usuario** (`crontab -e`).
+
+### 7.1 Crontab de root (sistema)
+
+```bash
+# /etc/cron.d/backup-app  (archivo, no crontab -e)
+# m h  dom mon dow   user   command
+30 2 * * * root /usr/local/sbin/backup-app >>/var/log/backup-app.log 2>&1
+```
+
+### 7.2 Crontab de usuario (ej. deploy)
+
+```bash
+# crontab -e -u deploy
+# Backup de configs cada 6h
+0 */6 * * * /opt/scripts/backup-configs.sh --quiet
+```
+
+### 7.3 Buenas prácticas cron
+
+- **Rutas absolutas** siempre (`/usr/local/sbin/backup-app`, no `backup-app`).
+- **Entorno mínimo**: `SHELL=/bin/bash`, `PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin`.
+- **Redirige stdout/stderr** a log file.
+- **`flock`** para evitar solapamientos:
+
+```bash
+# En script o wrapper
+exec 9>/var/lock/backup-app.lock
+flock -n 9 || { echo "Otro backup corriendo"; exit 1; }
+# ... resto del script
+```
+
+---
+
+## 8. Laboratorio Práctico: Automatización End-to-End
+
+::: {.callout-note}
+## 🎯 Lab 03 — Scripting + Backup + Timer (60-90 min)
+
+**Objetivo**: Crear, instalar y validar un script de backup con systemd timer, logging y retención.
+
+### Pasos
+
+1. **Crear script** basado en plantilla sección 4 (`/opt/scripts/backup-lab.sh`).
+2. **Instalar** en `/usr/local/sbin/backup-lab` con permisos `750 root:root`.
+3. **Crear directorios**: `/mnt/backups/lab` (owner root:devops, 750, ACL default g:devops:rx).
+4. **Crear logrotate** en `/etc/logrotate.d/backup-lab`.
+5. **Crear units systemd**: `backup-lab.service` + `backup-lab.timer` (diario 03:00, jitter 1h).
+6. **Activar**: `systemctl daemon-reload && systemctl enable --now backup-lab.timer`.
+7. **Probar**:
+   - `sudo systemctl start backup-lab.service` (ejecución manual)
+   - `journalctl -u backup-lab.service -f`
+   - `ls -lh /mnt/backups/lab/`
+   - `cat /var/log/backup-lab.log`
+8. **Simular retención**: crear archivos viejos con `touch -d '10 days ago' /mnt/backups/lab/lab-20240101-000000.tar.zst` y ejecutar script → verificar borrado.
+9. **Evidencia**: captura de `systemctl list-timers`, `journalctl -u backup-lab.service --no-pager`, `ls -lh /mnt/backups/lab/`.
+
+### Checklist entrega
+
+- [ ] Script en `/usr/local/sbin/backup-lab` con `set -euo pipefail`, logging, args, retención.
+- [ ] Permisos y ACLs correctos en `/mnt/backups/lab`.
+- [ ] Logrotate configurado y probado (`logrotate --force`).
+- [ ] Timer systemd activo y próximo a disparar (`systemctl list-timers`).
+- [ ] Ejecución manual exitosa con evidencias en journal y log file.
+- [ ] Retención funcionando (archivos >7d borrados).
+:::
+
+---
+
+## 9. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad III
+
+1. **Script robusto**: `set -euo pipefail`, funciones, `readonly`/`local`, `parse_args`, `validate`, `main "$@"`.
+2. **FHS**: `/usr/local/sbin/` (scripts sistema), `/mnt/backups/` (backups), `/var/log/` (logs), `/opt/scripts/` (proyecto).
+3. **Permisos/ACLs**: `install -m 750`, `setfacl -d -m g:grupo:rx` para directorios colaborativos.
+4. **Backup**: tar + zstd/gzip, timestamp, symlink `latest`, `find -mtime +N -delete`.
+5. **Logging**: archivo + journald, `logrotate` daily/rotate/compress.
+6. **Automatización**: **systemd timers** (servicio oneshot + timer con `Persistent`, `RandomizedDelaySec`). Cron solo si no hay systemd.
+:::
+
+### 📋 Checklist de competencias Unidad III
+
+- [ ] Escribir script con shebang, `set -euo pipefail`, logging, args, validación, main.
+- [ ] Aplicar FHS para ubicar scripts, logs, backups, data.
+- [ ] Configurar permisos 750/770 + ACLs default en directorios compartidos.
+- [ ] Crear backup tar.zst con timestamp, latest symlink, retención por mtime.
+- [ ] Configurar logrotate para rotar/comprimir logs propios.
+- [ ] Crear y activar `servicio.oneshot` + `timer` systemd con jitter y persistencia.
+- [ ] Diagnosticar con `journalctl -u unidad`, `systemctl list-timers`.
+
+---
+
+## 10. Recursos y Referencias
+
+- **Bash Manual**: <https://www.gnu.org/software/bash/manual/>
+- **ShellCheck** (linter obligatorio): <https://www.shellcheck.net/> — `shellcheck script.sh`
+- **systemd.timer(5)**: `man systemd.timer`
+- **systemd.service(5)**: `man systemd.service`
+- **logrotate(8)**: `man logrotate`
+- **tar(1)**: `man tar` (flags `--zstd`, `--gzip`, `--xz`, `--create`, `--extract`, `--list`)
+- **find(1)**: `man find` (`-mtime`, `-delete`, `-maxdepth`)
+- **ACL**: `man 5 acl`, `man setfacl`, `man getfacl`
+
+---
+
+## 11. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Qué hace `set -euo pipefail` en un script Bash?
+
+- [ ] Habilita debugging (xtrace)
+- [x] Sale en error (-e), variable no seteada (-u), y falla en pipe (-o pipefail)
+- [ ] Fuerza modo POSIX estricto
+- [ ] Deshabilita globbing
+
+## Según FHS, ¿dónde deben ir los scripts de administración del sistema propios?
+
+- [ ] /home/admin/scripts
+- [ ] /root/scripts
+- [x] /usr/local/sbin/ o /opt/scripts/
+- [ ] /tmp/scripts
+
+## Comando para crear un backup comprimido con zstd, timestamp y symlink latest:
+
+- [ ] `tar -czf backup.tar.gz /data && ln -sf backup.tar.gz latest.tar.gz`
+- [x] `tar --zstd -cf "backup-$(date +%Y%m%d-%H%M%S).tar.zst" /data && ln -sf backup-*.tar.zst latest.tar.zst`
+- [ ] `gzip -c /data > backup.gz`
+- [ ] `rsync -av /data /backup/`
+
+## ¿Por qué systemd timers son preferibles a cron en sistemas modernos?
+
+- [ ] Son más simples de escribir
+- [x] Logging en journald, dependencias, jitter, persistencia, visibilidad centralizada
+- [ ] Cron está deprecated
+- [ ] Solo funcionan como root
+
+## En logrotate, ¿qué hace `delaycompress`?
+
+- [ ] Comprime inmediatamente
+- [x] Posterga compresión al siguiente ciclo (archivo recién rotado queda sin comprimir una rotación)
+- [ ] Deshabilita compresión
+- [ ] Comprime solo archivos >10MB
+
+## ¿Cómo evitar que dos instancias de un script corran simultáneamente en cron?
+
+- [ ] `ps aux | grep script`
+- [x] `flock -n /var/lock/script.lock` al inicio del script
+- [ ] `pidof script`
+- [ ] No se puede evitar
+```

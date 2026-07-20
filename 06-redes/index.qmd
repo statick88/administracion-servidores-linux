@@ -1,0 +1,533 @@
+---
+title: "UNIDAD VI: Redes y Almacenamiento Local"
+subtitle: "DNS, Puertos, localhost, LVM, /etc/fstab — Enfoque Práctico Abacom™"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# UNIDAD VI: Redes y Almacenamiento Local
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Diagnosticar conectividad: interfaces, IP, rutas, DNS, puertos con `ip`, `ss`, `resolvectl`.
+- Configurar red persistente con **Netplan** (Ubuntu) y entender `systemd-networkd`/`NetworkManager`.
+- Gestionar almacenamiento con **LVM**: PV, VG, LV, snapshots, resize online.
+- Montar sistemas de archivos de forma persistente y segura en `/etc/fstab` (UUID, opciones, `nofail`, `x-systemd.automount`).
+- Aplicar hardening de red: `ufw`, `nftables` básico, `ss`/`lsof` para auditoría de puertos.
+
+---
+
+## 1. Diagnóstico de Red — Herramientas Modernas
+
+### 1.1 `ip` — Reemplazo de `ifconfig`/`route`/`arp`
+
+```bash
+# Interfaces y estado
+ip -br link                   # Tabla compacta: nombre, estado, MAC
+ip -br addr                   # IPs asignadas por interfaz
+ip link show eth0             # Detalle de una interfaz
+
+# Direccionamiento
+ip addr add 10.0.1.50/24 dev eth0
+ip addr del 10.0.1.50/24 dev eth0
+
+# Rutas
+ip route                      # Tabla de rutas
+ip route add 192.168.10.0/24 via 10.0.1.1 dev eth0
+ip route del default
+ip route add default via 10.0.1.1 dev eth0
+
+# Neighbor (ARP/NDP)
+ip neigh show                 # Tabla ARP/IPv6 neighbors
+ip neigh flush dev eth0       # Limpiar cache ARP
+```
+
+### 1.2 `ss` — Reemplazo de `netstat` (socket statistics)
+
+```bash
+# Puertos en escucha (TCP/UDP) con proceso
+sudo ss -lntp                 # -l listen, -n numeric, -t tcp, -p process
+sudo ss -lnup                 # UDP
+
+# Conexiones establecidas
+ss -tnp state established     # TCP established
+ss -tnp state time-wait       # TIME-WAIT (debug conexiones cerradas)
+
+# Filtros avanzados
+ss -tnp 'sport = :443'        # Solo puerto 443 origen
+ss -tnp 'dport = :80'         # Solo puerto 80 destino
+ss -tnp 'src 10.0.1.0/24'     # Solo origen red
+ss -tnp 'dst 8.8.8.8'         # Solo destino IP
+
+# Estadísticas
+ss -s                         # Resumen global
+ss -ti                        # Info TCP interna (cwnd, rtt, retrans)
+```
+
+### 1.3 DNS — `resolvectl` (systemd-resolved) y `dig`/`drill`
+
+```bash
+# Estado de resolved
+resolvectl status             # Config por interfaz, servidores DNS, dominios
+resolvectl query api.abacom.cl   # Resolución A/AAAA
+resolvectl query -t SRV _ldap._tcp.abacom.cl  # Registros SRV
+
+# Flush cache
+resolvectl flush-caches
+
+# dig (clásico, más opciones)
+dig +short api.abacom.cl
+dig @1.1.1.1 api.abacom.cl +dnssec
+dig axfr abacom.cl @ns1.abacom.cl  # Transferencia de zona (si permitida)
+
+# drill (alternativa ligera, sintaxis similar a dig)
+drill api.abacom.cl
+```
+
+::: {.callout-tip}
+## ✅ Checklist diagnóstico red (orden)
+
+1. `ip -br link` → ¿Interfaz UP?
+2. `ip -br addr` → ¿Tiene IP?
+3. `ip route` → ¿Ruta default?
+4. `resolvectl query host` → ¿DNS resuelve?
+5. `ss -lntp` → ¿Puerto escuchando?
+6. `curl -I http://host:puerto` / `nc -zv host puerto` → ¿Conectividad real?
+:::
+
+---
+
+## 2. Configuración de Red Persistente — Netplan (Ubuntu 24.04)
+
+### 2.1 Estructura y archivos
+
+```bash
+# Archivos en /etc/netplan/ (orden lexicográfico, último gana)
+ls /etc/netplan/
+# 01-netcfg.yaml, 50-cloud-init.yaml, 99-custom.yaml
+```
+
+### 2.2 Ejemplos comunes
+
+```yaml
+# /etc/netplan/99-abacom.yaml
+network:
+  version: 2
+  renderer: networkd        # o NetworkManager
+  ethernets:
+    eth0:
+      dhcp4: false
+      addresses:
+        - 10.0.1.50/24
+      routes:
+        - to: default
+          via: 10.0.1.1
+      nameservers:
+        addresses: [1.1.1.1, 8.8.8.8]
+        search: [abacom.cl, internal]
+      # MTU jumbo frames (si switch soporta)
+      mtu: 9000
+      # Bonding / VLANs
+      # vlans:
+      #   vlan10:
+      #     id: 10
+      #     link: eth0
+      #     addresses: [10.0.10.50/24]
+  bonds:
+    bond0:
+      interfaces: [eth0, eth1]
+      parameters:
+        mode: 802.3ad       # LACP
+        lacp-rate: fast
+        mii-monitor-interval: 100
+      addresses: [10.0.2.10/24]
+      routes:
+        - to: default
+          via: 10.0.2.1
+  bridges:
+    br0:
+      interfaces: [bond0]
+      addresses: [10.0.3.10/24]
+      parameters:
+        stp: true
+        forward-delay: 4
+      routes:
+        - to: default
+          via: 10.0.3.1
+```
+
+```bash
+# Validar sintaxis
+sudo netplan generate
+
+# Aplicar (con --debug para ver errores)
+sudo netplan apply --debug
+
+# Revertir si falla (en 120s auto-revert)
+sudo netplan apply
+# Si no puedes acceder, espera 120s o reinicia
+```
+
+### 2.3 `systemd-networkd` — Alternativa nativa (sin Netplan)
+
+```ini
+# /etc/systemd/network/10-eth0.network
+[Match]
+Name=eth0
+
+[Network]
+Address=10.0.1.50/24
+Gateway=10.0.1.1
+DNS=1.1.1.1
+DNS=8.8.8.8
+Domains=abacom.cl internal
+# MTUBytes=9000
+
+[DHCPv4]
+UseMTU=true
+RouteMetric=100
+```
+
+```bash
+sudo systemctl enable --now systemd-networkd systemd-resolved
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+```
+
+---
+
+## 3. Almacenamiento — LVM (Logical Volume Manager)
+
+### 3.1 Conceptos: PV → VG → LV
+
+```
+Disco físico (/dev/sdb, /dev/nvme1n1)
+    │
+    ▼
+Physical Volume (PV) ── pvcreate /dev/sdb
+    │
+    ▼
+Volume Group (VG) ── vgcreate vg_data /dev/sdb
+    │
+    ├───▶ Logical Volume (LV) ── lvcreate -n lv_app -L 100G vg_data
+    ├───▶ LV ── lvcreate -n lv_logs -L 50G vg_data
+    └───▶ LV ── lvcreate -n lv_db -L 200G vg_data
+```
+
+### 3.2 Operaciones diarias
+
+```bash
+# 1. Crear PV en disco nuevo
+sudo pvcreate /dev/nvme1n1
+sudo pvs /dev/nvme1n1
+
+# 2. Crear VG
+sudo vgcreate vg_data /dev/nvme1n1
+sudo vgs vg_data
+
+# 3. Crear LVs (con thin provisioning opcional)
+sudo lvcreate -n lv_app -L 100G vg_data
+sudo lvcreate -n lv_logs -L 50G vg_data
+sudo lvcreate -n lv_db -L 200G vg_data
+sudo lvs vg_data
+
+# 4. Crear filesystem y montar
+sudo mkfs.ext4 /dev/vg_data/lv_app
+sudo mkdir -p /srv/app
+sudo mount /dev/vg_data/lv_app /srv/app
+```
+
+### 3.3 Redimensionar (Online — ext4/XFS)
+
+```bash
+# Extender LV + FS (ext4: resize2fs, XFS: xfs_growfs)
+sudo lvextend -L +50G /dev/vg_data/lv_app
+sudo resize2fs /dev/vg_data/lv_app        # ext4
+# sudo xfs_growfs /srv/app                # XFS (montado)
+
+# Reducir (SOLO ext4, REQUIERE desmontar)
+sudo umount /srv/app
+sudo e2fsck -f /dev/vg_data/lv_app
+sudo resize2fs /dev/vg_data/lv_app 80G
+sudo lvreduce -L 80G /dev/vg_data/lv_app
+sudo mount /dev/vg_data/lv_app /srv/app
+```
+
+### 3.4 Snapshots (Backup consistente)
+
+```bash
+# Crear snapshot (COW - Copy on Write)
+sudo lvcreate -L 10G -s -n lv_app_snap_$(date +%F) /dev/vg_data/lv_app
+
+# Montar snapshot para backup
+sudo mkdir -p /mnt/snap
+sudo mount /dev/vg_data/lv_app_snap_2026-07-20 /mnt/snap
+# rsync /mnt/snap/ /mnt/backup/app/
+sudo umount /mnt/snap
+
+# Eliminar snapshot
+sudo lvremove vg_data/lv_app_snap_2026-07-20
+```
+
+### 3.5 Thin Provisioning (Over-provisioning controlado)
+
+```bash
+# Crear pool thin
+sudo lvcreate -L 1T -T vg_data/thinpool
+# Crear LVs thin (tamaño virtual > pool físico)
+sudo lvcreate -V 500G -T vg_data/thinpool -n lv_thin_app
+# Monitoreo uso real
+sudo lvs -o +data_percent,vg_data/thinpool
+```
+
+---
+
+## 4. Montaje Persistente — `/etc/fstab` Seguro
+
+### 4.1 Estructura y opciones recomendadas
+
+```fstab
+# <device>              <mount>   <type>  <options>                           <dump> <pass>
+# Raíz y boot (gestionados por instalador)
+UUID=xxxx-xxxx          /         ext4    defaults,noatime                    0      1
+UUID=yyyy-yyyy          /boot     ext4    defaults                            0      2
+
+# LVM - usar UUID del LV (blkid /dev/vg_data/lv_app)
+UUID=aaaa-aaaa          /srv/app  ext4    defaults,noatime,x-systemd.automount,x-systemd.idle-timeout=300 0 2
+UUID=bbbb-bbbb          /var/log  ext4    defaults,noatime,nosuid,noexec,nodev 0 2
+UUID=cccc-cccc          /var/lib/docker  xfs  defaults,noatime,prjquota        0 2
+
+# Disco externo de backups (nofail = no bloquea boot si no está)
+UUID=dddd-dddd          /mnt/backup ext4  defaults,noatime,nofail,x-systemd.automount 0 0
+
+# tmpfs para caches temporales
+tmpfs                   /tmp      tmpfs   defaults,noatime,nosuid,nodev,size=2G 0 0
+tmpfs                   /run/user/1000 tmpfs defaults,noatime,nosuid,nodev,uid=1000,gid=1000 0 0
+```
+
+### 4.2 Opciones clave explicadas
+
+| Opción | Uso | Recomendación Abacom |
+|--------|-----|---------------------|
+| `defaults` | rw, suid, dev, exec, auto, nouser, async | Base |
+| `noatime` | No actualizar access time | **Siempre** (rendimiento) |
+| `nosuid,noexec,nodev` | Seguridad | En `/tmp`, `/var/log`, `/home`, `/mnt/*` |
+| `x-systemd.automount` | Montaje a demanda (on-access) | **Discos secundarios, backups, NFS** |
+| `x-systemd.idle-timeout=300` | Desmontar tras 5 min inactivo | Con automount |
+| `nofail` | No bloquear boot si dispositivo ausente | **Discos extraíbles, USB, NFS** |
+| `_netdev` | Red necesaria (systemd espera network-online) | NFS, iSCSI, CIFS |
+| `discard` / `fstrim` | TRIM SSD (mejor: timer fstrim) | `systemctl enable fstrim.timer` |
+
+### 4.3 Validar y probar
+
+```bash
+# Sintaxis
+sudo findmnt --verify --verbose
+
+# Montar todo (sin reiniciar)
+sudo mount -a
+
+# Probar un entry específico
+sudo mount /srv/app
+sudo systemctl daemon-reload
+sudo systemctl restart local-fs.target
+```
+
+---
+
+## 5. Hardening de Red Básico
+
+### 5.1 `ufw` (Uncomplicated Firewall) — Frontend iptables/nftables
+
+```bash
+# Instalar y configurar por defecto deny
+sudo apt install -y ufw
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw default deny routed
+
+# Reglas permitidas (ejemplos)
+sudo ufw allow 22/tcp comment 'SSH'
+sudo ufw allow 80,443/tcp comment 'HTTP/HTTPS'
+sudo ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL solo red interna'
+sudo ufw allow from 10.0.1.0/24 to any port 22 comment 'SSH solo mgmt'
+
+# Habilitar (¡cuidado si estás por SSH!)
+sudo ufw enable
+
+# Ver estado numerado
+sudo ufw status numbered
+
+# Borrar regla
+sudo ufw delete 3
+```
+
+### 5.2 `nftables` — Bajo nivel (si necesitas control total)
+
+```bash
+# /etc/nftables.conf
+#!/usr/sbin/nft -f
+flush ruleset
+
+table inet filter {
+  chain input {
+    type filter hook input priority 0; policy drop;
+    iif "lo" accept
+    ct state established,related accept
+    tcp dport { 22, 80, 443 } accept
+    ip saddr 10.0.0.0/8 tcp dport 5432 accept
+    icmp type echo-request limit rate 5/second accept
+    counter drop
+  }
+  chain forward {
+    type filter hook forward priority 0; policy drop;
+  }
+  chain output {
+    type filter hook output priority 0; policy accept;
+  }
+}
+```
+
+```bash
+sudo nft -c /etc/nftables.conf  # Validar
+sudo systemctl enable --now nftables
+```
+
+### 5.3 Auditoría de puertos y servicios
+
+```bash
+# Puertos escuchando con proceso
+sudo ss -lntp | head -20
+
+# Puertos abiertos al exterior (desde otra máquina)
+nmap -sS -p- 10.0.1.50          # SYN scan todos puertos
+nmap -sU --top-ports 100 10.0.1.50  # UDP top 100
+
+# Procesos con sockets abiertos
+sudo lsof -i -P -n | grep LISTEN
+```
+
+---
+
+## 6. Laboratorio Práctico: Red y Almacenamiento
+
+::: {.callout-note}
+## 🎯 Lab 06 — Red, LVM, fstab, Firewall (60-90 min)
+
+### Checklist
+
+- [ ] Configurar IP estática en `eth0` via Netplan (`10.0.1.50/24`, gw `10.0.1.1`, DNS `1.1.1.1`)
+- [ ] `netplan apply` y validar `ip -br addr`, `resolvectl status`
+- [ ] Añadir disco virtual 20G (`/dev/sdb`), crear PV, VG `vg_data`, LVs: `lv_app(8G)`, `lv_logs(4G)`, `lv_db(8G)`
+- [ ] Formatear ext4/XFS, montar en `/srv/app`, `/var/log/app`, `/var/lib/mysql`
+- [ ] Añadir entries a `/etc/fstab` con UUID, `noatime`, `x-systemd.automount` donde corresponda
+- [ ] Validar `mount -a`, `findmnt --verify`, `systemctl daemon-reload`
+- [ ] Configurar UFW: deny incoming, allow SSH/HTTP/HTTPS, allow PostgreSQL solo desde `10.0.0.0/8`
+- [ ] Probar: `nmap -sS localhost`, `ss -lntp`, `ufw status numbered`
+- [ ] Snapshot LVM de `lv_app`, montar, simular backup, eliminar snapshot
+
+### Evidencia
+
+```bash
+{
+  echo "=== Netplan ===" && cat /etc/netplan/99-abacom.yaml
+  echo -e "\n=== IP/Route ===" && ip -br addr && ip route
+  echo -e "\n=== DNS ===" && resolvectl status
+  echo -e "\n=== LVM ===" && pvs && vgs && lvs
+  echo -e "\n=== fstab ===" && grep -v '^#' /etc/fstab | grep -v '^$'
+  echo -e "\n=== Mounts ===" && findmnt -T /srv/app -T /var/log/app -T /var/lib/mysql
+  echo -e "\n=== UFW ===" && sudo ufw status numbered
+  echo -e "\n=== Puertos ===" && sudo ss -lntp
+  echo -e "\n=== Snapshot test ===" && sudo lvs vg_data/lv_app_snap_* 2>/dev/null || echo "No snapshots"
+} > ~/lab06-evidencia.txt
+```
+:::
+
+---
+
+## 7. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad VI
+
+1. **Diagnóstico**: `ip -br link/addr/route`, `ss -lntp`, `resolvectl query`, `dig`.
+2. **Netplan**: YAML en `/etc/netplan/`, `netplan generate && netplan apply --debug`.
+3. **LVM**: PV → VG → LV. `lvextend + resize2fs/xfs_growfs` online. Snapshots COW para backup.
+4. **fstab**: UUID, `noatime`, `nosuid/noexec/nodev`, `x-systemd.automount`, `nofail` para discos opcionales.
+5. **Firewall**: `ufw` por defecto deny, reglas explícitas, `ufw status numbered`.
+:::
+
+### 📋 Checklist de competencias Unidad VI
+
+- [ ] Diagnosticar conectividad capa 2/3/4 con herramientas modernas.
+- [ ] Configurar red persistente (IP estática, VLAN, bond, bridge) con Netplan.
+- [ ] Crear/extender/reducir LVs, crear snapshots, usar thin provisioning.
+- [ ] Escribir `/etc/fstab` seguro y validado.
+- [ ] Configurar `ufw`/`nftables` con política deny-by-default.
+- [ ] Auditar puertos expuestos y mapear a procesos.
+
+---
+
+## 8. Recursos y Referencias
+
+- **iproute2**: <https://man7.org/linux/man-pages/man8/ip.8.html>
+- **ss**: <https://man7.org/linux/man-pages/man8/ss.8.html>
+- **Netplan**: <https://netplan.io/docs/>
+- **LVM**: <https://man7.org/linux/man-pages/man8/lvm.8.html>, <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_logical_volumes/>
+- **systemd.mount/fstab**: <https://www.freedesktop.org/software/systemd/man/systemd.mount.html>
+- **ufw**: <https://manpages.ubuntu.com/manpages/noble/man8/ufw.8.html>
+- **nftables**: <https://wiki.nftables.org/>
+
+---
+
+## 9. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Qué comando muestra interfaces, estado y MAC en formato tabular compacto?
+
+- [ ] ifconfig -a
+- [x] ip -br link
+- [ ] netstat -i
+- [ ] ls /sys/class/net
+
+## En Netplan, ¿qué renderer usa systemd-networkd por debajo?
+
+- [ ] NetworkManager
+- [x] networkd
+- [ ] systemd-resolved
+- [ ] NetworkManager y networkd simultáneamente
+
+## Para extender un LV formateado con ext4 y su filesystem ONLINE:
+
+- [ ] lvreduce -L +10G /dev/vg/lv && resize2fs /dev/vg/lv
+- [x] lvextend -L +10G /dev/vg/lv && resize2fs /dev/vg/lv
+- [ ] resize2fs /dev/vg/lv +10G
+- [ ] lvresize --size +10G --resizefs /dev/vg/lv (solo XFS)
+
+## En /etc/fstab, la opción que permite que el boot continúe aunque el disco no esté presente:
+
+- [ ] _netdev
+- [x] nofail
+- [ ] x-systemd.automount
+- [ ] defaults
+
+## La política por defecto recomendada en UFW para servidores:
+
+- [ ] allow incoming, deny outgoing
+- [x] deny incoming, allow outgoing
+- [ ] allow incoming, allow outgoing
+- [ ] deny incoming, deny outgoing
+```

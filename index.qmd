@@ -1,30 +1,79 @@
+---
+title: "Administración de Servidores Linux"
+subtitle: "Curso Profesional — Malla Oficial Abacom™"
+author: "Diego Saavedra — Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: false
+    theme:
+      light: cosmo
+      dark: solar
+---
+
 # Administración de Servidores Linux
 
-![CC BY-SA 3.0](https://licensebuttons.net/l/by-sa/3.0/88x31.png)
+## Presentación del Curso
 
-## Introducción
+Este curso te prepara para **instalar, operar y asegurar servidores Linux** con enfoque profesional: orden, seguridad y diagnóstico reproducible. Está alineado al 100% con la **Malla Oficial del Brochure de Abacom™** (11 Unidades).
 
-Este curso te prepara para instalar, operar y asegurar un servidor Linux con enfoque profesional: orden, seguridad y diagnóstico reproducible.
+> **Metodología Abacom™**: Aprender haciendo. Cada unidad combina teoría esencial, comandos comentados, laboratorios guiados y evidencias verificables (salidas, capturas, checklists). No hay relleno: solo lo que un SysAdmin/DevOps usa a diario.
+
+---
 
 ## Qué vas a lograr
 
-- Operar un servidor Ubuntu (paquetes, usuarios, permisos y servicios con systemd).
-- Conectarte por SSH y diagnosticar problemas con logs, puertos y estado de servicios.
-- Aplicar hardening básico: actualizaciones seguras, UFW y Fail2Ban.
-- Desplegar servicios web con Nginx + SSL (Certbot).
-- Ejecutar aplicaciones con Docker y Docker Compose.
+Al finalizar el curso serás capaz de:
+
+- **Operar un servidor Ubuntu** (paquetes, usuarios, permisos, servicios con systemd).
+- **Conectarte por SSH** y diagnosticar problemas con logs, puertos y estado de servicios.
+- **Aplicar hardening básico**: actualizaciones seguras, UFW y Fail2Ban.
+- **Desplegar servicios web** con Nginx + SSL (Certbot/Let's Encrypt).
+- **Ejecutar aplicaciones** con Docker y Docker Compose.
+- **Administrar bases de datos** en contenedores (MySQL/PostgreSQL) y desplegar *App + DB*.
+- **Gestionar almacenamiento** (LVM, `/etc/fstab`, discos, montajes).
+- **Automatizar tareas** con Bash scripting, cron y systemd timers.
+
+---
+
+## Malla Curricular — 11 Unidades Oficiales
+
+| Unidad | Título | Temas Clave |
+|--------|--------|-------------|
+| **01** | **Fundamentos de Linux y Virtualización Ligera** | WSL2 (Ubuntu 24.04 LTS), Docker Desktop, Terminal Bash, FHS |
+| **02** | **Gestión de Paquetes y Entornos** | APT vs DNF, PPA, Flatpak/Snap, Firmas GPG, Git |
+| **03** | **Scripting y Automatización con Bash** | FHS, Permisos, ACLs, Scripts de Backup y Logs |
+| **04** | **Administración y Seguridad de Usuarios** | `/etc/passwd`, `/etc/shadow`, PAM, `sudoers`, SSH Keys |
+| **05** | **Gestión de Procesos y Logs** | Systemd units, `journalctl`, `cron`, `anacron`, `htop` |
+| **06** | **Redes y Almacenamiento Local** | DNS, Puertos, `localhost`, LVM, `/etc/fstab` |
+| **07** | **Seguridad Práctica — Hardening** | `ufw`, `fail2ban`, puertos, servicios expuestos |
+| **08** | **Introducción a Docker** | Docker Engine, Arquitectura, Imágenes, Contenedores |
+| **09** | **Nginx como Servidor Web y Proxy** | Configuración, Servidor Estático, Reverse Proxy |
+| **10** | **Certificados SSL y HTTPS** | Certbot / Let's Encrypt, Redirección HTTP → HTTPS |
+| **11** | **Bases de Datos en Contenedores y Despliegue** | MySQL/PostgreSQL, Docker Compose, App + DB |
+
+---
 
 ## Cómo usar este material
 
-- Sigue las unidades en orden.
-- Ejecuta los ejemplos y conserva evidencias (salidas, capturas y checklist).
-- Completa los laboratorios (son la parte principal del curso).
+1. **Sigue las unidades en orden** — cada una construye sobre la anterior.
+2. **Ejecuta los ejemplos** — conserva evidencias (salidas, capturas, checklists).
+3. **Completa los laboratorios** — son la parte principal del curso.
+4. **Usa las presentaciones (Reveal.js)** para repasar conceptos clave antes de cada práctica.
+
+---
 
 ## Antes de empezar
 
-- Preparación del entorno: [Guía de configuración (SETUP)](SETUP.qmd)
-- Diapositivas del curso y por unidad: [Presentaciones (Reveal.js)](presentaciones.qmd)
+- **Entorno recomendado**: **WSL2 (Ubuntu 24.04 LTS)** + **Docker Desktop** en Windows 10/11.  
+  *Alternativa*: Linux nativo o macOS con Docker Desktop.  
+  **No se usan ISOs en máquinas virtuales pesadas (VirtualBox/VMware)** — todo el enfoque práctico está orientado a WSL2 y contenedores.
+- **Guía de configuración**: [`SETUP.qmd`](SETUP.qmd) — prepara tu entorno en 15 min.
+- **Presentaciones**: [`presentaciones/`](presentaciones/index.qmd) — diapositivas Reveal.js por unidad.
 
+<<<<<<< HEAD
 Selecciona la Unidad 1 en el menú lateral para comenzar.
 
 ---
@@ -39,3 +88,107 @@ Si modificas o compartes el contenido, debes:
 - Notificar al autor: dsaavedra88@gmail.com
 
 Más información: [Licencia](license.qmd)
+=======
+---
+
+## Estructura del repositorio
+
+```
+administracion-servidores-linux/
+├── _quarto.yml                 # Configuración principal del libro
+├── index.qmd                   # Esta página (portada del curso)
+├── SETUP.qmd                   # Guía de entorno (WSL2 + Docker Desktop)
+├── 01-fundamentos/index.qmd    # UNIDAD I
+├── 02-paquetes/index.qmd       # UNIDAD II
+├── 03-scripting/index.qmd      # UNIDAD III
+├── 04-usuarios/index.qmd       # UNIDAD IV
+├── 05-procesos/index.qmd       # UNIDAD V
+├── 06-redes/index.qmd          # UNIDAD VI
+├── 07-seguridad/index.qmd      # UNIDAD VII
+├── 08-docker/index.qmd         # UNIDAD VIII
+├── 09-nginx/index.qmd          # UNIDAD IX
+├── 10-ssl/index.qmd            # UNIDAD X
+├── 11-bases-datos/index.qmd    # UNIDAD XI
+├── presentaciones/             # Slides Reveal.js (11 unidades + curso general)
+├── practicas/                  # Prácticas guiadas por unidad
+├── lab-practicos/              # Laboratorios integrados
+├── quizzes/                    # Quizzes interactivos (quizdown)
+├── anexos/                     # Mini-cursos complementarios
+└── resources/                  # Assets, imágenes, CSS
+```
+
+---
+
+## Navegación rápida
+
+::: {.callout-note}
+## Acceso directo a unidades
+
+- [UNIDAD I: Fundamentos](01-fundamentos/index.qmd)
+- [UNIDAD II: Paquetes](02-paquetes/index.qmd)
+- [UNIDAD III: Scripting](03-scripting/index.qmd)
+- [UNIDAD IV: Usuarios](04-usuarios/index.qmd)
+- [UNIDAD V: Procesos](05-procesos/index.qmd)
+- [UNIDAD VI: Redes y Almacenamiento](06-redes/index.qmd)
+- [UNIDAD VII: Hardening](07-seguridad/index.qmd)
+- [UNIDAD VIII: Docker](08-docker/index.qmd)
+- [UNIDAD IX: Nginx](09-nginx/index.qmd)
+- [UNIDAD X: SSL/HTTPS](10-ssl/index.qmd)
+- [UNIDAD XI: Bases de Datos](11-bases-datos/index.qmd)
+:::
+
+---
+
+## Metodología Abacom™ — Principios
+
+::: {.callout-tip}
+### 1. **Conceptos > Código**
+Entender *por qué* antes de *cómo*. Cada comando viene con explicación de qué hace el kernel/SO debajo.
+
+::: {.callout-tip}
+### 2. **Evidencia reproducible**
+No basta con "funcionó en mi máquina". Laboratorios exigen salidas, capturas y checklists versionables.
+
+::: {.callout-tip}
+### 3. **Diagnóstico sobre memorización**
+Aprendes a *encontrar* la solución (logs, `man`, `ss`, `journalctl`, `strace`) no a recitar banderas.
+
+::: {.callout-tip}
+### 4. **Seguridad por defecto**
+`sudo` mínimo, claves SSH, firewall por defecto deny, fail2ban, actualizaciones automáticas de seguridad.
+
+::: {.callout-tip}
+### 5. **Contenedores como unidad de despliegue**
+Docker no es opcional: es el estándar para empaquetar, versionar y correr cargas de trabajo reproducibles.
+:::
+:::
+:::
+:::
+:::
+
+---
+
+## Soporte y contacto
+
+::: {.callout-important}
+## ¿Dudas o problemas?
+
+- 💬 **Preguntas técnicas**: Abre un *issue* en [GitHub Issues](https://github.com/statick88/administracion-servidores-linux/issues)
+- 🐛 **Errores no cubiertos**: Reporta en el repositorio con salida completa y pasos para reproducir
+- 💡 **Sugerencias de mejora**: PR bienvenidos o *issue* con etiqueta `enhancement`
+- 📧 **Contacto instructor**: diego@abacom.cl
+:::
+
+---
+
+## Licencia
+
+© 2026 **Statick / Abacom**. Material didáctico para uso educativo interno.  
+Ver [`license.qmd`](license.qmd) para detalles.
+
+---
+
+**Última actualización**: 2026-07-20  
+**Versión**: 2.0 (alineada a Malla Oficial 11 Unidades Abacom™)  
+**Estado**: ✅ Completo y validado contra fuentes oficiales
+>>>>>>> 6e48e99 (refactor: base malla 11 unidades (8 unidades + index + _quarto.yml))

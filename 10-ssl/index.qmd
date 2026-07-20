@@ -1,0 +1,1065 @@
+---
+title: "UNIDAD X: Certificados SSL y HTTPS"
+subtitle: "Certbot / Let's Encrypt, Redirección HTTP → HTTPS, HSTS, OCSP Stapling"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: ../references.bib
+biblio-style: apalike
+---
+
+# UNIDAD X: Certificados SSL y HTTPS
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Entender el **modelo de confianza TLS** (CA, certificados, cadena de confianza, validación).
+- Instalar y configurar **Certbot** con el plugin Nginx para obtener certificados Let's Encrypt.
+- Emitir certificados en tres modos: **standalone**, **webroot** y **plugin nginx**.
+- Configurar **renovación automática** (systemd timer + `certbot renew --dry-run`).
+- Implementar **redirección HTTP → HTTPS** (301) y **HSTS** (Strict-Transport-Security).
+- Habilitar **OCSP Stapling** para mejorar rendimiento y privacidad TLS.
+- Configurar **monitoreo de expiración** de certificados (cron, Prometheus, alertas).
+- Aplicar la **Metodología Abacom™**: diagnóstico reproducible, evidencia documentada, hardening TLS desde el día 1.
+
+---
+
+## 1. Fundamentos de TLS y Let's Encrypt
+
+### 1.1 ¿Por qué HTTPS es obligatorio en 2026?
+
+- **Confidencialidad**: Cifra el tráfico entre cliente y servidor (evita MITM, sniffing).
+- **Integridad**: Detecta manipulación de contenido en tránsito.
+- **Autenticación**: El certificado verifica que el servidor es quien dice ser (validado por CA).
+- **SEO y confianza**: Google penaliza HTTP; navegadores marcan "No seguro" en HTTP.
+- **Cumplimiento**: GDPR, PCI-DSS, ISO 27001 exigen cifrado en tránsito.
+
+::: {.callout-note}
+## Modelo de confianza TLS — Conceptos clave
+
+| Concepto | Descripción |
+|----------|-------------|
+| **CA (Certificate Authority)** | Entidad de confianza que firma certificados (Let's Encrypt, DigiCert, etc.). |
+| **Certificado hoja (leaf)** | Certificado del dominio (ej. `tudominio.com`). Contiene clave pública. |
+| **Cadena de confianza** | Leaf → Intermedia(s) → Raíz (Root CA). El navegador valida hasta una raíz de confianza en su trust store. |
+| **Validación DV (Domain Validation)** | Let's Encrypt solo valida control del dominio (HTTP-01 / DNS-01). No valida organización. |
+| **Validez** | Let's Encrypt emite por **90 días** (renovación automática obligatoria). |
+:::
+
+### 1.2 Let's Encrypt y ACME
+
+**Let's Encrypt** es una CA gratuita, automática y abierta que usa el protocolo **ACME (RFC 8555)**.
+
+**Tipos de desafío ACME:**
+
+| Desafío | Puerto | Uso típico | Requiere |
+|---------|--------|------------|----------|
+| **HTTP-01** | 80 | Webroot / Nginx plugin | Puerto 80 accesible públicamente |
+| **TLS-ALPN-01** | 443 | Standalone / Nginx plugin | Puerto 443 accesible |
+| **DNS-01** | 53 (DNS) | Wildcards, servidores internos | Acceso API al proveedor DNS |
+
+::: {.callout-warning}
+## ⚠️ Requisito indispensable: Acceso público
+
+**No podrás emitir un certificado real si tu servidor no es accesible desde Internet.**
+
+Lo que puede fallar:
+- DNS del dominio no apunta a la IP pública del servidor.
+- Firewall/router bloquea puertos 80/443 (UFW, iptables, cloud firewall, NAT sin port-forward).
+- Estás en WSL2/VM sin red puente o sin exposición pública.
+
+**Validación previa obligatoria:**
+```bash
+# 1. DNS resuelve a TU IP pública
+dig +short tudominio.com
+# 2. Puerto 80 responde HTTP públicamente
+curl -I http://tudominio.com/
+# 3. Puerto 443 accesible (para TLS-ALPN-01)
+curl -I -k https://tudominio.com/
+```
+:::
+
+---
+
+## 2. Instalación de Certbot
+
+### 2.1 Ubuntu 24.04 LTS (APT + Snap)
+
+```bash
+#!/usr/bin/env bash
+# install-certbot.sh — Instala Certbot y plugin Nginx en Ubuntu 24.04
+# Uso: sudo bash install-certbot.sh
+
+set -euo pipefail
+
+# 1. Actualizar índice de paquetes
+apt update
+
+# 2. Instalar Certbot + plugin Nginx (recomendado: snap para versión actualizada)
+# Opción A: snap (versión más reciente, auto-actualizable)
+snap install core
+snap refresh core
+snap install --classic certbot
+ln -sf /snap/bin/certbot /usr/bin/certbot
+
+# Opción B: apt (versión de repositorio Ubuntu, más estable pero antigua)
+# apt install -y certbot python3-certbot-nginx
+
+# 3. Verificar instalación
+certbot --version
+# certbot 2.11.0 (o superior)
+
+echo "✅ Certbot instalado correctamente"
+```
+
+::: {.callout-tip}
+## Snap vs APT en Ubuntu 24.04
+
+- **Snap**: Versión más reciente (2.11+), auto-actualizaciones, plugin nginx incluido. **Recomendado para producción**.
+- **APT**: Versión 2.1.0 (Ubuntu 24.04), más estable pero sin features nuevos (EAB, perfiles). Úsalo si tu política prohíbe snap.
+:::
+
+### 2.2 Verificar plugin Nginx
+
+```bash
+certbot plugins --prepare
+# Buscar: nginx (Authenticator/Installer)
+```
+
+---
+
+## 3. Emisión de Certificados — Tres Modos
+
+### 3.1 Modo Nginx Plugin (Recomendado para producción)
+
+**Ventajas**: Modifica automáticamente la configuración de Nginx, agrega redirect HTTP→HTTPS, HSTS, OCSP stapling.
+
+```bash
+#!/usr/bin/env bash
+# certbot-nginx.sh — Emisión con plugin Nginx
+# Uso: sudo bash certbot-nginx.sh tudominio.com www.tudominio.com
+
+set -euo pipefail
+
+DOMINIO_PRINCIPAL="${1:-}"
+DOMINIOS_ADICIONALES="${2:-}"
+
+if [[ -z "$DOMINIO_PRINCIPAL" ]]; then
+  echo "Uso: $0 <dominio_principal> [dominios_adicionales...]"
+  exit 1
+fi
+
+# Construir lista de dominios para -d
+DOMINIOS=(-d "$DOMINIO_PRINCIPAL")
+for d in $DOMINIOS_ADICIONALES; do
+  DOMINIOS+=(-d "$d")
+done
+
+# 1. Emisión + configuración automática Nginx
+certbot --nginx "${DOMINIOS[@]}" \
+  --non-interactive \
+  --agree-tos \
+  --email "admin@${DOMINIO_PRINCIPAL}" \
+  --redirect \
+  --hsts \
+  --staple-ocsp \
+  --must-staple
+
+# 2. Verificar renovación automática
+certbot renew --dry-run
+
+echo "✅ Certificado emitido y Nginx configurado para ${DOMINIO_PRINCIPAL}"
+```
+
+**Flags clave explicadas:**
+
+| Flag | Función |
+|------|---------|
+| `--nginx` | Usa plugin Nginx (auth + install) |
+| `--redirect` | Agrega redirect 301 HTTP → HTTPS en server block puerto 80 |
+| `--hsts` | Agrega header `Strict-Transport-Security: max-age=31536000` |
+| `--staple-ocsp` | Habilita `ssl_stapling on; ssl_stapling_verify on;` |
+| `--must-staple` | Solicita extensión `OCSP Must-Staple` en el certificado (requiere CA compatible) |
+| `--non-interactive` | Sin prompts (ideal para automatización) |
+| `--agree-tos` | Acepta TOS de Let's Encrypt automáticamente |
+
+::: {.callout-note}
+## Qué hace el plugin Nginx automáticamente
+
+1. **Autenticación HTTP-01**: Crea location temporal `/.well-known/acme-challenge/` en server block puerto 80.
+2. **Obtiene certificado**: Guarda en `/etc/letsencrypt/live/tudominio.com/`.
+3. **Modifica configuración**: Crea/actualiza server block puerto 443 con `ssl_certificate`, `ssl_certificate_key`.
+4. **Agrega redirect**: Nuevo server block puerto 80 con `return 301 https://$host$request_uri;`.
+5. **Habilita HSTS/OCSP**: Según flags usados.
+6. **Recarga Nginx**: `systemctl reload nginx`.
+:::
+
+---
+
+### 3.2 Modo Webroot (Cuando Nginx no gestiona el dominio directamente)
+
+Útil si: Nginx es proxy inverso a otra app, o no quieres que Certbot toque la config de Nginx.
+
+```bash
+#!/usr/bin/env bash
+# certbot-webroot.sh — Emisión modo webroot
+# Uso: sudo bash certbot-webroot.sh tudominio.com /var/www/tudominio
+
+set -euo pipefail
+
+DOMINIO="${1:-}"
+WEBROOT="${2:-/var/www/html}"
+
+if [[ -z "$DOMINIO" ]]; then
+  echo "Uso: $0 <dominio> [webroot_path]"
+  exit 1
+fi
+
+# 1. Asegurar directorio webroot accesible por Nginx
+mkdir -p "${WEBROOT}/.well-known/acme-challenge"
+chown -R www-data:www-data "${WEBROOT}"
+chmod -R 755 "${WEBROOT}"
+
+# 2. Configurar Nginx para servir webroot (solo si no existe)
+cat > /etc/nginx/sites-available/acme-challenge <<'EOF'
+server {
+    listen 80;
+    server_name _;
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+        allow all;
+    }
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+EOF
+ln -sf /etc/nginx/sites-available/acme-challenge /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+
+# 3. Emitir certificado
+certbot certonly --webroot \
+  -w "${WEBROOT}" \
+  -d "${DOMINIO}" \
+  --non-interactive \
+  --agree-tos \
+  --email "admin@${DOMINIO}"
+
+# 4. Configurar Nginx manualmente para usar el cert (ver sección 4)
+echo "✅ Certificado obtenido en /etc/letsencrypt/live/${DOMINIO}/"
+echo "🔧 Ahora configura Nginx manualmente (ver sección 4.2)"
+```
+
+::: {.callout-warning}
+## Webroot: Configuración Nginx manual requerida
+
+El modo `certonly --webroot` **NO modifica Nginx**. Debes crear el server block HTTPS tú mismo (ver sección 4.2).
+:::
+
+---
+
+### 3.3 Modo Standalone (Servidor temporal en puerto 80/443)
+
+Útil para: servidores sin Nginx/Apache, APIs, servicios internos, pruebas rápidas.
+
+```bash
+#!/usr/bin/env bash
+# certbot-standalone.sh — Emisión modo standalone
+# Uso: sudo bash certbot-standalone.sh tudominio.com
+
+set -euo pipefail
+
+DOMINIO="${1:-}"
+
+if [[ -z "$DOMINIO" ]]; then
+  echo "Uso: $0 <dominio>"
+  exit 1
+fi
+
+# 1. Asegurar puertos 80/443 LIBRES (detener Nginx si corre)
+systemctl stop nginx 2>/dev/null || true
+
+# 2. Emitir certificado (usa puerto 80 para HTTP-01)
+certbot certonly --standalone \
+  -d "${DOMINIO}" \
+  --non-interactive \
+  --agree-tos \
+  --email "admin@${DOMINIO}" \
+  --preferred-challenges http
+
+# 3. Reiniciar Nginx
+systemctl start nginx
+
+echo "✅ Certificado en /etc/letsencrypt/live/${DOMINIO}/"
+echo "🔧 Configura tu servidor (Nginx, Apache, Go, Node, etc.) para usar:"
+echo "   ssl_certificate /etc/letsencrypt/live/${DOMINIO}/fullchain.pem;"
+echo "   ssl_certificate_key /etc/letsencrypt/live/${DOMINIO}/privkey.pem;"
+```
+
+::: {.callout-warning}
+## Standalone: Detiene tu servidor web
+
+- **Puerto 80/443 debe estar libre** — Certbot levanta un servidor temporal.
+- **Downtime breve** (~10-30s) durante emisión/renovación.
+- **No usar en producción** con Nginx activo a menos que tengas ventana de mantenimiento.
+:::
+
+---
+
+## 4. Configuración Nginx TLS — Hardening Completo
+
+### 4.1 Server Block HTTPS Generado por Certbot (Plugin Nginx)
+
+```nginx
+# /etc/nginx/sites-available/tudominio.com.conf (generado por certbot --nginx)
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name tudominio.com www.tudominio.com;
+
+    # Certificados Let's Encrypt
+    ssl_certificate /etc/letsencrypt/live/tudominio.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tudominio.com/privkey.pem;
+
+    # TLS Hardening (Mozilla Intermediate + extras)
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    # OCSP Stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 1.1.1.1 8.8.8.8 valid=300s;
+    resolver_timeout 5s;
+
+    # HSTS (1 año, includeSubDomains, preload)
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+    # Seguridad adicional
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Root y index
+    root /var/www/tudominio.com;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Seguridad: ocultar versión Nginx
+    server_tokens off;
+
+    # Logs
+    access_log /var/log/nginx/tudominio.com-access.log;
+    error_log /var/log/nginx/tudominio.com-error.log;
+}
+
+# Redirect HTTP → HTTPS (generado por --redirect)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name tudominio.com www.tudominio.com;
+    return 301 https://$host$request_uri;
+}
+```
+
+### 4.2 Configuración Manual (Modo Webroot/Standalone)
+
+Si usaste `certonly`, crea el archivo completo:
+
+```bash
+#!/usr/bin/env bash
+# setup-nginx-tls.sh — Configura Nginx TLS manualmente
+# Uso: sudo bash setup-nginx-tls.sh tudominio.com /var/www/tudominio.com
+
+set -euo pipefail
+
+DOMINIO="${1:-}"
+WEBROOT="${2:-/var/www/${DOMINIO}}"
+
+if [[ -z "$DOMINIO" ]]; then
+  echo "Uso: $0 <dominio> [webroot]"
+  exit 1
+fi
+
+CERT_PATH="/etc/letsencrypt/live/${DOMINIO}/fullchain.pem"
+KEY_PATH="/etc/letsencrypt/live/${DOMINIO}/privkey.pem"
+
+if [[ ! -f "$CERT_PATH" ]]; then
+  echo "❌ Certificado no encontrado: $CERT_PATH"
+  echo "   Ejecuta certbot primero (webroot/standalone)"
+  exit 1
+fi
+
+# Crear configuración Nginx
+cat > "/etc/nginx/sites-available/${DOMINIO}.conf" <<EOF
+# HTTPS Server Block — Configuración TLS Hardening (Mozilla Intermediate)
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name ${DOMINIO} www.${DOMINIO};
+
+    # Certificados Let's Encrypt
+    ssl_certificate ${CERT_PATH};
+    ssl_certificate_key ${KEY_PATH};
+
+    # TLS Hardening
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    # OCSP Stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 1.1.1.1 8.8.8.8 valid=300s;
+    resolver_timeout 5s;
+
+    # HSTS (1 año, includeSubDomains, preload)
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Document Root
+    root ${WEBROOT};
+    index index.html index.htm;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    server_tokens off;
+
+    access_log /var/log/nginx/${DOMINIO}-access.log;
+    error_log /var/log/nginx/${DOMINIO}-error.log;
+}
+
+# HTTP → HTTPS Redirect (301)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DOMINIO} www.${DOMINIO};
+    return 301 https://\$host\$request_uri;
+}
+EOF
+
+# Habilitar sitio
+ln -sf "/etc/nginx/sites-available/${DOMINIO}.conf" "/etc/nginx/sites-enabled/"
+
+# Verificar y recargar
+nginx -t && systemctl reload nginx
+
+echo "✅ Nginx configurado para ${DOMINIO} con TLS hardening"
+```
+
+---
+
+## 5. Renovación Automática
+
+### 5.1 Systemd Timer (Incluido en paquete Certbot snap/apt)
+
+```bash
+# Verificar timer activo
+systemctl status certbot.timer
+# o (snap)
+systemctl status snap.certbot.renew.timer
+
+# Ver próximos disparos
+systemctl list-timers --all | grep certbot
+```
+
+**Comportamiento por defecto**: Ejecuta `certbot renew` 2 veces al día (aleatorio 0-12h). Renueva certificados que expiran en < 30 días.
+
+### 5.2 Validación Manual de Renovación
+
+```bash
+#!/usr/bin/env bash
+# test-renewal.sh — Prueba renovación sin consumir rate limits
+
+set -euo pipefail
+
+echo "=== Probando renovación (dry-run) ==="
+certbot renew --dry-run
+
+echo -e "\n=== Estado de certificados ==="
+certbot certificates
+
+echo -e "\n=== Próximas expiraciones ==="
+for cert in /etc/letsencrypt/live/*/cert.pem; do
+  domain=$(basename $(dirname "$cert"))
+  exp=$(openssl x509 -in "$cert" -noout -enddate | cut -d= -f2)
+  exp_epoch=$(date -d "$exp" +%s)
+  now_epoch=$(date +%s)
+  days=$(( (exp_epoch - now_epoch) / 86400 ))
+  printf "%-30s %s (%d días)\n" "$domain" "$exp" "$days"
+done
+```
+
+::: {.callout-tip}
+## Rate Limits de Let's Encrypt (Importante)
+
+| Límite | Valor | Notas |
+|--------|-------|-------|
+| Certificados por dominio/semana | 50 | Incluye subdominios |
+| Registros por IP/3h | 10 | Cuentas nuevas |
+| Validaciones fallidas/hora | 5 | Por dominio |
+| **Renovaciones** | **Exentas** | No cuentan para límites |
+
+**Siempre usa `--dry-run` para probar**. Las renovaciones reales no consumen límites.
+:::
+
+### 5.3 Hooks de Renovación (Post-renewal actions)
+
+```bash
+# /etc/letsencrypt/renewal-hooks/post/reload-nginx.sh
+#!/bin/bash
+# Se ejecuta DESPUÉS de renovación exitosa
+nginx -t && systemctl reload nginx
+
+# /etc/letsencrypt/renewal-hooks/post/notify.sh
+#!/bin/bash
+# Notificar por email/Slack/Discord
+curl -X POST -H 'Content-type: application/json' \
+  --data '{"text":"✅ Certificado renovado: '$RENEWED_DOMAINS'"}' \
+  "$SLACK_WEBHOOK_URL"
+```
+
+```bash
+chmod +x /etc/letsencrypt/renewal-hooks/post/*.sh
+```
+
+---
+
+## 6. HTTP → HTTPS Redirect (301 Permanente)
+
+### 6.1 Nivel Nginx (Recomendado)
+
+Ya cubierto en sección 4 (`return 301 https://$host$request_uri;`).
+
+### 6.2 Nivel Aplicación (Si Nginx es solo proxy)
+
+```nginx
+# En server block HTTP (puerto 80)
+location / {
+    # Preservar headers para backend
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    return 301 https://$host$request_uri;
+}
+```
+
+### 6.3 HSTS — Strict Transport Security
+
+**HSTS le dice al navegador**: "Solo accede a este sitio por HTTPS por X tiempo".
+
+```nginx
+# En server block HTTPS (puerto 443)
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+```
+
+| Parámetro | Valor recomendado | Significado |
+|-----------|-------------------|-------------|
+| `max-age` | 31536000 (1 año) | Tiempo que el navegador recuerda la política |
+| `includeSubDomains` | Sí | Aplica a todos los subdominios |
+| `preload` | Sí (opcional) | Permite inclusión en lista HSTS preload de navegadores |
+
+::: {.callout-warning}
+## HSTS Preload: Irreversible
+
+Una vez en la [lista preload](https://hstspreload.org/), **no puedes quitar HTTPS** sin romper el sitio para usuarios que ya la tienen cacheada. Solo habilita `preload` si:
+- Estás 100% seguro de mantener HTTPS永久.
+- Todos los subdominios actuales y futuros tendrán HTTPS válido.
+- Has probado durante meses sin problemas.
+:::
+
+### 6.4 Verificar HSTS
+
+```bash
+# Ver header HSTS
+curl -I -k https://tudominio.com/ | grep -i strict-transport-security
+# strict-transport-security: max-age=31536000; includeSubDomains; preload
+
+# Test HSTS preload eligibility
+# https://hstspreload.org/?domain=tudominio.com
+```
+
+---
+
+## 7. OCSP Stapling
+
+### 7.1 ¿Qué es y por qué importa?
+
+| Sin Stapling | Con Stapling |
+|--------------|--------------|
+| Cliente consulta CA (OCSP) en cada conexión | Servidor incluye respuesta OCSP firmada en handshake |
+| Latencia extra (~50-200ms) | Cero latencia extra |
+| CA ve el cliente |
+| Fuga de privacidad (CA sabe quién visita) | Privacidad: CA no ve al cliente final |
+
+### 7.2 Configuración Nginx (Ya incluida en sección 4)
+
+```nginx
+ssl_stapling on;
+ssl_stapling_verify on;
+resolver 1.1.1.1 8.8.8.8 valid=300s;
+resolver_timeout 5s;
+```
+
+### 7.3 Verificar OCSP Stapling
+
+```bash
+# OpenSSL test
+openssl s_client -connect tudominio.com:443 -status -servername tudominio.com < /dev/null 2>&1 | grep -A 17 "OCSP response"
+
+# Debería mostrar:
+# OCSP response:
+# OCSP Response Data:
+#     OCSP Response Status: successful (0x0)
+#     Response Type: Basic OCSP Response
+#     ...
+#     Cert Status: good
+
+# Online test: https://www.ssllabs.com/ssltest/analyze.html?d=tudominio.com
+# Buscar: "OCSP Stapling: Yes"
+```
+
+::: {.callout-tip}
+## OCSP Must-Staple
+
+Extensión en el certificado que **obliga** al servidor a enviar OCSP staple. Si no lo hace, el navegador rechaza la conexión.
+
+```bash
+# Solicitar al emitir (requiere CA compatible — Let's Encrypt lo soporta desde 2020)
+certbot --nginx -d tudominio.com --must-staple
+
+# Verificar en certificado
+openssl x509 -in /etc/letsencrypt/live/tudominio.com/cert.pem -noout -text | grep -i must-staple
+# TLS Feature: status_request (OID 1.3.6.1.5.5.7.1.24)
+```
+:::
+
+---
+
+## 8. Monitoreo y Alertas de Expiración
+
+### 8.1 Script de Verificación Diaria (cron)
+
+```bash
+#!/usr/bin/env bash
+# /usr/local/bin/check-cert-expiry.sh
+# Ejecutar diariamente via cron: 0 6 * * * root /usr/local/bin/check-cert-expiry.sh
+
+set -euo pipefail
+
+ALERT_DAYS=30      # Alertar si expira en menos de X días
+CRITICAL_DAYS=7    # Crítico si expira en menos de X días
+WEBHOOK_URL=""     # Slack/Discord/Teams webhook (opcional)
+EMAIL="admin@tudominio.com"
+
+alert() {
+  local level="$1"
+  local msg="$2"
+  echo "[$(date)] [$level] $msg"
+  
+  if [[ -n "$WEBHOOK_URL" ]]; then
+    curl -s -X POST -H 'Content-type: application/json' \
+      --data "{\"text\":\"[$level] $msg\"}" \
+      "$WEBHOOK_URL" >/dev/null || true
+  fi
+  
+  # Email (requiere mailutils/msmtp configurado)
+  # echo "$msg" | mail -s "[Cert Alert $level] $HOSTNAME" "$EMAIL"
+}
+
+# Recorrer todos los certificados live
+for cert in /etc/letsencrypt/live/*/cert.pem; do
+  [[ -f "$cert" ]] || continue
+  
+  domain=$(basename "$(dirname "$cert")")
+  exp_date=$(openssl x509 -in "$cert" -noout -enddate | cut -d= -f2)
+  exp_epoch=$(date -d "$exp_date" +%s)
+  now_epoch=$(date +%s)
+  days=$(( (exp_epoch - now_epoch) / 86400 ))
+  
+  if [[ $days -lt 0 ]]; then
+    alert "CRITICAL" "🔴 $domain EXPIRÓ hace $((-days)) días ($exp_date)"
+  elif [[ $days -le $CRITICAL_DAYS ]]; then
+    alert "CRITICAL" "🔴 $domain expira en $días días ($exp_date)"
+  elif [[ $days -le $ALERT_DAYS ]]; then
+    alert "WARNING" "🟡 $domain expira en $days días ($exp_date)"
+  else
+    echo "[$(date)] OK $domain: $days días restantes"
+  fi
+done
+```
+
+```bash
+chmod +x /usr/local/bin/check-cert-expiry.sh
+# Cron diario a las 6 AM
+echo "0 6 * * * root /usr/local/bin/check-cert-expiry.sh >> /var/log/cert-check.log 2>&1" > /etc/cron.d/cert-expiry-check
+```
+
+### 8.2 Prometheus + Node Exporter (Observabilidad Avanzada)
+
+```yaml
+# /etc/prometheus/rules/cert-expiry.yml
+groups:
+  - name: cert-expiry
+    rules:
+      - alert: CertificateExpiringSoon
+        expr: |
+          (ssl_certificate_expiration_timestamp_seconds - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Certificado {{ $labels.domain }} expira en {{ $value | printf \"%.0f\" }} días"
+          
+      - alert: CertificateExpired
+        expr: |
+          ssl_certificate_expiration_timestamp_seconds - time() < 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🔴 Certificado {{ $labels.domain }} EXPIRADO"
+```
+
+```bash
+# Node exporter textfile collector
+# /usr/local/bin/cert-metrics.sh (cron cada 15 min)
+#!/bin/bash
+OUTPUT="/var/lib/node_exporter/textfile_collector/cert_expiry.prom"
+TMP=$(mktemp)
+
+for cert in /etc/letsencrypt/live/*/cert.pem; do
+  [[ -f "$cert" ]] || continue
+  domain=$(basename $(dirname "$cert"))
+  exp=$(openssl x509 -in "$cert" -noout -enddate | cut -d= -f2)
+  exp_epoch=$(date -d "$exp" +%s)
+  echo "ssl_certificate_expiration_timestamp_seconds{domain=\"$domain\"} $exp_epoch" >> "$TMP"
+done
+
+mv "$TMP" "$OUTPUT"
+chmod 644 "$OUTPUT"
+```
+
+---
+
+## 9. Troubleshooting Común
+
+### 9.1 Error: "Connection refused" / "Timeout" durante emisión
+
+```bash
+# 1. Verificar DNS
+dig +short tudominio.com
+# Debe coincidir con IP pública del servidor
+
+# 2. Verificar puertos desde Internet
+# Desde máquina externa:
+nc -zv tudominio.com 80
+nc -zv tudominio.com 443
+
+# 3. Verificar firewall local
+ufw status verbose
+# Debe permitir 80, 443/tcp
+
+# 4. Verificar Nginx escucha
+ss -ltnp | grep -E ':80|:443'
+```
+
+### 9.2 Error: "Rate limited" (Demasiados certificados)
+
+```bash
+# Ver límites actuales
+certbot certificates | head -20
+
+# Esperar (se resetea semanalmente) o usar dominio diferente
+# Para testing: usa staging
+certbot --nginx --staging -d test.tudominio.com
+```
+
+### 9.3 Error: "Invalid response from /well-known/acme-challenge"
+
+```bash
+# 1. Verificar que Nginx sirve el challenge
+curl -I http://tudominio.com/.well-known/acme-challenge/test
+
+# 2. Verificar configuración location en Nginx
+nginx -T | grep -A5 -B5 'acme-challenge'
+
+# 3. Permisos webroot
+ls -la /var/www/html/.well-known/acme-challenge/
+# Debe ser legible por www-data
+```
+
+### 9.4 Renovación falla: "PluginError: Could not install certificate"
+
+```bash
+# Verificar logs
+cat /var/log/letsencrypt/letsencrypt.log | tail -50
+
+# Causas comunes:
+# - Configuración Nginx rota (nginx -t falla)
+# - Permisos /etc/letsencrypt
+# - Plugin nginx no detecta server_name correcto
+
+# Forzar renovación manual
+certbot renew --force-renewal --dry-run
+```
+
+---
+
+## 10. Laboratorio Práctico: SSL/HTTPS Completo
+
+::: {.callout-note}
+## 🎯 Lab 10 — SSL/HTTPS con Certbot y Nginx (60-90 min)
+
+**Objetivo**: Desplegar Nginx con HTTPS real (Let's Encrypt), redirect HTTP→HTTPS, HSTS, OCSP Stapling, y monitoreo de expiración.
+
+### Prerrequisitos
+
+- [ ] Dominio real apuntando a IP pública del servidor (`dig +short tudominio.com` coincide).
+- [ ] Puertos 80 y 443 abiertos en firewall (UFW/cloud) y accesibles desde Internet.
+- [ ] Nginx instalado y funcionando en HTTP (Unidad IX completada).
+- [ ] Usuario con `sudo` sin password (configurado en Unidad IV).
+
+### Checklist de Verificación
+
+#### Fase 1: Instalación Certbot
+- [ ] `certbot --version` muestra 2.11+ (snap) o 2.1+ (apt)
+- [ ] `certbot plugins --prepare` lista plugin `nginx`
+
+#### Fase 2: Emisión con Plugin Nginx
+- [ ] `sudo certbot --nginx -d tudominio.com -d www.tudominio.com --redirect --hsts --staple-ocsp --non-interactive --agree-tos --email admin@tudominio.com`
+- [ ] `nginx -t` pasa sin errores
+- [ ] `systemctl reload nginx` exitoso
+
+#### Fase 3: Validación HTTPS
+- [ ] `curl -I https://tudominio.com/` → `HTTP/2 200` + `Strict-Transport-Security`
+- [ ] `curl -I http://tudominio.com/` → `HTTP/1.1 301` + `Location: https://...`
+- [ ] `openssl s_client -connect tudominio.com:443 -status` muestra `OCSP Response Status: successful`
+
+#### Fase 4: Renovación Automática
+- [ ] `certbot renew --dry-run` → "Congratulations, all simulated renewals succeeded"
+- [ ] `systemctl status certbot.timer` (o `snap.certbot.renew.timer`) → `active`
+
+#### Fase 5: Hardening TLS Verificado
+- [ ] SSL Labs Test (https://www.ssllabs.com/ssltest/) → **Grade A o A+**
+- [ ] HSTS header presente con `max-age=31536000; includeSubDomains; preload`
+- [ ] OCSP Stapling: Yes (SSL Labs)
+- [ ] Cipher suites: Solo TLS 1.2/1.3, forward secrecy
+
+#### Fase 6: Monitoreo
+- [ ] `/usr/local/bin/check-cert-expiry.sh` ejecuta sin errores
+- [ ] Cron diario instalado en `/etc/cron.d/cert-expiry-check`
+- [ ] (Opcional) Métricas Prometheus exportadas
+
+### Evidencia a Entregar (Capturas/Texto)
+
+```bash
+# Ejecuta y guarda salida en ~/lab10-evidencia.txt
+{
+  echo "=== Certbot Version ===" && certbot --version
+  echo -e "\n=== Certificados ===" && certbot certificates
+  echo -e "\n=== Nginx Config Test ===" && nginx -t
+  echo -e "\n=== HTTPS Headers ===" && curl -I -k https://tudominio.com/
+  echo -e "\n=== HTTP Redirect ===" && curl -I http://tudominio.com/
+  echo -e "\n=== OCSP Stapling ===" && openssl s_client -connect tudominio.com:443 -status -servername tudominio.com < /dev/null 2>&1 | grep -A 17 "OCSP response"
+  echo -e "\n=== Renovación Dry-run ===" && certbot renew --dry-run
+  echo -e "\n=== Timer Status ===" && systemctl status certbot.timer --no-pager
+  echo -e "\n=== Check Expiry Script ===" && /usr/local/bin/check-cert-expiry.sh
+  echo -e "\n=== SSL Labs Grade ===" && echo "Verificar en: https://www.ssllabs.com/ssltest/analyze.html?d=tudominio.com"
+} > ~/lab10-evidencia.txt
+```
+
+### Criterios de Aceptación
+
+- [ ] Nginx activo, `nginx -t` OK, configuración TLS hardening aplicada.
+- [ ] HTTPS responde 200 con HSTS y OCSP Stapling.
+- [ ] HTTP redirige 301 a HTTPS.
+- [ ] Renovación dry-run exitosa, timer systemd activo.
+- [ ] SSL Labs Grade A/A+.
+- [ ] Script de monitoreo instalado y funcional.
+- [ ] Evidencia guardada en `~/lab10-evidencia.txt`.
+:::
+
+---
+
+## 11. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad X
+
+1. **Let's Encrypt + Certbot** = Certificados TLS gratuitos, automatizados, estándar de facto.
+2. **Plugin Nginx (`--nginx`)** = Modo recomendado: autoconfigura todo (cert, redirect, HSTS, OCSP).
+3. **Renovación automática** = Systemd timer 2x/día + `certbot renew --dry-run` para validar.
+4. **HTTP → HTTPS (301)** = Obligatorio en server block puerto 80.
+5. **HSTS** = Header `Strict-Transport-Security` evita downgrade attacks.
+6. **OCSP Stapling** = Mejora latencia y privacidad; habilitar con `ssl_stapling on;`.
+7. **Monitoreo** = Script cron diario + alertas (email/Slack) + opcional Prometheus.
+8. **SSL Labs Grade A+** = Validación final de configuración TLS correcta.
+:::
+
+### 📋 Checklist de Competencias Unidad X
+
+- [ ] Explicar cadena de confianza TLS y validación DV de Let's Encrypt.
+- [ ] Instalar Certbot (snap/apt) y verificar plugin Nginx.
+- [ ] Emitir certificado en tres modos: nginx plugin, webroot, standalone.
+- [ ] Configurar Nginx TLS hardening (protocolos, cifrados, HSTS, OCSP, headers seguridad).
+- [ ] Implementar redirect HTTP→HTTPS 301.
+- [ ] Validar renovación automática (dry-run, systemd timer).
+- [ ] Diagnosticar fallos comunes: DNS, firewall, rate limits, acme-challenge.
+- [ ] Configurar monitoreo de expiración (script + cron + alertas).
+- [ ] Obtener Grade A+ en SSL Labs Test.
+
+---
+
+## 12. Recursos y Referencias
+
+- **Let's Encrypt Docs**: <https://letsencrypt.org/docs/>
+- **Certbot Documentation**: <https://certbot.eff.org/docs/>
+- **ACME Protocol (RFC 8555)**: <https://datatracker.ietf.org/doc/rfc8555/>
+- **Mozilla SSL Configuration Generator**: <https://ssl-config.mozilla.org/> (Intermediate/Modern)
+- **SSL Labs Test**: <https://www.ssllabs.com/ssltest/>
+- **HSTS Preload List**: <https://hstspreload.org/>
+- **OCSP Stapling (Nginx)**: <https://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_stapling>
+- **Rate Limits Let's Encrypt**: <https://letsencrypt.org/docs/rate-limits/>
+- **Certbot Hooks**: <https://certbot.eff.org/docs/using.html#renewal-hooks>
+
+---
+
+## 13. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Qué protocolo usa Let's Encrypt para la validación y emisión automática de certificados?
+
+- [ ] HTTP/2
+- [x] ACME (RFC 8555)
+- [ ] OCSP
+- [ ] SSH
+
+*ACME (Automated Certificate Management Environment) es el estándar IETF que usa Let's Encrypt.*
+
+---
+
+## ¿Cuál es la validez estándar de un certificado Let's Encrypt?
+
+- [ ] 365 días
+- [ ] 180 días
+- [x] 90 días
+- [ ] 30 días
+
+*Let's Encrypt emite certificados por 90 días para fomentar la automatización de renovación.*
+
+---
+
+## ¿Qué desafío ACME requiere acceso a la API del proveedor DNS?
+
+- [ ] HTTP-01
+- [ ] TLS-ALPN-01
+- [x] DNS-01
+- [ ] Todos los anteriores
+
+*DNS-01 requiere crear un registro TXT `_acme-challenge` en la zona DNS. Es el único que permite certificados wildcard (`*.dominio.com`).*
+
+---
+
+## ¿Qué flag de Certbot habilita la redirección HTTP → HTTPS (301) automáticamente?
+
+- [ ] `--hsts`
+- [x] `--redirect`
+- [ ] `--staple-ocsp`
+- [ ] `--must-staple`
+
+*`--redirect` agrega un server block puerto 80 con `return 301 https://$host$request_uri;`.*
+
+---
+
+## ¿Qué header HTTP implementa HSTS (Strict Transport Security)?
+
+- [ ] `X-Frame-Options`
+- [ ] `Content-Security-Policy`
+- [x] `Strict-Transport-Security`
+- [ ] `X-Content-Type-Options`
+
+*HSTS le dice al navegador: "Solo accede a este sitio por HTTPS durante X segundos".*
+
+---
+
+## ¿Por qué es importante OCSP Stapling?
+
+- [ ] Aumenta la seguridad del certificado
+- [x] Mejora latencia TLS y privacidad (el cliente no consulta a la CA)
+- [ ] Es obligatorio para Let's Encrypt
+- [ ] Permite certificados wildcard
+
+*Sin stapling, el cliente hace una petición OCSP a la CA en cada handshake, añadiendo latencia y revelando a la CA qué sitios visita el usuario.*
+
+---
+
+## ¿Qué comando prueba la renovación automática SIN consumir rate limits?
+
+- [ ] `certbot renew`
+- [x] `certbot renew --dry-run`
+- [ ] `certbot renew --force`
+- [ ] `certbot certificates`
+
+*`--dry-run` simula la renovación contra el entorno de staging de Let's Encrypt.*
+
+---
+
+## ¿Cuál es el rate limit de certificados por dominio registrado por semana en Let's Encrypt?
+
+- [ ] 5
+- [ ] 20
+- [x] 50
+- [ ] 100
+
+*Límite de 50 certificados por dominio registrado por semana. Las renovaciones NO cuentan para este límite.*
+
+---
+
+## ¿Qué extensión en el certificado obliga al servidor a enviar OCSP Stapling?
+
+- [ ] `subjectAltName`
+- [ ] `keyUsage`
+- [x] `OCSP Must-Staple` (TLS Feature: status_request)
+- [ ] `extendedKeyUsage`
+
+*Se solicita con `--must-staple` en Certbot. Si el servidor no hace stapling, el navegador rechaza la conexión.*
+
+---
+
+## ¿Dónde se guardan los certificados vivos de Let's Encrypt en el filesystem?
+
+- [ ] `/etc/ssl/certs/`
+- [ ] `/var/lib/certbot/`
+- [x] `/etc/letsencrypt/live/<dominio>/`
+- [ ] `/usr/local/share/ca-certificates/`
+
+*Estructura: `fullchain.pem` (cert + cadena), `privkey.pem` (clave privada), `cert.pem` (solo hoja), `chain.pem` (solo intermedias).*
+```
+
+---
+
+**Última actualización**: 2026-07-20  
+**Versión**: 2.0 (alineada a Malla Oficial 11 Unidades Abacom™)  
+**Estado**: ✅ Completo y validado contra fuentes oficiales Let's Encrypt / Certbot / Nginx

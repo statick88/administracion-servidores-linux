@@ -1,0 +1,532 @@
+---
+title: "UNIDAD IV: Administración y Seguridad de Usuarios"
+subtitle: "passwd, shadow, PAM, sudoers, SSH Keys — Enfoque Práctico Abacom™"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# UNIDAD IV: Administración y Seguridad de Usuarios
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Gestionar usuarios y grupos: creación, modificación, bloqueo, expiración, `skeleton`.
+- Entender la estructura y seguridad de `/etc/passwd` y `/etc/shadow` (hashes, aging, campos).
+- Configurar **PAM (Pluggable Authentication Modules)** para políticas de acceso, límites y auditoría.
+- Escribir reglas `sudoers` seguras (aliases, comandos específicos, `NOPASSWD` controlado, logging).
+- Desplegar y rotar **claves SSH ed25519** con `ssh-agent`, `ssh-copy-id`, `authorized_keys` y `ssh-keyscan`.
+- Aplicar **hardening de cuentas**: `faillock`, `pam_tally2`, `pam_pwquality`, `login.defs`.
+
+---
+
+## 1. Usuarios y Grupos — Gestión Completa
+
+### 1.1 Archivos maestros
+
+| Archivo | Propósito | Permisos típicos |
+|---------|-----------|------------------|
+| `/etc/passwd` | Info de cuenta (usuario, UID, GID, home, shell) | `644 root:root` |
+| `/etc/shadow` | Hashes de contraseña, aging, flags | `640 root:shadow` |
+| `/etc/group` | Grupos y miembros | `644 root:root` |
+| `/etc/gshadow` | Contraseñas de grupo (raro), admins de grupo | `640 root:shadow` |
+
+::: {.callout-warning}
+## ⚠️ Nunca edites `/etc/passwd` o `/etc/shadow` a mano
+
+Usa `vipw`, `vigr` o las herramientas `useradd/usermod/userdel`, `groupadd/groupmod/groupdel`. Editarlos directamente corrompe índices y deja el sistema inaccesible.
+:::
+
+### 1.2 Comandos esenciales
+
+```bash
+# Crear usuario con home, shell, grupo primario, grupos secundarios, comentario
+sudo useradd -m -s /bin/bash -c "Juan Perez - DevOps" -G docker,sudo -u 2001 juanp
+
+# Establecer contraseña (interactivo o script)
+echo "juanp:ClaveSegura123!" | sudo chpasswd
+# O forzar cambio en primer login
+sudo chage -d 0 juanp
+
+# Modificar: shell, home, grupos, UID, expiración
+sudo usermod -s /bin/zsh juanp
+sudo usermod -d /home/nuevo-home -m juanp
+sudo usermod -aG lxd juanp          # -aG = append a grupos secundarios
+sudo usermod -u 3001 juanp          # CUIDADO: cambiar UID rompe ownership de archivos
+
+# Bloquear/desbloquear cuenta (prefijo ! en shadow)
+sudo usermod -L juanp               # Lock
+sudo usermod -U juanp               # Unlock
+
+# Expiración de cuenta (fecha YYYY-MM-DD)
+sudo chage -E 2026-12-31 juanp
+
+# Eliminar usuario y su home
+sudo userdel -r juanp
+
+# Grupos
+sudo groupadd -g 2000 deployers
+sudo groupmod -n ci-cd deployers
+sudo groupdel ci-cd
+```
+
+### 1.3 `/etc/login.defs` — Políticas por defecto
+
+```bash
+# Ver configuración actual
+grep -E '^(PASS_MAX_DAYS|PASS_MIN_DAYS|PASS_WARN_AGE|UID_MIN|GID_MIN|CREATE_HOME|ENCRYPT_METHOD)' /etc/login.defs
+
+# Valores recomendados (editar con vipw/vigr o sed cuidadoso)
+PASS_MAX_DAYS   90      # Cambio obligatorio cada 90 días
+PASS_MIN_DAYS   1       # Mínimo 1 día entre cambios
+PASS_WARN_AGE   14      # Aviso 14 días antes
+UID_MIN         1000    # UIDs de usuarios normales
+GID_MIN         1000
+CREATE_HOME     yes
+ENCRYPT_METHOD  YESCRYPT  # O SHA512 si YESCRYPT no soportado
+```
+
+### 1.4 `/etc/skel` — Plantilla para nuevos usuarios
+
+```bash
+# Personalizar skeleton
+sudo mkdir -p /etc/skel/.ssh
+sudo chmod 700 /etc/skel/.ssh
+sudo touch /etc/skel/.ssh/authorized_keys
+sudo chmod 600 /etc/skel/.ssh/authorized_keys
+
+# Archivos de config por defecto
+cat <<'EOF' | sudo tee /etc/skel/.bashrc.d/abacom.sh
+# Abacom defaults
+export EDITOR=nvim
+alias ll='ls -lh --color=auto'
+alias grep='grep --color=auto'
+EOF
+```
+
+---
+
+## 2. `/etc/shadow` — Anatomía y Seguridad
+
+```bash
+# Formato (9 campos separados por :)
+juanp:$y$j9T$...hash...:20100:0:90:14:7:20135:
+#  1      2                3     4 5  6  7  8  9
+#  1. Usuario
+#  2. Hash (prefijo $y$ = yescrypt, $6$ = sha512)
+#  3. Último cambio (días desde epoch 1970-01-01)
+#  4. Mínimo días entre cambios (0 = cualquiera)
+#  5. Máximo días válido (90 = expira)
+#  6. Días de aviso antes de expirar
+#  7. Días de gracia tras expiración (inactivo)
+#  8. Fecha expiración cuenta (días desde epoch, vacío = nunca)
+#  9. Reservado
+```
+
+### 2.1 Verificar y auditar hashes
+
+```bash
+# Ver algoritmo de hash actual
+sudo grep -E '^\$[0-9a-z]\$' /etc/shadow | head -1 | cut -d'$' -f2
+# 6 = sha512, y = yescrypt (recomendado)
+
+# Identificar cuentas sin contraseña o bloqueadas
+sudo awk -F: '($2 == "" || $2 ~ /^!/ || $2 ~ /^\*/) {print $1 " -> " $2}' /etc/shadow
+
+# Cuentas con contraseña expirada
+sudo awk -F: '($8 != "" && $8 < 20100) {print $1 " expirada: " $8}' /etc/shadow
+```
+
+---
+
+## 3. PAM (Pluggable Authentication Modules)
+
+### 3.1 Estructura y orden
+
+```bash
+# Configuración por servicio en /etc/pam.d/
+ls /etc/pam.d/ | head -10
+# common-auth, common-account, common-password, common-session, sshd, sudo, login, su
+
+# Sintaxis: tipo control modulo [argumentos]
+# Tipos: auth, account, password, session
+# Control: required, requisite, sufficient, optional, include
+```
+
+### 3.2 Hardening PAM recomendado
+
+```bash
+# 1. Calidad de contraseñas — /etc/pam.d/common-password
+# Añadir ANTES de pam_unix.so
+password requisite pam_pwquality.so retry=3 minlen=14 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 enforce_for_root
+
+# 2. Bloqueo por intentos fallidos — /etc/pam.d/common-auth
+auth required pam_faillock.so preauth silent deny=5 unlock_time=900 fail_interval=60
+auth [success=1 default=ignore] pam_unix.so
+auth [default=die] pam_faillock.so authfail deny=5 unlock_time=900 fail_interval=60
+auth sufficient pam_faillock.so authsucc deny=5 unlock_time=900 fail_interval=60
+
+# 3. Límites de recursos — /etc/pam.d/common-session
+session required pam_limits.so
+
+# Ver límites aplicados
+ulimit -a
+cat /etc/security/limits.conf
+```
+
+::: {.callout-tip}
+## ✅ `/etc/security/limits.conf` recomendado para servidores
+
+```conf
+# <domain> <type> <item> <value>
+*               soft    nofile          65535
+*               hard    nofile          65535
+*               soft    nproc           32768
+*               hard    nproc           32768
+root            soft    nofile          1048576
+root            hard    nofile          1048576
+@docker         soft    memlock         unlimited
+@docker         hard    memlock         unlimited
+```
+:::
+
+### 3.3 Verificar PAM en acción
+
+```bash
+# Testear configuración sin aplicar (dry-run)
+pamtester sshd authenticate 2>&1 | head -20
+
+# Ver logs de autenticación
+sudo journalctl -u ssh -f | grep -i pam
+sudo grep pam /var/log/auth.log | tail -20
+```
+
+---
+
+## 4. `sudoers` — Privilegios Controlados
+
+### 4.1 Sintaxis y aliases
+
+```bash
+# Editar SIEMPRE con visudo (valida sintaxis)
+sudo visudo
+
+# Estructura: usuario host=(runas) comandos
+```
+
+```sudoers
+# /etc/sudoers.d/abacom-admins (archivo separado, no editar /etc/sudoers directo)
+
+# Aliases
+User_Alias      ADMINS = diego, juanp, deploy
+Host_Alias      SERVERS = srv01, srv02, 10.0.0.0/24
+Cmnd_Alias      PKG_MGMT = /usr/bin/apt, /usr/bin/dnf, /usr/bin/snap
+Cmnd_Alias      SVC_MGMT = /bin/systemctl, /bin/journalctl
+Cmnd_Alias      DEPLOY_CMDS = /opt/scripts/deploy.sh, /usr/bin/docker compose
+Cmnd_Alias      READ_LOGS = /bin/cat /var/log/*, /usr/bin/tail -f /var/log/*
+
+# Reglas
+ADMINS          ALL = (ALL:ALL) ALL
+deploy          SERVERS = (www-data:www-data) DEPLOY_CMDS, NOPASSWD: READ_LOGS
+%sudo           ALL = (ALL:ALL) ALL
+
+# Defaults de seguridad
+Defaults        env_reset
+Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Defaults        timestamp_timeout=15
+Defaults        log_input, log_output
+Defaults        requiretty
+Defaults        passwd_tries=3
+Defaults        badpass_message="Acceso denegado. Contacta a seguridad@abacom.cl"
+Defaults        mailto="seguridad@abacom.cl"
+Defaults        mail_always
+Defaults        mail_badpass
+Defaults        mail_no_user
+```
+
+::: {.callout-warning}
+## ⚠️ Reglas de oro sudoers
+
+1. **Nunca** `ALL=(ALL) NOPASSWD:ALL` para usuarios normales.
+2. Usa **aliases** y comandos **rutas absolutas**.
+3. Archivos en `/etc/sudoers.d/` (uno por rol/equipo), no edites `/etc/sudoers`.
+4. `requiretty` fuerza tty (previene sudo en cron/scripts sin tty).
+5. `log_input, log_output` registra keystrokes y output (auditoría).
+:::
+
+### 4.2 Verificar y probar
+
+```bash
+# Sintaxis
+sudo visudo -c
+
+# Qué puede hacer un usuario
+sudo -l -U deploy
+
+# Probar comando específico
+sudo -u www-data /opt/scripts/deploy.sh --dry-run
+```
+
+---
+
+## 5. SSH Keys — Despliegue, Rotación y Hardening
+
+### 5.1 Generar claves ed25519 (estándar actual)
+
+```bash
+# Generar (ejecutar como el usuario, NO root)
+ssh-keygen -t ed25519 -C "juanp@abacom-$(date +%Y%m%d)" -f ~/.ssh/id_ed25519_abacom
+# Passphrase: OBLIGATORIA para claves privadas
+
+# Ver clave pública
+cat ~/.ssh/id_ed25519_abacom.pub
+# ssh-ed25519 AAAAC3... juanp@abacom-20260720
+```
+
+### 5.2 Desplegar a servidores
+
+```bash
+# Método 1: ssh-copy-id (requiere password una vez)
+ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub juanp@srv01.abacom.cl
+
+# Método 2: Manual (para automatización)
+cat ~/.ssh/id_ed25519_abacom.pub | ssh juanp@srv01 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+
+# Método 3: Ansible / script para muchos hosts
+for host in srv01 srv02 srv03; do
+  ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub juanp@$host
+done
+```
+
+### 5.3 Hardening `sshd_config` (servidor)
+
+```bash
+# /etc/ssh/sshd_config.d/99-abacom-hardening.conf
+Port 22
+Protocol 2
+
+# Autenticación
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+AuthenticationMethods publickey
+PubkeyAcceptedAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
+
+# Seguridad
+MaxAuthTries 3
+MaxSessions 2
+LoginGraceTime 30
+ClientAliveInterval 300
+ClientAliveCountMax 2
+X11Forwarding no
+AllowAgentForwarding no
+AllowTcpForwarding no
+PermitTunnel no
+
+# Logging
+SyslogFacility AUTH
+LogLevel VERBOSE
+
+# Usuarios/grupos permitidos
+AllowGroups sshusers admins
+# DenyUsers *
+# DenyGroups *
+```
+
+```bash
+# Validar y recargar
+sudo sshd -t
+sudo systemctl reload ssh
+```
+
+### 5.4 `ssh-agent` y reenvío seguro
+
+```bash
+# Iniciar agent y añadir clave
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519_abacom
+# Enter passphrase once
+
+# Ver claves cargadas
+ssh-add -l
+# 256 SHA256:... juanp@abacom-20260720 (ED25519)
+
+# Reenvío de agente (SOLO a hosts de confianza)
+ssh -A juanp@bastion.abacom.cl
+# Desde bastion, puedes autenticar a srv01 sin clave en bastion
+ssh srv01
+```
+
+::: {.callout-warning}
+## ⚠️ `ssh -A` (ForwardAgent) solo a bastiones de confianza
+
+Un host comprometido con `ForwardAgent yes` puede usar tu agente para autenticarse en OTROS hosts. Usa `ProxyJump` en su lugar:
+
+```ssh
+# ~/.ssh/config
+Host bastion
+  HostName bastion.abacom.cl
+  User juanp
+  IdentityFile ~/.ssh/id_ed25519_abacom
+
+Host srv*
+  HostName %h.abacom.cl
+  User juanp
+  IdentityFile ~/.ssh/id_ed25519_abacom
+  ProxyJump bastion
+```
+:::
+
+### 5.5 Rotación de claves (cada 90-180 días)
+
+```bash
+#!/usr/bin/env bash
+# rotate-ssh-key.sh — Rotar clave ed25519 y desplegar
+set -euo pipefail
+
+NEW_KEY="$HOME/.ssh/id_ed25519_abacom_$(date +%Y%m%d)"
+OLD_KEY="$HOME/.ssh/id_ed25519_abacom"
+
+# 1. Generar nueva
+ssh-keygen -t ed25519 -C "$(whoami)@abacom-$(date +%Y%m%d)" -f "$NEW_KEY"
+
+# 2. Desplegar a hosts conocidos (desde ~/.ssh/known_hosts o inventario)
+for host in srv01 srv02 srv03; do
+  ssh-copy-id -i "${NEW_KEY}.pub" "juanp@${host}.abacom.cl"
+done
+
+# 3. Actualizar ssh-agent
+ssh-add -d "$OLD_KEY"
+ssh-add "$NEW_KEY"
+
+# 4. Renombrar (opcional, tras validar)
+mv "$NEW_KEY" "$OLD_KEY"
+mv "${NEW_KEY}.pub" "${OLD_KEY}.pub"
+
+echo "Rotación completada. Valida acceso a todos los hosts."
+```
+
+---
+
+## 6. Laboratorio Práctico: Gestión Segura de Usuarios
+
+::: {.callout-note}
+## 🎯 Lab 04 — Usuarios, PAM, sudoers, SSH (60-90 min)
+
+### Checklist
+
+- [ ] Crear usuarios `devops`, `deploy`, `monitoring` con `useradd` (UIDs 2001-2003, grupos secundarios `docker`, `sudo` según rol)
+- [ ] Configurar `pam_pwquality` (minlen=14, complexity) y `pam_faillock` (deny=5, unlock=900)
+- [ ] Crear `/etc/sudoers.d/abacom-roles` con aliases y reglas por rol (ver sección 4)
+- [ ] Generar claves ed25519 para cada usuario, desplegar a `localhost` (WSL2) via `ssh-copy-id`
+- [ ] Hardening `sshd_config.d/99-abacom-hardening.conf`, recargar, validar `PasswordAuthentication no`
+- [ ] Probar: login con clave, sudo con y sin NOPASSWD, bloqueo tras 5 fallos, expiración contraseña
+- [ ] Auditar: `sudo awk -F: '($3 >= 1000) {print $1, $3, $7}' /etc/passwd`, `sudo grep -E '^\$[6y]\$' /etc/shadow`
+
+### Evidencia
+
+```bash
+{
+  echo "=== Usuarios ===" && getent passwd devops deploy monitoring
+  echo -e "\n=== Sudoers ===" && sudo cat /etc/sudoers.d/abacom-roles
+  echo -e "\n=== PAM Faillock ===" && sudo faillock --user devops
+  echo -e "\n=== SSH Config ===" && sudo sshd -T | grep -E 'passwordauthentication|pubkeyauthentication|permitrootlogin|maxauthtries'
+  echo -e "\n=== Claves SSH ===" && ls -la ~/.ssh/ && ssh-add -l
+  echo -e "\n=== Shadow sample ===" && sudo head -5 /etc/shadow
+} > ~/lab04-evidencia.txt
+```
+:::
+
+---
+
+## 7. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad IV
+
+1. **Usuarios/grupos**: `useradd/usermod/userdel`, `groupadd`, `chage`, `vipw`/`vigr`.
+2. **`/etc/shadow`**: Entender campos, auditar hashes (yescrypt), detectar cuentas sin pass/expiradas.
+3. **PAM**: `pam_pwquality` (calidad), `pam_faillock` (bloqueo), `pam_limits` (recursos), orden `required/requisite/sufficient`.
+4. **sudoers**: Aliases, comandos absolutos, `/etc/sudoers.d/`, `requiretty`, `log_input/output`, `timestamp_timeout`.
+5. **SSH Keys**: ed25519 + passphrase, `ssh-copy-id`, `sshd_config` hardening (no password, no root, max tries), `ProxyJump` vs `ForwardAgent`, rotación scriptada.
+:::
+
+### 📋 Checklist de competencias Unidad IV
+
+- [ ] Crear/modificar/eliminar usuarios y grupos con herramientas correctas.
+- [ ] Interpretar `/etc/shadow` y auditar calidad de hashes.
+- [ ] Configurar PAM para políticas de contraseña y bloqueo por fuerza bruta.
+- [ ] Escribir reglas `sudoers` seguras con aliases y logging.
+- [ ] Generar, desplegar, rotar y auditar claves SSH ed25519.
+- [ ] Hardening de `sshd_config` y uso de `ProxyJump`.
+
+---
+
+## 8. Recursos y Referencias
+
+- **man pages**: `useradd(8)`, `passwd(5)`, `shadow(5)`, `pam(7)`, `pam.conf(5)`, `sudoers(5)`, `sshd_config(5)`
+- **PAM Linux-PAM Guide**: <https://linux-pam.org/Linux-PAM-html/>
+- **sudoers Manual**: <https://www.sudo.ws/docs/man/1.9.15/sudoers.man.html>
+- **OpenSSH Guidelines**: <https://infosec.mozilla.org/guidelines/openssh>
+- **CIS Ubuntu 24.04 Benchmark**: Sección "Access, Authentication and Authorization"
+
+---
+
+## 9. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el formato correcto para una regla sudoers que permite al usuario 'deploy' ejecutar solo /opt/scripts/deploy.sh como www-data sin password?
+
+- [ ] deploy ALL=(www-data) NOPASSWD: /opt/scripts/deploy.sh
+- [x] deploy ALL=(www-data:www-data) NOPASSWD: /opt/scripts/deploy.sh
+- [ ] deploy ALL=NOPASSWD: /opt/scripts/deploy.sh
+- [ ] %deploy ALL=(www-data) /opt/scripts/deploy.sh
+
+## En `/etc/shadow`, el campo 3 indica:
+
+- [ ] Días mínimos entre cambios
+- [x] Días desde epoch (1970-01-01) del último cambio de contraseña
+- [ ] Fecha de expiración de la cuenta
+- [ ] Días de aviso antes de expirar
+
+## ¿Qué módulo PAM se usa para imponer calidad de contraseñas (longitud, complejidad)?
+
+- [ ] pam_unix.so
+- [ ] pam_faillock.so
+- [x] pam_pwquality.so
+- [ ] pam_limits.so
+
+## La directiva `requiretty` en sudoers:
+
+- [x] Fuerza que sudo solo funcione si hay un TTY real (previene uso en cron/scripts)
+- [ ] Requiere contraseña siempre
+- [ ] Habilita logging de keystrokes
+- [ ] Deshabilita NOPASSWD
+
+## Para rotar claves SSH de forma segura, el orden correcto es:
+
+- [ ] Borrar vieja → Generar nueva → Desplegar
+- [x] Generar nueva → Desplegar a hosts → Actualizar agent → Retirar vieja tras validar
+- [ ] Desplegar nueva → Generar nueva → Borrar vieja
+- [ ] Generar nueva → Borrar vieja → Desplegar nueva
+
+## ¿Qué algoritmo de hash se recomienda actualmente en `/etc/shadow` (prefijo `$y$`)?
+
+- [ ] SHA-256
+- [ ] SHA-512 ($6$)
+- [x] Yescrypt ($y$)
+- [ ] MD5 ($1$)
+```

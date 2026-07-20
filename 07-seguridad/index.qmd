@@ -1,0 +1,601 @@
+---
+title: "UNIDAD VII: Seguridad Práctica — Hardening"
+subtitle: "ufw, fail2ban, auditoría, SSH, kernel — Enfoque Práctico Abacom™"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# UNIDAD VII: Seguridad Práctica — Hardening
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Configurar **ufw** (Uncomplicated Firewall) con política *deny-by-default*, reglas explícitas y logging.
+- Desplegar y ajustar **fail2ban** para proteger SSH, servicios web y APIs contra fuerza bruta.
+- Endurecer **SSH** (claves ed25519, sin password, puertos no estándar, límites de conexión).
+- Aplicar **parámetros de kernel** (sysctl) para mitigación de red y memoria.
+- Configurar **auditd** para trazabilidad de eventos críticos.
+- Ejecutar **Lynis** como baseline de auditoría automatizada.
+
+---
+
+## 1. ufw — Firewall Host-Basado
+
+### 1.1 Conceptos y política por defecto
+
+```bash
+# Estado actual
+sudo ufw status verbose
+sudo ufw status numbered
+```
+
+```bash
+# Política deny-by-default (RECOMENDADA)
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw default deny routed
+```
+
+::: {.callout-warning}
+## ⚠️ Antes de activar ufw
+
+**Asegura acceso SSH** o te quedarás fuera:
+
+```bash
+sudo ufw allow 22/tcp comment 'SSH'
+# O si cambiaste puerto:
+sudo ufw allow 2222/tcp comment 'SSH custom'
+```
+:::
+
+### 1.2 Reglas típicas de servidor
+
+```bash
+# Servicios web
+sudo ufw allow 80/tcp comment 'HTTP'
+sudo ufw allow 443/tcp comment 'HTTPS'
+
+# Base de datos (SOLO desde red interna)
+sudo ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL internal'
+sudo ufw allow from 10.0.0.0/8 to any port 3306 comment 'MySQL internal'
+
+# Docker (si usas host networking)
+# ufw NO gestiona reglas de Docker directamente; ver sección Docker
+
+# Rate limiting (ufw 0.36+)
+sudo ufw limit 22/tcp comment 'SSH rate limit'
+# Equivale a: 6 conexiones / 30 seg desde misma IP
+```
+
+### 1.3 Logging y auditoría
+
+```bash
+# Habilitar logging (bajo/medium/high/full)
+sudo ufw logging medium
+
+# Ver logs
+sudo journalctl -u ufw -f
+# O en /var/log/ufw.log (si rsyslog configurado)
+
+# Formato: [UFW BLOCK] IN=eth0 OUT= MAC=... SRC=1.2.3.4 DST=10.0.0.5 ...
+```
+
+### 1.4 Gestión de reglas numeradas
+
+```bash
+# Insertar en posición específica
+sudo ufw insert 1 allow from 203.0.113.0/24 to any port 22 comment 'Admin VPN'
+
+# Borrar por número
+sudo ufw delete 3
+
+# Reset completo (cuidado)
+sudo ufw --force reset
+```
+
+### 1.5 Perfiles de aplicaciones
+
+```bash
+# Listar perfiles
+sudo ufw app list
+
+# Info de perfil
+sudo ufw app info 'Nginx Full'
+
+# Usar perfil
+sudo ufw allow 'Nginx Full'
+```
+
+---
+
+## 2. fail2ban — Protección contra Fuerza Bruta
+
+### 2.1 Instalación y estructura
+
+```bash
+sudo apt install -y fail2ban
+
+# Configuración principal (NO editar directamente)
+# /etc/fail2ban/jail.conf → leer solo
+
+# Overrides locales (EDITAR ESTOS)
+# /etc/fail2ban/jail.local
+# /etc/fail2ban/jail.d/*.local
+```
+
+### 2.2 Configuración base `/etc/fail2ban/jail.local`
+
+```ini
+[DEFAULT]
+# Ban 1 hora, encontrar 5 fallos en 10 min
+bantime = 1h
+findtime = 10m
+maxretry = 5
+
+# Backend systemd (lee journal)
+backend = systemd
+
+# Acción por defecto: ufw + email
+action = %(action_ufw)s
+# action = %(action_ufw)s%(action_mwl)s  # + email con whois
+
+# Destinatario alertas
+destemail = seguridad@abacom.cl
+sender = fail2ban@$(hostname -f)
+sendername = Fail2Ban-$(hostname -s)
+
+# Ignorar IPs propias (CIDR)
+ignoreip = 127.0.0.1/8 ::1 10.0.0.0/8 192.168.0.0/16
+
+# Habilitar jails
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = %(sshd_log)s
+maxretry = 3
+bantime = 2h
+
+[nginx-http-auth]
+enabled = true
+filter = nginx-http-auth
+logpath = /var/log/nginx/error.log
+
+[nginx-limit-req]
+enabled = true
+filter = nginx-limit-req
+logpath = /var/log/nginx/error.log
+maxretry = 10
+
+[nginx-botsearch]
+enabled = true
+filter = nginx-botsearch
+logpath = /var/log/nginx/access.log
+maxretry = 2
+
+[nginx-bad-request]
+enabled = true
+filter = nginx-bad-request
+logpath = /var/log/nginx/access.log
+maxretry = 5
+```
+
+### 2.3 Filtros personalizados `/etc/fail2ban/filter.d/`
+
+```bash
+# Ejemplo: API login fallido (JSON log)
+# /etc/fail2ban/filter.d/api-auth.conf
+[Definition]
+failregex = ^.*"message":"Invalid credentials".*"ip":"<HOST>".*$
+ignoreregex =
+```
+
+### 2.4 Comandos operativos
+
+```bash
+# Estado
+sudo fail2ban-client status
+sudo fail2ban-client status sshd
+
+# Ver IPs baneadas
+sudo fail2ban-client get sshd banip
+
+# Desbanear IP
+sudo fail2ban-client set sshd unbanip 192.0.2.100
+
+# Recargar configuración
+sudo fail2ban-client reload
+
+# Logs fail2ban
+sudo journalctl -u fail2ban -f
+```
+
+---
+
+## 3. SSH Hardening Avanzado
+
+### 3.1 `/etc/ssh/sshd_config.d/99-abacom-hardening.conf`
+
+```ssh
+# Puerto no estándar (reduce ruido)
+Port 2222
+
+# Solo protocolo 2
+Protocol 2
+
+# Autenticación
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+AuthenticationMethods publickey
+PubkeyAcceptedAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
+
+# Límites de conexión
+MaxAuthTries 3
+MaxSessions 2
+MaxStartups 10:30:60
+LoginGraceTime 30
+
+# Timeouts
+ClientAliveInterval 300
+ClientAliveCountMax 2
+
+# Reenvío y túneles
+AllowAgentForwarding no
+AllowTcpForwarding no
+GatewayPorts no
+PermitTunnel no
+X11Forwarding no
+
+# Logging
+SyslogFacility AUTH
+LogLevel VERBOSE
+
+# Usuarios/grupos permitidos
+AllowGroups sshusers admins
+
+# Criptografía (Mozilla Modern)
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
+HostKeyAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256
+```
+
+```bash
+# Validar y recargar
+sudo sshd -t
+sudo systemctl reload ssh
+```
+
+---
+
+## 4. Kernel Hardening — sysctl
+
+### 4.1 `/etc/sysctl.d/99-abacom-hardening.conf`
+
+```ini
+# Network — RFC compliance y mitigación
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_synack_retries = 2
+net.ipv4.tcp_syn_retries = 3
+net.ipv4.tcp_max_syn_backlog = 4096
+net.ipv4.tcp_rfc1337 = 1
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.all.secure_redirects = 0
+net.ipv4.conf.default.secure_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+net.ipv4.icmp_ignore_bogus_error_responses = 1
+net.ipv6.conf.all.accept_redirects = 0
+net.ipv6.conf.default.accept_redirects = 0
+net.ipv6.conf.all.accept_source_route = 0
+net.ipv6.conf.default.accept_source_route = 0
+
+# Memory — protección OOM
+vm.overcommit_memory = 1
+vm.overcommit_ratio = 90
+vm.panic_on_oom = 0
+
+# Kernel — hardening
+kernel.dmesg_restrict = 1
+kernel.kptr_restrict = 2
+kernel.yama.ptrace_scope = 1
+kernel.unprivileged_bpf_disabled = 1
+kernel.modules_disabled = 1
+
+# Filesystem
+fs.protected_hardlinks = 1
+fs.protected_symlinks = 1
+fs.suid_dumpable = 0
+```
+
+```bash
+# Aplicar
+sudo sysctl --system
+# Verificar
+sysctl -a | grep -E '(syncookies|rp_filter|ptrace|dmesg)'
+```
+
+---
+
+## 5. auditd — Auditoría de Eventos Críticos
+
+### 5.1 Instalación y reglas base
+
+```bash
+sudo apt install -y auditd audispd-plugins
+sudo systemctl enable --now auditd
+```
+
+### 5.2 `/etc/audit/rules.d/abacom.rules`
+
+```bash
+# Eliminar reglas previas
+-D
+
+# Buffer
+-b 8192
+
+# Fallos de acceso a archivos
+-a always,exit -F arch=b64 -S open,openat,creat,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access-denied
+-a always,exit -F arch=b64 -S open,openat,creat,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access-denied
+
+# Cambios de identidad (sudo, su, passwd)
+-w /etc/passwd -p wa -k identity
+-w /etc/group -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/sudoers -p wa -k identity
+-w /etc/sudoers.d/ -p wa -k identity
+
+# Ejecución de comandos privilegiados
+-a always,exit -F arch=b64 -S execve -F uid=0 -F auid>=1000 -F auid!=4294967295 -k privileged-cmd
+
+# Montajes
+-a always,exit -F arch=b64 -S mount,umount2 -F auid>=1000 -F auid!=4294967295 -k mounts
+
+# Cambios de red
+-w /etc/network/ -p wa -k network
+-w /etc/netplan/ -p wa -k network
+
+# Docker (si aplica)
+-w /etc/docker/ -p wa -k docker
+-w /var/lib/docker/ -p wa -k docker
+
+# Fallos de login
+-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-w /var/log/tallylog -p wa -k logins
+```
+
+```bash
+# Cargar reglas
+sudo augenrules --load
+sudo systemctl restart auditd
+
+# Verificar
+sudo auditctl -l
+```
+
+### 5.3 Consultas útiles
+
+```bash
+# Buscar por clave
+sudo ausearch -k access-denied --raw | aureport -f -i
+
+# Reporte de comandos privilegiados
+sudo aureport -k privileged-cmd -i
+
+# Últimos 100 eventos
+sudo ausearch -ts recent -l 100 --raw | aureport -f -i
+```
+
+---
+
+## 6. Lynis — Auditoría Automatizada
+
+### 6.1 Instalación y ejecución
+
+```bash
+# Desde repositorio oficial (más actual)
+curl -fsSL https://packages.cisofy.com/keys/cisofy-software-public.key | sudo gpg --dearmor -o /etc/apt/keyrings/cisofy.gpg
+echo "deb [signed-by=/etc/apt/keyrings/cisofy.gpg] https://packages.cisofy.com/community/lynis/deb/ stable main" | sudo tee /etc/apt/sources.list.d/lynis.list
+sudo apt update && sudo apt install -y lynis
+
+# Ejecutar auditoría completa
+sudo lynis audit system --quick --no-colors
+
+# Solo categorías específicas
+sudo lynis audit system --tests-category=authentication,file-system,networking
+```
+
+### 6.2 Integración CI/CD (GitHub Actions ejemplo)
+
+```yaml
+# .github/workflows/lynis.yml
+name: Lynis Security Audit
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Cada lunes 6 AM
+  push:
+    branches: [main]
+jobs:
+  lynis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Lynis
+        run: |
+          curl -fsSL https://packages.cisofy.com/keys/cisofy-software-public.key | gpg --dearmor -o /tmp/cisofy.gpg
+          echo "deb [signed-by=/tmp/cisofy.gpg] https://packages.cisofy.com/community/lynis/deb/ stable main" | sudo tee /etc/apt/sources.list.d/lynis.list
+          sudo apt update && sudo apt install -y lynis
+          sudo lynis audit system --no-colors --quick --pentest ssh > lynis-report.txt
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lynis-report
+          path: lynis-report.txt
+```
+
+---
+
+## 7. Docker — Consideraciones de Seguridad
+
+::: {.callout-note}
+## ufw + Docker
+
+Docker manipula iptables/nftables directamente y **ignora ufw** para puertos publicados (`-p 80:80`).
+
+**Opciones:**
+
+1. **No publicar puertos** en host; usar reverse proxy (Nginx/Traefik) en host → container network.
+2. **Docker rootless** (usuario no root, sin manipulación iptables host).
+3. **Configurar Docker** con `"iptables": false` en `/etc/docker/daemon.json` (pierdes networking automático).
+4. **Usar `ufw-docker`** script: `wget -O /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker && chmod +x /usr/local/bin/ufw-docker && ufw-docker install`
+:::
+
+### 7.2 Hardening contenedores (resumen)
+
+```dockerfile
+# Dockerfile seguro
+FROM ubuntu:24.04
+
+# Usuario no root
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+USER appuser
+
+# Solo capacidades necesarias
+# docker run --cap-drop=ALL --cap-add=CAP_NET_BIND_SERVICE ...
+
+# Read-only rootfs
+# docker run --read-only --tmpfs /run --tmpfs /tmp ...
+
+# Sin new privileges
+# docker run --security-opt no-new-privileges:true ...
+```
+
+---
+
+## 8. Laboratorio Práctico: Hardening End-to-End
+
+::: {.callout-note}
+## 🎯 Lab 07 — Hardening Completo (90-120 min)
+
+### Checklist
+
+- [ ] **ufw**: Política deny incoming/allow outgoing, reglas SSH (puerto custom), HTTP/HTTPS, rate-limit SSH, logging medium.
+- [ ] **fail2ban**: `jail.local` con sshd (maxretry=3, bantime=2h), nginx jails, backend systemd, action ufw.
+- [ ] **SSH**: Puerto 2222, solo ed25519, PasswordAuthentication no, AllowGroups sshusers, ClientAliveInterval 300.
+- [ ] **sysctl**: Aplicar `/etc/sysctl.d/99-abacom-hardening.conf`, verificar `sysctl -p`.
+- [ ] **auditd**: Reglas `abacom.rules` cargadas, probar `sudo ausearch -k identity`.
+- [ ] **Lynis**: Ejecutar `sudo lynis audit system --quick`, punteado > 70, sin hallazgos críticos.
+- [ ] **Evidencia**: Captura `ufw status numbered`, `fail2ban-client status sshd`, `sshd -T | grep -E 'port|password|pubkey'`, `sysctl net.ipv4.tcp_syncookies`, `auditctl -l`, Lynis hardening index.
+
+### Evidencia
+
+```bash
+{
+  echo "=== UFW ===" && sudo ufw status numbered
+  echo -e "\n=== Fail2Ban SSH ===" && sudo fail2ban-client status sshd
+  echo -e "\n=== SSH Config ===" && sudo sshd -T | grep -E '^port|^passwordauthentication|^pubkeyauthentication|^permitrootlogin|^allowgroups|^clientalive'
+  echo -e "\n=== Sysctl Sample ===" && sysctl net.ipv4.tcp_syncookies net.ipv4.conf.all.rp_filter kernel.yama.ptrace_scope
+  echo -e "\n=== Audit Rules ===" && sudo auditctl -l | head -20
+  echo -e "\n=== Lynis ===" && sudo lynis audit system --quick --no-colors 2>&1 | tail -30
+} > ~/lab07-evidencia.txt
+```
+:::
+
+---
+
+## 9. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad VII
+
+1. **ufw**: deny-by-default, reglas explícitas con comentario, logging, rate-limit.
+2. **fail2ban**: `jail.local` con backend systemd, acción ufw, jails sshd/nginx, ignoreip.
+3. **SSH**: Puerto no estándar, solo ed25519, sin password, grupos permitidos, timeouts.
+4. **sysctl**: tcp_syncookies, rp_filter, kernel hardening (ptrace, kptr, dmesg, bpf).
+5. **auditd**: Reglas para identidad, privilegios, montajes, red, accesos denegados.
+6. **Lynis**: Baseline automatizado, integración CI/CD, hardening index > 70.
+:::
+
+### 📋 Checklist de competencias Unidad VII
+
+- [ ] Configurar ufw con política deny-by-default y reglas documentadas.
+- [ ] Desplegar fail2ban con jails sshd y nginx, backend systemd, acción ufw.
+- [ ] Hardening SSH: puerto, claves, sin password, grupos, timeouts.
+- [ ] Aplicar sysctl de red, memoria y kernel; validar con `sysctl -a`.
+- [ ] Configurar auditd con reglas de identidad, comandos privilegiados, acceso denegado.
+- [ ] Ejecutar Lynis e interpretar reporte; corregir hallazgos altos/críticos.
+
+---
+
+## 10. Recursos y Referencias
+
+- **ufw**: `man ufw`, <https://help.ubuntu.com/community/UFW>
+- **fail2ban**: <https://www.fail2ban.org/wiki/index.php/Main_Page>
+- **SSH Hardening**: <https://infosec.mozilla.org/guidelines/openssh>, <https://stribika.github.io/2015/01/04/secure-secure-shell.html>
+- **Kernel sysctl**: <https://www.kernel.org/doc/Documentation/sysctl/>, <https://sysctl-explorer.net/>
+- **auditd**: `man auditctl`, `man ausearch`, `man aureport`, <https://linux.die.net/man/8/auditd>
+- **Lynis**: <https://cisofy.com/lynis/>, <https://packages.cisofy.com/>
+- **CIS Benchmarks**: <https://www.cisecurity.org/cis-benchmarks/>
+
+---
+
+## 11. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es la política por defecto recomendada en ufw para servidores?
+
+- [ ] allow incoming, deny outgoing
+- [x] deny incoming, allow outgoing
+- [ ] allow incoming, allow outgoing
+- [ ] deny incoming, deny outgoing
+
+## En fail2ban, ¿qué parámetro define cuánto tiempo permanece baneada una IP?
+
+- [ ] findtime
+- [ ] maxretry
+- [x] bantime
+- [ ] ignoreip
+
+## Para que SSH acepte SOLO claves ed25519 y deshabilite contraseñas:
+
+- [ ] PubkeyAuthentication yes + PasswordAuthentication yes
+- [x] PubkeyAuthentication yes + PasswordAuthentication no + PubkeyAcceptedAlgorithms ssh-ed25519
+- [ ] PermitRootLogin yes + PasswordAuthentication no
+- [ ] ChallengeResponseAuthentication no
+
+## ¿Qué sysctl habilita protección contra SYN flood?
+
+- [ ] net.ipv4.tcp_rfc1337
+- [x] net.ipv4.tcp_syncookies
+- [ ] net.ipv4.tcp_max_syn_backlog
+- [ ] net.ipv4.tcp_synack_retries
+
+## En auditd, la regla `-w /etc/passwd -p wa -k identity` audita:
+
+- [ ] Lecturas de /etc/passwd
+- [x] Escrituras y cambios de atributos (write + attribute)
+- [ ] Ejecución de /etc/passwd
+- [ ] Solo cambios de owner
+```
