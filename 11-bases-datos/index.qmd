@@ -1,0 +1,776 @@
+---
+title: "UNIDAD XI: Bases de Datos en Contenedores y Despliegue"
+subtitle: "MySQL/MariaDB y PostgreSQL en Docker, Docker Compose (App + DB) — Enfoque Práctico Abacom™"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+---
+
+# UNIDAD XI: Bases de Datos en Contenedores y Despliegue
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Ejecutar **MySQL/MariaDB** y **PostgreSQL** en contenedores Docker con **persistencia real** usando volúmenes nombrados.
+- Gestionar **usuarios y privilegios** con el principio de mínimo privilegio (la aplicación nunca usa `root`).
+- Realizar **backup y restore** verificables con `mysqldump`/`pg_dump` y automatizarlos con `cron`.
+- Orquestar una pila **App + DB** completa con **Docker Compose** (red interna, `healthcheck`, `depends_on`).
+- Proteger el acceso de red a la base de datos (sin exponer 3306/5432 a `0.0.0.0`).
+
+> **Regla de oro Abacom**: *No instalamos ISOs en VirtualBox/VMware*. Todo el entorno corre en **WSL2 (Ubuntu 24.04 LTS)** + **Docker Desktop / Docker Compose**.
+
+---
+
+## 1. ¿Por qué ejecutar bases de datos en contenedores?
+
+Tradicionalmente, una base de datos se instalaba directamente sobre el sistema operativo del servidor. Con la adopción de contenedores, mover la BD a Docker aporta ventajas claras para desarrollo y producción:
+
+- **Aislamiento**: Cada motor de BD vive en su propio contenedor, con su filesystem, red y procesos aislados. No contamina el host.
+- **Reproducibilidad**: La misma imagen (`mysql:8.0`, `postgres:16`) se comporta idéntica en tu laptop, en WSL2 y en el servidor. "Funciona en mi máquina" deja de existir.
+- **Versionado simple**: Cambiar de versión es cambiar un tag de imagen, no una migración de paquetes del SO.
+- **Rollback rápido**: Si una actualización falla, vuelves a la imagen anterior en segundos.
+- **Despliegue declarativo**: Con Docker Compose defines BD + app en un solo archivo YAML versionado en Git.
+
+::: {.callout-note}
+## El filesystem del contenedor es efímero
+
+Un contenedor Docker escribe sus datos en una capa de escritura **efímera**. Si el contenedor se elimina (`docker rm`), **todos los datos se pierden**. Por eso existe la regla de oro de esta unidad:
+:::
+
+::: {.callout-warning}
+## ⚠️ REGLA DE ORO: La persistencia es obligatoria
+
+**Los datos de la base de datos NUNCA deben vivir en el filesystem efímero del contenedor.**
+
+**Lo que podría salir mal:**
+- Eliminas el contenedor para actualizar y pierdes toda la base de datos.
+- El contenedor se reinicia por un crash y la BD queda vacía.
+- Crecimiento del almacenamiento del contenedor sin control, saturando el disco del host.
+
+**Cómo prevenirlo:**
+1. Monta siempre un **volumen nombrado** (`-v nombre_volumen:/ruta/de/datos`) o un bind mount a un directorio del host.
+2. Apunta el volumen a la ruta donde el motor guarda sus datos (`/var/lib/mysql` para MySQL/MariaDB, `/var/lib/postgresql/data` para PostgreSQL).
+3. Incluye el volumen en tu `compose.yaml` bajo la clave `volumes:`.
+:::
+
+---
+
+## 2. MySQL / MariaDB en contenedor
+
+MySQL y su fork MariaDB son motores relacionales compatibles. Para este curso usamos la imagen oficial `mysql:8.0` (el procedimiento es idéntico para `mariadb:11`).
+
+### 2.1 Despliegue con `docker run`
+
+```bash
+$ docker run -d \
+    --name mysql \
+    -e MYSQL_ROOT_PASSWORD='CambiaEstePasswordFuerte' \
+    -e MYSQL_DATABASE=appdb \
+    -e MYSQL_USER=appuser \
+    -e MYSQL_PASSWORD='PasswordAppFuerte' \
+    -v mysql_data:/var/lib/mysql \
+    -p 3306:3306 \
+    --restart unless-stopped \
+    mysql:8.0  # <1>
+# <1>
+```
+
+1. **`docker run -d --name mysql`** crea y arranca en segundo plano (`-d`) un contenedor llamado `mysql`. Sin `--name`, Docker asigna uno aleatorio; nombrarlo facilita `docker exec`/`docker logs`.
+
+Analicemos cada flag del comando anterior con detalle:
+
+```bash
+$ docker run -d \
+    --name mysql \
+    -e MYSQL_ROOT_PASSWORD='CambiaEstePasswordFuerte' \  # <1>
+    -e MYSQL_DATABASE=appdb \                            # <2>
+    -e MYSQL_USER=appuser \                              # <3>
+    -e MYSQL_PASSWORD='PasswordAppFuerte' \              # <4>
+    -v mysql_data:/var/lib/mysql \                       # <5>
+    -p 3306:3306 \                                      # <6>
+    --restart unless-stopped \                           # <7>
+    mysql:8.0                                            # <8>
+# <1>
+```
+
+1. **`-e MYSQL_ROOT_PASSWORD`** define la contraseña del usuario administrador `root`. Es **obligatoria**; sin ella el contenedor no arranca. Usa una contraseña fuerte.
+2. **`-e MYSQL_DATABASE`** crea automáticamente una base de datos inicial (`appdb`) al primer arranque.
+3. **`-e MYSQL_USER`** crea un usuario no-root (`appuser`) asociado a esa base.
+4. **`-e MYSQL_PASSWORD`** define la contraseña del usuario `appuser` (no uses root en la app).
+5. **`-v mysql_data:/var/lib/mysql`** monta el **volumen nombrado** `mysql_data` en la ruta de datos de MySQL. Aquí vive la BD de forma persistente.
+6. **`-p 3306:3306`** publica el puerto 3306 del contenedor en el 3306 del host (solo para desarrollo local; ver sección de red segura).
+7. **`--restart unless-stopped`** reinicia el contenedor automáticamente si el Docker daemon se reinicia, salvo que lo detengas explícitamente.
+8. **`mysql:8.0`** es la imagen y versión a utilizar (pinnear versión es buena práctica en producción).
+
+### 2.2 Verificar el contenedor y conectar
+
+```bash
+$ docker ps --filter name=mysql  # <1>
+CONTAINER ID   IMAGE       COMMAND                  STATUS         PORTS                                       NAMES
+a1b2c3d4e5f6   mysql:8.0   "docker-entrypoint.s…"   Up 30 seconds  0.0.0.0:3306->3306/tcp, :::3306->3306/tcp   mysql
+# <1>
+```
+
+1. **`docker ps --filter name=mysql`** lista solo el contenedor `mysql` y confirma que está `Up` y con el puerto mapeado.
+
+```bash
+$ docker logs mysql --tail 20  # <1>
+2026-07-20T12:00:01.234567Z 0 [System] [MY-010931] ... X Plugin ready for connections.
+2026-07-20T12:00:01.234567Z 0 [System] [MY-011323] ... MySQL 8.0.x started; log sequence number ...
+# <1>
+```
+
+1. **`docker logs mysql --tail 20`** muestra las últimas 20 líneas del log; busca "ready for connections" para confirmar arranque correcto.
+
+```bash
+$ docker exec -it mysql mysql -u appuser -p appdb  # <1>
+Enter password:
+mysql> SELECT VERSION();
++-----------+
+| VERSION() |
++-----------+
+| 8.0.x     |
++-----------+
+mysql> EXIT;
+# <1>
+```
+
+1. **`docker exec -it mysql mysql -u appuser -p appdb`** abre la consola SQL **dentro** del contenedor conectando a `appdb` como `appuser`. `-it` habilita modo interactivo.
+
+::: {.callout-tip}
+## Recomendación de versión
+
+Para producción, fija siempre la versión (por ejemplo `mysql:8.0.39` o `mariadb:11.4`). Usar `mysql:latest` rompe la reproducibilidad: una actualización silenciosa del tag puede cambiar el comportamiento de tu BD.
+:::
+
+---
+
+## 3. PostgreSQL en contenedor
+
+PostgreSQL es un motor relacional avanzado (ACID, JSON, extensiones). Su despliegue en Docker es análogo, con variables y rutas distintas.
+
+### 3.1 Despliegue con `docker run`
+
+```bash
+$ docker run -d \
+    --name pg \
+    -e POSTGRES_PASSWORD='CambiaEstePasswordFuerte' \
+    -e POSTGRES_DB=appdb \
+    -e POSTGRES_USER=appuser \
+    -v pg_data:/var/lib/postgresql/data \
+    -p 5432:5432 \
+    --restart unless-stopped \
+    postgres:16  # <1>
+# <1>
+```
+
+1. **`docker run -d --name pg ... postgres:16`** arranca PostgreSQL 16 en segundo plano; las variables `POSTGRES_*` inicializan usuario, base y contraseña al primer arranque.
+
+Al igual que con MySQL, desglosamos los flags clave:
+
+```bash
+$ docker run -d \
+    --name pg \
+    -e POSTGRES_PASSWORD='CambiaEstePasswordFuerte' \  # <1>
+    -e POSTGRES_DB=appdb \                             # <2>
+    -e POSTGRES_USER=appuser \                         # <3>
+    -v pg_data:/var/lib/postgresql/data \              # <4>
+    -p 5432:5432 \                                    # <5>
+    postgres:16                                        # <6>
+# <1>
+```
+
+1. **`-e POSTGRES_PASSWORD`** contraseña del superusuario (o del usuario definido en `POSTGRES_USER`). Obligatoria.
+2. **`-e POSTGRES_DB`** crea la base inicial `appdb`.
+3. **`-e POSTGRES_USER`** define un usuario (si se omite, el superusuario es `postgres`).
+4. **`-v pg_data:/var/lib/postgresql/data`** monta el volumen persistente en la ruta de datos de PostgreSQL.
+5. **`-p 5432:5432`** publica el puerto por defecto de PostgreSQL (desarrollo local).
+6. **`postgres:16`** imagen y versión mayor fijada.
+
+### 3.2 Verificar y conectar
+
+```bash
+$ docker exec -it pg psql -U appuser -d appdb  # <1>
+psql (16.x)
+appdb=> SELECT version();
+                                                 version
+----------------------------------------------------------------------------------------------------------
+ PostgreSQL 16.x on x86_64-pc-linux-musl, compiled by ...
+appdb=> \q
+# <1>
+```
+
+1. **`docker exec -it pg psql -U appuser -d appdb`** abre `psql` (consola PostgreSQL) dentro del contenedor conectando como `appuser` a `appdb`. `\q` sale.
+
+---
+
+## 4. Usuarios y privilegios (principio de mínimo privilegio)
+
+Tanto en MySQL como en PostgreSQL, la regla de seguridad fundamental es: **la aplicación NUNCA se conecta como administrador**. Cada aplicación tiene su usuario propio, con solo los privilegios que necesita.
+
+### 4.1 MySQL / MariaDB
+
+```bash
+$ docker exec -it mysql mysql -u root -p  # <1>
+Enter password:
+mysql> CREATE USER 'appuser'@'%' IDENTIFIED BY 'NuevaPasswordFuerte';  # <2>
+mysql> CREATE DATABASE IF NOT EXISTS appdb;                            # <3>
+mysql> GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'%';  # <4>
+mysql> FLUSH PRIVILEGES;                                               # <5>
+mysql> EXIT;
+# <1>
+```
+
+1. **`docker exec -it mysql mysql -u root -p`** abre la consola SQL como `root` dentro del contenedor.
+2. **`CREATE USER 'appuser'@'%'`** crea el usuario de aplicación; `'%'` permite conexión desde cualquier host (en Compose usaremos el nombre del servicio; en host local usa `'localhost'`).
+3. **`CREATE DATABASE IF NOT EXISTS appdb`** asegura la existencia de la base.
+4. **`GRANT SELECT, INSERT, UPDATE, DELETE`** otorga **solo** permisos de lectura/escritura sobre `appdb`, nada de `DROP`, `GRANT` ni administración.
+5. **`FLUSH PRIVILEGES`** recarga la tabla de privilegios para aplicar los cambios.
+
+### 4.2 PostgreSQL
+
+```bash
+$ docker exec -it pg psql -U postgres  # <1>
+psql (16.x)
+postgres=# CREATE USER appuser WITH PASSWORD 'NuevaPasswordFuerte';  # <2>
+postgres=# CREATE DATABASE appdb OWNER appuser;                     # <3>
+postgres=# GRANT CONNECT ON DATABASE appdb TO appuser;              # <4>
+postgres=# \c appdb                                                 # <5>
+appdb=# GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO appuser;  # <6>
+appdb=# \q
+# <1>
+```
+
+1. **`docker exec -it pg psql -U postgres`** abre la consola como superusuario.
+2. **`CREATE USER appuser WITH PASSWORD`** crea el usuario de aplicación (en PostgreSQL, `USER` y `ROLE` son sinónimos).
+3. **`CREATE DATABASE appdb OWNER appuser`** crea la base y la asigna a `appuser` como dueño.
+4. **`GRANT CONNECT ON DATABASE`** permite la conexión a la base.
+5. **`\c appdb`** cambia el contexto a la base `appdb` para asignar privilegios de tabla.
+6. **`GRANT ... ON ALL TABLES IN SCHEMA public`** otorga solo operaciones CRUD sobre las tablas existentes.
+
+::: {.callout-warning}
+## ⚠️ NUNCA uses el usuario administrador en la aplicación
+
+**Lo que podría salir mal:**
+- Una vulnerabilidad en la app permite `DROP DATABASE`, `DROP USER` o `GRANT` malicioso.
+- Un bug de la aplicación borra tablas del sistema o crea usuarios arbitrarios.
+- Imposibilidad de auditar: no distingues acciones de admin vs. de app.
+
+**Cómo prevenirlo:**
+1. Crea un usuario dedicado por aplicación/entorno (`appuser_dev`, `appuser_prod`).
+2. Aplica **mínimo privilegio**: solo `SELECT/INSERT/UPDATE/DELETE` (y quizá `EXECUTE` para funciones).
+3. Usa **contraseñas fuertes** (16+ caracteres) almacenadas en un gestor de secretos o variables de entorno, nunca en el repositorio.
+4. Rota credenciales periódicamente.
+:::
+
+::: {.callout-tip}
+## Recomendación: separa usuarios por entorno
+
+Usa `appuser_dev` / `appuser_prod` con bases distintas. Así un error en desarrollo nunca impacta producción, y los permisos se revisan de forma aislada.
+:::
+
+---
+
+## 5. Backup y Restore verificables
+
+Un servidor sin backups verificables **no está en producción**. Docker facilita el backup: ejecutas la herramienta de dump *dentro* del contenedor y rediriges la salida al host.
+
+### 5.1 Backup MySQL / MariaDB
+
+```bash
+$ docker exec mysql mysqldump -u root -p appdb > backup_appdb_$(date +%F).sql  # <1>
+Enter password:
+$ ls -lh backup_appdb_*.sql  # <2>
+-rw-r--r-- 1 user user 24K Jul 20 12:30 backup_appdb_2026-07-20.sql
+# <1>
+```
+
+1. **`docker exec mysql mysqldump -u root -p appdb > backup.sql`** ejecuta `mysqldump` dentro del contenedor y vuelca la base `appdb` a un archivo en el host. El `$(date +%F)` nombra el archivo con la fecha.
+2. **`ls -lh`** valida que el backup existe y su tamaño (debe ser > 0).
+
+### 5.2 Restore MySQL / MariaDB
+
+```bash
+$ cat backup_appdb_2026-07-20.sql | docker exec -i mysql mysql -u root -p appdb  # <1>
+Enter password:
+$ docker exec -it mysql mysql -u root -p -e 'SHOW TABLES IN appdb;'  # <2>
+Enter password:
+Tables_in_appdb
+usuarios
+productos
+# <1>
+```
+
+1. **`cat backup.sql | docker exec -i mysql mysql -u root -p appdb`** envía el dump por stdin (`-i`) al cliente `mysql` dentro del contenedor, restaurando la base.
+2. **`SHOW TABLES IN appdb`** valida que las tablas fueron restauradas correctamente.
+
+### 5.3 Backup y Restore PostgreSQL
+
+```bash
+$ docker exec pg pg_dump -U postgres appdb > backup_appdb_$(date +%F).sql  # <1>
+$ cat backup_appdb_2026-07-20.sql | docker exec -i pg psql -U postgres -d appdb  # <2>
+$ docker exec -it pg psql -U postgres -d appdb -c '\dt'  # <3>
+# <1>
+```
+
+1. **`pg_dump -U postgres appdb`** genera el dump SQL de la base `appdb` dentro del contenedor, redirigido al host.
+2. **`psql -U postgres -d appdb`** con stdin/restaura el dump en PostgreSQL.
+3. **`\dt`** lista las tablas restauradas para validar.
+
+### 5.4 Script de backup automatizado
+
+El siguiente script bash realiza backup de MySQL con rotación básica. Obsérvese el uso de `#!/bin/bash` y los comentarios `# <1>`.
+
+```bash
+#!/bin/bash
+# backup_mysql.sh - Backup automatizado de MySQL en contenedor  # <1>
+set -euo pipefail  # <2>
+
+CONTENEDOR="mysql"          # Nombre del contenedor
+BASE="appdb"                # Base a respaldar
+USUARIO="root"              # Usuario con permiso de dump
+DESTINO="/backups"          # Carpeta de destino en el host
+FECHA=$(date +%F)           # Fecha actual YYYY-MM-DD
+ARCHIVO="$DESTINO/${BASE}_${FECHA}.sql"  # <3>
+
+mkdir -p "$DESTINO"  # <4>
+
+echo "[+] Generando backup: $ARCHIVO"  # <5>
+docker exec "$CONTENEDOR" mysqldump -u "$USUARIO" -p"$MYSQL_ROOT_PASSWORD" "$BASE" > "$ARCHIVO"  # <6>
+
+echo "[+] Comprimiendo..."  # <7>
+gzip "$ARCHIVO"  # <8>
+
+# Conservar solo los últimos 7 backups (rotación)  # <9>
+ls -1t "$DESTINO"/${BASE}_*.sql.gz | tail -n +8 | xargs -r rm -f  # <10>
+
+echo "[+] Backup completado: ${ARCHIVO}.gz"  # <11>
+# <1>
+```
+
+1. **Shebang + encabezado** declara el intérprete bash y documenta el propósito del script.
+2. **`set -euo pipefail`** hace el script robusto: aborta ante error (`-e`), variable no definida (`-u`) o fallo en pipe (`-o pipefail`).
+3. **Variables de configuración** centralizan contenedor, base, usuario y ruta; fáciles de parametrizar.
+4. **`mkdir -p "$DESTINO"`** crea la carpeta de destino si no existe (sin error si ya existe).
+5. **`echo "[+] ..."`** registra progreso visible al ejecutar el script.
+6. **`docker exec ... mysqldump ... > "$ARCHIVO"`** genera el dump dentro del contenedor y lo guarda en el host (la contraseña se pasa vía variable de entorno, no hardcodeada).
+7. **`echo "[+] Comprimiendo..."`** marca el paso de compresión.
+8. **`gzip "$ARCHIVO"`** comprime el SQL para ahorrar espacio (los dumps textuales comprimen muy bien).
+9. **Comentario de rotación** documenta la política de retención.
+10. **`ls -1t ... | tail -n +8 | xargs -r rm -f`** mantiene solo los 7 backups más recientes, borrando los antiguos.
+11. **`echo "[+] Backup completado..."`** confirma el fin exitoso del proceso.
+
+::: {.callout-tip}
+## Programar con cron
+
+Para automatizar, añade al crontab (`crontab -e`) una línea como:
+
+```bash
+0 2 * * * /ruta/backup_mysql.sh >> /var/log/backup_mysql.log 2>&1
+```
+
+Esto ejecuta el backup **todos los días a las 02:00**. Verifica periódicamente que el log no muestre errores y que los archivos crezcan.
+:::
+
+---
+
+## 6. Docker Compose: pila completa App + DB
+
+Hasta ahora usamos `docker run`. Para una aplicación real necesitamos **dos servicios** (app y base de datos) que se comunican por una **red interna**, con **volúmenes persistentes**, orden de arranque y comprobación de salud. Docker Compose define todo esto en un único archivo declarativo.
+
+::: {.callout-note}
+## Conceptos clave de Compose
+
+- **`services`**: cada contenedor (aquí `db` y `app`).
+- **`networks`**: red interna privada donde los servicios se ven por nombre.
+- **`volumes`**: almacenamiento persistente nombrado (la regla de oro).
+- **`depends_on`**: orden de arranque.
+- **`healthcheck`**: Compose espera a que la BD esté sana antes de iniciar la app.
+- **`environment`**: variables de entorno (credenciales, configuración).
+:::
+
+### 6.1 `compose.yaml` completo (MySQL + app Node)
+
+```yaml
+# compose.yaml - Pila App + MySQL con persistencia y healthcheck  # <1>
+services:
+  db:
+    image: mysql:8.0
+    container_name: app_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}   # <2>
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql                   # <3>
+    networks:
+      - backend                                     # <4>
+    healthcheck:                                    # <5>
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # NO exponemos 3306 a 0.0.0.0: solo red interna (comentado a propósito)
+    # ports:
+    #   - "3306:3306"
+
+  app:
+    build: .
+    container_name: app_web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy                 # <6>
+    environment:
+      DB_HOST: db                                   # <7>
+      DB_PORT: "3306"
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3000:3000"                                 # <8>
+    networks:
+      - backend
+
+volumes:
+  mysql_data:                                       # <9>
+
+networks:
+  backend:
+    driver: bridge                                  # <10>
+# <1>
+```
+
+1. **Encabezado del archivo** documenta que es una pila App + MySQL con persistencia y healthcheck.
+2. **`environment` con `${VAR}`** inyecta credenciales desde un archivo `.env` (no hardcodeadas en el YAML).
+3. **`mysql_data:/var/lib/mysql`** monta el volumen nombrado persistente en la ruta de datos de MySQL (regla de oro).
+4. **`networks: - backend`** conecta `db` a la red interna privada `backend`.
+5. **`healthcheck`** usa `mysqladmin ping` para comprobar que MySQL acepta conexiones; `start_period` da margen al arranque inicial.
+6. **`depends_on ... condition: service_healthy`** asegura que `app` solo arranca cuando `db` está sano (evita fallos por "BD no lista").
+7. **`DB_HOST: db`** la app se conecta usando el **nombre del servicio** (`db`) dentro de la red de Compose, no `localhost`.
+8. **`ports: - "3000:3000"`** expone solo la app al host; la BD queda en la red interna.
+9. **`volumes: mysql_data:`** declara el volumen nombrado (Docker lo gestiona).
+10. **`networks: backend: driver: bridge`** define la red aislada donde ambos servicios se comunican.
+
+### 6.2 Equivalente con PostgreSQL
+
+```yaml
+# compose.yaml - Pila App + PostgreSQL
+services:
+  db:
+    image: postgres:16
+    container_name: app_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  app:
+    build: .
+    container_name: app_web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+
+volumes:
+  pg_data:
+
+networks:
+  backend:
+    driver: bridge
+```
+
+### 6.3 Desplegar y verificar la pila
+
+```bash
+$ docker compose up -d --build  # <1>
+[+] Running 3/3
+ ✔ Network x_backend      Created
+ ✔ Volume  x_mysql_data   Created
+ ✔ Container app_db       Started
+ ✔ Container app_web      Started
+# <1>
+```
+
+1. **`docker compose up -d --build`** construye la imagen de la app (`build: .`), crea red/volumen y arranca ambos servicios en segundo plano.
+
+```bash
+$ docker compose ps  # <1>
+NAME        IMAGE       STATUS                    PORTS
+app_db      mysql:8.0   Up 40 seconds (healthy)  3306/tcp
+app_web     app_web     Up 15 seconds            0.0.0.0:3000->3000/tcp
+# <1>
+```
+
+1. **`docker compose ps`** lista los servicios; `app_db` debe mostrar `(healthy)` antes de que `app_web` arranque gracias a `depends_on`.
+
+```bash
+$ docker compose logs -f app  # <1>
+app_web  | Server running at http://localhost:3000
+# <1>
+```
+
+1. **`docker compose logs -f app`** sigue los logs del servicio `app` en tiempo real para confirmar arranque.
+
+```bash
+$ docker compose down  # <1>
+# <1>
+```
+
+1. **`docker compose down`** detiene y elimina los contenedores. **Los datos persisten** en el volumen `mysql_data` (no se borran a menos que uses `docker compose down -v`).
+
+::: {.callout-tip}
+## El archivo `.env`
+
+No incluyas contraseñas en el `compose.yaml` commiteado. Usa un `.env` junto al compose:
+
+```bash
+MYSQL_ROOT_PASSWORD=CambiaEstePasswordFuerte
+MYSQL_PASSWORD=PasswordAppFuerte
+POSTGRES_PASSWORD=CambiaEstePasswordFuerte
+```
+
+Y añade `.env` a tu `.gitignore`. Docker Compose lee `.env` automáticamente.
+:::
+
+---
+
+## 7. Conexión remota segura (regla crítica)
+
+La base de datos **nunca** debe quedar expuesta directamente a internet. Un puerto 3306 o 5432 abierto a `0.0.0.0` es un objetivo constante de ataques automatizados (fuerza bruta, explotación de CVEs).
+
+::: {.callout-warning}
+## ⚠️ NUNCA expongas 3306/5432 a 0.0.0.0 en producción
+
+**Lo que podría salir mal:**
+- Ataques de fuerza bruta contra `root`/`postgres` desde cualquier IP del planeta.
+- Explotación de vulnerabilidades conocidas del motor expuestas públicamente.
+- Fuga total de datos si la contraseña es débil o reutilizada.
+
+**Cómo prevenirlo:**
+1. **No publiques el puerto** de la BD en el host (quita `ports: - "3306:3306"` del servicio `db` en Compose). La app se conecta vía red interna de Compose usando el nombre del servicio.
+2. **`bind-address`**: En MySQL/MariaDB, asegura `bind-address = 127.0.0.1` o la IP de la red interna. En contenedores, la red de Compose ya aísla por defecto si no publicas el puerto.
+3. **Firewall (UFW)**: Si necesitas acceso remoto legitimo, limita por origen:
+   ```bash
+   sudo ufw allow from 192.168.56.0/24 to any port 3306 proto tcp
+   ```
+4. **Túnel SSH o VPN**: Para administración remota, conéctate mediante un túnel SSH (`ssh -L 3306:localhost:3306 usuario@servidor`) o una VPN privada. Nunca abras el puerto directamente.
+5. **No uses root/postgres** para conexiones remotas; usa el usuario de aplicación con mínimo privilegio.
+:::
+
+### 7.1 Túnel SSH para administración remota
+
+```bash
+$ ssh -N -L 3306:localhost:3306 deploy@servidor-produccion  # <1>
+# (No muestra salida; mantiene el túnel abierto en primer plano)
+# <1>
+```
+
+1. **`ssh -N -L 3306:localhost:3306 deploy@servidor`** crea un túnel: tu puerto local `3306` se reenvía cifradamente al `localhost:3306` del servidor. Entonces te conectas desde tu laptop a `127.0.0.1:3306` como si la BD estuviera local, sin exponerla.
+
+---
+
+## 8. Buenas prácticas de operación
+
+### 8.1 Respaldos automatizados y verificados
+
+```bash
+$ crontab -l | grep backup  # <1>
+0 2 * * * /opt/scripts/backup_mysql.sh >> /var/log/backup_mysql.log 2>&1
+# <1>
+```
+
+1. **`crontab -l | grep backup`** lista las tareas programadas de backup; verifica que exista y a qué hora corre. Un backup que no se verifica es solo una esperanza.
+
+Además de programarlos:
+- **Prueba el restore periódicamente** en un entorno aislado. Un backup nunca restaurado es un backup inútil.
+- **Copia los backups fuera del host** (almacenamiento de objetos, otro servidor) para sobrevivir a fallos de disco.
+- **Cifra los backups** en reposo si contienen datos sensibles.
+
+### 8.2 Cifrado en reposo y en tránsito
+
+::: {.callout-tip}
+## Recomendación: cifrado
+
+- **En reposo**: usa volúmenes sobre discos cifrados (LUKS en el host, o cifrado gestionado del proveedor cloud). PostgreSQL también soporta cifrado de tablas con extensiones como `pgcrypto`.
+- **En tránsito**: habilita TLS/SSL para las conexiones cliente-servidor (MySQL: `require_secure_transport=ON`; PostgreSQL: `ssl=on` en `postgresql.conf`). La app y la BD dentro de Compose ya viajan por red privada, pero el cifrado extra protege frente a escalamiento lateral.
+:::
+
+### 8.3 Actualizaciones y mantenimiento
+
+```bash
+$ docker compose pull  # <1>
+$ docker compose up -d  # <2>
+# <1>
+```
+
+1. **`docker compose pull`** descarga las nuevas versiones de las imágenes definidas en el compose.
+2. **`docker compose up -d`** recrea los contenedores con las imágenes actualizadas (combínalo con `depends_on`/healthcheck para un rollout ordenado).
+
+::: {.callout-note}
+## Checklist de buenas prácticas
+
+- [ ] Volumen persistente montado en la ruta de datos del motor.
+- [ ] Usuario de app dedicado con mínimo privilegio (no root/postgres).
+- [ ] Contraseñas fuertes en `.env` (no en el repo).
+- [ ] Puertos de BD **no** expuestos a `0.0.0.0`; acceso por red interna/túnel SSH/VPN.
+- [ ] Backup automatizado con cron + rotación + verificación de restore.
+- [ ] Backups fuera del host y cifrados en reposo.
+- [ ] TLS habilitado para conexiones.
+- [ ] Imágenes con versión fijada y política de actualización.
+:::
+
+---
+
+## 9. Laboratorio Práctico: Pila App + DB en Compose
+
+::: {.callout-note}
+## 🎯 Lab 11 — Despliegue de BD en contenedor (60-90 min)
+
+**Objetivo**: Desplegar una pila MySQL + app en Docker Compose con volumen persistente, healthcheck y backup automatizado.
+
+### Checklist de verificación
+
+- [ ] `docker compose up -d --build` levanta ambos servicios sin errores.
+- [ ] `docker compose ps` muestra `db` como `(healthy)` antes de `app`.
+- [ ] La app responde en `http://localhost:3000`.
+- [ ] Tras `docker compose down` y nuevo `up`, los datos de `appdb` **persisten** (volumen).
+- [ ] `docker exec mysql mysql -u appuser -p -e 'SHOW TABLES;'` lista tablas.
+- [ ] `backup_mysql.sh` genera `appdb_YYYY-MM-DD.sql.gz` > 0 bytes.
+- [ ] Restore del backup en un contenedor de prueba valida integridad.
+
+### Evidencia a entregar (texto)
+
+```bash
+{
+  echo "=== Compose ===" && docker compose ps
+  echo -e "\n=== Volumen ===" && docker volume ls | grep mysql_data
+  echo -e "\n=== Health ===" && docker inspect -f '{{.State.Health.Status}}' app_db
+  echo -e "\n=== Backup ===" && ls -lh /backups/
+} > ~/lab11-evidencia.txt
+```
+:::
+
+---
+
+## 10. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad XI
+
+1. **Contenedores = aislamiento + reproducibilidad**. La misma imagen corre en WSL2, dev y producción.
+2. **Regla de oro**: los datos viven en un **volumen nombrado**, nunca en el filesystem efímero del contenedor.
+3. **MySQL/MariaDB** (`mysql:8.0`) y **PostgreSQL** (`postgres:16`) se despliegan con `-v` al directorio de datos y variables de entorno.
+4. **Mínimo privilegio**: la app usa su propio usuario, nunca `root`/`postgres`.
+5. **Backup/restore verificables** con `mysqldump`/`pg_dump`; autolmatizados con `cron` y rotación.
+6. **Docker Compose** orquesta App + DB con red interna, `healthcheck`, `depends_on` y volúmenes.
+7. **NUNCA expongas 3306/5432 a 0.0.0.0**: red interna + firewall por origen + túnel SSH/VPN.
+:::
+
+### 📋 Checklist de competencias Unidad XI
+
+- [ ] Explicar por qué ejecutar BD en contenedores y la regla de oro de persistencia.
+- [ ] Desplegar MySQL/MariaDB y PostgreSQL con volúmenes persistentes.
+- [ ] Crear usuarios y aplicar `GRANT` de mínimo privilegio.
+- [ ] Realizar backup (`mysqldump`/`pg_dump`) y restore verificables.
+- [ ] Escribir un `compose.yaml` con App + DB, red, volumen y healthcheck.
+- [ ] Proteger el acceso de red (sin exposición pública, túnel SSH).
+- [ ] Automatizar respaldos con cron y aplicar buenas prácticas.
+
+---
+
+## 11. Recursos y Referencias
+
+- **Docker Hub — MySQL**: <https://hub.docker.com/_/mysql>
+- **Docker Hub — PostgreSQL**: <https://hub.docker.com/_/postgres>
+- **Docker Volumes (docs)**: <https://docs.docker.com/storage/volumes/>
+- **Docker Compose spec**: <https://docs.docker.com/compose/compose-file/>
+- **MySQL `mysqldump`**: <https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html>
+- **PostgreSQL `pg_dump`**: <https://www.postgresql.org/docs/current/app-pgdump.html>
+- **MySQL `GRANT`**: <https://dev.mysql.com/doc/refman/8.0/en/grant.html>
+- **PostgreSQL `GRANT`**: <https://www.postgresql.org/docs/current/sql-grant.html>
+- **UFW — Uncomplicated Firewall**: <https://help.ubuntu.com/community/UFW>
+- **Cron (ArchWiki)**: <https://wiki.archlinux.org/title/Cron>
+
+---
+
+## 12. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Dónde deben vivir los datos de una base de datos en contenedor?
+
+- [ ] En la capa de escritura efímera del contenedor
+- [x] En un volumen nombrado montado en la ruta de datos del motor
+- [ ] En la imagen Docker base
+- [ ] En la memoria RAM del host
+
+## Al desplegar MySQL en Docker, ¿qué variable es OBLIGATORIA?
+
+- [ ] MYSQL_DATABASE
+- [ ] MYSQL_USER
+- [x] MYSQL_ROOT_PASSWORD
+- [ ] MYSQL_PORT
+
+## ¿Cuál es la ruta de datos persistente de PostgreSQL?
+
+- [ ] /var/lib/mysql
+- [ ] /var/lib/data
+- [x] /var/lib/postgresql/data
+- [ ] /opt/postgres
+
+## ¿Por qué la app NO debe usar el usuario root/postgres?
+
+- [x] Por mínimo privilegio: limita el daño de una vulnerabilidad en la app
+- [ ] Porque root no puede conectarse
+- [ ] Porque consume más memoria
+- [ ] Porque la app no soporta ese usuario
+
+## En Docker Compose, ¿qué asegura depends_on con condition: service_healthy?
+
+- [ ] Que db se reinicie si app falla
+- [x] Que app arranque solo cuando db está sano (listo para conexiones)
+- [ ] Que ambos servicios compartan el mismo contenedor
+- [ ] Que el volumen se cifre
+
+## ¿Cómo acceder a una BD remota de forma segura?
+
+- [ ] Exponiendo 3306 a 0.0.0.0 con contraseña fuerte
+- [ ] Usando root desde cualquier IP
+- [x] Vía túnel SSH o VPN, sin exponer el puerto públicamente
+- [ ] Deshabilitando el firewall
+```
