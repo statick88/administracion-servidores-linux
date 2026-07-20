@@ -1,0 +1,744 @@
+---
+title: "UNIDAD IX: Nginx como Servidor Web y Proxy"
+subtitle: "Configuración, Servidor Estático y Reverse Proxy — Enfoque WSL2 (Ubuntu 24.04 LTS) + Docker"
+author: "Diego Saavedra - Instructor Principal"
+date: "2026-07-20"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+---
+
+# UNIDAD IX: Nginx como Servidor Web y Proxy
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Explicar **qué es Nginx** y sus tres roles principales: servidor web, reverse proxy y balanceador de carga.
+- Instalar Nginx en **Ubuntu 24.04 LTS (WSL2)** o ejecutarlo mediante la **imagen oficial de Docker**.
+- Navegar y editar la **estructura de configuración** (`nginx.conf`, `sites-available/`, `sites-enabled/`, `conf.d/`).
+- Servir un **sitio estático** y configurar **server blocks** (virtual hosts).
+- Configurar un **reverse proxy** hacia una aplicación Node/Python, incluyendo soporte de **WebSockets**.
+- Gestionar el servicio (`reload`, `nginx -t`, logs) y aplicar **hardening básico** (sin TLS — eso es la UNIDAD X).
+
+---
+
+## 1. ¿Qué es Nginx y por qué importa?
+
+**Nginx** (pronunciado "engine-x") es un servidor web de alto rendimiento, creado en 2004 por Igor Sysoev para resolver el *C10k problem* (manejar 10.000 conexiones concurrentes en un solo servidor). Su arquitectura basada en **event loop** (un proceso maestro + workers basados en eventos, no en hilos por conexión) lo hace extremadamente eficiente en recursos.
+
+Hoy Nginx domina la capa de borde de internet:
+
+- **Servidor web estático**: sirve HTML, CSS, JS, imágenes y descargas con mínimo consumo de CPU/RAM.
+- **Reverse proxy**: recibe el tráfico externo y lo reenvía a aplicaciones internas (Node, Python, Go, Java).
+- **Load balancer**: distribuye carga entre múltiples backends con algoritmos round-robin, least-conn, etc.
+- **Terminador TLS / WAF / cache**: funciona como puerta de entrada (en la UNIDAD X veremos TLS).
+
+::: {.callout-note}
+## Arquitectura en producción (patrón típico Abacom)
+
+```
+Internet ──► Nginx (puerto 80/443) ──► App interna (127.0.0.1:3000)
+                 │
+                 ├─ Sirve estáticos  (/assets, /static)
+                 ├─ Proxy pasa dinámico (/api  --> backend)
+                 └─ Logs centralizados (/var/log/nginx/)
+```
+
+Nginx queda expuesto al mundo; la aplicación solo escucha en `localhost`. Esto reduce la superficie de ataque.
+:::
+
+### 1.1 Casos de uso cubiertos en esta unidad
+
+| Rol | Descripción | Ejemplo en el curso |
+|-----|-------------|----------------------|
+| **Servidor web estático** | Entrega archivos directamente | Sitio HTML en `/var/www/html` |
+| **Reverse proxy** | Reenvía rutas a backends | `proxy_pass http://localhost:3000` |
+| **Load balancer** | Distribuye entre N backends | `upstream` con 2+ servidores (mención) |
+| **Terminador TLS** | Cifra HTTPS | ⚠️ UNIDAD X (no aquí) |
+
+### 1.2 Por qué WSL2 + Docker (sin VirtualBox/VMware)
+
+> **Regla de oro Abacom**: *No instalamos ISOs en VirtualBox/VMware*. Usamos virtualización ligera nativa.
+
+En este curso ejecutamos Nginx de dos formas equivalentes:
+
+1. **Instalado vía `apt` dentro de WSL2** (Ubuntu 24.04 LTS) — idéntico a un servidor real.
+2. **Contenedor Docker** con la imagen oficial `nginx:stable` — ideal para aislar configuraciones y reproducir entornos.
+
+::: {.callout-tip}
+## ¿Cuál elegir?
+
+- **`apt` en WSL2**: recomendado para aprender la estructura de archivos real (`/etc/nginx/...`) y `systemctl`.
+- **Docker**: recomendado para despliegues reproducibles; montas tu `nginx.conf` con un volumen y listo.
+
+Ambos enfoques se documentan a continuación. El estado de `systemd` en WSL2 requiere el arranque del servicio; en Docker el proceso es el PID 1 del contenedor.
+:::
+
+---
+
+## 2. Instalación
+
+### 2.1 Opción A — `apt` en Ubuntu 24.04 LTS (WSL2)
+
+```bash
+$ sudo apt update  # <1>
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Reading package lists... Done
+# <1>
+
+$ sudo apt install -y nginx  # <2>
+Reading package lists... Done
+Building dependency tree... Done
+The following NEW packages will be installed:
+  nginx nginx-common nginx-core
+...
+Setting up nginx (1.24.0-2ubuntu7) ...
+# <2>
+
+$ nginx -v  # <3>
+nginx version: nginx/1.24.0 (Ubuntu)
+# <3>
+```
+
+1. **apt update** actualiza el índice de paquetes del sistema.
+2. **apt install -y nginx** instala el meta-paquete Nginx y sus dependencias (core + common).
+3. **nginx -v** imprime la versión instalada (1.24.0 en Ubuntu 24.04).
+
+::: {.callout-note}
+## WSL2 y systemd
+
+WSL2 usa `systemd` solo si está habilitado en `/etc/wsl.conf` (`[boot] systemd=true`). Si tu distribución no usa systemd, puedes iniciar Nginx con `sudo service nginx start` o directamente `sudo nginx`. Los comandos `systemctl` de este documento asumen systemd activo; si no, sustitúyelos por `service nginx ...`.
+:::
+
+### 2.2 Opción B — Docker (imagen oficial)
+
+```bash
+$ docker run --rm --name nginx-lab -p 8080:80 -d nginx:stable  # <1>
+Unable to find image 'nginx:stable' locally
+stable: Pulling from library/nginx
+...
+Status: Downloaded newer image for nginx:stable
+c3f9b1e7d8a2... (container id)
+# <1>
+
+$ docker ps --filter name=nginx-lab  # <2>
+CONTAINER ID   IMAGE         COMMAND                  STATUS         PORTS
+c3f9b1e7d8a2   nginx:stable  "/docker-entrypoint.…"   Up 3 seconds   0.0.0.0:8080->80/tcp
+# <2>
+
+$ curl -sI http://localhost:8080  # <3>
+HTTP/1.1 200 OK
+Server: nginx/1.26.2
+Content-Type: text/html
+# <3>
+```
+
+1. **docker run** levanta un contenedor efímero (`--rm`) en segundo plano (`-d`), mapeando el puerto 8080 del host al 80 del contenedor.
+2. **docker ps** confirma que el contenedor está corriendo y el puerto está publicado.
+3. **curl -sI** verifica la respuesta HTTP 200 del servidor dentro del contenedor.
+
+::: {.callout-tip}
+## Montar tu configuración en Docker
+
+Para usar tus propios archivos, monta volúmenes:
+
+```bash
+docker run --rm --name nginx-lab -p 8080:80 \
+  -v "$PWD/nginx.conf:/etc/nginx/nginx.conf:ro" \
+  -v "$PWD/html:/usr/share/nginx/html:ro" \
+  -d nginx:stable
+```
+
+El flag `:ro` (read-only) evita que el contenedor modifique tus archivos locales.
+:::
+
+---
+
+## 3. Estructura de configuración
+
+Nginx carga una configuración jerárquica. El archivo principal incluye fragmentos de otros directorios mediante la directiva `include`.
+
+| Ruta | Propósito |
+|------|-----------|
+| `/etc/nginx/nginx.conf` | Configuración global (worker_processes, events, http). |
+| `/etc/nginx/sites-available/` | Definiciones de server blocks (no se cargan hasta enlazarse). |
+| `/etc/nginx/sites-enabled/` | Symlinks a los sitios activos (los que Nginx realmente lee). |
+| `/etc/nginx/conf.d/` | Configuraciones adicionales incluidas globalmente (`*.conf`). |
+| `/var/www/html/` | Raíz web por defecto. |
+| `/var/log/nginx/` | `access.log` y `error.log`. |
+
+El `nginx.conf` por defecto de Ubuntu termina con:
+
+```nginx
+http {
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+```
+
+Es decir: **todo lo que esté en `sites-enabled/` y `conf.d/*.conf` se incluye dentro del bloque `http`**.
+
+### 3.1 Validar y recargar
+
+```bash
+$ sudo nginx -t  # <1>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <1>
+
+$ sudo systemctl reload nginx  # <2>
+# <2>
+
+$ sudo systemctl status nginx --no-pager  # <3>
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: active (running)
+# <3>
+```
+
+1. **nginx -t** valida la sintaxis de toda la configuración antes de aplicar cambios (¡siempre correrlo!).
+2. **systemctl reload** recarga la config sin cortar conexiones activas (graceful reload).
+3. **systemctl status** confirma que el servicio está `active (running)`.
+
+::: {.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Nunca edites configuración de Nginx sin validarla con `nginx -t` primero.**
+
+**Lo que podría salir mal:**
+- Un paréntesis o punto y coma mal cerrado deja Nginx detenido y el sitio caído.
+- Un `reload` sobre configuración inválida es ignorado, pero un `restart` fallido deja el puerto 80 cerrado.
+- Un `server_name` duplicado o mal escrito enruta tráfico al bloque equivocado.
+
+**Cómo prevenirlo:**
+1. Edita el archivo y guarda.
+2. Ejecuta `sudo nginx -t` y confirma `test is successful`.
+3. Solo entonces `sudo systemctl reload nginx`.
+4. Verifica con `curl -I http://localhost` tras cada cambio.
+:::
+
+---
+
+## 4. Servidor estático
+
+Un servidor estático entrega archivos del disco según la ruta solicitada. El bloque `server` mínimo usa `listen`, `server_name`, `root` e `index`.
+
+### 4.1 Crear el sitio estático
+
+```bash
+$ sudo mkdir -p /var/www/mi-sitio  # <1>
+# <1>
+
+$ echo '<h1>Hola desde Nginx en WSL2</h1>' | sudo tee /var/www/mi-sitio/index.html >/dev/null  # <2>
+# <2>
+
+$ sudo tee /etc/nginx/sites-available/mi-sitio.conf >/dev/null <<'EOF'  # <3>
+server {
+    listen 80;
+    server_name mi-sitio.local;
+
+    root /var/www/mi-sitio;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+# <3>
+
+$ sudo ln -sf /etc/nginx/sites-available/mi-sitio.conf /etc/nginx/sites-enabled/mi-sitio.conf  # <4>
+# <4>
+
+$ sudo nginx -t && sudo systemctl reload nginx  # <5>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <5>
+```
+
+1. **mkdir -p** crea el directorio raíz del sitio (si no existe).
+2. **tee** escribe una página `index.html` de prueba.
+3. **tee + heredoc** crea el server block estático con `root` e `index`.
+4. **ln -sf** habilita el sitio mediante un symlink en `sites-enabled/`.
+5. **nginx -t && reload** valida y aplica la configuración en un solo paso.
+
+### 4.2 El bloque `server` explicado
+
+```nginx
+server {
+    listen 80;                         # Puerto de escucha (HTTP)
+    server_name mi-sitio.local;        # Nombre de host que Nginx coincide
+
+    root /var/www/mi-sitio;            # Directorio base donde buscar archivos
+    index index.html index.htm;        # Archivo por defecto si la ruta es "/"
+
+    location / {                       # Coincide todas las rutas
+        try_files $uri $uri/ =404;     # Prueba archivo, luego dir/, si no 404
+    }
+}
+```
+
+- **`listen 80`**: el puerto (en UNIDAD X será `443 ssl`).
+- **`server_name`**: Nginx selecciona este bloque cuando el header `Host` coincide.
+- **`try_files $uri $uri/ =404`**: intenta servir el archivo exacto, luego un directorio, y si no existe devuelve 404 (en lugar del `index.html` por defecto de `/`).
+
+::: {.callout-note}
+## ¿Cómo resuelve el navegador `mi-sitio.local`?
+
+Nginx no resuelve DNS; tu sistema operativo sí. Para probar localmente, añade la entrada al `hosts`:
+
+```bash
+# En WSL2/Linux (requiere sudo) o en Windows (%SystemRoot%\System32\drivers\etc\hosts)
+127.0.0.1   mi-sitio.local
+```
+
+Luego: `curl -I http://mi-sitio.local`.
+:::
+
+---
+
+## 5. Server blocks (virtual hosts)
+
+Un **server block** es el equivalente de Apache a un "virtual host": permite servir múltiples dominios desde un solo Nginx. Se selecciona por el `server_name` (header `Host`).
+
+### 5.1 Múltiples `server_name` en un bloque
+
+```bash
+$ sudo tee /etc/nginx/sites-available/vhosts.conf >/dev/null <<'EOF'  # <1>
+server {
+    listen 80;
+    server_name sitio1.local www.sitio1.local;   # Múltiples alias en un bloque
+
+    root /var/www/sitio1;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+server {
+    listen 80;
+    server_name sitio2.local;                     # Segundo dominio, otro root
+
+    root /var/www/sitio2;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+# <1>
+
+$ sudo ln -sf /etc/nginx/sites-available/vhosts.conf /etc/nginx/sites-enabled/vhosts.conf  # <2>
+# <2>
+
+$ sudo nginx -t && sudo systemctl reload nginx  # <3>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <3>
+```
+
+1. **tee + heredoc** define dos bloques `server` para dos dominios distintos.
+2. **ln -sf** habilita ambos dominios a la vez con un solo symlink.
+3. **nginx -t && reload** valida y aplica la nueva configuración.
+
+::: {.callout-tip}
+## Comodines y default_server
+
+- Puedes usar comodines: `server_name *.local;` coincide con `sitio1.local`, `api.local`, etc.
+- El primer bloque (o el marcado `default_server`) atiende las peticiones cuyo `Host` no coincide con ninguno: `listen 80 default_server;`.
+:::
+
+---
+
+## 6. Reverse proxy
+
+El **reverse proxy** recibe el tráfico externo y lo reenvía a una aplicación interna (por ejemplo, una app Node/FastAPI escuchando en `127.0.0.1:3000`). La app nunca queda expuesta directamente.
+
+### 6.1 Bloque reverse proxy completo
+
+```bash
+$ sudo tee /etc/nginx/sites-available/app.conf >/dev/null <<'EOF'  # <1>
+server {
+    listen 80;
+    server_name app.local;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+# <1>
+
+$ sudo ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/app.conf  # <2>
+# <2>
+
+$ sudo nginx -t  # <3>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <3>
+
+$ sudo systemctl reload nginx  # <4>
+# <4>
+```
+
+1. **tee + heredoc** crea el server block que proxyea todo (`location /`) al backend local.
+2. **ln -sf** habilita el sitio.
+3. **nginx -t** valida la sintaxis del bloque proxy.
+4. **systemctl reload** aplica el reverse proxy sin cortar conexiones.
+
+### 6.2 Significado de cada directiva
+
+```nginx
+location / {
+    proxy_pass http://127.0.0.1:3000;              # URL del backend destino
+    proxy_set_header Host $host;                    # Conserva el Host original del cliente
+    proxy_set_header X-Real-IP $remote_addr;       # IP real del cliente hacia el backend
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # Cadena de IPs proxada
+    proxy_set_header X-Forwarded-Proto $scheme;     # http/https original
+}
+```
+
+- **`proxy_pass`**: la URL interna del backend. Nginx reenvía la petición allí.
+- **`X-Real-IP` / `X-Forwarded-For`**: el backend registra la IP real del cliente (si no, vería `127.0.0.1`).
+- **`X-Forwarded-Proto`**: le indica al backend si el origen fue HTTPS (clave para generar URLs seguras).
+
+### 6.3 Probar el enrutamiento
+
+```bash
+$ curl -i -H 'Host: app.local' http://127.0.0.1/  # <1>
+HTTP/1.1 502 Bad Gateway
+Server: nginx/1.24.0 (Ubuntu)
+# <1>
+```
+
+1. **curl -H Host** prueba el server block; si el backend no está corriendo verás `502 Bad Gateway` — evidencia de que Nginx está enrutando correctamente. Levanta el backend y repetirás hasta ver `200 OK`.
+
+::: {.callout-tip}
+## RECOMENDACIÓN
+
+**Para el laboratorio real, levanta primero el backend** y luego repite el `curl` hasta ver `200 OK`.
+
+**Casos de uso:**
+- Node (Express/Fastify), FastAPI, Django, Flask o Go detrás de Nginx.
+- Centralizar TLS, rate limiting y logs frontales en Nginx.
+
+**Cuándo aplicar:**
+- Cuando tu app no debe exponerse directamente a internet.
+- Cuando necesitas una sola entrada (puerto 80/443) para múltiples servicios internos.
+:::
+
+### 6.4 Ejemplo: app Node/Python detrás de Nginx
+
+Supongamos una API en `127.0.0.1:3000` (Node) y otra en `127.0.0.1:8000` (Python). Enruta por ruta:
+
+```nginx
+server {
+    listen 80;
+    server_name api.local;
+
+    location /node/ {
+        proxy_pass http://127.0.0.1:3000/;   # El "/" final evita duplicar el prefijo
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /python/ {
+        proxy_pass http://127.0.0.1:8000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+::: {.callout-note}
+## Detalle crítico de `proxy_pass`
+
+Si escribes `proxy_pass http://127.0.0.1:3000;` (sin `/` final) y el `location` es `/node/`, Nginx reenvía la ruta completa: `/node/...`. Si añades `/` final (`http://127.0.0.1:3000/`), Nginx **recorta** el prefijo `/node/` y reenvía solo lo que sigue. Elige según lo que espere tu backend.
+:::
+
+### 6.5 WebSockets a través del proxy
+
+Los WebSockets necesitan que Nginx **no** cierre la conexión HTTP y propague los headers de *upgrade*. Añade dos directivas extra dentro del `location`:
+
+```nginx
+server {
+    listen 80;
+    server_name ws.local;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;                  # WebSockets requieren HTTP/1.1
+        proxy_set_header Upgrade $http_upgrade;  # Propaga el header Upgrade
+        proxy_set_header Connection "upgrade";   # Fuerza modo upgrade
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+- **`proxy_http_version 1.1`**: HTTP/1.1 es obligatorio para mantener la conexión persistente de WebSocket.
+- **`Upgrade $http_upgrade`** y **`Connection "upgrade"`**: negocian el cambio de HTTP a WebSocket. Sin esto, el socket se cierra al instante.
+
+::: {.callout-tip}
+## Patrón reutilizable para HTTP + WS mixto
+
+Si un mismo `location` debe servir tanto HTTP normal como WebSockets, usa una variable de conexión:
+
+```nginx
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+# ...dentro de location /:
+proxy_set_header Connection $connection_upgrade;
+```
+
+Así Nginx decide `upgrade` o `close` según si el cliente envió el header `Upgrade`.
+:::
+
+---
+
+## 7. Comandos de gestión
+
+### 7.1 Ciclo de vida del servicio
+
+```bash
+$ sudo systemctl start nginx  # <1>
+# <1>
+
+$ sudo systemctl stop nginx  # <2>
+# <2>
+
+$ sudo systemctl reload nginx  # <3>
+# <3>
+
+$ sudo systemctl restart nginx  # <4>
+# <4>
+```
+
+1. **systemctl start** arranca Nginx (carga la config actual).
+2. **systemctl stop** detiene el servicio y libera el puerto 80.
+3. **systemctl reload** recarga config sin perder conexiones activas (graceful).
+4. **systemctl restart** detiene y arranca (breve caída); úsalo solo si `reload` no basta.
+
+### 7.2 Validación y diagnóstico
+
+```bash
+$ sudo nginx -t  # <1>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <1>
+
+$ sudo ss -lntp | grep -E ':(80|443)\b'  # <2>
+LISTEN 0 511 0.0.0.0:80  0.0.0.0:*  users:("nginx",pid=2345,fd=6)
+# <2>
+
+$ curl -I http://localhost  # <3>
+HTTP/1.1 200 OK
+Server: nginx/1.24.0 (Ubuntu)
+Content-Type: text/html
+# <3>
+```
+
+1. **nginx -t** valida sintaxis y configuración completa.
+2. **ss -lntp** lista los puertos en escucha (80/443) y el PID de Nginx.
+3. **curl -I** verifica respuesta HTTP 200 del servidor.
+
+### 7.3 Logs
+
+```bash
+$ sudo tail -f /var/log/nginx/access.log  # <1>
+127.0.0.1 - - [20/Jul/2026:10:00:00 -0400] "GET / HTTP/1.1" 200 615 "-" "curl/8.2.1"
+# <1>
+
+$ sudo tail -f /var/log/nginx/error.log  # <2>
+# <2>
+```
+
+1. **access.log** registra cada petición (IP, método, ruta, código, tamaño, user-agent).
+2. **error.log** registra fallos de configuración, backends caídos (502) y errores de archivos.
+
+::: {.callout-note}
+## Ajuste de verbosidad
+
+El nivel de log se controla con `error_log /var/log/nginx/error.log warn;` (niveles: `debug`, `info`, `notice`, `warn`, `error`, `crit`, `alert`, `emerg`). En producción usa `warn` o `error` para reducir ruido.
+:::
+
+---
+
+## 8. Hardening básico
+
+> **Nota**: Los certificados TLS/HTTPS se implementan en la **UNIDAD X**. Aquí NO configuramos cifrado; estas medidas reducen la superficie de ataque sobre HTTP.
+
+### 8.1 Ocultar la versión y limitar métodos
+
+```bash
+$ sudo tee /etc/nginx/conf.d/hardening.conf >/dev/null <<'EOF'  # <1>
+server_tokens off;                 # No revela "nginx/1.24.0" en headers ni errores
+
+server {
+    listen 80 default_server;
+    server_name _;                 # "_" = cualquier Host no coincidente
+
+    # Limitar métodos HTTP peligrosos
+    if ($request_method !~ ^(GET|HEAD|POST)$) {
+        return 405;                # Method Not Allowed
+    }
+
+    location / {
+        return 444;                # 444 = cierra conexión sin respuesta (anti-scanners)
+    }
+}
+EOF
+# <1>
+
+$ sudo nginx -t && sudo systemctl reload nginx  # <2>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <2>
+```
+
+1. **tee + heredoc** crea reglas globales: oculta la versión y rechaza métodos distintos de GET/HEAD/POST.
+2. **nginx -t && reload** valida y aplica el hardening.
+
+::: {.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**No expongas Nginx innecesariamente ni omitas estas medidas básicas.**
+
+**Lo que podría salir mal:**
+- Dejar `server_tokens on` revela la versión exacta, facilitando la búsqueda de CVEs dirigidos.
+- Permitir métodos `PUT`/`DELETE`/`TRACE` abre vectores de manipulación de archivos y enumeración.
+- Exponer puertos de administración o backends directamente a internet (sin proxy) amplía la superficie de ataque.
+- Servir la unidad IX sin TLS (HTTP plano) expone credenciales y cookies en claro — se corrige en UNIDAD X.
+
+**Cómo prevenirlo:**
+1. Configura `server_tokens off;` en todas las instalaciones.
+2. Restringe métodos HTTP con una lista blanca (`GET|HEAD|POST`).
+3. Expón solo Nginx; mantén backends en `127.0.0.1`.
+4. Nunca publiques el bloque `server` sin primero validar con `nginx -t`.
+5. Programa la implementación de TLS (UNIDAD X) antes de cualquier entorno real.
+:::
+
+::: {.callout-tip}
+## RECOMENDACIÓN
+
+**Hardening progresivo (checklist mínimo):**
+
+- `server_tokens off;` — oculta la versión.
+- Lista blanca de métodos HTTP.
+- `client_max_body_size` limitado para evitar uploads gigantes (ej. `client_max_body_size 10m;`).
+- Rate limiting básico con `limit_req_zone` (se profundiza en UNIDAD X).
+- Backends siempre en `localhost`; Nginx es la única cara pública.
+
+**Cuándo aplicar:** en cualquier entorno que no sea un laboratorio aislado.
+:::
+
+---
+
+## 9. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la UNIDAD IX
+
+1. **Nginx** es servidor web, reverse proxy y load balancer de alto rendimiento (arquitectura event-loop).
+2. **Instalación**: `apt install nginx` en WSL2 Ubuntu 24.04, o imagen oficial `nginx:stable` en Docker.
+3. **Configuración**: `nginx.conf` + `sites-available/`/`sites-enabled/` + `conf.d/` vía `include`.
+4. **Estáticos y virtual hosts**: `root`, `index`, `server_name` y `try_files`.
+5. **Reverse proxy**: `proxy_pass` + headers `X-Real-IP`/`X-Forwarded-*`; WebSockets con `Upgrade`/`Connection`.
+6. **Gestión**: siempre `nginx -t` antes de `reload`; revisa `/var/log/nginx/`.
+7. **Hardening**: `server_tokens off`, métodos restringidos — el TLS llega en UNIDAD X.
+:::
+
+### 📋 Checklist de competencias Unidad IX
+
+- [ ] Instalar Nginx vía `apt` y vía Docker, verificando con `nginx -v`.
+- [ ] Explicar el rol de `nginx.conf`, `sites-available/`, `sites-enabled/` y `conf.d/`.
+- [ ] Servir un sitio estático con `root` e `index`.
+- [ ] Configurar múltiples `server_name` (virtual hosts).
+- [ ] Implementar un reverse proxy con los headers correctos.
+- [ ] Habilitar WebSockets en el proxy (`Upgrade`/`Connection`).
+- [ ] Validar con `nginx -t` y recargar sin caída.
+- [ ] Aplicar hardening básico (`server_tokens off`, métodos restringidos).
+
+---
+
+## 10. Recursos y Referencias
+
+- **Nginx Official Docs**: <https://nginx.org/en/docs/>
+- **Beginner's Guide (Nginx)**: <https://nginx.org/en/docs/beginners_guide.html>
+- **Alphabetical directive index**: <https://nginx.org/en/docs/dirindex.html>
+- **Docker Hub nginx**: <https://hub.docker.com/_/nginx>
+- **Ubuntu 24.04 Release Notes**: <https://discourse.ubuntu.com/t/noble-numbat-release-notes/30831>
+- **WSL Documentation**: <https://learn.microsoft.com/windows/wsl/>
+- **Docker Desktop Docs**: <https://docs.docker.com/desktop/>
+
+---
+
+## 11. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Qué arquitectura permite a Nginx manejar miles de conexiones con poco consumo?
+
+- [ ] Un hilo por conexión (thread-per-connection)
+- [x] Event loop con workers basados en eventos
+- [ ] Proceso único sin workers
+- [ ] Virtualización por contenedor
+
+## ¿Cuál es la diferencia entre sites-available y sites-enabled?
+
+- [ ] Son lo mismo, solo nombres distintos
+- [x] available guarda definiciones; enabled contiene symlinks a los activos
+- [ ] available es para HTTPS y enabled para HTTP
+- [ ] enabled es solo para Docker
+
+## ¿Qué hace `proxy_set_header X-Real-IP $remote_addr`?
+
+- [ ] Oculta la IP del cliente
+- [x] Envía la IP real del cliente al backend en lugar de 127.0.0.1
+- [ ] Cifra la conexión
+- [ ] Define el puerto del backend
+
+## ¿Por qué se necesita `proxy_set_header Connection "upgrade"` para WebSockets?
+
+- [ ] Para comprimir la respuesta
+- [x] Para negociar el cambio de HTTP a WebSocket y no cerrar la conexión
+- [ ] Para usar HTTP/2
+- [ ] Para autenticar el backend
+
+## Comando que valida la configuración SIN aplicarla:
+
+- [ ] systemctl reload nginx
+- [x] nginx -t
+- [ ] nginx -s stop
+- [ ] curl -I localhost
+
+## ¿Qué hace `server_tokens off`?
+
+- [ ] Apaga el servidor
+- [x] Oculta la versión de Nginx en headers y páginas de error
+- [ ] Deshabilita los server blocks
+- [ ] Activa TLS automáticamente
+```
