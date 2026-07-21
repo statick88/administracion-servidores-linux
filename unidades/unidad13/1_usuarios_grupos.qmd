@@ -1,0 +1,557 @@
+---
+title: "Usuarios y Grupos"
+author: "Diego Saavedra"
+date: "2026-07-21"
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# Usuarios y Grupos
+
+## Introducción
+
+Los usuarios y grupos son la base del sistema de seguridad en Linux. Cada archivo y proceso tiene un propietario y un grupo, y los permisos se asignan a estos tres niveles: usuario, grupo y otros.
+
+**🗺️ En este tema aprenderás:**
+
+- Concepto fundamental de usuarios y grupos
+- Ver usuarios y grupos del sistema
+- Crear, modificar y eliminar usuarios
+- Crear y gestionar grupos
+- Administración de contraseñas
+
+---
+
+## Concepto Fundamental
+
+Cada archivo y proceso en Linux tiene un **propietario (usuario)** y un **grupo**. Los permisos se asignan a estos tres niveles:
+
+```
+┌─────────────────┬─────────────────┬─────────────────┐
+│    USUARIO      │     GRUPO       │   OTROS         │
+│  (propietario)  │                 │  (el resto)     │
+├─────────────────┼─────────────────┼─────────────────┤
+│   r w x         │   r w x         │   r w x         │
+│ (4 2 1)         │ (4 2 1)         │ (4 2 1)         │
+└─────────────────┴─────────────────┴─────────────────┘
+
+r = lectura (read)    = 4
+w = escritura (write) = 2
+x = ejecución (exec)  = 1
+```
+
+**Ejemplo**: **755** significa:
+
+- Usuario: 7 (4+2+1 = **rwx** = lectura + escritura + ejecución)
+- Grupo: 5 (4+1 = **r-x** = lectura + ejecución)
+- Otros: 5 (4+1 = **r-x** = lectura + ejecución)
+
+---
+
+## Ver Usuarios y Grupos
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ver todos los usuarios del sistema
+
+#### Linux
+```bash
+$ cat /etc/passwd  # <1>
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+diego:x:1000:1000:Diego Saavedra:/home/diego:/bin/bash
+# <2>
+```
+1. **cat /etc/passwd** muestra base de datos de usuarios del sistema
+
+2. Cada línea contiene: usuario:password:UID:GID:comentario:home:shell
+
+#### macOS
+```bash
+$ dscl . -list /Users | head -5
+daemon
+nobody
+root
+# <1>
+$ id
+uid=501(diego) gid=20(staff) groups=20(staff),501(com.apple.sharepoint.group.1)
+```
+1. macOS usa `dscl` para listar usuarios del sistema
+
+#### Windows (PowerShell)
+```powershell
+PS> Get-LocalUser | Select-Object Name, Enabled
+Name        Enabled
+----        -------
+Administrator   True
+Diego           True
+# <1>
+```
+1. Windows usa `Get-LocalUser` para listar usuarios locales
+
+:::
+
+### Ver usuarios humanos (UID >= 1000)
+
+#### Linux
+```bash
+$ getent passwd | awk -F: '$3 >= 1000 {print $1}'  # <1>
+diego
+carlos
+# <2>
+```
+1. **getent passwd** obtiene usuarios con UID >= 1000 (usuarios humanos, no del sistema)
+
+2. Los usuarios del sistema tienen UID < 1000
+
+#### macOS
+```bash
+$ dscl . -list /Users UniqueID | awk '$2 >= 500 {print $1}'  # <1>
+diego
+# <2>
+```
+1. macOS usa UID >= 500 para usuarios humanos
+
+2. Los usuarios del sistema tienen UID < 500
+
+#### Windows (PowerShell)
+```powershell
+PS> Get-LocalUser | Where-Object {$_.Enabled -eq $True} | Select-Object Name
+# <1>
+```
+1. Filtra solo usuarios habilitados
+
+:::
+
+### Ver grupos de un usuario
+
+#### Linux
+```bash
+$ groups diego  # <1>
+diego : diego adm cdrom sudo
+# <2>
+```
+1. **groups** lista todos los grupos a los que pertenece un usuario
+
+2. El primer grupo es el grupo primario
+
+#### macOS
+```bash
+$ groups diego  # <1>
+diego staff com.apple.sharepoint.group.1
+```
+1. Funciona igual que en Linux
+
+#### Windows (PowerShell)
+```powershell
+PS> Get-LocalGroup | Where-Object {$_.Name -like "*Diego*"} | Select-Object Name
+# <1>
+```
+1. Lista los grupos que contiene al usuario
+
+:::
+
+### Ver información detallada de usuario actual
+
+#### Linux
+```bash
+$ id  # <1>
+uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom),27(sudo)
+```
+1. **id** muestra identidad del usuario actual (UID, GID y grupos)
+
+#### macOS
+```bash
+$ id  # <1>
+uid=501(diego) gid=20(staff) groups=20(staff),501(com.apple.sharepoint.group.1)
+```
+1. Muestra la misma información que en Linux
+
+#### Windows (PowerShell)
+```powershell
+PS> [System.Security.Principal.WindowsIdentity]::GetCurrent() | Select-Object Name, Groups
+# <1>
+```
+1. Usa .NET para obtener información del usuario actual
+
+:::
+
+---
+
+## Crear Usuarios Nuevos
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Crear usuario básico
+
+#### Linux
+```bash
+# Crear usuario 'carlos' con home en /home/carlos
+$ sudo useradd -m -s /bin/bash carlos  # <1>
+
+# Asignar contraseña
+$ sudo passwd carlos  # <2>
+Enter new UNIX password: ********
+Retype new UNIX password: ********
+passwd: password updated successfully
+```
+1. **useradd -m** crea home directory automáticamente, **-s /bin/bash** asigna shell por defecto
+
+2. **passwd** establece contraseña interactiva para el usuario creado
+
+#### macOS
+```bash
+# Crear usuario desde macOS
+$ sudo sysadminctl -addUser carlos -password ******** -home /Users/carlos  # <1>
+```
+1. macOS usa `sysadminctl` para crear usuarios
+
+#### Windows (PowerShell)
+```powershell
+# Crear usuario en Windows
+PS> net user carlos "Password123!" /add  # <1>
+
+# Verificar creación
+PS> Get-LocalUser -Name carlos
+# <2>
+```
+1. **net user** es el comando clásico para gestión de usuarios
+
+2. Verifica que el usuario fue creado correctamente
+
+:::
+
+### Crear usuario con información adicional
+
+#### Linux
+```bash
+# Crear usuario con comentario (nombre completo)
+$ sudo useradd -m -s /bin/bash -c "Carlos López - Administrador" carlos
+
+# Ver el comentario
+$ grep carlos /etc/passwd
+carlos:x:1001:1001:Carlos López - Administrador:/home/carlos:/bin/bash
+# <1>
+```
+1. El campo `-c` agrega comentario descriptivo en /etc/passwd
+
+#### macOS
+```bash
+# Crear usuario con información completa
+$ sudo sysadminctl -addUser carlos -password ******** -home /Users/carlos -fullName "Carlos López"  # <1>
+```
+1. Usa `-fullName` para especificar el nombre completo
+
+#### Windows (PowerShell)
+```powershell
+# Crear usuario con comentario
+PS> net user carlos "Password123!" /add /comment:"Carlos López - Administrador"  # <1>
+```
+1. El parámetro `/comment` agrega descripción al usuario
+
+:::
+
+### Crear usuario sin contraseña (para servicios)
+
+#### Linux
+```bash
+# Crear usuario de servicio
+$ sudo useradd -r -s /sbin/nologin nginx_backup  # <1>
+
+# -r: usuario del sistema (UID < 1000)
+# -s /sbin/nologin: sin shell, no puede loguearse
+```
+1. Los usuarios de servicio no deben tener shell interactiva
+
+#### macOS
+```bash
+# Crear usuario de servicio sin shell
+$ sudo sysadminctl -addUser nginx_backup -password '*' -shell /usr/sbin/nologin  # <1>
+```
+1. Usa `/usr/sbin/nologin` para evitar login interactivo
+
+#### Windows (PowerShell)
+```powershell
+# Crear cuenta de servicio
+PS> net user nginx_backup /add /active:no  # <1>
+```
+1. La cuenta queda deshabilitada por seguridad
+
+:::
+
+---
+
+## Modificar Usuarios
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Cambiar información de usuario
+
+#### Linux
+```bash
+# Cambiar el nombre completo
+$ sudo usermod -c "Carlos Manuel López" carlos
+
+# Cambiar el shell de login
+$ sudo usermod -s /bin/zsh carlos
+
+# Agregar usuario a grupo existente
+$ sudo usermod -aG adm carlos  # <1>
+# -a: append (agregar SIN remover otros grupos)
+# -G: grupo suplementario
+
+# Verificar cambios
+$ id carlos
+uid=1001(carlos) gid=1001(carlos) groups=1001(carlos),4(adm)
+# <2>
+```
+1. **-aG** agrega a un grupo SIN remover de los existentes (importante: sin -a reemplaza grupos)
+
+2. Verifica que el usuario ahora pertenece al grupo adm
+
+#### macOS
+```bash
+# Agregar usuario a grupo
+$ sudo dseditgroup -o edit -a carlos -t user staff  # <1>
+```
+1. macOS usa `dseditgroup` para modificar membresía de grupos
+
+#### Windows (PowerShell)
+```powershell
+# Agregar usuario a grupo
+PS> Add-LocalGroupMember -Group "Administrators" -Member "carlos"  # <1>
+
+# Verificar membresía
+PS> Get-LocalGroupMember -Group "Administrators"
+# <2>
+```
+1. **Add-LocalGroupMember** agrega usuario a un grupo local
+
+2. Verifica que el usuario fue agregado correctamente
+
+:::
+
+### Bloquear y desbloquear usuario
+
+#### Linux
+```bash
+# Bloquear usuario (deshabilitar temporalmente)
+$ sudo usermod -L carlos  # <1>
+
+# Verificar bloqueo
+$ sudo passwd -S carlos
+carlos L 07/21/2026 0 99999 7 -1
+
+# Desbloquear usuario
+$ sudo usermod -U carlos  # <2>
+```
+1. **-L** bloquea el usuario cambiando la contraseña en /etc/shadow
+
+2. **-U** desbloquea el usuario restaurando la contraseña
+
+#### macOS
+```bash
+# Bloquear usuario
+$ sudo dscl . -create /Users/carlos AuthenticationHint "Account locked"  # <1>
+```
+1. macOS usa `dscl` para gestionar cuentas bloqueadas
+
+#### Windows (PowerShell)
+```powershell
+# Deshabilitar usuario
+PS> Disable-LocalUser -Name "carlos"  # <1>
+
+# Habilitar usuario
+PS> Enable-LocalUser -Name "carlos"  # <2>
+```
+1. **Disable-LocalUser** deshabilita la cuenta
+
+2. **Enable-LocalUser** habilita la cuenta nuevamente
+
+:::
+
+---
+
+## Crear y Gestionar Grupos
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Crear grupo y agregar usuarios
+
+#### Linux
+```bash
+# Crear grupo de administradores locales
+$ sudo groupadd administradores  # <1>
+
+# Agregar usuarios al grupo
+$ sudo usermod -aG administradores diego
+$ sudo usermod -aG administradores carlos
+
+# Verificar miembros del grupo
+$ getent group administradores
+administradores:x:1002:diego,carlos
+# <2>
+
+# Cambiar grupo primario de usuario
+$ sudo usermod -g administradores diego  # <3>
+# Cuidado: esto cambia el grupo por defecto para archivos nuevos
+```
+1. **groupadd** crea un nuevo grupo en el sistema
+
+2. **getent** verifica los miembros del grupo
+
+3. **-g** (sin -a) cambia el grupo primario (cuidado: reemplaza el anterior)
+
+#### macOS
+```bash
+# Crear grupo
+$ sudo dseditgroup -o create administradores  # <1>
+
+# Agregar usuario al grupo
+$ sudo dseditgroup -o edit -a diego -t user administradores  # <2>
+```
+1. **dseditgroup -o create** crea un nuevo grupo
+
+2. **-a diego -t user** agrega al usuario diego al grupo
+
+#### Windows (PowerShell)
+```powershell
+# Crear grupo
+PS> New-LocalGroup -Name "Administradores" -Description "Grupo de administradores"  # <1>
+
+# Agregar usuario al grupo
+PS> Add-LocalGroupMember -Group "Administradores" -Member "diego"  # <2>
+```
+1. **New-LocalGroup** crea un nuevo grupo local
+
+2. **Add-LocalGroupMember** agrega miembros al grupo
+
+:::
+
+### Eliminar grupo
+
+#### Linux
+```bash
+# Eliminar grupo vacío
+$ sudo groupdel administradores  # <1>
+
+# Si el grupo tiene archivos, primero cambiar propietario
+$ sudo chown -R :nuevogrupo /ruta/con/archivos
+$ sudo groupdel viejogrupo  # <2>
+```
+1. **groupdel** elimina un grupo del sistema
+
+2. Antes de eliminar, asegúrate de que no haya archivos con ese grupo como propietario
+
+#### macOS
+```bash
+# Eliminar grupo
+$ sudo dseditgroup -o delete administradores  # <1>
+```
+1. Usa `dseditgroup -o delete` para eliminar un grupo
+
+#### Windows (PowerShell)
+```powershell
+# Eliminar grupo
+PS> Remove-LocalGroup -Name "Administradores"  # <1>
+```
+1. **Remove-LocalGroup** elimina un grupo local
+
+:::
+
+---
+
+## Eliminar Usuarios
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Eliminar usuario con opciones
+
+#### Linux
+```bash
+# Eliminar usuario PERO conservar su home
+$ sudo userdel carlos  # <1>
+
+# Eliminar usuario Y su home
+$ sudo userdel -r carlos  # <2>
+# CUIDADO: Esto elimina /home/carlos y todos sus archivos
+
+# Crear script para backupear antes de eliminar
+$ sudo tar czf /backup/carlos_$(date +%Y%m%d).tar.gz /home/carlos
+$ sudo userdel -r carlos
+```
+1. **userdel** sin opciones elimina el usuario pero conserva su directorio home
+
+2. **-r** elimina también el directorio home y todos los archivos
+
+#### macOS
+```bash
+# Eliminar usuario
+$ sudo sysadminctl -deleteUser carlos  # <1>
+```
+1. macOS usa `sysadminctl -deleteUser` para eliminar usuarios
+
+#### Windows (PowerShell)
+```powershell
+# Eliminar usuario
+PS> Remove-LocalUser -Name "carlos"  # <1>
+
+# Verificar eliminación
+PS> Get-LocalUser -Name "carlos"  # <2>
+```
+1. **Remove-LocalUser** elimina el usuario del sistema
+
+2. Verifica que el usuario fue eliminado correctamente
+
+:::
+
+---
+
+## Resumen
+
+| Comando | Propósito | Ejemplo |
+|---------|-----------|---------|
+| `useradd -m usuario` | Crear usuario con home | `useradd -m -s /bin/bash carlos` |
+| `usermod -aG grupo usuario` | Agregar a grupo | `usermod -aG sudo diego` |
+| `userdel -r usuario` | Eliminar usuario y home | `userdel -r carlos` |
+| `groupadd grupo` | Crear grupo | `groupadd administradores` |
+| `groupdel grupo` | Eliminar grupo | `groupdel administradores` |
+| `id` | Ver información de usuario | `id diego` |
+| `groups usuario` | Ver grupos de usuario | `groups diego` |
+| `passwd usuario` | Cambiar contraseña | `passwd carlos` |
+
+---
+
+## 🎯 Ejercicios Prácticos
+
+1. Crea un usuario llamado `testuser` con home directory y shell bash
+
+2. Agrega `testuser` al grupo `sudo`
+
+3. Crea un grupo llamado `developers`
+
+4. Agrega `testuser` al grupo `developers`
+
+5. Verifica la información del usuario con `id`
+
+6. Bloquea y luego desbloquea al usuario
+
+7. Elimina el usuario conservando su home directory
+
+---
+
+## Referencias
+
+- [@debian2024] - Debian User Management
+- [@ubuntu2024] - Ubuntu User Administration
+- [@linux2024] - Linux Users and Groups Guide

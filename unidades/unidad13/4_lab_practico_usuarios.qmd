@@ -1,0 +1,503 @@
+---
+title: "Laboratorio Práctico: Usuarios y Permisos"
+author: "Diego Saavedra"
+date: "2026-07-21"
+---
+
+# Laboratorio Práctico: Usuarios y Permisos
+
+## Objetivos del Laboratorio
+
+Al finalizar este laboratorio, serás capaz de:
+
+1. Crear y gestionar usuarios y grupos en Linux
+2. Administrar permisos de archivos y directorios
+3. Configurar y usar sudo de forma segura
+4. Aplicar permisos especiales (SUID, SGID, Sticky Bit)
+
+---
+
+## Preparación del Entorno
+
+### Requisitos previos
+
+- Servidor Linux (Ubuntu/Debian o CentOS/RHEL)
+- Acceso con permisos de sudo
+- Terminal accesible
+
+### Verificar entorno
+
+```bash
+# Verificar sistema operativo
+$ cat /etc/os-release | head -5  # <1>
+
+# Verificar usuario actual
+$ whoami  # <2>
+
+# Verificar permisos de sudo
+$ sudo -l  # <3>
+```
+1. Muestra la distribución Linux instalada
+2. Muestra el usuario actual
+3. Verifica los permisos de sudo del usuario actual
+
+---
+
+## Ejercicio 1: Gestión de Usuarios
+
+### Paso 1: Crear usuarios
+
+```bash
+# Crear usuario diego
+$ sudo useradd -m -s /bin/bash diego  # <1>
+
+# Crear usuario carlos
+$ sudo useradd -m -s /bin/bash carlos  # <2>
+
+# Establecer contraseñas
+$ sudo passwd diego  # <3>
+$ sudo passwd carlos
+
+# Verificar creación
+$ id diego  # <4>
+uid=1001(diego) gid=1001(diego) groups=1001(diego)
+
+$ id carlos
+uid=1002(carlos) gid=1002(carlos) groups=1002(carlos)
+```
+1. **-m** crea directorio home, **-s** establece shell
+2. Crea segundo usuario
+3. Establece contraseña para cada usuario
+4. Verifica que los usuarios fueron creados correctamente
+
+### Paso 2: Gestionar grupos
+
+```bash
+# Crear grupo administradores
+$ sudo groupadd administradores  # <1>
+
+# Agregar usuarios al grupo
+$ sudo usermod -aG administradores diego  # <2>
+$ sudo usermod -aG administradores carlos
+
+# Verificar membresía
+$ groups diego  # <3>
+diego : diego administradores
+
+$ groups carlos
+carlos : carlos administradores
+
+# Ver todos los grupos
+$ cat /etc/group | grep -E "(diego|carlos|administradores)"  # <4>
+diego:x:1001:
+carlos:x:1002:
+administradores:x:1003:diego,carlos
+```
+1. **groupadd** crea un nuevo grupo
+2. **-aG** agrega el usuario al grupo sin removerlo de otros
+3. **groups** muestra los grupos del usuario
+4. **/etc/group** muestra todos los grupos del sistema
+
+### Paso 3: Configurar sudo
+
+```bash
+# Editar sudoers de forma segura
+$ sudo visudo  # <1>
+
+# Agregar al final del archivo:
+# Permitir a administradores usar sudo sin contraseña
+%administradores ALL=(ALL) NOPASSWD:ALL  # <2>
+
+# Permitir a diego ejecutar comandos específicos
+diego ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx  # <3>
+
+# Verificar configuración
+$ sudo -l  # <4>
+```
+1. **visudo** abre el editor de sudoers de forma segura
+2. Configuración para el grupo administradores
+3. Configuración específica para el usuario diego
+4. Verifica que la configuración fue aplicada correctamente
+
+---
+
+## Ejercicio 2: Permisos de Archivos
+
+### Paso 1: Crear estructura de directorios
+
+```bash
+# Crear directorio de proyecto
+$ mkdir -p /home/diego/proyecto  # <1>
+
+# Crear archivos de prueba
+$ touch /home/diego/proyecto/script.sh  # <2>
+$ touch /home/diego/proyecto/config.txt
+$ touch /home/diego/proyecto/datos.csv
+
+# Verificar permisos iniciales
+$ ls -la /home/diego/proyecto/  # <3>
+total 0
+-rw-r--r-- 1 diego diego 0 Jul 21 10:30 config.txt
+-rw-r--r-- 1 diego diego 0 Jul 21 10:30 datos.csv
+-rw-r--r-- 1 diego diego 0 Jul 21 10:30 script.sh
+```
+1. **-p** crea directorios padres si no existen
+2. **touch** crea archivos vacíos
+3. Verifica permisos iniciales (todos 644)
+
+### Paso 2: Cambiar permisos con chmod
+
+```bash
+# Establecer permisos para script (ejecutable)
+$ chmod 755 script.sh  # <1>
+$ ls -la script.sh
+-rwxr-xr-x 1 diego diego 0 Jul 21 10:30 script.sh
+
+# Establecer permisos para configuración (solo lectura)
+$ chmod 644 config.txt  # <2>
+$ ls -la config.txt
+-rw-r--r-- 1 diego diego 0 Jul 21 10:30 config.txt
+
+# Agregar permiso de escritura al grupo
+$ chmod g+w datos.csv  # <3>
+$ ls -la datos.csv
+-rw-rw-r-- 1 diego diego 0 Jul 21 10:30 datos.csv
+
+# Quitar permisos de escritura a otros
+$ chmod o-w datos.csv  # <4>
+$ ls -la datos.csv
+-rw-rw---- 1 diego diego 0 Jul 21 10:30 datos.csv
+```
+1. **755** = rwxr-xr-x (propietario: todo, otros: leer/ejecutar)
+2. **644** = rw-r--r-- (propietario: leer/escribir, otros: solo leer)
+3. **g+w** agrega permiso de escritura al grupo
+4. **o-w** quita permiso de escritura a otros
+
+### Paso 3: Cambiar propietario con chown
+
+```bash
+# Cambiar propietario de script.sh a carlos
+$ sudo chown carlos script.sh  # <1>
+$ ls -la script.sh
+-rwxr-xr-x 1 carlos diego 0 Jul 21 10:30 script.sh
+
+# Cambiar propietario y grupo
+$ sudo chown carlos:administradores config.txt  # <2>
+$ ls -la config.txt
+-rw-r--r-- 1 carlos administradores 0 Jul 21 10:30 config.txt
+
+# Cambiar recursivamente
+$ sudo chown -R carlos:administradores /home/diego/proyecto/  # <3>
+$ ls -la /home/diego/proyecto/
+total 0
+-rw-r--r-- 1 carlos administradores 0 Jul 21 10:30 config.txt
+-rw-r--r-- 1 carlos administradores 0 Jul 21 10:30 datos.csv
+-rwxr-xr-x 1 carlos administradores 0 Jul 21 10:30 script.sh
+```
+1. **chown** cambia el propietario del archivo
+2. **:** separa propietario y grupo
+3. **-R** aplica recursivamente a todos los archivos
+
+---
+
+## Ejercicio 3: Permisos Especiales
+
+### Paso 1: SUID (Set User ID)
+
+```bash
+# Crear script que necesita permisos de root
+$ nano /usr/local/bin/info_sistema  # <1>
+
+#!/bin/bash
+echo "=== Información del Sistema ==="
+echo "Fecha: $(date)"
+echo "Uptime: $(uptime)"
+echo "Memoria: $(free -h | grep Mem)"
+echo "Disco: $(df -h / | tail -1)"
+
+# Hacer ejecutable
+$ sudo chmod 755 /usr/local/bin/info_sistema  # <2>
+
+# Establecer SUID
+$ sudo chmod u+s /usr/local/bin/info_sistema  # <3>
+
+# Verificar permisos
+$ ls -la /usr/local/bin/info_sistema
+-rwsr-xr-x 1 root root 1024 Jul 21 10:30 /usr/local/bin/info_sistema
+# <4>
+
+# Ejecutar como usuario normal
+$ /usr/local/bin/info_sistema  # <5>
+=== Información del Sistema ===
+Fecha: Mon Jul 21 10:30:00 UTC 2026
+...
+```
+1. Crea un script que muestra información del sistema
+2. Hace el script ejecutable
+3. Establece SUID para que se ejecute con permisos de root
+4. Verifica que SUID está activo (la **s** indica SUID)
+5. El script se ejecuta con permisos de root aunque el usuario sea normal
+
+### Paso 2: SGID (Set Group ID)
+
+```bash
+# Crear directorio compartido
+$ sudo mkdir /var/compartido  # <1>
+
+# Establecer SGID
+$ sudo chmod g+s /var/compartido  # <2>
+
+# Establecer grupo propietario
+$ sudo chown root:administradores /var/compartido  # <3>
+
+# Verificar permisos
+$ ls -ld /var/compartido
+drwxr-sr-x 2 root administradores 4096 Jul 21 10:30 /var/compartido
+# <4>
+
+# Crear archivo como diego
+$ sudo -u diego touch /var/compartido/archivo_diego.txt  # <5>
+
+# Verificar que hereda el grupo
+$ ls -la /var/compartido/
+total 0
+-rw-r--r-- 1 diego administradores 0 Jul 21 10:30 archivo_diego.txt
+# <6>
+```
+1. Crea directorio compartido
+2. Establece SGID para que archivos nuevos hereden el grupo
+3. Establece el grupo propietario
+4. Verifica que SGID está activo (la **s** en el grupo)
+5. Crea archivo como usuario diego
+6. El archivo hereda el grupo **administradores** automáticamente
+
+### Paso 3: Sticky Bit
+
+```bash
+# Crear directorio temporal
+$ sudo mkdir /tmp/compartido  # <1>
+
+# Establecer Sticky Bit
+$ sudo chmod +t /tmp/compartido  # <2>
+
+# Verificar permisos
+$ ls -ld /tmp/compartido
+drwxrwxrwt 2 root root 4096 Jul 21 10:30 /tmp/compartido
+# <3>
+
+# Crear archivos como diferentes usuarios
+$ sudo -u diego touch /tmp/compartido/archivo_diego.txt  # <4>
+$ sudo -u carlos touch /tmp/compartido/archivo_carlos.txt
+
+# Intentar eliminar archivo de otro usuario (debería fallar)
+$ sudo -u diego rm /tmp/compartido/archivo_carlos.txt  # <5>
+rm: cannot remove '/tmp/compartido/archivo_carlos.txt': Operation not permitted
+
+# Eliminar propio archivo (funciona)
+$ sudo -u diego rm /tmp/compartido/archivo_diego.txt  # <6>
+```
+1. Crea directorio temporal
+2. Establece Sticky Bit
+3. Verifica que Sticky Bit está activo (la **t** al final)
+4. Crea archivos como diferentes usuarios
+5. Intenta eliminar archivo de otro usuario (falla por Sticky Bit)
+6. Elimina propio archivo (funciona)
+
+---
+
+## Ejercicio 4: Auditoría y Monitoreo
+
+### Paso 1: Ver historial de sudo
+
+```bash
+# Ver historial de sudo
+$ sudo grep sudo /var/log/auth.log  # <1>
+
+# Ver intentos fallidos
+$ sudo grep "FAILED" /var/log/auth.log  # <2>
+
+# Ver historial reciente
+$ sudo journalctl -u sudo  # <3>
+
+# Buscar comandos específicos
+$ sudo grep "COMMAND=/usr/bin/systemctl" /var/log/auth.log  # <4>
+```
+1. Muestra todos los intentos de sudo
+2. Muestra intentos fallidos
+3. Muestra logs del sistema filtrados por sudo
+4. Busca comandos específicos ejecutados con sudo
+
+### Paso 2: Configurar logging detallado
+
+```bash
+# Habilitar logging de sudo
+$ sudo visudo  # <1>
+
+# Agregar al final:
+Defaults logfile="/var/log/sudo.log"
+Defaults log_input, log_output
+Defaults iolog_dir="/var/log/sudo-io/%{user}"
+
+# Reiniciar servicio de logs
+$ sudo systemctl restart rsyslog  # <2>
+
+# Verificar que se creó el archivo de logs
+$ ls -la /var/log/sudo.log  # <3>
+```
+1. Habilita logging detallado de sudo
+2. Reinicia el servicio de logs para aplicar cambios
+3. Verifica que el archivo de logs fue creado
+
+---
+
+## Ejercicio 5: Desafíos Adicionales
+
+### Desafío 1: Configurar directorio compartido
+
+Crea un directorio compartido donde:
+- Todos los usuarios del grupo `desarrollo` puedan leer y escribir
+- Los archivos nuevos hereden el grupo
+- Nadie pueda eliminar archivos de otros usuarios
+
+```bash
+# Solución
+$ sudo mkdir /var/compartido_desarrollo  # <1>
+$ sudo groupadd desarrollo
+$ sudo usermod -aG desarrollo diego
+$ sudo usermod -aG desarrollo carlos
+$ sudo chown root:desarrollo /var/compartido_desarrollo
+$ sudo chmod 2775 /var/compartido_desarrollo  # <2>
+$ ls -ld /var/compartido_desarrollo
+drwxrwsr-x 2 root desarrollo 4096 Jul 21 10:30 /var/compartido_desarrollo
+```
+1. Crea directorio y grupo
+2. **2775** = SGID (2) + rwxrwsr-x (775)
+
+### Desafío 2: Script de auditoría
+
+Crea un script que:
+- Liste todos los usuarios del sistema
+- Muestre sus grupos
+- Verifique si tienen sudo
+- Guarde el reporte en un archivo
+
+```bash
+#!/bin/bash
+echo "=== Reporte de Usuarios ===" > /tmp/reporte_usuarios.txt  # <1>
+echo "Fecha: $(date)" >> /tmp/reporte_usuarios.txt
+echo "" >> /tmp/reporte_usuarios.txt
+
+for user in $(cut -d: -f1 /etc/passwd); do  # <2>
+    echo "Usuario: $user" >> /tmp/reporte_usuarios.txt
+    echo "  Grupos: $(groups $user 2>/dev/null)" >> /tmp/reporte_usuarios.txt
+    echo "  Sudo: $(sudo -l -U $user 2>/dev/null | grep -c 'may run')" >> /tmp/reporte_usuarios.txt
+    echo "" >> /tmp/reporte_usuarios.txt
+done
+
+echo "Reporte generado en /tmp/reporte_usuarios.txt"
+```
+1. Inicializa archivo de reporte
+2. Itera sobre todos los usuarios del sistema
+
+### Desafío 3: Configuración segura de sudoers
+
+Configura sudoers para que:
+- El grupo `admin` pueda ejecutar cualquier comando sin contraseña
+- Los usuarios `diego` y `carlos` puedan reiniciar servicios específicos
+- Se niegue el acceso a comandos peligrosos (`rm -rf`, `mkfs`, `dd`)
+
+```bash
+# Solución
+$ sudo visudo  # <1>
+
+# Agregar al final:
+%admin ALL=(ALL) NOPASSWD:ALL  # <2>
+
+diego ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx, /usr/bin/systemctl restart apache2  # <3>
+carlos ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart mysql, /usr/bin/systemctl restart postgresql
+
+Defaults !sudoedit  # <4>
+Defaults !rm
+Defaults !mkfs
+Defaults !dd
+```
+1. Editar sudoers de forma segura
+2. Configuración para grupo admin
+3. Configuración específica para usuarios
+4. Negar comandos peligrosos
+
+---
+
+## Verificación de Resultados
+
+### Verificar configuración completa
+
+```bash
+# Verificar usuarios
+$ id diego  # <1>
+$ id carlos
+
+# Verificar grupos
+$ groups diego  # <2>
+$ groups carlos
+
+# Verificar sudo
+$ sudo -l  # <3>
+
+# Verificar permisos
+$ ls -la /home/diego/proyecto/  # <4>
+$ ls -ld /var/compartido
+$ ls -ld /tmp/compartido
+```
+1. Verifica que los usuarios existen
+2. Verifica membresía en grupos
+3. Verifica permisos de sudo
+4. Verifica permisos de directorios
+
+---
+
+## Limpieza
+
+### Eliminar usuarios y grupos de prueba
+
+```bash
+# Eliminar usuarios
+$ sudo userdel -r diego  # <1>
+$ sudo userdel -r carlos
+
+# Eliminar grupos
+$ sudo groupdel administradores  # <2>
+$ sudo groupdel desarrollo
+
+# Eliminar directorios de prueba
+$ sudo rm -rf /var/compartido  # <3>
+$ sudo rm -rf /var/compartido_desarrollo
+$ sudo rm -rf /tmp/compartido
+```
+1. **-r** elimina el directorio home del usuario
+2. Elimina grupos
+3. Elimina directorios de prueba
+
+---
+
+## Resumen de Comandos
+
+| Comando | Propósito | Ejemplo |
+|---------|-----------|---------|
+| `useradd` | Crear usuario | `useradd -m -s /bin/bash diego` |
+| `usermod` | Modificar usuario | `usermod -aG grupo usuario` |
+| `userdel` | Eliminar usuario | `userdel -r diego` |
+| `groupadd` | Crear grupo | `groupadd administradores` |
+| `groupdel` | Eliminar grupo | `groupdel administradores` |
+| `chmod` | Cambiar permisos | `chmod 755 archivo` |
+| `chown` | Cambiar propietario | `chown usuario:grupo archivo` |
+| `visudo` | Editar sudoers | `visudo` |
+| `sudo -l` | Ver permisos sudo | `sudo -l` |
+
+---
+
+## Referencias
+
+- [@debian2024] - Debian Users and Groups Guide
+- [@ubuntu2024] - Ubuntu File Permissions Guide
+- [@linux2024] - Linux System Administration

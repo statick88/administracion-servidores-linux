@@ -1,0 +1,366 @@
+---
+title: "Sudo y Administración"
+author: "Diego Saavedra"
+date: "2026-07-21"
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# Sudo y Administración
+
+## Introducción
+
+Sudo permite a usuarios normales ejecutar comandos con privilegios de administrador sin compartir la contraseña de root. Es la herramienta fundamental para la administración segura de servidores Linux.
+
+**🗺️ En este tema aprenderás:**
+
+- Por qué NO usar root directamente
+- Configurar sudo con visudo
+- Gestionar permisos de sudo por usuario y grupo
+- Usar sudo correctamente
+- Historial y auditoría de comandos sudo
+
+---
+
+## Por Qué NO Usar Root Directamente
+
+### ❌ Malas prácticas vs ✅ Buenas prácticas
+
+```
+❌ Conectarse como root
+❌ Ejecutar TODOS los comandos como root
+❌ Compartir contraseña de root
+
+✅ Usuarios normales + sudo cuando sea necesario
+✅ Auditoría: Saber quién hizo qué
+✅ Contraseña individual por usuario
+✅ Control granular de qué puede hacer cada usuario
+```
+
+### Riesgo del ejemplo
+
+```bash
+# Usuario distraído comete error como root
+$ sudo rm -rf /var/log/*  # INTENTA LIMPIAR LOGS
+$ sudo rm -rf /           # ¡ACCIDENTAL! TECLEA ESTO EN VEZ
+# ¡TODO EL SERVIDOR ELIMINADO!
+```
+
+---
+
+## Configurar Sudo
+
+### Editar sudoers (SIEMPRE usar visudo)
+
+```bash
+# Abrir editor de sudoers de forma segura
+$ sudo visudo  # <1>
+# NUNCA editar /etc/sudoers directamente con nano/vim
+# visudo verifica la sintaxis antes de guardar
+```
+1. **visudo** verifica la sintaxis del archivo antes de guardar errores de configuración
+
+### Configuración de sudoers
+
+Agregar al final del archivo:
+
+```bash
+# Permitir que usuario carlos use TODOS los comandos sin contraseña
+carlos ALL=(ALL) NOPASSWD:ALL
+
+# Permitir que usuario diego use sudo CON contraseña
+diego ALL=(ALL) ALL
+
+# Permitir que grupo administradores use sudo sin contraseña
+%administradores ALL=(ALL) NOPASSWD:ALL
+
+# Permitir comandos específicos sin contraseña
+diego ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx
+
+# Permitir comando con argumentos específicos
+carlos ALL=(ALL) NOPASSWD:/sbin/reboot, /sbin/halt
+
+# Negar comando específico
+diego ALL=(ALL) ALL, !/usr/bin/rm
+```
+
+### Verificar configuración
+
+```bash
+# Ver qué sudoers tienes
+$ sudo -l  # <1>
+User diego may run the following commands on linux-server:
+    (ALL) ALL
+
+# Verificar usuario actual
+$ sudo whoami
+root  # <2>
+```
+1. **sudo -l** muestra los comandos que el usuario actual puede ejecutar con sudo
+
+2. **whoami** ejecutado con sudo muestra "root" confirmando que funciona
+
+---
+
+## Usar Sudo Correctamente
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ejecutar comandos con sudo
+
+#### Linux
+```bash
+# Ejecutar comando individual
+$ sudo systemctl restart nginx  # <1>
+[sudo] password for diego: ********
+
+# Ver historial de sudo
+$ sudo cat /var/log/auth.log | grep sudo
+Jan 29 10:30:45 servidor sudo: diego : TTY=pts/0 ;
+PWD=/home/diego ; USER=root ; COMMAND=/usr/bin/systemctl
+# <2>
+```
+1. **systemctl** requiere sudo para reiniciar servicios
+
+2. El historial muestra quién ejecutó qué comando
+
+#### macOS
+```bash
+# Ejecutar comando con sudo
+$ sudo launchctl stop com.nginx.nginx  # <1>
+
+# Ver historial
+$ log show --predicate 'process == "sudo"' --last 1h  # <2>
+```
+1. macOS usa `launchctl` para gestionar servicios
+
+2. Usa `log show` para ver historial de sudo
+
+#### Windows (PowerShell)
+```powershell
+# Ejecutar como administrador
+PS> Start-Process powershell -Verb RunAs  # <1>
+
+# O ejecutar comando específico con elevated privileges
+PS> Start-Process -FilePath "net" -ArgumentList "stop nginx" -Verb RunAs  # <2>
+```
+1. Abre PowerShell elevado para comandos administrativos
+
+2. Ejecuta un comando específico con privilegios elevados
+
+:::
+
+### Ejecutar como otro usuario
+
+#### Linux
+```bash
+# Ejecutar como usuario 'www-data' (usuario web)
+$ sudo -u www-data whoami  # <1>
+www-data
+
+# Útil para testear permisos
+$ sudo -u www-data ls -la /var/www/
+
+# Ejecutar como usuario específico
+$ sudo -u mysql mysql -u root -p  # <2>
+```
+1. **-u** especifica el usuario con el que quieres ejecutar el comando
+
+2. Útil para verificar permisos de usuarios de servicio
+
+#### macOS
+```bash
+# Ejecutar como usuario específico
+$ sudo -u _www whoami  # <1>
+_www
+
+# Verificar permisos
+$ sudo -u _www ls -la /Library/WebServer/Documents/
+```
+1. macOS usa `_www` como usuario web por defecto
+
+#### Windows (PowerShell)
+```powershell
+# Ejecutar como otro usuario
+PS> Start-Process -FilePath "cmd.exe" -Credential (Get-Credential)  # <1>
+
+# O usar runas
+PS> runas /user:carlos "cmd.exe"  # <2>
+```
+1. Usa `-Credential` para ejecutar como otro usuario
+
+2. `runas` es el comando clásico de Windows para ejecutar como otro usuario
+
+:::
+
+---
+
+## Historial y Auditoría de Sudo
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Ver historial de sudo
+
+#### Linux
+```bash
+# Ver historial de sudo en Ubuntu/Debian
+$ sudo grep sudo /var/log/auth.log  # <1>
+
+# Ver intentos fallidos
+$ sudo grep "FAILED" /var/log/auth.log  # <2>
+
+# Ver historial reciente
+$ sudo journalctl -u sudo  # <3>
+```
+1. **/var/log/auth.log** contiene todos los intentos de autenticación
+
+2. Busca intentos fallidos de sudo
+
+3. **journalctl** muestra logs del sistema con filtro por unidad
+
+#### macOS
+```bash
+# Ver historial de sudo
+$ log show --predicate 'process == "sudo"' --last 1h  # <1>
+
+# Ver intentos fallidos
+$ log show --predicate 'eventMessage contains "FAILED"' --last 1d  # <2>
+```
+1. macOS usa `log show` con filtros para ver historial de sudo
+
+2. Busca eventos de intentos fallidos
+
+#### Windows (PowerShell)
+```powershell
+# Ver eventos de seguridad (intentos de elevación)
+PS> Get-EventLog -LogName Security -EntryType FailureAudit | Where-Object {$_.EventID -eq 4673}  # <1>
+
+# Ver historial de comandos elevados
+PS> Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672} -MaxEvents 10  # <2>
+```
+1. Evento 4673 indica intentos de privilegios elevados
+
+2. Evento 4672 indica privilegios especiales asignados
+
+:::
+
+### Configurar logging de sudo
+
+#### Linux
+```bash
+# Habilitar logging de sudo
+$ sudo visudo  # <1>
+
+# Agregar al final:
+Defaults logfile="/var/log/sudo.log"
+Defaults log_input, log_output
+Defaults iolog_dir="/var/log/sudo-io/%{user}"
+```
+1. Agrega estas líneas al archivo sudoers para habilitar logging detallado
+
+#### macOS
+```bash
+# Habilitar logging de sudo
+$ sudo visudo  # <1>
+
+# Agregar al final:
+Defaults logfile="/var/log/sudo.log"
+Defaults log_input, log_output
+```
+1. Misma configuración que en Linux
+
+#### Windows (PowerShell)
+```powershell
+# Habilitar auditoría de comandos elevados
+PS> auditpol /set /subcategory:"Sistema de seguridad" /success:enable /failure:enable  # <1>
+
+# Ver eventos de auditoría
+PS> Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672}  # <2>
+```
+1. Habilita auditoría de seguridad para comandos elevados
+
+2. Muestra eventos de privilegios especiales
+
+:::
+
+---
+
+## Configuración Avanzada de Sudo
+
+### Parámetros importantes
+
+```bash
+# Tiempo de espera entre contraseñas (minutos)
+Defaults timestamp_timeout=5  # <1>
+
+# Número de intentos fallidos antes de bloquear
+Defaults passwd_tries=3  # <2>
+
+# Mensaje personalizado
+Defaults badpass_message="Contraseña incorrecta. Intenta de nuevo."  # <3>
+
+# Shell por defecto para sudo
+Defaults env_reset
+Defaults env_keep += "LANG LANGUAGE BROWSER EDITOR"
+```
+1. **timestamp_timeout** define cuántos minutos recuerda sudo la contraseña
+
+2. **passwd_tries** define el número de intentos antes de bloquear
+
+3. **badpass_message** personaliza el mensaje de error
+
+### Ejemplos de configuración por grupo
+
+```bash
+# Grupo de desarrollo: solo comandos de despliegue
+%dessarrollo ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx, /usr/bin/systemctl restart php-fpm
+
+# Grupo de bases de datos: solo comandos de BD
+%dba ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart mysql, /usr/bin/mysql
+
+# Grupo de monitoreo: solo comandos de lectura
+%monitoreo ALL=(ALL) NOPASSWD:/usr/bin/systemctl status *, /usr/bin/journalctl
+```
+
+---
+
+## Resumen
+
+| Comando | Propósito | Ejemplo |
+|---------|-----------|---------|
+| `sudo visudo` | Editar sudoers seguro | `sudo visudo` |
+| `sudo -l` | Ver permisos sudo | `sudo -l` |
+| `sudo comando` | Ejecutar con privilegios | `sudo systemctl restart nginx` |
+| `sudo -u usuario` | Ejecutar como otro usuario | `sudo -u www-data whoami` |
+| `sudo -i` | Shell de root interactiva | `sudo -i` |
+| `sudo !!` | Repetir último comando con sudo | `sudo !!` |
+
+---
+
+## 🎯 Ejercicios Prácticos
+
+1. Edita el archivo sudoers con `sudo visudo`
+
+2. Agrega tu usuario al grupo `sudo`
+
+3. Configura sudo para que tu usuario pueda ejecutar comandos sin contraseña
+
+4. Verifica tu configuración con `sudo -l`
+
+5. Ejecuta un comando como usuario `www-data` con `sudo -u`
+
+6. Revisa el historial de sudo en `/var/log/auth.log`
+
+7. Configura logging de sudo para auditoría
+
+---
+
+## Referencias
+
+- [@debian2024] - Debian Sudo Guide
+- [@ubuntu2024] - Ubuntu Sudo Configuration
+- [@linux2024] - Linux Sudo Administration

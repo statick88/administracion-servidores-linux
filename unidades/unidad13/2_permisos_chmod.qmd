@@ -1,0 +1,454 @@
+---
+title: "Permisos y chmod"
+author: "Diego Saavedra"
+date: "2026-07-21"
+bibliography: references.bib
+biblio-style: apalike
+---
+
+# Permisos y chmod
+
+## Introducción
+
+Los permisos en Linux controlan quién puede leer, escribir y ejecutar archivos. El comando `chmod` permite modificar estos permisos de forma precisa y segura.
+
+**🗺️ En este tema aprenderás:**
+
+- Entender permisos rwx (lectura, escritura, ejecución)
+- Usar notación octal (numérica) y simbólica
+- Cambiar permisos con chmod
+- Cambiar propietario con chown
+- Permisos especiales (SUID, SGID, Sticky Bit)
+
+---
+
+## Permisos rwx: Lectura, Escritura, Ejecución
+
+### 💡 Ejemplo Visual de Permisos
+
+```bash
+$ ls -la /home/diego/archivo.txt
+-rw-r--r-- 1 diego diego 1024 Jul 21 10:30 archivo.txt
+# <1>
+# <2>
+# <3>
+```
+
+1. **-rw-r--r--** indica tipo y permisos
+
+2. **diego diego** indica propietario y grupo
+
+3. **1024** indica tamaño del archivo
+
+### Significado de cada permiso
+
+```
+┌────────────┬─────────────────────────────────────────────────┐
+│ Permiso    │ Archivo                  │ Directorio           │
+├────────────┼─────────────────────────────────────────────────┤
+│ r (read)   │ Leer contenido          │ Listar archivos      │
+│ w (write)  │ Modificar contenido     │ Crear/eliminar files │
+│ x (exec)   │ Ejecutar programa       │ Entrar al directorio │
+└────────────┴─────────────────────────────────────────────────┘
+```
+
+---
+
+## Notación Octal (Numérica)
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Valores octales
+
+#### Linux
+```bash
+# Cada posición (usuario, grupo, otros) se suma:
+# r = 4, w = 2, x = 1
+
+# Ejemplos comunes:
+chmod 755 archivo   # rwxr-xr-x (propietario: todo, otros: leer/ejecutar)
+chmod 644 archivo   # rw-r--r-- (propietario: leer/escribir, otros: solo leer)
+chmod 700 archivo   # rwx------ (solo propietario)
+chmod 600 archivo   # rw------- (propietario: leer/escribir)
+chmod 400 archivo   # r-------- (solo lectura para todos)
+# <1>
+```
+1. Estos son los permisos más comunes en servidores Linux
+
+#### macOS
+```bash
+# Misma notación octal que Linux
+$ chmod 755 script.sh  # <1>
+
+# Verificar permisos
+$ ls -la script.sh
+-rwxr-xr-x 1 diego staff 1024 Jul 21 10:30 script.sh
+```
+1. macOS usa el mismo sistema octal que Linux
+
+#### Windows (PowerShell)
+```powershell
+# Windows usa ACLs en lugar de permisos rwx
+PS> Get-Acl archivo.txt | Format-List  # <1>
+
+# Windows no tiene notación octal directa
+# Usa herramientas como icacls o Get-Acl
+```
+1. Windows usa listas de control de acceso (ACLs) en lugar de permisos rwx
+
+:::
+
+### Ejemplos de notación octal
+
+#### Linux
+```bash
+# Permisos para diferentes escenarios:
+chmod 777 archivo    # rwxrwxrwx (¡PELIGRO! Todos pueden todo)
+chmod 750 script     # rwxr-x--- (propietario: todo, grupo: leer/ejecutar)
+chmod 640 config     # rw-r----- (propietario: leer/escribir, grupo: solo leer)
+chmod 755 /var/www   # rwxr-xr-x (web server puede acceder)
+chmod 600 ~/.ssh/id_rsa  # rw------- (clave SSH privada)
+# <1>
+```
+1. Nunca uses 777 en producción, es un riesgo de seguridad
+
+#### macOS
+```bash
+# Misma lógica que Linux
+$ chmod 700 ~/Documents  # <1>
+$ chmod 644 ~/public.html
+```
+1. Aplica los mismos principios de seguridad
+
+#### Windows (PowerShell)
+```powershell
+# Windows maneja permisos de forma diferente
+PS> icacls archivo.txt /grant "diego:(R)"  # <1>
+PS> icacls archivo.txt /grant "diego:(F)"
+```
+1. Usa icacls para conceder permisos específicos en Windows
+
+:::
+
+---
+
+## Notación Simbólica
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### Agregar permisos
+
+#### Linux
+```bash
+# Agregar permiso de ejecución al propietario
+$ chmod u+x script.sh  # <1>
+
+# Agregar permiso de escritura al grupo
+$ chmod g+w archivo.txt
+
+# Agregar ejecutar a todos
+$ chmod +x script.sh
+
+# Verificar cambios
+$ ls -la script.sh
+-rwxr-xr-x 1 diego diego 1024 Jul 21 10:30 script.sh
+# <2>
+```
+1. **u+x** agrega permiso de ejecución (x) al propietario (u)
+
+2. Verifica que el permiso de ejecución fue agregado
+
+#### macOS
+```bash
+# Misma notación simbólica que Linux
+$ chmod u+x script.sh  # <1>
+
+# Verificar
+$ ls -la script.sh
+-rwxr-xr-x 1 diego staff 1024 Jul 21 10:30 script.sh
+```
+1. Funciona igual que en Linux
+
+#### Windows (PowerShell)
+```powershell
+# Windows no tiene notación simbólica similar
+# Usa herramientas específicas
+PS> icacls archivo.txt /grant "diego:(RX)"  # <1>
+```
+1. Concede permisos de lectura y ejecución
+
+:::
+
+### Quitar permisos
+
+#### Linux
+```bash
+# Quitar permiso de escritura a otros
+$ chmod o-w archivo.txt  # <1>
+
+# Quitar todos los permisos a otros
+$ chmod o-rwx archivo.txt
+
+# Quitar permiso de grupo
+$ chmod g-r archivo.txt
+
+# Verificar cambios
+$ ls -la archivo.txt
+-rw----r-- 1 diego diego 1024 Jul 21 10:30 archivo.txt
+```
+1. **o-w** quita permiso de escritura a otros (o = others)
+
+#### macOS
+```bash
+# Misma notación
+$ chmod o-w archivo.txt  # <1>
+```
+1. Funciona igual que en Linux
+
+#### Windows (PowerShell)
+```powershell
+# Windows no tiene equivalente directo
+# Usa icacls para revocar permisos
+PS> icacls archivo.txt /remove "Usuarios:(W)"  # <1>
+```
+1. Revoca permisos de escritura al grupo Usuarios
+
+:::
+
+### Cambiar propietario con chown
+
+#### Linux
+```bash
+# Cambiar propietario
+$ sudo chown carlos archivo.txt  # <1>
+
+# Cambiar propietario y grupo
+$ sudo chown carlos:developers archivo.txt  # <2>
+
+# Cambiar recursivamente
+$ sudo chown -R carlos:developers /var/www/  # <3>
+
+# Verificar cambios
+$ ls -la /var/www/
+total 8
+drwxr-xr-x 2 carlos developers 4096 Jul 21 10:30 html
+-rw-r--r-- 1 carlos developers 1024 Jul 21 10:30 index.html
+```
+1. **chown** cambia el propietario del archivo
+
+2. **:** separa propietario y grupo
+
+3. **-R** aplica recursivamente a todos los archivos y subdirectorios
+
+#### macOS
+```bash
+# Misma sintaxis que Linux
+$ sudo chown carlos archivo.txt  # <1>
+$ sudo chown carlos:staff archivo.txt
+```
+1. Funciona igual que en Linux
+
+#### Windows (PowerShell)
+```powershell
+# Windows no tiene chown, usa Takeown o icacls
+PS> takeown /f archivo.txt /r /d y  # <1>
+PS> icacls archivo.txt /setowner "carlos"
+```
+1. **takeown** toma propiedad de archivos en Windows
+
+:::
+
+---
+
+## Permisos Especiales
+
+### 💡 Ejemplos Prácticos Multi-SO
+
+::: {.panel-tabset}
+
+### SUID (Set User ID)
+
+#### Linux
+```bash
+# SUID en ejecutables
+$ ls -la /usr/bin/passwd
+-rwsr-xr-x 1 root root 68208 Jul 21 10:30 /usr/bin/passwd
+# <1>
+# <2>
+```
+1. La **s** en lugar de **x** indica SUID
+
+2. Permite ejecutar el programa con los permisos del propietario (root)
+
+#### macOS
+```bash
+# SUID funciona igual que en Linux
+$ ls -la /usr/bin/passwd
+-rwsr-xr-x 1 root wheel 68208 Jul 21 10:30 /usr/bin/passwd
+# <1>
+```
+1. macOS también usa SUID para permisos especiales
+
+#### Windows (PowerShell)
+```powershell
+# Windows no tiene SUID equivalente
+# Usa "Run as Administrator" o UAC
+PS> Start-Process cmd -Verb RunAs  # <1>
+```
+1. Windows usa UAC (User Account Control) en lugar de SUID
+
+:::
+
+### SGID (Set Group ID)
+
+#### Linux
+```bash
+# SGID en directorios
+$ ls -ld /var/mail
+drwxrwsr-x 2 root mail 4096 Jul 21 10:30 /var/mail
+# <1>
+# <2>
+```
+1. La **s** en el grupo indica SGID
+
+2. Archivos nuevos heredan el grupo del directorio
+
+#### macOS
+```bash
+# SGID funciona igual que en Linux
+$ ls -ld /var/mail
+drwxrwsr-x 2 root wheel 4096 Jul 21 10:30 /var/mail
+# <1>
+```
+1. macOS también usa SGID para directorios compartidos
+
+#### Windows (PowerShell)
+```powershell
+# Windows no tiene SGID equivalente
+# Usa permisos de grupo en ACLs
+PS> icacls "C:\Compartido" /grant "Usuarios:(OI)(CI)(M)"  # <1>
+```
+1. Windows maneja herencia de permisos de forma diferente
+
+:::
+
+### Sticky Bit
+
+#### Linux
+```bash
+# Sticky Bit en /tmp
+$ ls -ld /tmp
+drwxrwxrwt 15 root root 4096 Jul 21 10:30 /tmp
+# <1>
+# <2>
+```
+1. La **t** en otros indica Sticky Bit
+
+2. Solo el propietario puede eliminar archivos en ese directorio
+
+#### macOS
+```bash
+# Sticky Bit funciona igual que en Linux
+$ ls -ld /tmp
+drwxrwxrwt 15 root wheel 4096 Jul 21 10:30 /tmp
+# <1>
+```
+1. macOS también usa Sticky Bit para directorios compartidos
+
+#### Windows (PowerShell)
+```powershell
+# Windows no tiene Sticky Bit equivalente
+# Usa permisos de eliminación en ACLs
+PS> icacls "C:\Temp" /grant "Usuarios:(OI)(CI)(DC)"  # <1>
+```
+1. Windows maneja permisos de eliminación de forma diferente
+
+:::
+
+### Establecer permisos especiales
+
+#### Linux
+```bash
+# Establecer SUID
+$ sudo chmod u+s /usr/local/bin/mi_script  # <1>
+
+# Establecer SGID
+$ sudo chmod g+s /var/compartido  # <2>
+
+# Establecer Sticky Bit
+$ sudo chmod +t /tmp/compartido  # <3>
+
+# Verificar permisos especiales
+$ ls -la /usr/local/bin/mi_script
+-rwsr-xr-x 1 root root 1024 Jul 21 10:30 mi_script
+# <4>
+```
+1. **u+s** establece SUID en el propietario
+
+2. **g+s** establece SGID en el grupo
+
+3. **+t** establece Sticky Bit
+
+4. Verifica que los permisos especiales fueron aplicados
+
+#### macOS
+```bash
+# Misma sintaxis que Linux
+$ sudo chmod u+s /usr/local/bin/mi_script  # <1>
+$ sudo chmod g+s /var/compartido
+```
+1. Funciona igual que en Linux
+
+#### Windows (PowerShell)
+```powershell
+# Windows no tiene equivalentes directos
+# Usa herramientas específicas para permisos especiales
+PS> icacls "C:\Compartido" /grant "Todos:(OI)(CI)(RX)"  # <1>
+```
+1. Windows maneja permisos de forma diferente
+
+:::
+
+---
+
+## Resumen
+
+| Comando | Propósito | Ejemplo |
+|---------|-----------|---------|
+| `chmod 755 archivo` | Establecer permisos octales | `chmod 755 script.sh` |
+| `chmod u+x archivo` | Agregar ejecución al propietario | `chmod u+x script.sh` |
+| `chmod o-w archivo` | Quitar escritura a otros | `chmod o-w archivo.txt` |
+| `chown usuario:grupo` | Cambiar propietario | `chown carlos:developers archivo` |
+| `chmod u+s` | Establecer SUID | `chmod u+s /usr/bin/passwd` |
+| `chmod g+s` | Establecer SGID | `chmod g+s /var/compartido` |
+| `chmod +t` | Establecer Sticky Bit | `chmod +t /tmp` |
+
+---
+
+## 🎯 Ejercicios Prácticos
+
+1. Crea un archivo `test.txt` y establece permisos `644`
+
+2. Cambia los permisos a `755` usando notación simbólica
+
+3. Agrega permiso de escritura al grupo
+
+4. Quita todos los permisos a otros
+
+5. Crea un directorio `compartido` y establece SGID
+
+6. Crea un archivo en el directorio compartido y verifica que hereda el grupo
+
+7. Establece Sticky Bit en un directorio temporal
+
+---
+
+## Referencias
+
+- [@debian2024] - Debian Permissions Guide
+- [@ubuntu2024] - Ubuntu File Permissions
+- [@linux2024] - Linux chmod and chown Guide
