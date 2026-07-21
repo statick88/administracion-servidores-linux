@@ -1,6 +1,6 @@
 # Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)
 
-**Unidad:** 4/7/12 - Docker, Redes y Seguridad, Troubleshooting  
+**Unidad:** Avanzado - Docker, Redes y Seguridad, Troubleshooting  
 **Duracion Estimada:** 150-210 minutos  
 **Dificultad:** Avanzado
 
@@ -13,7 +13,7 @@
 
 ## Requisitos Previos
 
-- VM **Ubuntu Server LTS** (22.04 o 24.04) con acceso SSH.
+- Host **WSL2 Ubuntu 24.04 LTS** con acceso SSH.
 - Lab 4B completado (Docker + Docker Compose v2 instalados) o equivalente.
 - Cuenta de Telegram.
 - Cuenta de Tailscale (admin del tailnet) o acceso a un tailnet existente.
@@ -37,7 +37,7 @@ Vas a trabajar con **tokens/keys** (Telegram y Tailscale).
 
 ## Arquitectura del laboratorio (simplificada)
 
-- **Ubuntu Server LTS (VM)**: host donde corre Docker y Tailscale.
+- **Ubuntu Server LTS (host WSL2)**: host donde corre Docker y Tailscale.
 - **OpenClaw Gateway (Docker)**: hace polling al Bot API de Telegram (no requiere puertos entrantes desde Internet).
 - **Tailscale**: acceso privado al host para administracion (SSH, logs, health checks).
 
@@ -114,7 +114,7 @@ $ sudo ls -la /etc/clawdbot  # <3>
 
 
 1. **install -d** crea un directorio solo accesible por root.
-2. **secrets.env** guarda el token (placeholder en el ebook; en tu VM usa el token real).
+2. **secrets.env** guarda el token (placeholder en el ebook; en tu host usa el token real).
 3. **ls -la** verifica permisos (deberia ser `-rw-------`).
 
 ---
@@ -224,7 +224,7 @@ $ tailscale version  # <2>
 1. **install.sh** instala Tailscale desde el repositorio oficial.
 2. **tailscale version** valida que quedo instalado.
 
-Une el servidor al tailnet (usa un auth key real en tu VM):
+Une el servidor al tailnet (usa un auth key real en tu host WSL2):
 
 ```bash
 $ sudo tailscale up --authkey **TAILSCALE_AUTHKEY** --hostname clawdbot-lab --ssh --accept-dns=false  # <1>
