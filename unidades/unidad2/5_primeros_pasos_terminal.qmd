@@ -39,14 +39,14 @@ La terminal es el hogar del administrador Linux. No hay GUI (interfaz gráfica) 
 $ pwd  # <1>
 /home/diego
 
-$ uname -a
+$ uname -a  # <2>
 Linux abacom-dev 5.15.0-89-generic #1234-Ubuntu SMP x86_64 GNU/Linux
 
-$ whoami
+$ whoami  # <3>
 diego
 
 # Ver estructura de directorios
-$ ls -la ~
+$ ls -la ~  # <4>
 drwxr-xr-x  diego  diego  /home/diego
 drwxr-xr-x  diego  diego  .cache
 drwxr-xr-x  diego  diego  .config
@@ -54,69 +54,72 @@ drwxr-xr-x  diego  diego  Documents
 ```
 
 1. **pwd** muestra el directorio actual donde abriste la terminal
+2. **uname -a** muestra kernel, versión y arquitectura del sistema
+3. **whoami** muestra el nombre del usuario actualmente logueado
+4. **ls -la** lista todos los archivos (incluidos ocultos) con permisos, propietario y tamaño
 
 #### macOS (Terminal / iTerm2)
 ```bash
 # Terminal: Abre presionando Cmd+Space y escribes "Terminal"
 # O iTerm2: brew install iterm2
 
-$ pwd
+$ pwd  # <5>
 /Users/diego
 
-$ uname -a
+$ uname -a  # <6>
 Darwin MacBook-Air.local 23.2.0 Darwin Kernel Version 23.2.0 x86_64
 
-$ whoami
+$ whoami  # <7>
 diego
 
 # Estructura de directorios (diferente a Linux):
-$ ls -la ~
+$ ls -la ~  # <8>
 drwxr-xr-x  diego  staff  /Users/diego
 drwxr-xr-x  diego  staff  .cache
 drwxr-xr-x  diego  staff  .config
 drwxr-xr-x  diego  staff  Documents
-drwxr-xr-x  diego  staff  Downloads
-
-# Nota: macOS usa /Users en lugar de /home
 ```
 
-#### Windows (PowerShell / Terminal)
+5. **pwd** en macOS muestra `/Users/` en lugar de `/home/`; la estructura de directorios del sistema es diferente
+6. **uname -a** en macOS muestra "Darwin" como kernel; la arquitectura puede ser `x86_64` (Intel) o `arm64` (Apple Silicon)
+7. **whoami** funciona igual en macOS; el nombre de usuario es el que configuraste al crear la cuenta
+8. **ls -la** en macOS usa `staff` como grupo por defecto en lugar del nombre del usuario
+
+#### Windows (PowerShell)
 ```powershell
-# Abrir PowerShell:
-# - Presionar Win+X y seleccionar "Windows PowerShell"
-# - O: Win+R, escribir "powershell"
+# PowerShell: Presiona Win+X y selecciona "Windows PowerShell"
+# O busca "PowerShell" en el menú Inicio
 
-PS> # Nota: Prompt es PS> en lugar de $
+PS> Get-Location  # <9>
 
-# Ver directorio actual
-PS> Get-Location
 Path
 ----
 C:\Users\diego
 
-# Equivalente a pwd:
-PS> pwd  # También funciona (alias de Get-Location)
-C:\Users\diego
+PS> systeminfo | Select-String "OS Name","OS Version"  # <10>
 
-# Verificar SO
-PS> $PSVersionTable.OS
-Microsoft Windows 11 Pro 22H2
+OS Name:         Microsoft Windows 11 Pro
+OS Version:              10.0.22631 Build 22631
 
-PS> whoami
-DESKTOP-LAPTOP\diego
+PS> $env:USERNAME  # <11>
+diego
 
-# Ver estructura de directorios
-PS> dir ~  # Equivalente a ls ~
+# Estructura de directorios (muy diferente):
+PS> Get-ChildItem -Force ~  # <12>
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
-d-----          1/29/2024  10:00 AM                AppData
-d-----          1/29/2024  10:00 AM                Desktop
-d-----          1/29/2024  10:00 AM                Documents
-d-----          1/29/2024  10:00 AM                Downloads
-
-# Nota: Windows usa C:\Users en lugar de /home
+d----           1/15/2026 10:30 AM                .cache
+d----           1/15/2026 10:30 AM                .config
+d----           1/15/2026 10:30 AM                Documents
 ```
+
+9. **Get-Location** es el equivalente de `pwd` en PowerShell; muestra la ruta actual con formato de tabla
+10. **systeminfo | Select-String** extrae información del OS; en Windows no existe `uname`, esta es la alternativa
+11. **$env:USERNAME** accede a la variable de entorno del usuario; equivalente a `whoami`
+12. **Get-ChildItem -Force** es equivalente a `ls -la`; `-Force` incluye archivos ocultos
+
+:::
 
 **Comparación rápida:**
 | Aspecto | Linux | macOS | Windows |
@@ -132,8 +135,8 @@ d-----          1/29/2024  10:00 AM                Downloads
 #### Linux (Estructura Unix estándar)
 ```bash
 # Estructura en Linux:
-$ cd /
-$ ls -1
+$ cd /  # <1>
+$ ls -1  # <2>
 bin/    → Comandos esenciales
 boot/   → Archivos de arranque
 dev/    → Dispositivos
@@ -148,21 +151,26 @@ usr/    → Programas de usuario
 var/    → Datos variables (logs, etc)
 
 # Navegar
-$ cd /var/log
+$ cd /var/log  # <3>
 $ pwd
 /var/log
 
-$ ls -lh
+$ ls -lh  # <4>
 -rw-r--r--  1 syslog syslog  250K Jan 29 10:30 auth.log
 -rw-r--r--  1 syslog syslog  500K Jan 29 10:31 syslog
 -rw-r--r--  1 root   root    1.2M Jan 29 10:30 kernel.log
 ```
 
+1. **cd /** nos lleva a la raíz del sistema de archivos
+2. **ls -1** lista una columna — fácil de leer en estructura de directorios
+3. **cd /var/log** navega al directorio de logs del sistema
+4. **ls -lh** muestra archivos con tamaño legible (K, M, G)
+
 #### macOS (Estructura Unix con extensiones Apple)
 ```bash
 # Estructura en macOS (también Unix, pero con cambios):
-$ cd /
-$ ls -1
+$ cd /  # <5>
+$ ls -1  # <6>
 Applications/     → Apps instaladas
 Library/          → Librerías del sistema (¡no es /lib!)
 System/           → Sistema macOS
@@ -174,24 +182,30 @@ tmp/              → Archivos temporales
 usr/              → Programas de usuario
 
 # Navegar a logs (diferente ubicación que Linux)
-$ cd /var/log
+$ cd /var/log  # <7>
 $ pwd
 /var/log
 
-$ ls -lh
+$ ls -lh  # <8>
 -rw-r--r--  1 _syslogd staff  200K Jan 29 10:30 system.log
 -rw-r--r--  1 root     wheel  150K Jan 29 10:31 kernel.log
 
 # Carpeta especial de macOS:
-$ cd ~/Library/Application\ Support
+$ cd ~/Library/Application\ Support  # <9>
 # Muchas apps guardan config aquí
 ```
+
+5. **cd /** en macOS también lleva a la raíz; la estructura incluye carpetas exclusivas como `Library` y `Volumes`
+6. **ls -1** en macOS muestra carpetas como `Applications/` y `System/` que no existen en Linux
+7. **cd /var/log** funciona igual en macOS; los logs del sistema están en la misma ubicación
+8. **ls -lh** en macOS muestra el grupo `_syslogd` o `wheel` en lugar de `syslog`
+9. **~/Library/Application Support** es donde macOS guarda configuraciones de aplicaciones; no existe equivalente directo en Linux
 
 #### Windows (Estructura de directorios Windows)
 ```powershell
 # Estructura en Windows (TOTALMENTE diferente a Unix):
-PS> cd C:\
-PS> dir | Select-Object Name
+PS> cd C:\  # <10>
+PS> dir | Select-Object Name  # <11>
 
 Name
 ----
@@ -204,24 +218,19 @@ Users                 → Carpetas de usuarios
 Temp                  → Archivos temporales
 
 # Navegar a carpeta de usuario
-PS> cd $env:USERPROFILE
+PS> cd $env:USERPROFILE  # <12>
 PS> Get-Location
 C:\Users\diego
-
-# Ver estructura
-PS> dir | Select-Object Name
-AppData         → Datos de apps (oculto)
-Desktop         → Escritorio
-Documents       → Documentos
-Downloads       → Descargas
-Pictures        → Imágenes
-
-# Crear carpeta de proyecto
-PS> mkdir projects
-PS> cd projects
-PS> pwd
-C:\Users\diego\projects
 ```
+
+5. **cd /** en macOS también lleva a la raíz; la estructura incluye carpetas exclusivas como `Library` y `Volumes`
+6. **ls -1** en macOS muestra carpetas como `Applications/` y `System/` que no existen en Linux
+7. **cd /var/log** funciona igual en macOS; los logs del sistema están en la misma ubicación
+8. **ls -lh** en macOS muestra el grupo `_syslogd` o `wheel` en lugar de `syslog`
+9. **~/Library/Application Support** es donde macOS guarda configuraciones de aplicaciones; no existe equivalente directo en Linux
+10. **cd C:\\** lleva a la raíz del disco duro; Windows usa letras de unidad en lugar de `/`
+11. **dir | Select-Object** lista el contenido; `Select-Object Name` extrae solo el nombre de cada elemento
+12. **$env:USERPROFILE** es la variable de entorno que contiene la ruta del directorio del usuario actual
 
 **Comparación de rutas comunes:**
 | Tarea | Linux | macOS | Windows |
@@ -239,15 +248,15 @@ C:\Users\diego\projects
 # Script para verificar salud del servidor en Abacom
 
 echo "=== VERIFICACIÓN DE SERVIDOR LINUX ==="
-echo "Hostname: $(hostname)"
-echo "Kernel: $(uname -r)"
-echo "Usuarios conectados: $(who | wc -l)"
-echo "Uso de CPU: $(top -bn1 | grep "Cpu(s)" | awk '{print $2}')"
-echo "Uso de RAM: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
-echo "Espacio disco: $(df -h / | tail -1 | awk '{print $5}')"
+echo "Hostname: $(hostname)"  # <1>
+echo "Kernel: $(uname -r)"  # <2>
+echo "Usuarios conectados: $(who | wc -l)"  # <3>
+echo "Uso de CPU: $(top -bn1 | grep "Cpu(s)" | awk '{print $2}')"  # <4>
+echo "Uso de RAM: $(free -h | grep Mem | awk '{print $3 "/" $2}')"  # <5>
+echo "Espacio disco: $(df -h / | tail -1 | awk '{print $5}')"  # <6>
 
 # Ejecutar
-$ chmod +x check_server.sh
+$ chmod +x check_server.sh  # <7>
 $ ./check_server.sh
 === VERIFICACIÓN DE SERVIDOR LINUX ===
 Hostname: abacom-server-01
@@ -258,22 +267,30 @@ Uso de RAM: 4.2G / 16G
 Espacio disco: 35%
 ```
 
+1. **hostname** obtiene el nombre del servidor; se usa para identificar máquinas en red
+2. **uname -r** muestra la versión del kernel; útil para verificar parches de seguridad
+3. **who | wc -l** cuenta usuarios conectados; detecta sesiones activas inesperadas
+4. **top -bn1** captura el uso de CPU en un snapshot; `-b` modo batch, `-n1` una iteración
+5. **free -h** muestra RAM total/usada; `-h` formato legible (G, M)
+6. **df -h /** reporta espacio en disco de la partición raíz; detecta discos llenos
+7. **chmod +x** hace el script ejecutable; sin esto no se puede correr `./check_server.sh`
+
 #### macOS (Bash script - casi igual a Linux)
 ```bash
 #!/bin/bash
 # Script casi idéntico para macOS
 
 echo "=== VERIFICACIÓN DE SERVIDOR macOS ==="
-echo "Hostname: $(hostname)"
-echo "Kernel: $(uname -r)"
-echo "Usuarios conectados: $(who | wc -l)"
+echo "Hostname: $(hostname)"  # <8>
+echo "Kernel: $(uname -r)"  # <9>
+echo "Usuarios conectados: $(who | wc -l)"  # <10>
 
 # Nota: Comandos como top son diferentes en macOS
-echo "Uso de CPU: $(top -l 1 | grep "CPU usage" | head -1)"
-echo "Uso de RAM: $(vm_stat | grep 'Pages free' | awk '{print $3}')"
-echo "Espacio disco: $(df -h / | tail -1 | awk '{print $5}')"
+echo "Uso de CPU: $(top -l 1 | grep "CPU usage" | head -1)"  # <11>
+echo "Uso de RAM: $(vm_stat | grep 'Pages free' | awk '{print $3}')"  # <12>
+echo "Espacio disco: $(df -h / | tail -1 | awk '{print $5}')"  # <13>
 
-$ chmod +x check_server.sh
+$ chmod +x check_server.sh  # <14>
 $ ./check_server.sh
 === VERIFICACIÓN DE SERVIDOR macOS ===
 Hostname: MacBook-Air.local
@@ -284,20 +301,28 @@ Uso de RAM: 2024384
 Espacio disco: 45%
 ```
 
+8. **hostname** funciona igual en macOS que en Linux
+9. **uname -r** en macOS muestra "Darwin" como base del kernel
+10. **who | wc -l** funciona igual; cuenta sesiones activas en macOS
+11. **top -l 1** en macOS usa `-l 1` (un snapshot) en lugar de `-bn1`; sintaxis diferente a Linux
+12. **vm_stat** es el comando de macOS para estadísticas de memoria virtual; no existe `free` en macOS
+13. **df -h /** funciona igual en macOS; reporta espacio de la partición del sistema
+14. **chmod +x** funciona igual en macOS; los scripts Bash son 90% compatibles entre Linux y macOS
+
 #### Windows (PowerShell script)
 ```powershell
 # check_server.ps1
 # Script equivalente para Windows
 
-Write-Host "=== VERIFICACIÓN DE SERVIDOR WINDOWS ===" -ForegroundColor Cyan
+Write-Host "=== VERIFICACIÓN DE SERVIDOR WINDOWS ===" -ForegroundColor Cyan  # <15>
 
-$ComputerName = $env:COMPUTERNAME
-$OS = (Get-WmiObject -Class Win32_OperatingSystem).Caption
-$Uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
-$CPUUsage = (Get-WmiObject win32_processor).LoadPercentage
-$RAM = Get-WmiObject Win32_ComputerSystem
-$RAMUsed = $RAM.TotalPhysicalMemory - (Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory
-$DiskUsage = (Get-PSDrive C).Used / (Get-PSDrive C).Total * 100
+$ComputerName = $env:COMPUTERNAME  # <16>
+$OS = (Get-WmiObject -Class Win32_OperatingSystem).Caption  # <17>
+$Uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime  # <18>
+$CPUUsage = (Get-WmiObject win32_processor).LoadPercentage  # <19>
+$RAM = Get-WmiObject Win32_ComputerSystem  # <20>
+$RAMUsed = $RAM.TotalPhysicalMemory - (Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory  # <21>
+$DiskUsage = (Get-PSDrive C).Used / (Get-PSDrive C).Total * 100  # <22>
 
 Write-Host "Nombre: $ComputerName"
 Write-Host "SO: $OS"
@@ -316,6 +341,15 @@ Uso de CPU: 18%
 Uso de RAM: 8 GB
 Uso de disco: 65%
 ```
+
+15. **Write-Host -ForegroundColor** imprime texto con color en PowerShell; Cyan destaca el título
+16. **$env:COMPUTERNAME** accede a la variable de entorno del nombre de la máquina
+17. **Get-WmiObject Win32_OperatingSystem** consulta WMI para obtener detalles del SO; es la alternativa de Windows a `uname`
+18. **Get-CimInstance Win32_OperatingSystem** obtiene la fecha de último arranque; se resta a `Get-Date` para calcular uptime
+19. **Get-WmiObject win32_processor** lee el porcentaje de carga de CPU en tiempo real
+20. **Get-WmiObject Win32_ComputerSystem** obtiene información de hardware; incluye memoria total
+21. **$TotalPhysicalMemory - $FreePhysicalMemory** calcula RAM restando la libre de la total; resultado en bytes
+22. **Get-PSDrive C** obtiene estadísticas del disco C; `.Used / .Total * 100` calcula porcentaje de uso
 
 **Conclusión: Portabilidad de scripts**
 
@@ -359,18 +393,20 @@ Uso de disco: 65%
 **Ruta absoluta vs relativa**:
 ```bash
 # **Ruta absoluta: comienza con /**
-/home/diego/documentos/proyecto.txt
+/home/diego/documentos/proyecto.txt  # <1>
 
 # **Ruta relativa: desde carpeta actual**
-documentos/proyecto.txt
+documentos/proyecto.txt  # <2>
 
 # **Especiales**:
-~        → Home del usuario actual
+~        → Home del usuario actual  # <3>
 .        → Carpeta actual
 ..       → Carpeta padre
-
--        → Último directorio visitado
 ```
+
+1. **Ruta absoluta** — ubicación completa desde la raíz; siempre funciona sin importar dónde estés
+2. **Ruta relativa** — solo funciona si estás en el directorio padre; más corta pero contextual
+3. **~ (tilde)** — atajo universal para tu home; `cd ~` siempre te lleva a tu directorio
 
 ---
 
@@ -518,33 +554,42 @@ tree -d
 
 ```bash
 # **Crear una carpeta**
-mkdir miprojecto
+mkdir miprojecto  # <1>
 
 # **Crear múltiples carpetas**
-mkdir carpeta1 carpeta2 carpeta3
+mkdir carpeta1 carpeta2 carpeta3  # <2>
 
 # **Crear carpeta anidada (necesita -p)**
-mkdir -p /home/diego/proyectos/2024/enero
+mkdir -p /home/diego/proyectos/2024/enero  # <3>
 # -p → Crea las carpetas padre si no existen
 
 # **Crear con permisos específicos**
-mkdir -m 700 carpeta_privada
+mkdir -m 700 carpeta_privada  # <4>
 # Accesible solo por dueño
 ```
+
+1. **mkdir** crea un directorio nuevo; nombre simple sin espacios
+2. **mkdir con múltiples argumentos** crea todos los directorios en una sola línea
+3. **mkdir -p** crea la ruta completa; sin -p falla si falta alguna carpeta padre
+4. **mkdir -m 700** crea el directorio con permisos restriccitivos (solo el dueño tiene rwx)
 
 ### 3.2 rmdir - Eliminar Carpetas Vacías
 
 ```bash
 # **Eliminar carpeta VACÍA**
-rmdir carpeta_vacia
+rmdir carpeta_vacia  # <5>
 
 # **Eliminar múltiples carpetas vacías**
-rmdir carpeta1 carpeta2 carpeta3
+rmdir carpeta1 carpeta2 carpeta3  # <6>
 
 # **Eliminar estructura anidada (si todas están vacías)**
-rmdir -p /home/diego/proyectos/2024/enero
+rmdir -p /home/diego/proyectos/2024/enero  # <7>
 # Elimina enero, 2024, proyectos (si quedan vacías)
 ```
+
+5. **rmdir** elimina solo directorios vacíos; si tiene contenido falla con error
+6. **rmdir múltiples** elimina varios vacíos en una línea; rápido para limpiar
+7. **rmdir -p** elimina en cascada: borra la hoja, luego el padre si queda vacío
 
 ---
 
@@ -554,16 +599,16 @@ rmdir -p /home/diego/proyectos/2024/enero
 
 ```bash
 # **Copiar un archivo**
-cp archivo_original.txt archivo_copia.txt
+cp archivo_original.txt archivo_copia.txt  # <1>
 
 # **Copiar a otra carpeta (mantener nombre)**
-cp archivo.txt /home/diego/backup/
+cp archivo.txt /home/diego/backup/  # <2>
 
 # **Copiar a otra carpeta con nuevo nombre**
-cp archivo.txt /home/diego/backup/archivo_respaldo.txt
+cp archivo.txt /home/diego/backup/archivo_respaldo.txt  # <3>
 
 # **Copiar carpeta y contenido (recursivo)**
-cp -r carpeta_original/ carpeta_copia/
+cp -r carpeta_original/ carpeta_copia/  # <4>
 
 # **Opciones útiles**:
 # -i → Preguntar antes de sobrescribir
@@ -571,33 +616,45 @@ cp -r carpeta_original/ carpeta_copia/
 # -p → Preservar permisos y fecha
 
 # **Ejemplo completo**
-cp -rpv /home/diego/proyecto /backup/proyecto_respaldo
+cp -rpv /home/diego/proyecto /backup/proyecto_respaldo  # <5>
 # Copia carpeta, preserva permisos, muestra progreso
 ```
+
+1. **cp básico** crea una copia idéntica; el archivo original permanece intacto
+2. **cp a directorio** conserva el nombre original; el destino debe existir
+3. **cp con ruta completa** renombra la copia en el destino; útil para backups
+4. **cp -r** copia directorios recursivamente; sin -r falla con "omitting directory"
+5. **cp -rpv** combina preservar permisos (-p), recursivo (-r), verbose (-v); ideal para backups completos
 
 ### 4.2 mv - Mover y Renombrar
 
 ```bash
 # **Renombrar archivo**
-mv archivo_viejo.txt archivo_nuevo.txt
+mv archivo_viejo.txt archivo_nuevo.txt  # <6>
 
 # **Mover archivo a otra carpeta**
-mv archivo.txt /home/diego/documentos/
+mv archivo.txt /home/diego/documentos/  # <7>
 
 # **Mover y renombrar al mismo tiempo**
-mv archivo.txt /home/diego/documentos/archivo_movido.txt
+mv archivo.txt /home/diego/documentos/archivo_movido.txt  # <8>
 
 # **Mover carpeta entera**
-mv carpeta_origen/ /nueva/ubicacion/
+mv carpeta_origen/ /nueva/ubicacion/  # <9>
 
 # **Opciones**:
 # -i → Preguntar antes de sobrescribir
 # -v → Mostrar qué mueve
 
 # **Ejemplo: Mover varias cosas**
-mv archivo1.txt archivo2.txt carpeta/ documentos/
+mv archivo1.txt archivo2.txt carpeta/ documentos/  # <10>
 # Mueve tres cosas a documentos/
 ```
+
+6. **mv para renombrar** cambia el nombre sin mover de ubicación; mismo filesystem
+7. **mv a directorio** mueve el archivo; el nombre se conserva si termina en /
+8. **mv con ruta completa** mueve y renombra en una operación; eficiente
+9. **mv para carpetas** mueve toda la estructura; requiere permisos en origen y destino
+10. **mv múltiple** mueve varios elementos a la vez;ahorra tiempo en limpiezas
 
 **Diferencia mv vs cp**:
 ```
@@ -618,14 +675,14 @@ mv archivo.txt renombrado.txt
 
 ```bash
 # **Ver archivo pequeño**
-cat archivo.txt
+cat archivo.txt  # <1>
 
 # **Salida**:
 # Contenido del archivo
 # en múltiples líneas
 
 # **Ver archivo y enumerar líneas**
-cat -n archivo.txt
+cat -n archivo.txt  # <2>
 
 # **Salida**:
 #      1  Primera línea
@@ -633,18 +690,23 @@ cat -n archivo.txt
 #      3  Tercera línea
 
 # **Concatenar múltiples archivos**
-cat archivo1.txt archivo2.txt
+cat archivo1.txt archivo2.txt  # <3>
 
 # **Ver contenido con saltos visibles**
-cat -A archivo.txt
+cat -A archivo.txt  # <4>
 # Muestra saltos de línea como $
 ```
+
+1. **cat** imprime todo el contenido de golpe; útil para archivos pequeños (<100 líneas)
+2. **cat -n** añade números de línea; ayuda a localizar errores específicos en logs
+3. **cat concatenar** muestra archivos en secuencia; útil para combinar configs temporales
+4. **cat -a** revela caracteres ocultos; diagnóstico de problemas de formato
 
 ### 5.2 less - Ver Archivo Grande Interactivamente
 
 ```bash
 # **Ver archivo página por página (mejor que cat)**
-less archivo_grande.log
+less archivo_grande.log  # <5>
 
 # **Controles**:
 # Espacio o Page Down → Siguiente página
@@ -657,29 +719,39 @@ less archivo_grande.log
 # q → Salir
 
 # **Ejemplo: Ver log del sistema**
-less /var/log/syslog
+less /var/log/syslog  # <6>
 # Muy útil para archivos enormes
 ```
+
+5. **less** carga bajo demanda; no satura memoria con archivos de gigabytes
+6. **less en logs** permite navegar y buscar; /patrón encuentra errores específicos
 
 ### 5.3 head y tail - Ver Inicio y Final
 
 ```bash
 # **Ver primeras 10 líneas**
-head archivo.txt
+head archivo.txt  # <7>
 
 # **Ver primeras 20 líneas**
-head -20 archivo.txt
+head -20 archivo.txt  # <8>
 
 # **Ver últimas 10 líneas (muy común para logs)**
-tail archivo.txt
+tail archivo.txt  # <9>
 
 # **Ver últimas 20 líneas**
-tail -20 archivo.txt
+tail -20 archivo.txt  # <10>
 
 # **Ver últimas líneas conforme se agregan (monitoreo)**
-tail -f /var/log/syslog
+tail -f /var/log/syslog  # <11>
 # -f → follow (sigue actualizaciones)
 # Presiona Ctrl+C para salir
+```
+
+7. **head** muestra el inicio; útil para ver cabeceras o verificar que un archivo existe
+8. **head -20** más contexto; suficiente para entender la estructura de un config
+9. **tail** muestra el final; donde suelen estar los errores más recientes
+10. **tail -20** más líneas para ver tendencias; comparar con -f para monitoreo
+11. **tail -f** sigue el archivo en tiempo real; imprescindible para depurar servicios
 
 # **Ver linea 100 en adelante**
 tail -n +100 archivo.txt
@@ -693,30 +765,34 @@ tail -n +100 archivo.txt
 
 ```bash
 # **Crear archivo vacío**
-touch archivo_nuevo.txt
+touch archivo_nuevo.txt  # <1>
 
 # **Crear múltiples archivos**
-touch archivo1.txt archivo2.txt archivo3.txt
+touch archivo1.txt archivo2.txt archivo3.txt  # <2>
 
 # **Actualizar fecha de acceso de archivo existente**
-touch archivo_existente.txt
+touch archivo_existente.txt  # <3>
 # Cambia la fecha de modificación a ahora
 ```
+
+1. **touch** crea archivo vacío rápido; útil para tests o scripts que esperan archivos
+2. **touch múltiples** crea varios a la vez; eficiente para inicializar proyectos
+3. **touch para actualizar** cambia timestamp; útily para ordenar por fecha con ls -lt
 
 ### 6.2 echo - Escribir Texto
 
 ```bash
 # **Mostrar texto en terminal**
-echo "Hola Mundo"
+echo "Hola Mundo"  # <4>
 
 # **Salida**:
 # Hola Mundo
 
 # **Crear archivo con contenido usando redirección**
-echo "Primera línea" > archivo.txt
+echo "Primera línea" > archivo.txt  # <5>
 
 # **Agregar línea a archivo existente**
-echo "Segunda línea" >> archivo.txt
+echo "Segunda línea" >> archivo.txt  # <6>
 
 # **Ver contenido**
 cat archivo.txt
@@ -724,23 +800,29 @@ cat archivo.txt
 # Segunda línea
 
 # **Usar variables**
-echo "Mi usuario es: $USER"
+echo "Mi usuario es: $USER"  # <7>
 # Mi usuario es: diego
 
 # **Múltiples líneas**
-cat > archivo.txt << EOF
+cat > archivo.txt << EOF  # <8>
 Línea 1
 Línea 2
 Línea 3
 EOF
 ```
 
+4. **echo** muestra texto; diagnóstico rápido o paso intermedio en scripts
+5. **echo >** crea archivo con contenido; > sobrescribe existentes (¡cuidado!)
+6. **echo >>** agrega al final; seguro para logs sin perder contenido previo
+7. **echo con $USER** interpola variables; útil para confirmar entorno antes de ejecutar
+8. **heredoc << EOF** bloque multi-línea; ideal para configs o scripts embebidos
+
 ### 6.3 Editores de Texto
 
 **Nano (más fácil)**:
 ```bash
 # **Abrir o crear archivo**
-nano archivo.txt
+nano archivo.txt  # <9>
 
 # **Controles**:
 # Escribir normalmente
@@ -754,13 +836,15 @@ nano archivo.txt
 **Vim/Vi (poderoso pero complejo)**:
 ```bash
 # **Abrir archivo**
-vim archivo.txt
+vim archivo.txt  # <10>
 
 # **Modos**:
 # i → Insert (escribir)
 # Esc → Normal (comandos)
 # En normal: :wq (guardar y salir)
 ```
+
+10. **vim** editor modal; potente para scripting pero curva de aprendizaje pronunciada
 
 Ver [Anexo B: Editores Vi y Nvim](../../anexos/Anexo_B_Editores_Vi_Nvim.qmd) para detalles completos.
 
@@ -772,33 +856,36 @@ Ver [Anexo B: Editores Vi y Nvim](../../anexos/Anexo_B_Editores_Vi_Nvim.qmd) par
 
 ```bash
 # **Buscar archivo por nombre**
-find . -name "archivo.txt"
+find . -name "archivo.txt"  # <11>
 
 # **Buscar en ubicación específica**
-find /home -name "*.txt"
+find /home -name "*.txt"  # <12>
 
 # **Buscar ignorando mayúsculas**
-find . -iname "ARCHIVO.txt"
+find . -iname "ARCHIVO.txt"  # <13>
 
 # **Buscar archivos (no carpetas)**
-find . -type f -name "*.txt"
+find . -type f -name "*.txt"  # <14>
 
 # **Buscar solo carpetas**
-find . -type d -name "carpeta*"
+find . -type d -name "carpeta*"  # <15>
 
 # **Buscar archivos modificados en últimos 7 días**
-find . -mtime -7
+find . -mtime -7  # <16>
 
 # **Buscar archivos mayores a 100MB**
-find . -size +100M
+find . -size +100M  # <17>
 
 # **Buscar archivos vacíos**
-find . -empty
+find . -empty  # <18>
 
 # **Ejecutar comando en resultados**
-find . -name "*.txt" -exec rm {} \;
+find . -name "*.txt" -exec rm {} \;  # <19>
 # Borra todos los .txt encontrados
 ```
+
+18. **find -empty** localiza archivos o carpetas sin contenido; limpieza de estructuras
+19. **find -exec** ejecuta un comando por cada resultado; {} es el placeholder del archivo encontrado
 
 Ver [Anexo E: Búsqueda y Procesamiento](../../anexos/Anexo_E_Grep_Find_Sed_Awk.qmd) para detalles avanzados.
 
@@ -806,27 +893,34 @@ Ver [Anexo E: Búsqueda y Procesamiento](../../anexos/Anexo_E_Grep_Find_Sed_Awk.
 
 ```bash
 # **Buscar texto en archivo**
-grep "error" archivo.log
+grep "error" archivo.log  # <20>
 
 # **Salida**: Solo líneas que contienen "error"
 
 # **Buscar ignorando mayúsculas**
-grep -i "ERROR" archivo.log
+grep -i "ERROR" archivo.log  # <21>
 
 # **Buscar en múltiples archivos**
-grep "error" /var/log/*.log
+grep "error" /var/log/*.log  # <22>
 
 # **Buscar recursivamente en carpeta**
-grep -r "función_importante" /home/diego/proyecto/
+grep -r "función_importante" /home/diego/proyecto/  # <23>
 
 # **Contar coincidencias**
-grep -c "error" archivo.log
+grep -c "error" archivo.log  # <24>
 
 # **Ver líneas alrededor del resultado**
-grep -B2 -A2 "error" archivo.log
+grep -B2 -A2 "error" archivo.log  # <25>
 # -B2 → 2 líneas antes
 # -A2 → 2 líneas después
 ```
+
+20. **grep** filtra líneas que coinciden con el patrón; diagnóstico rápido de logs
+21. **grep -i** ignora mayúsculas/minúsculas; errores suelen variar en capitalización
+22. **grep múltiples archivos** busca en varios logs a la vez; eficiente para cruzar fuentes
+23. **grep -r** recurre subdirectorios; descubre dónde está un texto en todo el proyecto
+24. **grep -c** cuenta ocurrencias; métrica rápida de frecuencia de errores
+25. **grep -B2 -A2** muestra contexto antes/después; entender la cadena de eventos que causó el error
 
 ---
 
@@ -836,7 +930,7 @@ grep -B2 -A2 "error" archivo.log
 
 ```bash
 # **Ver permisos de archivos**
-ls -l
+ls -l  # <1>
 
 # **Salida**:
 # -rw-r--r-- 1 diego diego 1024 Jan 29 archivo.txt
@@ -846,26 +940,29 @@ ls -l
 #     └─ permisos
 
 # **Decodificar: rwxrwxrwx**
-# Usuario(rwx) Grupo(r-x) Otros(r--)
+# Usuario(rwx) Grupo(r-x) Otros(r--)  # <2>
 ```
+
+1. **ls -l** muestra la columna de permisos: tipo + rwx para usuario, grupo y otros
+2. **rwx** = read (lectura=4) + write (escritura=2) + execute (ejecución=1); se suman para obtener los números
 
 ### 8.2 Cambiar Permisos - chmod
 
 ```bash
 # **Hacer archivo ejecutable**
-chmod +x script.sh
+chmod +x script.sh  # <3>
 
 # **Remover permisos de escritura**
-chmod -w archivo.txt
+chmod -w archivo.txt  # <4>
 
 # **Establecer permisos exactos**
-chmod 755 script.sh
+chmod 755 script.sh  # <5>
 # 755 = rwxr-xr-x (ejecutable para todos, editable solo por dueño)
 
-chmod 644 archivo.txt
+chmod 644 archivo.txt  # <6>
 # 644 = rw-r--r-- (editable solo por dueño)
 
-chmod 600 archivo_privado
+chmod 600 archivo_privado  # <7>
 # 600 = rw------- (solo dueño puede acceder)
 ```
 
@@ -873,14 +970,18 @@ chmod 600 archivo_privado
 
 ```bash
 # **Cambiar propietario**
-sudo chown diego archivo.txt
+sudo chown diego archivo.txt  # <1>
 
 # **Cambiar propietario y grupo**
-sudo chown diego:administradores archivo.txt
+sudo chown diego:administradores archivo.txt  # <2>
 
 # **Cambiar recursivamente (carpeta y contenido)**
-sudo chown -R diego:administradores /home/diego/proyecto/
+sudo chown -R diego:administradores /home/diego/proyecto/  # <3>
 ```
+
+1. **chown usuario archivo** — cambia el dueño del archivo (requiere sudo)
+2. **chown usuario:grupo** — cambia dueño y grupo en un solo comando
+3. **chown -R** — aplica recursivamente a toda la carpeta y su contenido
 
 ---
 
@@ -890,26 +991,31 @@ sudo chown -R diego:administradores /home/diego/proyecto/
 
 ```bash
 # **¿Quién soy?**
-whoami
+whoami  # <1>
 # diego
 
 # **Información detallada del usuario**
-id
+id  # <2>
 # uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom)
 
 # **Grupos del usuario**
-groups
+groups  # <3>
 # diego adm cdrom sudo
 
 # **Información de otro usuario**
-id carlos
+id carlos  # <4>
 ```
+
+1. **whoami** muestra el nombre del usuario activo
+2. **id** muestra UID, GID y todos los grupos — esencial para diagnosticar permisos
+3. **groups** lista los grupos del usuario actual (acceso a recursos depende de estos)
+4. **id carlos** verifica la identidad de otro usuario sin cambiar la sesión
 
 ### 9.2 du - Uso de Disco
 
 ```bash
 # **Tamaño de carpeta actual y subcarpetas**
-du -sh *
+du -sh *  # <5>
 
 # **Salida**:
 # 2.5G carpeta1/
@@ -917,18 +1023,22 @@ du -sh *
 # 512M archivo.iso
 
 # **Ver solo carpetas (no archivos)**
-du -sh */
+du -sh */  # <6>
 
 # **Ver total de carpeta**
-du -sh .
+du -sh .  # <7>
 # 5.2G .
 ```
+
+5. **du -sh *** — resume (-s) en tamaño legible (-h) de cada elemento; rápido para identificar qué consume disco
+6. **du -sh */** — solo carpetas; útil para ver qué directorio es el más pesado
+7. **du -sh .** — total del directorio actual; punto de partida para liberar espacio
 
 ### 9.3 df - Espacio Disponible en Disco
 
 ```bash
 # **Ver particiones y espacio disponible**
-df -h
+df -h  # <1>
 
 # **Salida**:
 # Filesystem      Size  Used Avail Use% Mounted on
@@ -936,8 +1046,11 @@ df -h
 # /dev/sda2        50G   40G   10G  80% /home
 
 # **¿Está lleno el disco?**
-# Use% > 90% → Problemas
+# Use% > 90% → Problemas  # <2>
 ```
+
+1. **df -h** muestra espacio total, usado y disponible por partición en formato legible
+2. **Use% > 90%** es la señal de alerta; un disco lleno puede caer servicios críticos
 
 ---
 
@@ -948,27 +1061,32 @@ df -h
 Crea estructura para proyecto de desarrollo:
 ```bash
 # Crear carpeta principal
-mkdir ~/proyectos
+mkdir ~/proyectos  # <1>
 
 # Crear subcarpetas
-mkdir -p ~/proyectos/webapp/{src,config,tests,docs}
-mkdir -p ~/proyectos/webapp/src/{frontend,backend}
+mkdir -p ~/proyectos/webapp/{src,config,tests,docs}  # <2>
+mkdir -p ~/proyectos/webapp/src/{frontend,backend}  # <3>
 
 # Ver estructura
-tree ~/proyectos/webapp
+tree ~/proyectos/webapp  # <4>
 ```
+
+1. **mkdir ~/proyectos** crea la carpeta en el home del usuario
+2. **mkdir -p con {}** crea múltiples subcarpetas de una vez; `-p` evita error si ya existe
+3. **Anidación {frontend,backend}** crea dos carpetas dentro de src en una sola línea
+4. **tree** muestra la estructura visual del árbol de carpetas
 
 ### 10.2 Crear Archivos de Configuración
 
 ```bash
 # Crear archivo README
-cat > ~/proyectos/webapp/README.md << EOF
+cat > ~/proyectos/webapp/README.md << EOF  # <5>
 # Webapp Project
 Descripción del proyecto
 EOF
 
 # Crear archivo de configuración
-cat > ~/proyectos/webapp/config/settings.sh << EOF
+cat > ~/proyectos/webapp/config/settings.sh << EOF  # <6>
 #!/bin/bash
 # Configuración de webapp
 DB_HOST=localhost
@@ -977,24 +1095,28 @@ DB_PASS=secret123
 EOF
 
 # Hacer script ejecutable
-chmod +x ~/proyectos/webapp/config/settings.sh
+chmod +x ~/proyectos/webapp/config/settings.sh  # <7>
 
 # Verificar
-ls -la ~/proyectos/webapp/config/
+ls -la ~/proyectos/webapp/config/  # <8>
 ```
 
 ### 10.3 Buscar y Reemplazar Contenido
 
 ```bash
 # Ver archivos con palabra clave
-grep -r "localhost" ~/proyectos/webapp/
+grep -r "localhost" ~/proyectos/webapp/  # <9>
 
 # Encontrar scripts ejecutables
-find ~/proyectos/webapp -type f -executable
+find ~/proyectos/webapp -type f -executable  # <10>
 
 # Ver tamaño total del proyecto
-du -sh ~/proyectos/webapp/
+du -sh ~/proyectos/webapp/  # <11>
 ```
+
+9. **grep -r** busca "localhost" en todos los archivos del proyecto; verifica dónde está hardcodeado
+10. **find -executable** encuentra scripts con permiso de ejecución; auditoría rápida
+11. **du -sh** resume el tamaño total; saber si el proyecto cabe en un deploy determinado
 
 ---
 
@@ -1013,11 +1135,16 @@ Completa estas tareas:
 
 **Solución**:
 ```bash
-cd /var/log
-ls -lh
-cd ~
-pwd
+cd /var/log  # <1>
+ls -lh  # <2>
+cd ~  # <3>
+pwd  # <4>
 ```
+
+1. **cd /var/log** navega al directorio de logs del sistema
+2. **ls -lh** muestra contenido con tamaño legible (human-readable)
+3. **cd ~** regresa al home del usuario
+4. **pwd** confirma la ubicación actual
 
 ### Ejercicio 2: Crear estructura
 Crea:
@@ -1033,9 +1160,12 @@ Crea:
 
 **Solución**:
 ```bash
-mkdir -p ~/documentos/{trabajo/{reportes,propuestas},personal/{finanzas,salud}}
-tree ~/documentos/
+mkdir -p ~/documentos/{trabajo/{reportes,propuestas},personal/{finanzas,salud}}  # <1>
+tree ~/documentos/  # <2>
 ```
+
+1. **mkdir -p con anidación {}** crea toda la estructura jerárquica en un solo comando
+2. **tree** visualiza la estructura creada para verificar que sea correcta
 
 ### Ejercicio 3: Buscar archivos
 1. Encuentra todos los .txt en tu home
@@ -1046,10 +1176,14 @@ tree ~/documentos/
 
 **Solución**:
 ```bash
-find ~ -type f -name "*.txt"
-grep "error" /var/log/syslog
-grep -c "error" /var/log/syslog
+find ~ -type f -name "*.txt"  # <1>
+grep "error" /var/log/syslog  # <2>
+grep -c "error" /var/log/syslog  # <3>
 ```
+
+1. **find -type f -name "*.txt"** busca solo archivos (no carpetas) con extensión .txt
+2. **grep** extrae líneas que contienen "error" del log del sistema
+3. **grep -c** cuenta cuántas líneas coinciden; métrica de severidad del problema
 
 ---
 

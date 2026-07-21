@@ -37,52 +37,56 @@ Un reverse proxy es la puerta de entrada estándar en arquitecturas modernas. Ng
 ### Proxy Básico
 
 ```bash
-$ sudo tee /etc/nginx/sites-available/backend-proxy.conf <<'EOF'
+$ sudo tee /etc/nginx/sites-available/backend-proxy.conf <<'EOF'  # <1>
 server {
-    listen 80;
-    server_name api.example.com;
+    listen 80;  # <2>
+    server_name api.example.com;  # <3>
 
     location / {
-        # Proxy al backend
-        proxy_pass http://127.0.0.1:3000;
-        
-        # Headers esenciales
-        proxy_set_header Host $host;
+        proxy_pass http://127.0.0.1:3000;  # <4>
+
+        proxy_set_header Host $host;  # <5>
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
-        # Timeouts
-        proxy_connect_timeout 60s;
+
+        proxy_connect_timeout 60s;  # <6>
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
     }
 }
 EOF
 
-$ sudo ln -sf /etc/nginx/sites-available/backend-proxy.conf /etc/nginx/sites-enabled/
-$ sudo nginx -t && sudo systemctl reload nginx
-# <1>
+$ sudo ln -sf /etc/nginx/sites-available/backend-proxy.conf /etc/nginx/sites-enabled/  # <7>
+$ sudo nginx -t && sudo systemctl reload nginx  # <8>
 ```
 
-1. **Proxy completo**: Headers, timeouts, reescritura de headers
+1. **tee**: Writes config file to sites-available in one atomic command.
+2. **listen 80**: Listens on HTTP port 80 — HTTPS comes later with SSL termination.
+3. **server_name**: Matches incoming requests for this domain.
+4. **proxy_pass**: Forwards all requests to the Node.js backend on port 3000.
+5. **proxy_set_header**: Passes original request headers so the backend sees real client info.
+6. **proxy_connect_timeout**: Limits connection wait to backend — prevents hanging requests.
+7. **ln -sf**: Activates the site by symlinking to sites-enabled.
+8. **nginx -t && reload**: Validates config syntax before reloading — prevents downtime from bad configs.
 
 ### Verificar Funcionamiento
 
 ```bash
-# Backend corriendo
-$ curl http://127.0.0.1:3000
+$ curl http://127.0.0.1:3000  # <1>
 {"status": "ok", "version": "1.0.0"}
 
-# A través de Nginx
-$ curl -H 'Host: api.example.com' http://127.0.0.1
+$ curl -H 'Host: api.example.com' http://127.0.0.1  # <2>
 {"status": "ok", "version": "1.0.0"}
 
-# Ver headers
-$ curl -I -H 'Host: api.example.com' http://127.0.0.1 | grep -i proxy
+$ curl -I -H 'Host: api.example.com' http://127.0.0.1 | grep -i proxy  # <3>
 X-Real-IP: 127.0.0.1
 X-Forwarded-For: 127.0.0.1
 ```
+
+1. **Direct curl**: Tests backend directly — confirms it's running before testing proxy.
+2. **Via Nginx**: Sends request through proxy with matching Host header — verifies proxy forwarding works.
+3. **Check headers**: `-I` shows response headers — confirms proxy headers are being set correctly.
 
 ### Headers de Proxy Explicados
 
@@ -99,11 +103,9 @@ X-Forwarded-For: 127.0.0.1
 ### Upstream Basic
 
 ```bash
-$ sudo tee /etc/nginx/sites-available/loadbalancer.conf <<'EOF'
-# Definir upstream (backend servers)
+$ sudo tee /etc/nginx/sites-available/loadbalancer.conf <<'EOF'  # <1>
 upstream api_backend {
-    # Round robin (default)
-    server 10.0.1.11:3000;
+    server 10.0.1.11:3000;  # <2>
     server 10.0.1.12:3000;
     server 10.0.1.13:3000;
 }
@@ -113,8 +115,8 @@ server {
     server_name api.example.com;
 
     location / {
-        proxy_pass http://api_backend;
-        
+        proxy_pass http://api_backend;  # <3>
+
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -122,53 +124,54 @@ server {
     }
 }
 EOF
-# <1>
 ```
 
-1. **Upstream**: Define grupo de backends
+1. **tee**: Writes load balancer config with upstream definition.
+2. **upstream block**: Defines a group of backend servers — Nginx distributes requests across them using round-robin by default.
+3. **proxy_pass to upstream**: Routes traffic to the named upstream group instead of a single server.
 
 ### Algoritmos de Balanceo
 
 ```bash
-# IP Hash (sticky sessions)
 upstream api_backend {
-    ip_hash;
+    ip_hash;  # <1>
     server 10.0.1.11:3000;
     server 10.0.1.12:3000;
     server 10.0.1.13:3000;
 }
 
-# Least Connections
 upstream api_backend {
-    least_conn;
+    least_conn;  # <2>
     server 10.0.1.11:3000;
     server 10.0.1.12:3000;
     server 10.0.1.13:3000;
 }
 
-# Weighted (capacidad diferente)
 upstream api_backend {
-    server 10.0.1.11:3000 weight=5;  # 50%
-    server 10.0.1.12:3000 weight=3;  # 30%
-    server 10.0.1.13:3000 weight=2;  # 20%
+    server 10.0.1.11:3000 weight=5;  # <3>
+    server 10.0.1.12:3000 weight=3;
+    server 10.0.1.13:3000 weight=2;
 }
 ```
+
+1. **ip_hash**: Sticky sessions — same client IP always hits the same backend. Useful for session state.
+2. **least_conn**: Routes to the server with fewest active connections — best for variable request durations.
+3. **weight**: Proportional distribution — server 11 gets 50% of traffic, 12 gets 30%, 13 gets 20%.
 
 ### Health Checks y Backup
 
 ```bash
 upstream api_backend {
-    server 10.0.1.11:3000 max_fails=3 fail_timeout=30s;
+    server 10.0.1.11:3000 max_fails=3 fail_timeout=30s;  # <1>
     server 10.0.1.12:3000 max_fails=3 fail_timeout=30s;
-    server 10.0.1.13:3000 backup;  # Solo si otros fallan
-    server 10.0.1.14:3000 down;   # Deshabilitado
+    server 10.0.1.13:3000 backup;  # <2>
+    server 10.0.1.14:3000 down;   # <3>
 }
 ```
 
-- **max_fails**: Intentos fallidos antes de marcar down
-- **fail_timeout**: Tiempo antes de reintentar
-- **backup**: Usa solo si otros fallan
-- **down**: Deshabilitado temporalmente
+1. **max_fails + fail_timeout**: Marks server as down after 3 failures in 30 seconds — prevents sending traffic to broken backends.
+2. **backup**: Only receives traffic when all primary servers are down — acts as failover.
+3. **down**: Permanently removes this server from rotation until manually re-enabled.
 
 ## Proxy a Different Backends
 
@@ -176,50 +179,66 @@ upstream api_backend {
 
 ```bash
 location / {
-    proxy_pass http://127.0.0.1:3000;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
+    proxy_pass http://127.0.0.1:3000;  # <1>
+    proxy_http_version 1.1;  # <2>
+    proxy_set_header Upgrade $http_upgrade;  # <3>
     proxy_set_header Connection "upgrade";
-    proxy_set_header Host $host;
+    proxy_set_header Host $host;  # <4>
 }
 ```
 
-### PHP-FPM
+1. **proxy_pass**: Forwards requests to the Node.js app on port 3000.
+2. **proxy_http_version 1.1**: Required for WebSocket and keep-alive connections — HTTP/1.0 won't work.
+3. **proxy_set_header Upgrade**: Passes the client's WebSocket upgrade request to the backend — critical for real-time apps.
+4. **proxy_set_header Host**: Preserves the original hostname so the backend can route correctly.
 
 ```bash
 location ~ \.php$ {
-    include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include snippets/fastcgi-php.conf;  # <1>
+    fastcgi_pass unix:/run/php/php8.1-fpm.sock;  # <2>
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;  # <3>
 }
 ```
+
+1. **include snippets/fastcgi-php.conf**: Loads standard FastCGI parameters — avoids manual setup of PATH_INFO, SCRIPT_NAME, etc.
+2. **fastcgi_pass unix:...**: Communicates with PHP-FPM via Unix socket — faster than TCP for local communication.
+3. **SCRIPT_FILENAME**: Tells PHP-FPM which file to execute — the full path to the .php script on disk.
 
 ### Python (Gunicorn/uvicorn)
 
 ```bash
 location / {
-    proxy_pass http://127.0.0.1:8000;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://127.0.0.1:8000;  # <1>
+    proxy_set_header Host $host;  # <2>
+    proxy_set_header X-Real-IP $remote_addr;  # <3>
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # <4>
     proxy_set_header X-Forwarded-Proto $scheme;
     
     # WebSocket support
-    proxy_http_version 1.1;
+    proxy_http_version 1.1;  # <5>
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
 }
 ```
 
+1. **proxy_pass**: Forwards to Python app on port 8000 (Gunicorn/uvicorn default).
+2. **X-Real-IP**: Passes client's real IP to Python — without this, backend sees nginx's 127.0.0.1.
+3. **X-Forwarded-For**: Appends full proxy chain — useful if there are multiple proxies upstream.
+4. **X-Forwarded-Proto**: Tells backend the client used HTTP or HTTPS — enables secure redirects.
+5. **proxy_http_version 1.1**: Required for WebSocket support in Python apps.
+
 ### Docker Container
 
 ```bash
 location / {
-    proxy_pass http://172.17.0.2:8080;
-    proxy_set_header Host $host;
+    proxy_pass http://172.17.0.2:8080;  # <1>
+    proxy_set_header Host $host;  # <2>
     proxy_set_header X-Real-IP $remote_addr;
 }
 ```
+
+1. **proxy_pass**: Forwards to a Docker container's internal IP — use `docker inspect` to find the IP.
+2. **Host header**: Preserves original hostname so the container can route by virtual host.
 
 ## WebSocket Proxy
 
@@ -227,22 +246,27 @@ location / {
 
 ```bash
 location /ws/ {
-    proxy_pass http://127.0.0.1:3000;
+    proxy_pass http://127.0.0.1:3000;  # <1>
     
     # WebSocket headers
-    proxy_http_version 1.1;
+    proxy_http_version 1.1;  # <2>
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     
     # Timeouts extendidos para long-lived connections
-    proxy_read_timeout 3600s;
+    proxy_read_timeout 3600s;  # <3>
     proxy_send_timeout 3600s;
     
     # Buffers
-    proxy_buffering off;
+    proxy_buffering off;  # <4>
     proxy_request_buffering off;
 }
 ```
+
+1. **location /ws/**: Dedicated path for WebSocket traffic — keeps it separate from regular HTTP.
+2. **proxy_http_version 1.1**: Mandatory — WebSocket protocol requires HTTP/1.1.
+3. **proxy_read_timeout 3600s**: Keeps idle WebSocket connections alive for 1 hour — default 60s closes them.
+4. **proxy_buffering off**: Disables buffering for real-time streaming — messages pass through immediately.
 
 ### Verificar WebSocket
 
@@ -253,8 +277,10 @@ $ curl -i -N \
     -H "Upgrade: websocket" \
     -H "Sec-WebSocket-Version: 13" \
     -H "Sec-WebSocket-Key: test123==" \
-    http://localhost/ws/
+    http://localhost/ws/  # <1>
 ```
+
+1. **curl -i -N**: Tests WebSocket handshake — `-i` shows response headers, `-N` disables buffering for real-time output.
 
 ## Caching con Proxy
 
@@ -262,36 +288,45 @@ $ curl -i -N \
 
 ```bash
 # En http block
-proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=api_cache:10M max_size=100M inactive=60m;
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=api_cache:10M max_size=100M inactive=60m;  # <1>
 
 server {
     location /api/ {
         proxy_pass http://127.0.0.1:3000;
-        proxy_cache api_cache;
+        proxy_cache api_cache;  # <2>
         
         # Cache respuestas 200 por 60 min
-        proxy_cache_valid 200 60m;
+        proxy_cache_valid 200 60m;  # <3>
         
         # Keys diferentes por Host
-        proxy_cache_key $scheme$host$request_uri;
+        proxy_cache_key $scheme$host$request_uri;  # <4>
         
         # Agregar header de cache status
-        add_header X-Cache-Status $upstream_cache_status;
+        add_header X-Cache-Status $upstream_cache_status;  # <5>
     }
 }
 ```
+
+1. **proxy_cache_path**: Creates cache storage — `levels=1:2` splits dirs, `keys_zone=api_cache:10M` names the cache, `max_size=100M` limits disk, `inactive=60m` evicts unused entries.
+2. **proxy_cache api_cache**: Enables caching for this location — uses the named cache from above.
+3. **proxy_cache_valid 200 60m**: Caches only successful responses for 60 minutes — errors pass through.
+4. **proxy_cache_key**: Cache key includes scheme, host, and URI — so different domains get separate cache entries.
+5. **X-Cache-Status**: Shows HIT, MISS, or EXPIRED in response — useful for debugging cache behavior.
 
 ### Cache con Purge
 
 ```bash
 # Location para purgar cache
 location ~ /purge(/.*) {
-    proxy_cache_purge api_cache $scheme$host$1;
-    access_log off;
+    proxy_cache_purge api_cache $scheme$host$1;  # <1>
+    access_log off;  # <2>
 }
 
 # Usar: curl -X PURGE https://example.com/purge/api/data
 ```
+
+1. **proxy_cache_purge**: Removes cached content matching the URI pattern — requires nginx-cache-purge module or nginx 1.9+.
+2. **access_log off**: Suppresses logging for purge requests — reduces noise from automated cache invalidation.
 
 ## SSL Termination
 
@@ -299,23 +334,29 @@ location ~ /purge(/.*) {
 
 ```bash
 server {
-    listen 443 ssl http2;
+    listen 443 ssl http2;  # <1>
     server_name api.example.com;
     
     # SSL certs
-    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;  # <2>
     ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
+    include /etc/letsencrypt/options-ssl-nginx.conf;  # <3>
     
     # Proxy a backend HTTP
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3000;  # <4>
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Proto https;  # <5>
     }
 }
 ```
+
+1. **listen 443 ssl http2**: Enables HTTPS with HTTP/2 — modern protocol for faster page loads.
+2. **ssl_certificate**: Full certificate chain from Let's Encrypt — `fullchain.pem` includes intermediate certs.
+3. **include options-ssl-nginx.conf**: Loads Mozilla's recommended TLS settings — cipher suites, protocols, OCSP stapling.
+4. **proxy_pass**: Forwards decrypted traffic to backend on plain HTTP — nginx handles TLS termination.
+5. **X-Forwarded-Proto https**: Tells backend the original request was HTTPS — enables secure cookie flags.
 
 ## Casos de Estudio
 
@@ -326,11 +367,11 @@ server {
 ```bash
 # API v1
 server {
-    listen 80;
+    listen 80;  # <1>
     server_name api.example.com;
     
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3000;  # <2>
         proxy_set_header Host $host;
     }
 }
@@ -338,7 +379,7 @@ server {
 # API v2 (nueva)
 server {
     listen 80;
-    server_name api-v2.example.com;
+    server_name api-v2.example.com;  # <3>
     
     location / {
         proxy_pass http://127.0.0.1:4000;
@@ -346,6 +387,10 @@ server {
     }
 }
 ```
+
+1. **listen 80**: Both servers listen on HTTP — use separate domains to distinguish versions.
+2. **proxy_pass**: v1 routes to port 3000, v2 to port 4000 — different backends per version.
+3. **server_name api-v2.example.com**: Separate subdomain for v2 — clients migrate by changing their base URL.
 
 ### Caso 2: Redirect según Path
 
@@ -358,23 +403,28 @@ server {
     
     # Frontend estático
     location / {
-        proxy_pass http://127.0.0.1:8080;
+        proxy_pass http://127.0.0.1:8080;  # <1>
     }
     
     # API
     location /api/ {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3000;  # <2>
     }
     
     # Admin panel
     location /admin/ {
-        proxy_pass http://127.0.0.1:5000;
+        proxy_pass http://127.0.0.1:5000;  # <3>
         # Solo desde red local
-        allow 10.0.0.0/8;
+        allow 10.0.0.0/8;  # <4>
         deny all;
     }
 }
 ```
+
+1. **location /**: Catch-all for frontend — serves the main app UI.
+2. **location /api/**: Routes API calls to port 3000 — path-based routing keeps frontend and API on same domain.
+3. **location /admin/**: Admin panel on separate port — access-controlled by IP range.
+4. **allow 10.0.0.0/8**: Only permits requests from internal network — blocks all external admin access.
 
 ### Caso 3: Blue-Green Deployment
 
@@ -383,7 +433,7 @@ server {
 ```bash
 # Blue (versión actual)
 upstream blue {
-    server 10.0.1.10:3000;
+    server 10.0.1.10:3000;  # <1>
 }
 
 # Green (nueva versión)
@@ -397,11 +447,14 @@ server {
     server_name example.com;
     
     location / {
-        proxy_pass http://blue;
+        proxy_pass http://blue;  # <2>
         proxy_set_header Host $host;
     }
 }
 ```
+
+1. **upstream blocks**: Define two deployment environments — blue is current, green is the new version.
+2. **proxy_pass http://blue**: Routes to the active upstream — switch to `http://green` to deploy the new version.
 
 ## Resumen
 

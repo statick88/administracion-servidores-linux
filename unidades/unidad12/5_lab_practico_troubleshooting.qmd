@@ -72,30 +72,35 @@ $ docker exec server01 bash -c "journalctl -u nginx --no-pager -n 20"
 
 ```bash
 # Ver logs de la última hora
-$ docker exec server01 bash -c "journalctl --since '1 hour ago' --no-pager"
+$ docker exec server01 bash -c "journalctl --since '1 hour ago' --no-pager"  # <1>
 
 # Ver logs de un rango específico
-$ docker exec server01 bash -c "journalctl --since '2026-04-01 00:00:00' --until '2026-04-01 12:00:00' --no-pager"
+$ docker exec server01 bash -c "journalctl --since '2026-04-01 00:00:00' --until '2026-04-01 12:00:00' --no-pager"  # <2>
 
 # Ver solo errores
 $ docker exec server01 bash -c "journalctl -p err --no-pager -n 50"
 # <1>
 ```
 
-1. **-p err** filtra solo errores y superiores
+1. **--since '1 hour ago'** filtra logs por tiempo relativo; ideal para diagnosticar problemas recientes
+2. **--since / --until** define un rango exacto; útil para investigar incidentes en ventanas específicas
 
 ### Ejercicio 1.3: Analizar Patrones de Error
 
 ```bash
 # Buscar patrón específico en logs
-$ docker exec server01 bash -c "journalctl --no-pager | grep -i error"
+$ docker exec server01 bash -c "journalctl --no-pager | grep -i error"  # <3>
 
 # Contar errores por tipo
-$ docker exec server01 bash -c "journalctl --no-pager -p err | awk '{print \$5}' | sort | uniq -c | sort -rn"
+$ docker exec server01 bash -c "journalctl --no-pager -p err | awk '{print \$5}' | sort | uniq -c | sort -rn"  # <4>
 
 # Ver errores de servicio específico
-$ docker exec server01 bash -c "journalctl -u ssh --no-pager -p err"
+$ docker exec server01 bash -c "journalctl -u ssh --no-pager -p err"  # <5>
 ```
+
+3. **journalctl | grep -i error** busca patrones de error en todo el journal; `-i` ignora mayúsculas
+4. **awk + sort + uniq** agrupa y cuenta errores por campo; revela qué tipo de error es más frecuente
+5. **-u ssh** filtra por servicio específico; combina con `-p err` para errores críticos de SSH
 
 ---
 
@@ -105,74 +110,95 @@ $ docker exec server01 bash -c "journalctl -u ssh --no-pager -p err"
 
 ```bash
 # Ver estado de interfaces
-$ ip -br addr show
+$ ip -br addr show  # <6>
 
 # Ver rutas
-$ ip route show
+$ ip route show  # <7>
 
 # Probar conectividad
-$ ping -c 3 8.8.8.8
-$ ping -c 3 google.com
+$ ping -c 3 8.8.8.8  # <8>
+$ ping -c 3 google.com  # <9>
 ```
+
+6. **ip -br addr show** muestra interfaces en formato breve; verifica que la interfaz esté UP con IP asignada
+7. **ip route show** muestra la tabla de rutas; la ruta por defecto (default) es la puerta de enlace a internet
+8. **ping IP** prueba conectividad de red sin dependencia de DNS; si falla, el problema es de red
+9. **ping dominio** prueba DNS + red; si IP funciona pero dominio falla, el problema es DNS
 
 ### Ejercicio 2.2: Verificar Puertos Listening
 
 ```bash
 # Ver todos los puertos en escucha
-$ ss -tlnp
+$ ss -tlnp  # <10>
 
 # Ver puerto específico
-$ ss -tlnp | grep :80
+$ ss -tlnp | grep :80  # <11>
 
 # Ver puertos de un proceso específico
-$ ss -tlnp | grep nginx
+$ ss -tlnp | grep nginx  # <12>
 ```
+
+10. **ss -tlnp** — TCP (-t) listening (-l) numérico (-n) con procesos (-p); el comando moderno para ver puertos abiertos
+11. **grep :80** verifica si un servicio específico está escuchando en su puerto esperado
+12. **grep nginx** identifica qué puertos está usando un proceso concreto
 
 ### Ejercicio 2.3: Probar Conectividad a Puerto
 
 ```bash
 # Probar HTTP local
-$ curl -I http://localhost
+$ curl -I http://localhost  # <13>
 
 # Probar con nc (netcat)
-$ nc -zv localhost 80
+$ nc -zv localhost 80  # <14>
 
 # Probar puerto específico con timeout
-$ nc -zv 192.168.1.1 22 -w 3
+$ nc -zv 192.168.1.1 22 -w 3  # <15>
 ```
+
+13. **curl -I** solicita solo headers HTTP; verifica que el servidor web responde sin descargar el contenido completo
+14. **nc -zv** escanea el puerto y reporta si está abierto (-z verbose); prueba a nivel TCP sin protocolo
+15. **-w 3** establece timeout de 3 segundos; evita que la prueba se cuelgue si el puerto no responde
 
 ### Ejercicio 2.4: Diagnosticar Problema de Firewall
 
 ```bash
 # Ver estado de UFW
-$ sudo ufw status verbose
+$ sudo ufw status verbose  # <16>
 
 # Ver reglas numbered
-$ sudo ufw status numbered
+$ sudo ufw status numbered  # <17>
 
 # Agregar regla para permitir puerto
-$ sudo ufw allow 8080/tcp
+$ sudo ufw allow 8080/tcp  # <18>
 
 # Bloquear puerto
-$ sudo ufw deny 3306/tcp
+$ sudo ufw deny 3306/tcp  # <19>
 ```
+
+19. **ufw deny** bloquea tráfico entrante; combina allow/deny para crear políticas de firewall granulares
 
 ### Ejercicio 2.5: DNS Troubleshooting
 
 ```bash
 # Ver configuración DNS
-$ resolvectl status
+$ resolvectl status  # <20>
 
 # Probar resolución
-$ dig +short google.com
-$ host google.com
+$ dig +short google.com  # <21>
+$ host google.com  # <22>
 
 # Flush cache DNS
-$ sudo resolvectl flush-caches
+$ sudo resolvectl flush-caches  # <23>
 
 # Verificar /etc/hosts
-$ cat /etc/hosts
+$ cat /etc/hosts  # <24>
 ```
+
+20. **resolvectl status** muestra los servidores DNS configurados y el dominio de búsqueda; verifica que la resolución esté correctamente configurada
+21. **dig +short** retorna solo la IP; forma rápida de verificar que DNS resuelve correctamente
+22. **host** es una alternativa ligera a dig; muestra IP o registro asociado a un dominio
+23. **flush-caches** limpia la caché DNS local; útil cuando se cambia configuración DNS y no se ve reflejado
+24. **/etc/hosts** permite override manual de DNS; verifica que no haya entradas que interfieran con la resolución
 
 ---
 
@@ -182,10 +208,10 @@ $ cat /etc/hosts
 
 ```bash
 # Ver uptime y load average
-$ uptime
+$ uptime  # <25>
 
 # Ver procesos por CPU
-$ ps aux --sort=-%cpu | head -n 10
+$ ps aux --sort=-%cpu | head -n 10  # <26>
 
 # Usar top
 $ top
@@ -193,37 +219,50 @@ $ top
 # Presionar 'q' para salir
 ```
 
+25. **uptime** muestra load average (1, 5, 15 min); valores superiores al número de núcleos indican sobrecarga
+26. **ps aux --sort=-%cpu** lista procesos ordenados por uso de CPU descendente; top 10 identifica los procesos más demandantes
+
 ### Ejercicio 3.2: Memoria
 
 ```bash
 # Ver uso de memoria
-$ free -h
+$ free -h  # <27>
 
 # Ver con más detalle
-$ cat /proc/meminfo
+$ cat /proc/meminfo  # <28>
 
 # Ver swap
-$ swapon --show
+$ swapon --show  # <29>
 
 # Ver OOMs si existen
-$ dmesg | grep -i oom | tail -n 5
+$ dmesg | grep -i oom | tail -n 5  # <30>
 ```
+
+27. **free -h** muestra RAM y swap en formato legible; la columna "available" es la métrica clave (no "free")
+28. **/proc/meminfo** contiene detalles exactos de memoria: buffers, cache, slab; útil para diagnóstico fino
+29. **swapon --show** lista dispositivos swap activos; si no hay swap y la RAM se llena, el sistema mata procesos
+30. **dmesg | grep oom** busca mensajes del kernel sobre Out Of Memory; indica qué proceso fue terminates por falta de memoria
 
 ### Ejercicio 3.3: Disco
 
 ```bash
 # Ver espacio
-$ df -h
+$ df -h  # <31>
 
 # Ver inodos
-$ df -i
+$ df -i  # <32>
 
 # Encontrar directorios grandes
-$ sudo du -sh /var/* | sort -h | tail -n 10
+$ sudo du -sh /var/* | sort -h | tail -n 10  # <33>
 
 # Encontrar archivos grandes
-$ sudo find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -h | tail -n 10
+$ sudo find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -h | tail -n 10  # <34>
 ```
+
+31. **df -h** muestra espacio en disco por partición; %Use es la métrica crítica — above 85% requiere acción
+32. **df -i** muestra uso de inodos; un disco puede tener espacio libre pero sin inodos disponibles si hay demasiados archivos pequeños
+33. **du -sh + sort** identifica los directorios más grandes; forma rápida de encontrar qué consume espacio en /var
+34. **find -size +100M** localiza archivos grandes; combinado con sort muestra los 10 más pesados en el sistema
 
 ---
 
@@ -237,36 +276,47 @@ $ sudo find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -h |
 
 ```bash
 # 1. Verificar que el servicio está corriendo
-$ systemctl status nginx
-$ ss -tlnp | grep :80
+$ systemctl status nginx  # <35>
+$ ss -tlnp | grep :80  # <36>
 
 # 2. Verificar que responde localmente
-$ curl -I http://localhost
+$ curl -I http://localhost  # <37>
 
 # 3. Ver logs del servicio
-$ journalctl -u nginx -n 20 --no-pager
+$ journalctl -u nginx -n 20 --no-pager  # <38>
 
 # 4. Ver firewall
-$ sudo ufw status | grep 80
+$ sudo ufw status | grep 80  # <39>
 
 # 5. Ver recursos del sistema
 $ free -h
 $ df -h
 ```
 
+35. **systemctl status** verifica si el servicio está activo o falló; el primer paso siempre es confirmar el estado
+36. **ss -tlnp | grep :80** confirma que nginx está escuchando en el puerto 80; si no aparece, el servicio no inició
+37. **curl localhost** prueba conectividad local; si funciona localmente pero no remotos, el problema es firewall o red
+38. **journalctl -u nginx** muestra los logs del servicio; errores recientes revelan la causa raíz
+39. **ufw status | grep 80** verifica si el firewall bloquea el puerto 80; causa común de servicios que no responden remotamente
+
 **Solución aplicada:**
 
 ```bash
 # Si el servicio no está corriendo, iniciarlo
-$ sudo systemctl start nginx
-$ sudo systemctl enable nginx
+$ sudo systemctl start nginx  # <40>
+$ sudo systemctl enable nginx  # <41>
 
 # Si el puerto está bloqueado, abrirlo
-$ sudo ufw allow 80/tcp
+$ sudo ufw allow 80/tcp  # <42>
 
 # Si hay problema de recursos, limpiar
-$ sudo truncate -s 0 /var/log/nginx/access.log
+$ sudo truncate -s 0 /var/log/nginx/access.log  # <43>
 ```
+
+40. **systemctl start** inicia el servicio inmediatamente; pero no sobrevive a un reinicio sin enable
+41. **systemctl enable** asegura que el servicio inicie automáticamente al arrancar el servidor
+42. **ufw allow 80/tcp** abre el puerto 80 para tráfico HTTP; crea la regla necesaria para acceso web
+43. **truncate -s 0** vacía el archivo de logs sin eliminarlo; libera espacio si el disco estaba lleno por acumulación de logs
 
 ### Escenario 4.2: Base de Datos No Accesible
 
@@ -276,31 +326,38 @@ $ sudo truncate -s 0 /var/log/nginx/access.log
 
 ```bash
 # 1. Verificar que MariaDB está corriendo
-$ systemctl status mariadb
-$ ss -tlnp | grep :3306
+$ systemctl status mariadb  # <44>
+$ ss -tlnp | grep :3306  # <45>
 
 # 2. Probar conectividad local
-$ nc -zv localhost 3306
+$ nc -zv localhost 3306  # <46>
 
 # 3. Ver configuración de bind-address
-$ sudo cat /etc/mysql/mariadb.conf.d/50-server.cnf | grep bind-address
+$ sudo cat /etc/mysql/mariadb.conf.d/50-server.cnf | grep bind-address  # <47>
 
 # 4. Ver usuarios y permisos
-$ sudo mysql -e "SELECT user, host FROM mysql.user WHERE user='appuser';"
+$ sudo mysql -e "SELECT user, host FROM mysql.user WHERE user='appuser';"  # <48>
 
 # 5. Ver firewall
-$ sudo ufw status | grep 3306
+$ sudo ufw status | grep 3306  # <49>
 ```
+
+44. **systemctl status mariadb** verifica que el servicio esté activo; si falla, revisa logs con journalctl
+45. **ss -tlnp | grep :3306** confirma que MariaDB escucha en el puerto estándar; si no aparece, no acepta conexiones
+46. **nc -zv localhost 3306** prueba conectividad TCP local; descarta problemas de red antes de revisar configuración
+47. **bind-address** define en qué interfaces escucha; si es 127.0.0.1, solo acepta conexiones locales
+48. **mysql.user** muestra usuarios y sus hosts permitidos; si el host no coincide con la IP del cliente, rechaza la conexión
+49. **ufw status | grep 3306** verifica que el firewall permita el puerto de MariaDB; firewall es la causa más común de fallos remotos
 
 **Solución:**
 
 ```bash
 # Cambiar bind-address
-$ sudo sed -i 's/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
+$ sudo sed -i 's/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf  # <50>
 $ sudo systemctl restart mariadb
 
 # Abrir firewall
-$ sudo ufw allow 3306/tcp
+$ sudo ufw allow 3306/tcp  # <51>
 
 # Crear usuario con acceso remoto
 $ sudo mysql -e "CREATE USER 'appuser'@'%' IDENTIFIED BY 'password123';"
@@ -328,17 +385,21 @@ $ sudo du -sh /var/*
 
 ```bash
 # 1. Limpiar logs antiguos
-$ sudo journalctl --vacuum-size=100M
-$ sudo rm -rf /var/log/*.gz
+$ sudo journalctl --vacuum-size=100M  # <52>
+$ sudo rm -rf /var/log/*.gz  # <53>
 $ sudo truncate -s 0 /var/log/syslog
 $ sudo truncate -s 0 /var/log/nginx/access.log
 
 # 2. Limpiar Docker
-$ docker system prune -af
+$ docker system prune -af  # <54>
 
 # 3. Verificar espacio recuperado
 $ df -h
 ```
+
+52. **journalctl --vacuum-size=100M** reduce los logs del journal a 100MB; elimina automáticamente los más antiguos
+53. **rm *.gz** elimina logs comprimidos antiguos; estos archivos acumulan espacio después de rotaciones
+54. **docker system prune -af** elimina todos los contenedores detenidos, imágenes sin usar y redes huérfanas; libera espacio significativo en servidores con mucho uso de Docker
 
 ### Escenario 4.4: Alta Carga de CPU
 
@@ -359,17 +420,22 @@ $ ps aux --sort=-%cpu | head -n 5
 
 ```bash
 # 1. Identificar proceso problemático
-$ ps aux | grep python
+$ ps aux | grep python  # <55>
 
 # 2. Matar proceso (si es necesario)
-$ sudo kill -15 12345
+$ sudo kill -15 12345  # <56>
 
 # 3. Investigar qué estaba haciendo
-$ journalctl --since '30 min ago' --no-pager | grep python
+$ journalctl --since '30 min ago' --no-pager | grep python  # <57>
 
 # 4. Si es recurrente, limitar recursos
-$ sudo systemd-run --scope -p CPUQuota=50% /path/to/process
+$ sudo systemd-run --scope -p CPUQuota=50% /path/to/process  # <58>
 ```
+
+55. **ps aux | grep python** confirma el PID y el usuario del proceso antes de intentar matarlo
+56. **kill -15** envía SIGTERM (terminación elegante); permite que el proceso limpie recursos antes de cerrarse
+57. **journalctl --since** revisa logs recientes del proceso; revela si hubo errores que causaron el consumo excesivo
+58. **systemd-run --scope CPUQuota=50%** limita el proceso al 50% de CPU; previene que vuelva a saturar el sistema
 
 ---
 
@@ -391,46 +457,54 @@ send_alert() {
 }
 
 # Check CPU
-CPU_LOAD=$(uptime | awk -F'load average:' '{print $2}' | awk '{print $1}' | sed 's/,//')
+CPU_LOAD=$(uptime | awk -F'load average:' '{print $2}' | awk '{print $1}' | sed 's/,//')  # <59>
 CPU_INT=${CPU_LOAD%.*}
 if [ "$CPU_INT" -gt 4 ]; then
     send_alert "CPU high: $CPU_LOAD"
 fi
 
 # Check Memoria
-MEM_USAGE=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')
+MEM_USAGE=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')  # <60>
 if [ "$MEM_USAGE" -gt 90 ]; then
     send_alert "Memory at ${MEM_USAGE}%"
 fi
 
 # Check Disco
-DISK_USAGE=$(df / | tail -1 | awk '{print int($5)}')
+DISK_USAGE=$(df / | tail -1 | awk '{print int($5)}')  # <61>
 if [ "$DISK_USAGE" -gt 90 ]; then
     send_alert "Disk at ${DISK_USAGE}%"
 fi
 
 # Check Servicios
-for svc in nginx sshd mariadb; do
+for svc in nginx sshd mariadb; do  # <62>
     if ! systemctl is-active --quiet $svc; then
         send_alert "Service $svc is down"
     fi
 done
 ```
 
+59. **uptime + awk** extrae el load average numérico; la comparación `> 4` alerta cuando la carga supera los núcleos disponibles
+60. **free + awk** calcula el porcentaje de memoria usada; `$3/$2 * 100` es la fórmula: usado / total × 100
+61. **df + awk** extrae el porcentaje de disco usado de la raíz; `int($5)` convierte "95%" a número entero para comparar
+62. **for svc in ...** itera sobre servicios críticos; `systemctl is-active --quiet` retorna true/false sin output
+
 ```bash
 # Hacer ejecutable
-$ sudo chmod +x /usr/local/bin/server-health.sh
+$ sudo chmod +x /usr/local/bin/server-health.sh  # <63>
 
 # Agregar a cron
-$ sudo crontab -e
+$ sudo crontab -e  # <64>
 # */5 * * * * /usr/local/bin/server-health.sh > /dev/null 2>&1
 ```
+
+63. **chmod +x** marca el archivo como ejecutable; sin esto, cron no puede ejecutar el script
+64. **crontab -e** edita el cron del usuario root; `*/5 * * * *` ejecuta cada 5 minutos
 
 ### Ejercicio 5.2: Monitoreo con Docker
 
 ```bash
 # Crear contenedor de monitoreo
-$ docker run -d \
+$ docker run -d \  # <65>
   --name monitor \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /usr/local/bin:/scripts \
@@ -438,6 +512,8 @@ $ docker run -d \
   ubuntu:22.04 \
   bash -c "while true; do /scripts/server-health.sh; sleep 300; done"
 ```
+
+65. **docker run -d** ejecuta el contenedor en background; monta el socket de Docker y el script de health check para monitorear el host desde dentro del contenedor
 
 ---
 
@@ -495,14 +571,17 @@ Al completar este laboratorio, debes poder:
 
 ```bash
 # Detener y eliminar contenedores de prueba
-$ docker stop server01 && docker rm server01
+$ docker stop server01 && docker rm server01  # <66>
 
 # Eliminar recursos docker
-$ docker system prune -f
+$ docker system prune -f  # <67>
 
 # Verificar espacio recuperado
 $ df -h
 ```
+
+66. **docker stop && docker rm** detiene y elimina el contenedor; `&&` encadena ambas operaciones para limpieza completa
+67. **docker system prune -f** elimina recursos huérfanas (imágenes, redes, volúmenes sin usar); `-f` evita confirmación interactiva
 
 ---
 

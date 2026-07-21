@@ -28,14 +28,18 @@ Empezamos por el código de nuestra aplicación:
 Para ello creamos un nuevo proyecto nodejs con el siguiente comando:
 
 ```bash
-npm init -y
+$ npm init -y  # <1>
 ```
+
+1. **npm init** inicializa un proyecto Node.js creando `package.json` con valores por defecto (`-y` acepta todos los prompts).
 
 Instalamos el paquete express con el siguiente comando:
 
 ```bash
-npm install express
+$ npm install express  # <1>
 ```
+
+1. **npm install** descarga y instala Express en `node_modules/` y lo agrega como dependencia en `package.json`.
 Creamos los siguientes archivos:
 
 - server.js
@@ -46,59 +50,81 @@ Creamos los siguientes archivos:
 ### server.js
 
 ```javascript
-const express = require('express');
-const app = express();
-const port = 3000;
+const express = require('express');  // <1>
+const app = express();  // <2>
+const port = 3000;  // <3>
 
-app.get('/', (req, res) => {
+app.get('/', (req, res) => {  // <4>
   res.send('Hello, World!');
 });
 
-app.listen(port, () => {
+app.listen(port, () => {  // <5>
   console.log(`Server running at http://localhost:${port}/`);
 });
 ```
+
+1. **require** importa el módulo Express desde `node_modules/`.
+2. **express()** crea una instancia de la aplicación web.
+3. **port** define el puerto de escucha del servidor.
+4. **app.get** registra una ruta GET para la raíz `/` que responde con un saludo.
+5. **app.listen** inicia el servidor y escucha conexiones en el puerto definido.
 
 ### Dockerfile
 
 ```dockerfile
 # Use the official Node.js 14 image
-FROM node:14
+FROM node:14  # <1>
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /app  # <2>
 
 # Copy the dependencies file to the working directory
-COPY package.json .
+COPY package.json .  # <3>
 
 # Install dependencies
-RUN npm install
+RUN npm install  # <4>
 
 # Copy the app code to the working directory
-COPY . .
+COPY . .  # <5>
 
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 3000  # <6>
 
 # Serve the app
-CMD ["node", "server.js"]
+CMD ["node", "server.js"]  # <7>
 ```
+
+1. **FROM** establece la imagen base oficial de Node.js 14.
+2. **WORKDIR** crea y define `/app` como directorio de trabajo dentro del contenedor.
+3. **COPY** transfiere `package.json` al directorio de trabajo para instalar dependencias primero.
+4. **RUN** ejecuta `npm install` para instalar las dependencias definidas en `package.json`.
+5. **COPY** transfiere todo el código fuente de la aplicación al contenedor.
+6. **EXPOSE** documenta el puerto que la aplicación utilizará (no lo abre realmente).
+7. **CMD** define el comando por defecto que se ejecuta al iniciar el contenedor.
 
 ### docker-compose.yml
 
 ```yaml
-services:
-  myapp:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-
-      - "3000:3000"
-    volumes:
-
-      - .:/app
+services:  # <1>
+  myapp:  # <2>
+    build:  # <3>
+      context: .  # <4>
+      dockerfile: Dockerfile  # <5>
+    ports:  # <6>
+      - "3000:3000"  # <7>
+    volumes:  # <8>
+      - .:/app  # <9>
 ```
+
+1. **services** define el bloque principal de contenedores de la aplicación.
+2. **myapp** nombre del servicio; puede tener cualquier identificador.
+3. **build** indica que Docker debe construir la imagen desde un Dockerfile.
+4. **context** establece el directorio de contexto para la construcción (`.` = directorio actual).
+5. **dockerfile** especifica qué archivo Dockerfile usar para la construcción.
+6. **ports** define el mapeo de puertos entre host y contenedor.
+7. **3000:3000** expone el puerto 3000 del host hacia el puerto 3000 del contenedor.
+8. **volumes** define volúmenes montados para sincronizar archivos.
+9. **.:/app** monta el directorio actual en `/app` dentro del contenedor (útil para desarrollo con hot-reload).
 
 En este ejemplo, el Dockerfile define una imagen Docker para una aplicación Node.js. El archivo docker-compose.yml define un servicio llamado myapp que utiliza el Dockerfile.nodejs para construir la imagen y expone el puerto 3000 para acceder a la aplicación.
 
@@ -109,31 +135,39 @@ El puerto del lado izquierdo de los 2 puntos en el archivo docker-compose.yml es
 Para probar nuestro ejemplo, ejecutamos el siguiente comando:
 
 ```bash
-docker-compose up -d
+$ docker-compose up -d  # <1>
 ```
 
-Esto construirá la imagen Docker y ejecutará el contenedor en segundo plano. Podemos acceder a la aplicación en `http://localhost:3000`.
+1. **docker-compose up** construye las imágenes (si es necesario) e inicia los contenedores definidos en `docker-compose.yml`. La bandera `-d` ejecuta en modo detached (segundo plano).
+
+Podemos acceder a la aplicación en `http://localhost:3000`.
 
 Para verificar que el contenedor está en ejecución, ejecutamos el siguiente comando:
 
 ```bash
-docker ps
+$ docker ps  # <1>
 ```
+
+1. **docker ps** muestra los contenedores en ejecución con su ID, nombre, puerto asignado y estado.
 
 Podemos utilizar una aplicación como Thunder Client o Postman para enviar una solicitud HTTP a la aplicación y ver la respuesta.
 
 Para detener y eliminar el contenedor, ejecutamos el siguiente comando:
 
 ```bash
-docker-compose down
+$ docker-compose down  # <1>
 ```
+
+1. **docker-compose down** detiene y elimina los contenedores, redes y volúmenes creados por `up`.
 
 :::{.callout-tip}
 Recuerda: La imagen que se crea a partir del Dockerfile se almacena en el caché local de Docker. Si realizas cambios en el Dockerfile y deseas reconstruir la imagen, puedes usar el comando 
 
 ```bash
-docker-compose up --build
+$ docker-compose up --build  # <1>
 ```
+
+1. **--build** fuerza la reconstrucción de la imagen antes de iniciar los contenedores, aplicando cambios en el Dockerfile.
 :::
 
 ## Práctica:
@@ -148,27 +182,39 @@ Ejemplo de aplicación Python simple:
 
 ```python
 # app.py
-print("Hello, World!")
+print("Hello, World!")  # <1>
 ```
+
+1. **print** es el punto de entrada de la aplicación; imprime un saludo por consola.
 
 Ejemplo de Dockerfile:
 
 ```dockerfile
-FROM python:3.12
-WORKDIR /app
-COPY . .
-CMD ["python", "app.py"]
+FROM python:3.12  # <1>
+WORKDIR /app  # <2>
+COPY . .  # <3>
+CMD ["python", "app.py"]  # <4>
 ```
+
+1. **FROM** establece la imagen base oficial de Python 3.12.
+2. **WORKDIR** crea y define `/app` como directorio de trabajo.
+3. **COPY** transfiere todo el código fuente al contenedor.
+4. **CMD** define el comando para ejecutar la aplicación Python al iniciar el contenedor.
 Ejemplo de docker-compose.yml:
 
 ```yaml
-services:
-  myapp:
-    build:
+services:  # <1>
+  myapp:  # <2>
+    build:  # <3>
       context: .
       dockerfile: Dockerfile.python
-    image: my-python-app
+    image: my-python-app  # <4>
 ```
+
+1. **services** define el bloque de contenedores de la aplicación.
+2. **myapp** nombre del servicio.
+3. **build** indica que la imagen se construye desde un Dockerfile.
+4. **image** asigna un nombre a la imagen construida para identificarla en el registro local.
 </details>
 
 # Conclusión

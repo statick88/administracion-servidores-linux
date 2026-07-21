@@ -18,14 +18,14 @@ Hardening de Nginx significa: ocultar información del servidor, agregar headers
 
 ```nginx
 # En http block de nginx.conf
-server_tokens off;  # Ocultar versión de Nginx
+server_tokens off;  # <1>
 
 # En server block
-more_clear_headers Server;  # Ocultar header "Server" completamente
-# <1>
+more_clear_headers Server;  # <2>
 ```
 
-1. **server_tokens off**: Solo muestra "nginx" sin versión
+1. **server_tokens off**: Hides the nginx version from response headers — only shows "nginx" instead of "nginx/1.24.0".
+2. **more_clear_headers Server**: Removes the Server header entirely — requires Headers More module.
 
 **Antes vs Después:**
 
@@ -40,33 +40,41 @@ Server: nginx
 # <1>
 ```
 
-1. **ServerTokens**: Ahora solo dice "nginx"
+1. **curl -I**: Shows only response headers — confirms version is hidden after applying `server_tokens off`.
 
 ### 2. Limitar Información en Headers
 
 ```nginx
 # En nginx.conf - http block
-client_max_body_size 10M;        # Máximo tamaño de request
-client_body_timeout 60s;          # Timeout de body
-client_header_buffer_size 1k;    # Buffer de headers
-large_client_header_buffers 4 16k;  # Headers grandes
+client_max_body_size 10M;        # <1>
+client_body_timeout 60s;          # <2>
+client_header_buffer_size 1k;    # <3>
+large_client_header_buffers 4 16k;  # <4>
 ```
+
+1. **client_max_body_size 10M**: Limits request body size to 10MB — returns 413 if exceeded.
+2. **client_body_timeout 60s**: Closes slow request bodies after 60 seconds — prevents slowloris attacks.
+3. **client_header_buffer_size 1k**: Allocates 1KB for each request header line — enough for most headers.
+4. **large_client_header_buffers 4 16k**: Up to 4 buffers of 16KB for large headers — handles long cookies or URLs.
 
 ### 3. Protección de Archivos
 
 ```nginx
 # Bloquear archivos sensibles
 location ~ /\. {
-    deny all;
+    deny all;  # <1>
     access_log off;
     log_not_found off;
 }
 
 # Archivos específicos
 location ~* \.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$ {
-    deny all;
+    deny all;  # <2>
 }
 ```
+
+1. **deny all**: Blocks access to hidden files like `.htaccess`, `.git`, `.env` — returns 403 for any path starting with `.`.
+2. **deny all**: Blocks config and metadata files — prevents exposure of credentials, git history, and internal data.
 
 ## Security Headers
 
@@ -75,27 +83,31 @@ location ~* \.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$ {
 ```bash
 $ sudo tee /etc/nginx/snippets/security-headers.conf <<'EOF'
 # X-Content-Type-Options
-add_header X-Content-Type-Options "nosniff" always;
+add_header X-Content-Type-Options "nosniff" always;  # <1>
 
 # X-Frame-Options
-add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Frame-Options "SAMEORIGIN" always;  # <2>
 
 # Referrer-Policy
-add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;  # <3>
 
 # X-XSS-Protection
-add_header X-XSS-Protection "1; mode=block" always;
+add_header X-XSS-Protection "1; mode=block" always;  # <4>
 
 # Permissions-Policy
-add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;  # <5>
 
 # Strict-Transport-Security (solo con SSL)
-add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;  # <6>
 EOF
-# <1>
 ```
 
-1. **Security headers**: Los 6 esenciales
+1. **nosniff**: Prevents MIME type sniffing — browser won't guess content type from bytes.
+2. **SAMEORIGIN**: Blocks iframe embedding from other domains — prevents clickjacking.
+3. **strict-origin-when-cross-origin**: Sends origin on cross-origin requests, full URL on same-origin — balances privacy and referrer utility.
+4. **1; mode=block**: Enables browser XSS filter and blocks suspicious content instead of sanitizing.
+5. **Permissions-Policy**: Disables geolocation, microphone, camera APIs — prevents unauthorized device access.
+6. **max-age=63072000**: HSTS for 2 years — browser always uses HTTPS for this domain.
 
 ### Incluir en Server Block
 
@@ -105,11 +117,13 @@ server {
     server_name example.com;
     
     # Security headers (solo funciona con SSL para HSTS)
-    include /etc/nginx/snippets/security-headers.conf;
+    include /etc/nginx/snippets/security-headers.conf;  # <1>
     
     # Resto de configuración...
 }
 ```
+
+1. **include snippets**: Loads the security headers file — keeps config DRY across multiple server blocks.
 
 ### Verificar Headers
 
@@ -126,7 +140,7 @@ Permissions-Policy: geolocation=(), microphone=(), camera=()
 # <1>
 ```
 
-1. **Todos los headers**: Verificar presencia
+1. **curl -I**: Shows all response headers — confirms all security headers are applied correctly.
 
 ### Content Security Policy (CSP)
 
@@ -138,8 +152,10 @@ add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsaf
 EOF
 
 # CSP más permisiva (para desarrollo)
-add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: *; connect-src 'self' https: wss:;" always;
+add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: *; connect-src 'self' https: wss:;" always;  # <1>
 ```
+
+1. **unsafe-inline/unsafe-eval**: Permits inline scripts and eval — acceptable in dev, dangerous in production.
 
 ## Rate Limiting
 
@@ -149,24 +165,30 @@ add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-e
 # En http block
 http {
     # Definir zone de rate limiting
-    limit_req_zone $binary_remote_addr zone=general:10M rate=10r/s;
-    limit_req_zone $binary_remote_addr zone=api:10M rate=100r/s;
+    limit_req_zone $binary_remote_addr zone=general:10M rate=10r/s;  # <1>
+    limit_req_zone $binary_remote_addr zone=api:10M rate=100r/s;  # <2>
 }
 ```
+
+1. **$binary_remote_addr zone=general:10M rate=10r/s**: Creates a 10MB rate limiting zone keyed by client IP — limits general traffic to 10 requests/second.
+2. **zone=api:10M rate=100r/s**: Separate zone for API with higher limit — allows 100 requests/second for API endpoints.
 
 ### Aplicar Rate Limit
 
 ```nginx
 # Rate limit general (10 req/segundo, burst de 20)
 location / {
-    limit_req zone=general burst=20 nodelay;
+    limit_req zone=general burst=20 nodelay;  # <1>
 }
 
 # Rate limit para API (100 req/segundo)
 location /api/ {
-    limit_req zone=api burst=50 nodelay;
+    limit_req zone=api burst=50 nodelay;  # <2>
 }
 ```
+
+1. **burst=20 nodelay**: Allows burst of 20 requests without delay — handles legitimate traffic spikes.
+2. **burst=50 nodelay**: Higher burst for API — accommodates API call patterns.
 
 ### Rate Limit con Whitelist
 
@@ -174,26 +196,35 @@ location /api/ {
 # Excluir IPs conocidas
 http {
     geo $limited {
-        default 1;
-        10.0.0.0/8 0;
+        default 1;  # <1>
+        10.0.0.0/8 0;  # <2>
         172.16.0.0/12 0;
         192.168.0.0/16 0;
     }
     
-    limit_req_zone $limited zone=general:10M rate=10r/s;
+    limit_req_zone $limited zone=general:10M rate=10r/s;  # <3>
 }
 ```
+
+1. **default 1**: All IPs are limited by default — opt-out model.
+2. **0**: Private IPs bypass rate limiting — internal traffic isn't throttled.
+3. **$limited**: Uses geo variable instead of raw IP — whitelisted IPs get value 0 (not tracked).
 
 ### Verificar Rate Limiting
 
 ```bash
 # Test con curl rápido
 $ for i in {1..15}; do curl -s -o /dev/null -w "%{http_code}\n" http://localhost/api/; done
+# <1>
 
 # Ver logs de rate limit
 $ sudo tail /var/log/nginx/error.log
 2026/03/31 10:15:00 [warn] 1234#1234: *1001 limiting connections by zone "general"
+# <2>
 ```
+
+1. **for loop**: Sends 15 rapid requests — after burst is exhausted, returns 429.
+2. **tail error.log**: Shows rate limit warnings — confirms the zone is active and blocking.
 
 ## Conexiones y Tiempo
 
@@ -201,27 +232,32 @@ $ sudo tail /var/log/nginx/error.log
 
 ```nginx
 # En http block
-keepalive_timeout 65;
+keepalive_timeout 65;  # <1>
 keepalive_requests 100;
 
 # En server block
-keepalive_timeout 30s;
+keepalive_timeout 30s;  # <2>
 keepalive_requests 50;
 ```
+
+1. **65 seconds**: Default keepalive timeout — connection closes after 65s of inactivity.
+2. **30s override**: Server block value overrides http block — shorter timeout for this server.
 
 ### Limits de Conexiones
 
 ```nginx
 # Limitar conexiones por IP
-limit_conn_zone $binary_remote_addr zone=addr:10M;
+limit_conn_zone $binary_remote_addr zone=addr:10M;  # <1>
 
 server {
     location / {
-        # Máximo 10 conexiones por IP
-        limit_conn addr 10;
+        limit_conn addr 10;  # <2>
     }
 }
 ```
+
+1. **zone=addr:10M**: Creates connection limiting zone — tracks concurrent connections per IP.
+2. **limit_conn addr 10**: Max 10 concurrent connections per IP — prevents connection exhaustion.
 
 ## Protección de Backend
 
@@ -231,26 +267,35 @@ server {
 # Autenticación básica al backend
 location / {
     proxy_pass http://127.0.0.1:3000;
-    proxy_set_header Authorization $http_authorization;
+    proxy_set_header Authorization $http_authorization;  # <1>
     
-    # Solo permitir IPs conocidas
-    allow 10.0.0.0/8;
+    allow 10.0.0.0/8;  # <2>
     allow 172.16.0.0/12;
     allow 192.168.0.0/16;
-    deny all;
+    deny all;  # <3>
 }
 ```
+
+1. **proxy_set_header Authorization**: Forwards auth header to backend — preserves client credentials.
+2. **allow 10.0.0.0/8**: Only private networks can reach backend — blocks external access.
+3. **deny all**: Catches everything else — explicit deny after allows is a whitelist pattern.
 
 ### Buffering de Respuestas
 
 ```nginx
 # Configuración de buffering
-proxy_buffering on;
-proxy_buffer_size 4k;
-proxy_buffers 8 4k;
-proxy_busy_buffers_size 8k;
-proxy_max_temp_file_size 1024m;
+proxy_buffering on;  # <1>
+proxy_buffer_size 4k;  # <2>
+proxy_buffers 8 4k;  # <3>
+proxy_busy_buffers_size 8k;  # <4>
+proxy_max_temp_file_size 1024m;  # <5>
 ```
+
+1. **proxy_buffering on**: Enables response buffering — client receives data faster.
+2. **proxy_buffer_size 4k**: First buffer for response headers — enough for most responses.
+3. **proxy_buffers 8 4k**: 8 buffers of 4KB each for body — total 32KB before disk spill.
+4. **proxy_busy_buffers_size 8k**: Can send 8KB to client while still buffering — improves throughput.
+5. **proxy_max_temp_file_size 1024m**: Max temp file for large responses — prevents disk exhaustion.
 
 ## Hardening Completo de Producción
 
@@ -338,7 +383,7 @@ EOF
 # <1>
 ```
 
-1. **Configuración producción**: HTTP/HTTPS, rate limit, security headers
+1. **Configuración producción**: Bloque HTTP con security headers + rate limiting + protección de archivos + cache estático. Bloque HTTPS agrega SSL + HSTS. Bloque de redirect fuerza HTTPS para todo el tráfico.
 
 ## Casos de Estudio
 
@@ -366,7 +411,7 @@ $ sudo tail /var/log/nginx/error.log
 # <2>
 ```
 
-1. **IP atacando**: 5000 requests
+1. **sort -nr | head**: Sorts by count descending — quickly identifies the most aggressive IP.
 
 ### Caso 2: Headers No Aparecen
 
@@ -392,14 +437,17 @@ $ sudo nginx -t
 **Solución**:
 ```bash
 # Verificar que el archivo existe
-$ ls -la /etc/nginx/snippets/security-headers.conf
+$ ls -la /etc/nginx/snippets/security-headers.conf  # <1>
 
 # Agregar manualmente al server block
 location / {
-    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;  # <2>
     # ...
 }
 ```
+
+1. **ls -la**: Confirms the snippet file exists — if missing, the include directive silently fails.
+2. **add_header inline**: Fallback when snippet include doesn't work — manually adds the header.
 
 ### Caso 3: Upload de Archivos Grande
 
@@ -413,13 +461,17 @@ $ curl -X POST -F "file=@large.zip" https://example.com/upload
 **Solución**:
 ```nginx
 # Aumentar límite
-client_max_body_size 100M;
-proxy_buffering off;
+client_max_body_size 100M;  # <1>
+proxy_buffering off;  # <2>
 
 location /upload {
-    client_max_body_size 100M;
+    client_max_body_size 100M;  # <3>
 }
 ```
+
+1. **100M**: Increases limit globally — allows large file uploads.
+2. **proxy_buffering off**: Disables buffering for proxied responses — streams data directly to client.
+3. **location override**: Per-path limit — only `/upload` accepts 100MB, rest stays at default.
 
 1. **413**: Body muy grande
 

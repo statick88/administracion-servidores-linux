@@ -39,31 +39,34 @@ Al completar este laboratorio podrás:
 
 ```bash
 # Instalar
-$ sudo apt update && sudo apt install -y mariadb-server mariadb-client
-# <1>
+$ sudo apt update && sudo apt install -y mariadb-server mariadb-client  # <1>
 
 # Ver estado
-$ sudo systemctl status mariadb --no-pager
-# <2>
+$ sudo systemctl status mariadb --no-pager  # <2>
 
 # Versión
 $ mariadb --version
 ```
 
+1. **apt install mariadb-server mariadb-client** instala tanto el servidor como el cliente; `mariadb-client` permite conectarse desde la línea de comandos
+2. **systemctl status --no-pager** muestra el estado del servicio sin paginación; busca `active (running)` para confirmar que está operativo
+
 ### Ejercicio 1.2: Hardening Inicial
 
 ```bash
 # Ejecutar hardening
-$ sudo mysql_secure_installation
+$ sudo mysql_secure_installation  # <3>
 
 # O manualmente
 $ sudo mariadb
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'StrongRootPass-2026!';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'StrongRootPass-2026!';  # <4>
 DELETE FROM mysql.user WHERE User='';
 DROP DATABASE IF EXISTS test;
 FLUSH PRIVILEGES;
-# <1>
 ```
+
+3. **mysql_secure_installation** ejecuta el asistente de hardening: cambia root password, elimina usuarios anónimos, elimina test DB, deshabilita login remoto de root
+4. **ALTER USER + DELETE + DROP** es la versión manual del hardening; FLUSH PRIVILEGES recarga los privilegios para que los cambios tomen efecto inmediatamente
 
 ---
 
@@ -72,30 +75,38 @@ FLUSH PRIVILEGES;
 ### Ejercicio 2.1: Crear Base de Datos
 
 ```bash
-$ sudo mariadb
+$ sudo mariadb  # <5>
 
-CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  # <6>
 SHOW DATABASES;
 ```
+
+5. **sudo mariadb** abre la consola de MariaDB como root; sin `-p` porque root usa autenticación Unix socket
+6. **CHARACTER SET utf8mb4** soporta emojis y caracteres especiales; `utf8mb4_unicode_ci` es insensitive para búsquedas
 
 ### Ejercicio 2.2: Crear Usuario
 
 ```bash
 # Crear usuario
-CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass123!';
-GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';
+CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass123!';  # <7>
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';  # <8>
 FLUSH PRIVILEGES;
 
 # Verificar
 SHOW GRANTS FOR 'appuser'@'localhost';
 ```
 
+7. **CREATE USER 'appuser'@'localhost'** crea el usuario solo para conexiones locales; `'%'` permitiría conexiones remotas
+8. **GRANT SELECT, INSERT, UPDATE, DELETE** otorga permisos CRUD pero NO DROP o ALTER — principio de menor privilegio
+
 ### Ejercicio 2.3: Probar Acceso
 
 ```bash
 # Probar como nuevo usuario
-$ mariadb -u appuser -p appdb -e "SHOW TABLES;"
+$ mariadb -u appuser -p appdb -e "SHOW TABLES;"  # <9>
 ```
+
+9. **mariadb -u appuser -p** conecta como el usuario recién creado; `-e "SHOW TABLES"` ejecuta la consulta y sale — verifica que el usuario tiene acceso
 
 ---
 
@@ -105,27 +116,33 @@ $ mariadb -u appuser -p appdb -e "SHOW TABLES;"
 
 ```bash
 # Crear directorio
-$ sudo mkdir -p /backup
+$ sudo mkdir -p /backup  # <10>
 
 # Backup
-$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql
+$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql  # <11>
 
 # Comprimido
-$ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz
+$ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz  # <12>
 
 # Ver
 $ ls -lh /backup/
 ```
 
+10. **mkdir -p /backup** crea el directorio de backups; `-p` no falla si ya existe
+11. **mysqldump** exporta la base de datos completa a SQL; `$(date +%Y%m%d)` agrega la fecha al nombre del archivo para versionado
+12. **mysqldump | gzip** comprime el backup en tiempo real; reduce el tamaño ~90% para bases de datos grandes
+
 ### Ejercicio 3.2: Restaurar Backup
 
 ```bash
 # Restaurar
-$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
+$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql  # <13>
 
 # Verificar
 $ mariadb -u appuser -p appdb -e "SHOW TABLES;"
 ```
+
+13. **mariadb < archivo.sql** restaura el backup usando redirección de stdin; la base de datos debe existir previamente
 
 ---
 
@@ -138,28 +155,31 @@ $ mariadb -u appuser -p appdb -e "SHOW TABLES;"
 $ docker network create lab-mariadb-net
 
 # Iniciar MariaDB
-$ docker run -d --name mariadb-server \
+$ docker run -d --name mariadb-server \  # <14>
     --network lab-mariadb-net \
     -e MYSQL_ROOT_PASSWORD=RootPass123 \
     -e MYSQL_DATABASE=appdb \
     -e MYSQL_USER=appuser \
     -e MYSQL_PASSWORD=AppPass123 \
     mariadb:10.11
-# <1>
 
 # Ver
 $ docker ps | grep mariadb
 ```
 
+14. **docker run -d** ejecuta MariaDB en background; las variables `-e` configuran root password, database y usuario automáticamente al iniciar
+
 ### Ejercicio 4.2: Conectar desde Host
 
 ```bash
 # IP del contenedor
-$ MARIADB_IP=$(docker inspect mariadb-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+$ MARIADB_IP=$(docker inspect mariadb-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')  # <15>
 
 # Conectar
 $ mysql -h $MARIADB_IP -u appuser -p appdb
 ```
+
+15. **docker inspect -f** extrae la IP del contenedor usando template Go; la variable `MARIADB_IP` se usa para conectarse sin exponer el puerto al host
 
 ---
 
@@ -169,27 +189,33 @@ $ mysql -h $MARIADB_IP -u appuser -p appdb
 
 ```bash
 # Conectar al VPS
-$ ssh usuario@vps "sudo apt update && sudo apt install -y mariadb-server"
+$ ssh usuario@vps "sudo apt update && sudo apt install -y mariadb-server"  # <16>
 
 # Configurar
 $ ssh usuario@vps "sudo mysql_secure_installation"
 ```
 
+16. **ssh usuario@vps "comando"** ejecuta el comando de forma remota sin abrir sesión interactiva; combina actualización de repositorios e instalación en una sola línea
+
 ### Ejercicio 5.2: Acceso Remoto
 
 ```bash
 # En VPS: cambiar bind-address
-$ ssh usuario@vps "sudo sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf"
+$ ssh usuario@vps "sudo sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf"  # <17>
 
 # Reiniciar
-$ ssh usuario@vps "sudo systemctl restart mariadb"
+$ ssh usuario@vps "sudo systemctl restart mariadb"  # <18>
 
 # Crear usuario remoto
-$ ssh usuario@vps "sudo mariadb -e \"CREATE USER 'appuser'@'%' IDENTIFIED BY 'RemotePass123!'; GRANT ALL ON appdb.* TO 'appuser'@'%'; FLUSH PRIVILEGES;\""
+$ ssh usuario@vps "sudo mariadb -e \"CREATE USER 'appuser'@'%' IDENTIFIED BY 'RemotePass123!'; GRANT ALL ON appdb.* TO 'appuser'@'%'; FLUSH PRIVILEGES;\""  # <19>
 
 # Probar desde host
 $ mariadb -h VPS_IP -u appuser -p appdb
 ```
+
+17. **sed -i 's/127.0.0.1/0.0.0.0/'** cambia `bind-address` para que MariaDB escuche en todas las interfaces de red; sin esto solo acepta conexiones locales
+18. **systemctl restart** aplica el cambio de configuración; el reinicio es necesario para que `bind-address` tome efecto
+19. **CREATE USER 'appuser'@'%'** crea el usuario para conexiones desde cualquier IP (`%` = wildcard); GRANT ALL otorga todos los privilegios sobre `appdb`
 
 ---
 
@@ -210,12 +236,14 @@ $ mariadb -h VPS_IP -u appuser -p appdb
 
 ```bash
 # Docker
-$ docker stop mariadb-server && docker rm mariadb-server
+$ docker stop mariadb-server && docker rm mariadb-server  # <20>
 $ docker network rm lab-mariadb-net
 
 # VPS
 $ ssh usuario@vps "sudo systemctl stop mariadb"
 ```
+
+20. **docker stop + rm** primero detiene el contenedor y luego lo elimina; `docker network rm` elimina la red aislada creada para el laboratorio
 
 ---
 
