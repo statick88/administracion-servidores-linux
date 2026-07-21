@@ -13,7 +13,7 @@
 
 ## Requisitos Previos
 
-- Acceso a una VM o maquina Linux
+- Acceso a un entorno WSL2 Ubuntu 24.04 o máquina Linux
 - Acceso a una terminal con permisos sudo (si aplica)
 
 ## Pasos del Laboratorio

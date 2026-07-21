@@ -1,6 +1,6 @@
 # Laboratorio 3: Administración de Procesos
 
-**Unidad:** 5 - Administración de Procesos y Servicios  
+**Unidad:** V - Administración de Procesos y Servicios  
 **Duración Estimada:** 90 minutos  
 **Dificultad:** Intermedio
 
@@ -13,7 +13,7 @@
 
 ## Requisitos Previos
 
-- Ubuntu del Lab 1 corriendo
+- Lab 1 (WSL2) corriendo
 - Acceso SSH como "alumno"
 - Permisos sudo
 
@@ -188,7 +188,7 @@ sleep 305  # Espera 5+ minutos
 cat /tmp/cron_log.txt
 
 # Ver logs de cron
-grep CRON /var/log/syslog | tail -10
+journalctl -u cron | tail -10
 
 # Remover tarea
 crontab -r
@@ -234,7 +234,7 @@ at -l
 3. Inicia el servicio
 4. Verifica en el log que funciona
 5. Habilita al inicio
-6. Reinicia la VM y verifica que continúa
+6. Reinicia el host WSL2 y verifica que continúa
 
 ### Ejercicio C: Cron Schedule (20 min)
 

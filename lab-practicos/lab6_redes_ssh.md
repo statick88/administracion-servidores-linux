@@ -1,6 +1,6 @@
 # Laboratorio 4: Redes y SSH
 
-**Unidad:** 7 - Redes y Seguridad Básica  
+**Unidad:** VI - Redes y Seguridad Básica  
 **Duración Estimada:** 120 minutos  
 **Dificultad:** Intermedio-Avanzado
 
@@ -13,7 +13,7 @@
 
 ## Requisitos Previos
 
-- Ubuntu del Lab 1 corriendo
+- Lab 1 (WSL2) corriendo
 - Acceso SSH como "alumno"
 - Permisos sudo
 
@@ -39,7 +39,7 @@ dig google.com
 ping -c 4 8.8.8.8
 
 # Información completa de configuración
-ifconfig  # o ip a
+ip addr show
 ```
 
 ### Paso 2: Configuración de Red (Netplan) (20 min)
@@ -81,7 +81,7 @@ EOF
 # Verificar que SSH está activo
 sudo systemctl status ssh
 
-# En tu computadora HOST (no en la VM):
+# En tu computadora HOST (no en el host WSL2):
 # Generar par de claves SSH (si no tienes)
 ssh-keygen -t ed25519 -C "tu_email@example.com"
 # O más compatible:
@@ -94,11 +94,11 @@ ssh-keygen -t rsa -b 4096 -C "tu_email@example.com"
 ls ~/.ssh/
 
 # Copiar clave pública a servidor (desde HOST):
-ssh-copy-id -i ~/.ssh/id_rsa.pub alumno@[IP-VM]
+ssh-copy-id -i ~/.ssh/id_rsa.pub alumno@[IP-del-host]
 # Ingresa contraseña una última vez
 
 # Ahora conecta sin contraseña:
-ssh alumno@[IP-VM]
+ssh alumno@[IP-del-host]
 # No debe pedir contraseña
 
 # Ver claves autorizadas en servidor
@@ -112,7 +112,7 @@ chmod 600 ~/.ssh/authorized_keys
 ### Paso 4: Configuración SSH Segura (25 min)
 
 ```bash
-# Editar configuración SSH (en la VM)
+# Editar configuración SSH (en el host WSL2)
 sudo nano /etc/ssh/sshd_config
 
 # Cambios recomendados (cambiar líneas existentes):
@@ -131,7 +131,7 @@ sudo sshd -t
 sudo systemctl restart ssh
 
 # Verificar que aún funciona
-ssh alumno@[IP-VM]
+ssh alumno@[IP-del-host]
 ```
 
 ### Paso 5: Firewall Básico (20 min)
@@ -173,16 +173,13 @@ sudo ufw disable
 
 ```bash
 # Ver puertos abiertos
-ss -tlnp  # t=tcp, l=listening, n=numeric, p=program
-
-# Versión antigua (netstat)
-netstat -tlnp
+ss -tulnp  # t=tcp, u=udp, l=listening, n=numeric, p=program
 
 # Ver conexiones establecidas
 ss -tnp
 
 # Escanear puertos en host remoto (desde HOST)
-nmap [IP-VM]  # Si lo tienes instalado
+nmap [IP-del-host]  # Si lo tienes instalado
 
 # Ver conexiones DNS
 dig @8.8.8.8 google.com
@@ -202,7 +199,7 @@ speedtest-cli  # Primero instalar: sudo apt install speedtest-cli
 ### Ejercicio A: Conexión SSH Segura (30 min)
 
 1. Generar par SSH (si no lo hiciste)
-2. Copiar clave pública a la VM
+2. Copiar clave pública al host WSL2
 3. Conectar sin contraseña
 4. Cambiar puerto SSH a 2222
 5. Conectar nuevamente al puerto 2222
@@ -248,7 +245,7 @@ speedtest-cli  # Primero instalar: sudo apt install speedtest-cli
 - Reglas proceden de arriba a abajo
 
 **Herramientas Red:**
-- `ss` o `netstat`: Ver conexiones/puertos
+- `ss`: Ver conexiones/puertos
 - `ip`: Ver/configurar direcciones IP
 - `ping`: Test ICMP (reachability)
 - `dig`/`nslookup`: DNS queries

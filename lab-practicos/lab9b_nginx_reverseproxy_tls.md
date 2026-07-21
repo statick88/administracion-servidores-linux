@@ -1,6 +1,6 @@
 # Laboratorio 8: Nginx - Reverse Proxy + TLS
 
-**Unidad:** 10 - Nginx y SSL  
+**Unidad:** IX - Nginx y SSL  
 **Duración Estimada:** 120-150 minutos  
 **Dificultad:** Intermedio
 
@@ -12,7 +12,7 @@
 
 ## Requisitos Previos
 
-- VM Ubuntu Server LTS (22.04 o 24.04) con acceso SSH
+- Entorno WSL2 Ubuntu 24.04 LTS con acceso SSH
 - Usuario con permisos sudo
 
 :::{.callout-warning}
