@@ -174,40 +174,32 @@ Final: 5_actualizacion_sistema.qmd
   └─ Combinaciones poderosas
 ```
 
-#### Unidad 4 (Usuarios) - 7.5 horas
+#### Unidad 4 (Usuarios) - 7.5 horas ✅ COMPLETADO
+
+**Implementado como Unidad 13** (`unidades/unidad13/`):
 
 ```
-1_usuarios_grupos.qmd (1.5h)
+1_usuarios_grupos.qmd (1.5h) ✅
   ├─ Conceptos UID, GID
   ├─ /etc/passwd structure
   ├─ /etc/shadow, /etc/group
   ├─ Root vs usuarios normales
 
-2_gestion_usuarios.qmd (2h)
-  ├─ useradd (opciones, home)
-  ├─ usermod (cambios)
-  ├─ userdel (con cuidado)
-  ├─ passwd, chfn, chsh
-  ├─ Casos de uso
-
-3_permisos_basicos.qmd (2h)
+2_permisos_chmod.qmd (2h) ✅
   ├─ rwx explicado (leído, escrito, ejecutado)
   ├─ Notación octal (755, 644, 777)
   ├─ chmod (formas de cambiar)
   ├─ chown, chgrp
   ├─ ls -l interpretación completa
 
-4_permisos_avanzados.qmd (1.5h)
-  ├─ ACL (Access Control Lists)
-  ├─ umask
-  ├─ SUID, SGID, sticky bit
-  ├─ Casos avanzados
-
-5_sudo_elevacion_privilegios.qmd (1.5h)
+3_sudo_administracion.qmd (1.5h) ✅
   ├─ Qué es sudo
   ├─ /etc/sudoers (visudo)
   ├─ Reglas sudo avanzadas
   ├─ Seguridad en escalación
+
+4_lab_practico_usuarios.qmd ✅
+  └─ Laboratorio práctico integrado
 ```
 
 #### Ejercicios Unidades 3-4 (3 horas)

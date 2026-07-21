@@ -53,7 +53,8 @@ Al completar el curso, los participantes podrán:
 | 6 | Almacenamiento y Sistemas de Archivos | 6 | 8-9 |
 | 7 | Redes y Seguridad | 6 | 9-10 |
 | 8 | Servicios Empresariales | 8 | 11-12 |
-| Proyectos | Prácticos Integrados | 12 | 13+ |
+| 13 | Usuarios, Grupos y Permisos | 6 | 13+ |
+| Proyectos | Prácticos Integrados | 12 | 14+ |
 
 ---
 

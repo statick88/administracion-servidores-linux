@@ -67,15 +67,15 @@ unidades/
 ---
 
 ### **UNIDAD 4: Gestión de Usuarios y Permisos**
-**Estado:** 0 de 5 archivos ❌ (NOTA: Docker es diferente tema)
+**Estado:** COMPLETADO ✅ (Implementado como Unidad 13)
 
-| Archivo | Descripción | Prioridad | Estimado |
-|---------|-------------|-----------|----------|
-| `1_usuarios_grupos.qmd` | Conceptos: UID, GID, /etc/passwd, /etc/shadow | CRÍTICA | 1.5h |
-| `2_gestion_usuarios.qmd` | useradd, usermod, userdel, passwd | CRÍTICA | 1.5h |
-| `3_permisos_basicos.qmd` | chmod, chown, permisos rwx (básicos) | CRÍTICA | 2h |
-| `4_permisos_avanzados.qmd` | ACL, umask, SUID, SGID, sticky bit, SELinux | MEDIA | 2h |
-| `5_sudo_elevacion_privilegios.qmd` | sudo, sudoers, escalación segura | MEDIA | 1.5h |
+| Archivo | Descripción | Estado |
+|---------|-------------|--------|
+| `unidades/unidad13/1_usuarios_grupos.qmd` | Conceptos: UID, GID, /etc/passwd, /etc/shadow | ✅ Creado |
+| `unidades/unidad13/2_permisos_chmod.qmd` | chmod, chown, permisos rwx | ✅ Creado |
+| `unidades/unidad13/3_sudo_administracion.qmd` | sudo, sudoers, escalación segura | ✅ Creado |
+| `unidades/unidad13/4_lab_practico_usuarios.qmd` | Laboratorio práctico | ✅ Creado |
+| `unidades/unidad13/99_recursos.qmd` | Recursos adicionales | ✅ Creado |
 
 ---
 
