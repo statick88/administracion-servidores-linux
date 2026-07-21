@@ -15,26 +15,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render Quarto
+        uses: quarto-dev/quarto-actions/render@v2
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs
 
-      - name: Write Pages Source marker
-        run: |
-          echo "pages source: /docs" > docs/.pages-source
-
+  deploy:
+    needs: build
+    runs-on: ubuntu-22.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
