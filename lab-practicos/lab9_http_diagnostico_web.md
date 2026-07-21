@@ -1,6 +1,6 @@
 # Laboratorio 6: HTTP Basico y Diagnostico Web
 
-**Unidad:** 8 - Introducción a Servidores Web  
+**Unidad:** IX - Introducción a Servidores Web  
 **Duración Estimada:** 60-90 minutos  
 **Dificultad:** Principiante-Intermedio
 
@@ -12,7 +12,7 @@
 
 ## Requisitos Previos
 
-- VM Ubuntu Server LTS (22.04 o 24.04) con acceso SSH
+- Entorno WSL2 Ubuntu 24.04 LTS con acceso SSH
 - Usuario con permisos sudo
 
 ## Pasos del Laboratorio

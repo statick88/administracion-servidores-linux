@@ -1,6 +1,6 @@
 # Laboratorio 2: Gestión de Usuarios y Permisos
 
-**Unidad:** 4 - Gestión de Usuarios y Permisos  
+**Unidad:** IV - Gestión de Usuarios y Permisos  
 **Duración Estimada:** 120 minutos  
 **Dificultad:** Intermedio
 
@@ -13,7 +13,7 @@
 
 ## Requisitos Previos
 
-- Ubuntu del Lab 1 corriendo
+- Lab 1 (WSL2) corriendo
 - Acceso SSH como "alumno"
 - Permisos sudo
 
@@ -129,9 +129,6 @@ sudo -u admin_abacom sudo whoami   # Debería mostrar "root"
 
 # Ver histórico de sudo
 sudo journalctl -u sudo -n 10
-
-# O más simple
-sudo grep COMMAND /var/log/auth.log | tail -5
 ```
 
 ### Paso 7: Cambiar Propietario y Grupo (15 min)

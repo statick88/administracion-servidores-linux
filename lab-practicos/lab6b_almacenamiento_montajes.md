@@ -1,6 +1,6 @@
 # Laboratorio 5: Almacenamiento (Particiones y Montajes)
 
-**Unidad:** 6 - Almacenamiento y Sistemas de Archivos  
+**Unidad:** VI - Almacenamiento y Sistemas de Archivos  
 **Duración Estimada:** 90-120 minutos  
 **Dificultad:** Intermedio
 
@@ -14,7 +14,7 @@
 
 ## Requisitos Previos
 
-- VM Ubuntu Server LTS (22.04 o 24.04) con acceso SSH
+- Entorno WSL2 Ubuntu 24.04 LTS con acceso SSH
 - Usuario con permisos sudo
 
 :::{.callout-warning}

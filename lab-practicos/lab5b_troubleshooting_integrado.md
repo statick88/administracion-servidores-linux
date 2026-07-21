@@ -1,6 +1,6 @@
 # Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)
 
-**Unidad:** 12 - Diagnóstico y Troubleshooting  
+**Unidad:** V - Diagnóstico y Troubleshooting  
 **Duración Estimada:** 120-180 minutos  
 **Dificultad:** Intermedio-Avanzado
 
@@ -12,7 +12,7 @@
 
 ## Requisitos Previos
 
-- VM Ubuntu Server LTS (22.04 o 24.04) con acceso SSH
+- Entorno WSL2 Ubuntu 24.04 LTS con acceso SSH
 - Usuario con permisos sudo
 - Haber completado al menos: Lab 0, Lab 1, Lab 4 y uno de (Lab 7/8/9)
 

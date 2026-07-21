@@ -1,6 +1,6 @@
 # Laboratorio 12: OpenCode + SSH - Administración Remota de Servidores
 
-**Unidad:** 7/12 - Redes y Seguridad, Troubleshooting  
+**Unidad:** Avanzado - Redes y Seguridad, Troubleshooting  
 **Duración Estimada:** 120-150 minutos  
 **Dificultad:** Intermedio-Avanzado
 
@@ -14,12 +14,12 @@
 
 ## Requisitos Previos
 
-- **Lab 4 completado:** Docker + Docker Compose v2 instalados
-- **Lab 4 (Redes):** SSH configurado y funcionando
+- **Lab 8 (Docker) completado:** Docker + Docker Compose v2 instalados
+- **Lab 6 (Redes):** SSH configurado y funcionando
 - **Anexo G:** OpenCode instalado (TUI o Desktop)
-- **2 VMs:** Una local (con OpenCode) y una remota (servidor objetivo)
-  - VM Local: Ubuntu Desktop o Server con GUI (para OpenCode Desktop opcional)
-  - VM Remota: Ubuntu Server LTS (22.04 o 24.04)
+- **host WSL2 local + caja remota/cloud:** local (con OpenCode) + remota (servidor objetivo)
+  - host WSL2 local: Ubuntu con OpenCode (TUI o Desktop)
+  - caja remota/cloud: Ubuntu Server LTS (22.04 o 24.04)
 
 :::{.callout-warning}
 ## ⚠️ ADVERTENCIA CRÍTICA
@@ -44,7 +44,7 @@ Vas a configurar acceso SSH entre máquinas.
 
 ```
 ┌─────────────────┐         SSH (Puerto 22)         ┌─────────────────┐
-│   VM Local      │◄────────────────────────────────►│  VM Remota      │
+│  host WSL2 local│◄────────────────────────────────►│  caja remota    │
 │   (OpenCode)    │      Clave SSH (autenticación)   │  (Servidor)     │
 │                 │                                  │                 │
 │  ┌───────────┐  │                                  │  ┌───────────┐  │
@@ -56,9 +56,9 @@ Vas a configurar acceso SSH entre máquinas.
 
 ---
 
-## Paso 0: Preparar las VMs (Ambas Máquinas)
+## Paso 0: Preparar los hosts (Ambos entornos)
 
-En **ambas VMs**, asegúrate de que SSH está instalado y funcionando:
+En **ambos hosts**, asegúrate de que SSH está instalado y funcionando:
 
 ```bash
 $ sudo apt update  # <1>
@@ -77,7 +77,7 @@ $ sudo systemctl status ssh --no-pager  # <3>
 
 ## Paso 1: Configurar Autenticación por Clave SSH
 
-### 1.1 En la VM Local: Generar par de claves
+### 1.1 En el host local: Generar par de claves
 
 ```bash
 $ ssh-keygen -t rsa -b 4096 -C "opencode-lab@abacom"  # <1>
@@ -94,12 +94,12 @@ Enter same passphrase again: [Press enter]
 **Nota:** En producción, siempre usa passphrase para proteger tu clave privada.
 :::
 
-### 1.2 Copiar la clave pública a la VM Remota
+### 1.2 Copiar la clave pública a la caja remota
 
 ```bash
-$ ssh-copy-id usuario@IP_VM_REMOTA  # <1>
+$ ssh-copy-id usuario@IP_CAJA_REMOTA  # <1>
 /usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s)
-usuario@192.168.1.100's password: [Ingresa el password de la VM remota]
+usuario@192.168.1.100's password: [Ingresa el password de la caja remota]
 Number of key(s) added: 1
 # <1>
 ```
@@ -109,7 +109,7 @@ Number of key(s) added: 1
 ### 1.3 Probar conexión SSH sin password
 
 ```bash
-$ ssh usuario@IP_VM_REMOTA  # <1>
+$ ssh usuario@IP_CAJA_REMOTA  # <1>
 # Deberías conectarte SIN pedir password
 $ exit  # <2>
 # <1>
@@ -162,7 +162,7 @@ $ cat > ~/.opencode/mcp/ssh-servers.json << 'EOF'
       "command": "npx",
       "args": ["-y", "mcp-server-ssh"],
       "env": {
-        "SSH_HOST": "IP_VM_REMOTA",
+        "SSH_HOST": "IP_CAJA_REMOTA",
         "SSH_USER": "usuario",
         "SSH_KEY_PATH": "~/.ssh/id_rsa",
         "SSH_PORT": "22"
@@ -177,7 +177,7 @@ EOF
 1. **mkdir -p** crea el directorio de configuración MCP
 
 :::{.callout-warning}
-**Importante:** Reemplaza `IP_VM_REMOTA` y `usuario` con los valores reales de tu setup.
+**Importante:** Reemplaza `IP_CAJA_REMOTA` y `usuario` con los valores reales de tu setup.
 :::
 
 ### 2.4 Verificar la configuración
