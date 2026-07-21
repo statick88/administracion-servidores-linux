@@ -2,15 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.9.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Diego Saavedra">
 <meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
 
-<title>Unidad 10.4: Hardening basico y headers – Administración de Servidores Linux</title>
+<title>Unidad 10.4: Hardening y Seguridad en Nginx – Administración de Servidores Linux</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -66,22 +69,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<link href="../../unidades/unidad10/99_recursos.html" rel="next">
+<link href="../../unidades/unidad10/5_lab_practico_nginx.html" rel="next">
 <link href="../../unidades/unidad10/3_ssl_certbot.html" rel="prev">
 <link href="../../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-61780a260fdcf47536a34fde95582725.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-68056a18e515a5789c5e26a7aeb7ac61.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-d475e4ab3b4fd243dd6ecd26d4f0399c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
@@ -292,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/4_hardening_headers.html"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/4_hardening_headers.html"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -638,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
- <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+ <span class="menu-text">Unidad 8: SSH y Acceso Remoto Seguro</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -646,7 +648,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  <a href="../../unidades/unidad8/1_ssh_fundamentos_keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Protocolo y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/2_ssh_tunnels.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH Tunnels: Port Forwarding y Proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/3_lab_practico_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Laboratorio Práctico</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -667,22 +679,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y Múltiples Sitios</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/5_lab_practico_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -703,22 +720,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -739,22 +761,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Acceso Remoto y Seguridad de Red</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/5_lab_practico_mariadb.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Laboratorio Práctico - MariaDB</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -775,7 +802,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -791,6 +818,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1194,12 +1226,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#unidad-10.4-hardening-basico-y-headers" id="toc-unidad-10.4-hardening-basico-y-headers" class="nav-link active" data-scroll-target="#unidad-10.4-hardening-basico-y-headers">Unidad 10.4: Hardening basico y headers</a>
+  <li><a href="#unidad-10.4-hardening-y-seguridad-en-nginx" id="toc-unidad-10.4-hardening-y-seguridad-en-nginx" class="nav-link active" data-scroll-target="#unidad-10.4-hardening-y-seguridad-en-nginx">Unidad 10.4: Hardening y Seguridad en Nginx</a>
   <ul class="collapse">
-  <li><a href="#introduccion" id="toc-introduccion" class="nav-link" data-scroll-target="#introduccion">Introduccion</a></li>
-  <li><a href="#objetivos-de-aprendizaje" id="toc-objetivos-de-aprendizaje" class="nav-link" data-scroll-target="#objetivos-de-aprendizaje">Objetivos de aprendizaje</a></li>
-  <li><a href="#headers-basicos-server-block" id="toc-headers-basicos-server-block" class="nav-link" data-scroll-target="#headers-basicos-server-block">Headers basicos (server block)</a></li>
-  <li><a href="#validar-sintaxis-y-recargar" id="toc-validar-sintaxis-y-recargar" class="nav-link" data-scroll-target="#validar-sintaxis-y-recargar">Validar sintaxis y recargar</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#hardening-básico" id="toc-hardening-básico" class="nav-link" data-scroll-target="#hardening-básico">Hardening Básico</a>
+  <ul class="collapse">
+  <li><a href="#ocultar-información-del-servidor" id="toc-ocultar-información-del-servidor" class="nav-link" data-scroll-target="#ocultar-información-del-servidor">1. Ocultar Información del Servidor</a></li>
+  <li><a href="#limitar-información-en-headers" id="toc-limitar-información-en-headers" class="nav-link" data-scroll-target="#limitar-información-en-headers">2. Limitar Información en Headers</a></li>
+  <li><a href="#protección-de-archivos" id="toc-protección-de-archivos" class="nav-link" data-scroll-target="#protección-de-archivos">3. Protección de Archivos</a></li>
+  </ul></li>
+  <li><a href="#security-headers" id="toc-security-headers" class="nav-link" data-scroll-target="#security-headers">Security Headers</a>
+  <ul class="collapse">
+  <li><a href="#headers-esenciales" id="toc-headers-esenciales" class="nav-link" data-scroll-target="#headers-esenciales">Headers Esenciales</a></li>
+  <li><a href="#incluir-en-server-block" id="toc-incluir-en-server-block" class="nav-link" data-scroll-target="#incluir-en-server-block">Incluir en Server Block</a></li>
+  <li><a href="#verificar-headers" id="toc-verificar-headers" class="nav-link" data-scroll-target="#verificar-headers">Verificar Headers</a></li>
+  <li><a href="#content-security-policy-csp" id="toc-content-security-policy-csp" class="nav-link" data-scroll-target="#content-security-policy-csp">Content Security Policy (CSP)</a></li>
+  </ul></li>
+  <li><a href="#rate-limiting" id="toc-rate-limiting" class="nav-link" data-scroll-target="#rate-limiting">Rate Limiting</a>
+  <ul class="collapse">
+  <li><a href="#configuración-básica" id="toc-configuración-básica" class="nav-link" data-scroll-target="#configuración-básica">Configuración Básica</a></li>
+  <li><a href="#aplicar-rate-limit" id="toc-aplicar-rate-limit" class="nav-link" data-scroll-target="#aplicar-rate-limit">Aplicar Rate Limit</a></li>
+  <li><a href="#rate-limit-con-whitelist" id="toc-rate-limit-con-whitelist" class="nav-link" data-scroll-target="#rate-limit-con-whitelist">Rate Limit con Whitelist</a></li>
+  <li><a href="#verificar-rate-limiting" id="toc-verificar-rate-limiting" class="nav-link" data-scroll-target="#verificar-rate-limiting">Verificar Rate Limiting</a></li>
+  </ul></li>
+  <li><a href="#conexiones-y-tiempo" id="toc-conexiones-y-tiempo" class="nav-link" data-scroll-target="#conexiones-y-tiempo">Conexiones y Tiempo</a>
+  <ul class="collapse">
+  <li><a href="#configuración-de-keep-alive" id="toc-configuración-de-keep-alive" class="nav-link" data-scroll-target="#configuración-de-keep-alive">Configuración de Keep-Alive</a></li>
+  <li><a href="#limits-de-conexiones" id="toc-limits-de-conexiones" class="nav-link" data-scroll-target="#limits-de-conexiones">Limits de Conexiones</a></li>
+  </ul></li>
+  <li><a href="#protección-de-backend" id="toc-protección-de-backend" class="nav-link" data-scroll-target="#protección-de-backend">Protección de Backend</a>
+  <ul class="collapse">
+  <li><a href="#proxy-con-autenticación" id="toc-proxy-con-autenticación" class="nav-link" data-scroll-target="#proxy-con-autenticación">Proxy con Autenticación</a></li>
+  <li><a href="#buffering-de-respuestas" id="toc-buffering-de-respuestas" class="nav-link" data-scroll-target="#buffering-de-respuestas">Buffering de Respuestas</a></li>
+  </ul></li>
+  <li><a href="#hardening-completo-de-producción" id="toc-hardening-completo-de-producción" class="nav-link" data-scroll-target="#hardening-completo-de-producción">Hardening Completo de Producción</a>
+  <ul class="collapse">
+  <li><a href="#configuración-completa" id="toc-configuración-completa" class="nav-link" data-scroll-target="#configuración-completa">Configuración Completa</a></li>
+  </ul></li>
+  <li><a href="#casos-de-estudio" id="toc-casos-de-estudio" class="nav-link" data-scroll-target="#casos-de-estudio">Casos de Estudio</a>
+  <ul class="collapse">
+  <li><a href="#caso-1-servidor-recibiendo-ataques" id="toc-caso-1-servidor-recibiendo-ataques" class="nav-link" data-scroll-target="#caso-1-servidor-recibiendo-ataques">Caso 1: Servidor Recibiendo Ataques</a></li>
+  <li><a href="#caso-2-headers-no-aparecen" id="toc-caso-2-headers-no-aparecen" class="nav-link" data-scroll-target="#caso-2-headers-no-aparecen">Caso 2: Headers No Aparecen</a></li>
+  <li><a href="#caso-3-upload-de-archivos-grande" id="toc-caso-3-upload-de-archivos-grande" class="nav-link" data-scroll-target="#caso-3-upload-de-archivos-grande">Caso 3: Upload de Archivos Grande</a></li>
+  </ul></li>
+  <li><a href="#checklist-de-seguridad-nginx" id="toc-checklist-de-seguridad-nginx" class="nav-link" data-scroll-target="#checklist-de-seguridad-nginx">Checklist de Seguridad Nginx</a></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">Resumen</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   <li>Code Appendix</li>
   </ul>
@@ -1209,10 +1281,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/4_hardening_headers.html"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/4_hardening_headers.html"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></h1>
-<p class="subtitle lead">Buenas practicas iniciales en Nginx</p>
+<h1 class="title"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></h1>
+<p class="subtitle lead">Headers, rate limiting y configuración segura</p>
 </div>
 
 
@@ -1229,7 +1301,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">Feb 2, 2026</p>
+      <p class="date">Mar 31, 2026</p>
     </div>
   </div>
   
@@ -1241,75 +1313,608 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="unidad-10.4-hardening-basico-y-headers" class="level1">
-<h1>Unidad 10.4: Hardening basico y headers</h1>
-<section id="introduccion" class="level2">
-<h2 class="anchored" data-anchor-id="introduccion">Introduccion</h2>
-<p>Una configuracion segura no es solo “tener HTTPS”. Tambien importa reducir informacion expuesta y agregar headers basicos.</p>
+<section id="unidad-10.4-hardening-y-seguridad-en-nginx" class="level1">
+<h1>Unidad 10.4: Hardening y Seguridad en Nginx</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>Hardening de Nginx significa: ocultar información del servidor, agregar headers de seguridad, configurar rate limiting, y proteger recursos sensibles.</p>
 </section>
-<section id="objetivos-de-aprendizaje" class="level2">
-<h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">Objetivos de aprendizaje</h2>
-<ul>
-<li>Agregar headers basicos de seguridad</li>
-<li>Validar con curl</li>
-</ul>
-<hr>
-</section>
-<section id="headers-basicos-server-block" class="level2">
-<h2 class="anchored" data-anchor-id="headers-basicos-server-block">Headers basicos (server block)</h2>
-<p>Ejemplo para un sitio en <code>/etc/nginx/sites-available/app.conf</code>.</p>
+<section id="hardening-básico" class="level2">
+<h2 class="anchored" data-anchor-id="hardening-básico">Hardening Básico</h2>
+<section id="ocultar-información-del-servidor" class="level3">
+<h3 class="anchored" data-anchor-id="ocultar-información-del-servidor">1. Ocultar Información del Servidor</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>NGINX</strong></pre>
 </div>
-<pre id="annotated-cell-1" class="nginx code-annotation-code" data-code-line-numbers=""><code>add_header X-Content-Type-Options "nosniff" always;
-add_header X-Frame-Options "SAMEORIGIN" always;
-add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+<pre id="annotated-cell-1" class="nginx code-annotation-code" data-code-line-numbers=""><code># En http block de nginx.conf
+server_tokens off;  # Ocultar versión de Nginx
+
+# En server block
+more_clear_headers Server;  # Ocultar header "Server" completamente
 </code></pre>
 </div>
 <dl>
 <dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="1,4" data-code-annotation="1"><strong>add_header … always</strong> agrega headers en respuestas, incluyendo errores.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="6" data-code-annotation="1"><strong>server_tokens off</strong>: Solo muestra “nginx” sin versión</span>
 </dd>
 </dl>
-<hr>
-</section>
-<section id="validar-sintaxis-y-recargar" class="level2">
-<h2 class="anchored" data-anchor-id="validar-sintaxis-y-recargar">Validar sintaxis y recargar</h2>
+<p><strong>Antes vs Después:</strong></p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nginx <span class="at">-t</span></span>
-<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nginx:</span> the configuration file /etc/nginx/nginx.conf syntax is ok</span>
-<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">nginx:</span> configuration file /etc/nginx/nginx.conf test is successful</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Antes</span></span>
+<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost <span class="kw">|</span> <span class="fu">grep</span> Server</span>
+<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> nginx/1.24.0 <span class="er">(</span><span class="ex">Ubuntu</span><span class="kw">)</span></span>
 <span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-6" class="code-annotation-target"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl reload nginx</span>
-<span id="annotated-cell-2-7"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-2-8"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-2-9" class="code-annotation-target"><a href="#annotated-cell-2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost <span class="kw">|</span> <span class="fu">sed</span> <span class="at">-n</span> <span class="st">'1,20p'</span></span>
-<span id="annotated-cell-2-10"><a href="#annotated-cell-2-10" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
-<span id="annotated-cell-2-11"><a href="#annotated-cell-2-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> nginx</span>
-<span id="annotated-cell-2-12"><a href="#annotated-cell-2-12" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Content-Type-Options:</span> nosniff</span>
-<span id="annotated-cell-2-13"><a href="#annotated-cell-2-13" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Frame-Options:</span> SAMEORIGIN</span>
-<span id="annotated-cell-2-14"><a href="#annotated-cell-2-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Referrer-Policy:</span> strict-origin-when-cross-origin</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Después</span></span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost <span class="kw">|</span> <span class="fu">grep</span> Server</span>
+<span id="annotated-cell-2-7"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> nginx</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<dl class="code-annotation-container-grid">
+<dl>
 <dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="1,4" data-code-annotation="1"><strong>nginx -t</strong> valida la configuracion.</span>
-</dd>
-<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="6,7" data-code-annotation="2"><strong>systemctl reload nginx</strong> aplica cambios.</span>
-</dd>
-<dt data-target-cell="annotated-cell-2" data-target-annotation="3">3</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="9,15" data-code-annotation="3"><strong>curl -I</strong> verifica headers.</span>
+<span data-code-cell="annotated-cell-2" data-code-lines="8" data-code-annotation="1"><strong>ServerTokens</strong>: Ahora solo dice “nginx”</span>
 </dd>
 </dl>
+</section>
+<section id="limitar-información-en-headers" class="level3">
+<h3 class="anchored" data-anchor-id="limitar-información-en-headers">2. Limitar Información en Headers</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># En nginx.conf - http block
+client_max_body_size 10M;        # Máximo tamaño de request
+client_body_timeout 60s;          # Timeout de body
+client_header_buffer_size 1k;    # Buffer de headers
+large_client_header_buffers 4 16k;  # Headers grandes</code></pre>
+</div>
+</section>
+<section id="protección-de-archivos" class="level3">
+<h3 class="anchored" data-anchor-id="protección-de-archivos">3. Protección de Archivos</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># Bloquear archivos sensibles
+location ~ /\. {
+    deny all;
+    access_log off;
+    log_not_found off;
+}
+
+# Archivos específicos
+location ~* \.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$ {
+    deny all;
+}</code></pre>
+</div>
+</section>
+</section>
+<section id="security-headers" class="level2">
+<h2 class="anchored" data-anchor-id="security-headers">Security Headers</h2>
+<section id="headers-esenciales" class="level3">
+<h3 class="anchored" data-anchor-id="headers-esenciales">Headers Esenciales</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/snippets/security-headers.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="st"># X-Content-Type-Options</span></span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="st">add_header X-Content-Type-Options "nosniff" always;</span></span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="st"># X-Frame-Options</span></span>
+<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a><span class="st">add_header X-Frame-Options "SAMEORIGIN" always;</span></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-8"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="st"># Referrer-Policy</span></span>
+<span id="annotated-cell-5-9"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a><span class="st">add_header Referrer-Policy "strict-origin-when-cross-origin" always;</span></span>
+<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-11"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a><span class="st"># X-XSS-Protection</span></span>
+<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a><span class="st">add_header X-XSS-Protection "1; mode=block" always;</span></span>
+<span id="annotated-cell-5-13"><a href="#annotated-cell-5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-14"><a href="#annotated-cell-5-14" aria-hidden="true" tabindex="-1"></a><span class="st"># Permissions-Policy</span></span>
+<span id="annotated-cell-5-15"><a href="#annotated-cell-5-15" aria-hidden="true" tabindex="-1"></a><span class="st">add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;</span></span>
+<span id="annotated-cell-5-16"><a href="#annotated-cell-5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-17"><a href="#annotated-cell-5-17" aria-hidden="true" tabindex="-1"></a><span class="st"># Strict-Transport-Security (solo con SSL)</span></span>
+<span id="annotated-cell-5-18"><a href="#annotated-cell-5-18" aria-hidden="true" tabindex="-1"></a><span class="st">add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;</span></span>
+<span id="annotated-cell-5-19"><a href="#annotated-cell-5-19" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="20" data-code-annotation="1"><strong>Security headers</strong>: Los 6 esenciales</span>
+</dd>
+</dl>
+</section>
+<section id="incluir-en-server-block" class="level3">
+<h3 class="anchored" data-anchor-id="incluir-en-server-block">Incluir en Server Block</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code>server {
+    listen 80;
+    server_name example.com;
+    
+    # Security headers (solo funciona con SSL para HSTS)
+    include /etc/nginx/snippets/security-headers.conf;
+    
+    # Resto de configuración...
+}</code></pre>
+</div>
+</section>
+<section id="verificar-headers" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-headers">Verificar Headers</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-7-1"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver todos los headers</span></span>
+<span id="annotated-cell-7-2"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
+<span id="annotated-cell-7-3"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
+<span id="annotated-cell-7-4"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> nginx</span>
+<span id="annotated-cell-7-5"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Content-Type-Options:</span> nosniff</span>
+<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Frame-Options:</span> SAMEORIGIN</span>
+<span id="annotated-cell-7-7"><a href="#annotated-cell-7-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Referrer-Policy:</span> strict-origin-when-cross-origin</span>
+<span id="annotated-cell-7-8"><a href="#annotated-cell-7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">X-XSS-Protection:</span> 1<span class="kw">;</span> <span class="va">mode</span><span class="op">=</span>block</span>
+<span id="annotated-cell-7-9"><a href="#annotated-cell-7-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Permissions-Policy:</span> geolocation=<span class="er">(</span><span class="kw">)</span><span class="ex">,</span> microphone=<span class="er">(</span><span class="kw">)</span><span class="ex">,</span> camera=<span class="er">(</span><span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="10" data-code-annotation="1"><strong>Todos los headers</strong>: Verificar presencia</span>
+</dd>
+</dl>
+</section>
+<section id="content-security-policy-csp" class="level3">
+<h3 class="anchored" data-anchor-id="content-security-policy-csp">Content Security Policy (CSP)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CSP restrictiva - ajustar según aplicación</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/snippets/csp.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st"># Basic CSP</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;" always;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># CSP más permisiva (para desarrollo)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">add_header</span> Content-Security-Policy <span class="st">"default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: *; connect-src 'self' https: wss:;"</span> always<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="rate-limiting" class="level2">
+<h2 class="anchored" data-anchor-id="rate-limiting">Rate Limiting</h2>
+<section id="configuración-básica" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-básica">Configuración Básica</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># En http block
+http {
+    # Definir zone de rate limiting
+    limit_req_zone $binary_remote_addr zone=general:10M rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=api:10M rate=100r/s;
+}</code></pre>
+</div>
+</section>
+<section id="aplicar-rate-limit" class="level3">
+<h3 class="anchored" data-anchor-id="aplicar-rate-limit">Aplicar Rate Limit</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># Rate limit general (10 req/segundo, burst de 20)
+location / {
+    limit_req zone=general burst=20 nodelay;
+}
+
+# Rate limit para API (100 req/segundo)
+location /api/ {
+    limit_req zone=api burst=50 nodelay;
+}</code></pre>
+</div>
+</section>
+<section id="rate-limit-con-whitelist" class="level3">
+<h3 class="anchored" data-anchor-id="rate-limit-con-whitelist">Rate Limit con Whitelist</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Excluir IPs conocidas</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">http</span> {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">geo</span> <span class="va">$limited</span> {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="ex">default</span> 1<span class="kw">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="ex">10.0.0.0/8</span> 0<span class="kw">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="ex">172.16.0.0/12</span> 0<span class="kw">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="ex">192.168.0.0/16</span> 0<span class="kw">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="er">}</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">limit_req_zone</span> <span class="va">$limited</span> zone=general:10M rate=10r/s<span class="kw">;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="verificar-rate-limiting" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-rate-limiting">Verificar Rate Limiting</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test con curl rápido</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> for i in <span class="dt">{</span><span class="dv">1</span><span class="dt">..</span><span class="dv">15</span><span class="dt">}</span><span class="kw">;</span> <span class="cf">do</span> <span class="ex">curl</span> <span class="at">-s</span> <span class="at">-o</span> /dev/null <span class="at">-w</span> <span class="st">"%{http_code}\n"</span> http://localhost/api/<span class="kw">;</span> <span class="cf">done</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver logs de rate limit</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail /var/log/nginx/error.log</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="ex">2026/03/31</span> 10:15:00 <span class="pp">[</span><span class="ss">warn</span><span class="pp">]</span> 1234#1234: <span class="pp">*</span>1001 limiting connections by zone <span class="st">"general"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="conexiones-y-tiempo" class="level2">
+<h2 class="anchored" data-anchor-id="conexiones-y-tiempo">Conexiones y Tiempo</h2>
+<section id="configuración-de-keep-alive" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-de-keep-alive">Configuración de Keep-Alive</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># En http block
+keepalive_timeout 65;
+keepalive_requests 100;
+
+# En server block
+keepalive_timeout 30s;
+keepalive_requests 50;</code></pre>
+</div>
+</section>
+<section id="limits-de-conexiones" class="level3">
+<h3 class="anchored" data-anchor-id="limits-de-conexiones">Limits de Conexiones</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># Limitar conexiones por IP
+limit_conn_zone $binary_remote_addr zone=addr:10M;
+
+server {
+    location / {
+        # Máximo 10 conexiones por IP
+        limit_conn addr 10;
+    }
+}</code></pre>
+</div>
+</section>
+</section>
+<section id="protección-de-backend" class="level2">
+<h2 class="anchored" data-anchor-id="protección-de-backend">Protección de Backend</h2>
+<section id="proxy-con-autenticación" class="level3">
+<h3 class="anchored" data-anchor-id="proxy-con-autenticación">Proxy con Autenticación</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># Autenticación básica al backend
+location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Authorization $http_authorization;
+    
+    # Solo permitir IPs conocidas
+    allow 10.0.0.0/8;
+    allow 172.16.0.0/12;
+    allow 192.168.0.0/16;
+    deny all;
+}</code></pre>
+</div>
+</section>
+<section id="buffering-de-respuestas" class="level3">
+<h3 class="anchored" data-anchor-id="buffering-de-respuestas">Buffering de Respuestas</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># Configuración de buffering
+proxy_buffering on;
+proxy_buffer_size 4k;
+proxy_buffers 8 4k;
+proxy_busy_buffers_size 8k;
+proxy_max_temp_file_size 1024m;</code></pre>
+</div>
+</section>
+</section>
+<section id="hardening-completo-de-producción" class="level2">
+<h2 class="anchored" data-anchor-id="hardening-completo-de-producción">Hardening Completo de Producción</h2>
+<section id="configuración-completa" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-completa">Configuración Completa</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-17-1"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/sites-available/production-secure.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-17-2"><a href="#annotated-cell-17-2" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-17-3"><a href="#annotated-cell-17-3" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 80;</span></span>
+<span id="annotated-cell-17-4"><a href="#annotated-cell-17-4" aria-hidden="true" tabindex="-1"></a><span class="st">    listen [::]:80;</span></span>
+<span id="annotated-cell-17-5"><a href="#annotated-cell-17-5" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name example.com www.example.com;</span></span>
+<span id="annotated-cell-17-6"><a href="#annotated-cell-17-6" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-7"><a href="#annotated-cell-17-7" aria-hidden="true" tabindex="-1"></a><span class="st">    # Security headers (no SSL aún)</span></span>
+<span id="annotated-cell-17-8"><a href="#annotated-cell-17-8" aria-hidden="true" tabindex="-1"></a><span class="st">    include /etc/nginx/snippets/security-headers.conf;</span></span>
+<span id="annotated-cell-17-9"><a href="#annotated-cell-17-9" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-10"><a href="#annotated-cell-17-10" aria-hidden="true" tabindex="-1"></a><span class="st">    # Rate limiting</span></span>
+<span id="annotated-cell-17-11"><a href="#annotated-cell-17-11" aria-hidden="true" tabindex="-1"></a><span class="st">    limit_req zone=general burst=20 nodelay;</span></span>
+<span id="annotated-cell-17-12"><a href="#annotated-cell-17-12" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-13"><a href="#annotated-cell-17-13" aria-hidden="true" tabindex="-1"></a><span class="st">    root /var/www/example.com/public;</span></span>
+<span id="annotated-cell-17-14"><a href="#annotated-cell-17-14" aria-hidden="true" tabindex="-1"></a><span class="st">    index index.html index.htm;</span></span>
+<span id="annotated-cell-17-15"><a href="#annotated-cell-17-15" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-16"><a href="#annotated-cell-17-16" aria-hidden="true" tabindex="-1"></a><span class="st">    # Proteger archivos</span></span>
+<span id="annotated-cell-17-17"><a href="#annotated-cell-17-17" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~ /\. {</span></span>
+<span id="annotated-cell-17-18"><a href="#annotated-cell-17-18" aria-hidden="true" tabindex="-1"></a><span class="st">        deny all;</span></span>
+<span id="annotated-cell-17-19"><a href="#annotated-cell-17-19" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-17-20"><a href="#annotated-cell-17-20" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-21"><a href="#annotated-cell-17-21" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~* \.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$ {</span></span>
+<span id="annotated-cell-17-22"><a href="#annotated-cell-17-22" aria-hidden="true" tabindex="-1"></a><span class="st">        deny all;</span></span>
+<span id="annotated-cell-17-23"><a href="#annotated-cell-17-23" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-17-24"><a href="#annotated-cell-17-24" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-25"><a href="#annotated-cell-17-25" aria-hidden="true" tabindex="-1"></a><span class="st">    # Static files con cache</span></span>
+<span id="annotated-cell-17-26"><a href="#annotated-cell-17-26" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg)$ {</span></span>
+<span id="annotated-cell-17-27"><a href="#annotated-cell-17-27" aria-hidden="true" tabindex="-1"></a><span class="st">        expires 30d;</span></span>
+<span id="annotated-cell-17-28"><a href="#annotated-cell-17-28" aria-hidden="true" tabindex="-1"></a><span class="st">        add_header Cache-Control "public, immutable";</span></span>
+<span id="annotated-cell-17-29"><a href="#annotated-cell-17-29" aria-hidden="true" tabindex="-1"></a><span class="st">        access_log off;</span></span>
+<span id="annotated-cell-17-30"><a href="#annotated-cell-17-30" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-17-31"><a href="#annotated-cell-17-31" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-32"><a href="#annotated-cell-17-32" aria-hidden="true" tabindex="-1"></a><span class="st">    # Logs</span></span>
+<span id="annotated-cell-17-33"><a href="#annotated-cell-17-33" aria-hidden="true" tabindex="-1"></a><span class="st">    access_log /var/log/nginx/example.com-access.log;</span></span>
+<span id="annotated-cell-17-34"><a href="#annotated-cell-17-34" aria-hidden="true" tabindex="-1"></a><span class="st">    error_log /var/log/nginx/example.com-error.log;</span></span>
+<span id="annotated-cell-17-35"><a href="#annotated-cell-17-35" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-17-36"><a href="#annotated-cell-17-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-37"><a href="#annotated-cell-17-37" aria-hidden="true" tabindex="-1"></a><span class="st"># HTTPS server block</span></span>
+<span id="annotated-cell-17-38"><a href="#annotated-cell-17-38" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-17-39"><a href="#annotated-cell-17-39" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 443 ssl http2;</span></span>
+<span id="annotated-cell-17-40"><a href="#annotated-cell-17-40" aria-hidden="true" tabindex="-1"></a><span class="st">    listen [::]:443 ssl http2;</span></span>
+<span id="annotated-cell-17-41"><a href="#annotated-cell-17-41" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name example.com www.example.com;</span></span>
+<span id="annotated-cell-17-42"><a href="#annotated-cell-17-42" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-43"><a href="#annotated-cell-17-43" aria-hidden="true" tabindex="-1"></a><span class="st">    # SSL</span></span>
+<span id="annotated-cell-17-44"><a href="#annotated-cell-17-44" aria-hidden="true" tabindex="-1"></a><span class="st">    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;</span></span>
+<span id="annotated-cell-17-45"><a href="#annotated-cell-17-45" aria-hidden="true" tabindex="-1"></a><span class="st">    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;</span></span>
+<span id="annotated-cell-17-46"><a href="#annotated-cell-17-46" aria-hidden="true" tabindex="-1"></a><span class="st">    include /etc/letsencrypt/options-ssl-nginx.conf;</span></span>
+<span id="annotated-cell-17-47"><a href="#annotated-cell-17-47" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-48"><a href="#annotated-cell-17-48" aria-hidden="true" tabindex="-1"></a><span class="st">    # Security headers con HSTS</span></span>
+<span id="annotated-cell-17-49"><a href="#annotated-cell-17-49" aria-hidden="true" tabindex="-1"></a><span class="st">    include /etc/nginx/snippets/security-headers.conf;</span></span>
+<span id="annotated-cell-17-50"><a href="#annotated-cell-17-50" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-51"><a href="#annotated-cell-17-51" aria-hidden="true" tabindex="-1"></a><span class="st">    # Rate limiting</span></span>
+<span id="annotated-cell-17-52"><a href="#annotated-cell-17-52" aria-hidden="true" tabindex="-1"></a><span class="st">    limit_req zone=general burst=20 nodelay;</span></span>
+<span id="annotated-cell-17-53"><a href="#annotated-cell-17-53" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-54"><a href="#annotated-cell-17-54" aria-hidden="true" tabindex="-1"></a><span class="st">    root /var/www/example.com/public;</span></span>
+<span id="annotated-cell-17-55"><a href="#annotated-cell-17-55" aria-hidden="true" tabindex="-1"></a><span class="st">    index index.html index.htm;</span></span>
+<span id="annotated-cell-17-56"><a href="#annotated-cell-17-56" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-57"><a href="#annotated-cell-17-57" aria-hidden="true" tabindex="-1"></a><span class="st">    # Proteger archivos</span></span>
+<span id="annotated-cell-17-58"><a href="#annotated-cell-17-58" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~ /\. {</span></span>
+<span id="annotated-cell-17-59"><a href="#annotated-cell-17-59" aria-hidden="true" tabindex="-1"></a><span class="st">        deny all;</span></span>
+<span id="annotated-cell-17-60"><a href="#annotated-cell-17-60" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-17-61"><a href="#annotated-cell-17-61" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-62"><a href="#annotated-cell-17-62" aria-hidden="true" tabindex="-1"></a><span class="st">    # PHP processing</span></span>
+<span id="annotated-cell-17-63"><a href="#annotated-cell-17-63" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~ \.php$ {</span></span>
+<span id="annotated-cell-17-64"><a href="#annotated-cell-17-64" aria-hidden="true" tabindex="-1"></a><span class="st">        deny all;</span></span>
+<span id="annotated-cell-17-65"><a href="#annotated-cell-17-65" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-17-66"><a href="#annotated-cell-17-66" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-67"><a href="#annotated-cell-17-67" aria-hidden="true" tabindex="-1"></a><span class="st">    # Logs</span></span>
+<span id="annotated-cell-17-68"><a href="#annotated-cell-17-68" aria-hidden="true" tabindex="-1"></a><span class="st">    access_log /var/log/nginx/example.com-ssl-access.log;</span></span>
+<span id="annotated-cell-17-69"><a href="#annotated-cell-17-69" aria-hidden="true" tabindex="-1"></a><span class="st">    error_log /var/log/nginx/example.com-ssl-error.log;</span></span>
+<span id="annotated-cell-17-70"><a href="#annotated-cell-17-70" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-17-71"><a href="#annotated-cell-17-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-72"><a href="#annotated-cell-17-72" aria-hidden="true" tabindex="-1"></a><span class="st"># Redirect HTTP to HTTPS</span></span>
+<span id="annotated-cell-17-73"><a href="#annotated-cell-17-73" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-17-74"><a href="#annotated-cell-17-74" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 80;</span></span>
+<span id="annotated-cell-17-75"><a href="#annotated-cell-17-75" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name example.com www.example.com;</span></span>
+<span id="annotated-cell-17-76"><a href="#annotated-cell-17-76" aria-hidden="true" tabindex="-1"></a><span class="st">    return 301 https://$server_name$request_uri;</span></span>
+<span id="annotated-cell-17-77"><a href="#annotated-cell-17-77" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-17-78"><a href="#annotated-cell-17-78" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-17" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="79" data-code-annotation="1"><strong>Configuración producción</strong>: HTTP/HTTPS, rate limit, security headers</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="casos-de-estudio" class="level2">
+<h2 class="anchored" data-anchor-id="casos-de-estudio">Casos de Estudio</h2>
+<section id="caso-1-servidor-recibiendo-ataques" class="level3">
+<h3 class="anchored" data-anchor-id="caso-1-servidor-recibiendo-ataques">Caso 1: Servidor Recibiendo Ataques</h3>
+<p><strong>Síntomas</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-18" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-18-1"><a href="#annotated-cell-18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Miles de requests desde una IP</span></span>
+<span id="annotated-cell-18-2"><a href="#annotated-cell-18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail /var/log/nginx/access.log <span class="kw">|</span> <span class="fu">awk</span> <span class="st">'{print $1}'</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="at">-c</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-nr</span> <span class="kw">|</span> <span class="fu">head</span></span>
+<span id="annotated-cell-18-3"><a href="#annotated-cell-18-3" aria-hidden="true" tabindex="-1"></a>   <span class="ex">5000</span> 45.155.205.233</span>
+<span id="annotated-cell-18-4"><a href="#annotated-cell-18-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">500</span> 10.0.0.50</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-19" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Rate limiting</span></span>
+<span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nginx <span class="at">-t</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload nginx</span>
+<span id="annotated-cell-19-3"><a href="#annotated-cell-19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-4"><a href="#annotated-cell-19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Bloquear IP específica</span></span>
+<span id="annotated-cell-19-5"><a href="#annotated-cell-19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw insert 1 deny from 45.155.205.233</span>
+<span id="annotated-cell-19-6"><a href="#annotated-cell-19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-7"><a href="#annotated-cell-19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Verificar</span></span>
+<span id="annotated-cell-19-8"><a href="#annotated-cell-19-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail /var/log/nginx/error.log</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+</dl>
+</section>
+<section id="caso-2-headers-no-aparecen" class="level3">
+<h3 class="anchored" data-anchor-id="caso-2-headers-no-aparecen">Caso 2: Headers No Aparecen</h3>
+<p><strong>Problema</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-20" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-20-1"><a href="#annotated-cell-20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> X-Frame</span>
+<span id="annotated-cell-20-2"><a href="#annotated-cell-20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (sin output = headers no aplicados)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Diagnóstico</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-21" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-21-1"><a href="#annotated-cell-21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver si el include está en la configuración</span></span>
+<span id="annotated-cell-21-2"><a href="#annotated-cell-21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> grep <span class="at">-r</span> <span class="st">"security-headers"</span> /etc/nginx/</span>
+<span id="annotated-cell-21-3"><a href="#annotated-cell-21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-21-4"><a href="#annotated-cell-21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar sintaxis</span></span>
+<span id="annotated-cell-21-5"><a href="#annotated-cell-21-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nginx <span class="at">-t</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+</dl>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar que el archivo existe</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-la</span> /etc/nginx/snippets/security-headers.conf</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Agregar manualmente al server block</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">location</span> / {</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">add_header</span> X-Frame-Options <span class="st">"SAMEORIGIN"</span> always<span class="kw">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="caso-3-upload-de-archivos-grande" class="level3">
+<h3 class="anchored" data-anchor-id="caso-3-upload-de-archivos-grande">Caso 3: Upload de Archivos Grande</h3>
+<p><strong>Problema</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-23" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-23-1"><a href="#annotated-cell-23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> POST <span class="at">-F</span> <span class="st">"file=@large.zip"</span> https://example.com/upload</span>
+<span id="annotated-cell-23-2"><a href="#annotated-cell-23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">413</span> Request Entity Too Large</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># Aumentar límite
+client_max_body_size 100M;
+proxy_buffering off;
+
+location /upload {
+    client_max_body_size 100M;
+}</code></pre>
+</div>
+<ol type="1">
+<li><strong>413</strong>: Body muy grande</li>
+</ol>
+</section>
+</section>
+<section id="checklist-de-seguridad-nginx" class="level2">
+<h2 class="anchored" data-anchor-id="checklist-de-seguridad-nginx">Checklist de Seguridad Nginx</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Configuración</th>
+<th>Valor</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>server_tokens</td>
+<td>off</td>
+<td>⏳</td>
+</tr>
+<tr class="even">
+<td>X-Frame-Options</td>
+<td>SAMEORIGIN</td>
+<td>⏳</td>
+</tr>
+<tr class="odd">
+<td>X-Content-Type-Options</td>
+<td>nosniff</td>
+<td>⏳</td>
+</tr>
+<tr class="even">
+<td>Referrer-Policy</td>
+<td>strict-origin-when-cross-origin</td>
+<td>⏳</td>
+</tr>
+<tr class="odd">
+<td>HSTS</td>
+<td>max-age=63072000</td>
+<td>⏳</td>
+</tr>
+<tr class="even">
+<td>Rate Limit</td>
+<td>10-100 rps</td>
+<td>⏳</td>
+</tr>
+<tr class="odd">
+<td>client_max_body_size</td>
+<td>10M</td>
+<td>⏳</td>
+</tr>
+<tr class="even">
+<td>SSL Protocols</td>
+<td>TLSv1.2+</td>
+<td>⏳</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">Resumen</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Tema</th>
+<th>Comando Clave</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Server Tokens</td>
+<td><code>server_tokens off</code></td>
+<td>Ocultar versión</td>
+</tr>
+<tr class="even">
+<td>Headers</td>
+<td><code>add_header X-*</code></td>
+<td>Seguridad HTTP</td>
+</tr>
+<tr class="odd">
+<td>Rate Limit</td>
+<td><code>limit_req_zone</code></td>
+<td>Prevenir DoS</td>
+</tr>
+<tr class="even">
+<td>Files</td>
+<td><code>deny all</code></td>
+<td>Bloquear acceso</td>
+</tr>
+<tr class="odd">
+<td>SSL</td>
+<td><code>ssl_protocols TLSv1.2 TLSv1.3</code></td>
+<td>TLS seguro</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
+<ul>
+<li><a href="https://nginx.org/en/docs/http/ngx_http_headers_module.html">Nginx Security Headers</a></li>
+<li><a href="https://nginx.org/en/docs/http/ngx_http_limit_req_module.html">Nginx Rate Limiting</a></li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Security_Headers_Cheat_Sheet.html">OWASP Security Headers</a></li>
+</ul>
 
 
 </section>
@@ -1741,13 +2346,13 @@ add_header Referrer-Policy "strict-origin-when-cross-origin" always;
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../../unidades/unidad10/3_ssl_certbot.html" class="pagination-link" aria-label="Unidad 10.3: SSL con Certbot">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></span>
+      <a href="../../unidades/unidad10/3_ssl_certbot.html" class="pagination-link" aria-label="Unidad 10.3: SSL/TLS con Certbot">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../unidades/unidad10/99_recursos.html" class="pagination-link" aria-label="Unidad 10: Recursos">
-        <span class="nav-page-text"><span class="chapter-title">Unidad 10: Recursos</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="pagination-link" aria-label="Unidad 10: Laboratorio Práctico - Nginx en Producción">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

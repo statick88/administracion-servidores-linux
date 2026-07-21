@@ -1,88 +1,421 @@
 ---
-title: "Unidad 10.2: Reverse proxy"
-subtitle: "Nginx como puerta de entrada a tu aplicacion"
+title: "Unidad 10.2: Reverse Proxy y Balanceo de Carga"
+subtitle: "Nginx como gateway para aplicaciones backend"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 10.2: Reverse proxy
+# Unidad 10.2: Reverse Proxy y Balanceo de Carga
 
-## Introduccion
+## Introducción
 
-Un reverse proxy recibe trafico HTTP/HTTPS y lo reenvia a un servicio interno (por ejemplo, una app escuchando en `127.0.0.1:3000`).
+Un reverse proxy es la puerta de entrada estándar en arquitecturas modernas. Nginx recibe las solicitudes y las distribuye a los backend, permitiendo SSL termination, caching, logging centralizado, y balanceo de carga.
 
-## Objetivos de aprendizaje
+## Concepto de Reverse Proxy
 
-- Configurar un server block simple
-- Proxyear a un backend local
-- Validar con curl y logs
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 REVERSE PROXY EN ACCIÓN                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   CLIENTE                 NGINX                   BACKENDS     │
+│  ┌────────┐            ┌──────────┐           ┌──────────┐    │
+│  │        │  HTTPS :443 │          │  HTTP :3000│ Node.js  │    │
+│  │ Navegador│ ────────> │ Nginx    │ ─────────> │ App      │    │
+│  │         │            │ (proxy)  │           │          │    │
+│  └────────┘            └──────────┘           └──────────┘    │
+│                                                                  │
+│   + SSL Termination          + Logs centralizados               │
+│   + Load Balancing            + Cache de respuestas              │
+│   + WAF básico               + Alta disponibilidad             │
+└─────────────────────────────────────────────────────────────────┘
+```
 
----
+## Configuración de Reverse Proxy
 
-## Crear un server block (sitio)
-
-Este ejemplo proxy a `http://127.0.0.1:3000`.
+### Proxy Básico
 
 ```bash
-$ sudo tee /etc/nginx/sites-available/app.conf >/dev/null <<'EOF'  # <1>
+$ sudo tee /etc/nginx/sites-available/backend-proxy.conf <<'EOF'
 server {
-  listen 80;
-  server_name app.local;
+    listen 80;
+    server_name api.example.com;
 
-  location / {
+    location / {
+        # Proxy al backend
+        proxy_pass http://127.0.0.1:3000;
+        
+        # Headers esenciales
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+}
+EOF
+
+$ sudo ln -sf /etc/nginx/sites-available/backend-proxy.conf /etc/nginx/sites-enabled/
+$ sudo nginx -t && sudo systemctl reload nginx
+# <1>
+```
+
+1. **Proxy completo**: Headers, timeouts, reescritura de headers
+
+### Verificar Funcionamiento
+
+```bash
+# Backend corriendo
+$ curl http://127.0.0.1:3000
+{"status": "ok", "version": "1.0.0"}
+
+# A través de Nginx
+$ curl -H 'Host: api.example.com' http://127.0.0.1
+{"status": "ok", "version": "1.0.0"}
+
+# Ver headers
+$ curl -I -H 'Host: api.example.com' http://127.0.0.1 | grep -i proxy
+X-Real-IP: 127.0.0.1
+X-Forwarded-For: 127.0.0.1
+```
+
+### Headers de Proxy Explicados
+
+| Header | Descripción |
+|--------|-------------|
+| `Host` | Host original de la request |
+| `X-Real-IP` | IP real del cliente |
+| `X-Forwarded-For` | IP original (para proxys múltiples) |
+| `X-Forwarded-Proto` | Protocolo original (http/https) |
+| `X-Forwarded-Host` | Host original |
+
+## Balanceo de Carga
+
+### Upstream Basic
+
+```bash
+$ sudo tee /etc/nginx/sites-available/loadbalancer.conf <<'EOF'
+# Definir upstream (backend servers)
+upstream api_backend {
+    # Round robin (default)
+    server 10.0.1.11:3000;
+    server 10.0.1.12:3000;
+    server 10.0.1.13:3000;
+}
+
+server {
+    listen 80;
+    server_name api.example.com;
+
+    location / {
+        proxy_pass http://api_backend;
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+# <1>
+```
+
+1. **Upstream**: Define grupo de backends
+
+### Algoritmos de Balanceo
+
+```bash
+# IP Hash (sticky sessions)
+upstream api_backend {
+    ip_hash;
+    server 10.0.1.11:3000;
+    server 10.0.1.12:3000;
+    server 10.0.1.13:3000;
+}
+
+# Least Connections
+upstream api_backend {
+    least_conn;
+    server 10.0.1.11:3000;
+    server 10.0.1.12:3000;
+    server 10.0.1.13:3000;
+}
+
+# Weighted (capacidad diferente)
+upstream api_backend {
+    server 10.0.1.11:3000 weight=5;  # 50%
+    server 10.0.1.12:3000 weight=3;  # 30%
+    server 10.0.1.13:3000 weight=2;  # 20%
+}
+```
+
+### Health Checks y Backup
+
+```bash
+upstream api_backend {
+    server 10.0.1.11:3000 max_fails=3 fail_timeout=30s;
+    server 10.0.1.12:3000 max_fails=3 fail_timeout=30s;
+    server 10.0.1.13:3000 backup;  # Solo si otros fallan
+    server 10.0.1.14:3000 down;   # Deshabilitado
+}
+```
+
+- **max_fails**: Intentos fallidos antes de marcar down
+- **fail_timeout**: Tiempo antes de reintentar
+- **backup**: Usa solo si otros fallan
+- **down**: Deshabilitado temporalmente
+
+## Proxy a Different Backends
+
+### Node.js
+
+```bash
+location / {
     proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+```
+
+### PHP-FPM
+
+```bash
+location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+}
+```
+
+### Python (Gunicorn/uvicorn)
+
+```bash
+location / {
+    proxy_pass http://127.0.0.1:8000;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-  }
+    
+    # WebSocket support
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
 }
-EOF
-# <1>
-
-$ sudo ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/app.conf  # <2>
-# <2>
-
-$ sudo nginx -t  # <3>
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-# <3>
-
-$ sudo systemctl reload nginx  # <4>
-# <4>
 ```
 
-
-
-1. **tee + heredoc** crea el server block.
-2. **ln -sf** habilita el sitio (symlink a sites-enabled).
-3. **nginx -t** valida sintaxis y configuracion.
-4. **systemctl reload nginx** aplica cambios.
-
----
-
-## Probar con Host header
+### Docker Container
 
 ```bash
-$ curl -i -H 'Host: app.local' http://127.0.0.1/  # <1>
-HTTP/1.1 502 Bad Gateway
-Server: nginx/1.24.0 (Ubuntu)
-# <1>
+location / {
+    proxy_pass http://172.17.0.2:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
 ```
 
+## WebSocket Proxy
 
+### Configuración WebSocket
 
-1. **curl -H Host** prueba el server block; si el backend no existe, veras 502 (esto es evidencia de que Nginx esta encaminando).
+```bash
+location /ws/ {
+    proxy_pass http://127.0.0.1:3000;
+    
+    # WebSocket headers
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    
+    # Timeouts extendidos para long-lived connections
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+    
+    # Buffers
+    proxy_buffering off;
+    proxy_request_buffering off;
+}
+```
 
-:::{.callout-tip}
-## RECOMENDACION
+### Verificar WebSocket
 
-**Para el laboratorio real, levanta un backend primero** (por ejemplo un contenedor o una app en 3000) y repite el curl hasta ver 200.
+```bash
+# Test con curl (handshake)
+$ curl -i -N \
+    -H "Connection: Upgrade" \
+    -H "Upgrade: websocket" \
+    -H "Sec-WebSocket-Version: 13" \
+    -H "Sec-WebSocket-Key: test123==" \
+    http://localhost/ws/
+```
 
-Casos de uso:
-- Node/FastAPI/Django/Golang detras de Nginx.
+## Caching con Proxy
 
-Cuando aplicar:
-- Cuando necesitas TLS, rate limiting o logs frontales.
-:::
+### Basic Proxy Cache
+
+```bash
+# En http block
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=api_cache:10M max_size=100M inactive=60m;
+
+server {
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_cache api_cache;
+        
+        # Cache respuestas 200 por 60 min
+        proxy_cache_valid 200 60m;
+        
+        # Keys diferentes por Host
+        proxy_cache_key $scheme$host$request_uri;
+        
+        # Agregar header de cache status
+        add_header X-Cache-Status $upstream_cache_status;
+    }
+}
+```
+
+### Cache con Purge
+
+```bash
+# Location para purgar cache
+location ~ /purge(/.*) {
+    proxy_cache_purge api_cache $scheme$host$1;
+    access_log off;
+}
+
+# Usar: curl -X PURGE https://example.com/purge/api/data
+```
+
+## SSL Termination
+
+### HTTPS a HTTP Backend
+
+```bash
+server {
+    listen 443 ssl http2;
+    server_name api.example.com;
+    
+    # SSL certs
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    
+    # Proxy a backend HTTP
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+## Casos de Estudio
+
+### Caso 1: API con Múltiples Versiones
+
+**Escenario**: API v1 y v2 corriendo en puertos diferentes.
+
+```bash
+# API v1
+server {
+    listen 80;
+    server_name api.example.com;
+    
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+    }
+}
+
+# API v2 (nueva)
+server {
+    listen 80;
+    server_name api-v2.example.com;
+    
+    location / {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_set_header Host $host;
+    }
+}
+```
+
+### Caso 2: Redirect según Path
+
+**Escenario**: Diferentes backends según path URL.
+
+```bash
+server {
+    listen 80;
+    server_name example.com;
+    
+    # Frontend estático
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+    }
+    
+    # API
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+    }
+    
+    # Admin panel
+    location /admin/ {
+        proxy_pass http://127.0.0.1:5000;
+        # Solo desde red local
+        allow 10.0.0.0/8;
+        deny all;
+    }
+}
+```
+
+### Caso 3: Blue-Green Deployment
+
+**Escenario**: Cambiar tráfico gradualmente entre versiones.
+
+```bash
+# Blue (versión actual)
+upstream blue {
+    server 10.0.1.10:3000;
+}
+
+# Green (nueva versión)
+upstream green {
+    server 10.0.1.20:3000;
+}
+
+# Por defecto blue
+server {
+    listen 80;
+    server_name example.com;
+    
+    location / {
+        proxy_pass http://blue;
+        proxy_set_header Host $host;
+    }
+}
+```
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Proxy | `proxy_pass http://ip:port` | Forward request |
+| Headers | `proxy_set_header` | Pass headers al backend |
+| Upstream | `upstream name {}` | Grupo de backends |
+| Balanceo | `ip_hash` / `least_conn` | Algoritmo de distribución |
+| WebSocket | `Upgrade $http_upgrade` | WebSocket support |
+| Cache | `proxy_cache` | Cachear respuestas |
+
+## Referencias
+
+- [Nginx Reverse Proxy](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/)
+- [Nginx Load Balancing](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/)
+- [Nginx Proxy Module](https://nginx.org/en/docs/http/ngx_http_proxy_module.html)

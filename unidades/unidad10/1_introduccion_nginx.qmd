@@ -1,84 +1,792 @@
 ---
-title: "Unidad 10.1: Introduccion a Nginx"
-subtitle: "Instalacion y conceptos operativos"
+title: "Unidad 10: Nginx - Servidor Web y Reverse Proxy"
+subtitle: "Nginx de producción: configuración, reverse proxy, SSL y hardening"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 10.1: Introduccion a Nginx
+# Unidad 10: Nginx en Producción
 
-## Introduccion
+## Introducción
 
-Nginx se usa mucho como servidor web y reverse proxy. En servidores, lo tipico es: Nginx en 80/443, aplicaciones atras (Node, Python, etc.), y certificados TLS con Certbot.
+Nginx es el servidor web más usado en internet y el estándar para reverse proxy. Su modelo asíncrono basado en eventos lo hace extremadamente eficiente para alto tráfico. En esta unidad vas a dominar Nginx desde la instalación hasta el hardening de producción.
 
-## Objetivos de aprendizaje
+## Arquitectura de Nginx
 
-- Instalar Nginx en Ubuntu Server
-- Validar servicio, puertos y respuesta HTTP
-- Identificar ubicaciones clave de configuracion
+### Modelo Asíncrono vs Apache
 
----
+```
+┌─────────────────────────────────────────────────────────────────┐
+│               NGINX vs APACHE: ARQUITECTURA                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   APACHE (Modelo híbrido)         NGINX (Modelo asíncrono)    │
+│  ┌─────────┐  ┌─────────┐         ┌─────────┐                  │
+│  │Worker 1 │  │Worker 2 │         │         │                  │
+│  │Thread 1 │  │Thread 2 │         │  Event  │ ← 1 proceso      │
+│  │Request  │  │Request  │         │  Loop   │   maneja miles   │
+│  │   A     │  │   B     │         │         │   de conexiones  │
+│  └─────────┘  └─────────┘         └─────────┘                  │
+│                                                                  │
+│   1 request × thread              1 proceso = N conexiones     │
+│   + overhead de threads           + bajo consumo memoria        │
+│                                                                  │
+│   Mejor para: legacy PHP          Mejor para: alto tráfico,     │
+│                                    static files, reverse proxy  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-## Instalacion (Ubuntu)
+### Flujo de Request en Nginx
+
+```
+1. TCP Handshake (puerto 80/443)
+       │
+       ▼
+2. Nginx Event Loop acepta conexión
+       │
+       ▼
+3. Parse de headers HTTP
+       │
+       ▼
+4. Matching de server_name (virtual host)
+       │
+       ▼
+5. Matching de location (rewrite/filter/alias)
+       │
+       ▼
+6. Handler: static file / proxy_pass / fastcgi
+       │
+       ▼
+7. Escribir a access.log
+       │
+ ▼
+Cierre o keep-alive
+```
+
+## Instalación en Producción
+
+### Paquetes Recomendados
 
 ```bash
-$ sudo apt update  # <1>
+# Actualizar índice
+$ sudo apt update && sudo apt upgrade -y
 # <1>
 
-$ sudo apt install -y nginx  # <2>
-Reading package lists... Done
+# Instalar Nginx + utilidades
+$ sudo apt install -y nginx nginx-extras \
+    certbot python3-certbot-nginx \
+    openssl logrotate
 # <2>
 ```
 
+1. **apt update**: Lista de paquetes actualizada
+2. **nginx-extras**: Módulos adicionales (more headers, etc.)
 
-
-1. **apt update** actualiza el indice de paquetes.
-2. **apt install nginx** instala Nginx.
-
----
-
-## Validar servicio y puertos
+### Verificar Instalación
 
 ```bash
-$ systemctl status nginx --no-pager  # <1>
+# Estado del servicio
+$ sudo systemctl status nginx --no-pager
 ● nginx.service - A high performance web server and a reverse proxy server
-     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
-     Active: active (running)
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
+     Active: active (running) since Tue 2026-03-31 10:00:00 UTC
 # <1>
 
-$ sudo ss -lntp | grep -E ':(80|443)\b'  # <2>
-LISTEN 0 511 0.0.0.0:80  0.0.0.0:* users:("nginx",pid=2345,fd=6)
+# Puertos en escucha
+$ sudo ss -lntp | grep nginx
+LISTEN 0 511 0.0.0.0:80  0.0.0.0:* users:("nginx",pid=1234,fd=6)
+LISTEN 0 511 0.0.0.0:443 0.0.0.0:* users:("nginx",pid=1234,fd=8)
 # <2>
 ```
 
+1. **systemctl status**: Confirmar servicio activo
+2. **Puertos 80 y 443**: Escuchando en todas las interfaces
 
-
-1. **systemctl status nginx** confirma que el servicio esta activo.
-2. **ss -lntp** valida puertos en escucha (80/443).
-
----
-
-## Probar respuesta HTTP
+### Prueba de Respuesta
 
 ```bash
-$ curl -I http://localhost  # <1>
+# Headers básicos
+$ curl -I http://localhost
 HTTP/1.1 200 OK
 Server: nginx/1.24.0 (Ubuntu)
 Content-Type: text/html
 # <1>
+
+# HTML completo
+$ curl -s http://localhost | head -20
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+...
+# <2>
 ```
 
+1. **curl -I**: Muestra headers de respuesta
+2. **curl -s**: Descarga HTML completo
 
+## Estructura de Archivos
 
-1. **curl -I** valida respuesta HTTP de Nginx.
+```
+/etc/nginx/
+├── nginx.conf              # Config principal (includes others)
+├── conf.d/                 # Configuraciones adicionales (*.conf)
+├── sites-available/        # Server blocks disponibles
+├── sites-enabled/         # Server blocks activos (symlinks)
+├── snippets/               # Fragmentos reutilizables
+├── modules-available/      # Módulos dinámicos
+├── modules-enabled/        # Módulos activos
+└── mime.types              # Tipos MIME
 
----
+/var/log/nginx/
+├── access.log              # Todos los requests
+├── error.log               # Errores
+├── site1.access.log       # Logs por sitio (si configurado)
+└── site1.error.log
+```
 
-## Rutas clave en Ubuntu
+###nginx.conf: Estructura Principal
 
-- Config principal: `/etc/nginx/nginx.conf`
-- Sitios: `/etc/nginx/sites-available/` y `/etc/nginx/sites-enabled/`
-- Default site: `/etc/nginx/sites-available/default`
-- Web root comun: `/var/www/html`
-- Logs: `/var/log/nginx/access.log` y `/var/log/nginx/error.log`
+```nginx
+user www-data;
+worker_processes auto;          # Auto-detect CPU cores
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 1024;    # Conexiones por worker
+    multi_accept on;
+    use epoll;                  # Linux optimized
+}
+
+http {
+    # Basic settings
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    # Logging
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    # MIME types
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # Include site configs
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+```
+
+## Server Blocks (VirtualHosts)
+
+###Server Block Básico
+
+```bash
+# Crear estructura de directorios
+$ sudo mkdir -p /var/www/mysite/{public,logs}
+
+# Crear contenido
+$ echo '<!DOCTYPE html><h1>My Site</h1>' | sudo tee /var/www/mysite/public/index.html
+
+# Permisos
+$ sudo chown -R www-data:www-data /var/www/mysite
+# <1>
+```
+
+1. **Estructura**: Document root y logs separados
+
+### Configuración de Server Block
+
+```bash
+$ sudo tee /etc/nginx/sites-available/mysite.conf <<'EOF'
+server {
+    listen 80;
+    listen [::]:80;
+    server_name mysite.local www.mysite.local;
+
+    # Document root
+    root /var/www/mysite/public;
+    index index.html index.htm;
+
+    # Access log específico
+    access_log /var/www/mysite/logs/access.log;
+    error_log /var/www/mysite/logs/error.log;
+
+    # Directorio raíz
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Directorios protegidos
+    location /private/ {
+        deny all;
+        return 403;
+    }
+
+    # Static files con cache
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    # Prevenir acceso a archivos ocultos
+    location ~ /\. {
+        deny all;
+    }
+}
+EOF
+# <1>
+```
+
+1. **Server block completo**: root, logs, seguridad, cache
+
+### Habilitar y Verificar
+
+```bash
+# Habilitar (crear symlink)
+$ sudo ln -sf /etc/nginx/sites-available/mysite.conf /etc/nginx/sites-enabled/mysite.conf
+# <1>
+
+# Deshabilitar default (opcional)
+$ sudo rm -f /etc/nginx/sites-enabled/default
+
+# Validar configuración
+$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <2>
+
+# Recargar
+$ sudo systemctl reload nginx
+```
+
+1. **ln -sf**: Crea symlink para habilitar
+2. **nginx -t**: Test de sintaxis
+
+### Probar Server Block
+
+```bash
+# Con Host header
+$ curl -H 'Host: mysite.local' http://127.0.0.1
+<!DOCTYPE html><h1>My Site</h1>
+# <1>
+
+# Ver logs
+$ sudo tail /var/www/mysite/logs/access.log
+127.0.0.1 - - [31/Mar/2026:10:15:00 +0000] "GET / HTTP/1.1" 200 123 "-" "curl/8.1.0"
+```
+
+1. **curl -H**: Simula request con Host header
+
+## Reverse Proxy
+
+### Concepto
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    REVERSE PROXY NGINX                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   INTERNET                  NGINX              BACKEND          │
+│  ┌─────────┐            ┌─────────┐        ┌─────────┐          │
+│  │ cliente │ ──────────> │ :80/:443│ ──────> │ :3000   │          │
+│  │         │  request    │ proxy   │         │ (app)   │          │
+│  └─────────┘            └─────────┘        └─────────┘          │
+│                                                                  │
+│   NGINX: load balancer, SSL terminator, cache, logs centralizados│
+│   BACKEND: Node, Python, Go, Java - solo localhost              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Reverse Proxy a Aplicación
+
+```bash
+$ sudo tee /etc/nginx/sites-available/api-proxy.conf <<'EOF'
+server {
+    listen 80;
+    server_name api.example.com;
+
+    # Proxy a backend
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        
+        # Headers esenciales
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # Health check endpoint
+    location /health {
+        proxy_pass http://127.0.0.1:3000/health;
+        access_log off;
+    }
+}
+EOF
+
+$ sudo ln -sf /etc/nginx/sites-available/api-proxy.conf /etc/nginx/sites-enabled/
+$ sudo nginx -t && sudo systemctl reload nginx
+# <1>
+```
+
+1. **Proxy completo**: Headers, timeouts, health check
+
+### Proxy a Múltiples Backends (Load Balancing)
+
+```bash
+$ sudo tee /etc/nginx/sites-available/loadbalancer.conf <<'EOF'
+upstream backend {
+    least_conn;  # Menos conexiones
+    
+    server 10.0.1.11:3000 weight=5;
+    server 10.0.1.12:3000 weight=3;
+    server 10.0.1.13:3000 weight=2;
+}
+
+server {
+    listen 80;
+    server_name api.example.com;
+
+    location / {
+        proxy_pass http://backend;
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+
+$ sudo ln -sf /etc/nginx/sites-available/loadbalancer.conf /etc/nginx/sites-enabled/
+$ sudo nginx -t && sudo systemctl reload nginx
+# <1>
+```
+
+1. **Load balancing**: round-robin, least_conn, IP hash
+
+### WebSocket Support
+
+```bash
+location /ws/ {
+    proxy_pass http://127.0.0.1:3000;
+    
+    # WebSocket headers
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    
+    # Timeouts extendidos
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+}
+```
+
+## SSL/TLS con Certbot
+
+### Instalación de Certbot
+
+```bash
+# Instalar certbot y plugin nginx
+$ sudo apt update && sudo apt install -y certbot python3-certbot-nginx
+# <1>
+```
+
+1. **certbot**: Automated TLS con Let's Encrypt
+
+### Obtener Certificado
+
+```bash
+# Obtener certificado (dominio debe apuntar al servidor)
+$ sudo certbot --nginx -d example.com -d www.example.com
+# <1>
+
+# Following prompts:
+# - Enter email (for expiry notices)
+# - Agree ToS (A)
+# - Share email (optional)
+# - Redirect HTTP to HTTPS (select 1 or 2)
+# - Done!
+```
+
+1. **--nginx**: Auto-configura Nginx con SSL
+
+### Configuración SSL Generada
+
+```bash
+# Ver certificado
+$ sudo ls -la /etc/letsencrypt/live/example.com/
+fullchain.pem  privkey.pem  cert.pem  chain.pem
+
+# Ver configuración nginx
+$ cat /etc/nginx/sites-available/default-ssl.conf
+# <1>
+```
+
+1. **Archivos SSL**: Certificado, clave, chain
+
+### SSL de Producción Manual
+
+```bash
+# Crear configuración SSL manual (si certbot no funciona)
+$ sudo tee /etc/nginx/snippets/ssl-params.conf <<'EOF'
+# SSL Certificate
+ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+# SSL Settings - Protocolos seguros
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers off;
+
+# SSL Ciphers
+ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+
+# HSTS
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+
+# OCSP Stapling
+ssl_stapling on;
+ssl_stapling_verify on;
+resolver 8.8.8.8 8.8.4.4 valid=300s;
+resolver_timeout 5s;
+EOF
+```
+
+### Renovación Automática
+
+```bash
+# Test de renovación
+$ sudo certbot renew --dry-run
+# <1>
+
+# Ver cronjob
+$ sudo cat /etc/cron.d/certbot
+# /etc/cron.d/certbot: certbot renewal cronjob
+0 */12 * * * root test -x /usr/bin/certbot -a \! -d /run/systemd/system && perl -e 'sleep int(rand(43200))' && certbot -q renew
+# <2>
+```
+
+1. **--dry-run**: Prueba renovación sin usar límites
+2. **Cronjob**: Dos veces al día, automático
+
+## Hardening de Nginx
+
+### 1. Ocultar Información
+
+```nginx
+# En server block o http block
+server_tokens off;           # Ocultar versión
+more_clear_headers Server;    # Ocultar "Server" header
+
+# En http block
+client_max_body_size 10M;     # Limitar upload
+client_body_timeout 60s;      # Timeout de body
+# <1>
+```
+
+1. **server_tokens off**: Solo muestra "nginx"
+
+### 2. Security Headers
+
+```bash
+$ sudo tee /etc/nginx/snippets/security-headers.conf <<'EOF'
+# Security Headers
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+
+# CSP (ajustar según aplicación)
+# add_header Content-Security-Policy "default-src 'self';" always;
+EOF
+# <1>
+```
+
+1. **Headers de seguridad**: Los 5 esenciales
+
+### 3. Rate Limiting
+
+```nginx
+# Definir limit zone
+http {
+    limit_req_zone $binary_remote_addr zone=api_limit:10M rate=10r/s;
+    
+    # En location
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+    }
+}
+# <1>
+```
+
+1. **Rate limiting**: 10 requests por segundo, burst de 20
+
+### 4. Proteger Archivos Sensibles
+
+```nginx
+# Bloquear archivos sensibles
+location ~ /\.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml) {
+    deny all;
+}
+
+# Bloquear directory listing
+location / {
+    try_files $uri $uri/ =404;
+    autoindex off;
+}
+```
+
+### Configuración Completa de Producción
+
+```bash
+$ sudo tee /etc/nginx/sites-available/production.conf <<'EOF'
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com www.example.com;
+    
+    # Redirect to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name example.com www.example.com;
+    
+    # SSL
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    
+    # Root y index
+    root /var/www/example.com/public;
+    index index.php index.html;
+    
+    # Security headers
+    include /etc/nginx/snippets/security-headers.conf;
+    
+    # Logs
+    access_log /var/www/example.com/logs/access.log;
+    error_log /var/www/example.com/logs/error.log;
+    
+    # Directorio público
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+    
+    # PHP-FPM (si aplica)
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+    
+    # Static files con cache
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # Denegar acceso a privados
+    location /private/ {
+        deny all;
+    }
+}
+EOF
+# <1>
+```
+
+1. **Configuración producción**: SSL, headers, PHP-FPM, cache
+
+## Casos de Estudio
+
+### Caso 1: Node.js API Detrás de Nginx
+
+**Escenario**: API en Node.js puerto 3000, expuesta via Nginx con SSL.
+
+```
+Internet → Nginx (:443) → Node.js (:3000)
+```
+
+```bash
+# Backend Node.js corriendo
+$ ps aux | grep node
+node server.js  # PID 5678, puerto 3000
+
+# Config Nginx
+$ sudo tee /etc/nginx/sites-available/nodejs-api.conf <<'EOF'
+server {
+    listen 443 ssl http2;
+    server_name api.example.com;
+    
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+EOF
+
+$ sudo ln -sf /etc/nginx/sites-available/nodejs-api.conf /etc/nginx/sites-enabled/
+$ sudo nginx -t && sudo systemctl reload nginx
+
+# Probar
+$ curl -k https://api.example.com
+{"status": "ok", "version": "1.0.0"}
+# <1>
+```
+
+1. **API funcionando**: Nginx proxyificando a Node.js
+
+### Caso 2: Múltiples Dominios con Nginx
+
+**Escenario**: 3 dominios servidos por el mismo Nginx.
+
+```
+site1.example.com → /var/www/site1
+site2.example.com → /var/www/site2  
+api.example.com   → proxy a :3000
+```
+
+```bash
+# Site 1
+server {
+    listen 80;
+    server_name site1.example.com;
+    root /var/www/site1;
+    index index.html;
+}
+
+# Site 2
+server {
+    listen 80;
+    server_name site2.example.com;
+    root /var/www/site2;
+    index index.html;
+}
+
+# API
+server {
+    listen 80;
+    server_name api.example.com;
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+}
+# <1>
+```
+
+1. **Múltiples server blocks**: Cada uno con su dominio
+
+### Caso 3: Nginx como Cache
+
+**Escenario**: Cachear respuestas de API para reducir carga en backend.
+
+```bash
+# Habilitar proxy_cache
+$ sudo tee /etc/nginx/conf.d/cache.conf <<'EOF'
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=api_cache:10m max_size=100m inactive=60m use_temp_path=off;
+
+proxy_cache_key "$scheme$request_method$host$request_uri";
+proxy_cache_valid 200 60m;
+proxy_cache_valid 404 1m;
+proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+proxy_cache_lock on;
+
+add_header X-Cache-Status $upstream_cache_status;
+EOF
+
+# Usar en location
+location /api/ {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_cache api_cache;
+    proxy_cache_valid 200 60m;
+}
+# <1>
+```
+
+1. **Cache de 60 min**: Respuestas 200 cacheadas
+
+## Monitoreo y Logs
+
+### Logs de Nginx
+
+```bash
+# Ver access log
+$ tail -f /var/log/nginx/access.log
+
+# Ver error log
+$ tail -f /var/log/nginx/error.log
+
+# Logs específicos por sitio
+$ tail -f /var/www/example.com/logs/access.log
+
+# Análisis rápido
+$ awk '{print $9}' /var/log/nginx/access.log | sort | uniq -c | sort -rn
+# Status codes: 200 OK, 301 Redirect, 404 Not Found, 500 Error
+```
+
+### Monitoreo con systemd
+
+```bash
+# Estado
+$ systemctl status nginx
+
+# Recursos
+$ systemctl show nginx | grep -E "Memory|Tasks|CPU"
+```
+
+### Health Check
+
+```bash
+# Endpoint de health
+location /nginx-health {
+    access_log off;
+    return 200 "healthy\n";
+    add_header Content-Type text/plain;
+}
+```
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Instalar | `apt install nginx` | Servidor web y proxy |
+| Server Block | `/etc/nginx/sites-available/` | VirtualHosts |
+| Validar | `nginx -t` | Test de sintaxis |
+| Proxy | `proxy_pass` | Reverse proxy |
+| SSL | `certbot --nginx` | TLS con Let's Encrypt |
+| Hardening | `server_tokens off` | Ocultar información |
+| Headers | `add_header X-Frame-Options` | Seguridad HTTP |
+| Rate Limit | `limit_req_zone` | Prevenir DoS |
+
+## Referencias
+
+- [Nginx Documentation](https://nginx.org/en/docs/)
+- [Nginx Admin Guide](https://docs.nginx.com/nginx/admin-guide/)
+- [Mozilla SSL Configuration](https://ssl-config.mozilla.org/)
+- [Certbot Documentation](https://certbot.eff.org/)

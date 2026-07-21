@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.9.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,6 +11,9 @@
 
 <title>Unidad 12.3: Red, puertos y DNS – Administración de Servidores Linux</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -71,17 +74,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-61780a260fdcf47536a34fde95582725.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-68056a18e515a5789c5e26a7aeb7ac61.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-d475e4ab3b4fd243dd6ecd26d4f0399c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
@@ -638,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
- <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+ <span class="menu-text">Unidad 8: SSH y Acceso Remoto Seguro</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -646,7 +648,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  <a href="../../unidades/unidad8/1_ssh_fundamentos_keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Protocolo y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/2_ssh_tunnels.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH Tunnels: Port Forwarding y Proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/3_lab_practico_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Laboratorio Práctico</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -667,22 +679,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y Múltiples Sitios</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/5_lab_practico_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -703,22 +720,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -739,22 +761,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Acceso Remoto y Seguridad de Red</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/5_lab_practico_mariadb.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Laboratorio Práctico - MariaDB</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -775,7 +802,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -791,6 +818,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1196,9 +1228,53 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#unidad-12.3-red-puertos-y-dns" id="toc-unidad-12.3-red-puertos-y-dns" class="nav-link active" data-scroll-target="#unidad-12.3-red-puertos-y-dns">Unidad 12.3: Red, puertos y DNS</a>
   <ul class="collapse">
-  <li><a href="#introduccion" id="toc-introduccion" class="nav-link" data-scroll-target="#introduccion">Introduccion</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
   <li><a href="#objetivos-de-aprendizaje" id="toc-objetivos-de-aprendizaje" class="nav-link" data-scroll-target="#objetivos-de-aprendizaje">Objetivos de aprendizaje</a></li>
-  <li><a href="#checklist-rapido" id="toc-checklist-rapido" class="nav-link" data-scroll-target="#checklist-rapido">Checklist rapido</a></li>
+  <li><a href="#checklist-de-diagnóstico-de-red" id="toc-checklist-de-diagnóstico-de-red" class="nav-link" data-scroll-target="#checklist-de-diagnóstico-de-red">Checklist de diagnóstico de red</a>
+  <ul class="collapse">
+  <li><a href="#verificación-básica-de-interfaz-y-ip" id="toc-verificación-básica-de-interfaz-y-ip" class="nav-link" data-scroll-target="#verificación-básica-de-interfaz-y-ip">Verificación básica de interfaz y IP</a></li>
+  <li><a href="#verificación-de-conectividad" id="toc-verificación-de-conectividad" class="nav-link" data-scroll-target="#verificación-de-conectividad">Verificación de conectividad</a></li>
+  </ul></li>
+  <li><a href="#diagnóstico-de-puertos" id="toc-diagnóstico-de-puertos" class="nav-link" data-scroll-target="#diagnóstico-de-puertos">Diagnóstico de puertos</a>
+  <ul class="collapse">
+  <li><a href="#ver-servicios-escuchando" id="toc-ver-servicios-escuchando" class="nav-link" data-scroll-target="#ver-servicios-escuchando">Ver servicios escuchando</a></li>
+  <li><a href="#conexiones-establecidas" id="toc-conexiones-establecidas" class="nav-link" data-scroll-target="#conexiones-establecidas">Conexiones establecidas</a></li>
+  <li><a href="#verificar-puerto-específico-remoto" id="toc-verificar-puerto-específico-remoto" class="nav-link" data-scroll-target="#verificar-puerto-específico-remoto">Verificar puerto específico remoto</a></li>
+  </ul></li>
+  <li><a href="#diagnóstico-de-firewall" id="toc-diagnóstico-de-firewall" class="nav-link" data-scroll-target="#diagnóstico-de-firewall">Diagnóstico de firewall</a>
+  <ul class="collapse">
+  <li><a href="#ver-reglas-de-ufw" id="toc-ver-reglas-de-ufw" class="nav-link" data-scroll-target="#ver-reglas-de-ufw">Ver reglas de UFW</a></li>
+  <li><a href="#ver-reglas-iptablesnftables" id="toc-ver-reglas-iptablesnftables" class="nav-link" data-scroll-target="#ver-reglas-iptablesnftables">Ver reglas iptables/nftables</a></li>
+  </ul></li>
+  <li><a href="#diagnóstico-de-dns" id="toc-diagnóstico-de-dns" class="nav-link" data-scroll-target="#diagnóstico-de-dns">Diagnóstico de DNS</a>
+  <ul class="collapse">
+  <li><a href="#ver-configuración-de-dns" id="toc-ver-configuración-de-dns" class="nav-link" data-scroll-target="#ver-configuración-de-dns">Ver configuración de DNS</a></li>
+  <li><a href="#pruebas-de-resolución" id="toc-pruebas-de-resolución" class="nav-link" data-scroll-target="#pruebas-de-resolución">Pruebas de resolución</a></li>
+  <li><a href="#dns-cache-local" id="toc-dns-cache-local" class="nav-link" data-scroll-target="#dns-cache-local">DNS cache local</a></li>
+  </ul></li>
+  <li><a href="#casos-de-diagnóstico-reales" id="toc-casos-de-diagnóstico-reales" class="nav-link" data-scroll-target="#casos-de-diagnóstico-reales">Casos de diagnóstico reales</a>
+  <ul class="collapse">
+  <li><a href="#escenario-1-servidor-web-no-responde-desde-afuera" id="toc-escenario-1-servidor-web-no-responde-desde-afuera" class="nav-link" data-scroll-target="#escenario-1-servidor-web-no-responde-desde-afuera">Escenario 1: Servidor web no responde desde afuera</a></li>
+  <li><a href="#escenario-2-no-puedo-conectar-a-base-de-datos-remota" id="toc-escenario-2-no-puedo-conectar-a-base-de-datos-remota" class="nav-link" data-scroll-target="#escenario-2-no-puedo-conectar-a-base-de-datos-remota">Escenario 2: No puedo conectar a base de datos remota</a></li>
+  <li><a href="#escenario-3-dns-resuelve-incorrectamente" id="toc-escenario-3-dns-resuelve-incorrectamente" class="nav-link" data-scroll-target="#escenario-3-dns-resuelve-incorrectamente">Escenario 3: DNS resuelve incorrectamente</a></li>
+  <li><a href="#escenario-4-puerto-esperado-no-está-escuchando" id="toc-escenario-4-puerto-esperado-no-está-escuchando" class="nav-link" data-scroll-target="#escenario-4-puerto-esperado-no-está-escuchando">Escenario 4: Puerto esperado no está escuchando</a></li>
+  </ul></li>
+  <li><a href="#herramientas-de-diagnóstico-de-red" id="toc-herramientas-de-diagnóstico-de-red" class="nav-link" data-scroll-target="#herramientas-de-diagnóstico-de-red">Herramientas de diagnóstico de red</a>
+  <ul class="collapse">
+  <li><a href="#traceroute-mtr" id="toc-traceroute-mtr" class="nav-link" data-scroll-target="#traceroute-mtr">traceroute / mtr</a></li>
+  <li><a href="#ip-neigh-arp-cache" id="toc-ip-neigh-arp-cache" class="nav-link" data-scroll-target="#ip-neigh-arp-cache">ip neigh (ARP cache)</a></li>
+  </ul></li>
+  <li><a href="#monitoreo-de-conectividad" id="toc-monitoreo-de-conectividad" class="nav-link" data-scroll-target="#monitoreo-de-conectividad">Monitoreo de conectividad</a>
+  <ul class="collapse">
+  <li><a href="#script-de-health-check" id="toc-script-de-health-check" class="nav-link" data-scroll-target="#script-de-health-check">Script de health check</a></li>
+  <li><a href="#cron-para-monitoreo" id="toc-cron-para-monitoreo" class="nav-link" data-scroll-target="#cron-para-monitoreo">Cron para monitoreo</a></li>
+  </ul></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">Resumen</a>
+  <ul class="collapse">
+  <li><a href="#checklist-de-diagnóstico" id="toc-checklist-de-diagnóstico" class="nav-link" data-scroll-target="#checklist-de-diagnóstico">Checklist de diagnóstico</a></li>
+  <li><a href="#comandos-esenciales" id="toc-comandos-esenciales" class="nav-link" data-scroll-target="#comandos-esenciales">Comandos esenciales</a></li>
+  </ul></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   <li>Code Appendix</li>
   </ul>
@@ -1211,7 +1287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad12/1_metodologia_diagnostico.html">Unidad 12: Diagnostico y Troubleshooting</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad12/3_red_puertos_dns.html"><span class="chapter-title">Unidad 12.3: Red, puertos y DNS</span></a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title"><span class="chapter-title">Unidad 12.3: Red, puertos y DNS</span></h1>
-<p class="subtitle lead">Diagnostico rapido de conectividad</p>
+<p class="subtitle lead">Diagnóstico rápido de conectividad</p>
 </div>
 
 
@@ -1242,66 +1318,733 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="unidad-12.3-red-puertos-y-dns" class="level1">
 <h1>Unidad 12.3: Red, puertos y DNS</h1>
-<section id="introduccion" class="level2">
-<h2 class="anchored" data-anchor-id="introduccion">Introduccion</h2>
-<p>Cuando “no responde”, casi siempre es una de estas: IP/ruta, firewall, puerto no escuchando, o DNS.</p>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>En producción, “no responde” es la frase más común. Casi siempre es una de cuatro: IP/ruta incorrecta, firewall bloqueando, servicio no escuchando, o DNS fallando. Vamos a diagnosticar cada caso con metodología, no con intuición.</p>
 </section>
 <section id="objetivos-de-aprendizaje" class="level2">
 <h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">Objetivos de aprendizaje</h2>
 <ul>
-<li>Validar IP y rutas</li>
-<li>Verificar puertos</li>
-<li>Probar DNS y HTTP</li>
+<li>Diagnosticar conectividad de red paso a paso</li>
+<li>Identificar servicios que no escuchan en puertos esperados</li>
+<li>Resolver problemas DNS comunes en servidores</li>
+<li>Implementar monitoreo de conectividad</li>
 </ul>
 <hr>
 </section>
-<section id="checklist-rapido" class="level2">
-<h2 class="anchored" data-anchor-id="checklist-rapido">Checklist rapido</h2>
+<section id="checklist-de-diagnóstico-de-red" class="level2">
+<h2 class="anchored" data-anchor-id="checklist-de-diagnóstico-de-red">Checklist de diagnóstico de red</h2>
+<section id="verificación-básica-de-interfaz-y-ip" class="level3">
+<h3 class="anchored" data-anchor-id="verificación-básica-de-interfaz-y-ip">Verificación básica de interfaz y IP</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ip <span class="at">-br</span> addr</span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">enp0s3</span>  UP  192.168.56.10/24</span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ip <span class="at">-br</span> addr show</span>
+<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lo</span>        UNKNOWN  127.0.0.1/8 ::1/128</span>
+<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">eth0</span>      UP       192.168.56.10/24</span>
 <span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-5" class="code-annotation-target"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ip route <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 5</span>
-<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">default</span> via 192.168.56.1 dev enp0s3</span>
-<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-1-9" class="code-annotation-target"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span></span>
-<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span> puertos en escucha ...</span>
-<span id="annotated-cell-1-11"><a href="#annotated-cell-1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-12"><a href="#annotated-cell-1-12" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-1-13" class="code-annotation-target"><a href="#annotated-cell-1-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> resolvectl status <span class="kw">|</span> <span class="fu">sed</span> <span class="at">-n</span> <span class="st">'1,40p'</span></span>
-<span id="annotated-cell-1-14"><a href="#annotated-cell-1-14" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span> DNS efectivo ...</span>
-<span id="annotated-cell-1-15"><a href="#annotated-cell-1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-16"><a href="#annotated-cell-1-16" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-1-17" class="code-annotation-target"><a href="#annotated-cell-1-17" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
-<span id="annotated-cell-1-18"><a href="#annotated-cell-1-18" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-6" class="code-annotation-target"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ip link show</span>
+<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a><span class="ex">1:</span> lo: <span class="op">&lt;</span>LOOPBACK,UP,LOWER_UP<span class="op">&gt;</span> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT</span>
+<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">2:</span> eth0: <span class="op">&lt;</span>BROADCAST,MULTICAST,UP,LOWER_UP<span class="op">&gt;</span> mtu 1500 qdisc fq_codel state UP mode DEFAULT</span>
+<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-1-11" class="code-annotation-target"><a href="#annotated-cell-1-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ip route show</span>
+<span id="annotated-cell-1-12"><a href="#annotated-cell-1-12" aria-hidden="true" tabindex="-1"></a><span class="ex">default</span> via 192.168.56.1 dev eth0 proto dhcp src 192.168.56.10 metric 100</span>
+<span id="annotated-cell-1-13"><a href="#annotated-cell-1-13" aria-hidden="true" tabindex="-1"></a><span class="ex">192.168.56.0/24</span> dev eth0 proto kernel scope link src 192.168.56.10</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="1,3" data-code-annotation="1"><strong>ip -br addr</strong> valida IP.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="1,4" data-code-annotation="1"><strong>ip -br addr</strong> muestra IPs de forma concisa. Valida que eth0 tenga IP correcta.</span>
 </dd>
 <dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="5,7" data-code-annotation="2"><strong>ip route</strong> valida gateway/rutas.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="6,9" data-code-annotation="2"><strong>ip link</strong> verifica estado de interfaces. “state UP” confirma que está activa.</span>
 </dd>
 <dt data-target-cell="annotated-cell-1" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="9,11" data-code-annotation="3"><strong>ss -lntp</strong> valida puertos.</span>
-</dd>
-<dt data-target-cell="annotated-cell-1" data-target-annotation="4">4</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="13,15" data-code-annotation="4"><strong>resolvectl status</strong> valida DNS efectivo.</span>
-</dd>
-<dt data-target-cell="annotated-cell-1" data-target-annotation="5">5</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="17,19" data-code-annotation="5"><strong>curl -I</strong> valida respuesta HTTP local.</span>
+<span data-code-cell="annotated-cell-1" data-code-lines="11,14" data-code-annotation="3"><strong>ip route</strong> muestra tabla de rutas. Valida gateway y rutas específicas.</span>
 </dd>
 </dl>
+</section>
+<section id="verificación-de-conectividad" class="level3">
+<h3 class="anchored" data-anchor-id="verificación-de-conectividad">Verificación de conectividad</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ping <span class="at">-c</span> 3 8.8.8.8</span>
+<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">PING</span> 8.8.8.8 <span class="er">(</span><span class="ex">8.8.8.8</span><span class="kw">)</span> <span class="ex">56</span><span class="er">(</span><span class="ex">84</span><span class="kw">)</span> <span class="ex">bytes</span> of data.</span>
+<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">64</span> bytes from 8.8.8.8: icmp_seq=1 ttl=117 time=15.2 ms</span>
+<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">64</span> bytes desde 8.8.8.8: icmp_seq=2 ttl=117 time=14.8 ms</span>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-7" class="code-annotation-target"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ping <span class="at">-c</span> 3 google.com</span>
+<span id="annotated-cell-2-8"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">ping:</span> google.com: Name or service not known</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="1,5" data-code-annotation="1"><strong>ping -c 3 8.8.8.8</strong> prueba conectividad hacia afuera. Si falla, problema de ruta/salida.</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="7,9" data-code-annotation="2"><strong>ping google.com</strong> prueba resolución DNS. Si IP funciona pero域名 no, problema de DNS.</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="diagnóstico-de-puertos" class="level2">
+<h2 class="anchored" data-anchor-id="diagnóstico-de-puertos">Diagnóstico de puertos</h2>
+<section id="ver-servicios-escuchando" class="level3">
+<h3 class="anchored" data-anchor-id="ver-servicios-escuchando">Ver servicios escuchando</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ss <span class="at">-tlnp</span></span>
+<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">State</span>    Recv-Q   Send-Q   Local Address:Port   Peer Address:Port   Process</span>
+<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span>   0        128      0.0.0.0:22           0.0.0.0:<span class="pp">*</span>           users:<span class="er">(</span><span class="kw">(</span><span class="st">"sshd"</span><span class="ex">,pid=234,fd=3</span><span class="kw">))</span></span>
+<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span>   0        128      0.0.0.0:80           0.0.0.0:<span class="pp">*</span>           users:<span class="er">(</span><span class="kw">(</span><span class="st">"nginx"</span><span class="ex">,pid=456,fd=6</span><span class="kw">))</span></span>
+<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span>   0        128      0.0.0.0:3306         0.0.0.0:<span class="pp">*</span>           users:<span class="er">(</span><span class="kw">(</span><span class="st">"mariadb"</span><span class="ex">,pid=789,fd=20</span><span class="kw">))</span></span>
+<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-8" class="code-annotation-target"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ss <span class="at">-tlnp</span> <span class="kw">|</span> <span class="fu">grep</span> :80</span>
+<span id="annotated-cell-3-9"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span>   0        128      0.0.0.0:80           0.0.0.0:<span class="pp">*</span>           users:<span class="er">(</span><span class="kw">(</span><span class="st">"nginx"</span><span class="ex">,pid=456,fd=6</span><span class="kw">))</span></span>
+<span id="annotated-cell-3-10"><a href="#annotated-cell-3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-11"><a href="#annotated-cell-3-11" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-12" class="code-annotation-target"><a href="#annotated-cell-3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ss <span class="at">-tlnp</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">":(22|80|443|3306)"</span></span>
+<span id="annotated-cell-3-13"><a href="#annotated-cell-3-13" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span>   0        128      0.0.0.0:22           0.0.0.0:<span class="pp">*</span>           sshd</span>
+<span id="annotated-cell-3-14"><a href="#annotated-cell-3-14" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span>   0        128      0.0.0.0:80           nginx</span>
+<span id="annotated-cell-3-15"><a href="#annotated-cell-3-15" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span>   0        128      0.0.0.0:443          nginx</span>
+<span id="annotated-cell-3-16"><a href="#annotated-cell-3-16" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span>   0        128      0.0.0.0:3306         mariadb</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="1,6" data-code-annotation="1"><strong>ss -tlnp</strong> muestra todos los puertos en escucha (-l) en TCP (-t) con proceso (-p). El estándar de facto.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="8,10" data-code-annotation="2"><strong>grep :80</strong> aísla un puerto específico.</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="12,17" data-code-annotation="3">Filtro regex para múltiples puertos comunes.</span>
+</dd>
+</dl>
+</section>
+<section id="conexiones-establecidas" class="level3">
+<h3 class="anchored" data-anchor-id="conexiones-establecidas">Conexiones establecidas</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ss <span class="at">-tn</span></span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">State</span>    Recv-Q   Send-Q   Local Address:Port    Peer Address:Port</span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">ESTAB</span>    0        0        192.168.56.10:80      192.168.1.50:54321</span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">ESTAB</span>    0        0        192.168.56.10:22      10.0.0.5:65234</span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-6" class="code-annotation-target"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ss <span class="at">-tnp</span> <span class="kw">|</span> <span class="fu">grep</span> ESTAB <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">42</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="1" data-code-annotation="1"><strong>ss -tn</strong> muestra conexiones TCP activas (sin listen). Para ver tráfico en vivo.</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="6,8" data-code-annotation="2">Conteo de conexiones establecidas. Útil para detectar ataques DDoS o sobrecarga.</span>
+</dd>
+</dl>
+</section>
+<section id="verificar-puerto-específico-remoto" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-puerto-específico-remoto">Verificar puerto específico remoto</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-1" class="code-annotation-target"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nc <span class="at">-zv</span> google.com 80</span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Connection</span> to google.com 80 port <span class="pp">[</span><span class="ss">tcp/http</span><span class="pp">]</span> succeeded!</span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-5-4" class="code-annotation-target"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nc <span class="at">-zv</span> google.com 443</span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Connection</span> to google.com 443 port <span class="pp">[</span><span class="ss">tcp/https</span><span class="pp">]</span> succeeded!</span>
+<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-5-7" class="code-annotation-target"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nc <span class="at">-zv</span> 192.168.56.10 3306 <span class="at">-w</span> 3</span>
+<span id="annotated-cell-5-8"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">nc:</span> connect to 192.168.56.10 3306 tcp timed out: Connection timed out</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="1" data-code-annotation="1"><strong>nc -zv</strong> testea conectividad TCP a puerto específico. “-z” escanea, “-v” verbose.</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="4" data-code-annotation="2">Puerto 80 abierto en google.com. HTTP funciona.</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="7,9" data-code-annotation="3"><strong>-w 3</strong> timeout de 3 segundos. “Connection timed out” = firewall bloqueando o servicio abajo.</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="diagnóstico-de-firewall" class="level2">
+<h2 class="anchored" data-anchor-id="diagnóstico-de-firewall">Diagnóstico de firewall</h2>
+<section id="ver-reglas-de-ufw" class="level3">
+<h3 class="anchored" data-anchor-id="ver-reglas-de-ufw">Ver reglas de UFW</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-6-1" class="code-annotation-target"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw status verbose</span>
+<span id="annotated-cell-6-2"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Status:</span> active</span>
+<span id="annotated-cell-6-3"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Logging:</span> on <span class="er">(</span><span class="ex">low</span><span class="kw">)</span></span>
+<span id="annotated-cell-6-4"><a href="#annotated-cell-6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Default:</span> deny <span class="er">(</span><span class="ex">incoming</span><span class="kw">)</span><span class="ex">,</span> allow <span class="er">(</span><span class="ex">outgoing</span><span class="kw">)</span><span class="ex">,</span> deny <span class="er">(</span><span class="ex">incoming</span><span class="kw">)</span></span>
+<span id="annotated-cell-6-5"><a href="#annotated-cell-6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-6"><a href="#annotated-cell-6-6" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-6-7" class="code-annotation-target"><a href="#annotated-cell-6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw status numbered</span>
+<span id="annotated-cell-6-8"><a href="#annotated-cell-6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Status:</span> active</span>
+<span id="annotated-cell-6-9"><a href="#annotated-cell-6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-10"><a href="#annotated-cell-6-10" aria-hidden="true" tabindex="-1"></a>     <span class="ex">To</span>                         Action      From</span>
+<span id="annotated-cell-6-11"><a href="#annotated-cell-6-11" aria-hidden="true" tabindex="-1"></a>     <span class="ex">--</span>                         <span class="at">------</span>      <span class="at">----</span></span>
+<span id="annotated-cell-6-12"><a href="#annotated-cell-6-12" aria-hidden="true" tabindex="-1"></a><span class="bu">[</span> 1] 22                         ALLOW <span class="er">IN</span>    <span class="ex">Anywhere</span></span>
+<span id="annotated-cell-6-13"><a href="#annotated-cell-6-13" aria-hidden="true" tabindex="-1"></a><span class="bu">[</span> 2] 80                         ALLOW <span class="er">IN</span>    <span class="ex">Anywhere</span></span>
+<span id="annotated-cell-6-14"><a href="#annotated-cell-6-14" aria-hidden="true" tabindex="-1"></a><span class="bu">[</span> 3] 443                        ALLOW <span class="er">IN</span>    <span class="ex">Anywhere</span></span>
+<span id="annotated-cell-6-15"><a href="#annotated-cell-6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-16"><a href="#annotated-cell-6-16" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-6-17" class="code-annotation-target"><a href="#annotated-cell-6-17" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw deny 3306</span>
+<span id="annotated-cell-6-18"><a href="#annotated-cell-6-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Rule</span> added</span>
+<span id="annotated-cell-6-19"><a href="#annotated-cell-6-19" aria-hidden="true" tabindex="-1"></a><span class="ex">Rule</span> added <span class="er">(</span><span class="ex">v6</span><span class="kw">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="1,5" data-code-annotation="1"><strong>ufw status verbose</strong> muestra estado general y política por defecto.</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="7,15" data-code-annotation="2"><strong>ufw status numbered</strong> muestra reglas con índices para eliminar o modificar.</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="17,20" data-code-annotation="3"><strong>ufw deny 3306</strong> bloquea puerto 3306. Útil para cerrar puertos expuestos innecesariamente.</span>
+</dd>
+</dl>
+</section>
+<section id="ver-reglas-iptablesnftables" class="level3">
+<h3 class="anchored" data-anchor-id="ver-reglas-iptablesnftables">Ver reglas iptables/nftables</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-1" class="code-annotation-target"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo iptables <span class="at">-L</span> <span class="at">-n</span> <span class="at">-v</span></span>
+<span id="annotated-cell-7-2"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Chain</span> INPUT <span class="er">(</span><span class="ex">policy</span> ACCEPT<span class="kw">)</span></span>
+<span id="annotated-cell-7-3"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">target</span>     prot opt source               destination</span>
+<span id="annotated-cell-7-4"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">ACCEPT</span>     all  <span class="at">--</span>  0.0.0.0/0            0.0.0.0/0</span>
+<span id="annotated-cell-7-5"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">DROP</span>       all  <span class="at">--</span>  0.0.0.0/0            0.0.0.0/0            tcp dpt:3306</span>
+<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-7-7" class="code-annotation-target"><a href="#annotated-cell-7-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nft list ruleset</span>
+<span id="annotated-cell-7-8"><a href="#annotated-cell-7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">table</span> ip filter {</span>
+<span id="annotated-cell-7-9"><a href="#annotated-cell-7-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">chain</span> input {</span>
+<span id="annotated-cell-7-10"><a href="#annotated-cell-7-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">type</span> filter hook input priority filter<span class="kw">;</span> <span class="ex">policy</span> accept<span class="kw">;</span></span>
+<span id="annotated-cell-7-11"><a href="#annotated-cell-7-11" aria-hidden="true" tabindex="-1"></a>        <span class="ex">tcp</span> dport 22 accept</span>
+<span id="annotated-cell-7-12"><a href="#annotated-cell-7-12" aria-hidden="true" tabindex="-1"></a>        <span class="ex">tcp</span> dport 80 accept</span>
+<span id="annotated-cell-7-13"><a href="#annotated-cell-7-13" aria-hidden="true" tabindex="-1"></a>        <span class="ex">tcp</span> dport 3306 drop</span>
+<span id="annotated-cell-7-14"><a href="#annotated-cell-7-14" aria-hidden="true" tabindex="-1"></a>    <span class="er">}</span></span>
+<span id="annotated-cell-7-15"><a href="#annotated-cell-7-15" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="1" data-code-annotation="1"><strong>iptables -L -n -v</strong> lista todas las reglas. “-n” muestra IPs numéricas, “-v” verbose.</span>
+</dd>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="7,16" data-code-annotation="2"><strong>nft list ruleset</strong> para sistemas con nftables (Debian 12+, Ubuntu moderno).</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="diagnóstico-de-dns" class="level2">
+<h2 class="anchored" data-anchor-id="diagnóstico-de-dns">Diagnóstico de DNS</h2>
+<section id="ver-configuración-de-dns" class="level3">
+<h3 class="anchored" data-anchor-id="ver-configuración-de-dns">Ver configuración de DNS</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-8-1" class="code-annotation-target"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> resolvectl status</span>
+<span id="annotated-cell-8-2"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Global</span></span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a>       <span class="ex">Protocols:</span> <span class="at">-LLMNR</span> +resolve +mDNS5</span>
+<span id="annotated-cell-8-4"><a href="#annotated-cell-8-4" aria-hidden="true" tabindex="-1"></a>       <span class="ex">DNS</span> Servers: 8.8.8.8 1.1.1.1</span>
+<span id="annotated-cell-8-5"><a href="#annotated-cell-8-5" aria-hidden="true" tabindex="-1"></a>       <span class="ex">DNSSEC:</span> supported</span>
+<span id="annotated-cell-8-6"><a href="#annotated-cell-8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-7"><a href="#annotated-cell-8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Link</span> 2 <span class="er">(</span><span class="ex">eth0</span><span class="kw">)</span></span>
+<span id="annotated-cell-8-8"><a href="#annotated-cell-8-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">Current</span> Scopes: DNS</span>
+<span id="annotated-cell-8-9"><a href="#annotated-cell-8-9" aria-hidden="true" tabindex="-1"></a>      <span class="ex">Protocols:</span> +LLMNR +resolve +mDNS5</span>
+<span id="annotated-cell-8-10"><a href="#annotated-cell-8-10" aria-hidden="true" tabindex="-1"></a>      <span class="ex">Current</span> DNS Server: 8.8.8.8</span>
+<span id="annotated-cell-8-11"><a href="#annotated-cell-8-11" aria-hidden="true" tabindex="-1"></a>      <span class="ex">DNS</span> Servers: 8.8.8.8</span>
+<span id="annotated-cell-8-12"><a href="#annotated-cell-8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-13"><a href="#annotated-cell-8-13" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-8-14" class="code-annotation-target"><a href="#annotated-cell-8-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /etc/resolv.conf</span>
+<span id="annotated-cell-8-15"><a href="#annotated-cell-8-15" aria-hidden="true" tabindex="-1"></a><span class="ex">nameserver</span> 8.8.8.8</span>
+<span id="annotated-cell-8-16"><a href="#annotated-cell-8-16" aria-hidden="true" tabindex="-1"></a><span class="ex">nameserver</span> 1.1.1.1</span>
+<span id="annotated-cell-8-17"><a href="#annotated-cell-8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-18"><a href="#annotated-cell-8-18" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-8-19" class="code-annotation-target"><a href="#annotated-cell-8-19" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> host <span class="at">-t</span> A google.com</span>
+<span id="annotated-cell-8-20"><a href="#annotated-cell-8-20" aria-hidden="true" tabindex="-1"></a><span class="ex">google.com</span> has address 142.250.185.46</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="1,12" data-code-annotation="1"><strong>resolvectl status</strong> es el comando moderno (systemd-resolved). Muestra servidores DNS efectivos.</span>
+</dd>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="14,17" data-code-annotation="2"><strong>/etc/resolv.conf</strong> es el archivo tradicional. En sistemas con systemd-resolved, es un symlink.</span>
+</dd>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="19,21" data-code-annotation="3"><strong>host -t A</strong> consulta registro A. Para verificar resolución de nombres.</span>
+</dd>
+</dl>
+</section>
+<section id="pruebas-de-resolución" class="level3">
+<h3 class="anchored" data-anchor-id="pruebas-de-resolución">Pruebas de resolución</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-9-1" class="code-annotation-target"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> dig +short google.com</span>
+<span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">142.250.185.78</span></span>
+<span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-9-4" class="code-annotation-target"><a href="#annotated-cell-9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> dig +short <span class="at">-x</span> 142.250.185.78</span>
+<span id="annotated-cell-9-5"><a href="#annotated-cell-9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">sfo07s17-in-f14.1e100.net.</span></span>
+<span id="annotated-cell-9-6"><a href="#annotated-cell-9-6" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-9-7" class="code-annotation-target"><a href="#annotated-cell-9-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nslookup google.com</span>
+<span id="annotated-cell-9-8"><a href="#annotated-cell-9-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span>         8.8.8.8</span>
+<span id="annotated-cell-9-9"><a href="#annotated-cell-9-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Address:</span>        8.8.8.8#53</span>
+<span id="annotated-cell-9-10"><a href="#annotated-cell-9-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Non-authoritative</span> answer:</span>
+<span id="annotated-cell-9-11"><a href="#annotated-cell-9-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Name:</span>   google.com</span>
+<span id="annotated-cell-9-12"><a href="#annotated-cell-9-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Address:</span> 142.250.185.78</span>
+<span id="annotated-cell-9-13"><a href="#annotated-cell-9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-14"><a href="#annotated-cell-9-14" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-9-15" class="code-annotation-target"><a href="#annotated-cell-9-15" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> getent hosts google.com</span>
+<span id="annotated-cell-9-16"><a href="#annotated-cell-9-16" aria-hidden="true" tabindex="-1"></a><span class="ex">142.250.185.78</span> google.com</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="1,13" data-code-annotation="1"><strong>dig +short</strong> respuesta corta con solo IPs. Perfecto para scripts.</span>
+</dd>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="4" data-code-annotation="2"><strong>dig +short -x</strong> resolución inversa (PTR). Útil para verificar reverse DNS de servers.</span>
+</dd>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="7" data-code-annotation="3"><strong>nslookup</strong> comando clásico de DNS. Funciona incluso con configuraciones rotas.</span>
+</dd>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="15,17" data-code-annotation="4"><strong>getent hosts</strong> consulta /etc/hosts primero, luego DNS. Para verificar overrides locales.</span>
+</dd>
+</dl>
+</section>
+<section id="dns-cache-local" class="level3">
+<h3 class="anchored" data-anchor-id="dns-cache-local">DNS cache local</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-10" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-10-1" class="code-annotation-target"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemd-resolve <span class="at">--flush-caches</span></span>
+<span id="annotated-cell-10-2"><a href="#annotated-cell-10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># or</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-10" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-10-3" class="code-annotation-target"><a href="#annotated-cell-10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo resolvectl flush-caches</span>
+<span id="annotated-cell-10-4"><a href="#annotated-cell-10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-5"><a href="#annotated-cell-10-5" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-10" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-10-6" class="code-annotation-target"><a href="#annotated-cell-10-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> resolvectl statistics</span>
+<span id="annotated-cell-10-7"><a href="#annotated-cell-10-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Cache:</span></span>
+<span id="annotated-cell-10-8"><a href="#annotated-cell-10-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">Current</span> Cache Size: 127</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="1" data-code-annotation="1"><strong>–flush-caches</strong> limpia cache DNS. Útil cuando DNS propagó cambios pero el servidor responde con datos viejos.</span>
+</dd>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="3,4" data-code-annotation="2"><strong>resolvectl flush-caches</strong> comando moderno.</span>
+</dd>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="6,9" data-code-annotation="3"><strong>resolvectl statistics</strong> muestra tamaño de cache y estadísticas.</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="casos-de-diagnóstico-reales" class="level2">
+<h2 class="anchored" data-anchor-id="casos-de-diagnóstico-reales">Casos de diagnóstico reales</h2>
+<section id="escenario-1-servidor-web-no-responde-desde-afuera" class="level3">
+<h3 class="anchored" data-anchor-id="escenario-1-servidor-web-no-responde-desde-afuera">Escenario 1: Servidor web no responde desde afuera</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-11-1" class="code-annotation-target"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
+<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
+<span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-11-4" class="code-annotation-target"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://192.168.56.10</span>
+<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl:</span> <span class="er">(</span><span class="ex">7</span><span class="kw">)</span> <span class="ex">Failed</span> to connect to 192.168.56.10: Connection timed out</span>
+<span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-11-7" class="code-annotation-target"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ss <span class="at">-tlnp</span> <span class="kw">|</span> <span class="fu">grep</span> :80</span>
+<span id="annotated-cell-11-8"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 128 0.0.0.0:80 0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="kw">(</span><span class="st">"nginx"</span><span class="ex">,pid=456,fd=6</span><span class="kw">))</span></span>
+<span id="annotated-cell-11-9"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-10"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-11-11" class="code-annotation-target"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw status <span class="kw">|</span> <span class="fu">grep</span> 80</span>
+<span id="annotated-cell-11-12"><a href="#annotated-cell-11-12" aria-hidden="true" tabindex="-1"></a><span class="ex">80/tcp</span>                     ALLOW IN    Anywhere</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="1,9" data-code-annotation="1"><strong>curl localhost</strong> funciona. El servicio web está corriendo.</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="4" data-code-annotation="2"><strong>curl IP interna</strong> falla. Problema de red interno o firewall.</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="7" data-code-annotation="3">Puerto 80 escuchando. Nginx está activo.</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="11,13" data-code-annotation="4">UFW permite puerto 80. Firewall no es el problema.</span>
+</dd>
+</dl>
+<p><strong>Diagnóstico:</strong> El servidor responde localmente pero no desde red. Verificar: - Interfaces de red del servidor - Gateway/rutas - Firewall del router/edge</p>
+</section>
+<section id="escenario-2-no-puedo-conectar-a-base-de-datos-remota" class="level3">
+<h3 class="anchored" data-anchor-id="escenario-2-no-puedo-conectar-a-base-de-datos-remota">Escenario 2: No puedo conectar a base de datos remota</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-12" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-12-1" class="code-annotation-target"><a href="#annotated-cell-12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nc <span class="at">-zv</span> 192.168.1.100 3306 <span class="at">-w</span> 3</span>
+<span id="annotated-cell-12-2"><a href="#annotated-cell-12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nc:</span> connect to 192.168.1.100 3306 tcp timed out: Connection refused</span>
+<span id="annotated-cell-12-3"><a href="#annotated-cell-12-3" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-12-4" class="code-annotation-target"><a href="#annotated-cell-12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ss <span class="at">-tlnp</span> <span class="kw">|</span> <span class="fu">grep</span> 3306</span>
+<span id="annotated-cell-12-5"><a href="#annotated-cell-12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 128 127.0.0.1:3306 0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="kw">(</span><span class="st">"mariadb"</span><span class="ex">,pid=789,fd=20</span><span class="kw">))</span></span>
+<span id="annotated-cell-12-6"><a href="#annotated-cell-12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-7"><a href="#annotated-cell-12-7" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-12-8" class="code-annotation-target"><a href="#annotated-cell-12-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw status <span class="kw">|</span> <span class="fu">grep</span> 3306</span>
+<span id="annotated-cell-12-9"><a href="#annotated-cell-12-9" aria-hidden="true" tabindex="-1"></a><span class="ex">3306/tcp</span>                    DENY        Anywhere</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-12" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="1" data-code-annotation="1"><strong>nc</strong> muestra “Connection refused”. El puerto no está accepting conexiones.</span>
+</dd>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="4,6" data-code-annotation="2"><strong>ss</strong> revela que MariaDB solo escucha en 127.0.0.1 (localhost). bind-address restrictivo.</span>
+</dd>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="8,10" data-code-annotation="3">UFW bloquea 3306. Puerto denegado por defecto.</span>
+</dd>
+</dl>
+<p><strong>Solución:</strong></p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-13" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-13-1"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 1: Abrir firewall (si es necesario)</span></span>
+<span id="annotated-cell-13-2"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow 3306/tcp</span>
+<span id="annotated-cell-13-3"><a href="#annotated-cell-13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-4"><a href="#annotated-cell-13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 2: Cambiar bind-address en MariaDB</span></span>
+<span id="annotated-cell-13-5"><a href="#annotated-cell-13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf</span>
+<span id="annotated-cell-13-6"><a href="#annotated-cell-13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[mysqld]</span></span>
+<span id="annotated-cell-13-7"><a href="#annotated-cell-13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">bind-address</span> = 0.0.0.0</span>
+<span id="annotated-cell-13-8"><a href="#annotated-cell-13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-9"><a href="#annotated-cell-13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-10"><a href="#annotated-cell-13-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl restart mariadb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+</dl>
+</section>
+<section id="escenario-3-dns-resuelve-incorrectamente" class="level3">
+<h3 class="anchored" data-anchor-id="escenario-3-dns-resuelve-incorrectamente">Escenario 3: DNS resuelve incorrectamente</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-14" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-14-1" class="code-annotation-target"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ping <span class="at">-c</span> 1 mi-sitio.com</span>
+<span id="annotated-cell-14-2"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">PING</span> mi-sitio.com <span class="er">(</span><span class="ex">93.184.216.34</span><span class="kw">)</span> <span class="ex">56</span><span class="er">(</span><span class="ex">84</span><span class="kw">)</span> <span class="ex">bytes</span> of 64 bytes from 93.184.216.34: icmp_seq=1 ttl=63 time=14.2 ms</span>
+<span id="annotated-cell-14-3"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-14" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-14-4" class="code-annotation-target"><a href="#annotated-cell-14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> host mi-sitio.com</span>
+<span id="annotated-cell-14-5"><a href="#annotated-cell-14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">mi-sitio.com</span> has address 93.184.216.34</span>
+<span id="annotated-cell-14-6"><a href="#annotated-cell-14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-7"><a href="#annotated-cell-14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Pero debería ser 104.21.35.78 (IP nueva después de migración)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="1" data-code-annotation="1"><strong>ping</strong> responde con IP antigua. DNS no ha actualizado.</span>
+</dd>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="4" data-code-annotation="2">Verificar TTL y forzar flush:</span>
+</dd>
+</dl>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-15-1" class="code-annotation-target"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> dig +trace mi-sitio.com</span>
+<span id="annotated-cell-15-2"><a href="#annotated-cell-15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mi-sitio.com.</span>    86400   IN  A   93.184.216.34</span>
+<span id="annotated-cell-15-3"><a href="#annotated-cell-15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-4"><a href="#annotated-cell-15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-5"><a href="#annotated-cell-15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo resolvectl flush-caches</span>
+<span id="annotated-cell-15-6"><a href="#annotated-cell-15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-7"><a href="#annotated-cell-15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-8"><a href="#annotated-cell-15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> dig mi-sitio.com</span>
+<span id="annotated-cell-15-9"><a href="#annotated-cell-15-9" aria-hidden="true" tabindex="-1"></a><span class="ex">mi-sitio.com.</span>    300    IN  A   104.21.35.78</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-15" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="1,3" data-code-annotation="3">Después de flush, resuelve la IP correcta (TTL 300 vs 86400).</span>
+</dd>
+</dl>
+</section>
+<section id="escenario-4-puerto-esperado-no-está-escuchando" class="level3">
+<h3 class="anchored" data-anchor-id="escenario-4-puerto-esperado-no-está-escuchando">Escenario 4: Puerto esperado no está escuchando</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-16-1" class="code-annotation-target"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-tlnp</span> <span class="kw">|</span> <span class="fu">grep</span> :5432</span>
+<span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">empty</span> <span class="at">-</span> PostgreSQL no está corriendo<span class="kw">)</span></span>
+<span id="annotated-cell-16-3"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-16-4" class="code-annotation-target"><a href="#annotated-cell-16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl status postgresql</span>
+<span id="annotated-cell-16-5"><a href="#annotated-cell-16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> postgresql.service <span class="at">-</span> PostgreSQL RDBMS</span>
+<span id="annotated-cell-16-6"><a href="#annotated-cell-16-6" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Loaded:</span> loaded <span class="er">(</span><span class="ex">/lib/systemd/system/postgresql.service</span><span class="kw">;</span> <span class="ex">enabled</span><span class="kw">)</span></span>
+<span id="annotated-cell-16-7"><a href="#annotated-cell-16-7" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> failed <span class="er">(</span><span class="ex">Result:</span> start-limit-hit<span class="kw">)</span></span>
+<span id="annotated-cell-16-8"><a href="#annotated-cell-16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-9"><a href="#annotated-cell-16-9" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-16-10" class="code-annotation-target"><a href="#annotated-cell-16-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo journalctl <span class="at">-u</span> postgresql <span class="at">-n</span> 20 <span class="at">--no-pager</span></span>
+<span id="annotated-cell-16-11"><a href="#annotated-cell-16-11" aria-hidden="true" tabindex="-1"></a><span class="ex">abr</span> 02 14:30:00 server01 postgresql<span class="pp">[</span><span class="ss">1234</span><span class="pp">]</span>: 2026-04-02 14:30:00.000 UTC <span class="pp">[</span><span class="ss">1234</span><span class="pp">]</span> FATAL: database <span class="st">"myapp"</span> does not exist</span>
+<span id="annotated-cell-16-12"><a href="#annotated-cell-16-12" aria-hidden="true" tabindex="-1"></a><span class="ex">abr</span> 02 14:30:00 server01 postgresql<span class="pp">[</span><span class="ss">1234</span><span class="pp">]</span>: 2026-04-02 14:30:00.000 UTC <span class="pp">[</span><span class="ss">1234</span><span class="pp">]</span> LOG:  database files are incompatible with server</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="1" data-code-annotation="1">Puerto 5432 vacío. PostgreSQL no está corriendo.</span>
+</dd>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="4,8" data-code-annotation="2"><strong>systemctl status</strong> muestra “failed” con “start-limit-hit”. Intentos de reinicio fallidos.</span>
+</dd>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="10,13" data-code-annotation="3"><strong>journalctl</strong> revela la causa: base de datos corrupta o incompatible.</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="herramientas-de-diagnóstico-de-red" class="level2">
+<h2 class="anchored" data-anchor-id="herramientas-de-diagnóstico-de-red">Herramientas de diagnóstico de red</h2>
+<section id="traceroute-mtr" class="level3">
+<h3 class="anchored" data-anchor-id="traceroute-mtr">traceroute / mtr</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-17" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-17-1" class="code-annotation-target"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> traceroute <span class="at">-I</span> 8.8.8.8</span>
+<span id="annotated-cell-17-2"><a href="#annotated-cell-17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">traceroute</span> to 8.8.8.8 <span class="er">(</span><span class="ex">8.8.8.8</span><span class="kw">)</span><span class="ex">,</span> 30 hops max, 60 byte packets</span>
+<span id="annotated-cell-17-3"><a href="#annotated-cell-17-3" aria-hidden="true" tabindex="-1"></a> <span class="ex">1</span>  gateway <span class="er">(</span><span class="ex">192.168.56.1</span><span class="kw">)</span>  <span class="ex">1.234</span> ms  1.456 ms  1.234 ms</span>
+<span id="annotated-cell-17-4"><a href="#annotated-cell-17-4" aria-hidden="true" tabindex="-1"></a> <span class="ex">2</span>  10.0.0.1 <span class="er">(</span><span class="ex">10.0.0.1</span><span class="kw">)</span>  <span class="ex">5.678</span> ms  5.890 ms  5.678 ms</span>
+<span id="annotated-cell-17-5"><a href="#annotated-cell-17-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">3</span>  8.8.8.8 <span class="er">(</span><span class="ex">8.8.8.8</span><span class="kw">)</span>  <span class="ex">15.234</span> ms  15.456 ms  15.234 ms</span>
+<span id="annotated-cell-17-6"><a href="#annotated-cell-17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-7"><a href="#annotated-cell-17-7" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-17" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-17-8" class="code-annotation-target"><a href="#annotated-cell-17-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mtr <span class="at">-c</span> 10 8.8.8.8</span>
+<span id="annotated-cell-17-9"><a href="#annotated-cell-17-9" aria-hidden="true" tabindex="-1"></a>                                                   <span class="ex">My</span> traceroute  <span class="pp">[</span><span class="ss">v0.95</span><span class="pp">]</span></span>
+<span id="annotated-cell-17-10"><a href="#annotated-cell-17-10" aria-hidden="true" tabindex="-1"></a><span class="ex">server01</span>                                            2026-04-02T14:30:00+0000</span>
+<span id="annotated-cell-17-11"><a href="#annotated-cell-17-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Keys:</span>  Help   Display mode   Restart statistics   Order of fields   quit</span>
+<span id="annotated-cell-17-12"><a href="#annotated-cell-17-12" aria-hidden="true" tabindex="-1"></a>                                              <span class="ex">Packets</span>               Pings</span>
+<span id="annotated-cell-17-13"><a href="#annotated-cell-17-13" aria-hidden="true" tabindex="-1"></a> <span class="ex">Host</span>                             Loss%   Snt   Last   Avg  Best  Wrst StDev</span>
+<span id="annotated-cell-17-14"><a href="#annotated-cell-17-14" aria-hidden="true" tabindex="-1"></a>  <span class="ex">1.</span> gateway                        0.0%   10   1.2   1.4   1.1   2.1  0.3</span>
+<span id="annotated-cell-17-15"><a href="#annotated-cell-17-15" aria-hidden="true" tabindex="-1"></a>  <span class="ex">2.</span> 10.0.0.1                       0.0%   10   5.7   5.8   5.6   6.2  0.2</span>
+<span id="annotated-cell-17-16"><a href="#annotated-cell-17-16" aria-hidden="true" tabindex="-1"></a>  <span class="ex">3.</span> 8.8.8.8                        0.0%   10  15.2  15.4  14.8  16.2  0.4</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-17" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="1,6" data-code-annotation="1"><strong>traceroute -I</strong> usa ICMP (más lento pero informativo). Muestra cada salto.</span>
+</dd>
+<dt data-target-cell="annotated-cell-17" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="8,17" data-code-annotation="2"><strong>mtr</strong> combina ping + traceroute. Actualiza en tiempo real. Ideal para monitoreo continuo.</span>
+</dd>
+</dl>
+</section>
+<section id="ip-neigh-arp-cache" class="level3">
+<h3 class="anchored" data-anchor-id="ip-neigh-arp-cache">ip neigh (ARP cache)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-18" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-18" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-18-1" class="code-annotation-target"><a href="#annotated-cell-18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ip neigh show</span>
+<span id="annotated-cell-18-2"><a href="#annotated-cell-18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">192.168.56.1</span> dev eth0 lladdr 08:00:27:12:34:56 REACHABLE</span>
+<span id="annotated-cell-18-3"><a href="#annotated-cell-18-3" aria-hidden="true" tabindex="-1"></a><span class="ex">192.168.56.10</span> dev eth0 lladdr 08:00:27:ab:cd:ef STALE</span>
+<span id="annotated-cell-18-4"><a href="#annotated-cell-18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-5"><a href="#annotated-cell-18-5" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-18" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-18-6" class="code-annotation-target"><a href="#annotated-cell-18-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ip neigh flush all</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-18" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-18" data-code-lines="1,4" data-code-annotation="1"><strong>ip neigh</strong> muestra cache ARP. “STALE” = entrada válida pero no probada recientemente.</span>
+</dd>
+<dt data-target-cell="annotated-cell-18" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-18" data-code-lines="6,7" data-code-annotation="2"><strong>ip neigh flush all</strong> limpia cache ARP. Útil cuando hay problemas de comunicación en LAN.</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="monitoreo-de-conectividad" class="level2">
+<h2 class="anchored" data-anchor-id="monitoreo-de-conectividad">Monitoreo de conectividad</h2>
+<section id="script-de-health-check" class="level3">
+<h3 class="anchored" data-anchor-id="script-de-health-check">Script de health check</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># /usr/local/bin/network-health.sh</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">HOSTS</span><span class="op">=</span><span class="va">(</span><span class="st">"8.8.8.8"</span> <span class="st">"1.1.1.1"</span> <span class="st">"google.com"</span><span class="va">)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">PORTS</span><span class="op">=</span><span class="va">(</span>22 80 443 3306<span class="va">)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="va">EMAIL</span><span class="op">=</span><span class="st">"admin@empresa.com"</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Test DNS resolution</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> host <span class="kw">in</span> <span class="st">"</span><span class="va">${HOSTS</span><span class="op">[@]</span><span class="va">}</span><span class="st">"</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="ot">! </span><span class="fu">ping</span> <span class="at">-c</span> 1 <span class="at">-W</span> 2 <span class="st">"</span><span class="va">$host</span><span class="st">"</span> <span class="op">&gt;</span> /dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">echo</span> <span class="st">"FAIL: Cannot reach </span><span class="va">$host</span><span class="st">"</span> <span class="kw">|</span> <span class="ex">mail</span> <span class="at">-s</span> <span class="st">"Network Alert"</span> <span class="va">$EMAIL</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">fi</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Test ports</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> port <span class="kw">in</span> <span class="st">"</span><span class="va">${PORTS</span><span class="op">[@]</span><span class="va">}</span><span class="st">"</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="ot">! </span><span class="ex">nc</span> <span class="at">-zv</span> localhost <span class="va">$port</span> <span class="op">&gt;</span> /dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="bu">echo</span> <span class="st">"WARN: Port </span><span class="va">$port</span><span class="st"> not listening"</span> <span class="kw">|</span> <span class="ex">mail</span> <span class="at">-s</span> <span class="st">"Port Alert"</span> <span class="va">$EMAIL</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">fi</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="cron-para-monitoreo" class="level3">
+<h3 class="anchored" data-anchor-id="cron-para-monitoreo">Cron para monitoreo</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-20" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-20" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-20-1" class="code-annotation-target"><a href="#annotated-cell-20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo crontab <span class="at">-e</span></span>
+<span id="annotated-cell-20-2"><a href="#annotated-cell-20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Check cada 5 minutos</span></span>
+<span id="annotated-cell-20-3"><a href="#annotated-cell-20-3" aria-hidden="true" tabindex="-1"></a><span class="ex">*/5</span> <span class="pp">*</span> <span class="pp">*</span> <span class="pp">*</span> <span class="pp">*</span> /usr/local/bin/network-health.sh <span class="op">&gt;</span> /dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-20" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-20" data-code-lines="1,4" data-code-annotation="1"><strong>cron + script</strong> ejecuta health check automáticamente cada 5 minutos.</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">Resumen</h2>
+<section id="checklist-de-diagnóstico" class="level3">
+<h3 class="anchored" data-anchor-id="checklist-de-diagnóstico">Checklist de diagnóstico</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Paso</th>
+<th>Comando</th>
+<th>Valida</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>ip -br addr</code></td>
+<td>IP y estado de interfaces</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>ip route</code></td>
+<td>Gateway y rutas</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><code>ping 8.8.8.8</code></td>
+<td>Conectividad externa</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><code>ss -tlnp</code></td>
+<td>Puertos escuchando</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><code>nc -zv host port</code></td>
+<td>Conectividad a puerto</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><code>resolvectl status</code></td>
+<td>DNS efectivo</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><code>ufw status</code></td>
+<td>Reglas de firewall</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="comandos-esenciales" class="level3">
+<h3 class="anchored" data-anchor-id="comandos-esenciales">Comandos esenciales</h3>
+<ul>
+<li><strong>ss -tlnp</strong> - Ver servicios escuchando</li>
+<li><strong>nc -zv host port</strong> - Probar conectividad a puerto</li>
+<li><strong>resolvectl status</strong> - Verificar DNS</li>
+<li><strong>traceroute/mtr</strong> - Diagnosticar saltos</li>
+<li><strong>journalctl -u servicio</strong> - Logs de red/servicio</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
+<ul>
+<li><code>man ss</code> - Socket statistics</li>
+<li><code>man nc</code> - Netcat</li>
+<li><code>man resolvectl</code> - DNS resolver</li>
+<li><code>man ufw</code> - Uncomplicated Firewall</li>
+<li><code>man iptables</code> - Packet filtering (legacy)</li>
+<li><code>man nft</code> - Netfilter tables (modern)</li>
+</ul>
 
 
 </section>

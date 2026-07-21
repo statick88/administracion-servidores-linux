@@ -1,6 +1,6 @@
 ---
 title: "Unidad 12.4: CPU, memoria y storage"
-subtitle: "Diagnostico de saturacion y espacio"
+subtitle: "Diagnóstico de saturación y espacio"
 author: "Diego Saavedra"
 date: "2026-02-02"
 date-format: medium
@@ -8,53 +8,521 @@ date-format: medium
 
 # Unidad 12.4: CPU, memoria y storage
 
-## Introduccion
+## Introducción
 
-Muchas caidas son por saturacion (CPU/RAM) o por disco lleno (logs, backups, cache).
+Las caídas de servicios en producción casi siempre son por una de estas razones: CPU saturado, memoria agotada (OOM killer), o disco lleno (logs, tmp, cache). Vamos a diagnosticar cada caso con herramientas reales, no con intuición.
 
 ## Objetivos de aprendizaje
 
-- Identificar saturacion
-- Encontrar directorios grandes
-- Validar espacio disponible
+- Identificar procesos que consumen recursos excesivos
+- Diagnosticar problemas de memoria y swap
+- Encontrar y liberar espacio en disco
+- Implementar alertas de recursos
 
 ---
 
-## CPU y memoria
+## Diagnóstico de CPU
+
+### Load average y uptime
 
 ```bash
 $ uptime  # <1>
- 12:55:03 up 1 day,  3:21,  1 user,  load average: 0.08, 0.11, 0.09
+ 14:30:00 up 45 days,  3:22,  2 users,  load average: 2.45, 1.89, 1.56
 # <1>
 
-$ free -h  # <2>
-               total        used        free      shared  buff/cache   available
-Mem:           3.8Gi       1.1Gi       2.0Gi        52Mi       740Mi       2.5Gi
-Swap:          2.0Gi          0B       2.0Gi
+$ cat /proc/cpuinfo | grep processor | wc -l  # <2>
+4
 # <2>
 ```
 
+1. **uptime** muestra load average a 1, 5 y 15 minutos. Con 4 cores, load de 2.45 = ~60% utilización.
+2. El servidor tiene 4 cores. Load de 1.0 = 1 core 100% ocupado.
 
+### Procesos por CPU
 
-1. **uptime** indica carga y uptime.
-2. **free -h** muestra uso de RAM.
+```bash
+$ top  # <1>
+top - 14:35:00 up 45 days,  3:22,  2 users,  load average: 2.45, 1.89, 1.56
+Tasks: 145 total,   1 running, 144 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 62.5 us,  7.5 sy,  0.0 ni, 30.0 idle,  0.0 wa, 0.0 hi, 0.0 si, 0.0 st
+MiB Mem :   7852.4 total,   1245.6 free,   4520.0 used,   2086.8 buff/cache
+MiB Swap:   2048.0 total,      0.0 free,   2048.0 used,   4500.0 avail Mem
+
+   PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+ 12345 www-data  20   0  512340  89000  34000 S  45.2  1.11   2:30.45 nginx
+ 12346 www-data  20   0  512340  89000  34000 S  42.1  1.11   2:28.12 nginx
+  2345 mysql     20   0 1234560 456000  32000 S  25.3  5.67  12:45.23 mariadbd
+# <1>
+
+$ htop  # <2>
+# <2>
+```
+
+1. **top** muestra uso de CPU y memoria por proceso. Presiona **P** para ordenar por CPU, **M** para memoria.
+2. **htop** es la versión mejorada con UI de colores. Instalar con `sudo apt install htop`.
+
+### Identificar procesos específicos
+
+```bash
+$ ps aux --sort=-%cpu | head -n 10  # <1>
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+www-data 12345 45.2  1.11 512340 89000 ?       S    14:00   2:30 nginx worker
+mysql    2345 25.3  5.67 1234560 456000 ?       S    10:00  12:45 mariadbd
+root     5678 12.5  0.89 234567 45678 ?        S    08:00   1:23 python3 app.py
+# <1>
+
+$ pgrep -af "python"  # <2>
+5678 python3 app.py
+7890 python3 worker.py
+12340 python3 -m flask run
+# <2>
+
+$ ps -p 12345 -o pid,ppid,cmd,%cpu,%mem  # <3>
+  PID  PPID CMD                         %CPU %MEM
+12345     1 /usr/sbin/nginx -g daemon   45.2 1.11
+# <3>
+```
+
+1. **ps aux --sort=-%cpu** lista top 10 procesos por CPU. Similar a top pero estático.
+2. **pgrep -af** busca procesos por nombre. "-a" muestra comando completo, "-f" busca en cmdline.
+3. **ps -p** muestra información de proceso específico por PID.
+
+### Matar procesos problemáticos
+
+```bash
+$ sudo kill -15 12345  # <1>
+# SIGTERM -优雅停止, permite cleanup
+
+$ sudo kill -9 12345  # <2>
+# SIGKILL - forzar muerte inmediata
+# <2>
+
+$ sudo pkill -f "python.*worker"  # <3>
+# Mata todos los procesos que coinciden con el patrón
+# <3>
+```
+
+1. **kill -15** (SIGTERM) es el método correcto. Permite al proceso terminar limpiamente.
+2. **kill -9** (SIGKILL) solo si -15 no funciona. No permite cleanup, puede dejar archivos corruptos.
+3. **pkill** mata por patrón. Útil para batch de procesos del mismo tipo.
 
 ---
 
-## Disco y directorios grandes
+## Diagnóstico de memoria
+
+### Estado de memoria
+
+```bash
+$ free -h  # <1>
+               total        used        free      shared  buff/cache   available
+Mem:           7.6Gi       4.5Gi       1.2Gi       450Mi       1.9Gi       2.8Gi
+Swap:          2.0Gi       1.0Gi       1.0Gi
+# <1>
+
+$ cat /proc/meminfo | grep -E "^(MemTotal|MemFree|MemAvailable|Buffers|Cached|SwapFree|SwapTotal):"  # <2>
+MemTotal:        8019232 kB
+MemFree:         1258291 kB
+MemAvailable:    2934021 kB
+Buffers:          102400 kB
+Cached:          1956789 kB
+SwapFree:        1048576 kB
+SwapTotal:       2097152 kB
+# <2>
+```
+
+1. **free -h** muestra memoria en formato legible. "available" = memoria realmente usable.
+2. **/proc/meminfo** es la fuente de datos. "available" = free + buffers + cache - páginas no liberables.
+
+### Memoria por proceso
+
+```bash
+$ ps aux --sort=-%mem | head -n 10  # <1>
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+mysql     2345 25.3  5.67 1234560 456000 ?       S    10:00  12:45 mariadbd
+redis     3456  1.2  3.45 234567 267890 ?       S    09:00   5:23 redis-server
+python3   5678  2.5  2.89 456789 223456 ?       S    08:00   3:45 python3 app.py
+# <1>
+
+$ pmap -x 12345  # <2>
+12345:   nginx: worker process
+Address           Kbytes     RSS   Dirty Mode  Mapping
+0000562345678000   51234     45000   45000 rw---  [ anon ]
+00005623456ab000    8192     8192    8192 r----  library.so
+# <2>
+```
+
+1. **ps aux --sort=-%mem** top 10 procesos por memoria.
+2. **pmap -x** muestra mapa de memoria de proceso específico. Para análisis profundo de memory leaks.
+
+### Swap y OOM
+
+```bash
+$ vmstat 1 5  # <1>
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 2  0 1048576 1258291 102400 1956789  100   50   200   150  500 1000 45 10 45  0  0
+# <1>
+
+$ dmesg | grep -i "out of memory"  # <2>
+[12345.678901] Out of memory: Killed process 12345 (python3) total-vm:123456kB, anon-rss:89000kB, file-rss:12000kB, shmem-rss:0kB, UID:1000 pgtables:256kB oom_score_adj:0
+# <2>
+
+$ dmesg | grep -i "oom" | tail -n 5  # <3>
+[12345.678901] Out of memory: Killed process 12345
+[12345.678902] Out of memory: Killed process 12346
+# <3>
+```
+
+1. **vmstat 1 5** muestra estadísticas de memoria, swap, I/O, CPU cada 1 segundo por 5 veces.
+2. **dmesg | grep OOM** busca mensajes de OOM Killer. Muestra qué proceso fue muerto y por qué.
+3. Múltiples OOMs = problema serio. Necesitas más RAM o mejor gestión de memoria.
+
+### Configuración de swap
+
+```bash
+$ swapon --show  # <1>
+NAME      TYPE       SIZE USED PRIO
+/dev/sda5 partition  2G   1G    -2
+# <1>
+
+$ sudo swapoff -a && sudo swapon -a  # <2>
+# <2>
+
+$ sudo fallocate -l 2G /swapfile  # <3>
+$ sudo chmod 600 /swapfile
+$ sudo mkswap /swapfile
+$ sudo swapon /swapfile
+# <3>
+```
+
+1. **swapon --show** muestra dispositivos de swap activos.
+2. **swapoff + swapon** limpia y reinicia swap. Útil si swap está corrupto.
+3. **fallocate** crea archivo de swap si no hay partición disponible.
+
+---
+
+## Diagnóstico de disco
+
+### Espacio disponible
 
 ```bash
 $ df -h  # <1>
 Filesystem      Size  Used Avail Use% Mounted on
-/dev/sda1        49G  5.4G   41G  12% /
+/dev/sda1        49G   45G  4.0G  92% /
+/dev/sda2       100G   15G   85G  15% /var
+tmpfs           7.6G   12M  7.6G   1% /dev/shm
+/dev/sdb1      500G   200G  300G  40% /mnt/backup
 # <1>
 
-$ sudo du -xh /var | sort -h | tail -n 10  # <2>
-... mayores consumos ...
+$ df -i  # <2>
+Filesystem      Inodes  IUsed  IFree IUse% Mounted on
+/dev/sda1      3276800 245000 3031800    8% /
 # <2>
 ```
 
+1. **df -h** muestra espacio por filesystem. 92% en / = crítico, necesita atención inmediata.
+2. **df -i** muestra inodos. Disco puede tener espacio pero sin inodos = no puedo crear archivos.
 
+### Encontrar directorios grandes
 
-1. **df -h** valida espacio por filesystem.
-2. **du + sort** ayuda a encontrar directorios grandes.
+```bash
+$ sudo du -sh /var/* 2>/dev/null | sort -h | tail -n 10  # <1>
+4.5G  /var/lib
+2.3G  /var/log
+1.2G  /var/cache
+500M  /var/backups
+100M  /var/spool
+# <1>
+
+$ sudo du -sh /var/lib/docker 2>/dev/null  # <2>
+15G   /var/lib/docker
+# <2>
+
+$ sudo du -shx / --max-depth=1 2>/dev/null  # <3>
+45G   /
+24G   /var
+12G   /opt
+ 8G   /home
+ 5G   /usr
+# <3>
+```
+
+1. **du -sh /var/*** tamaño de cada subdirectorio en /var. Ordenado por tamaño.
+2. Docker en /var/lib/docker puede consumir mucho espacio.
+3. **du -shx** con -x ignora otros filesystems (no contar /mnt/backup). "--max-depth=1" = nivel 1.
+
+### Encontrar archivos grandes
+
+```bash
+$ sudo find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -h  # <1>
+-rw-r--r-- 1 root root 450M Apr  1  2024 /var/lib/docker/overlay2/abc123/diff/usr/lib/mysql/mariadbmariadb
+-rw-r--r-- 1 root root 234M Apr  2  2024 /var/log/apache2/access.log
+-rw-r--r-- 1 root root 123M Apr  2  2024 /var/log/syslog
+# <1>
+
+$ sudo find / -type f -atime +30 -delete 2>/dev/null  # <2>
+# <2>
+```
+
+1. **find -size +100M** encuentra archivos mayores a 100MB. Útil para encontrar logs gigantes o archivos huérfanos.
+2. **find -atime +30 -delete** elimina archivos no accedidos en 30 días. Precaución con esto.
+
+### Archivos específicos
+
+```bash
+$ sudo find /var/log -type f -name "*.log" -size +100M  # <1>
+/var/log/apache2/access.log
+/var/log/nginx/access.log
+/var/log/syslog
+# <1>
+
+$ sudo journalctl --disk-usage  # <2>
+Archived journals on disk:
+  7.3M /var/log/journal/a1b2c3d4/user-1000.journal
+  15.2M /var/log/journal/a1b2c3d4/system.journal
+# <2>
+
+$ sudo du -sh /var/lib/postgresql  # <3>
+45G /var/lib/postgresql
+# <3>
+```
+
+1. **find** con -name "*.log" para logs específicos.
+2. **journalctl --disk-usage** muestra tamaño de logs de systemd.
+3. Bases de datos PostgreSQL pueden ser enormes.
+
+---
+
+## Casos de diagnóstico reales
+
+### Escenario 1: Servidor lento, alta carga de CPU
+
+```bash
+$ uptime  # <1>
+ 14:30:00 up 45 days,  3:22,  load average: 8.45, 6.23, 4.56
+
+$ ps aux --sort=-%cpu | head -n 5  # <2>
+USER       PID %CPU %MEM    VSZ   RSS COMMAND
+www-data 12345 1952  2.0 512340 89000 python3 app.py
+mysql    2345   25  5.6 1234560 456000 mariadbd
+# <1>
+
+$ kill -15 12345  # <3>
+# <3>
+```
+
+1. Load average de 8.45 con 4 cores = 200%+ (sobrecarga).
+2. **ps** revela proceso python con 1952% de CPU (algo está quemando CPU).
+3. Matar proceso. потом investigar qué estaba haciendo.
+
+### Escenario 2: OOM Killer actuando
+
+```bash
+$ free -h  # <1>
+               total        used        free      shared  buff/cache   available
+Mem:           7.6Gi       7.5Gi       100Mi       450Mi       2.0Gi        50Mi
+Swap:          2.0Gi          0B       2.0Gi
+
+$ dmesg | grep -i "out of memory" | tail -n 1  # <2>
+[12345.678901] Out of memory: Killed process 5678 (python3) total-vm:2345678kB, anon-rss:1890000kB
+# <2>
+
+$ sudo nano /etc/sysctl.conf  # <3>
+vm.swappiness=10  # Reducir uso de swap
+vm.overcommit_memory=1  # Permitir overcommit
+# <3>
+
+$ sudo sysctl -p
+```
+
+1. **free -h** muestra memoria agotada (50Mi available).
+2. **dmesg** confirma OOM killer actúo.
+3. **sysctl** tuning: swappiness bajo = usar swap solo cuando RAM crítica.
+
+### Escenario 3: Disco lleno, servicios fallen
+
+```bash
+$ df -h  # <1>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        49G   49G     0   100% /
+
+$ sudo du -sh /var/log/* | sort -h | tail -n 5  # <2>
+4.5G  /var/log/apache2
+2.3G  /var/log/nginx
+1.2G  /var/log/syslog
+
+$ sudo truncate -s 0 /var/log/apache2/access.log  # <3>
+# <3>
+
+$ sudo truncate -s 0 /var/log/nginx/access.log
+
+$ sudo systemctl restart apache2 nginx
+```
+
+1. **df -h** muestra disco 100% lleno.
+2. **du** revela /var/log consumiendo gigabytes.
+3. **truncate -s 0** empty archivo sin borrarlo (preserva inode y permisos). Mejor que rm.
+
+### Escenario 4: Logs rotativos
+
+```bash
+$ sudo logrotate -fv /etc/logrotate.d/apache2  # <1>
+reading config file apache2
+creating new lock file
+rotating pattern: /var/log/apache2/*.log  weekly
+considering: /var/log/apache2/access.log
+  rotating: yes, old logs deleted
+# <1>
+
+$ sudo cat /etc/logrotate.d/nginx  # <2>
+/var/log/nginx/*.log {
+    daily
+    missingok
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 0640 www-data adm
+    sharedscripts
+    prerotate
+        if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+            . /etc/logrotate.d/httpd-prerotate; \
+        fi
+    endscript
+}
+# <2>
+```
+
+1. **logrotate -fv** fuerza rotación verbose. "-f" fuerza, "-v" verbose. Para probar configuración.
+2. Configuración típica: daily, rotate 14, compress. Mantiene 14 días de logs comprimidos.
+
+---
+
+## Monitoreo de recursos
+
+### atop - el top avanzado
+
+```bash
+$ sudo atop  # <1>
+ATOP - server01     2026/04/02  14:30:00     --------------     10s elapsed
+PRC |  sys    2.45s  |  user   3.12s  |  #proc    145 |  #tslpi   234
+CPU |  sys    35%  |  user    45%  |  idle     20%  |  #crt  4
+MEM |  tot    7.6G  |  cache  2.1G  |  buff   100M  |  free  1.2G  |  virt  8.5G
+DSK |  sda1   45G  |  read   234/s  |  write   150/s  |  MBr  12/s  |  MBw  8/s
+NET |  eth0   0.45G  |  #pkt  5000/s
+# <1>
+
+$ sudo apt install atop
+```
+
+1. **atop** es como top pero con persistencia y disco/red. Muestra qué proceso consume I/O.
+
+### Script de alertas de recursos
+
+```bash
+#!/bin/bash
+# /usr/local/bin/monitor-resources.sh
+
+THRESHOLD_CPU=80
+THRESHOLD_MEM=90
+THRESHOLD_DISK=90
+EMAIL="admin@empresa.com"
+
+# CPU
+CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2)}')
+if [ "$CPU_USAGE" -gt "$THRESHOLD_CPU" ]; then
+    echo "ALERT: CPU at ${CPU_USAGE}%" | mail -s "CPU Alert" $EMAIL
+fi
+
+# Memory
+MEM_USAGE=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')
+if [ "$MEM_USAGE" -gt "$THRESHOLD_MEM" ]; then
+    echo "ALERT: Memory at ${MEM_USAGE}%" | mail -s "Memory Alert" $EMAIL
+fi
+
+# Disk
+DISK_USAGE=$(df / | tail -1 | awk '{print int($5)}')
+if [ "$DISK_USAGE" -gt "$THRESHOLD_DISK" ]; then
+    echo "ALERT: Disk at ${DISK_USAGE}%" | mail -s "Disk Alert" $EMAIL
+fi
+```
+
+### Cron para monitoreo
+
+```bash
+$ sudo crontab -e  # <1>
+# Check cada 5 minutos
+*/5 * * * * /usr/local/bin/monitor-resources.sh > /dev/null 2>&1
+# <1>
+```
+
+---
+
+## Optimización de recursos
+
+### Limpiar memoria cache
+
+```bash
+$ sync && echo 3 | sudo tee /proc/sys/vm/drop_caches  # <1>
+# <1>
+
+$ sudo sysctl -w vm.drop_caches=3
+```
+
+1. **drop_caches** limpia page cache, dentries, inodes. "sync" primero para guardar cambios pendientes.
+2. Solo usar en producción si es necesario. Puede causar picos de I/O.
+
+### Limitar memoria de proceso
+
+```bash
+$ ulimit -v 1048576  # <1>
+# Limitar a 1GB de memoria virtual
+
+$ systemd-run --scope -p MemoryMax=1G /path/to/process  # <2>
+# <2>
+```
+
+1. **ulimit** limita recursos por shell/sesión.
+2. **systemd-run** con MemoryMax limita memoria de proceso específico.
+
+---
+
+## Resumen
+
+### Comandos esenciales
+
+| Categoría | Comando | Caso de uso |
+|-----------|---------|------------|
+| CPU | `top`, `ps aux --sort=-%cpu` | Identificar procesos que consumen CPU |
+| Memoria | `free -h`, `dmesg \| grep OOM` | Verificar RAM y detectar OOM killer |
+| Disco | `df -h`, `du -sh` | Encontrar espacio usado |
+| Procesos | `kill -15`, `pkill` | Matar procesos problemáticos |
+| Monitoreo | `atop`, script de alertas` | Monitoreo continuo |
+
+### Thresholds de producción
+
+| Recurso | Warning | Critical |
+|---------|---------|----------|
+| CPU | 70% | 90% |
+| Memoria | 80% | 95% |
+| Disco | 80% | 90% |
+| Swap | 50% | 80% |
+
+### Quick fixes
+
+- **CPU alto**: Matar proceso, optimizar código
+- **OOM**: Aumentar RAM, reducir swappiness, optimizar consumo
+- **Disco lleno**: `truncate -s 0`, `logrotate -f`, eliminar backups antiguos
+- **Inodos lleno**: Eliminar miles de archivos pequeños
+
+---
+
+## Referencias
+
+- `man top` - Monitor de procesos
+- `man free` - Estadísticas de memoria
+- `man df` - Espacio en disco
+- `man du` - Uso de disco
+- `man logrotate` - Rotación de logs
+- `man atop` - Monitor avanzado
+- `man sysctl` - Parámetros del kernel

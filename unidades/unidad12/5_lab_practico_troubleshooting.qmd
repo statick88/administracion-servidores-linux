@@ -1,0 +1,518 @@
+---
+title: "Laboratorio 12: Troubleshooting Integrado"
+subtitle: "Diagnóstico y resolución de problemas en servidores Linux"
+author: "Diego Saavedra"
+date: "2026-04-02"
+date-format: medium
+---
+
+# Laboratorio 12: Troubleshooting Integrado
+
+## Introducción
+
+En este laboratorio vas a aplicar todas las técnicas de diagnóstico cubiertas en la unidad 12. Vas a simular escenarios de problemas reales (servicio caído, disco lleno, alta carga) y resolverlos usando journalctl, herramientas de red, y análisis de recursos. Incluye pruebas locales con Docker y un VPS real.
+
+## Objetivos del Laboratorio
+
+Al completar este laboratorio podrás:
+
+1. Diagnosticar servicios que no inician usando journalctl
+2. Resolver problemas de conectividad de red
+3. Identificar y corregir problemas de recursos (CPU, RAM, disco)
+4. Implementar monitoreo básico con alertas
+5. Documentar incidentes de producción
+
+## Requisitos
+
+- Máquina con Docker instalado
+- Acceso a un VPS con IP pública
+- Al menos 2GB de RAM disponible en el host
+
+## Duración
+
+**120 minutos**
+
+---
+
+## Parte 1: Diagnóstico de Logs con journalctl
+
+### Ejercicio 1.1: Buscar Cause Raíz de Servicio Caído
+
+Vamos a simular un servicio que no inicia y usar journalctl para encontrar la causa:
+
+```bash
+# Crear contenedor con servicio nginx que we'll break
+$ docker run -d --name nginx-test -p 8080:80 nginx:alpine
+# <1>
+
+# Detener y verificar estado
+$ docker stop nginx-test
+$ docker rm nginx-test
+```
+
+1. **Contenedor nginx** para simular servicio real
+
+Ahora, simula un error comunes:
+
+```bash
+# Instalar nginx en el contenedor de prueba
+$ docker run -d --name server01 --hostname server01 ubuntu:22.04 sleep infinity
+# <1>
+
+# Instalar y configurar nginx con configuración errónea
+$ docker exec server01 bash -c "apt-get update && apt-get install -y nginx"
+
+# Ver servicio fallen usando journalctl
+$ docker exec server01 bash -c "journalctl -u nginx --no-pager -n 20"
+```
+
+1. **Contenedor ubuntu** como servidor de pruebas
+
+### Ejercicio 1.2: Filtrar Logs por Tiempo
+
+```bash
+# Ver logs de la última hora
+$ docker exec server01 bash -c "journalctl --since '1 hour ago' --no-pager"
+
+# Ver logs de un rango específico
+$ docker exec server01 bash -c "journalctl --since '2026-04-01 00:00:00' --until '2026-04-01 12:00:00' --no-pager"
+
+# Ver solo errores
+$ docker exec server01 bash -c "journalctl -p err --no-pager -n 50"
+# <1>
+```
+
+1. **-p err** filtra solo errores y superiores
+
+### Ejercicio 1.3: Analizar Patrones de Error
+
+```bash
+# Buscar patrón específico en logs
+$ docker exec server01 bash -c "journalctl --no-pager | grep -i error"
+
+# Contar errores por tipo
+$ docker exec server01 bash -c "journalctl --no-pager -p err | awk '{print \$5}' | sort | uniq -c | sort -rn"
+
+# Ver errores de servicio específico
+$ docker exec server01 bash -c "journalctl -u ssh --no-pager -p err"
+```
+
+---
+
+## Parte 2: Diagnóstico de Red
+
+### Ejercicio 2.1: Verificar Conectividad Básica
+
+```bash
+# Ver estado de interfaces
+$ ip -br addr show
+
+# Ver rutas
+$ ip route show
+
+# Probar conectividad
+$ ping -c 3 8.8.8.8
+$ ping -c 3 google.com
+```
+
+### Ejercicio 2.2: Verificar Puertos Listening
+
+```bash
+# Ver todos los puertos en escucha
+$ ss -tlnp
+
+# Ver puerto específico
+$ ss -tlnp | grep :80
+
+# Ver puertos de un proceso específico
+$ ss -tlnp | grep nginx
+```
+
+### Ejercicio 2.3: Probar Conectividad a Puerto
+
+```bash
+# Probar HTTP local
+$ curl -I http://localhost
+
+# Probar con nc (netcat)
+$ nc -zv localhost 80
+
+# Probar puerto específico con timeout
+$ nc -zv 192.168.1.1 22 -w 3
+```
+
+### Ejercicio 2.4: Diagnosticar Problema de Firewall
+
+```bash
+# Ver estado de UFW
+$ sudo ufw status verbose
+
+# Ver reglas numbered
+$ sudo ufw status numbered
+
+# Agregar regla para permitir puerto
+$ sudo ufw allow 8080/tcp
+
+# Bloquear puerto
+$ sudo ufw deny 3306/tcp
+```
+
+### Ejercicio 2.5: DNS Troubleshooting
+
+```bash
+# Ver configuración DNS
+$ resolvectl status
+
+# Probar resolución
+$ dig +short google.com
+$ host google.com
+
+# Flush cache DNS
+$ sudo resolvectl flush-caches
+
+# Verificar /etc/hosts
+$ cat /etc/hosts
+```
+
+---
+
+## Parte 3: Diagnóstico de Recursos
+
+### Ejercicio 3.1: CPU
+
+```bash
+# Ver uptime y load average
+$ uptime
+
+# Ver procesos por CPU
+$ ps aux --sort=-%cpu | head -n 10
+
+# Usar top
+$ top
+# Presionar 'P' para ordenar por CPU
+# Presionar 'q' para salir
+```
+
+### Ejercicio 3.2: Memoria
+
+```bash
+# Ver uso de memoria
+$ free -h
+
+# Ver con más detalle
+$ cat /proc/meminfo
+
+# Ver swap
+$ swapon --show
+
+# Ver OOMs si existen
+$ dmesg | grep -i oom | tail -n 5
+```
+
+### Ejercicio 3.3: Disco
+
+```bash
+# Ver espacio
+$ df -h
+
+# Ver inodos
+$ df -i
+
+# Encontrar directorios grandes
+$ sudo du -sh /var/* | sort -h | tail -n 10
+
+# Encontrar archivos grandes
+$ sudo find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -h | tail -n 10
+```
+
+---
+
+## Parte 4: Escenarios de Troubleshooting
+
+### Escenario 4.1: Servicio No Responde
+
+**Problema:** El servidor web no responde desde el navegador
+
+**Pasos de diagnóstico:**
+
+```bash
+# 1. Verificar que el servicio está corriendo
+$ systemctl status nginx
+$ ss -tlnp | grep :80
+
+# 2. Verificar que responde localmente
+$ curl -I http://localhost
+
+# 3. Ver logs del servicio
+$ journalctl -u nginx -n 20 --no-pager
+
+# 4. Ver firewall
+$ sudo ufw status | grep 80
+
+# 5. Ver recursos del sistema
+$ free -h
+$ df -h
+```
+
+**Solución aplicada:**
+
+```bash
+# Si el servicio no está corriendo, iniciarlo
+$ sudo systemctl start nginx
+$ sudo systemctl enable nginx
+
+# Si el puerto está bloqueado, abrirlo
+$ sudo ufw allow 80/tcp
+
+# Si hay problema de recursos, limpiar
+$ sudo truncate -s 0 /var/log/nginx/access.log
+```
+
+### Escenario 4.2: Base de Datos No Accesible
+
+**Problema:** No puedo conectar a MariaDB desde aplicación remota
+
+**Pasos de diagnóstico:**
+
+```bash
+# 1. Verificar que MariaDB está corriendo
+$ systemctl status mariadb
+$ ss -tlnp | grep :3306
+
+# 2. Probar conectividad local
+$ nc -zv localhost 3306
+
+# 3. Ver configuración de bind-address
+$ sudo cat /etc/mysql/mariadb.conf.d/50-server.cnf | grep bind-address
+
+# 4. Ver usuarios y permisos
+$ sudo mysql -e "SELECT user, host FROM mysql.user WHERE user='appuser';"
+
+# 5. Ver firewall
+$ sudo ufw status | grep 3306
+```
+
+**Solución:**
+
+```bash
+# Cambiar bind-address
+$ sudo sed -i 's/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
+$ sudo systemctl restart mariadb
+
+# Abrir firewall
+$ sudo ufw allow 3306/tcp
+
+# Crear usuario con acceso remoto
+$ sudo mysql -e "CREATE USER 'appuser'@'%' IDENTIFIED BY 'password123';"
+$ sudo mysql -e "GRANT ALL ON myapp.* TO 'appuser'@'%';"
+$ sudo mysql -e "FLUSH PRIVILEGES;"
+```
+
+### Escenario 4.3: Disco Lleno
+
+**Problema:** Servidor no responde, servicios fallen al iniciar
+
+**Diagnóstico:**
+
+```bash
+$ df -h
+# /dev/sda1 100% usado
+
+# Encontrar el culpable
+$ sudo du -sh /var/*
+# /var/log 45G
+# /var/lib/docker 30G
+```
+
+**Solución:**
+
+```bash
+# 1. Limpiar logs antiguos
+$ sudo journalctl --vacuum-size=100M
+$ sudo rm -rf /var/log/*.gz
+$ sudo truncate -s 0 /var/log/syslog
+$ sudo truncate -s 0 /var/log/nginx/access.log
+
+# 2. Limpiar Docker
+$ docker system prune -af
+
+# 3. Verificar espacio recuperado
+$ df -h
+```
+
+### Escenario 4.4: Alta Carga de CPU
+
+**Problema:** Servidor muy lento, load average muy alto
+
+**Diagnóstico:**
+
+```bash
+$ uptime
+# load average: 12.45, 10.23, 8.56 (4 cores)
+
+$ ps aux --sort=-%cpu | head -n 5
+# PID USER %CPU COMMAND
+# 12345 www-data 1952 python3 app.py
+```
+
+**Solución:**
+
+```bash
+# 1. Identificar proceso problemático
+$ ps aux | grep python
+
+# 2. Matar proceso (si es necesario)
+$ sudo kill -15 12345
+
+# 3. Investigar qué estaba haciendo
+$ journalctl --since '30 min ago' --no-pager | grep python
+
+# 4. Si es recurrente, limitar recursos
+$ sudo systemd-run --scope -p CPUQuota=50% /path/to/process
+```
+
+---
+
+## Parte 5: Implementar Monitoreo
+
+### Ejercicio 5.1: Script de Health Check
+
+```bash
+#!/bin/bash
+# /usr/local/bin/server-health.sh
+
+HOSTNAME=$(hostname)
+EMAIL="admin@empresa.com"
+DATE=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Función para enviar alerta
+send_alert() {
+    echo "$1" | mail -s "[ALERT] $HOSTNAME - $DATE" "$EMAIL"
+}
+
+# Check CPU
+CPU_LOAD=$(uptime | awk -F'load average:' '{print $2}' | awk '{print $1}' | sed 's/,//')
+CPU_INT=${CPU_LOAD%.*}
+if [ "$CPU_INT" -gt 4 ]; then
+    send_alert "CPU high: $CPU_LOAD"
+fi
+
+# Check Memoria
+MEM_USAGE=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')
+if [ "$MEM_USAGE" -gt 90 ]; then
+    send_alert "Memory at ${MEM_USAGE}%"
+fi
+
+# Check Disco
+DISK_USAGE=$(df / | tail -1 | awk '{print int($5)}')
+if [ "$DISK_USAGE" -gt 90 ]; then
+    send_alert "Disk at ${DISK_USAGE}%"
+fi
+
+# Check Servicios
+for svc in nginx sshd mariadb; do
+    if ! systemctl is-active --quiet $svc; then
+        send_alert "Service $svc is down"
+    fi
+done
+```
+
+```bash
+# Hacer ejecutable
+$ sudo chmod +x /usr/local/bin/server-health.sh
+
+# Agregar a cron
+$ sudo crontab -e
+# */5 * * * * /usr/local/bin/server-health.sh > /dev/null 2>&1
+```
+
+### Ejercicio 5.2: Monitoreo con Docker
+
+```bash
+# Crear contenedor de monitoreo
+$ docker run -d \
+  --name monitor \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /usr/local/bin:/scripts \
+  --network host \
+  ubuntu:22.04 \
+  bash -c "while true; do /scripts/server-health.sh; sleep 300; done"
+```
+
+---
+
+## Parte 6: Documentación de Incidentes
+
+### Plantilla de Informe de Incidente
+
+```markdown
+# Informe de Incidente
+
+**Fecha:** 2026-04-02
+**Servidor:** server01
+**Severidad:** Alta
+**Duración:** 45 minutos
+
+## Descripción
+[Descripción breve del problema]
+
+## Impacto
+[Qué servicios/se usuarios afectados]
+
+## Diagnóstico
+[Comandos ejecutados y hallazgos]
+
+## Solución
+[Pasos tomados para resolver]
+
+## Prevención
+[Cómo evitar que ocurra de nuevo]
+
+## Lecciones aprendidas
+[Insights para mejorar]
+```
+
+---
+
+## Verificación de Laboratorio
+
+Al completar este laboratorio, debes poder:
+
+| Habilidad | Verificación |
+|-----------|-------------|
+| journalctl básico | `journalctl -u nginx -n 20` muestra logs de nginx |
+| Filtrado por tiempo | `journalctl --since "1 hour ago"` filtra correctamente |
+| Diagnóstico de red | `ss -tlnp` muestra puertos listening |
+| Troubleshooting DNS | `resolvectl status` y `dig` funcionan |
+| Análisis de CPU | `ps aux --sort=-%cpu` identifica procesos |
+| Análisis de memoria | `free -h` muestra uso correcto |
+| Análisis de disco | `du -sh /var/*` encuentra consumidores |
+| Script de alertas | health check corre sin errores |
+
+---
+
+## Limpieza
+
+```bash
+# Detener y eliminar contenedores de prueba
+$ docker stop server01 && docker rm server01
+
+# Eliminar recursos docker
+$ docker system prune -f
+
+# Verificar espacio recuperado
+$ df -h
+```
+
+---
+
+## Referencias
+
+- `man journalctl` - Documentación completa de journalctl
+- `man ss` - Socket statistics
+- `man top` - Monitor de procesos
+- `man free` - Estadísticas de memoria
+- `man df` - Espacio en disco
+- `man logrotate` - Rotación de logs
+- [DigitalOcean: Linux Troubleshooting Guide](https://www.digitalocean.com/community/tutorials/linux-troubleshooting-commands)
+- [Red Hat: System Monitoring Guide](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/monitoring_and_managing_system_status_and_performance)

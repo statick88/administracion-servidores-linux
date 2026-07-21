@@ -1,103 +1,462 @@
 ---
-title: "Unidad 9.3: VirtualHosts y sitios"
-subtitle: "Multiples sitios en un solo servidor"
+title: "Unidad 9.3: VirtualHosts y Múltiples Sitios"
+subtitle: "Configuración de múltiples sitios web en un solo Apache"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 9.3: VirtualHosts y sitios
+# Unidad 9.3: VirtualHosts y Múltiples Sitios
 
-## Introduccion
+## Introducción
 
-Un VirtualHost permite servir multiples sitios (dominios) desde el mismo Apache. La base operacional es: document root -> vhost -> enable -> configtest -> reload.
+Un VirtualHost permite servir múltiples dominios desde el mismo servidor Apache. Es la base para el hosting compartido y aplicaciones multi-tenant.
 
-## Objetivos de aprendizaje
+## Concepto de VirtualHost
 
-- Crear un sitio simple con DocumentRoot propio
-- Habilitar el sitio y deshabilitar el default
-- Validar con curl usando Host header
-
----
-
-## Crear un DocumentRoot de ejemplo
-
-```bash
-$ sudo mkdir -p /var/www/site1/public  # <1>
-# <1>
-
-$ echo '<h1>Site1 OK</h1>' | sudo tee /var/www/site1/public/index.html >/dev/null  # <2>
-# <2>
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    VIRTUALHOST APACHE                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   Request: site1.local    →    Apache    →    /var/www/site1/   │
+│   Request: site2.local    →    Apache    →    /var/www/site2/   │
+│   Request: site3.local    →    Apache    →    /var/www/site3/   │
+│                                                                  │
+│   Mismo servidor, mismo Apache, múltiples document roots         │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
+### Tipos de VirtualHost
 
+| Tipo | Puerto | Descripción |
+|------|--------|-------------|
+| **Based on IP** | *:80 | Una IP por sitio (poco común) |
+| **Based on Name** | *:80 | Múltiples dominios por IP (usual) |
+| **SSL with SNI** | *:443 | Múltiples certificados SSL |
 
-1. **mkdir -p** crea el directorio del sitio.
-2. **tee** escribe un index.html con permisos root.
+## Estructura Profesional de Directorios
 
----
-
-## Crear VirtualHost
+### Organización por Cliente
 
 ```bash
-$ sudo tee /etc/apache2/sites-available/site1.conf >/dev/null <<'EOF'  # <1>
+# Crear estructura completa
+$ sudo mkdir -p /var/www/clients/{site1,site2,site3}/{public,logs,private,backup}
+
+# Estructura resultante
+/var/www/clients/
+├── site1/
+│   ├── public/      # Archivos web (DocumentRoot)
+│   ├── logs/       # Logs específicos
+│   ├── private/    # Archivos no accesibles desde web
+│   └── backup/     # Backups
+├── site2/
+│   └── ...
+└── site3/
+    └── ...
+
+# Permisos correctos
+$ sudo chown -R www-data:www-data /var/www/clients
+$ sudo chmod -R 755 /var/www
+$ sudo chmod -R 750 /var/www/clients/*/private  # Solo owner puede ver
+# <1>
+```
+
+1. **Permisos**: www-data para web, private inaccesible desde fuera
+
+## VirtualHost Básico
+
+### Crear Primer VirtualHost
+
+```bash
+# Crear directorio y contenido
+$ sudo mkdir -p /var/www/clients/site1/public
+$ echo '<!DOCTYPE html><h1>Site 1</h1>' | sudo tee /var/www/clients/site1/public/index.html
+
+# Crear VirtualHost
+$ sudo tee /etc/apache2/sites-available/site1.local.conf <<'EOF'
 <VirtualHost *:80>
-  ServerName site1.local
-  DocumentRoot /var/www/site1/public
-
-  ErrorLog ${APACHE_LOG_DIR}/site1-error.log
-  CustomLog ${APACHE_LOG_DIR}/site1-access.log combined
-
-  <Directory /var/www/site1/public>
-    Require all granted
-  </Directory>
+    ServerName site1.local
+    ServerAlias www.site1.local
+    
+    DocumentRoot /var/www/clients/site1/public
+    
+    ErrorLog /var/www/clients/site1/logs/error.log
+    CustomLog /var/www/clients/site1/logs/access.log combined
+    
+    <Directory /var/www/clients/site1/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
 </VirtualHost>
 EOF
 # <1>
 ```
 
+1. **VirtualHost**: Define comportamiento para site1.local
 
-
-1. **tee + heredoc** crea el archivo del VirtualHost.
-
----
-
-## Habilitar sitio y validar
+### Habilitar y Verificar
 
 ```bash
-$ sudo a2ensite site1.conf  # <1>
-Enabling site site1.
+# Habilitar sitio
+$ sudo a2ensite site1.local.conf
 # <1>
 
-$ sudo a2dissite 000-default.conf  # <2>
-Site 000-default disabled.
-# <2>
-
-$ sudo apachectl configtest  # <3>
+# Validar configuración
+$ sudo apachectl configtest
 Syntax OK
-# <3>
 
-$ sudo systemctl reload apache2  # <4>
-# <4>
+# Recargar Apache
+$ sudo systemctl reload apache2
+
+# Ver sitios habilitados
+$ ls -la /etc/apache2/sites-enabled/
+site1.local.conf -> ../sites-available/site1.local.conf
+000-default.conf
+# <2>
 ```
 
+1. **a2ensite**: Crea symlink en sites-enabled/
+2. **Verificar**: Confirma habilitación
 
-
-1. **a2ensite** habilita el vhost.
-2. **a2dissite** deshabilita el sitio por defecto.
-3. **apachectl configtest** valida sintaxis.
-4. **systemctl reload** aplica cambios.
-
----
-
-## Probar con Host header
+### Probar VirtualHost
 
 ```bash
-$ curl -H 'Host: site1.local' http://127.0.0.1  # <1>
-<h1>Site1 OK</h1>
+# Con Host header
+$ curl -H 'Host: site1.local' http://127.0.0.1
+<!DOCTYPE html><h1>Site 1</h1>
+# <1>
+
+# Ver logs
+$ sudo tail /var/www/clients/site1/logs/access.log
+127.0.0.1 - - [31/Mar/2026:10:15:00 +0000] "GET / HTTP/1.1" 200 123 "-" "curl/8.1.0"
+```
+
+1. **curl -H**: Simula request con Host header específico
+
+## VirtualHost Avanzado
+
+### Con Rewrites y Protección
+
+```bash
+$ sudo tee /etc/apache2/sites-available/example.com.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName example.com
+    ServerAlias www.example.com
+    ServerAlias api.example.com
+    ServerAlias admin.example.com
+    
+    DocumentRoot /var/www/clients/example.com/public
+    
+    # Logs
+    ErrorLog /var/www/clients/example.com/logs/error.log
+    CustomLog /var/www/clients/example.com/logs/access.log combined
+    LogLevel warn
+    
+    # Directorio público
+    <Directory /var/www/clients/example.com/public>
+        Options -Indexes -FollowSymLinks +MultiViews
+        AllowOverride All
+        Require all granted
+        
+        # URL rewriting
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^(.*)$ index.php [QSA,L]
+    </Directory>
+    
+    # Directorio privado (no accesible)
+    <Directory /var/www/clients/example.com/private>
+        Require all denied
+    </Directory>
+    
+    # Proteger archivos sensibles
+    <FilesMatch "^\.(htaccess|htpasswd|git|env)">
+        Require all denied
+    </FilesMatch>
+    
+    # Compression
+    <IfModule mod_deflate.c>
+        AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
+    </IfModule>
+    
+    # Cache para estáticos
+    <IfModule mod_expires.c>
+        ExpiresActive On
+        ExpiresByType image/jpeg "access plus 1 year"
+        ExpiresByType image/png "access plus 1 year"
+        ExpiresByType image/gif "access plus 1 year"
+        ExpiresByType text/css "access plus 1 month"
+        ExpiresByType application/javascript "access plus 1 month"
+    </IfModule>
+</VirtualHost>
+EOF
 # <1>
 ```
 
+1. **VirtualHost completo**: rewrite, compression, cache, seguridad
 
+## Múltiples Sitios en Producción
 
-1. **curl -H 'Host: ...'** simula un request con nombre de host para seleccionar el VirtualHost.
+### Escenario: 3 Dominios
+
+```bash
+# site1: Blog público
+$ sudo tee /etc/apache2/sites-available/blog.example.com.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName blog.example.com
+    DocumentRoot /var/www/clients/blog/public
+    
+    <Directory /var/www/clients/blog/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+EOF
+
+# site2: API REST
+$ sudo tee /etc/apache2/sites-available/api.example.com.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName api.example.com
+    DocumentRoot /var/www/clients/api/public
+    
+    <Directory /var/www/clients/api/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+        
+        # Headers específicos para API
+        Header always set Access-Control-Allow-Origin "*"
+        Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+    </Directory>
+</VirtualHost>
+EOF
+
+# site3: Admin panel
+$ sudo tee /etc/apache2/sites-available/admin.example.com.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName admin.example.com
+    DocumentRoot /var/www/clients/admin/public
+    
+    # Solo desde red local
+    <Directory /var/www/clients/admin/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require local
+        Require ip 10.0.0.0/8
+        Require ip 192.168.0.0/16
+    </Directory>
+    
+    # Autenticación básica
+    <Directory /var/www/clients/admin/public>
+        AuthType Basic
+        AuthName "Restricted"
+        AuthUserFile /var/www/clients/admin/.htpasswd
+        Require valid-user
+    </Directory>
+</VirtualHost>
+EOF
+# <1>
+```
+
+1. **Tres sitios**: Blog público, API REST, Admin protegido
+
+### Habilitar Todos
+
+```bash
+# Habilitar sitios
+$ sudo a2ensite blog.example.com.conf
+$ sudo a2ensite api.example.com.conf
+$ sudo a2ensite admin.example.com.conf
+
+# Deshabilitar default
+$ sudo a2dissite 000-default.conf
+
+# Validar y recargar
+$ sudo apachectl configtest
+$ sudo systemctl reload apache2
+
+# Ver todos los sitios activos
+$ ls /etc/apache2/sites-enabled/
+admin.example.com.conf
+api.example.com.conf
+blog.example.com.conf
+```
+
+## Proxy Inverso con VirtualHost
+
+### Escenario: Apache + Backend
+
+```
+Request → Apache (:80) → Flask (:5000)
+```
+
+```bash
+# Habilitar módulos de proxy
+$ sudo a2enmod proxy proxy_http rewrite headers
+
+# VirtualHost con proxy
+$ sudo tee /etc/apache2/sites-available/app-proxy.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName app.example.com
+    
+    # Proxy a backend
+    ProxyPreserveHost On
+    ProxyPass / http://127.0.0.1:5000/
+    ProxyPassReverse / http://127.0.0.1:5000/
+    
+    # Headers para el backend
+    RequestHeader set X-Forwarded-Proto http
+    RequestHeader set X-Real-IP %{REMOTE_ADDR}s
+    
+    # Timeouts
+    ProxyTimeout 300
+    
+    ErrorLog /var/www/clients/app/logs/error.log
+    CustomLog /var/www/clients/app/logs/access.log combined
+</VirtualHost>
+EOF
+
+$ sudo a2ensite app-proxy.conf
+$ sudo apachectl configtest && sudo systemctl reload apache2
+
+# Probar
+$ curl -H 'Host: app.example.com' http://127.0.0.1
+{"status": "ok", "message": "Flask API running"}
+# <1>
+```
+
+1. **Proxy**: Apache forwardea requests al backend
+
+## Configuración por Defecto
+
+### 000-default.conf
+
+```bash
+# Ver configuración default
+$ cat /etc/apache2/sites-available/000-default.conf
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html
+    
+    <Directory /var/www/html>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+    
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+# <1>
+```
+
+1. **Default**: El sitio que responde cuando no hay match de ServerName
+
+## Casos de Estudio
+
+### Caso 1: Dominio No Responde
+
+**Problema**:
+```bash
+$ curl -H 'Host: newdomain.com' http://127.0.0.1
+<!DOCTYPE html>
+<html><body><h1>It works!</h1></body></html>
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# Ver si el VirtualHost está habilitado
+$ ls /etc/apache2/sites-enabled/ | grep newdomain
+# (sin output = no habilitado)
+
+# Ver si existe el archivo
+$ ls /etc/apache2/sites-available/ | grep newdomain
+newdomain.com.conf
+# <2>
+```
+
+1. **Responde default**: Porque el VirtualHost no está habilitado
+
+**Solución**:
+```bash
+# Habilitar
+$ sudo a2ensite newdomain.com.conf
+
+# Recargar
+$ sudo systemctl reload apache2
+
+# Probar de nuevo
+$ curl -H 'Host: newdomain.com' http://127.0.0.1
+<h1>New Domain Content</h1>
+```
+
+### Caso 2: Conflictos de Puerto
+
+**Problema**:
+```bash
+$ sudo a2ensite another-site.conf
+ERROR: Site another-site already enabled
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# Ver conflictos
+$ sudo apachectl -S
+VirtualHost configuration:
+*:80                   is a NameVirtualHost
+         port 80 namevhost site1.local
+         port 80 namevhost site2.local
+         port 80 namevhost another-site (/etc/apache2/sites-enabled/another-site.conf)
+# <2>
+```
+
+1. **Error**: El sitio ya está habilitado
+
+### Caso 3: Performance con Muchos VirtualHosts
+
+**Problema**: Servidor con 50+ sitios lento
+
+**Diagnóstico**:
+```bash
+# Ver número de vhosts
+$ ls /etc/apache2/sites-enabled/ | wc -l
+52
+# <1>
+
+# Revisar configuración de logs
+$ grep CustomLog /etc/apache2/sites-enabled/*
+# Muchos con CustomLog individual = I/O overhead
+```
+
+1. **50+ VirtualHosts**: Cada uno con archivos de log separados
+
+**Optimización**:
+```bash
+# Consolidar logs (opcional para alto tráfico)
+# O usar logrotate más frecuente
+# O deshabilitar CustomLog para sitios de bajo tráfico
+```
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Crear VHost | `/etc/apache2/sites-available/` | Definir configuración |
+| Habilitar | `a2ensite` | Activar sitio |
+| Deshabilitar | `a2dissite` | Desactivar sitio |
+| Validar | `apachectl configtest` | Verificar sintaxis |
+| Probar | `curl -H 'Host: ...'` | Test con header |
+| Proxy | `ProxyPass` | Forward a backend |
+
+## Referencias
+
+- [Apache VirtualHost Documentation](https://httpd.apache.org/docs/2.4/vhosts/)
+- [Apache Name-Based Virtual Hosts](https://httpd.apache.org/docs/2.4/vhosts/name-based.html)
+- [mod_proxy](https://httpd.apache.org/docs/2.4/mod/mod_proxy.html)

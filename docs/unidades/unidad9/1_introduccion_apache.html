@@ -2,15 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.9.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Diego Saavedra">
 <meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
 
-<title>Unidad 9.1: Introduccion a Apache – Administración de Servidores Linux</title>
+<title>Unidad 9: Apache HTTP Server - Producción – Administración de Servidores Linux</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -71,17 +74,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-61780a260fdcf47536a34fde95582725.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-68056a18e515a5789c5e26a7aeb7ac61.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-d475e4ab3b4fd243dd6ecd26d4f0399c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
@@ -292,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html">Unidad 9: Apache (Servidor Web)</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html">Unidad 9: Apache (Servidor Web)</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -638,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
- <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+ <span class="menu-text">Unidad 8: SSH y Acceso Remoto Seguro</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -646,7 +648,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  <a href="../../unidades/unidad8/1_ssh_fundamentos_keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Protocolo y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/2_ssh_tunnels.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH Tunnels: Port Forwarding y Proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/3_lab_practico_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Laboratorio Práctico</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -667,22 +679,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y Múltiples Sitios</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/5_lab_practico_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -703,22 +720,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -739,22 +761,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Acceso Remoto y Seguridad de Red</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/5_lab_practico_mariadb.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Laboratorio Práctico - MariaDB</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -775,7 +802,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -791,6 +818,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1194,16 +1226,55 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#unidad-9.1-introduccion-a-apache" id="toc-unidad-9.1-introduccion-a-apache" class="nav-link active" data-scroll-target="#unidad-9.1-introduccion-a-apache">Unidad 9.1: Introduccion a Apache</a>
+  <li><a href="#unidad-9-apache-http-server-en-producción" id="toc-unidad-9-apache-http-server-en-producción" class="nav-link active" data-scroll-target="#unidad-9-apache-http-server-en-producción">Unidad 9: Apache HTTP Server en Producción</a>
   <ul class="collapse">
-  <li><a href="#introduccion" id="toc-introduccion" class="nav-link" data-scroll-target="#introduccion">Introduccion</a></li>
-  <li><a href="#objetivos-de-aprendizaje" id="toc-objetivos-de-aprendizaje" class="nav-link" data-scroll-target="#objetivos-de-aprendizaje">Objetivos de aprendizaje</a></li>
-  <li><a href="#instalacion-ubuntu" id="toc-instalacion-ubuntu" class="nav-link" data-scroll-target="#instalacion-ubuntu">Instalacion (Ubuntu)</a></li>
-  <li><a href="#validar-servicio-y-puerto" id="toc-validar-servicio-y-puerto" class="nav-link" data-scroll-target="#validar-servicio-y-puerto">Validar servicio y puerto</a></li>
-  <li><a href="#probar-respuesta-http-local" id="toc-probar-respuesta-http-local" class="nav-link" data-scroll-target="#probar-respuesta-http-local">Probar respuesta HTTP (local)</a></li>
-  <li><a href="#rutas-clave-en-ubuntu" id="toc-rutas-clave-en-ubuntu" class="nav-link" data-scroll-target="#rutas-clave-en-ubuntu">Rutas clave en Ubuntu</a></li>
-  <li><a href="#ejemplos-practicos-multi-so" id="toc-ejemplos-practicos-multi-so" class="nav-link" data-scroll-target="#ejemplos-practicos-multi-so">Ejemplos practicos multi-SO</a></li>
-  <li><a href="#mejores-practicas" id="toc-mejores-practicas" class="nav-link" data-scroll-target="#mejores-practicas">Mejores practicas</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#arquitectura-de-apache" id="toc-arquitectura-de-apache" class="nav-link" data-scroll-target="#arquitectura-de-apache">Arquitectura de Apache</a>
+  <ul class="collapse">
+  <li><a href="#modelo-de-procesos" id="toc-modelo-de-procesos" class="nav-link" data-scroll-target="#modelo-de-procesos">Modelo de Procesos</a></li>
+  <li><a href="#flujo-de-una-solicitud-http" id="toc-flujo-de-una-solicitud-http" class="nav-link" data-scroll-target="#flujo-de-una-solicitud-http">Flujo de una Solicitud HTTP</a></li>
+  </ul></li>
+  <li><a href="#instalación-en-producción" id="toc-instalación-en-producción" class="nav-link" data-scroll-target="#instalación-en-producción">Instalación en Producción</a>
+  <ul class="collapse">
+  <li><a href="#paquetes-recomendados" id="toc-paquetes-recomendados" class="nav-link" data-scroll-target="#paquetes-recomendados">Paquetes Recomendados</a></li>
+  <li><a href="#verificar-instalación" id="toc-verificar-instalación" class="nav-link" data-scroll-target="#verificar-instalación">Verificar Instalación</a></li>
+  <li><a href="#prueba-de-respuesta-http" id="toc-prueba-de-respuesta-http" class="nav-link" data-scroll-target="#prueba-de-respuesta-http">Prueba de Respuesta HTTP</a></li>
+  </ul></li>
+  <li><a href="#estructura-de-archivos-en-ubuntu" id="toc-estructura-de-archivos-en-ubuntu" class="nav-link" data-scroll-target="#estructura-de-archivos-en-ubuntu">Estructura de Archivos en Ubuntu</a></li>
+  <li><a href="#gestión-de-módulos" id="toc-gestión-de-módulos" class="nav-link" data-scroll-target="#gestión-de-módulos">Gestión de Módulos</a>
+  <ul class="collapse">
+  <li><a href="#listar-módulos-cargados" id="toc-listar-módulos-cargados" class="nav-link" data-scroll-target="#listar-módulos-cargados">Listar Módulos Cargados</a></li>
+  <li><a href="#habilitar-módulos-esenciales" id="toc-habilitar-módulos-esenciales" class="nav-link" data-scroll-target="#habilitar-módulos-esenciales">Habilitar Módulos Esenciales</a></li>
+  <li><a href="#deshabilitar-módulos" id="toc-deshabilitar-módulos" class="nav-link" data-scroll-target="#deshabilitar-módulos">Deshabilitar Módulos</a></li>
+  </ul></li>
+  <li><a href="#virtualhosts-en-producción" id="toc-virtualhosts-en-producción" class="nav-link" data-scroll-target="#virtualhosts-en-producción">VirtualHosts en Producción</a>
+  <ul class="collapse">
+  <li><a href="#estructura-de-virtualhost-profesional" id="toc-estructura-de-virtualhost-profesional" class="nav-link" data-scroll-target="#estructura-de-virtualhost-profesional">Estructura de VirtualHost Profesional</a></li>
+  <li><a href="#virtualhost-para-site1.local" id="toc-virtualhost-para-site1.local" class="nav-link" data-scroll-target="#virtualhost-para-site1.local">VirtualHost para site1.local</a></li>
+  <li><a href="#habilitar-y-verificar" id="toc-habilitar-y-verificar" class="nav-link" data-scroll-target="#habilitar-y-verificar">Habilitar y Verificar</a></li>
+  <li><a href="#probar-virtualhost" id="toc-probar-virtualhost" class="nav-link" data-scroll-target="#probar-virtualhost">Probar VirtualHost</a></li>
+  </ul></li>
+  <li><a href="#hardening-de-apache" id="toc-hardening-de-apache" class="nav-link" data-scroll-target="#hardening-de-apache">Hardening de Apache</a>
+  <ul class="collapse">
+  <li><a href="#ocultar-información-del-servidor" id="toc-ocultar-información-del-servidor" class="nav-link" data-scroll-target="#ocultar-información-del-servidor">1. Ocultar Información del Servidor</a></li>
+  <li><a href="#security-headers" id="toc-security-headers" class="nav-link" data-scroll-target="#security-headers">2. Security Headers</a></li>
+  <li><a href="#verificar-hardening" id="toc-verificar-hardening" class="nav-link" data-scroll-target="#verificar-hardening">3. Verificar Hardening</a></li>
+  <li><a href="#rate-limiting-prevención-de-dos" id="toc-rate-limiting-prevención-de-dos" class="nav-link" data-scroll-target="#rate-limiting-prevención-de-dos">4. Rate Limiting (Prevención de DoS)</a></li>
+  </ul></li>
+  <li><a href="#casos-de-estudio" id="toc-casos-de-estudio" class="nav-link" data-scroll-target="#casos-de-estudio">Casos de Estudio</a>
+  <ul class="collapse">
+  <li><a href="#caso-1-servidor-lento-con-mucho-tráfico" id="toc-caso-1-servidor-lento-con-mucho-tráfico" class="nav-link" data-scroll-target="#caso-1-servidor-lento-con-mucho-tráfico">Caso 1: Servidor Lento con Mucho Tráfico</a></li>
+  <li><a href="#caso-2-múltiples-sitios-en-un-servidor" id="toc-caso-2-múltiples-sitios-en-un-servidor" class="nav-link" data-scroll-target="#caso-2-múltiples-sitios-en-un-servidor">Caso 2: Múltiples Sitios en un Servidor</a></li>
+  <li><a href="#caso-3-proxy-inverso-a-backend" id="toc-caso-3-proxy-inverso-a-backend" class="nav-link" data-scroll-target="#caso-3-proxy-inverso-a-backend">Caso 3: Proxy Inverso a Backend</a></li>
+  </ul></li>
+  <li><a href="#monitoreo-y-logs" id="toc-monitoreo-y-logs" class="nav-link" data-scroll-target="#monitoreo-y-logs">Monitoreo y Logs</a>
+  <ul class="collapse">
+  <li><a href="#logs-específicos-por-sitio" id="toc-logs-específicos-por-sitio" class="nav-link" data-scroll-target="#logs-específicos-por-sitio">Logs Específicos por Sitio</a></li>
+  <li><a href="#monitoreo-con-apache-bench" id="toc-monitoreo-con-apache-bench" class="nav-link" data-scroll-target="#monitoreo-con-apache-bench">Monitoreo con Apache Bench</a></li>
+  <li><a href="#monitoreo-con-systemctl" id="toc-monitoreo-con-systemctl" class="nav-link" data-scroll-target="#monitoreo-con-systemctl">Monitoreo con systemctl</a></li>
+  </ul></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">Resumen</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   <li>Code Appendix</li>
   </ul>
@@ -1213,10 +1284,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html">Unidad 9: Apache (Servidor Web)</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html">Unidad 9: Apache (Servidor Web)</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></h1>
-<p class="subtitle lead">Instalacion, servicio y prueba rapida</p>
+<h1 class="title"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></h1>
+<p class="subtitle lead">Instalación, configuración y hardening de Apache para entornos de producción</p>
 </div>
 
 
@@ -1233,7 +1304,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">Feb 2, 2026</p>
+      <p class="date">Mar 31, 2026</p>
     </div>
   </div>
   
@@ -1245,167 +1316,783 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="unidad-9.1-introduccion-a-apache" class="level1">
-<h1>Unidad 9.1: Introduccion a Apache</h1>
-<section id="introduccion" class="level2">
-<h2 class="anchored" data-anchor-id="introduccion">Introduccion</h2>
-<p>Apache HTTP Server es uno de los servidores web mas usados. En esta unidad lo instalaremos, lo validaremos con evidencia, y aprenderemos las ubicaciones clave de configuracion.</p>
+<section id="unidad-9-apache-http-server-en-producción" class="level1">
+<h1>Unidad 9: Apache HTTP Server en Producción</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>Apache HTTP Server es el servidor web más desplegado en internet. En esta unidad vas a dominar Apache desde la instalación hasta el hardening de producción, con casos reales y configuraciones que vas a usar en servidores reales.</p>
 </section>
-<section id="objetivos-de-aprendizaje" class="level2">
-<h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">Objetivos de aprendizaje</h2>
-<ul>
-<li>Instalar Apache en Ubuntu Server</li>
-<li>Validar servicio, puerto y respuesta HTTP</li>
-<li>Identificar rutas de configuracion y document root</li>
-</ul>
-<hr>
+<section id="arquitectura-de-apache" class="level2">
+<h2 class="anchored" data-anchor-id="arquitectura-de-apache">Arquitectura de Apache</h2>
+<section id="modelo-de-procesos" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-de-procesos">Modelo de Procesos</h3>
+<pre data-code-line-numbers=""><code>┌─────────────────────────────────────────────────────────────────┐
+│                    ARQUITECTURA APACHE                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   REQUEST →  ──────────────────────────────────────────────    │
+│                                                                  │
+│              ┌──────────────┐                                  │
+│              │  Main Process│  (root, pid 1)                    │
+│              │  apache2     │  ───┐                             │
+│              └──────────────┘      │                            │
+│                      │              │ fork()                    │
+│                      ▼              ▼                           │
+│   ┌─────────────────────────────────────────────┐              │
+│   │           Worker Processes                  │              │
+│   │  ┌─────────┐  ┌─────────┐  ┌─────────┐    │              │
+│   │  │Worker 1 │  │Worker 2 │  │Worker N │    │              │
+│   │  │:80      │  │:80      │  │:80      │    │              │
+│   │  └─────────┘  └─────────┘  └─────────┘    │              │
+│   └─────────────────────────────────────────────┘              │
+│                                                                  │
+│   MPM Modes:                                                     │
+│   - prefork: 1 proceso = 1 request (compatibilidad)            │
+│   - worker:   1 proceso = múltiples threads (concurrencia)     │
+│   - event:    like worker but better (Apache 2.4+)             │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
 </section>
-<section id="instalacion-ubuntu" class="level2">
-<h2 class="anchored" data-anchor-id="instalacion-ubuntu">Instalacion (Ubuntu)</h2>
+<section id="flujo-de-una-solicitud-http" class="level3">
+<h3 class="anchored" data-anchor-id="flujo-de-una-solicitud-http">Flujo de una Solicitud HTTP</h3>
+<pre data-code-line-numbers=""><code>1. TCP Handshake (puerto 80/443)
+       │
+       ▼
+2. Apache accepts connection (worker process)
+       │
+       ▼
+3. Parse HTTP request (method, path, headers)
+       │
+       ▼
+4. Resolve VirtualHost (ServerName/ServerAlias)
+       │
+       ▼
+5. Check .htaccess / Directory permissions
+       │
+       ▼
+6. Execute handler (PHP, mod_proxy, static file)
+       │
+       ▼
+7. Generate response (or forward to backend)
+       │
+       ▼
+8. Write to access.log + error.log
+       │
+       ▼
+9. Close connection or keep-alive</code></pre>
+</section>
+</section>
+<section id="instalación-en-producción" class="level2">
+<h2 class="anchored" data-anchor-id="instalación-en-producción">Instalación en Producción</h2>
+<section id="paquetes-recomendados" class="level3">
+<h3 class="anchored" data-anchor-id="paquetes-recomendados">Paquetes Recomendados</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update</span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-4" class="code-annotation-target"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> apache2</span>
-<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Reading</span> package lists... Done</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="1,2" data-code-annotation="1"><strong>apt update</strong> actualiza el indice de paquetes.</span>
-</dd>
-<dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="4,6" data-code-annotation="2"><strong>apt install apache2</strong> instala el servidor Apache.</span>
-</dd>
-</dl>
-<hr>
-</section>
-<section id="validar-servicio-y-puerto" class="level2">
-<h2 class="anchored" data-anchor-id="validar-servicio-y-puerto">Validar servicio y puerto</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl status apache2 <span class="at">--no-pager</span></span>
-<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> apache2.service <span class="at">-</span> The Apache HTTP Server</span>
-<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Loaded:</span> loaded <span class="er">(</span><span class="ex">/lib/systemd/system/apache2.service</span><span class="kw">;</span> <span class="ex">enabled</span><span class="kw">;</span> <span class="ex">vendor</span> preset: enabled<span class="kw">)</span></span>
-<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> active <span class="er">(</span><span class="ex">running</span><span class="kw">)</span></span>
-<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-7" class="code-annotation-target"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="st">':80'</span></span>
-<span id="annotated-cell-2-8"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 511 0.0.0.0:80 0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="st">"apache2"</span><span class="ex">,pid=1234,fd=4</span><span class="kw">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="1,5" data-code-annotation="1"><strong>systemctl status apache2</strong> confirma que el servicio esta activo.</span>
-</dd>
-<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="7,9" data-code-annotation="2"><strong>ss -lntp</strong> valida que el puerto 80/tcp esta en escucha.</span>
-</dd>
-</dl>
-<hr>
-</section>
-<section id="probar-respuesta-http-local" class="level2">
-<h2 class="anchored" data-anchor-id="probar-respuesta-http-local">Probar respuesta HTTP (local)</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
-<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
-<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> Apache/2.4.58 <span class="er">(</span><span class="ex">Ubuntu</span><span class="kw">)</span></span>
-<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Content-Type:</span> text/html</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar índice de paquetes</span></span>
+<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt upgrade <span class="at">-y</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-3" class="code-annotation-target"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar Apache + módulos esenciales para producción</span></span>
+<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> apache2 <span class="dt">\</span></span>
+<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a>    apache2-utils <span class="dt">\</span></span>
+<span id="annotated-cell-3-8"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a>    certbot <span class="dt">\</span></span>
+<span id="annotated-cell-3-9"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a>    python3-certbot-apache <span class="dt">\</span></span>
+<span id="annotated-cell-3-10"><a href="#annotated-cell-3-10" aria-hidden="true" tabindex="-1"></a>    libapache2-mod-security2 <span class="dt">\</span></span>
+<span id="annotated-cell-3-11"><a href="#annotated-cell-3-11" aria-hidden="true" tabindex="-1"></a>    libapache2-mod-php8.1 <span class="dt">\</span></span>
+<span id="annotated-cell-3-12"><a href="#annotated-cell-3-12" aria-hidden="true" tabindex="-1"></a>    php8.1-fpm</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="1,5" data-code-annotation="1"><strong>curl -I</strong> prueba conectividad HTTP y muestra headers.</span>
+<span data-code-cell="annotated-cell-3" data-code-lines="3" data-code-annotation="1"><strong>apt update</strong>: Actualiza lista de paquetes disponibles</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="13" data-code-annotation="2"><strong>apache2-utils</strong>: Herramientas como <code>ab</code> (Apache Bench) para testing</span>
 </dd>
 </dl>
-<hr>
 </section>
-<section id="rutas-clave-en-ubuntu" class="level2">
-<h2 class="anchored" data-anchor-id="rutas-clave-en-ubuntu">Rutas clave en Ubuntu</h2>
-<ul>
-<li>Config principal: <code>/etc/apache2/apache2.conf</code></li>
-<li>Sitios: <code>/etc/apache2/sites-available/</code> y <code>/etc/apache2/sites-enabled/</code></li>
-<li>Modulos: <code>/etc/apache2/mods-available/</code> y <code>/etc/apache2/mods-enabled/</code></li>
-<li>Document root por defecto: <code>/var/www/html</code></li>
-<li>Logs: <code>/var/log/apache2/access.log</code> y <code>/var/log/apache2/error.log</code></li>
-</ul>
-<hr>
-</section>
-<section id="ejemplos-practicos-multi-so" class="level2">
-<h2 class="anchored" data-anchor-id="ejemplos-practicos-multi-so">Ejemplos practicos multi-SO</h2>
-<div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">Ejemplo 1: Probar un servidor HTTP local</a></li></ul>
-<div class="tab-content">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<section id="linux" class="level4">
-<h4 class="anchored" data-anchor-id="linux">Linux</h4>
+<section id="verificar-instalación" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-instalación">Verificar Instalación</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
-<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
-<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> Apache/2.4.58 <span class="er">(</span><span class="ex">Ubuntu</span><span class="kw">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estado del servicio</span></span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl status apache2 <span class="at">--no-pager</span></span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> apache2.service <span class="at">-</span> The Apache HTTP Server</span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Loaded:</span> loaded <span class="er">(</span><span class="ex">/lib/systemd/system/apache2.service</span><span class="kw">;</span> <span class="ex">enabled</span><span class="kw">;</span> <span class="ex">vendor</span> preset: enabled<span class="kw">)</span></span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> active <span class="er">(</span><span class="ex">running</span><span class="kw">)</span> <span class="ex">since</span> Tue 2026-03-31 10:00:00 UTC</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-6" class="code-annotation-target"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Puerto en escucha</span></span>
+<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="st">':80'</span></span>
+<span id="annotated-cell-4-10"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 511 0.0.0.0:80 0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="kw">(</span><span class="st">"apache2"</span><span class="ex">,pid=1234,fd=4</span><span class="kw">))</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="1,4" data-code-annotation="1"><strong>curl -I</strong> valida respuesta HTTP.</span>
+<span data-code-cell="annotated-cell-4" data-code-lines="6" data-code-annotation="1"><strong>systemctl status</strong>: Confirma que el servicio está corriendo</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="11" data-code-annotation="2"><strong>ss -lntp</strong>: Muestra que el puerto 80 está escuchando en todas las interfaces</span>
 </dd>
 </dl>
 </section>
-<section id="macos" class="level4">
-<h4 class="anchored" data-anchor-id="macos">macOS</h4>
+<section id="prueba-de-respuesta-http" class="level3">
+<h3 class="anchored" data-anchor-id="prueba-de-respuesta-http">Prueba de Respuesta HTTP</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-1" class="code-annotation-target"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
-<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl:</span> <span class="er">(</span><span class="ex">7</span><span class="kw">)</span> <span class="ex">Failed</span> to connect to localhost port 80: Connection refused</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Headers básicos</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> Apache/2.4.58 <span class="er">(</span><span class="ex">Ubuntu</span><span class="kw">)</span></span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Content-Type:</span> text/html</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-6" class="code-annotation-target"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-8"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># HTML completo</span></span>
+<span id="annotated-cell-5-9"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-s</span> http://localhost <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span></span>
+<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>!DOCTYPE <span class="ex">html</span><span class="op">&gt;</span></span>
+<span id="annotated-cell-5-11"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>html<span class="op">&gt;</span></span>
+<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>head<span class="op">&gt;</span></span>
+<span id="annotated-cell-5-13"><a href="#annotated-cell-5-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>title<span class="op">&gt;</span>Welcome <span class="ex">to</span> Ubuntu<span class="op">&lt;</span>/title<span class="op">&gt;</span></span>
+<span id="annotated-cell-5-14"><a href="#annotated-cell-5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-5" data-code-lines="1,3" data-code-annotation="1"><strong>curl -I</strong> funciona igual; si no hay servidor en 80, vera “Connection refused”.</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="6" data-code-annotation="1"><strong>curl -I</strong>: Muestra headers de respuesta</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="15" data-code-annotation="2"><strong>curl -s</strong>: Descarga el HTML completo</span>
 </dd>
 </dl>
 </section>
-<section id="windows" class="level4">
-<h4 class="anchored" data-anchor-id="windows">Windows</h4>
+</section>
+<section id="estructura-de-archivos-en-ubuntu" class="level2">
+<h2 class="anchored" data-anchor-id="estructura-de-archivos-en-ubuntu">Estructura de Archivos en Ubuntu</h2>
+<pre data-code-line-numbers=""><code>/etc/apache2/
+├── apache2.conf          # Config principal (includes others)
+├── ports.conf            # Puertos (80, 443)
+├── magic                # MIME types
+├── conf-available/      # Configuraciones adicionales
+│   ├── security-hardening.conf
+│   ├── security-headers.conf
+│   └── options.conf
+├── conf-enabled/        # Symlinks a conf-available/
+├── mods-available/      # Módulos disponibles
+│   ├── php8.1.conf
+│   ├── ssl.conf
+│   └── headers.conf
+├── mods-enabled/        # Módulos activos (symlinks)
+├── sites-available/     # VirtualHosts disponibles
+│   ├── 000-default.conf
+│   └── default-ssl.conf
+├── sites-enabled/       # Sitios activos (symlinks)
+└── envvars              # Variables de entorno</code></pre>
+</section>
+<section id="gestión-de-módulos" class="level2">
+<h2 class="anchored" data-anchor-id="gestión-de-módulos">Gestión de Módulos</h2>
+<section id="listar-módulos-cargados" class="level3">
+<h3 class="anchored" data-anchor-id="listar-módulos-cargados">Listar Módulos Cargados</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
-<pre><strong>POWERSHELL</strong></pre>
+<pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode powershell code-annotation-code code-with-copy code-annotated"><code class="sourceCode powershell"><a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-6-1" class="code-annotation-target"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PS</span><span class="op">&gt;</span> <span class="fu">curl</span><span class="op">.</span><span class="fu">exe</span> <span class="op">-</span>I http<span class="op">://</span>localhost</span>
-<span id="annotated-cell-6-2"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a>HTTP<span class="op">/</span><span class="dv">1.1</span> <span class="dv">200</span> OK</span>
-<span id="annotated-cell-6-3"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a>Server<span class="op">:</span> Apache<span class="op">/</span><span class="dv">2.4</span><span class="op">.</span><span class="dv">58</span> <span class="op">(</span>Ubuntu<span class="op">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-7-1"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver todos los módulos cargados</span></span>
+<span id="annotated-cell-7-2"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apache2ctl <span class="at">-M</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">"ssl|php|headers|proxy"</span></span>
+<span id="annotated-cell-7-3"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a> <span class="ex">ssl_module</span> <span class="er">(</span><span class="ex">shared</span><span class="kw">)</span></span>
+<span id="annotated-cell-7-4"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a> <span class="ex">php8.1_module</span> <span class="er">(</span><span class="ex">shared</span><span class="kw">)</span></span>
+<span id="annotated-cell-7-5"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">headers_module</span> <span class="er">(</span><span class="ex">shared</span><span class="kw">)</span></span>
+<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a> <span class="ex">proxy_module</span> <span class="er">(</span><span class="ex">shared</span><span class="kw">)</span></span>
+<span id="annotated-cell-7-7"><a href="#annotated-cell-7-7" aria-hidden="true" tabindex="-1"></a> <span class="ex">proxy_http_module</span> <span class="er">(</span><span class="ex">shared</span><span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
+<dl>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-6" data-code-lines="1,4" data-code-annotation="1"><strong>curl.exe</strong> en Windows permite pruebas HTTP simples (headers).</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="8" data-code-annotation="1"><strong>apache2ctl -M</strong>: Lista módulos compilados y compartidos</span>
 </dd>
 </dl>
 </section>
+<section id="habilitar-módulos-esenciales" class="level3">
+<h3 class="anchored" data-anchor-id="habilitar-módulos-esenciales">Habilitar Módulos Esenciales</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
 </div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-8-1"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Módulos de seguridad</span></span>
+<span id="annotated-cell-8-2"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod headers          <span class="co"># Security headers</span></span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod ssl              <span class="co"># HTTPS</span></span>
+<span id="annotated-cell-8-4"><a href="#annotated-cell-8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod rewrite          <span class="co"># URL rewriting</span></span>
+<span id="annotated-cell-8-5"><a href="#annotated-cell-8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod proxy            <span class="co"># Proxy forwarding</span></span>
+<span id="annotated-cell-8-6"><a href="#annotated-cell-8-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod proxy_http       <span class="co"># HTTP proxy</span></span>
+<span id="annotated-cell-8-7"><a href="#annotated-cell-8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod expires          <span class="co"># Cache headers</span></span>
+<span id="annotated-cell-8-8"><a href="#annotated-cell-8-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod deflate          <span class="co"># Compression</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-8" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-8-9" class="code-annotation-target"><a href="#annotated-cell-8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-10"><a href="#annotated-cell-8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-11"><a href="#annotated-cell-8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar y reiniciar</span></span>
+<span id="annotated-cell-8-12"><a href="#annotated-cell-8-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest</span>
+<span id="annotated-cell-8-13"><a href="#annotated-cell-8-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl restart apache2</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="9" data-code-annotation="1"><strong>a2enmod</strong>: Habilita módulos creando symlinks en mods-enabled/</span>
+</dd>
+</dl>
+</section>
+<section id="deshabilitar-módulos" class="level3">
+<h3 class="anchored" data-anchor-id="deshabilitar-módulos">Deshabilitar Módulos</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Si no necesitas CGI</span></span>
+<span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2dismod cgi</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-9-3" class="code-annotation-target"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-4"><a href="#annotated-cell-9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-5"><a href="#annotated-cell-9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="annotated-cell-9-6"><a href="#annotated-cell-9-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest</span>
+<span id="annotated-cell-9-7"><a href="#annotated-cell-9-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl reload apache2</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="3" data-code-annotation="1"><strong>a2dismod</strong>: Deshabilita módulos removiendo symlinks</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="virtualhosts-en-producción" class="level2">
+<h2 class="anchored" data-anchor-id="virtualhosts-en-producción">VirtualHosts en Producción</h2>
+<section id="estructura-de-virtualhost-profesional" class="level3">
+<h3 class="anchored" data-anchor-id="estructura-de-virtualhost-profesional">Estructura de VirtualHost Profesional</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-10-1"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear estructura de directorios</span></span>
+<span id="annotated-cell-10-2"><a href="#annotated-cell-10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mkdir <span class="at">-p</span> /var/www/clients/<span class="dt">{site1</span><span class="op">,</span><span class="dt">site2}</span>/public</span>
+<span id="annotated-cell-10-3"><a href="#annotated-cell-10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mkdir <span class="at">-p</span> /var/www/clients/<span class="dt">{site1</span><span class="op">,</span><span class="dt">site2}</span>/logs</span>
+<span id="annotated-cell-10-4"><a href="#annotated-cell-10-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mkdir <span class="at">-p</span> /var/www/clients/<span class="dt">{site1</span><span class="op">,</span><span class="dt">site2}</span>/private</span>
+<span id="annotated-cell-10-5"><a href="#annotated-cell-10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-6"><a href="#annotated-cell-10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Permisos correctos</span></span>
+<span id="annotated-cell-10-7"><a href="#annotated-cell-10-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo chown <span class="at">-R</span> www-data:www-data /var/www/clients</span>
+<span id="annotated-cell-10-8"><a href="#annotated-cell-10-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo chmod <span class="at">-R</span> 755 /var/www</span>
+<span id="annotated-cell-10-9"><a href="#annotated-cell-10-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo chmod <span class="at">-R</span> 750 /var/www/clients/<span class="pp">*</span>/private</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="10" data-code-annotation="1"><strong>Permisos</strong>: www-data para web, private no accessible desde web</span>
+</dd>
+</dl>
+</section>
+<section id="virtualhost-para-site1.local" class="level3">
+<h3 class="anchored" data-anchor-id="virtualhost-para-site1.local">VirtualHost para site1.local</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/sites-available/site1.conf <span class="op">&gt;</span>/dev/null <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;VirtualHost *:80&gt;</span></span>
+<span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a><span class="st">    # Identificación</span></span>
+<span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerName site1.local</span></span>
+<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerAlias www.site1.local</span></span>
+<span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerAlias api.site1.local</span></span>
+<span id="annotated-cell-11-7"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-11-8"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a><span class="st">    # Rutas</span></span>
+<span id="annotated-cell-11-9"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a><span class="st">    DocumentRoot /var/www/clients/site1/public</span></span>
+<span id="annotated-cell-11-10"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-11-11"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a><span class="st">    # Logs específicos</span></span>
+<span id="annotated-cell-11-12"><a href="#annotated-cell-11-12" aria-hidden="true" tabindex="-1"></a><span class="st">    ErrorLog /var/www/clients/site1/logs/error.log</span></span>
+<span id="annotated-cell-11-13"><a href="#annotated-cell-11-13" aria-hidden="true" tabindex="-1"></a><span class="st">    CustomLog /var/www/clients/site1/logs/access.log combined</span></span>
+<span id="annotated-cell-11-14"><a href="#annotated-cell-11-14" aria-hidden="true" tabindex="-1"></a><span class="st">    LogLevel warn</span></span>
+<span id="annotated-cell-11-15"><a href="#annotated-cell-11-15" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-11-16"><a href="#annotated-cell-11-16" aria-hidden="true" tabindex="-1"></a><span class="st">    # Directorio raíz</span></span>
+<span id="annotated-cell-11-17"><a href="#annotated-cell-11-17" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;Directory /var/www/clients/site1/public&gt;</span></span>
+<span id="annotated-cell-11-18"><a href="#annotated-cell-11-18" aria-hidden="true" tabindex="-1"></a><span class="st">        Options -Indexes -FollowSymLinks</span></span>
+<span id="annotated-cell-11-19"><a href="#annotated-cell-11-19" aria-hidden="true" tabindex="-1"></a><span class="st">        AllowOverride None</span></span>
+<span id="annotated-cell-11-20"><a href="#annotated-cell-11-20" aria-hidden="true" tabindex="-1"></a><span class="st">        Require all granted</span></span>
+<span id="annotated-cell-11-21"><a href="#annotated-cell-11-21" aria-hidden="true" tabindex="-1"></a><span class="st">        </span></span>
+<span id="annotated-cell-11-22"><a href="#annotated-cell-11-22" aria-hidden="true" tabindex="-1"></a><span class="st">        # Rewrite rules</span></span>
+<span id="annotated-cell-11-23"><a href="#annotated-cell-11-23" aria-hidden="true" tabindex="-1"></a><span class="st">        RewriteEngine On</span></span>
+<span id="annotated-cell-11-24"><a href="#annotated-cell-11-24" aria-hidden="true" tabindex="-1"></a><span class="st">        RewriteCond %{REQUEST_FILENAME} !-f</span></span>
+<span id="annotated-cell-11-25"><a href="#annotated-cell-11-25" aria-hidden="true" tabindex="-1"></a><span class="st">        RewriteCond %{REQUEST_FILENAME} !-d</span></span>
+<span id="annotated-cell-11-26"><a href="#annotated-cell-11-26" aria-hidden="true" tabindex="-1"></a><span class="st">        RewriteRule ^(.*)$ index.php [QSA,L]</span></span>
+<span id="annotated-cell-11-27"><a href="#annotated-cell-11-27" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/Directory&gt;</span></span>
+<span id="annotated-cell-11-28"><a href="#annotated-cell-11-28" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-11-29"><a href="#annotated-cell-11-29" aria-hidden="true" tabindex="-1"></a><span class="st">    # Directorio privado (no accesible desde web)</span></span>
+<span id="annotated-cell-11-30"><a href="#annotated-cell-11-30" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;Directory /var/www/clients/site1/private&gt;</span></span>
+<span id="annotated-cell-11-31"><a href="#annotated-cell-11-31" aria-hidden="true" tabindex="-1"></a><span class="st">        Require all denied</span></span>
+<span id="annotated-cell-11-32"><a href="#annotated-cell-11-32" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/Directory&gt;</span></span>
+<span id="annotated-cell-11-33"><a href="#annotated-cell-11-33" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-11-34"><a href="#annotated-cell-11-34" aria-hidden="true" tabindex="-1"></a><span class="st">    # Compression</span></span>
+<span id="annotated-cell-11-35"><a href="#annotated-cell-11-35" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;IfModule mod_deflate.c&gt;</span></span>
+<span id="annotated-cell-11-36"><a href="#annotated-cell-11-36" aria-hidden="true" tabindex="-1"></a><span class="st">        AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json</span></span>
+<span id="annotated-cell-11-37"><a href="#annotated-cell-11-37" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/IfModule&gt;</span></span>
+<span id="annotated-cell-11-38"><a href="#annotated-cell-11-38" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-11-39"><a href="#annotated-cell-11-39" aria-hidden="true" tabindex="-1"></a><span class="st">    # Cache headers para estáticos</span></span>
+<span id="annotated-cell-11-40"><a href="#annotated-cell-11-40" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;IfModule mod_expires.c&gt;</span></span>
+<span id="annotated-cell-11-41"><a href="#annotated-cell-11-41" aria-hidden="true" tabindex="-1"></a><span class="st">        ExpiresActive On</span></span>
+<span id="annotated-cell-11-42"><a href="#annotated-cell-11-42" aria-hidden="true" tabindex="-1"></a><span class="st">        ExpiresByType image/jpeg "access plus 1 year"</span></span>
+<span id="annotated-cell-11-43"><a href="#annotated-cell-11-43" aria-hidden="true" tabindex="-1"></a><span class="st">        ExpiresByType image/png "access plus 1 year"</span></span>
+<span id="annotated-cell-11-44"><a href="#annotated-cell-11-44" aria-hidden="true" tabindex="-1"></a><span class="st">        ExpiresByType text/css "access plus 1 month"</span></span>
+<span id="annotated-cell-11-45"><a href="#annotated-cell-11-45" aria-hidden="true" tabindex="-1"></a><span class="st">        ExpiresByType application/javascript "access plus 1 month"</span></span>
+<span id="annotated-cell-11-46"><a href="#annotated-cell-11-46" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/IfModule&gt;</span></span>
+<span id="annotated-cell-11-47"><a href="#annotated-cell-11-47" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/VirtualHost&gt;</span></span>
+<span id="annotated-cell-11-48"><a href="#annotated-cell-11-48" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="49" data-code-annotation="1"><strong>VirtualHost completo</strong>: Con seguridad, logs, cache y rewrite</span>
+</dd>
+</dl>
+</section>
+<section id="habilitar-y-verificar" class="level3">
+<h3 class="anchored" data-anchor-id="habilitar-y-verificar">Habilitar y Verificar</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-12" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-12-1"><a href="#annotated-cell-12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar sitio</span></span>
+<span id="annotated-cell-12-2"><a href="#annotated-cell-12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2ensite site1.conf</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-12" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-12-3" class="code-annotation-target"><a href="#annotated-cell-12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-4"><a href="#annotated-cell-12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-5"><a href="#annotated-cell-12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Deshabilitar default</span></span>
+<span id="annotated-cell-12-6"><a href="#annotated-cell-12-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2dissite 000-default.conf</span>
+<span id="annotated-cell-12-7"><a href="#annotated-cell-12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-8"><a href="#annotated-cell-12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Validar configuración</span></span>
+<span id="annotated-cell-12-9"><a href="#annotated-cell-12-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest</span>
+<span id="annotated-cell-12-10"><a href="#annotated-cell-12-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Syntax</span> OK</span>
+<span id="annotated-cell-12-11"><a href="#annotated-cell-12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-12"><a href="#annotated-cell-12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Recargar</span></span>
+<span id="annotated-cell-12-13"><a href="#annotated-cell-12-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl reload apache2</span>
+<span id="annotated-cell-12-14"><a href="#annotated-cell-12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-15"><a href="#annotated-cell-12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver sitios activos</span></span>
+<span id="annotated-cell-12-16"><a href="#annotated-cell-12-16" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-la</span> /etc/apache2/sites-enabled/</span>
+<span id="annotated-cell-12-17"><a href="#annotated-cell-12-17" aria-hidden="true" tabindex="-1"></a><span class="ex">site1.conf</span> <span class="at">-</span><span class="op">&gt;</span> ../sites-available/site1.conf</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-12" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="3" data-code-annotation="1"><strong>a2ensite</strong>: Crea symlink en sites-enabled/</span>
+</dd>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="18" data-code-annotation="2"><strong>Verificación</strong>: Confirma que el sitio está habilitado</span>
+</dd>
+</dl>
+</section>
+<section id="probar-virtualhost" class="level3">
+<h3 class="anchored" data-anchor-id="probar-virtualhost">Probar VirtualHost</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Con Host header</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-H</span> <span class="st">'Host: site1.local'</span> http://127.0.0.1</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>h1<span class="op">&gt;</span>Site1 <span class="ex">OK</span><span class="op">&lt;</span>/h1<span class="op">&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver logs</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail <span class="at">-f</span> /var/www/clients/site1/logs/access.log</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">127.0.0.1</span> <span class="at">-</span> <span class="at">-</span> [31/Mar/2026:10:15:00 +0000] <span class="st">"GET / HTTP/1.1"</span> 200 123 <span class="st">"-"</span> <span class="st">"curl/8.1.0"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="mejores-practicas" class="level2">
-<h2 class="anchored" data-anchor-id="mejores-practicas">Mejores practicas</h2>
+</section>
+<section id="hardening-de-apache" class="level2">
+<h2 class="anchored" data-anchor-id="hardening-de-apache">Hardening de Apache</h2>
+<section id="ocultar-información-del-servidor" class="level3">
+<h3 class="anchored" data-anchor-id="ocultar-información-del-servidor">1. Ocultar Información del Servidor</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-14-1"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/conf-available/security-hardening.conf <span class="op">&gt;</span>/dev/null <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-14-2"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="st"># Ocultar versión y OS</span></span>
+<span id="annotated-cell-14-3"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a><span class="st">ServerTokens Prod</span></span>
+<span id="annotated-cell-14-4"><a href="#annotated-cell-14-4" aria-hidden="true" tabindex="-1"></a><span class="st">ServerSignature Off</span></span>
+<span id="annotated-cell-14-5"><a href="#annotated-cell-14-5" aria-hidden="true" tabindex="-1"></a><span class="st">TraceEnable Off</span></span>
+<span id="annotated-cell-14-6"><a href="#annotated-cell-14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-7"><a href="#annotated-cell-14-7" aria-hidden="true" tabindex="-1"></a><span class="st"># Timeout reducido</span></span>
+<span id="annotated-cell-14-8"><a href="#annotated-cell-14-8" aria-hidden="true" tabindex="-1"></a><span class="st">Timeout 30</span></span>
+<span id="annotated-cell-14-9"><a href="#annotated-cell-14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-10"><a href="#annotated-cell-14-10" aria-hidden="true" tabindex="-1"></a><span class="st"># KeepAlive mejor configuración</span></span>
+<span id="annotated-cell-14-11"><a href="#annotated-cell-14-11" aria-hidden="true" tabindex="-1"></a><span class="st">KeepAlive On</span></span>
+<span id="annotated-cell-14-12"><a href="#annotated-cell-14-12" aria-hidden="true" tabindex="-1"></a><span class="st">MaxKeepAliveRequests 100</span></span>
+<span id="annotated-cell-14-13"><a href="#annotated-cell-14-13" aria-hidden="true" tabindex="-1"></a><span class="st">KeepAliveTimeout 5</span></span>
+<span id="annotated-cell-14-14"><a href="#annotated-cell-14-14" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-14-15"><a href="#annotated-cell-14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-16"><a href="#annotated-cell-14-16" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enconf security-hardening</span>
+<span id="annotated-cell-14-17"><a href="#annotated-cell-14-17" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="18" data-code-annotation="1"><strong>ServerTokens Prod</strong>: Solo muestra “Apache” sin versión</span>
+</dd>
+</dl>
+</section>
+<section id="security-headers" class="level3">
+<h3 class="anchored" data-anchor-id="security-headers">2. Security Headers</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-15-1"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod headers</span>
+<span id="annotated-cell-15-2"><a href="#annotated-cell-15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-3"><a href="#annotated-cell-15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/conf-available/security-headers.conf <span class="op">&gt;</span>/dev/null <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-15-4"><a href="#annotated-cell-15-4" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;IfModule mod_headers.c&gt;</span></span>
+<span id="annotated-cell-15-5"><a href="#annotated-cell-15-5" aria-hidden="true" tabindex="-1"></a><span class="st">    # Prevenir MIME sniffing</span></span>
+<span id="annotated-cell-15-6"><a href="#annotated-cell-15-6" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set X-Content-Type-Options "nosniff"</span></span>
+<span id="annotated-cell-15-7"><a href="#annotated-cell-15-7" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-15-8"><a href="#annotated-cell-15-8" aria-hidden="true" tabindex="-1"></a><span class="st">    # Prevenir clickjacking</span></span>
+<span id="annotated-cell-15-9"><a href="#annotated-cell-15-9" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set X-Frame-Options "SAMEORIGIN"</span></span>
+<span id="annotated-cell-15-10"><a href="#annotated-cell-15-10" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-15-11"><a href="#annotated-cell-15-11" aria-hidden="true" tabindex="-1"></a><span class="st">    # Referrer policy seguro</span></span>
+<span id="annotated-cell-15-12"><a href="#annotated-cell-15-12" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set Referrer-Policy "strict-origin-when-cross-origin"</span></span>
+<span id="annotated-cell-15-13"><a href="#annotated-cell-15-13" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-15-14"><a href="#annotated-cell-15-14" aria-hidden="true" tabindex="-1"></a><span class="st">    # XSS protection (legacy pero utile)</span></span>
+<span id="annotated-cell-15-15"><a href="#annotated-cell-15-15" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set X-XSS-Protection "1; mode=block"</span></span>
+<span id="annotated-cell-15-16"><a href="#annotated-cell-15-16" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-15-17"><a href="#annotated-cell-15-17" aria-hidden="true" tabindex="-1"></a><span class="st">    # Content Security Policy (ajustar según necesidad)</span></span>
+<span id="annotated-cell-15-18"><a href="#annotated-cell-15-18" aria-hidden="true" tabindex="-1"></a><span class="st">    # Header always set Content-Security-Policy "default-src 'self'"</span></span>
+<span id="annotated-cell-15-19"><a href="#annotated-cell-15-19" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-15-20"><a href="#annotated-cell-15-20" aria-hidden="true" tabindex="-1"></a><span class="st">    # Hide PHP version</span></span>
+<span id="annotated-cell-15-21"><a href="#annotated-cell-15-21" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set X-Powered-By "Production"</span></span>
+<span id="annotated-cell-15-22"><a href="#annotated-cell-15-22" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/IfModule&gt;</span></span>
+<span id="annotated-cell-15-23"><a href="#annotated-cell-15-23" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-15-24"><a href="#annotated-cell-15-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-25"><a href="#annotated-cell-15-25" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enconf security-headers</span>
+<span id="annotated-cell-15-26"><a href="#annotated-cell-15-26" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="27" data-code-annotation="1"><strong>Headers esenciales</strong>: Los 4 que todo servidor debe tener</span>
+</dd>
+</dl>
+</section>
+<section id="verificar-hardening" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-hardening">3. Verificar Hardening</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver headers de respuesta</span></span>
+<span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-iE</span> <span class="st">"server|x-|power"</span></span>
+<span id="annotated-cell-16-3"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> Apache</span>
+<span id="annotated-cell-16-4"><a href="#annotated-cell-16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Content-Type-Options:</span> nosniff</span>
+<span id="annotated-cell-16-5"><a href="#annotated-cell-16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Frame-Options:</span> SAMEORIGIN</span>
+<span id="annotated-cell-16-6"><a href="#annotated-cell-16-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Referrer-Policy:</span> strict-origin-when-cross-origin</span>
+<span id="annotated-cell-16-7"><a href="#annotated-cell-16-7" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Powered-By:</span> Production</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-16-8" class="code-annotation-target"><a href="#annotated-cell-16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-9"><a href="#annotated-cell-16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-10"><a href="#annotated-cell-16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver que ServerTokens funciona</span></span>
+<span id="annotated-cell-16-11"><a href="#annotated-cell-16-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost <span class="kw">|</span> <span class="fu">grep</span> Server</span>
+<span id="annotated-cell-16-12"><a href="#annotated-cell-16-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> Apache</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="8" data-code-annotation="1"><strong>Headers de seguridad</strong>: Todos presentes</span>
+</dd>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="13" data-code-annotation="2"><strong>ServerTokens</strong>: Solo dice “Apache”, sin versión</span>
+</dd>
+</dl>
+</section>
+<section id="rate-limiting-prevención-de-dos" class="level3">
+<h3 class="anchored" data-anchor-id="rate-limiting-prevención-de-dos">4. Rate Limiting (Prevención de DoS)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-17-1"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar módulo</span></span>
+<span id="annotated-cell-17-2"><a href="#annotated-cell-17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod reqtimeout ratelimit</span>
+<span id="annotated-cell-17-3"><a href="#annotated-cell-17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-4"><a href="#annotated-cell-17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/conf-available/rate-limit.conf <span class="op">&gt;</span>/dev/null <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-17-5"><a href="#annotated-cell-17-5" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;IfModule mod_ratelimit.c&gt;</span></span>
+<span id="annotated-cell-17-6"><a href="#annotated-cell-17-6" aria-hidden="true" tabindex="-1"></a><span class="st">    # Limitar requests por segundo</span></span>
+<span id="annotated-cell-17-7"><a href="#annotated-cell-17-7" aria-hidden="true" tabindex="-1"></a><span class="st">    SetOutputFilter RATE_LIMIT</span></span>
+<span id="annotated-cell-17-8"><a href="#annotated-cell-17-8" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-9"><a href="#annotated-cell-17-9" aria-hidden="true" tabindex="-1"></a><span class="st">    # 100 requests por segundo por IP</span></span>
+<span id="annotated-cell-17-10"><a href="#annotated-cell-17-10" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerRateLimitRPS 100</span></span>
+<span id="annotated-cell-17-11"><a href="#annotated-cell-17-11" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-17-12"><a href="#annotated-cell-17-12" aria-hidden="true" tabindex="-1"></a><span class="st">    # Burst de hasta 200</span></span>
+<span id="annotated-cell-17-13"><a href="#annotated-cell-17-13" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerRateLimitBurst 200</span></span>
+<span id="annotated-cell-17-14"><a href="#annotated-cell-17-14" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/IfModule&gt;</span></span>
+<span id="annotated-cell-17-15"><a href="#annotated-cell-17-15" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-17-16"><a href="#annotated-cell-17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-17"><a href="#annotated-cell-17-17" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enconf rate-limit</span>
+<span id="annotated-cell-17-18"><a href="#annotated-cell-17-18" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-17" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="19" data-code-annotation="1"><strong>Rate limiting</strong>: Protege contra ataques DoS básicos</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="casos-de-estudio" class="level2">
+<h2 class="anchored" data-anchor-id="casos-de-estudio">Casos de Estudio</h2>
+<section id="caso-1-servidor-lento-con-mucho-tráfico" class="level3">
+<h3 class="anchored" data-anchor-id="caso-1-servidor-lento-con-mucho-tráfico">Caso 1: Servidor Lento con Mucho Tráfico</h3>
+<p><strong>Síntomas</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-w</span> <span class="st">"Time: %{time_total}s\n"</span> <span class="at">-s</span> <span class="at">-o</span> /dev/null http://localhost</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Time:</span> 2.345s</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> htop  <span class="co"># Ver Apache workers al 100%</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Diagnóstico</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-19" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver estado de Apache</span></span>
+<span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apache2ctl status</span>
+<span id="annotated-cell-19-3"><a href="#annotated-cell-19-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Server</span> load: 8.45 6.23 5.01</span>
+<span id="annotated-cell-19-4"><a href="#annotated-cell-19-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Requests/sec:</span> 150</span>
+<span id="annotated-cell-19-5"><a href="#annotated-cell-19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Busy</span> workers: 150</span>
+<span id="annotated-cell-19-6"><a href="#annotated-cell-19-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Idle</span> workers: 0</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-19" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-19-7" class="code-annotation-target"><a href="#annotated-cell-19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-8"><a href="#annotated-cell-19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-9"><a href="#annotated-cell-19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver configuración de MPM</span></span>
+<span id="annotated-cell-19-10"><a href="#annotated-cell-19-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> apache2ctl <span class="at">-V</span> <span class="kw">|</span> <span class="fu">grep</span> MPM</span>
+<span id="annotated-cell-19-11"><a href="#annotated-cell-19-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Server</span> MPM: prefork</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-19" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="7" data-code-annotation="1"><strong>MPM prefork</strong>: Un request por proceso = ineficiente para alto tráfico</span>
+</dd>
+</dl>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-20" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-20-1"><a href="#annotated-cell-20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cambiar a MPM event (más eficiente)</span></span>
+<span id="annotated-cell-20-2"><a href="#annotated-cell-20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2dismod php8.1</span>
+<span id="annotated-cell-20-3"><a href="#annotated-cell-20-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2dismod mpm_prefork</span>
+<span id="annotated-cell-20-4"><a href="#annotated-cell-20-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod mpm_event</span>
+<span id="annotated-cell-20-5"><a href="#annotated-cell-20-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod proxy php8.1</span>
+<span id="annotated-cell-20-6"><a href="#annotated-cell-20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-7"><a href="#annotated-cell-20-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl restart apache2</span>
+<span id="annotated-cell-20-8"><a href="#annotated-cell-20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-9"><a href="#annotated-cell-20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver nueva config</span></span>
+<span id="annotated-cell-20-10"><a href="#annotated-cell-20-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> apache2ctl <span class="at">-V</span> <span class="kw">|</span> <span class="fu">grep</span> MPM</span>
+<span id="annotated-cell-20-11"><a href="#annotated-cell-20-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Server</span> MPM: event</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+</dl>
+</section>
+<section id="caso-2-múltiples-sitios-en-un-servidor" class="level3">
+<h3 class="anchored" data-anchor-id="caso-2-múltiples-sitios-en-un-servidor">Caso 2: Múltiples Sitios en un Servidor</h3>
+<p><strong>Escenario</strong>: Hospedar 3 dominios diferentes en el mismo servidor.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estructura:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># - example.com    → /var/www/example.com/public</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># - blog.example.com → /var/www/blog.example.com/public  </span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># - api.example.com  → /var/www/api.example.com/public</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear VirtualHost para cada dominio</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/sites-available/blog.example.com.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;VirtualHost *:80&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerName blog.example.com</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="st">    DocumentRoot /var/www/blog.example.com/public</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="st">    ErrorLog ${APACHE_LOG_DIR}/blog.example.com-error.log</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="st">    CustomLog ${APACHE_LOG_DIR}/blog.example.com-access.log combined</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;Directory /var/www/blog.example.com/public&gt;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="st">        Options -Indexes +FollowSymLinks</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="st">        AllowOverride All</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/Directory&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/VirtualHost&gt;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar todos los sitios</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2ensite example.com.conf</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2ensite blog.example.com.conf</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2ensite api.example.com.conf</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Probar cada dominio</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-H</span> <span class="st">'Host: blog.example.com'</span> http://127.0.0.1</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-H</span> <span class="st">'Host: api.example.com'</span> http://127.0.0.1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="caso-3-proxy-inverso-a-backend" class="level3">
+<h3 class="anchored" data-anchor-id="caso-3-proxy-inverso-a-backend">Caso 3: Proxy Inverso a Backend</h3>
+<p><strong>Escenario</strong>: Apache sirviendo PHP, pero Flask API corriendo en puerto 5000.</p>
+<pre data-code-line-numbers=""><code>Internet → Apache (:80) → Flask (:5000)</code></pre>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar módulos de proxy</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod proxy proxy_http rewrite</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear VirtualHost con proxy</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/sites-available/api-proxy.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;VirtualHost *:80&gt;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerName api.example.com</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="st">    # Proxy a Flask</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="st">    ProxyPreserveHost On</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="st">    ProxyPass / http://127.0.0.1:5000/</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="st">    ProxyPassReverse / http://127.0.0.1:5000/</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="st">    # Headers para el backend</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="st">    RequestHeader set X-Forwarded-Proto https</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="st">    ErrorLog ${APACHE_LOG_DIR}/api-proxy-error.log</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="st">    CustomLog ${APACHE_LOG_DIR}/api-proxy-access.log combined</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/VirtualHost&gt;</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2ensite api-proxy.conf</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-H</span> <span class="st">'Host: api.example.com'</span> http://127.0.0.1</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="ex">{</span><span class="st">"status"</span><span class="ex">:</span> <span class="st">"ok"</span>, <span class="st">"version"</span>: <span class="st">"1.0.0"</span>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="monitoreo-y-logs" class="level2">
+<h2 class="anchored" data-anchor-id="monitoreo-y-logs">Monitoreo y Logs</h2>
+<section id="logs-específicos-por-sitio" class="level3">
+<h3 class="anchored" data-anchor-id="logs-específicos-por-sitio">Logs Específicos por Sitio</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver errores en tiempo real</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail <span class="at">-f</span> /var/log/apache2/error.log</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver access log con formato readable</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail <span class="at">-f</span> /var/log/apache2/access.log <span class="kw">|</span> <span class="fu">awk</span> <span class="st">'{print $1, $4, $7, $8}'</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Buscar errores 500</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo grep <span class="st">" 500 "</span> /var/log/apache2/access.log <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-20</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver requests por IP</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo awk <span class="st">'{print $1}'</span> /var/log/apache2/access.log <span class="kw">|</span> <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="at">-c</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-nr</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="monitoreo-con-apache-bench" class="level3">
+<h3 class="anchored" data-anchor-id="monitoreo-con-apache-bench">Monitoreo con Apache Bench</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-25" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-25-1"><a href="#annotated-cell-25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test de carga básico</span></span>
+<span id="annotated-cell-25-2"><a href="#annotated-cell-25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ab <span class="at">-n</span> 1000 <span class="at">-c</span> 10 http://localhost/</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-25" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-25-3" class="code-annotation-target"><a href="#annotated-cell-25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-25-4"><a href="#annotated-cell-25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-25-5"><a href="#annotated-cell-25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Test con keep-alive</span></span>
+<span id="annotated-cell-25-6"><a href="#annotated-cell-25-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ab <span class="at">-n</span> 1000 <span class="at">-c</span> 10 <span class="at">-k</span> http://localhost/</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-25" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-25" data-code-lines="3" data-code-annotation="1"><strong>ab</strong>: Apache Bench - 1000 requests, 10 concurrentes</span>
+</dd>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-25" data-code-lines="7" data-code-annotation="2"><strong>-k</strong>: Keep-alive - reproduce clientes reales</span>
+</dd>
+</dl>
+</section>
+<section id="monitoreo-con-systemctl" class="level3">
+<h3 class="anchored" data-anchor-id="monitoreo-con-systemctl">Monitoreo con systemctl</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estado rápido</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl status apache2</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Recursos consumidos</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl show apache2 <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">"Memory|Tasks|CPU"</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver procesos</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="kw">|</span> <span class="fu">grep</span> apache2 <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">Resumen</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Tema</th>
+<th>Comando Clave</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Instalar</td>
+<td><code>apt install apache2</code></td>
+<td>Servidor web</td>
+</tr>
+<tr class="even">
+<td>Módulos</td>
+<td><code>a2enmod/a2dismod</code></td>
+<td>Habilitar/deshabilitar</td>
+</tr>
+<tr class="odd">
+<td>Sitios</td>
+<td><code>a2ensite/a2dissite</code></td>
+<td>Activar VirtualHosts</td>
+</tr>
+<tr class="even">
+<td>Validar</td>
+<td><code>apachectl configtest</code></td>
+<td>Verificar sintaxis</td>
+</tr>
+<tr class="odd">
+<td>Hardening</td>
+<td><code>ServerTokens Prod</code></td>
+<td>Ocultar información</td>
+</tr>
+<tr class="even">
+<td>Headers</td>
+<td><code>mod_headers</code></td>
+<td>Seguridad HTTP</td>
+</tr>
+<tr class="odd">
+<td>Logs</td>
+<td><code>/var/log/apache2/</code></td>
+<td>Auditoría y debug</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
 <ul>
-<li>Valida siempre 3 cosas: servicio -&gt; puerto -&gt; respuesta HTTP.</li>
-<li>Cambios de config: <code>apachectl configtest</code> antes de recargar.</li>
+<li><a href="https://httpd.apache.org/docs/">Apache Documentation</a></li>
+<li><a href="https://httpd.apache.org/docs/2.4/security.html">Apache Security Guide</a></li>
+<li><a href="https://ssl-config.mozilla.org/">Mozilla SSL Configuration Generator</a></li>
 </ul>
 
 
@@ -1843,8 +2530,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="pagination-link" aria-label="Unidad 9.2: Configuracion, logs y modulos">
-        <span class="nav-page-text"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="pagination-link" aria-label="Unidad 9.2: Configuración, Logs y Módulos">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1857,7 +2544,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="nav-footer-center">
       <ul class="footer-items list-unstyled">
     <li class="nav-item">
-    <a class="nav-link" href="../../about.html">
+    <a class="nav-link active" href="../../about.html" aria-current="page">
 <p>Sobre el Curso</p>
 </a>
   </li>  

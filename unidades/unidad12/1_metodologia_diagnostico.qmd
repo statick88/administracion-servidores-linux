@@ -1,68 +1,497 @@
 ---
-title: "Unidad 12.1: Metodologia de diagnostico"
-subtitle: "Orden, evidencias y reproducibilidad"
+title: "Unidad 12: Troubleshooting y Metodología de Resolución"
+subtitle: "Diagnóstico sistemático de problemas en servidores Linux"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 12.1: Metodologia de diagnostico
+# Unidad 12: Troubleshooting en Producción
 
-## Introduccion
+## Introducción
 
-Troubleshooting no es "probar cosas" al azar. Es un proceso: observar, recolectar evidencias, aislar la causa y validar el arreglo.
+El troubleshooting no es "probar cosas al azar". Es un proceso sistemático: observar, recolectar evidencias, aislar la causa, y validar el arreglo. En esta unidad vas a aprender la metodología que usan los administradores profesionales para resolver problemas en producción.
 
-## Objetivos de aprendizaje
+## Metodología de Troubleshooting
 
-- Usar un checklist de diagnostico
-- Documentar evidencias minimas
-- Evitar cambios destructivos sin rollback
+### El Proceso de Diagnóstico
 
----
-
-## Flujo recomendado
-
-1. Sintoma: que falla, desde donde, desde cuando.
-2. Alcance: un host o todos, un usuario o todos, una red o todas.
-3. Evidencias: comando + salida + timestamp.
-4. Hipotesis: 1-2 causas probables.
-5. Prueba: un cambio controlado.
-6. Validacion: mismo comando/metricas para confirmar.
-
----
-
-## Kit de evidencias minimo
-
-```bash
-$ hostnamectl  # <1>
- Static hostname: srv01
- Operating System: Ubuntu 24.04.1 LTS
-# <1>
-
-$ uptime  # <2>
- 12:55:03 up 1 day,  3:21,  1 user,  load average: 0.08, 0.11, 0.09
-# <2>
-
-$ ip -br addr  # <3>
-lo     UNKNOWN 127.0.0.1/8 ::1/128
-enp0s3  UP      192.168.56.10/24
-# <3>
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              METODOLOGÍA DE TROUBLESHOOTING                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   1. DEFINIR EL PROBLEMA                                      │
+│      - ¿Qué falla exactamente?                                 │
+│      - ¿Desde cuándo?                                          │
+│      - ¿Afecta a todos o solo algunos?                        │
+│                                                                  │
+│   2. RECOLECTAR EVIDENCIAS                                    │
+│      - Logs, métricas, configuración actual                     │
+│      - Estado de servicios, red, recursos                      │
+│                                                                  │
+│   3. FORMULAR HIPÓTESIS                                       │
+│      - ¿Cuál es la causa más probable?                        │
+│      - Ordenar por probabilidad                                │
+│                                                                  │
+│   4. PROBAR Y VALIDAR                                        │
+│      - Un cambio a la vez                                     │
+│      - Verificar antes/después                                │
+│                                                                  │
+│   5. DOCUMENTAR Y PREVENIR                                   │
+│      - Registrar qué se hizo y por qué                         │
+│      - Automatizar monitoreo para detección temprana           │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
+### Kit de Evidencias Mínimo
 
+```bash
+# Información del sistema
+$ hostnamectl
+Static hostname: prod-web-01
+         Icon name: computer-server
+           Chassis: server
+        Machine ID: abc123def456...
+     Virtualization: vmware
+   Operating System: Ubuntu 24.04.1 LTS
+             Kernel: Linux 6.8.0-49-generic
+       Architecture: x86-64
+# <1>
 
-1. **hostnamectl** registra host/OS para contexto.
-2. **uptime** muestra uptime y carga.
-3. **ip -br addr** muestra IP por interfaz.
+# Uptime y carga
+$ uptime
+ 14:30:00 up 45 days,  3:22,  2 users,  load average: 0.52, 0.58, 0.61
+# <2>
 
-:::{.callout-tip}
-## RECOMENDACION
+# Estado de memoria
+$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           15Gi       4.2Gi       8.2Gi       412Mi       3.1Gi      10Gi
+Swap:         2.0Gi          0B       2.0Gi
+# <3>
 
-**Antes de cambiar algo, guarda evidencia.**
+# Estado de discos
+$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       100G   45G   55G  45% /
+/dev/sda2       500G  200G  300G  40% /data
+# <4>
 
-Casos de uso:
-- Incidentes de produccion.
+# Interfaces de red
+$ ip -br addr
+lo               UNKNOWN  127.0.0.1/8 ::1/128
+eth0            UP      192.168.1.100/24 2001:db8::1/64
+# <5>
+```
 
-Cuando aplicar:
-- Siempre que diagnosticas una caida o degradacion.
-:::
+1. **hostnamectl**: Identificar el servidor
+2. **uptime**: Cuánto tiempo lleva corriendo, carga del sistema
+3. **free -h**: Memoria RAM y swap
+4. **df -h**: Espacio en disco
+5. **ip addr**: Direcciones IP
+
+## Herramientas de Diagnóstico
+
+### Comandos Esenciales
+
+```bash
+# Procesos y recursos
+$ top                    # Monitor interactivo
+$ htop                  # top mejorado (más visual)
+$ atop                  # top con historial
+$ ps aux | head -20   # Procesos activos
+
+# Red
+$ ss -tuln             # Puertos en escucha
+$ ss -s               # Resumen de conexiones
+$ ip -s link          # Estadísticas de interfaz
+$ ip route            # Tabla de rutas
+$ dig example.com      # Consulta DNS
+$ ping -c 4 8.8.8.8  # Conectividad básica
+
+# Sistema de archivos
+$ iostat -x 1 5      # I/O stats
+$ iotop               # Procesos usando I/O
+$ lsof                # Archivos abiertos
+
+# Memoria
+$ vmstat 1           # Estadísticas de memoria virtual
+$ slabtop             # Slab allocator info
+```
+
+### Diagnóstico de Problemas Comunes
+
+```bash
+# SERVER NO RESPONDE
+# 1. Verificar si está alive
+$ ping -c 4 192.168.1.100
+
+# 2. Ver si responde a SSH
+$ ssh -o ConnectTimeout=5 user@192.168.1.100 "echo ok"
+
+# 3. Verificar desde consola/IPMI/iLO
+$ ipmitool -I lanplus -H 192.168.1.100 -U admin status
+
+# 4. Si es VM, verificar desde hypervisor
+$ virsh list
+$ virsh console vm-name
+```
+
+```bash
+# SERVICIO NO INICIA
+# 1. Ver estado
+$ sudo systemctl status nginx --no-pager
+
+# 2. Ver logs recientes
+$ sudo journalctl -u nginx -n 50 --no-pager
+
+# 3. Ver configuración
+$ sudo nginx -t
+
+# 4. Ver si hay otro proceso en el puerto
+$ sudo ss -tlnp | grep :80
+```
+
+```bash
+# BASE DE DATOS LENTA
+# 1. Ver conexiones
+$ mariadb -e "SHOW PROCESSLIST;"
+
+# 2. Ver variables
+$ mariadb -e "SHOW VARIABLES LIKE 'max_connections';"
+
+# 3. Ver estado de tablas
+$ mariadb -e "SHOW TABLE STATUS FROM appdb;"
+
+# 4. Queries lentos
+$ mariadb -e "SHOW GLOBAL STATUS LIKE 'Slow_queries';"
+```
+
+## Diagnóstico por Área
+
+### 1. Problemas de CPU
+
+```bash
+# Ver carga
+$ uptime
+14:30:00 up 45 days, load average: 8.52, 2.58, 0.61
+
+# Procesos que más CPU consumen
+$ ps aux --sort=-%cpu | head -10
+
+# Detalle por core
+$ mpstat -P ALL 1 5
+
+# Ver si es spike o sostenido
+$ sar -q 1 10
+```
+
+### 2. Problemas de Memoria
+
+```bash
+# Estado de memoria
+$ free -h
+
+# Ver uso por proceso
+$ ps aux --sort=-%mem | head -10
+
+# Ver OOM kills recientes
+$ dmesg | grep -i "out of memory"
+$ journalctl -k | grep -i "out of memory"
+
+# Ver swap activity
+$ vmstat 1
+# Si si y so están altos constantemente = problemas de memoria
+```
+
+### 3. Problemas de Disco
+
+```bash
+# Espacio disponible
+$ df -h
+
+# I/O wait
+$ iostat -x 1 5
+
+# Procesos escribiendo/leyendo
+$ iotop -o
+
+# Ver inode usage
+$ df -i
+
+# Ver mayores consumidores de disco
+$ du -sh /* 2>/dev/null | sort -rh | head -10
+```
+
+### 4. Problemas de Red
+
+```bash
+# Ver conexiones establecidas
+$ ss -tunapl | grep ESTAB
+
+# Ver errores en interfaces
+$ ip -s link
+
+# Ver tabla de rutas
+$ ip route
+
+# Ver resolución DNS
+$ getent hosts example.com
+
+# Test de conectividad
+$ nc -zv host 22
+$ curl -I https://example.com
+```
+
+## Logs: El Diagnóstico
+
+### journalctl: Logs del Sistema
+
+```bash
+# Ver todo el sistema (último boot)
+$ sudo journalctl -b --no-pager
+
+# Ver servicio específico
+$ sudo journalctl -u nginx --no-pager
+
+# Ver desde tiempo específico
+$ sudo journalctl --since "2026-03-31 10:00:00" --until "2026-03-31 10:30:00"
+
+# Ver por nivel de error
+$ sudo journalctl -p err --no-pager
+
+# Seguir en tiempo real
+$ sudo journalctl -f
+
+# Ver kernel messages
+$ sudo journalctl -k --no-pager
+```
+
+### Logs de Aplicaciones
+
+```bash
+# Apache/Nginx
+$ sudo tail -f /var/log/apache2/error.log
+$ sudo tail -f /var/log/nginx/error.log
+
+# MariaDB
+$ sudo tail -f /var/log/mysql/error.log
+
+# Application logs
+$ sudo tail -f /var/www/myapp/storage/logs/laravel.log
+```
+
+### Analizar Logs Eficientemente
+
+```bash
+# Buscar errores
+$ sudo grep -i "error\|critical\|alert" /var/log/syslog
+
+# Ver último error
+$ sudo tail -100 /var/log/syslog | grep -i error
+
+# Contar errores por tipo
+$ sudo awk '/error/ {print $5}' /var/log/syslog | sort | uniq -c | sort -rn
+
+# Buscar en todos los logs
+$ sudo grep -r "error" /var/log/* 2>/dev/null | head -20
+```
+
+## Casos de Estudio
+
+### Caso 1: Servidor Lento, Alta Carga
+
+**Síntomas**:
+```bash
+$ uptime
+ 14:30:00 up 45 days,  load average: 25.52, 18.58, 12.61
+
+$ top
+# 16 procesos de "php-fpm" usando 100% CPU cada uno
+```
+
+**Diagnóstico**:
+```bash
+# 1. Ver qué proceso consume más
+$ ps aux --sort=-%cpu | head -10
+
+# 2. Ver conexiones de red
+$ ss -tunapl | grep ESTAB | wc -l
+# 5000 conexiones establecidas - ataque?
+
+# 3. Ver logs de aplicación
+$ tail /var/log/nginx/error.log
+# lots of "upstream timed out" errors
+```
+
+**Solución**:
+```bash
+# Identificar: PHP-FPM con loops infinitos
+# 1. Aumentar workers
+$ sudo sed -i 's/pm.max_children = 5/pm.max_children = 50/' /etc/php/8.1/fpm/pool.d/www.conf
+
+# 2. Recargar
+$ sudo systemctl reload php8.1-fpm
+
+# 3. Monitorear
+$ watch -n 1 'ps aux | grep php-fpm | wc -l'
+```
+
+### Caso 2: No Puedo Conectar a MySQL
+
+**Síntomas**:
+```bash
+$ mariadb -u appuser -p
+ERROR 2003 (HY000): Can't connect to MySQL server on 'localhost' (111)
+```
+
+**Diagnóstico**:
+```bash
+# 1. Ver si el servicio está corriendo
+$ systemctl status mariadb
+
+# 2. Ver si está escuchando
+$ ss -tlnp | grep 3306
+
+# 3. Ver logs
+$ journalctl -u mariadb -n 50
+```
+
+**Solución**:
+```bash
+# Si no está corriendo:
+$ sudo systemctl start mariadb
+$ sudo systemctl enable mariadb
+
+# Si está corriendo pero no en red:
+$ sudo sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
+$ sudo systemctl restart mariadb
+```
+
+### Caso 3: Disco Lleno
+
+**Síntomas**:
+```bash
+$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       100G  100G     0 100% /
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# 1. Ver mayores consumidores
+$ sudo du -sh /* 2>/dev/null | sort -rh | head -10
+
+# 2. Ver logs grandes
+$ sudo find /var/log -type f -size +100M -exec ls -lh {} \;
+
+# 3. Ver temporales
+$ sudo du -sh /tmp
+```
+
+**Solución**:
+```bash
+# 1. Limpiar logs antiguos
+$ sudo journalctl --vacuum-time=7d
+
+# 2. Eliminar paquetes antiguos
+$ sudo apt autoremove
+
+# 3. Limpiar /tmp
+$ sudo rm -rf /tmp/*
+
+# 4. Verificar espacio
+$ df -h
+```
+
+### Caso 4: DNS No Resuelve
+
+**Síntomas**:
+```bash
+$ ping google.com
+ping: google.com: Name or service not known
+```
+
+**Diagnóstico**:
+```bash
+# 1. Ver configuración DNS
+$ cat /etc/resolv.conf
+
+# 2. Probar DNS específico
+$ nslookup google.com 8.8.8.8
+
+# 3. Ver si es problema de red
+$ ping -c 2 8.8.8.8
+```
+
+**Solución**:
+```bash
+# Agregar DNS temporal
+$ echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+
+# O editar resolv.conf
+$ sudo nano /etc/resolv.conf
+# Agregar:
+# nameserver 8.8.8.8
+# nameserver 8.8.4.4
+```
+
+## Herramientas Avanzadas
+
+### strace: Seguimiento de Syscalls
+
+```bash
+# Ver qué hace un proceso
+$ sudo strace -p 1234 -f -e trace=network
+
+# Ver qué archivos abre
+$ sudo strace -p 1234 -e trace=open,close
+```
+
+### lsof: Archivos Abiertos
+
+```bash
+# Ver qué tiene abierto un proceso
+$ sudo lsof -p 1234
+
+# Ver quién usa un archivo
+$ sudo lsof /var/log/syslog
+
+# Ver conexiones de red
+$ sudo lsof -i :80
+```
+
+### netstat/ss: Estadísticas de Red
+
+```bash
+# Ver conexiones
+$ ss -tunapl
+
+# Ver estadísticas
+$ ss -s
+
+# Ver tabla de rutas
+$ ip route
+
+# Ver neighbor table
+$ ip neigh
+```
+
+## Resumen
+
+| Área | Comandos Clave | Propósito |
+|------|---------------|-----------|
+| CPU | `top`, `htop`, `mpstat` | Ver carga y procesos |
+| Memoria | `free`, `vmstat`, `dmesg` | Diagnóstico de memoria |
+| Disco | `df`, `du`, `iotop` | Espacio y I/O |
+| Red | `ss`, `ip`, `ping`, `dig` | Conectividad |
+| Logs | `journalctl`, `tail`, `grep` | Diagnóstico |
+| Syscalls | `strace`, `lsof` | Debug avanzado |
+
+## Referencias
+
+- [Systemd Journal](https://www.freedesktop.org/software/systemd/man/journalctl.html)
+- [Linux Performance](https://www.brendangregg.com/linuxperf.html)
+- [Troubleshooting Guide](https://access.redhat.com/articles/1189123)

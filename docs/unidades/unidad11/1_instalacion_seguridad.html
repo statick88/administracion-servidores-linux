@@ -2,15 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.9.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Diego Saavedra">
 <meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
 
-<title>Unidad 11.1: Instalacion y seguridad inicial – Administración de Servidores Linux</title>
+<title>Unidad 11: MariaDB - Base de Datos en Producción – Administración de Servidores Linux</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -71,17 +74,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-61780a260fdcf47536a34fde95582725.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-68056a18e515a5789c5e26a7aeb7ac61.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-d475e4ab3b4fd243dd6ecd26d4f0399c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
@@ -292,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html">Unidad 11: MariaDB</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html">Unidad 11: MariaDB</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -638,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
- <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+ <span class="menu-text">Unidad 8: SSH y Acceso Remoto Seguro</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -646,7 +648,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  <a href="../../unidades/unidad8/1_ssh_fundamentos_keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Protocolo y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/2_ssh_tunnels.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH Tunnels: Port Forwarding y Proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/3_lab_practico_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Laboratorio Práctico</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -667,22 +679,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y Múltiples Sitios</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/5_lab_practico_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -703,22 +720,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -739,22 +761,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Acceso Remoto y Seguridad de Red</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/5_lab_practico_mariadb.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Laboratorio Práctico - MariaDB</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -775,7 +802,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -791,6 +818,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1194,14 +1226,66 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#unidad-11.1-instalacion-y-seguridad-inicial" id="toc-unidad-11.1-instalacion-y-seguridad-inicial" class="nav-link active" data-scroll-target="#unidad-11.1-instalacion-y-seguridad-inicial">Unidad 11.1: Instalacion y seguridad inicial</a>
+  <li><a href="#unidad-11-mariadb-en-producción" id="toc-unidad-11-mariadb-en-producción" class="nav-link active" data-scroll-target="#unidad-11-mariadb-en-producción">Unidad 11: MariaDB en Producción</a>
   <ul class="collapse">
-  <li><a href="#introduccion" id="toc-introduccion" class="nav-link" data-scroll-target="#introduccion">Introduccion</a></li>
-  <li><a href="#objetivos-de-aprendizaje" id="toc-objetivos-de-aprendizaje" class="nav-link" data-scroll-target="#objetivos-de-aprendizaje">Objetivos de aprendizaje</a></li>
-  <li><a href="#instalacion-ubuntu" id="toc-instalacion-ubuntu" class="nav-link" data-scroll-target="#instalacion-ubuntu">Instalacion (Ubuntu)</a></li>
-  <li><a href="#validar-servicio-y-socket" id="toc-validar-servicio-y-socket" class="nav-link" data-scroll-target="#validar-servicio-y-socket">Validar servicio y socket</a></li>
-  <li><a href="#hardening-inicial" id="toc-hardening-inicial" class="nav-link" data-scroll-target="#hardening-inicial">Hardening inicial</a></li>
-  <li><a href="#prueba-rapida" id="toc-prueba-rapida" class="nav-link" data-scroll-target="#prueba-rapida">Prueba rapida</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#arquitectura-de-mariadb" id="toc-arquitectura-de-mariadb" class="nav-link" data-scroll-target="#arquitectura-de-mariadb">Arquitectura de MariaDB</a>
+  <ul class="collapse">
+  <li><a href="#componentes-principales" id="toc-componentes-principales" class="nav-link" data-scroll-target="#componentes-principales">Componentes Principales</a></li>
+  <li><a href="#innodb-vs-myisam" id="toc-innodb-vs-myisam" class="nav-link" data-scroll-target="#innodb-vs-myisam">InnoDB vs MyISAM</a></li>
+  </ul></li>
+  <li><a href="#instalación-en-producción" id="toc-instalación-en-producción" class="nav-link" data-scroll-target="#instalación-en-producción">Instalación en Producción</a>
+  <ul class="collapse">
+  <li><a href="#instalación-de-mariadb-server" id="toc-instalación-de-mariadb-server" class="nav-link" data-scroll-target="#instalación-de-mariadb-server">Instalación de MariaDB Server</a></li>
+  <li><a href="#instalar-versión-específica-opcional" id="toc-instalar-versión-específica-opcional" class="nav-link" data-scroll-target="#instalar-versión-específica-opcional">Instalar Versión Específica (Opcional)</a></li>
+  <li><a href="#verificar-instalación" id="toc-verificar-instalación" class="nav-link" data-scroll-target="#verificar-instalación">Verificar Instalación</a></li>
+  <li><a href="#validar-conexión" id="toc-validar-conexión" class="nav-link" data-scroll-target="#validar-conexión">Validar Conexión</a></li>
+  </ul></li>
+  <li><a href="#hardening-inicial" id="toc-hardening-inicial" class="nav-link" data-scroll-target="#hardening-inicial">Hardening Inicial</a>
+  <ul class="collapse">
+  <li><a href="#mysql_secure_installation" id="toc-mysql_secure_installation" class="nav-link" data-scroll-target="#mysql_secure_installation">mysql_secure_installation</a></li>
+  <li><a href="#hardening-manual" id="toc-hardening-manual" class="nav-link" data-scroll-target="#hardening-manual">Hardening Manual</a></li>
+  </ul></li>
+  <li><a href="#configuración-de-producción" id="toc-configuración-de-producción" class="nav-link" data-scroll-target="#configuración-de-producción">Configuración de Producción</a>
+  <ul class="collapse">
+  <li><a href="#archivo-de-configuración" id="toc-archivo-de-configuración" class="nav-link" data-scroll-target="#archivo-de-configuración">Archivo de Configuración</a></li>
+  <li><a href="#configuración-de-producción-1" id="toc-configuración-de-producción-1" class="nav-link" data-scroll-target="#configuración-de-producción-1">Configuración de Producción</a></li>
+  <li><a href="#variables-importantes" id="toc-variables-importantes" class="nav-link" data-scroll-target="#variables-importantes">Variables Importantes</a></li>
+  </ul></li>
+  <li><a href="#usuarios-y-privilegios" id="toc-usuarios-y-privilegios" class="nav-link" data-scroll-target="#usuarios-y-privilegios">Usuarios y Privilegios</a>
+  <ul class="collapse">
+  <li><a href="#crear-usuario-para-aplicación" id="toc-crear-usuario-para-aplicación" class="nav-link" data-scroll-target="#crear-usuario-para-aplicación">Crear Usuario para Aplicación</a></li>
+  <li><a href="#usuario-con-múltiples-hosts" id="toc-usuario-con-múltiples-hosts" class="nav-link" data-scroll-target="#usuario-con-múltiples-hosts">Usuario con Múltiples Hosts</a></li>
+  <li><a href="#roles-mariadb-10.2" id="toc-roles-mariadb-10.2" class="nav-link" data-scroll-target="#roles-mariadb-10.2">Roles (MariaDB 10.2+)</a></li>
+  <li><a href="#contraseñas-seguras" id="toc-contraseñas-seguras" class="nav-link" data-scroll-target="#contraseñas-seguras">Contraseñas Seguras</a></li>
+  </ul></li>
+  <li><a href="#backups" id="toc-backups" class="nav-link" data-scroll-target="#backups">Backups</a>
+  <ul class="collapse">
+  <li><a href="#mysqldump-backup-lógico" id="toc-mysqldump-backup-lógico" class="nav-link" data-scroll-target="#mysqldump-backup-lógico">mysqldump (Backup Lógico)</a></li>
+  <li><a href="#restaurar-backup" id="toc-restaurar-backup" class="nav-link" data-scroll-target="#restaurar-backup">Restaurar Backup</a></li>
+  <li><a href="#mariadb-backup-físico" id="toc-mariadb-backup-físico" class="nav-link" data-scroll-target="#mariadb-backup-físico">MariaDB Backup (Físico)</a></li>
+  <li><a href="#cronjob-para-backups-automáticos" id="toc-cronjob-para-backups-automáticos" class="nav-link" data-scroll-target="#cronjob-para-backups-automáticos">Cronjob para Backups Automáticos</a></li>
+  </ul></li>
+  <li><a href="#acceso-remoto" id="toc-acceso-remoto" class="nav-link" data-scroll-target="#acceso-remoto">Acceso Remoto</a>
+  <ul class="collapse">
+  <li><a href="#habilitar-acceso-remoto" id="toc-habilitar-acceso-remoto" class="nav-link" data-scroll-target="#habilitar-acceso-remoto">Habilitar Acceso Remoto</a></li>
+  <li><a href="#configurar-usuario-para-acceso-remoto" id="toc-configurar-usuario-para-acceso-remoto" class="nav-link" data-scroll-target="#configurar-usuario-para-acceso-remoto">Configurar Usuario para Acceso Remoto</a></li>
+  <li><a href="#firewall" id="toc-firewall" class="nav-link" data-scroll-target="#firewall">Firewall</a></li>
+  </ul></li>
+  <li><a href="#casos-de-estudio" id="toc-casos-de-estudio" class="nav-link" data-scroll-target="#casos-de-estudio">Casos de Estudio</a>
+  <ul class="collapse">
+  <li><a href="#caso-1-base-de-datos-lenta" id="toc-caso-1-base-de-datos-lenta" class="nav-link" data-scroll-target="#caso-1-base-de-datos-lenta">Caso 1: Base de Datos Lenta</a></li>
+  <li><a href="#caso-2-too-many-connections" id="toc-caso-2-too-many-connections" class="nav-link" data-scroll-target="#caso-2-too-many-connections">Caso 2: Too Many Connections</a></li>
+  <li><a href="#caso-3-contraseña-root-olvidada" id="toc-caso-3-contraseña-root-olvidada" class="nav-link" data-scroll-target="#caso-3-contraseña-root-olvidada">Caso 3: Contraseña Root Olvidada</a></li>
+  <li><a href="#caso-4-recovery-después-de-crash" id="toc-caso-4-recovery-después-de-crash" class="nav-link" data-scroll-target="#caso-4-recovery-después-de-crash">Caso 4: Recovery Después de Crash</a></li>
+  </ul></li>
+  <li><a href="#monitoreo" id="toc-monitoreo" class="nav-link" data-scroll-target="#monitoreo">Monitoreo</a>
+  <ul class="collapse">
+  <li><a href="#ver-estado-de-conexiones" id="toc-ver-estado-de-conexiones" class="nav-link" data-scroll-target="#ver-estado-de-conexiones">Ver Estado de Conexiones</a></li>
+  <li><a href="#health-check" id="toc-health-check" class="nav-link" data-scroll-target="#health-check">Health Check</a></li>
+  </ul></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">Resumen</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   <li>Code Appendix</li>
   </ul>
@@ -1211,10 +1295,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html">Unidad 11: MariaDB</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html">Unidad 11: MariaDB</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></h1>
-<p class="subtitle lead">MariaDB en servidores</p>
+<h1 class="title"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></h1>
+<p class="subtitle lead">Instalación, configuración, seguridad y operaciones de MariaDB</p>
 </div>
 
 
@@ -1231,7 +1315,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">Feb 2, 2026</p>
+      <p class="date">Mar 31, 2026</p>
     </div>
   </div>
   
@@ -1243,111 +1327,953 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="unidad-11.1-instalacion-y-seguridad-inicial" class="level1">
-<h1>Unidad 11.1: Instalacion y seguridad inicial</h1>
-<section id="introduccion" class="level2">
-<h2 class="anchored" data-anchor-id="introduccion">Introduccion</h2>
-<p>MariaDB es una base de datos relacional compatible con MySQL, muy usada en servidores Linux. La operacion profesional empieza con una instalacion limpia, un servicio estable y un hardening inicial.</p>
+<section id="unidad-11-mariadb-en-producción" class="level1">
+<h1>Unidad 11: MariaDB en Producción</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>MariaDB es el reemplazo directo de MySQL en la mayoría de distribuciones Linux. Es una base de datos relacional utilizada por millones de aplicaciones web. En esta unidad vas a dominar la instalación, configuración de producción, usuarios y privilegios, backups, y acceso remoto seguro.</p>
 </section>
-<section id="objetivos-de-aprendizaje" class="level2">
-<h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">Objetivos de aprendizaje</h2>
-<ul>
-<li>Instalar MariaDB</li>
-<li>Validar servicio y socket/puerto</li>
-<li>Ejecutar hardening inicial con <code>mysql_secure_installation</code></li>
-</ul>
-<hr>
+<section id="arquitectura-de-mariadb" class="level2">
+<h2 class="anchored" data-anchor-id="arquitectura-de-mariadb">Arquitectura de MariaDB</h2>
+<section id="componentes-principales" class="level3">
+<h3 class="anchored" data-anchor-id="componentes-principales">Componentes Principales</h3>
+<pre data-code-line-numbers=""><code>┌─────────────────────────────────────────────────────────────────┐
+│                 ARQUITECTURA MARIADB                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   CLIENTE                 MARIADB SERVER                        │
+│  ┌─────────┐            ┌──────────┐                           │
+│  │mysql CLI│ ──────────&gt;│ mysqld   │                           │
+│  │PHP/Python│           │ (daemon) │                           │
+│  │Node.js │            │          │                           │
+│  └─────────┘            └──────────┘                           │
+│                              │                                  │
+│                    ┌─────────┴─────────┐                       │
+│                    │                  │                        │
+│               Storage           Memory                        │
+│               (InnoDB)          (Query Cache)                 │
+│                                                                  │
+│   Puerto: 3306         Socket: /run/mysqld/mysqld.sock          │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
 </section>
-<section id="instalacion-ubuntu" class="level2">
-<h2 class="anchored" data-anchor-id="instalacion-ubuntu">Instalacion (Ubuntu)</h2>
+<section id="innodb-vs-myisam" class="level3">
+<h3 class="anchored" data-anchor-id="innodb-vs-myisam">InnoDB vs MyISAM</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Característica</th>
+<th>InnoDB</th>
+<th>MyISAM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Transacciones</strong></td>
+<td>✅ ACID</td>
+<td>❌</td>
+</tr>
+<tr class="even">
+<td><strong>Bloqueo</strong></td>
+<td>Row-level</td>
+<td>Table-level</td>
+</tr>
+<tr class="odd">
+<td><strong>Foreign Keys</strong></td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr class="even">
+<td><strong>Crash Recovery</strong></td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr class="odd">
+<td><strong>Full-text Search</strong></td>
+<td>✅ (10.6+)</td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td><strong>Performance Lectura</strong></td>
+<td>Moderada</td>
+<td>Rápida</td>
+</tr>
+<tr class="odd">
+<td><strong>Por defecto</strong></td>
+<td>✅ (MariaDB 10.2+)</td>
+<td>Deprecated</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="instalación-en-producción" class="level2">
+<h2 class="anchored" data-anchor-id="instalación-en-producción">Instalación en Producción</h2>
+<section id="instalación-de-mariadb-server" class="level3">
+<h3 class="anchored" data-anchor-id="instalación-de-mariadb-server">Instalación de MariaDB Server</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update</span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-4" class="code-annotation-target"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> mariadb-server</span>
-<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Reading</span> package lists... Done</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="1,2" data-code-annotation="1"><strong>apt update</strong> actualiza el indice de paquetes.</span>
-</dd>
-<dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="4,6" data-code-annotation="2"><strong>apt install mariadb-server</strong> instala servidor MariaDB.</span>
-</dd>
-</dl>
-<hr>
-</section>
-<section id="validar-servicio-y-socket" class="level2">
-<h2 class="anchored" data-anchor-id="validar-servicio-y-socket">Validar servicio y socket</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl status mariadb <span class="at">--no-pager</span></span>
-<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> mariadb.service <span class="at">-</span> MariaDB 10.11.6 database server</span>
-<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> active <span class="er">(</span><span class="ex">running</span><span class="kw">)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar índice de paquetes</span></span>
+<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt upgrade <span class="at">-y</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-3" class="code-annotation-target"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-6" class="code-annotation-target"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="st">':3306'</span> <span class="kw">||</span> <span class="fu">true</span></span>
-<span id="annotated-cell-2-7"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-2-8"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-2-9" class="code-annotation-target"><a href="#annotated-cell-2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ls <span class="at">-l</span> /run/mysqld/mysqld.sock</span>
-<span id="annotated-cell-2-10"><a href="#annotated-cell-2-10" aria-hidden="true" tabindex="-1"></a><span class="ex">srwxrwxrwx</span> 1 mysql mysql 0 Feb  2 12:30 /run/mysqld/mysqld.sock</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar MariaDB Server</span></span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> mariadb-server mariadb-client</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="1,4" data-code-annotation="1"><strong>systemctl status mariadb</strong> valida que el servicio esta corriendo.</span>
+<span data-code-cell="annotated-cell-2" data-code-lines="3" data-code-annotation="1"><strong>apt update</strong>: Lista de paquetes actualizada</span>
 </dd>
 <dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="6,7" data-code-annotation="2"><strong>ss -lntp</strong> valida el puerto 3306 si esta habilitado (en muchos casos MariaDB escucha solo en loopback).</span>
-</dd>
-<dt data-target-cell="annotated-cell-2" data-target-annotation="3">3</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="9,11" data-code-annotation="3"><strong>mysqld.sock</strong> confirma socket local, comun en instalaciones seguras.</span>
+<span data-code-cell="annotated-cell-2" data-code-lines="7" data-code-annotation="2"><strong>mariadb-server</strong>: Servidor de base de datos</span>
 </dd>
 </dl>
-<hr>
 </section>
-<section id="hardening-inicial" class="level2">
-<h2 class="anchored" data-anchor-id="hardening-inicial">Hardening inicial</h2>
+<section id="instalar-versión-específica-opcional" class="level3">
+<h3 class="anchored" data-anchor-id="instalar-versión-específica-opcional">Instalar Versión Específica (Opcional)</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysql_secure_installation</span>
-<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span> <span class="er">(</span><span class="ex">preguntas</span> interactivas<span class="kw">)</span> <span class="ex">...</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Agregar repositorio oficial MariaDB</span></span>
+<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> software-properties-common</span>
+<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo add-apt-repository <span class="st">'ppa:mariadb/stable'</span></span>
+<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt install <span class="at">-y</span> mariadb-server</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<dl class="code-annotation-container-grid">
+<dl>
 <dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="1,3" data-code-annotation="1"><strong>mysql_secure_installation</strong> aplica endurecimiento basico (password root, eliminar usuarios anonimos, deshabilitar login remoto de root, etc.).</span>
+<span data-code-cell="annotated-cell-3" data-code-lines="5" data-code-annotation="1"><strong>Versión estable</strong>: Obtener última versión estable</span>
 </dd>
 </dl>
-<hr>
 </section>
-<section id="prueba-rapida" class="level2">
-<h2 class="anchored" data-anchor-id="prueba-rapida">Prueba rapida</h2>
+<section id="verificar-instalación" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-instalación">Verificar Instalación</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-1" class="code-annotation-target"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb <span class="at">-e</span> <span class="st">'SELECT VERSION();'</span></span>
-<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">VERSION()</span></span>
-<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">10.11.6-MariaDB-0ubuntu0.24.04.1</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estado del servicio</span></span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl status mariadb <span class="at">--no-pager</span></span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> mariadb.service <span class="at">-</span> MariaDB 10.11.6 database server</span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Loaded:</span> loaded <span class="er">(</span><span class="ex">/lib/systemd/system/mariadb.service</span><span class="kw">;</span> <span class="ex">enabled</span><span class="kw">)</span></span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> active <span class="er">(</span><span class="ex">running</span><span class="kw">)</span> <span class="ex">since</span> Tue 2026-03-31 10:00:00 UTC</span>
+<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Main</span> PID: 1234 <span class="er">(</span><span class="ex">mariadbd</span><span class="kw">)</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-7" class="code-annotation-target"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Versión de MariaDB</span></span>
+<span id="annotated-cell-4-10"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">--version</span></span>
+<span id="annotated-cell-4-11"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">mariadb</span>  Ver 15.1 Distrib 10.11.6-MariaDB, for debian-linux-gnu <span class="er">(</span><span class="ex">x86_64</span><span class="kw">)</span> <span class="ex">using</span> readline 3.0</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="1,4" data-code-annotation="1"><strong>mariadb -e</strong> ejecuta un query y valida que puedes conectarte localmente.</span>
+<span data-code-cell="annotated-cell-4" data-code-lines="7" data-code-annotation="1"><strong>systemctl status</strong>: Confirmar servicio activo</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="12" data-code-annotation="2"><strong>Versión</strong>: MariaDB 10.11.6</span>
 </dd>
 </dl>
+</section>
+<section id="validar-conexión" class="level3">
+<h3 class="anchored" data-anchor-id="validar-conexión">Validar Conexión</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conexión local (socket)</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb <span class="at">-u</span> root</span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Welcome</span> to the MariaDB monitor.  Commands end with <span class="kw">;</span> <span class="ex">or</span> <span class="dt">\g</span>.</span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Your</span> MariaDB connection id is 50</span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Server</span> version: 10.11.6-MariaDB-1ubuntu0.1 Ubuntu 24.04</span>
+<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">MariaDB</span> [<span class="er">(</span><span class="ex">none</span><span class="kw">)</span><span class="ex">]</span><span class="op">&gt;</span> SELECT VERSION<span class="er">(</span><span class="kw">);</span></span>
+<span id="annotated-cell-5-8"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span>
+<span id="annotated-cell-5-9"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="fu">VERSION()</span>          <span class="kw">|</span></span>
+<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span>
+<span id="annotated-cell-5-11"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="ex">10.11.6-MariaDB</span>    <span class="kw">|</span></span>
+<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span>
+<span id="annotated-cell-5-13"><a href="#annotated-cell-5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-14"><a href="#annotated-cell-5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">MariaDB</span> [<span class="er">(</span><span class="ex">none</span><span class="kw">)</span><span class="ex">]</span><span class="op">&gt;</span> EXIT<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="15" data-code-annotation="1"><strong>mariadb -u root</strong>: Conexión como root (sin password tras instalación)</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="hardening-inicial" class="level2">
+<h2 class="anchored" data-anchor-id="hardening-inicial">Hardening Inicial</h2>
+<section id="mysql_secure_installation" class="level3">
+<h3 class="anchored" data-anchor-id="mysql_secure_installation">mysql_secure_installation</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-6-1"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysql_secure_installation</span>
+<span id="annotated-cell-6-2"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-3"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Following prompts:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-6-4" class="code-annotation-target"><a href="#annotated-cell-6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Switch</span> to unix_socket authentication <span class="pp">[</span><span class="ss">Y/n</span><span class="pp">]</span> n</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-6-5" class="code-annotation-target"><a href="#annotated-cell-6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Change</span> the root password<span class="pp">?</span> <span class="pp">[</span><span class="ss">Y/n</span><span class="pp">]</span> Y</span>
+<span id="annotated-cell-6-6"><a href="#annotated-cell-6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">New</span> password: <span class="pp">********</span></span>
+<span id="annotated-cell-6-7"><a href="#annotated-cell-6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Confirm</span> password: <span class="pp">********</span></span>
+<span id="annotated-cell-6-8"><a href="#annotated-cell-6-8" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-6-9" class="code-annotation-target"><a href="#annotated-cell-6-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Remove</span> anonymous users<span class="pp">?</span> <span class="pp">[</span><span class="ss">Y/n</span><span class="pp">]</span> Y</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-6-10" class="code-annotation-target"><a href="#annotated-cell-6-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Disallow</span> root login remotely<span class="pp">?</span> <span class="pp">[</span><span class="ss">Y/n</span><span class="pp">]</span> Y</span>
+<span id="annotated-cell-6-11"><a href="#annotated-cell-6-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Remove</span> test database and access to it<span class="pp">?</span> <span class="pp">[</span><span class="ss">Y/n</span><span class="pp">]</span> Y</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-6-12" class="code-annotation-target"><a href="#annotated-cell-6-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Reload</span> privilege tables now<span class="pp">?</span> <span class="pp">[</span><span class="ss">Y/n</span><span class="pp">]</span> Y</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="4,13" data-code-annotation="1"><strong>unix_socket</strong>: Autenticación via usuario del sistema</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="5" data-code-annotation="2"><strong>Password root</strong>: Establecer password fuerte</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="9" data-code-annotation="3"><strong>Anonymous users</strong>: Eliminar usuarios anónimos</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="10" data-code-annotation="4"><strong>Remote root</strong>: Deshabilitar login remoto de root</span>
+</dd>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="5">5</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="12" data-code-annotation="5"><strong>Flush privileges</strong>: Recargar tabla de privilegios</span>
+</dd>
+</dl>
+</section>
+<section id="hardening-manual" class="level3">
+<h3 class="anchored" data-anchor-id="hardening-manual">Hardening Manual</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-7-1"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conectar como root</span></span>
+<span id="annotated-cell-7-2"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb</span>
+<span id="annotated-cell-7-3"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-4"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Cambiar password de root</span></span>
+<span id="annotated-cell-7-5"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">ALTER</span> USER <span class="st">'root'</span>@<span class="st">'localhost'</span> IDENTIFIED BY <span class="st">'StrongRootPass-2026!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span>
+<span id="annotated-cell-7-7"><a href="#annotated-cell-7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-8"><a href="#annotated-cell-7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Eliminar usuarios anónimos</span></span>
+<span id="annotated-cell-7-9"><a href="#annotated-cell-7-9" aria-hidden="true" tabindex="-1"></a><span class="ex">DELETE</span> FROM mysql.user WHERE User=<span class="st">''</span><span class="kw">;</span></span>
+<span id="annotated-cell-7-10"><a href="#annotated-cell-7-10" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span>
+<span id="annotated-cell-7-11"><a href="#annotated-cell-7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-12"><a href="#annotated-cell-7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Eliminar base de datos de test</span></span>
+<span id="annotated-cell-7-13"><a href="#annotated-cell-7-13" aria-hidden="true" tabindex="-1"></a><span class="ex">DROP</span> DATABASE IF EXISTS test<span class="kw">;</span></span>
+<span id="annotated-cell-7-14"><a href="#annotated-cell-7-14" aria-hidden="true" tabindex="-1"></a><span class="ex">DELETE</span> FROM mysql.db WHERE Db=<span class="st">'test'</span><span class="kw">;</span></span>
+<span id="annotated-cell-7-15"><a href="#annotated-cell-7-15" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span>
+<span id="annotated-cell-7-16"><a href="#annotated-cell-7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-17"><a href="#annotated-cell-7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Ver usuarios restantes</span></span>
+<span id="annotated-cell-7-18"><a href="#annotated-cell-7-18" aria-hidden="true" tabindex="-1"></a><span class="ex">SELECT</span> User, Host, plugin FROM mysql.user ORDER BY User<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="19" data-code-annotation="1"><strong>Hardening manual</strong>: Control total sobre la configuración</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="configuración-de-producción" class="level2">
+<h2 class="anchored" data-anchor-id="configuración-de-producción">Configuración de Producción</h2>
+<section id="archivo-de-configuración" class="level3">
+<h3 class="anchored" data-anchor-id="archivo-de-configuración">Archivo de Configuración</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-8-1"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver configuración actual</span></span>
+<span id="annotated-cell-8-2"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb <span class="at">-e</span> <span class="st">"SHOW VARIABLES LIKE 'max_connections';"</span></span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span>
+<span id="annotated-cell-8-4"><a href="#annotated-cell-8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="ex">max_connections</span>    <span class="kw">|</span></span>
+<span id="annotated-cell-8-5"><a href="#annotated-cell-8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span>
+<span id="annotated-cell-8-6"><a href="#annotated-cell-8-6" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="ex">151</span>                <span class="kw">|</span></span>
+<span id="annotated-cell-8-7"><a href="#annotated-cell-8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span>
+<span id="annotated-cell-8-8"><a href="#annotated-cell-8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-9"><a href="#annotated-cell-8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Archivo de configuración</span></span>
+<span id="annotated-cell-8-10"><a href="#annotated-cell-8-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-la</span> /etc/mysql/</span>
+<span id="annotated-cell-8-11"><a href="#annotated-cell-8-11" aria-hidden="true" tabindex="-1"></a><span class="ex">mariadb.conf.d</span>  my.cnf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="12" data-code-annotation="1"><strong>Config files</strong>: /etc/mysql/mariadb.conf.d/50-server.cnf</span>
+</dd>
+</dl>
+</section>
+<section id="configuración-de-producción-1" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-de-producción-1">Configuración de Producción</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/mysql/mariadb.conf.d/99-production.cnf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="st">[mysqld]</span></span>
+<span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a><span class="st"># Conexiones</span></span>
+<span id="annotated-cell-9-4"><a href="#annotated-cell-9-4" aria-hidden="true" tabindex="-1"></a><span class="st">max_connections = 200</span></span>
+<span id="annotated-cell-9-5"><a href="#annotated-cell-9-5" aria-hidden="true" tabindex="-1"></a><span class="st">wait_timeout = 60</span></span>
+<span id="annotated-cell-9-6"><a href="#annotated-cell-9-6" aria-hidden="true" tabindex="-1"></a><span class="st">interactive_timeout = 60</span></span>
+<span id="annotated-cell-9-7"><a href="#annotated-cell-9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-8"><a href="#annotated-cell-9-8" aria-hidden="true" tabindex="-1"></a><span class="st"># InnoDB</span></span>
+<span id="annotated-cell-9-9"><a href="#annotated-cell-9-9" aria-hidden="true" tabindex="-1"></a><span class="st">innodb_buffer_pool_size = 1G          # 70% de RAM disponible</span></span>
+<span id="annotated-cell-9-10"><a href="#annotated-cell-9-10" aria-hidden="true" tabindex="-1"></a><span class="st">innodb_log_file_size = 256M</span></span>
+<span id="annotated-cell-9-11"><a href="#annotated-cell-9-11" aria-hidden="true" tabindex="-1"></a><span class="st">innodb_flush_log_at_trx_commit = 2     # Sécurité + rendimiento</span></span>
+<span id="annotated-cell-9-12"><a href="#annotated-cell-9-12" aria-hidden="true" tabindex="-1"></a><span class="st">innodb_flush_method = O_DIRECT</span></span>
+<span id="annotated-cell-9-13"><a href="#annotated-cell-9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-14"><a href="#annotated-cell-9-14" aria-hidden="true" tabindex="-1"></a><span class="st"># Logs</span></span>
+<span id="annotated-cell-9-15"><a href="#annotated-cell-9-15" aria-hidden="true" tabindex="-1"></a><span class="st">log_error = /var/log/mysql/error.log</span></span>
+<span id="annotated-cell-9-16"><a href="#annotated-cell-9-16" aria-hidden="true" tabindex="-1"></a><span class="st">slow_query_log = 1</span></span>
+<span id="annotated-cell-9-17"><a href="#annotated-cell-9-17" aria-hidden="true" tabindex="-1"></a><span class="st">slow_query_log_file = /var/log/mysql/slow.log</span></span>
+<span id="annotated-cell-9-18"><a href="#annotated-cell-9-18" aria-hidden="true" tabindex="-1"></a><span class="st">long_query_time = 2</span></span>
+<span id="annotated-cell-9-19"><a href="#annotated-cell-9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-20"><a href="#annotated-cell-9-20" aria-hidden="true" tabindex="-1"></a><span class="st"># Character set</span></span>
+<span id="annotated-cell-9-21"><a href="#annotated-cell-9-21" aria-hidden="true" tabindex="-1"></a><span class="st">character-set-server = utf8mb4</span></span>
+<span id="annotated-cell-9-22"><a href="#annotated-cell-9-22" aria-hidden="true" tabindex="-1"></a><span class="st">collation-server = utf8mb4_unicode_ci</span></span>
+<span id="annotated-cell-9-23"><a href="#annotated-cell-9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-24"><a href="#annotated-cell-9-24" aria-hidden="true" tabindex="-1"></a><span class="st"># Seguridad</span></span>
+<span id="annotated-cell-9-25"><a href="#annotated-cell-9-25" aria-hidden="true" tabindex="-1"></a><span class="st">local_infile = 0</span></span>
+<span id="annotated-cell-9-26"><a href="#annotated-cell-9-26" aria-hidden="true" tabindex="-1"></a><span class="st">skip_symbolic_links = 1</span></span>
+<span id="annotated-cell-9-27"><a href="#annotated-cell-9-27" aria-hidden="true" tabindex="-1"></a><span class="st">bind-address = 127.0.0.1               # Solo localhost por defecto</span></span>
+<span id="annotated-cell-9-28"><a href="#annotated-cell-9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-29"><a href="#annotated-cell-9-29" aria-hidden="true" tabindex="-1"></a><span class="st">[client]</span></span>
+<span id="annotated-cell-9-30"><a href="#annotated-cell-9-30" aria-hidden="true" tabindex="-1"></a><span class="st">default-character-set = utf8mb4</span></span>
+<span id="annotated-cell-9-31"><a href="#annotated-cell-9-31" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-9-32"><a href="#annotated-cell-9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-33"><a href="#annotated-cell-9-33" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl restart mariadb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="34" data-code-annotation="1"><strong>Production config</strong>: Optimizado para producción</span>
+</dd>
+</dl>
+</section>
+<section id="variables-importantes" class="level3">
+<h3 class="anchored" data-anchor-id="variables-importantes">Variables Importantes</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-10-1"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver variables clave</span></span>
+<span id="annotated-cell-10-2"><a href="#annotated-cell-10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-e</span> <span class="st">"</span></span>
+<span id="annotated-cell-10-3"><a href="#annotated-cell-10-3" aria-hidden="true" tabindex="-1"></a><span class="st">SHOW VARIABLES LIKE 'innodb_buffer_pool_size';</span></span>
+<span id="annotated-cell-10-4"><a href="#annotated-cell-10-4" aria-hidden="true" tabindex="-1"></a><span class="st">SHOW VARIABLES LIKE 'max_connections';</span></span>
+<span id="annotated-cell-10-5"><a href="#annotated-cell-10-5" aria-hidden="true" tabindex="-1"></a><span class="st">SHOW VARIABLES LIKE 'character_set%';</span></span>
+<span id="annotated-cell-10-6"><a href="#annotated-cell-10-6" aria-hidden="true" tabindex="-1"></a><span class="st">SHOW VARIABLES LIKE 'bind-address';</span></span>
+<span id="annotated-cell-10-7"><a href="#annotated-cell-10-7" aria-hidden="true" tabindex="-1"></a><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="8" data-code-annotation="1"><strong>Variables importantes</strong>: Buffer pool, conexiones, charset</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="usuarios-y-privilegios" class="level2">
+<h2 class="anchored" data-anchor-id="usuarios-y-privilegios">Usuarios y Privilegios</h2>
+<section id="crear-usuario-para-aplicación" class="level3">
+<h3 class="anchored" data-anchor-id="crear-usuario-para-aplicación">Crear Usuario para Aplicación</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb</span>
+<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear base de datos</span></span>
+<span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci<span class="kw">;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-11-5" class="code-annotation-target"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-7"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear usuario con privilegios específicos</span></span>
+<span id="annotated-cell-11-8"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'appuser'</span>@<span class="st">'localhost'</span> IDENTIFIED BY <span class="st">'StrongAppPass-2026!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-9"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-10"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-11-11" class="code-annotation-target"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-12"><a href="#annotated-cell-11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-13"><a href="#annotated-cell-11-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar privilegios</span></span>
+<span id="annotated-cell-11-14"><a href="#annotated-cell-11-14" aria-hidden="true" tabindex="-1"></a><span class="ex">SHOW</span> GRANTS FOR <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="5" data-code-annotation="1"><strong>Database</strong>: DB específica para la aplicación</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="11" data-code-annotation="2"><strong>Usuario</strong>: Con privilegios mínimos necesarios</span>
+</dd>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="15" data-code-annotation="3"><strong>GRANTS</strong>: Ver qué puede hacer el usuario</span>
+</dd>
+</dl>
+</section>
+<section id="usuario-con-múltiples-hosts" class="level3">
+<h3 class="anchored" data-anchor-id="usuario-con-múltiples-hosts">Usuario con Múltiples Hosts</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-12" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-12-1"><a href="#annotated-cell-12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario para desarrollo (localhost)</span></span>
+<span id="annotated-cell-12-2"><a href="#annotated-cell-12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'devuser'</span>@<span class="st">'localhost'</span> IDENTIFIED BY <span class="st">'DevPass123!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-12-3"><a href="#annotated-cell-12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> ALL PRIVILEGES ON appdb.<span class="pp">*</span> TO <span class="st">'devuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-12-4"><a href="#annotated-cell-12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-5"><a href="#annotated-cell-12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario para aplicación (servidor web)</span></span>
+<span id="annotated-cell-12-6"><a href="#annotated-cell-12-6" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'appuser'</span>@<span class="st">'10.0.1.0/255.255.255.0'</span> IDENTIFIED BY <span class="st">'AppNetworkPass!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-12-7"><a href="#annotated-cell-12-7" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'appuser'</span>@<span class="st">'10.0.1.0/255.255.255.0'</span><span class="kw">;</span></span>
+<span id="annotated-cell-12-8"><a href="#annotated-cell-12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-9"><a href="#annotated-cell-12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario de solo lectura (monitoring)</span></span>
+<span id="annotated-cell-12-10"><a href="#annotated-cell-12-10" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'readonly'</span>@<span class="st">'%'</span> IDENTIFIED BY <span class="st">'ReadOnlyPass!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-12-11"><a href="#annotated-cell-12-11" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT ON appdb.<span class="pp">*</span> TO <span class="st">'readonly'</span>@<span class="st">'%'</span><span class="kw">;</span></span>
+<span id="annotated-cell-12-12"><a href="#annotated-cell-12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-13"><a href="#annotated-cell-12-13" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-12" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-12" data-code-lines="14" data-code-annotation="1"><strong>Múltiples hosts</strong>: Por IP o red específica</span>
+</dd>
+</dl>
+</section>
+<section id="roles-mariadb-10.2" class="level3">
+<h3 class="anchored" data-anchor-id="roles-mariadb-10.2">Roles (MariaDB 10.2+)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-13" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-13-1"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear rol</span></span>
+<span id="annotated-cell-13-2"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> ROLE <span class="st">'app_readonly'</span><span class="kw">;</span></span>
+<span id="annotated-cell-13-3"><a href="#annotated-cell-13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT ON appdb.<span class="pp">*</span> TO <span class="st">'app_readonly'</span><span class="kw">;</span></span>
+<span id="annotated-cell-13-4"><a href="#annotated-cell-13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-5"><a href="#annotated-cell-13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear rol escribir</span></span>
+<span id="annotated-cell-13-6"><a href="#annotated-cell-13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> ROLE <span class="st">'app_write'</span><span class="kw">;</span></span>
+<span id="annotated-cell-13-7"><a href="#annotated-cell-13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'app_write'</span><span class="kw">;</span></span>
+<span id="annotated-cell-13-8"><a href="#annotated-cell-13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-9"><a href="#annotated-cell-13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Asignar rol a usuario</span></span>
+<span id="annotated-cell-13-10"><a href="#annotated-cell-13-10" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> <span class="st">'app_readonly'</span> TO <span class="st">'developer1'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-13-11"><a href="#annotated-cell-13-11" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> DEFAULT ROLE <span class="st">'app_readonly'</span> FOR <span class="st">'developer1'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-13-12"><a href="#annotated-cell-13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-13"><a href="#annotated-cell-13-13" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="14" data-code-annotation="1"><strong>Roles</strong>: Agrupar privilegios para facilitar gestión</span>
+</dd>
+</dl>
+</section>
+<section id="contraseñas-seguras" class="level3">
+<h3 class="anchored" data-anchor-id="contraseñas-seguras">Contraseñas Seguras</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-14-1"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generar contraseña segura</span></span>
+<span id="annotated-cell-14-2"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> openssl rand <span class="at">-base64</span> 32</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-14" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-14-3" class="code-annotation-target"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-4"><a href="#annotated-cell-14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-5"><a href="#annotated-cell-14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># O usar pwgen</span></span>
+<span id="annotated-cell-14-6"><a href="#annotated-cell-14-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> pwgen</span>
+<span id="annotated-cell-14-7"><a href="#annotated-cell-14-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> pwgen <span class="at">-s</span> 32 1</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="3" data-code-annotation="1"><strong>openssl</strong>: Generador seguro</span>
+</dd>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="8" data-code-annotation="2"><strong>pwgen</strong>: Password generator</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="backups" class="level2">
+<h2 class="anchored" data-anchor-id="backups">Backups</h2>
+<section id="mysqldump-backup-lógico" class="level3">
+<h3 class="anchored" data-anchor-id="mysqldump-backup-lógico">mysqldump (Backup Lógico)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-15-1"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Backup de base de datos específica</span></span>
+<span id="annotated-cell-15-2"><a href="#annotated-cell-15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysqldump <span class="at">-u</span> root <span class="at">-p</span> appdb <span class="op">&gt;</span> /backup/appdb-<span class="va">$(</span><span class="fu">date</span> +%Y%m%d<span class="va">)</span>.sql</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-15-3" class="code-annotation-target"><a href="#annotated-cell-15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-4"><a href="#annotated-cell-15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-5"><a href="#annotated-cell-15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Backup de todas las bases de datos</span></span>
+<span id="annotated-cell-15-6"><a href="#annotated-cell-15-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysqldump <span class="at">-u</span> root <span class="at">-p</span> <span class="at">--all-databases</span> <span class="op">&gt;</span> /backup/all-databases-<span class="va">$(</span><span class="fu">date</span> +%Y%m%d<span class="va">)</span>.sql</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-15-7" class="code-annotation-target"><a href="#annotated-cell-15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-8"><a href="#annotated-cell-15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-9"><a href="#annotated-cell-15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Backup con gzip (comprimido)</span></span>
+<span id="annotated-cell-15-10"><a href="#annotated-cell-15-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysqldump <span class="at">-u</span> root <span class="at">-p</span> appdb <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span> /backup/appdb-<span class="va">$(</span><span class="fu">date</span> +%Y%m%d<span class="va">)</span>.sql.gz</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="3" data-code-annotation="1"><strong>Base específica</strong>: Un archivo por DB</span>
+</dd>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="7" data-code-annotation="2"><strong>Todas</strong>: Un archivo con todas las DB</span>
+</dd>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="11" data-code-annotation="3"><strong>Comprimido</strong>: Ahorro de espacio</span>
+</dd>
+</dl>
+</section>
+<section id="restaurar-backup" class="level3">
+<h3 class="anchored" data-anchor-id="restaurar-backup">Restaurar Backup</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Restaurar base de datos</span></span>
+<span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb <span class="at">-u</span> root <span class="at">-p</span> appdb <span class="op">&lt;</span> /backup/appdb-20260331.sql</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-16-3" class="code-annotation-target"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-4"><a href="#annotated-cell-16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-5"><a href="#annotated-cell-16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Restaurar todas las DB</span></span>
+<span id="annotated-cell-16-6"><a href="#annotated-cell-16-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb <span class="at">-u</span> root <span class="at">-p</span> <span class="op">&lt;</span> /backup/all-databases-20260331.sql</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-16-7" class="code-annotation-target"><a href="#annotated-cell-16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-8"><a href="#annotated-cell-16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-9"><a href="#annotated-cell-16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Desde archivo comprimido</span></span>
+<span id="annotated-cell-16-10"><a href="#annotated-cell-16-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> zcat /backup/appdb-20260331.sql.gz <span class="kw">|</span> <span class="fu">sudo</span> mariadb <span class="at">-u</span> root <span class="at">-p</span> appdb</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="3" data-code-annotation="1"><strong>Restaurar DB específica</strong></span>
+</dd>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="7" data-code-annotation="2"><strong>Restaurar todo</strong></span>
+</dd>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="11" data-code-annotation="3"><strong>Comprimido</strong>: Pipe desde gzip</span>
+</dd>
+</dl>
+</section>
+<section id="mariadb-backup-físico" class="level3">
+<h3 class="anchored" data-anchor-id="mariadb-backup-físico">MariaDB Backup (Físico)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-17-1"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar MariaDB Backup tool</span></span>
+<span id="annotated-cell-17-2"><a href="#annotated-cell-17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> mariadb-backup</span>
+<span id="annotated-cell-17-3"><a href="#annotated-cell-17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-4"><a href="#annotated-cell-17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Backup físico</span></span>
+<span id="annotated-cell-17-5"><a href="#annotated-cell-17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariabackup <span class="at">--backup</span> <span class="dt">\</span></span>
+<span id="annotated-cell-17-6"><a href="#annotated-cell-17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--target-dir</span><span class="op">=</span>/backup/full-<span class="va">$(</span><span class="fu">date</span> +%Y%m%d<span class="va">)</span> <span class="dt">\</span></span>
+<span id="annotated-cell-17-7"><a href="#annotated-cell-17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--user</span><span class="op">=</span>root <span class="at">--password</span><span class="op">=</span><span class="st">'StrongRootPass-2026!'</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-17" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-17-8" class="code-annotation-target"><a href="#annotated-cell-17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-9"><a href="#annotated-cell-17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-10"><a href="#annotated-cell-17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Restaurar物理 backup</span></span>
+<span id="annotated-cell-17-11"><a href="#annotated-cell-17-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariabackup <span class="at">--prepare</span> <span class="dt">\</span></span>
+<span id="annotated-cell-17-12"><a href="#annotated-cell-17-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">--target-dir</span><span class="op">=</span>/backup/full-20260331</span>
+<span id="annotated-cell-17-13"><a href="#annotated-cell-17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-14"><a href="#annotated-cell-17-14" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl stop mariadb</span>
+<span id="annotated-cell-17-15"><a href="#annotated-cell-17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-16"><a href="#annotated-cell-17-16" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariabackup <span class="at">--restore</span> <span class="dt">\</span></span>
+<span id="annotated-cell-17-17"><a href="#annotated-cell-17-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">--target-dir</span><span class="op">=</span>/backup/full-20260331 <span class="dt">\</span></span>
+<span id="annotated-cell-17-18"><a href="#annotated-cell-17-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">--user</span><span class="op">=</span>root <span class="at">--password</span><span class="op">=</span><span class="st">'StrongRootPass-2026!'</span></span>
+<span id="annotated-cell-17-19"><a href="#annotated-cell-17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-20"><a href="#annotated-cell-17-20" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo chown <span class="at">-R</span> mysql:mysql /var/lib/mysql</span>
+<span id="annotated-cell-17-21"><a href="#annotated-cell-17-21" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl start mariadb</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-17" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="8" data-code-annotation="1"><strong>mariabackup</strong>: Backup rápido para grandes DB</span>
+</dd>
+<dt data-target-cell="annotated-cell-17" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="22" data-code-annotation="2"><strong>Restaurar</strong>: Pasos para restaurar</span>
+</dd>
+</dl>
+</section>
+<section id="cronjob-para-backups-automáticos" class="level3">
+<h3 class="anchored" data-anchor-id="cronjob-para-backups-automáticos">Cronjob para Backups Automáticos</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-18" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-18-1"><a href="#annotated-cell-18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear script de backup</span></span>
+<span id="annotated-cell-18-2"><a href="#annotated-cell-18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /usr/local/bin/backup-mariadb.sh <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-18-3"><a href="#annotated-cell-18-3" aria-hidden="true" tabindex="-1"></a><span class="st">#!/bin/bash</span></span>
+<span id="annotated-cell-18-4"><a href="#annotated-cell-18-4" aria-hidden="true" tabindex="-1"></a><span class="st">DATE=$(date +%Y%m%d)</span></span>
+<span id="annotated-cell-18-5"><a href="#annotated-cell-18-5" aria-hidden="true" tabindex="-1"></a><span class="st">BACKUP_DIR="/backup"</span></span>
+<span id="annotated-cell-18-6"><a href="#annotated-cell-18-6" aria-hidden="true" tabindex="-1"></a><span class="st">DB_NAME="appdb"</span></span>
+<span id="annotated-cell-18-7"><a href="#annotated-cell-18-7" aria-hidden="true" tabindex="-1"></a><span class="st">DB_USER="backupuser"</span></span>
+<span id="annotated-cell-18-8"><a href="#annotated-cell-18-8" aria-hidden="true" tabindex="-1"></a><span class="st">DB_PASS="BackupUserPass123!"</span></span>
+<span id="annotated-cell-18-9"><a href="#annotated-cell-18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-10"><a href="#annotated-cell-18-10" aria-hidden="true" tabindex="-1"></a><span class="st"># Crear directorio si no existe</span></span>
+<span id="annotated-cell-18-11"><a href="#annotated-cell-18-11" aria-hidden="true" tabindex="-1"></a><span class="st">mkdir -p $BACKUP_DIR</span></span>
+<span id="annotated-cell-18-12"><a href="#annotated-cell-18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-13"><a href="#annotated-cell-18-13" aria-hidden="true" tabindex="-1"></a><span class="st"># Realizar backup</span></span>
+<span id="annotated-cell-18-14"><a href="#annotated-cell-18-14" aria-hidden="true" tabindex="-1"></a><span class="st">mysqldump -u $DB_USER -p"$DB_PASS" $DB_NAME | gzip &gt; $BACKUP_DIR/${DB_NAME}-${DATE}.sql.gz</span></span>
+<span id="annotated-cell-18-15"><a href="#annotated-cell-18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-16"><a href="#annotated-cell-18-16" aria-hidden="true" tabindex="-1"></a><span class="st"># Eliminar backups de más de 7 días</span></span>
+<span id="annotated-cell-18-17"><a href="#annotated-cell-18-17" aria-hidden="true" tabindex="-1"></a><span class="st">find $BACKUP_DIR -name "*.sql.gz" -mtime +7 -delete</span></span>
+<span id="annotated-cell-18-18"><a href="#annotated-cell-18-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-19"><a href="#annotated-cell-18-19" aria-hidden="true" tabindex="-1"></a><span class="st"># Notificar (opcional)</span></span>
+<span id="annotated-cell-18-20"><a href="#annotated-cell-18-20" aria-hidden="true" tabindex="-1"></a><span class="st">echo "Backup completado: $DATE" | logger -t backup-mariadb</span></span>
+<span id="annotated-cell-18-21"><a href="#annotated-cell-18-21" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-18-22"><a href="#annotated-cell-18-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-23"><a href="#annotated-cell-18-23" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo chmod +x /usr/local/bin/backup-mariadb.sh</span>
+<span id="annotated-cell-18-24"><a href="#annotated-cell-18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-25"><a href="#annotated-cell-18-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Agregar a crontab</span></span>
+<span id="annotated-cell-18-26"><a href="#annotated-cell-18-26" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo crontab <span class="at">-e</span></span>
+<span id="annotated-cell-18-27"><a href="#annotated-cell-18-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Agregar línea:</span></span>
+<span id="annotated-cell-18-28"><a href="#annotated-cell-18-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 0 3 * * * /usr/local/bin/backup-mariadb.sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-18" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-18" data-code-lines="29" data-code-annotation="1"><strong>Cronjob diario</strong>: Backup automático a las 3 AM</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="acceso-remoto" class="level2">
+<h2 class="anchored" data-anchor-id="acceso-remoto">Acceso Remoto</h2>
+<section id="habilitar-acceso-remoto" class="level3">
+<h3 class="anchored" data-anchor-id="habilitar-acceso-remoto">Habilitar Acceso Remoto</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-19" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Editar configuración</span></span>
+<span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo sed <span class="at">-i</span> <span class="st">"s/^bind-address.*/bind-address = 0.0.0.0/"</span> /etc/mysql/mariadb.conf.d/50-server.cnf</span>
+<span id="annotated-cell-19-3"><a href="#annotated-cell-19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-4"><a href="#annotated-cell-19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reiniciar</span></span>
+<span id="annotated-cell-19-5"><a href="#annotated-cell-19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl restart mariadb</span>
+<span id="annotated-cell-19-6"><a href="#annotated-cell-19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-7"><a href="#annotated-cell-19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver puerto</span></span>
+<span id="annotated-cell-19-8"><a href="#annotated-cell-19-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span> <span class="kw">|</span> <span class="fu">grep</span> 3306</span>
+<span id="annotated-cell-19-9"><a href="#annotated-cell-19-9" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 80 0.0.0.0:3306 0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="kw">(</span><span class="st">"mariadbd"</span><span class="ex">,pid=2345,fd=20</span><span class="kw">))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-19" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="10" data-code-annotation="1"><strong>bind-address 0.0.0.0</strong>: Escuchar en todas las interfaces</span>
+</dd>
+</dl>
+</section>
+<section id="configurar-usuario-para-acceso-remoto" class="level3">
+<h3 class="anchored" data-anchor-id="configurar-usuario-para-acceso-remoto">Configurar Usuario para Acceso Remoto</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-20" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-20-1"><a href="#annotated-cell-20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb</span>
+<span id="annotated-cell-20-2"><a href="#annotated-cell-20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-3"><a href="#annotated-cell-20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear usuario para acceso remoto</span></span>
+<span id="annotated-cell-20-4"><a href="#annotated-cell-20-4" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'appuser'</span>@<span class="st">'%'</span> IDENTIFIED BY <span class="st">'RemoteAppPass!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-20-5"><a href="#annotated-cell-20-5" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'appuser'</span>@<span class="st">'%'</span><span class="kw">;</span></span>
+<span id="annotated-cell-20-6"><a href="#annotated-cell-20-6" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span>
+<span id="annotated-cell-20-7"><a href="#annotated-cell-20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-8"><a href="#annotated-cell-20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="annotated-cell-20-9"><a href="#annotated-cell-20-9" aria-hidden="true" tabindex="-1"></a><span class="ex">SELECT</span> User, Host FROM mysql.user WHERE User=<span class="st">'appuser'</span><span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-20" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-20" data-code-lines="10" data-code-annotation="1"><strong>% wildcard</strong>: Cualquier host</span>
+</dd>
+</dl>
+</section>
+<section id="firewall" class="level3">
+<h3 class="anchored" data-anchor-id="firewall">Firewall</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-21" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-21-1"><a href="#annotated-cell-21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Abrir puerto solo para red específica</span></span>
+<span id="annotated-cell-21-2"><a href="#annotated-cell-21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow from 10.0.1.0/24 to any port 3306</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-21" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-21-3" class="code-annotation-target"><a href="#annotated-cell-21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-21-4"><a href="#annotated-cell-21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-21-5"><a href="#annotated-cell-21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># O solo desde servidor web</span></span>
+<span id="annotated-cell-21-6"><a href="#annotated-cell-21-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow from 10.0.1.20 to any port 3306</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-21" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-21" data-code-lines="3" data-code-annotation="1"><strong>UFW</strong>: Firewall uncomplicated</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="casos-de-estudio" class="level2">
+<h2 class="anchored" data-anchor-id="casos-de-estudio">Casos de Estudio</h2>
+<section id="caso-1-base-de-datos-lenta" class="level3">
+<h3 class="anchored" data-anchor-id="caso-1-base-de-datos-lenta">Caso 1: Base de Datos Lenta</h3>
+<p><strong>Síntomas</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-22" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-22-1"><a href="#annotated-cell-22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-u</span> appuser <span class="at">-p</span> <span class="at">-e</span> <span class="st">"SELECT * FROM orders WHERE date &gt; '2026-01-01'"</span></span>
+<span id="annotated-cell-22-2"><a href="#annotated-cell-22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Tarda 30+ segundos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Diagnóstico</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-23" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-23-1"><a href="#annotated-cell-23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver queries lentos</span></span>
+<span id="annotated-cell-23-2"><a href="#annotated-cell-23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail <span class="at">-50</span> /var/log/mysql/slow.log</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-23" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-23-3" class="code-annotation-target"><a href="#annotated-cell-23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-23-4"><a href="#annotated-cell-23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-23-5"><a href="#annotated-cell-23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver EXPLAIN</span></span>
+<span id="annotated-cell-23-6"><a href="#annotated-cell-23-6" aria-hidden="true" tabindex="-1"></a><span class="ex">EXPLAIN</span> SELECT <span class="pp">*</span> FROM orders WHERE date <span class="op">&gt;</span> <span class="st">'2026-01-01'</span><span class="kw">;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-23" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-23" data-code-lines="3" data-code-annotation="2"><strong>Slow query log</strong>: Ver queries problemáticos</span>
+</dd>
+<dt data-target-cell="annotated-cell-23" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-23" data-code-lines="7" data-code-annotation="3"><strong>EXPLAIN</strong>: Analizar plan de ejecución</span>
+</dd>
+</dl>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-24" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-24-1"><a href="#annotated-cell-24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Agregar índice</span></span>
+<span id="annotated-cell-24-2"><a href="#annotated-cell-24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ALTER</span> TABLE orders ADD INDEX idx_date <span class="er">(</span><span class="fu">date</span><span class="kw">);</span></span>
+<span id="annotated-cell-24-3"><a href="#annotated-cell-24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-24-4"><a href="#annotated-cell-24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="annotated-cell-24-5"><a href="#annotated-cell-24-5" aria-hidden="true" tabindex="-1"></a><span class="ex">EXPLAIN</span> SELECT <span class="pp">*</span> FROM orders WHERE date <span class="op">&gt;</span> <span class="st">'2026-01-01'</span><span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="caso-2-too-many-connections" class="level3">
+<h3 class="anchored" data-anchor-id="caso-2-too-many-connections">Caso 2: Too Many Connections</h3>
+<p><strong>Problema</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-25" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-25-1"><a href="#annotated-cell-25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-u</span> appuser <span class="at">-p</span></span>
+<span id="annotated-cell-25-2"><a href="#annotated-cell-25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ERROR</span> 1040 <span class="er">(</span><span class="ex">08004</span><span class="kw">)</span><span class="bu">:</span> Too many connections</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Diagnóstico</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-26" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-26-1"><a href="#annotated-cell-26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver conexiones actuales</span></span>
+<span id="annotated-cell-26-2"><a href="#annotated-cell-26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-e</span> <span class="st">"SHOW STATUS LIKE 'Threads_connected';"</span></span>
+<span id="annotated-cell-26-3"><a href="#annotated-cell-26-3" aria-hidden="true" tabindex="-1"></a><span class="ex">+---------------------+</span></span>
+<span id="annotated-cell-26-4"><a href="#annotated-cell-26-4" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="ex">Threads_connected</span>   <span class="kw">|</span></span>
+<span id="annotated-cell-26-5"><a href="#annotated-cell-26-5" aria-hidden="true" tabindex="-1"></a><span class="ex">+---------------------+</span></span>
+<span id="annotated-cell-26-6"><a href="#annotated-cell-26-6" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="ex">151</span>                 <span class="kw">|</span></span>
+<span id="annotated-cell-26-7"><a href="#annotated-cell-26-7" aria-hidden="true" tabindex="-1"></a><span class="ex">+---------------------+</span></span>
+<span id="annotated-cell-26-8"><a href="#annotated-cell-26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-26-9"><a href="#annotated-cell-26-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver max</span></span>
+<span id="annotated-cell-26-10"><a href="#annotated-cell-26-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-e</span> <span class="st">"SHOW VARIABLES LIKE 'max_connections';"</span></span>
+<span id="annotated-cell-26-11"><a href="#annotated-cell-26-11" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span>
+<span id="annotated-cell-26-12"><a href="#annotated-cell-26-12" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="ex">max_connections</span>    <span class="kw">|</span></span>
+<span id="annotated-cell-26-13"><a href="#annotated-cell-26-13" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span>
+<span id="annotated-cell-26-14"><a href="#annotated-cell-26-14" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="ex">151</span>                <span class="kw">|</span></span>
+<span id="annotated-cell-26-15"><a href="#annotated-cell-26-15" aria-hidden="true" tabindex="-1"></a><span class="ex">+--------------------+</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-26" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-26" data-code-lines="16" data-code-annotation="2"><strong>max_connections</strong>: Solo 151</span>
+</dd>
+</dl>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aumentar conexiones (agregar a my.cnf)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># [mysqld]</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">max_connections</span> = 300</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl restart mariadb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="caso-3-contraseña-root-olvidada" class="level3">
+<h3 class="anchored" data-anchor-id="caso-3-contraseña-root-olvidada">Caso 3: Contraseña Root Olvidada</h3>
+<p><strong>Problema</strong>: No se puede conectar como root.</p>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-28" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-28-1"><a href="#annotated-cell-28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Detener MariaDB</span></span>
+<span id="annotated-cell-28-2"><a href="#annotated-cell-28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl stop mariadb</span>
+<span id="annotated-cell-28-3"><a href="#annotated-cell-28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-28-4"><a href="#annotated-cell-28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Iniciar en modo seguro</span></span>
+<span id="annotated-cell-28-5"><a href="#annotated-cell-28-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysqld_safe <span class="at">--skip-grant-tables</span> <span class="at">--skip-networking</span> <span class="kw">&amp;</span></span>
+<span id="annotated-cell-28-6"><a href="#annotated-cell-28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-28-7"><a href="#annotated-cell-28-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Conectar sin password</span></span>
+<span id="annotated-cell-28-8"><a href="#annotated-cell-28-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb</span>
+<span id="annotated-cell-28-9"><a href="#annotated-cell-28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-28-10"><a href="#annotated-cell-28-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Resetear password</span></span>
+<span id="annotated-cell-28-11"><a href="#annotated-cell-28-11" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span>
+<span id="annotated-cell-28-12"><a href="#annotated-cell-28-12" aria-hidden="true" tabindex="-1"></a><span class="ex">ALTER</span> USER <span class="st">'root'</span>@<span class="st">'localhost'</span> IDENTIFIED BY <span class="st">'NewRootPass2026!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-28-13"><a href="#annotated-cell-28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-28-14"><a href="#annotated-cell-28-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Detener y reiniciar normal</span></span>
+<span id="annotated-cell-28-15"><a href="#annotated-cell-28-15" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo killall mysqld</span>
+<span id="annotated-cell-28-16"><a href="#annotated-cell-28-16" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl start mariadb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-28" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-28" data-code-lines="17" data-code-annotation="1"><strong>Modo safe</strong>: Sin privilegios, permite reset</span>
+</dd>
+</dl>
+</section>
+<section id="caso-4-recovery-después-de-crash" class="level3">
+<h3 class="anchored" data-anchor-id="caso-4-recovery-después-de-crash">Caso 4: Recovery Después de Crash</h3>
+<p><strong>Problema</strong>: Base de datos no inicia después de apagón.</p>
+<p><strong>Diagnóstico</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-29" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-29-1"><a href="#annotated-cell-29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl start mariadb</span>
+<span id="annotated-cell-29-2"><a href="#annotated-cell-29-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Job</span> for mariadb.service failed because a timeout was exceeded.</span>
+<span id="annotated-cell-29-3"><a href="#annotated-cell-29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-29-4"><a href="#annotated-cell-29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver logs</span></span>
+<span id="annotated-cell-29-5"><a href="#annotated-cell-29-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo journalctl <span class="at">-u</span> mariadb <span class="at">-n</span> 50</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-30" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-30-1"><a href="#annotated-cell-30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recovery mode</span></span>
+<span id="annotated-cell-30-2"><a href="#annotated-cell-30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysqld <span class="at">--innodb-force-recovery</span><span class="op">=</span>1 <span class="kw">&amp;</span></span>
+<span id="annotated-cell-30-3"><a href="#annotated-cell-30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-30-4"><a href="#annotated-cell-30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar tablas</span></span>
+<span id="annotated-cell-30-5"><a href="#annotated-cell-30-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb <span class="at">-e</span> <span class="st">"CHECK TABLE dbname.tablename;"</span></span>
+<span id="annotated-cell-30-6"><a href="#annotated-cell-30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-30-7"><a href="#annotated-cell-30-7" aria-hidden="true" tabindex="-1"></a><span class="co"># dump y restore si es necesario</span></span>
+<span id="annotated-cell-30-8"><a href="#annotated-cell-30-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysqldump <span class="at">-A</span> <span class="op">&gt;</span> /backup/before-fix.sql</span>
+<span id="annotated-cell-30-9"><a href="#annotated-cell-30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-30-10"><a href="#annotated-cell-30-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Detener y reiniciar normal</span></span>
+<span id="annotated-cell-30-11"><a href="#annotated-cell-30-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo killall mysqld</span>
+<span id="annotated-cell-30-12"><a href="#annotated-cell-30-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mysqld_safe <span class="at">--innodb-recovery</span> <span class="kw">&amp;</span></span>
+<span id="annotated-cell-30-13"><a href="#annotated-cell-30-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-30-14"><a href="#annotated-cell-30-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Luego restaurar</span></span>
+<span id="annotated-cell-30-15"><a href="#annotated-cell-30-15" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb <span class="op">&lt;</span> /backup/before-fix.sql</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+</dl>
+</section>
+</section>
+<section id="monitoreo" class="level2">
+<h2 class="anchored" data-anchor-id="monitoreo">Monitoreo</h2>
+<section id="ver-estado-de-conexiones" class="level3">
+<h3 class="anchored" data-anchor-id="ver-estado-de-conexiones">Ver Estado de Conexiones</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conexiones por usuario</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-e</span> <span class="st">"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">SELECT user, host, COUNT(*) as connections </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">FROM information_schema.processlist </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">GROUP BY user, host;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">"</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Queries por segundo</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-e</span> <span class="st">"</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st">SHOW GLOBAL STATUS LIKE 'Questions';</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="st">SHOW GLOBAL STATUS LIKE 'Uptime';</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="health-check" class="level3">
+<h3 class="anchored" data-anchor-id="health-check">Health Check</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Script de health check</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="va">RESULT</span><span class="op">=</span><span class="va">$(</span><span class="ex">mariadb</span> <span class="at">-u</span> root <span class="at">-p</span><span class="st">'STRONG_PASSWORD'</span> <span class="at">-e</span> <span class="st">"SELECT 1"</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null<span class="va">)</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">[</span> <span class="st">"</span><span class="va">$RESULT</span><span class="st">"</span> <span class="ot">=</span> <span class="st">"1"</span> <span class="bu">]</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"MariaDB OK"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 0</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"MariaDB FAIL"</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">Resumen</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Tema</th>
+<th>Comando Clave</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Instalar</td>
+<td><code>apt install mariadb-server</code></td>
+<td>Base de datos</td>
+</tr>
+<tr class="even">
+<td>Hardening</td>
+<td><code>mysql_secure_installation</code></td>
+<td>Seguridad inicial</td>
+</tr>
+<tr class="odd">
+<td>Usuario</td>
+<td><code>CREATE USER</code> + <code>GRANT</code></td>
+<td>Acceso controlado</td>
+</tr>
+<tr class="even">
+<td>Backup</td>
+<td><code>mysqldump</code></td>
+<td>Backup lógico</td>
+</tr>
+<tr class="odd">
+<td>Restaurar</td>
+<td><code>mariadb &lt; backup.sql</code></td>
+<td>Recuperación</td>
+</tr>
+<tr class="even">
+<td>Acceso Remoto</td>
+<td><code>bind-address = 0.0.0.0</code></td>
+<td>Conexiones externas</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
+<ul>
+<li><a href="https://mariadb.com/kb/en/">MariaDB Documentation</a></li>
+<li><a href="https://mariadb.com/kb/en/knowledge-base/">MariaDB Knowledge Base</a></li>
+<li><a href="https://github.com/major/MySQLTuner-perl">MySQLTuner</a></li>
+</ul>
 
 
 </section>
@@ -1784,8 +2710,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="pagination-link" aria-label="Unidad 11.2: Usuarios y privilegios">
-        <span class="nav-page-text"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="pagination-link" aria-label="Unidad 11.2: Usuarios, Privilegios y Seguridad">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

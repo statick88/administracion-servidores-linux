@@ -1,0 +1,225 @@
+---
+title: "Unidad 11: Laboratorio Práctico - MariaDB"
+subtitle: "Instalación, configuración y operaciones de MariaDB"
+author: "Diego Saavedra"
+date: "2026-03-31"
+date-format: medium
+---
+
+# Laboratorio 11: MariaDB en Producción
+
+## Introducción
+
+En este laboratorio vas a instalar MariaDB, configurar usuarios, hacer backups, y configurar acceso remoto. Vas a usar Docker para pruebas locales y un VPS real para pruebas finales.
+
+## Objetivos del Laboratorio
+
+Al completar este laboratorio podrás:
+
+1. Instalar y configurar MariaDB
+2. Crear usuarios y privilegios
+3. Realizar backups y restauraciones
+4. Configurar acceso remoto seguro
+
+## Requisitos
+
+- Máquina con Docker instalado
+- Acceso a un VPS con IP pública (opcional)
+- Puerto 3306 accesible
+
+## Duración
+
+**120 minutos**
+
+---
+
+## Parte 1: Instalación
+
+### Ejercicio 1.1: Instalar MariaDB
+
+```bash
+# Instalar
+$ sudo apt update && sudo apt install -y mariadb-server mariadb-client
+# <1>
+
+# Ver estado
+$ sudo systemctl status mariadb --no-pager
+# <2>
+
+# Versión
+$ mariadb --version
+```
+
+### Ejercicio 1.2: Hardening Inicial
+
+```bash
+# Ejecutar hardening
+$ sudo mysql_secure_installation
+
+# O manualmente
+$ sudo mariadb
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'StrongRootPass-2026!';
+DELETE FROM mysql.user WHERE User='';
+DROP DATABASE IF EXISTS test;
+FLUSH PRIVILEGES;
+# <1>
+```
+
+---
+
+## Parte 2: Usuarios y Privilegios
+
+### Ejercicio 2.1: Crear Base de Datos
+
+```bash
+$ sudo mariadb
+
+CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+SHOW DATABASES;
+```
+
+### Ejercicio 2.2: Crear Usuario
+
+```bash
+# Crear usuario
+CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass123!';
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';
+FLUSH PRIVILEGES;
+
+# Verificar
+SHOW GRANTS FOR 'appuser'@'localhost';
+```
+
+### Ejercicio 2.3: Probar Acceso
+
+```bash
+# Probar como nuevo usuario
+$ mariadb -u appuser -p appdb -e "SHOW TABLES;"
+```
+
+---
+
+## Parte 3: Backups
+
+### Ejercicio 3.1: Backup con mysqldump
+
+```bash
+# Crear directorio
+$ sudo mkdir -p /backup
+
+# Backup
+$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql
+
+# Comprimido
+$ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz
+
+# Ver
+$ ls -lh /backup/
+```
+
+### Ejercicio 3.2: Restaurar Backup
+
+```bash
+# Restaurar
+$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
+
+# Verificar
+$ mariadb -u appuser -p appdb -e "SHOW TABLES;"
+```
+
+---
+
+## Parte 4: Docker
+
+### Ejercicio 4.1: MariaDB en Docker
+
+```bash
+# Crear red
+$ docker network create lab-mariadb-net
+
+# Iniciar MariaDB
+$ docker run -d --name mariadb-server \
+    --network lab-mariadb-net \
+    -e MYSQL_ROOT_PASSWORD=RootPass123 \
+    -e MYSQL_DATABASE=appdb \
+    -e MYSQL_USER=appuser \
+    -e MYSQL_PASSWORD=AppPass123 \
+    mariadb:10.11
+# <1>
+
+# Ver
+$ docker ps | grep mariadb
+```
+
+### Ejercicio 4.2: Conectar desde Host
+
+```bash
+# IP del contenedor
+$ MARIADB_IP=$(docker inspect mariadb-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+
+# Conectar
+$ mysql -h $MARIADB_IP -u appuser -p appdb
+```
+
+---
+
+## Parte 5: VPS Real (Opcional)
+
+### Ejercicio 5.1: Deployar a VPS
+
+```bash
+# Conectar al VPS
+$ ssh usuario@vps "sudo apt update && sudo apt install -y mariadb-server"
+
+# Configurar
+$ ssh usuario@vps "sudo mysql_secure_installation"
+```
+
+### Ejercicio 5.2: Acceso Remoto
+
+```bash
+# En VPS: cambiar bind-address
+$ ssh usuario@vps "sudo sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf"
+
+# Reiniciar
+$ ssh usuario@vps "sudo systemctl restart mariadb"
+
+# Crear usuario remoto
+$ ssh usuario@vps "sudo mariadb -e \"CREATE USER 'appuser'@'%' IDENTIFIED BY 'RemotePass123!'; GRANT ALL ON appdb.* TO 'appuser'@'%'; FLUSH PRIVILEGES;\""
+
+# Probar desde host
+$ mariadb -h VPS_IP -u appuser -p appdb
+```
+
+---
+
+## Verificación
+
+| Habilidad | Verificación |
+|-----------|-------------|
+| MariaDB instalado | `systemctl status mariadb` activo |
+| Usuario creado | `SHOW GRANTS FOR 'appuser'@'localhost'` |
+| Backup funciona | `mysqldump` crea archivo válido |
+| Restore funciona | Datos restaurados correctamente |
+| Docker | Contenedor corriendo |
+| Acceso remoto | Conexión desde otra máquina |
+
+---
+
+## Limpieza
+
+```bash
+# Docker
+$ docker stop mariadb-server && docker rm mariadb-server
+$ docker network rm lab-mariadb-net
+
+# VPS
+$ ssh usuario@vps "sudo systemctl stop mariadb"
+```
+
+---
+
+## Referencias
+
+- [MariaDB Official](https://mariadb.com/)
+- [Docker Hub - MariaDB](https://hub.docker.com/_/mariadb)

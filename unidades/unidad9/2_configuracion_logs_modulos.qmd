@@ -1,101 +1,457 @@
 ---
-title: "Unidad 9.2: Configuracion, logs y modulos"
-subtitle: "Donde se configura Apache en Ubuntu"
+title: "Unidad 9.2: Configuración, Logs y Módulos"
+subtitle: "Gestión operativa de Apache: módulos, logs y configuración"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 9.2: Configuracion, logs y modulos
+# Unidad 9.2: Configuración, Logs y Módulos
 
-## Introduccion
+## Introducción
 
-Operar Apache significa saber leer logs, validar configuracion, y entender como se habilitan sitios y modulos.
+Operar Apache en producción significa saber leer logs, validar configuración antes de aplicar cambios, y entender cómo habilitar/deshabilitar módulos y sitios.
 
-## Objetivos de aprendizaje
+## Estructura de Archivos en Ubuntu
 
-- Encontrar y leer logs de Apache
-- Validar configuracion antes de recargar
-- Habilitar/deshabilitar modulos y sitios
-
----
-
-## Validar configuracion
-
-```bash
-$ sudo apachectl configtest  # <1>
-Syntax OK
-# <1>
-
-$ sudo systemctl reload apache2  # <2>
-# <2>
+```
+/etc/apache2/
+├── apache2.conf          # Config principal (includes others)
+├── ports.conf            # Puertos (80, 443)
+├── magic                # MIME types
+├── conf-available/      # Configuraciones adicionales
+├── conf-enabled/        # Symlinks a conf-available/
+├── mods-available/      # Módulos disponibles
+├── mods-enabled/        # Módulos activos (symlinks)
+├── sites-available/     # VirtualHosts disponibles
+├── sites-enabled/       # Sitios activos (symlinks)
+└── envvars              # Variables de entorno
 ```
 
+## Gestión de Módulos
 
-
-1. **apachectl configtest** valida sintaxis antes de recargar.
-2. **systemctl reload** recarga sin cortar conexiones (cuando aplica).
-
----
-
-## Logs
+### Listar Módulos Cargados
 
 ```bash
-$ sudo tail -n 20 /var/log/apache2/error.log  # <1>
-[Mon Feb 02 10:20:01.123456 2026] [mpm_prefork:notice] [pid 1234] AH00163: Apache/2.4.58 (Ubuntu) configured -- resuming normal operations
-# <1>
-
-$ sudo tail -n 5 /var/log/apache2/access.log  # <2>
-127.0.0.1 - - [02/Feb/2026:10:20:11 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/8.1.0"
-# <2>
-```
-
-
-
-1. **tail error.log** muestra errores/avisos (muy util tras cambios).
-2. **tail access.log** muestra requests HTTP.
-
----
-
-## Modulos
-
-```bash
-$ sudo apache2ctl -M | head -n 8  # <1>
+# Ver todos los módulos cargados
+$ sudo apache2ctl -M 2>/dev/null | head -20
 Loaded Modules:
  core_module (static)
  so_module (static)
  http_module (static)
  mpm_prefork_module (shared)
- # <1>
-
-$ sudo a2enmod headers  # <2>
-Enabling module headers.
-To activate the new configuration, you need to run:
-  systemctl restart apache2
-# <2>
-```
-
-
-
-1. **apache2ctl -M** lista modulos cargados.
-2. **a2enmod** habilita un modulo y escribe symlinks en `mods-enabled/`.
-
----
-
-## Sitios
-
-```bash
-$ ls -1 /etc/apache2/sites-available  # <1>
-000-default.conf
-default-ssl.conf
+ authz_core_module (shared)
 # <1>
 
-$ sudo a2ensite 000-default.conf  # <2>
-Site 000-default already enabled
+# Buscar módulos específicos
+$ sudo apache2ctl -M | grep -E "ssl|php|headers|proxy|rewrite"
+ ssl_module (shared)
+ php8.1_module (shared)
+ headers_module (shared)
+ rewrite_module (shared)
+ proxy_module (shared)
+ proxy_http_module (shared)
 # <2>
 ```
 
+1. **apache2ctl -M**: Lista todos los módulos cargados
+2. **grep**: Filtra módulos específicos
 
+### Habilitar Módulos Esenciales
 
-1. **sites-available** contiene definiciones de VirtualHost.
-2. **a2ensite** habilita un sitio (symlink a `sites-enabled/`).
+```bash
+# Módulos de seguridad y funcionalidad
+$ sudo a2enmod headers          # Security headers
+$ sudo a2enmod ssl              # HTTPS
+$ sudo a2enmod rewrite          # URL rewriting
+$ sudo a2enmod proxy            # Proxy forwarding
+$ sudo a2enmod proxy_http       # HTTP proxy
+$ sudo a2enmod expires          # Cache headers
+$ sudo a2enmod deflate          # Compression
+$ sudo a2enmod alias            # Aliases
+# <1>
+
+# Ver módulos habilitados
+$ ls -la /etc/apache2/mods-enabled/
+lrwxrwxrwx 1 root root ... headers.conf -> ../mods-available/headers.conf
+lrwxrwxrwx 1 root root ... ssl.conf -> ../mods-available/ssl.conf
+# <2>
+```
+
+1. **a2enmod**: Habilita módulos creando symlinks
+2. **Verificar**: Confirma qué módulos están activos
+
+### Deshabilitar Módulos
+
+```bash
+# Deshabilitar CGI (si no se usa)
+$ sudo a2dismod cgi
+# <1>
+
+# Verificar que no esté cargado
+$ sudo apache2ctl -M | grep cgi
+# (sin output = deshabilitado)
+```
+
+1. **a2dismod**: Deshabilita módulos removiendo symlinks
+
+### Listar Módulos Disponibles
+
+```bash
+# Ver todos los módulos disponibles
+$ ls /etc/apache2/mods-available/ | head -20
+
+# Ver diferencia entre disponibles y habilitados
+$ diff <(ls /etc/apache2/mods-available/ | sort) <(ls /etc/apache2/mods-enabled/ | sort) | head -10
+```
+
+## Validar Configuración
+
+### Test de Sintaxis
+
+```bash
+# Validar sin reiniciar
+$ sudo apachectl configtest
+Syntax OK
+# <1>
+
+# Si hay errores, los muestra
+$ sudo apachectl configtest
+AH00526: Syntax error on line 42 of /etc/apache2/sites-available/site.conf:
+Invalid command 'RewriteOptions', perhaps misspelled or defined by a module not included in the server configuration
+# <2>
+```
+
+1. **Syntax OK**: Configuración válida
+2. **Error**: Muestra línea y descripción del error
+
+### Recargar vs Reiniciar
+
+```bash
+# Recargar: mantiene conexiones actuales, carga nueva config
+$ sudo systemctl reload apache2
+# <1>
+
+# Reiniciar: corta todas las conexiones, reinicia servicio
+$ sudo systemctl restart apache2
+# <2>
+
+# Estado actual
+$ sudo systemctl status apache2 --no-pager
+```
+
+1. **reload**: Preferido en producción
+2. **restart**: Solo cuando hay cambios que requieren reinicio completo
+
+## Lectura de Logs
+
+### Estructura de Logs
+
+```
+/var/log/apache2/
+├── access.log           # Todos los requests
+├── error.log            # Errores y advertencias
+├── other_vhosts.log    # Logs de todos los vhosts (si habilitado)
+├── access.log.1        # Logs rotados (gzipped)
+├── error.log.1.gz
+└── ...
+```
+
+### Logs de Error
+
+```bash
+# Ver últimos errores
+$ sudo tail -n 20 /var/log/apache2/error.log
+[Tue Mar 31 10:15:00.123456 2026] [core:notice] [pid 1234] AH00094: Command line: '/usr/sbin/apache2'
+[Tue Mar 31 10:20:00.123456 2026] [mpm_prefork:notice] [pid 1234] AH00163: Apache/2.4.58 configured -- resuming normal operations
+# <1>
+
+# Buscar errores específicos
+$ sudo grep -i "error\|warn\|critical" /var/log/apache2/error.log | tail -10
+
+# Ver errores de un VirtualHost específico
+$ sudo grep "site1.local" /var/log/apache2/error.log
+```
+
+1. **tail**: Muestra los últimos 20 errores
+
+### Logs de Access
+
+```bash
+# Ver últimos requests
+$ sudo tail -n 10 /var/log/apache2/access.log
+127.0.0.1 - - [31/Mar/2026:10:15:00 +0000] "GET / HTTP/1.1" 200 123 "-" "curl/8.1.0"
+127.0.0.1 - - [31/Mar/2026:10:15:01 +0000] "GET /style.css HTTP/1.1" 200 456 "-" "curl/8.1.0"
+# <1>
+
+# Formato access log:
+# %h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"
+```
+
+1. **Formato**: IP, usuario, fecha, request, status, tamaño, referer, user-agent
+
+### Análisis de Logs
+
+```bash
+# Requests por código de estado
+$ sudo awk '{print $9}' /var/log/apache2/access.log | sort | uniq -c | sort -rn
+   1000 200
+    100 404
+     50 500
+     20 301
+# <1>
+
+# Requests por IP
+$ sudo awk '{print $1}' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head -10
+
+# Requests por URL
+$ sudo awk '{print $7}' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head -10
+
+# User agents más comunes
+$ sudo awk -F'"' '{print $6}' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head -5
+```
+
+1. **Código 200**: Éxito, **404**: No encontrado, **500**: Error interno
+
+### Logrotate para Apache
+
+```bash
+# Configuración de rotación
+$ cat /etc/logrotate.d/apache2
+/var/log/apache2/*.log {
+    daily                 # Rotar diariamente
+    missingok             # OK si no existe
+    rotate 14             # Mantener 14 días
+    compress             # Comprimir logs antiguos
+    delaycompress         # Comprimir al día siguiente
+    create 640 root adm   # Permisos del nuevo log
+    sharedscripts         # Ejecutar post-script solo una vez
+    postrotate
+        if [ -f /var/run/apache2/apache2.pid ]; then
+            /usr/sbin/invoke-rc.d apache2 reload > /dev/null
+        fi
+    endscript
+}
+# <1>
+```
+
+1. **logrotate**: Gestiona automáticamente la rotación de logs
+
+## Configuración de Puertos
+
+### ports.conf
+
+```bash
+# Ver configuración actual
+$ cat /etc/apache2/ports.conf
+Listen 80
+# <1>
+
+# Para HTTPS
+$ cat /etc/apache2/ports.conf
+Listen 80
+Listen 443
+# <2>
+```
+
+1. **Listen 80**: Puerto HTTP por defecto
+2. **Listen 443**: Puerto HTTPS
+
+### Puerto Personalizado
+
+```bash
+# Cambiar a puerto 8080
+$ sudo sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
+
+# Verificar
+$ cat /etc/apache2/ports.conf
+Listen 8080
+
+# Reiniciar
+$ sudo systemctl restart apache2
+
+# Ver nuevo puerto
+$ ss -lntp | grep apache
+LISTEN 0 511 0.0.0.0:8080 0.0.0.0:* users:(("apache2",pid=1234,fd=4))
+```
+
+## Estado del Servidor
+
+### systemctl status
+
+```bash
+$ sudo systemctl status apache2 --no-pager
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
+     Active: active (running) since Tue 2026-03-31 10:00:00 UTC
+   Main PID: 1234 (apache2)
+      Tasks: 11 (limit: 4915)
+     Memory: 8.5M
+        CPU: 0.123s
+# <1>
+```
+
+1. **Status**: Muestra estado, PID, memoria, CPU
+
+### apachectl status
+
+```bash
+# Requiere instalar libapache2-mod-status
+$ sudo a2enmod status
+
+# Crear configuración de status
+$ sudo tee /etc/apache2/conf-available/server-status.conf <<'EOF'
+<Location /server-status>
+    SetHandler server-status
+    Require local
+</Location>
+EOF
+
+$ sudo a2enconf server-status
+$ sudo systemctl reload apache2
+
+# Ver status
+$ curl http://localhost/server-status
+# <1>
+```
+
+1. **server-status**: Muestra información en tiempo real
+
+### Ver Procesos
+
+```bash
+# Procesos Apache activos
+$ ps aux | grep apache2 | head -10
+
+# Número de procesos
+$ ps aux | grep apache2 | wc -l
+
+# Por usuario
+$ ps aux | grep apache2 | awk '{print $1}' | sort | uniq -c
+```
+
+## Casos de Estudio
+
+### Caso 1: Error Después de Cambiar Configuración
+
+**Problema**:
+```bash
+$ sudo systemctl restart apache2
+Job for apache2.service failed because the control process exited with error code.
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# Ver error específico
+$ sudo journalctl -u apache2 --no-pager -n 50
+
+# O usar configtest
+$ sudo apachectl configtest
+AH00526: Syntax error on line 42 of /etc/apache2/sites-available/mysite.conf
+# <2>
+```
+
+1. **Error al reiniciar**: El servicio falló
+2. **configtest**: Muestra el error exacto
+
+**Solución**:
+```bash
+# Ver línea 42 del archivo
+$ sudo sed -n '40,45p' /etc/apache2/sites-available/mysite.conf
+
+# Corregir y recargar
+$ sudo apachectl configtest
+Syntax OK
+$ sudo systemctl restart apache2
+```
+
+### Caso 2: Módulo No Carga
+
+**Problema**:
+```bash
+$ curl http://localhost/server-status
+<!DOCTYPE html>
+<html>
+<head><title>404 Not Found</title></head>
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# Verificar módulo cargado
+$ sudo apache2ctl -M | grep status
+# (sin output = no cargado)
+
+# Ver logs
+$ sudo tail /var/log/apache2/error.log
+[Tue Mar 31 10:00:00] [core:notice] [pid 1234] AH01506: server: Apache/2.4.58 configured
+```
+
+1. **404**: El módulo status no está cargado
+
+**Solución**:
+```bash
+# Habilitar módulo
+$ sudo a2enmod status
+
+# Verificar
+$ sudo apache2ctl -M | grep status
+ status_module (shared)
+
+# Recargar
+$ sudo systemctl reload apache2
+```
+
+### Caso 3: Logs Llena Disco
+
+**Problema**:
+```bash
+$ df -h /
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       20G   20G   0   100% /
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# Ver tamaño de logs
+$ sudo du -sh /var/log/apache2/
+
+# Ver logs más grandes
+$ sudo ls -lhS /var/log/apache2/*.log | head -10
+
+# Buscar requests anómalas
+$ sudo tail -10000 /var/log/apache2/access.log | awk '{print $1}' | sort | uniq -c | sort -nr | head -5
+```
+
+1. **Disco lleno**: 100% de uso
+
+**Solución**:
+```bash
+# Rotar logs inmediatamente
+$ sudo logrotate -f /etc/logrotate.d/apache2
+
+# O truncar logs grandes (solo en emergencia)
+$ sudo truncate -s 0 /var/log/apache2/access.log
+$ sudo truncate -s 0 /var/log/apache2/error.log
+$ sudo systemctl reload apache2
+```
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Módulos | `a2enmod/a2dismod` | Habilitar/deshabilitar |
+| Sitios | `a2ensite/a2dissite` | Activar VirtualHosts |
+| Validar | `apachectl configtest` | Verificar sintaxis |
+| Logs error | `/var/log/apache2/error.log` | Debug de errores |
+| Logs access | `/var/log/apache2/access.log` | Auditoría de requests |
+| Rotación | `/etc/logrotate.d/apache2` | Gestión de logs |
+| Status | `systemctl status apache2` | Estado del servicio |
+
+## Referencias
+
+- [Apache Logging Documentation](https://httpd.apache.org/docs/2.4/logs.html)
+- [Apache Modules](https://httpd.apache.org/docs/2.4/mod/)
+- [mod_status](https://httpd.apache.org/docs/2.4/mod/mod_status.html)

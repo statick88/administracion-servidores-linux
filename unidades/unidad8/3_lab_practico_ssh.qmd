@@ -1,0 +1,385 @@
+# SSH: Laboratorio Práctico
+
+## Introducción
+
+En este laboratorio vas a practicar todos los conceptos de SSH covered in the unit: generación de keys, hardening de configuración, tunnels, y acceso a servicios a través de jump hosts. Vas a usar Docker para simular el entorno de servidor y un VPS real para las pruebas finales.
+
+## Objetivos del Laboratorio
+
+Al completar este laboratorio podrás:
+
+1. Generar y gestionar claves SSH Ed25519
+2. Configurar sshd con hardenización de producción
+3. Crear tunnels SSH para acceder a servicios remotos
+4. Implementar acceso a través de jump hosts
+5. Diagnosticar problemas de conexión SSH
+
+## Requisitos
+
+- Máquina con Docker instalado
+- Acceso a un VPS con IP pública (o simulación con Docker)
+- Puerto 22 accesible para pruebas locales
+
+## Duración
+
+**90 minutos**
+
+---
+
+## Parte 1: Generación y Gestión de Keys
+
+### Ejercicio 1.1: Generar Clave Ed25519
+
+```bash
+# Generar clave Ed25519 con comentario descriptivo
+$ ssh-keygen -t ed25519 -C "lab-ssh-$(date +%Y%m%d)"
+# <1>
+
+# Verificar que se generó
+$ ls -la ~/.ssh/id_ed25519*
+```
+
+1. **ssh-keygen -t ed25519**: Genera clave Ed25519 (recomendada para producción)
+
+### Ejercicio 1.2: Generar Clave RSA 4096 (Legacy)
+
+```bash
+# Solo para sistemas que no soporten Ed25519
+$ ssh-keygen -t rsa -b 4096 -C "legacy-lab-$(date +%Y%m%d)"
+# <1>
+
+# Comparar fingerprints
+$ ssh-keygen -lf ~/.ssh/id_ed25519
+$ ssh-keygen -lf ~/.ssh/id_rsa
+```
+
+1. **-b 4096**: Tamaño mínimo recomendado para RSA
+
+### Ejercicio 1.3: Verificar Fingerprint
+
+```bash
+# Ver fingerprint en formato moderno (SHA256)
+$ ssh-keygen -lf ~/.ssh/id_ed25519
+
+# Ver en formato legacy (MD5) - útil para comparación visual
+$ ssh-keygen -E md5 -lf ~/.ssh/id_ed25519
+# <1>
+
+# Comparar con la clave pública
+$ ssh-keygen -lf ~/.ssh/id_ed25519.pub
+```
+
+1. **-E md5**: Formato MD5 para compatibilidad con sistemas antiguos
+
+---
+
+## Parte 2: Entorno de Docker para Pruebas
+
+### Ejercicio 2.1: Crear Contenedor SSH Server
+
+```bash
+# Crear red Docker para simular red interna
+$ docker network create lab-ssh-net
+# <1>
+
+# Iniciar contenedor SSH (servidor objetivo)
+$ docker run -d --name ssh-server \
+    --network lab-ssh-net \
+    -e PASSWORD=lab123 \
+    lscr.io/linuxserver/openssh-server:latest
+# <2>
+```
+
+1. **network**: Permite comunicación entre contenedores
+2. **openssh-server**: Imagen Docker con SSH pre-configurado
+
+### Ejercicio 2.2: Verificar Contenedor
+
+```bash
+# Ver contenedores activos
+$ docker ps
+
+# Ver IP del servidor
+$ docker inspect ssh-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+# <1>
+
+# Probar conectividad SSH
+$ docker exec ssh-server cat /etc/passwd | grep ssh
+```
+
+1. **IP típica**: 172.x.x.x dentro de la red Docker
+
+### Ejercicio 2.3: Configurar Acceso SSH al Contenedor
+
+```bash
+# Desde el host, generar key para el contenedor
+$ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_lab -C "docker-lab"
+
+# Copiar key al contenedor
+$ docker exec ssh-server mkdir -p ~/.ssh
+$ docker exec ssh-server chmod 700 ~/.ssh
+$ cat ~/.ssh/id_ed25519_lab.pub | docker exec -i ssh-server "cat >> ~/.ssh/authorized_keys"
+$ docker exec ssh-server chmod 600 ~/.ssh/authorized_keys
+```
+
+---
+
+## Parte 3: Hardening de SSH
+
+### Ejercicio 3.1: Aplicar Configuración de Producción
+
+```bash
+# Copiar configuración hardenizada al contenedor
+$ docker cp /etc/ssh/sshd_config ssh-server:/etc/ssh/sshd_config.bak
+
+# Editar configuración
+$ docker exec ssh-server sed -i \
+    -e 's/^#*PermitRootLogin.*/PermitRootLogin no/' \
+    -e 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' \
+    -e 's/^#*PubkeyAuthentication.*/PubkeyAuthentication yes/' \
+    /etc/ssh/sshd_config
+# <1>
+
+# Verificar configuración
+$ docker exec ssh-server sshd -t
+# <2>
+```
+
+1. **sed**: Modificar configuración directamente en el contenedor
+2. **sshd -t**: Test de sintaxis
+
+### Ejercicio 3.2: Probar Acceso con Keys
+
+```bash
+# Obtener IP del contenedor
+$ SERVER_IP=$(docker inspect ssh-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+
+# Probar login con key
+$ ssh -i ~/.ssh/id_ed25519_lab -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    root@$SERVER_IP "hostname && whoami"
+# <1>
+```
+
+1. **-o StrictHostKeyChecking=no**: Para labs, evita preguntar por host key
+
+---
+
+## Parte 4: SSH Tunnels
+
+### Ejercicio 4.1: Local Port Forward
+
+```bash
+# Crear servicio falso en el contenedor para probar
+$ docker exec ssh-server mkdir -p /data
+
+# Forwardear puerto local 8080 al servidor remoto
+$ ssh -i ~/.ssh/id_ed25519_lab -L 8080:localhost:80 \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    -N -f root@$SERVER_IP
+
+# Verificar que el puerto está escuchando localmente
+$ ss -tlnp | grep 8080
+
+# Limpiar
+$ pkill -f "ssh.*-L 8080"
+```
+
+### Ejercicio 4.2: Dynamic Port Forward (Proxy SOCKS)
+
+```bash
+# Crear proxy SOCKS en puerto 1080
+$ ssh -i ~/.ssh/id_ed25519_lab -D 1080 \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    -N -f root@$SERVER_IP
+
+# Verificar que el proxy está activo
+$ ss -tlnp | grep 1080
+
+# Probar con curl (debe fallar sin proxy, funcionar con proxy)
+$ curl -x socks5://localhost:1080 https://ifconfig.me
+
+# Limpiar
+$ pkill -f "ssh.*-D 1080"
+```
+
+### Ejercicio 4.3: Jump Host
+
+```bash
+# Crear segundo contenedor (bastion)
+$ docker run -d --name ssh-bastion \
+    --network lab-ssh-net \
+    -e PASSWORD=lab123 \
+    lscr.io/linuxserver/openssh-server:latest
+# <1>
+
+# Obtener IPs
+$ BASTION_IP=$(docker inspect ssh-bastion -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+$ SERVER_IP=$(docker inspect ssh-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+```
+
+1. **Bastion**: Servidor intermedio para jump
+
+```bash
+# Configurar keys para ambos servidores
+$ ssh-copy-id -i ~/.ssh/id_ed25519_lab.pub root@$BASTION_IP
+$ ssh-copy-id -i ~/.ssh/id_ed25519_lab.pub root@$SERVER_IP
+
+# Probar acceso directo al servidor a través del bastion
+$ ssh -J root@$BASTION_IP root@$SERVER_IP "hostname"
+# <2>
+```
+
+2. **-J**: ProxyJump - accede a través del bastion
+
+---
+
+## Parte 5: Pruebas con VPS Real
+
+### Ejercicio 5.1: Conectar a VPS
+
+```bash
+# Reemplazar con tus credenciales reales
+VPS_HOST="tu-vps-ip-o-dominio"
+VPS_USER="tu-usuario"
+
+# Probar conexión básica
+$ ssh -o ConnectTimeout=10 $VPS_USER@$VPS_HOST "hostname && uptime"
+# <1>
+```
+
+1. **ConnectTimeout**: Timeout de 10 segundos para pruebas
+
+### Ejercicio 5.2: Deployar Clave al VPS
+
+```bash
+# Copiar clave pública
+$ ssh-copy-id -i ~/.ssh/id_ed25519.pub $VPS_USER@$VPS_HOST
+# <1>
+
+# Probar login sin password
+$ ssh $VPS_USER@$VPS_HOST "echo 'Login exitoso!'"
+```
+
+1. **ssh-copy-id**: Automatiza la copia de clave pública
+
+### Ejercicio 5.3: Hardening de VPS Real
+
+```bash
+# Conectar al VPS
+$ ssh $VPS_USER@$VPS_HOST
+
+# En el VPS: crear backup de configuración
+$ sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup
+
+# Aplicar hardenización
+$ sudo sed -i \
+    -e 's/^#*PermitRootLogin.*/PermitRootLogin no/' \
+    -e 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' \
+    -e 's/^#*PubkeyAuthentication.*/PubkeyAuthentication yes/' \
+    -e 's/^#*MaxAuthTries.*/MaxAuthTries 3/' \
+    -e 's/^#*ClientAliveInterval.*/ClientAliveInterval 300/' \
+    /etc/ssh/sshd_config
+
+# Verificar y reiniciar
+$ sudo sshd -t && sudo systemctl restart sshd
+# <2>
+```
+
+1. **sed**: Aplica todas las reglas de hardenización
+2. **sshd -t**: Test de configuración antes de reiniciar
+
+### Ejercicio 5.4: Tunnels con VPS Real
+
+```bash
+# Forwardear MySQL desde VPS (asumiendo que existe)
+$ ssh -L 3306:localhost:3306 $VPS_USER@$VPS_HOST -N -f
+
+# O crear proxy SOCKS
+$ ssh -D 1080 $VPS_USER@$VPS_HOST -N -f
+
+# Verificar tunnels activos
+$ ss -tlnp | grep -E "3306|1080"
+```
+
+---
+
+## Parte 6: Troubleshooting
+
+### Ejercicio 6.1: Diagnóstico de Conexión
+
+```bash
+# 1. Verificar que SSH está corriendo
+$ docker exec ssh-server systemctl status sshd
+
+# 2. Ver que el puerto está escuchando
+$ docker exec ssh-server ss -tlnp | grep :22
+
+# 3. Ver logs de autenticación
+$ docker exec ssh-server tail -f /var/log/auth.log
+```
+
+### Ejercicio 6.2: Debug de Conexión SSH
+
+```bash
+# Usar modo verbose para ver qué está pasando
+$ ssh -vvv -i ~/.ssh/id_ed25519_lab \
+    -o StrictHostKeyChecking=no \
+    root@$SERVER_IP "echo test"
+# <1>
+```
+
+1. **-vvv**: Modo debug máximo - muestra cada paso de la conexión
+
+### Ejercicio 6.3: Verificar Permisos
+
+```bash
+# En el servidor: permisos correctos son críticos
+$ docker exec ssh-server ls -la ~/.ssh/
+$ docker exec ssh-server stat -c "%a %n" ~/.ssh/authorized_keys
+# <1>
+```
+
+1. **Permisos correctos**: ~/.ssh=700, authorized_keys=600
+
+---
+
+## Verificación de Laboratorio
+
+Al completar este laboratorio, debes poder:
+
+| Habilidad | Verificación |
+|-----------|-------------|
+| Generar keys SSH | `ssh-keygen -t ed25519` genera clave válida |
+| Keys en servidor | Login funciona sin password |
+| Hardening SSH | `sshd -t` pasa y configuración aplicada |
+| Local Forward | Puerto local conecta a servicio remoto |
+| Dynamic Forward | Proxy SOCKS permite navegación |
+| Jump Host | Conexión a través de bastion funciona |
+| VPS Real | Configuración funciona en servidor real |
+
+---
+
+## Limpieza
+
+```bash
+# Detener y eliminar contenedores
+$ docker stop ssh-server ssh-bastion
+$ docker rm ssh-server ssh-bastion
+
+# Eliminar red
+$ docker network rm lab-ssh-net
+
+# Eliminar keys de prueba
+$ rm -f ~/.ssh/id_ed25519_lab ~/.ssh/id_ed25519_lab.pub
+```
+
+---
+
+## Referencias
+
+- [OpenSSH Official](https://www.openssh.com/)
+- [Docker SSH Server](https://linuxserver.io/images/openssh-server)
+- [SSH Config Best Practices](https://www.ssh.com/academy/ssh/sshd_config)

@@ -1,54 +1,250 @@
 ---
-title: "Unidad 11.3: Backup y restore"
-subtitle: "mysqldump como evidencia operativa"
+title: "Unidad 11.3: Backup y Restauración"
+subtitle: "Estrategias de backup y recuperación de MariaDB"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 11.3: Backup y restore
+# Unidad 11.3: Backup y Restauración
 
-## Introduccion
+## Introducción
 
-Un servidor sin backups verificables no esta en produccion. Aqui usaremos `mysqldump` para generar un backup y restaurarlo en un entorno de prueba.
+Los backups son tu red de seguridad. Sin backups, cualquier error puede ser catastrófico. En esta unidad vas a aprender estrategias de backup, herramientas disponibles, y cómo restaurar correctamente.
 
-## Objetivos de aprendizaje
+## Tipos de Backup
 
-- Generar backup con `mysqldump`
-- Restaurar y validar
+### Backup Lógico vs Físico
 
----
+| Característica | mysqldump (Lógico) | mariabackup (Físico) |
+|----------------|-------------------|----------------------|
+| **Velocidad** | Lento | Rápido |
+| **Tamaño** | Grande (SQL texto) | Pequeño (binario) |
+| **Restore** | Lento (recrear SQL) | Rápido (copiar archivos) |
+| **Cross-version** | Sí | No |
+| **Locking** | Menor (con opciones) | Menor |
+| **Uso** | DB < 100GB | DB > 100GB |
 
-## Backup
+## mysqldump: Backup Lógico
+
+### Instalación de Herramientas
 
 ```bash
-$ sudo mysqldump --databases appdb > /tmp/appdb.sql  # <1>
+# Verificar que está instalado
+$ which mysqldump
+/usr/bin/mysqldump
 # <1>
 
-$ ls -lh /tmp/appdb.sql  # <2>
--rw-r--r-- 1 root root 12K Feb  2 12:45 /tmp/appdb.sql
+# Instalar si no existe
+$ sudo apt install -y mariadb-client
+```
+
+1. **mysqldump**: Incluido en mariadb-client
+
+### Backup de Una Base de Datos
+
+```bash
+# Backup básico de una DB
+$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql
+# <1>
+
+# Ver archivo
+$ ls -lh /backup/appdb-20260331.sql
+-rw-r--r-- 1 root root 1.2M Mar 31 10:30 /backup/appdb-20260331.sql
+```
+
+1. **mysqldump**: Crea archivo SQL con estructura y datos
+
+### Backup de Todas las Bases de Datos
+
+```bash
+# Backup completo
+$ sudo mysqldump -u root -p --all-databases > /backup/all-databases-$(date +%Y%m%d).sql
+# <1>
+
+# Comprimido (ahorra ~80% espacio)
+$ sudo mysqldump -u root -p --all-databases | gzip > /backup/all-databases-$(date +%Y%m%d).sql.gz
 # <2>
 ```
 
+1. **--all-databases**: Todas las bases de datos
+2. **gzip**: Compresión
 
-
-1. **mysqldump** exporta la base `appdb` a un archivo SQL.
-2. **ls -lh** valida que el backup existe y su tamano.
-
----
-
-## Restore (ejemplo)
+### Backup con Opciones de Producción
 
 ```bash
-$ sudo mariadb < /tmp/appdb.sql  # <1>
+# Backup completo con opciones seguras
+$ sudo mysqldump \
+    -u root -p \
+    --single-transaction \
+    --routines \
+    --triggers \
+    --events \
+    --add-drop-database \
+    --create-options \
+    --extended-insert \
+    --lock-tables=read \
+    appdb > /backup/appdb-full-$(date +%Y%m%d).sql
+# <1>
+```
+
+1. **Opciones de producción**: Backup completo y consistente
+
+### Backup de Solo Estructura
+
+```bash
+# Solo schema (sin datos)
+$ sudo mysqldump -u root -p --no-data appdb > /backup/appdb-schema-$(date +%Y%m%d).sql
+# <1>
+```
+
+1. **--no-data**: Solo estructura, sin datos
+
+## Restauración de Backups
+
+### Restaurar Una Base de Datos
+
+```bash
+# Crear DB si no existe
+$ sudo mariadb -u root -p -e "CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# Restaurar
+$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
+# <1>
+```
+
+1. **Restaurar**: Pipe del SQL a mariadb
+
+### Restaurar Todas las Bases de Datos
+
+```bash
+# Restaurar todas las DB
+$ sudo mariadb -u root -p < /backup/all-databases-20260331.sql
 # <1>
 
-$ sudo mariadb -e 'SHOW DATABASES;' | grep appdb  # <2>
-appdb
+# Desde archivo comprimido
+$ zcat /backup/all-databases-20260331.sql.gz | sudo mariadb -u root -p
 # <2>
 ```
 
+## mariabackup: Backup Físico
 
+### Realizar Backup Físico
 
-1. **mariadb < backup.sql** restaura desde el dump.
-2. **SHOW DATABASES** valida que la base existe.
+```bash
+# Crear directorio de backup
+$ sudo mkdir -p /backup/full
+
+# Realizar backup
+$ sudo mariabackup \
+    --backup \
+    --target-dir=/backup/full-$(date +%Y%m%d) \
+    --user=root \
+    --password='RootPassword123!'
+# <1>
+```
+
+1. **mariabackup**: Backup físico completo
+
+### Restaurar Backup Físico
+
+```bash
+# 1. Preparar backup (apply log)
+$ sudo mariabackup \
+    --prepare \
+    --target-dir=/backup/full-20260331
+
+# 2. Detener MariaDB
+$ sudo systemctl stop mariadb
+
+# 3. Restaurar
+$ sudo mariabackup \
+    --restore \
+    --target-dir=/backup/full-20260331
+
+# 4. Permisos correctos
+$ sudo chown -R mysql:mysql /var/lib/mysql
+
+# 5. Iniciar MariaDB
+$ sudo systemctl start mariadb
+# <1>
+```
+
+## Automatización de Backups
+
+### Script de Backup Automático
+
+```bash
+$ sudo tee /usr/local/bin/mariadb-backup.sh <<'EOF'
+#!/bin/bash
+DATE=$(date +%Y%m%d_%H%M)
+BACKUP_DIR="/backup/mariadb"
+DB_NAME="appdb"
+DB_USER="root"
+DB_PASS="RootPassword123!"
+MAX_DAYS=7
+
+mkdir -p $BACKUP_DIR
+
+echo "Iniciando backup de $DB_NAME..."
+mysqldump -u $DB_USER -p"$DB_PASS" \
+    --single-transaction \
+    --routines \
+    --triggers \
+    $DB_NAME | gzip > $BACKUP_DIR/${DB_NAME}-${DATE}.sql.gz
+
+if [ $? -eq 0 ]; then
+    echo "Backup completado: ${DB_NAME}-${DATE}.sql.gz"
+else
+    echo "ERROR en backup"
+    exit 1
+fi
+
+# Limpiar backups antiguos
+find $BACKUP_DIR -name "*.sql.gz" -mtime +$MAX_DAYS -delete
+
+ls -lh $BACKUP_DIR/
+EOF
+
+$ sudo chmod +x /usr/local/bin/mariadb-backup.sh
+# <1>
+```
+
+### Programar con Cron
+
+```bash
+# Backup diario a las 3 AM
+$ sudo crontab -e
+# Agregar:
+# 0 3 * * * /usr/local/bin/mariadb-backup.sh
+# <1>
+```
+
+## Verificación de Backups
+
+### Verificar Integridad
+
+```bash
+# Ver que el archivo no está corrupto
+$ gzip -t /backup/appdb-20260331.sql.gz
+# Sin output = OK
+
+# Ver primeras líneas
+$ zcat /backup/appdb-20260331.sql.gz | head -20
+# <1>
+```
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Backup lógico | `mysqldump` | Exporta SQL |
+| Backup físico | `mariabackup` | Copia archivos |
+| Restaurar | `mariadb < backup.sql` | Importa SQL |
+| Automatizar | `cron` | Programar backups |
+| Verificar | `gzip -t backup.sql.gz` | Integridad |
+
+## Referencias
+
+- [MariaDB Backup and Restore](https://mariadb.com/kb/en/backup-and-restore/)
+- [mysqldump](https://mariadb.com/kb/en/mysqldump/)

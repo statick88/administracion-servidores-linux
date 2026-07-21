@@ -1,134 +1,622 @@
 ---
-title: "Unidad 9.1: Introduccion a Apache"
-subtitle: "Instalacion, servicio y prueba rapida"
+title: "Unidad 9: Apache HTTP Server - Producción"
+subtitle: "Instalación, configuración y hardening de Apache para entornos de producción"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 9.1: Introduccion a Apache
+# Unidad 9: Apache HTTP Server en Producción
 
-## Introduccion
+## Introducción
 
-Apache HTTP Server es uno de los servidores web mas usados. En esta unidad lo instalaremos, lo validaremos con evidencia, y aprenderemos las ubicaciones clave de configuracion.
+Apache HTTP Server es el servidor web más desplegado en internet. En esta unidad vas a dominar Apache desde la instalación hasta el hardening de producción, con casos reales y configuraciones que vas a usar en servidores reales.
 
-## Objetivos de aprendizaje
+## Arquitectura de Apache
 
-- Instalar Apache en Ubuntu Server
-- Validar servicio, puerto y respuesta HTTP
-- Identificar rutas de configuracion y document root
+### Modelo de Procesos
 
----
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ARQUITECTURA APACHE                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   REQUEST →  ──────────────────────────────────────────────    │
+│                                                                  │
+│              ┌──────────────┐                                  │
+│              │  Main Process│  (root, pid 1)                    │
+│              │  apache2     │  ───┐                             │
+│              └──────────────┘      │                            │
+│                      │              │ fork()                    │
+│                      ▼              ▼                           │
+│   ┌─────────────────────────────────────────────┐              │
+│   │           Worker Processes                  │              │
+│   │  ┌─────────┐  ┌─────────┐  ┌─────────┐    │              │
+│   │  │Worker 1 │  │Worker 2 │  │Worker N │    │              │
+│   │  │:80      │  │:80      │  │:80      │    │              │
+│   │  └─────────┘  └─────────┘  └─────────┘    │              │
+│   └─────────────────────────────────────────────┘              │
+│                                                                  │
+│   MPM Modes:                                                     │
+│   - prefork: 1 proceso = 1 request (compatibilidad)            │
+│   - worker:   1 proceso = múltiples threads (concurrencia)     │
+│   - event:    like worker but better (Apache 2.4+)             │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-## Instalacion (Ubuntu)
+### Flujo de una Solicitud HTTP
+
+```
+1. TCP Handshake (puerto 80/443)
+       │
+       ▼
+2. Apache accepts connection (worker process)
+       │
+       ▼
+3. Parse HTTP request (method, path, headers)
+       │
+       ▼
+4. Resolve VirtualHost (ServerName/ServerAlias)
+       │
+       ▼
+5. Check .htaccess / Directory permissions
+       │
+       ▼
+6. Execute handler (PHP, mod_proxy, static file)
+       │
+       ▼
+7. Generate response (or forward to backend)
+       │
+       ▼
+8. Write to access.log + error.log
+       │
+       ▼
+9. Close connection or keep-alive
+```
+
+## Instalación en Producción
+
+### Paquetes Recomendados
 
 ```bash
-$ sudo apt update  # <1>
+# Actualizar índice de paquetes
+$ sudo apt update && sudo apt upgrade -y
 # <1>
 
-$ sudo apt install -y apache2  # <2>
-Reading package lists... Done
+# Instalar Apache + módulos esenciales para producción
+$ sudo apt install -y apache2 \
+    apache2-utils \
+    certbot \
+    python3-certbot-apache \
+    libapache2-mod-security2 \
+    libapache2-mod-php8.1 \
+    php8.1-fpm
 # <2>
 ```
 
+1. **apt update**: Actualiza lista de paquetes disponibles
+2. **apache2-utils**: Herramientas como `ab` (Apache Bench) para testing
 
-
-1. **apt update** actualiza el indice de paquetes.
-2. **apt install apache2** instala el servidor Apache.
-
----
-
-## Validar servicio y puerto
+### Verificar Instalación
 
 ```bash
-$ systemctl status apache2 --no-pager  # <1>
+# Estado del servicio
+$ sudo systemctl status apache2 --no-pager
 ● apache2.service - The Apache HTTP Server
      Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
-     Active: active (running)
+     Active: active (running) since Tue 2026-03-31 10:00:00 UTC
 # <1>
 
-$ sudo ss -lntp | grep ':80'  # <2>
-LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:("apache2",pid=1234,fd=4)
+# Puerto en escucha
+$ sudo ss -lntp | grep ':80'
+LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:(("apache2",pid=1234,fd=4))
 # <2>
 ```
 
+1. **systemctl status**: Confirma que el servicio está corriendo
+2. **ss -lntp**: Muestra que el puerto 80 está escuchando en todas las interfaces
 
-
-1. **systemctl status apache2** confirma que el servicio esta activo.
-2. **ss -lntp** valida que el puerto 80/tcp esta en escucha.
-
----
-
-## Probar respuesta HTTP (local)
+### Prueba de Respuesta HTTP
 
 ```bash
-$ curl -I http://localhost  # <1>
+# Headers básicos
+$ curl -I http://localhost
 HTTP/1.1 200 OK
 Server: Apache/2.4.58 (Ubuntu)
 Content-Type: text/html
 # <1>
+
+# HTML completo
+$ curl -s http://localhost | head -20
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to Ubuntu</title>
+...
+# <2>
 ```
 
+1. **curl -I**: Muestra headers de respuesta
+2. **curl -s**: Descarga el HTML completo
 
+## Estructura de Archivos en Ubuntu
 
-1. **curl -I** prueba conectividad HTTP y muestra headers.
+```
+/etc/apache2/
+├── apache2.conf          # Config principal (includes others)
+├── ports.conf            # Puertos (80, 443)
+├── magic                # MIME types
+├── conf-available/      # Configuraciones adicionales
+│   ├── security-hardening.conf
+│   ├── security-headers.conf
+│   └── options.conf
+├── conf-enabled/        # Symlinks a conf-available/
+├── mods-available/      # Módulos disponibles
+│   ├── php8.1.conf
+│   ├── ssl.conf
+│   └── headers.conf
+├── mods-enabled/        # Módulos activos (symlinks)
+├── sites-available/     # VirtualHosts disponibles
+│   ├── 000-default.conf
+│   └── default-ssl.conf
+├── sites-enabled/       # Sitios activos (symlinks)
+└── envvars              # Variables de entorno
+```
 
----
+## Gestión de Módulos
 
-## Rutas clave en Ubuntu
+### Listar Módulos Cargados
 
-- Config principal: `/etc/apache2/apache2.conf`
-- Sitios: `/etc/apache2/sites-available/` y `/etc/apache2/sites-enabled/`
-- Modulos: `/etc/apache2/mods-available/` y `/etc/apache2/mods-enabled/`
-- Document root por defecto: `/var/www/html`
-- Logs: `/var/log/apache2/access.log` y `/var/log/apache2/error.log`
-
----
-
-## Ejemplos practicos multi-SO
-
-::: {.panel-tabset}
-
-### Ejemplo 1: Probar un servidor HTTP local
-
-#### Linux
 ```bash
-$ curl -I http://localhost  # <1>
-HTTP/1.1 200 OK
-Server: Apache/2.4.58 (Ubuntu)
+# Ver todos los módulos cargados
+$ sudo apache2ctl -M 2>/dev/null | grep -E "ssl|php|headers|proxy"
+ ssl_module (shared)
+ php8.1_module (shared)
+ headers_module (shared)
+ proxy_module (shared)
+ proxy_http_module (shared)
 # <1>
 ```
 
+1. **apache2ctl -M**: Lista módulos compilados y compartidos
 
+### Habilitar Módulos Esenciales
 
-1. **curl -I** valida respuesta HTTP.
-
-#### macOS
 ```bash
-$ curl -I http://localhost  # <1>
-curl: (7) Failed to connect to localhost port 80: Connection refused
+# Módulos de seguridad
+$ sudo a2enmod headers          # Security headers
+$ sudo a2enmod ssl              # HTTPS
+$ sudo a2enmod rewrite          # URL rewriting
+$ sudo a2enmod proxy            # Proxy forwarding
+$ sudo a2enmod proxy_http       # HTTP proxy
+$ sudo a2enmod expires          # Cache headers
+$ sudo a2enmod deflate          # Compression
+# <1>
+
+# Verificar y reiniciar
+$ sudo apachectl configtest
+$ sudo systemctl restart apache2
+```
+
+1. **a2enmod**: Habilita módulos creando symlinks en mods-enabled/
+
+### Deshabilitar Módulos
+
+```bash
+# Si no necesitas CGI
+$ sudo a2dismod cgi
+# <1>
+
+# Verificar
+$ sudo apachectl configtest
+$ sudo systemctl reload apache2
+```
+
+1. **a2dismod**: Deshabilita módulos removiendo symlinks
+
+## VirtualHosts en Producción
+
+### Estructura de VirtualHost Profesional
+
+```bash
+# Crear estructura de directorios
+$ sudo mkdir -p /var/www/clients/{site1,site2}/public
+$ sudo mkdir -p /var/www/clients/{site1,site2}/logs
+$ sudo mkdir -p /var/www/clients/{site1,site2}/private
+
+# Permisos correctos
+$ sudo chown -R www-data:www-data /var/www/clients
+$ sudo chmod -R 755 /var/www
+$ sudo chmod -R 750 /var/www/clients/*/private
 # <1>
 ```
 
+1. **Permisos**: www-data para web, private no accessible desde web
 
+### VirtualHost para site1.local
 
-1. **curl -I** funciona igual; si no hay servidor en 80, vera "Connection refused".
-
-#### Windows
-```powershell
-PS> curl.exe -I http://localhost  # <1>
-HTTP/1.1 200 OK
-Server: Apache/2.4.58 (Ubuntu)
+```bash
+$ sudo tee /etc/apache2/sites-available/site1.conf >/dev/null <<'EOF'
+<VirtualHost *:80>
+    # Identificación
+    ServerName site1.local
+    ServerAlias www.site1.local
+    ServerAlias api.site1.local
+    
+    # Rutas
+    DocumentRoot /var/www/clients/site1/public
+    
+    # Logs específicos
+    ErrorLog /var/www/clients/site1/logs/error.log
+    CustomLog /var/www/clients/site1/logs/access.log combined
+    LogLevel warn
+    
+    # Directorio raíz
+    <Directory /var/www/clients/site1/public>
+        Options -Indexes -FollowSymLinks
+        AllowOverride None
+        Require all granted
+        
+        # Rewrite rules
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^(.*)$ index.php [QSA,L]
+    </Directory>
+    
+    # Directorio privado (no accesible desde web)
+    <Directory /var/www/clients/site1/private>
+        Require all denied
+    </Directory>
+    
+    # Compression
+    <IfModule mod_deflate.c>
+        AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+    </IfModule>
+    
+    # Cache headers para estáticos
+    <IfModule mod_expires.c>
+        ExpiresActive On
+        ExpiresByType image/jpeg "access plus 1 year"
+        ExpiresByType image/png "access plus 1 year"
+        ExpiresByType text/css "access plus 1 month"
+        ExpiresByType application/javascript "access plus 1 month"
+    </IfModule>
+</VirtualHost>
+EOF
 # <1>
 ```
 
+1. **VirtualHost completo**: Con seguridad, logs, cache y rewrite
 
+### Habilitar y Verificar
 
-1. **curl.exe** en Windows permite pruebas HTTP simples (headers).
+```bash
+# Habilitar sitio
+$ sudo a2ensite site1.conf
+# <1>
 
-:::
+# Deshabilitar default
+$ sudo a2dissite 000-default.conf
 
-## Mejores practicas
+# Validar configuración
+$ sudo apachectl configtest
+Syntax OK
 
-- Valida siempre 3 cosas: servicio -> puerto -> respuesta HTTP.
-- Cambios de config: `apachectl configtest` antes de recargar.
+# Recargar
+$ sudo systemctl reload apache2
+
+# Ver sitios activos
+$ ls -la /etc/apache2/sites-enabled/
+site1.conf -> ../sites-available/site1.conf
+# <2>
+```
+
+1. **a2ensite**: Crea symlink en sites-enabled/
+2. **Verificación**: Confirma que el sitio está habilitado
+
+### Probar VirtualHost
+
+```bash
+# Con Host header
+$ curl -H 'Host: site1.local' http://127.0.0.1
+<h1>Site1 OK</h1>
+
+# Ver logs
+$ sudo tail -f /var/www/clients/site1/logs/access.log
+127.0.0.1 - - [31/Mar/2026:10:15:00 +0000] "GET / HTTP/1.1" 200 123 "-" "curl/8.1.0"
+```
+
+## Hardening de Apache
+
+### 1. Ocultar Información del Servidor
+
+```bash
+$ sudo tee /etc/apache2/conf-available/security-hardening.conf >/dev/null <<'EOF'
+# Ocultar versión y OS
+ServerTokens Prod
+ServerSignature Off
+TraceEnable Off
+
+# Timeout reducido
+Timeout 30
+
+# KeepAlive mejor configuración
+KeepAlive On
+MaxKeepAliveRequests 100
+KeepAliveTimeout 5
+EOF
+
+$ sudo a2enconf security-hardening
+$ sudo apachectl configtest && sudo systemctl reload apache2
+# <1>
+```
+
+1. **ServerTokens Prod**: Solo muestra "Apache" sin versión
+
+### 2. Security Headers
+
+```bash
+$ sudo a2enmod headers
+
+$ sudo tee /etc/apache2/conf-available/security-headers.conf >/dev/null <<'EOF'
+<IfModule mod_headers.c>
+    # Prevenir MIME sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Prevenir clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Referrer policy seguro
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # XSS protection (legacy pero utile)
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Content Security Policy (ajustar según necesidad)
+    # Header always set Content-Security-Policy "default-src 'self'"
+    
+    # Hide PHP version
+    Header always set X-Powered-By "Production"
+</IfModule>
+EOF
+
+$ sudo a2enconf security-headers
+$ sudo apachectl configtest && sudo systemctl reload apache2
+# <1>
+```
+
+1. **Headers esenciales**: Los 4 que todo servidor debe tener
+
+### 3. Verificar Hardening
+
+```bash
+# Ver headers de respuesta
+$ curl -I http://localhost | grep -iE "server|x-|power"
+Server: Apache
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+X-Powered-By: Production
+# <1>
+
+# Ver que ServerTokens funciona
+$ curl -I http://localhost | grep Server
+Server: Apache
+# <2>
+```
+
+1. **Headers de seguridad**: Todos presentes
+2. **ServerTokens**: Solo dice "Apache", sin versión
+
+### 4. Rate Limiting (Prevención de DoS)
+
+```bash
+# Habilitar módulo
+$ sudo a2enmod reqtimeout ratelimit
+
+$ sudo tee /etc/apache2/conf-available/rate-limit.conf >/dev/null <<'EOF'
+<IfModule mod_ratelimit.c>
+    # Limitar requests por segundo
+    SetOutputFilter RATE_LIMIT
+    
+    # 100 requests por segundo por IP
+    ServerRateLimitRPS 100
+    
+    # Burst de hasta 200
+    ServerRateLimitBurst 200
+</IfModule>
+EOF
+
+$ sudo a2enconf rate-limit
+$ sudo apachectl configtest && sudo systemctl reload apache2
+# <1>
+```
+
+1. **Rate limiting**: Protege contra ataques DoS básicos
+
+## Casos de Estudio
+
+### Caso 1: Servidor Lento con Mucho Tráfico
+
+**Síntomas**:
+```bash
+$ curl -w "Time: %{time_total}s\n" -s -o /dev/null http://localhost
+Time: 2.345s
+
+$ htop  # Ver Apache workers al 100%
+```
+
+**Diagnóstico**:
+```bash
+# Ver estado de Apache
+$ sudo apache2ctl status
+Server load: 8.45 6.23 5.01
+Requests/sec: 150
+Busy workers: 150
+Idle workers: 0
+# <1>
+
+# Ver configuración de MPM
+$ apache2ctl -V | grep MPM
+Server MPM: prefork
+```
+
+1. **MPM prefork**: Un request por proceso = ineficiente para alto tráfico
+
+**Solución**:
+```bash
+# Cambiar a MPM event (más eficiente)
+$ sudo a2dismod php8.1
+$ sudo a2dismod mpm_prefork
+$ sudo a2enmod mpm_event
+$ sudo a2enmod proxy php8.1
+
+$ sudo systemctl restart apache2
+
+# Ver nueva config
+$ apache2ctl -V | grep MPM
+Server MPM: event
+# <2>
+```
+
+1. **mpm_event**: Multiplexing de conexiones = mayor concurrencia
+
+### Caso 2: Múltiples Sitios en un Servidor
+
+**Escenario**: Hospedar 3 dominios diferentes en el mismo servidor.
+
+```bash
+# Estructura:
+# - example.com    → /var/www/example.com/public
+# - blog.example.com → /var/www/blog.example.com/public  
+# - api.example.com  → /var/www/api.example.com/public
+
+# Crear VirtualHost para cada dominio
+$ sudo tee /etc/apache2/sites-available/blog.example.com.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName blog.example.com
+    DocumentRoot /var/www/blog.example.com/public
+    ErrorLog ${APACHE_LOG_DIR}/blog.example.com-error.log
+    CustomLog ${APACHE_LOG_DIR}/blog.example.com-access.log combined
+    
+    <Directory /var/www/blog.example.com/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+    </Directory>
+</VirtualHost>
+EOF
+
+# Habilitar todos los sitios
+$ sudo a2ensite example.com.conf
+$ sudo a2ensite blog.example.com.conf
+$ sudo a2ensite api.example.com.conf
+
+$ sudo apachectl configtest && sudo systemctl reload apache2
+
+# Probar cada dominio
+$ curl -H 'Host: blog.example.com' http://127.0.0.1
+$ curl -H 'Host: api.example.com' http://127.0.0.1
+```
+
+### Caso 3: Proxy Inverso a Backend
+
+**Escenario**: Apache sirviendo PHP, pero Flask API corriendo en puerto 5000.
+
+```
+Internet → Apache (:80) → Flask (:5000)
+```
+
+```bash
+# Habilitar módulos de proxy
+$ sudo a2enmod proxy proxy_http rewrite
+
+# Crear VirtualHost con proxy
+$ sudo tee /etc/apache2/sites-available/api-proxy.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName api.example.com
+    
+    # Proxy a Flask
+    ProxyPreserveHost On
+    ProxyPass / http://127.0.0.1:5000/
+    ProxyPassReverse / http://127.0.0.1:5000/
+    
+    # Headers para el backend
+    RequestHeader set X-Forwarded-Proto https
+    
+    ErrorLog ${APACHE_LOG_DIR}/api-proxy-error.log
+    CustomLog ${APACHE_LOG_DIR}/api-proxy-access.log combined
+</VirtualHost>
+EOF
+
+$ sudo a2ensite api-proxy.conf
+$ sudo apachectl configtest && sudo systemctl reload apache2
+
+# Verificar
+$ curl -H 'Host: api.example.com' http://127.0.0.1
+{"status": "ok", "version": "1.0.0"}
+```
+
+## Monitoreo y Logs
+
+### Logs Específicos por Sitio
+
+```bash
+# Ver errores en tiempo real
+$ sudo tail -f /var/log/apache2/error.log
+
+# Ver access log con formato readable
+$ sudo tail -f /var/log/apache2/access.log | awk '{print $1, $4, $7, $8}'
+
+# Buscar errores 500
+$ sudo grep " 500 " /var/log/apache2/access.log | tail -20
+
+# Ver requests por IP
+$ sudo awk '{print $1}' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head -10
+```
+
+### Monitoreo con Apache Bench
+
+```bash
+# Test de carga básico
+$ ab -n 1000 -c 10 http://localhost/
+# <1>
+
+# Test con keep-alive
+$ ab -n 1000 -c 10 -k http://localhost/
+# <2>
+```
+
+1. **ab**: Apache Bench - 1000 requests, 10 concurrentes
+2. **-k**: Keep-alive - reproduce clientes reales
+
+### Monitoreo con systemctl
+
+```bash
+# Estado rápido
+$ systemctl status apache2
+
+# Recursos consumidos
+$ systemctl show apache2 | grep -E "Memory|Tasks|CPU"
+
+# Ver procesos
+$ ps aux | grep apache2 | wc -l
+```
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Instalar | `apt install apache2` | Servidor web |
+| Módulos | `a2enmod/a2dismod` | Habilitar/deshabilitar |
+| Sitios | `a2ensite/a2dissite` | Activar VirtualHosts |
+| Validar | `apachectl configtest` | Verificar sintaxis |
+| Hardening | `ServerTokens Prod` | Ocultar información |
+| Headers | `mod_headers` | Seguridad HTTP |
+| Logs | `/var/log/apache2/` | Auditoría y debug |
+
+## Referencias
+
+- [Apache Documentation](https://httpd.apache.org/docs/)
+- [Apache Security Guide](https://httpd.apache.org/docs/2.4/security.html)
+- [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/)

@@ -1,0 +1,376 @@
+# SSH Tunnels: Port Forwarding y Proxy
+
+## Introducción
+
+Los tunnels SSH son una de las herramientas más poderosas para cualquier administrador de sistemas. Te permiten crear túneles cifrados para tráfico que de otra manera viajaría en texto plano, acceder a servicios en redes privadas, y crear proxies SOCKS para navegación segura.
+
+## Tipos de Tunnels SSH
+
+### 1. Local Port Forward (-L)
+
+**Propósito**: Acceder a un servicio en el servidor remoto como si estuviera en tu máquina local.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    LOCAL PORT FORWARD                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   MI MÁQUINA                         SERVIDOR REMOTO             │
+│  ┌─────────────┐                   ┌─────────────┐              │
+│  │ localhost:  │ ═══════════════> │  localhost: │              │
+│  │  3306      │   Tunnel SSH      │  3306 (MySQL)│            │
+│  │ (MySQL)    │   (cifrado)       │  (bind local)│             │
+│  └─────────────┘                   └─────────────┘              │
+│                                                                  │
+│  mysql -h localhost -u user -p    → Conecta a MySQL remoto      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Ejemplo: Acceder a MySQL en Servidor Remoto
+
+```bash
+# Crear tunnel SSH para MySQL
+$ ssh -L 3306:localhost:3306 usuario@servidor-remoto
+# <1>
+
+# En otra terminal (mientras el tunnel está activo)
+$ mysql -h 127.0.0.1 -u root -p
+# <2>
+```
+
+1. **-L 3306:localhost:3306**: Redirige mi puerto 3306 al puerto 3306 del servidor remoto
+2. **localhost desde el servidor**: Significa "localhost del servidor", no el mio
+
+#### Ejemplo: Acceder a Web App en Puerto Diferente
+
+```bash
+# Servidor tiene app en puerto 8080, acceder como si fuera 8888 local
+$ ssh -L 8888:localhost:8080 usuario@servidor-remoto
+# <1>
+
+# Ahora acceder a la app desde navegador
+$ firefox http://localhost:8888
+# <2>
+```
+
+1. **8888:localhost:8080**: Mi puerto 8888 → puerto 8080 del servidor
+2. **localhost:8888**: Aparece como si estuviera en mi máquina
+
+### 2. Remote Port Forward (-R)
+
+**Propósito**: Exponer un servicio de tu máquina local a través del servidor remoto.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   REMOTE PORT FORWARD                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   MI MÁQUINA                         SERVIDOR REMOTO             │
+│  ┌─────────────┐                   ┌─────────────┐              │
+│  │ localhost:  │ <═══════════════  │  :8080      │              │
+│  │ 8080 (web)  │   Tunnel SSH      │  (expuesto) │             │
+│  │ (desarrollo)│   (cifrado)       │             │             │
+│  └─────────────┘                   └─────────────┘              │
+│                                                                  │
+│  otros@server curl http://localhost:8080  → Devuelve mi app      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Ejemplo: Compartir App Local con Cliente
+
+```bash
+# En mi máquina de desarrollo: tengo una app en puerto 3000
+$ ssh -R 8080:localhost:3000 usuario@servidor-publico
+# <1>
+
+# Cliente accede desde cualquier lugar
+$ curl http://servidor-publico:8080
+# <2>
+```
+
+1. **-R 8080:localhost:3000**: Servidor remoto escucha en 8080, redirige a mi 3000
+2. **Cliente**: Accede a mi app a través del servidor
+
+### 3. Dynamic Port Forward (-D)
+
+**Propósito**: Crear un proxy SOCKS para navegar por internet a través del servidor SSH.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  DYNAMIC PORT FORWARD                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   MI MÁQUINA                         SERVIDOR REMOTO             │
+│  ┌─────────────┐                   ┌─────────────┐              │
+│  │ localhost:  │ ═══════════════> │  Internet   │              │
+│  │ 1080        │   Tunnel SSH      │  (como      │              │
+│  │ (SOCKS5)    │   (cifrado)       │   proxy)    │             │
+│  └─────────────┘                   └─────────────┘              │
+│                                                                  │
+│  curl --socks5 localhost:1080 google.com                        │
+│  firefox config: SOCKS5 localhost:1080                           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Ejemplo: Navegar Seguro desde WiFi Público
+
+```bash
+# Crear proxy SOCKS en puerto 1080
+$ ssh -D 1080 usuario@servidor-seguro
+# <1>
+
+# Configurar navegador o curl para usar el proxy
+$ curl --socks5 localhost:1080 https://whatismyip.com
+# <2>
+```
+
+1. **-D 1080**: Crea servidor SOCKS5 en mi puerto 1080
+2. **--socks5 localhost:1080**: Todo el tráfico sale por el servidor remoto
+
+### 4. ProxyJump (-J)
+
+**Propósito**: Conectar a un servidor a través de un jump host sin crear tunnel manual.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        PROXY JUMP                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   MI MÁQUINA        →  BASTION/JUMP    →  SERVIDOR PRIVADO      │
+│  ┌─────────┐        →  ┌─────────┐      →  ┌─────────┐          │
+│  │ cliente │           │ bastion │         │ app     │          │
+│  │         │  SSH     │ (público)│  SSH    │ (10.x)  │          │
+│  └─────────┘        →  └─────────┘      →  └─────────┘          │
+│                                                                  │
+│  ssh -J bastion.com servidor-privado  →  Conexión automática    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Ejemplo: Acceder a Servidor en Red Privada
+
+```bash
+# Método tradicional (2 hops)
+$ ssh usuario@bastion.empresa.com
+$ ssh usuario@servidor-privado
+
+# Con ProxyJump (1 comando)
+$ ssh -J bastion.empresa.com usuario@servidor-privado
+# <1>
+
+# O con SSH config
+$ cat >> ~/.ssh/config << 'EOF'
+Host servidor-privado
+    HostName 10.0.5.100
+    User usuario
+    ProxyJump bastion.empresa.com
+EOF
+
+$ ssh servidor-privado
+# <2>
+```
+
+1. **-J**: Jump host - conecta a través del bastion
+2. **SSH config**: Persiste la configuración
+
+## Opciones Avanzadas de Tunnels
+
+### Mantener Tunnel Activo (Auto-reconnect)
+
+```bash
+# -N: No ejecutar comando remoto (solo tunnel)
+# -f: Background mode
+# -o: Opciones adicionales
+$ ssh -Nf -o "ServerAliveInterval=60" -o "ServerAliveCountMax=3" \
+    -L 3306:localhost:3306 usuario@servidor
+# <1>
+```
+
+1. **-Nf**: Ejecuta en background sin shell interactiva
+2. **ServerAliveInterval**: Keepalive cada 60 segundos
+3. **ServerAliveCountMax**: 3 intentos antes de desconectar
+
+### Multiple Port Forwards
+
+```bash
+# Forward múltiples puertos a la vez
+$ ssh -L 3306:localhost:3306 \
+        -L 5432:localhost:5432 \
+        -L 6379:localhost:6379 \
+        usuario@servidor
+# <1>
+```
+
+1. **Múltiples -L**: Redirige MySQL, PostgreSQL, y Redis
+
+### Verbose Mode (Debug)
+
+```bash
+# Ver详细信息 de la conexión
+$ ssh -vvv -L 3306:localhost:3306 usuario@servidor
+# <1>
+```
+
+1. **-vvv**: Verbose level 3 (máximo debugging)
+
+## Casos de Uso Reales
+
+### Caso 1: Desarrollador Trabajando con DB Remota
+
+**Escenario**: Desarrollador needing acceso a MySQL de producción (10.0.5.100) desde su laptop.
+
+```
+Laptop → Bastion (bastion.empresa.com) → MySQL (10.0.5.100:3306)
+```
+
+```bash
+# Crear tunnel permanente
+$ ssh -Nf -L 3306:10.0.5.100:3306 -o "ServerAliveInterval=60" usuario@bastion.empresa.com
+
+# Verificar tunnel activo
+$ ss -tlnp | grep 3306
+LISTEN  127.0.0.1:3306  ...
+
+# Ahora conectar MySQL normalmente
+$ mysql -h 127.0.0.1 -u app_user -p production_db
+# <1>
+```
+
+1. **mysql -h 127.0.0.1**: Se conecta a través del tunnel local
+
+### Caso 2: Acceder a Dashboard de Administración Expuesto
+
+**Escenario**: API tiene dashboard en puerto 9000 pero solo acepta localhost.
+
+```bash
+# Forwardear dashboard a puerto local 9000
+$ ssh -L 9000:localhost:9000 usuario@servidor-api
+
+# Acceder desde navegador
+$ firefox http://localhost:9000 &
+```
+
+### Caso 3: Testing de API con IP del Servidor
+
+**Escenario**: API de terceros limita por IP, necesitas parecer que vienes del servidor.
+
+```bash
+# Crear proxy SOCKS
+$ ssh -D 1080 usuario@servidor-con-ip-publica
+
+# Usar proxy con curl
+$ curl --socks5 localhost:1080 https://api.restricted-example.com/data
+
+# O con cualquier herramienta que soporte SOCKS
+$ curl -x socks5h://localhost:1080 https://api.restricted-example.com/data
+```
+
+### Caso 4: SSH como VPN Básica
+
+**Escenario**: Conexión segura desde café público, acceder a toda la red del office.
+
+```bash
+# Crear proxy SOCKS que routing TODO el tráfico
+$ ssh -D 1080 -f -N usuario@bastion.empresa.com
+
+# O con opción de tunnel TUN (requiere root en servidor)
+$ ssh -w 0:1 usuario@servidor  # Tunnel TUN completo (ver documentación avanzada)
+```
+
+## Gestión de Tunnels Persistentes
+
+### Con Systemd (Para producción)
+
+```bash
+# Crear unit de systemd para tunnel permanente
+$ sudo cat > /etc/systemd/system/ssh-tunnel-mysql.service << 'EOF'
+[Unit]
+Description=SSH Tunnel to MySQL Production
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/ssh -Nf -L 3306:10.0.5.100:3306 -o StrictHostKeyChecking=no usuario@bastion.empresa.com
+ExecStop=/usr/bin/pkill -f "ssh.*-L 3306"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Habilitar y start
+$ sudo systemctl enable --now ssh-tunnel-mysql
+$ sudo systemctl status ssh-tunnel-mysql
+```
+
+### Con Autossh (Auto-reconnect)
+
+```bash
+# Instalar autossh
+$ sudo apt install autossh
+
+# Crear tunnel con auto-reconnect
+$ autossh -M 20000 -f -N -L 3306:10.0.5.100:3306 \
+    -o "ServerAliveInterval=60" \
+    -o "ServerAliveCountMax=3" \
+    -o "StrictHostKeyChecking=no" \
+    usuario@bastion.empresa.com
+# <1>
+```
+
+1. **-M 20000**: Puerto de monitor para auto-reconnect
+
+## Troubleshooting
+
+### Tunnel No Conecta
+
+```bash
+# 1. Verificar que el servicio SSH está corriendo en el servidor
+$ ssh usuario@servidor "systemctl status sshd"
+
+# 2. Ver que el puerto está abierto en el servidor remoto
+$ ssh usuario@servidor "ss -tlnp | grep 3306"
+
+# 3. Probar conectividad básica
+$ ssh -v usuario@servidor
+
+# 4. Ver logs del servidor
+$ ssh usuario@servidor "sudo journalctl -u sshd -f"
+```
+
+### Tunnel Cierra Inesperadamente
+
+```bash
+# Agregar opciones de keepalive
+$ ssh -o ServerAliveInterval=60 \
+    -o ServerAliveCountMax=3 \
+    -L 3306:localhost:3306 usuario@servidor
+
+# O agregar al SSH config permanentemente
+Host *
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+```
+
+### Permiso Denied en Port
+
+```bash
+# Puertos < 1024 requieren root
+# Usar puerto > 1024
+$ ssh -L 13306:localhost:3306 usuario@servidor  # En vez de 3306
+```
+
+## Resumen
+
+| Tipo | Flag | Uso Principal |
+|------|------|---------------|
+| Local Forward | `-L` | Acceder a servicio remoto como local |
+| Remote Forward | `-R` | Exponer servicio local al mundo |
+| Dynamic Forward | `-D` | Proxy SOCKS para navegación segura |
+| Jump Host | `-J` | Conectar a través de bastion |
+| Background | `-f -N` | Ejecutar tunnel sin shell |
+
+## Referencias
+
+- [SSH Port Forwarding Explained](https://www.ssh.com/academy/ssh/tunneling)
+- [OpenSSH Manual -L](https://man.openbsd.org/ssh.1#L)
+- [ProxyJump Documentation](https://www.redhat.com/en/blog/introduction-ssh-jump-host)

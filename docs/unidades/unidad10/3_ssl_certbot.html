@@ -2,15 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.9.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Diego Saavedra">
 <meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
 
-<title>Unidad 10.3: SSL con Certbot – Administración de Servidores Linux</title>
+<title>Unidad 10.3: SSL/TLS con Certbot – Administración de Servidores Linux</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -71,17 +74,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-61780a260fdcf47536a34fde95582725.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-68056a18e515a5789c5e26a7aeb7ac61.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-d475e4ab3b4fd243dd6ecd26d4f0399c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
@@ -292,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/3_ssl_certbot.html"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/3_ssl_certbot.html"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -638,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
- <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+ <span class="menu-text">Unidad 8: SSH y Acceso Remoto Seguro</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -646,7 +648,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  <a href="../../unidades/unidad8/1_ssh_fundamentos_keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Protocolo y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/2_ssh_tunnels.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH Tunnels: Port Forwarding y Proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/3_lab_practico_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Laboratorio Práctico</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -667,22 +679,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y Múltiples Sitios</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/5_lab_practico_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -703,22 +720,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -739,22 +761,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Acceso Remoto y Seguridad de Red</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/5_lab_practico_mariadb.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Laboratorio Práctico - MariaDB</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -775,7 +802,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -791,6 +818,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1194,13 +1226,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#unidad-10.3-ssl-con-certbot" id="toc-unidad-10.3-ssl-con-certbot" class="nav-link active" data-scroll-target="#unidad-10.3-ssl-con-certbot">Unidad 10.3: SSL con Certbot</a>
+  <li><a href="#unidad-10.3-ssltls-con-certbot" id="toc-unidad-10.3-ssltls-con-certbot" class="nav-link active" data-scroll-target="#unidad-10.3-ssltls-con-certbot">Unidad 10.3: SSL/TLS con Certbot</a>
   <ul class="collapse">
-  <li><a href="#introduccion" id="toc-introduccion" class="nav-link" data-scroll-target="#introduccion">Introduccion</a></li>
-  <li><a href="#objetivos-de-aprendizaje" id="toc-objetivos-de-aprendizaje" class="nav-link" data-scroll-target="#objetivos-de-aprendizaje">Objetivos de aprendizaje</a></li>
-  <li><a href="#instalacion" id="toc-instalacion" class="nav-link" data-scroll-target="#instalacion">Instalacion</a></li>
-  <li><a href="#emitir-certificado-modo-nginx" id="toc-emitir-certificado-modo-nginx" class="nav-link" data-scroll-target="#emitir-certificado-modo-nginx">Emitir certificado (modo Nginx)</a></li>
-  <li><a href="#validar-renovacion" id="toc-validar-renovacion" class="nav-link" data-scroll-target="#validar-renovacion">Validar renovacion</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#fundamentos-de-ssltls" id="toc-fundamentos-de-ssltls" class="nav-link" data-scroll-target="#fundamentos-de-ssltls">Fundamentos de SSL/TLS</a>
+  <ul class="collapse">
+  <li><a href="#por-qué-ssl" id="toc-por-qué-ssl" class="nav-link" data-scroll-target="#por-qué-ssl">¿Por qué SSL?</a></li>
+  <li><a href="#protocolos-ssltls" id="toc-protocolos-ssltls" class="nav-link" data-scroll-target="#protocolos-ssltls">Protocolos SSL/TLS</a></li>
+  </ul></li>
+  <li><a href="#certbot-instalación" id="toc-certbot-instalación" class="nav-link" data-scroll-target="#certbot-instalación">Certbot: Instalación</a>
+  <ul class="collapse">
+  <li><a href="#instalar-certbot" id="toc-instalar-certbot" class="nav-link" data-scroll-target="#instalar-certbot">Instalar Certbot</a></li>
+  <li><a href="#verificar-certbot" id="toc-verificar-certbot" class="nav-link" data-scroll-target="#verificar-certbot">Verificar Certbot</a></li>
+  </ul></li>
+  <li><a href="#obtener-certificado" id="toc-obtener-certificado" class="nav-link" data-scroll-target="#obtener-certificado">Obtener Certificado</a>
+  <ul class="collapse">
+  <li><a href="#requisitos-previos" id="toc-requisitos-previos" class="nav-link" data-scroll-target="#requisitos-previos">Requisitos Previos</a></li>
+  <li><a href="#ejecución-de-certbot" id="toc-ejecución-de-certbot" class="nav-link" data-scroll-target="#ejecución-de-certbot">Ejecución de Certbot</a></li>
+  <li><a href="#opciones-automáticas" id="toc-opciones-automáticas" class="nav-link" data-scroll-target="#opciones-automáticas">Opciones Automáticas</a></li>
+  <li><a href="#múltiples-certificados" id="toc-múltiples-certificados" class="nav-link" data-scroll-target="#múltiples-certificados">Múltiples Certificados</a></li>
+  </ul></li>
+  <li><a href="#configuración-generada" id="toc-configuración-generada" class="nav-link" data-scroll-target="#configuración-generada">Configuración Generada</a>
+  <ul class="collapse">
+  <li><a href="#archivos-de-certificado" id="toc-archivos-de-certificado" class="nav-link" data-scroll-target="#archivos-de-certificado">Archivos de Certificado</a></li>
+  <li><a href="#configuración-nginx" id="toc-configuración-nginx" class="nav-link" data-scroll-target="#configuración-nginx">Configuración Nginx</a></li>
+  <li><a href="#configuración-ssl-adicional" id="toc-configuración-ssl-adicional" class="nav-link" data-scroll-target="#configuración-ssl-adicional">Configuración SSL Adicional</a></li>
+  </ul></li>
+  <li><a href="#renovación-automática" id="toc-renovación-automática" class="nav-link" data-scroll-target="#renovación-automática">Renovación Automática</a>
+  <ul class="collapse">
+  <li><a href="#verificar-renovación" id="toc-verificar-renovación" class="nav-link" data-scroll-target="#verificar-renovación">Verificar Renovación</a></li>
+  <li><a href="#cronjob-de-renovación" id="toc-cronjob-de-renovación" class="nav-link" data-scroll-target="#cronjob-de-renovación">Cronjob de Renovación</a></li>
+  <li><a href="#renovación-manual" id="toc-renovación-manual" class="nav-link" data-scroll-target="#renovación-manual">Renovación Manual</a></li>
+  </ul></li>
+  <li><a href="#ssl-manual-sin-certbot" id="toc-ssl-manual-sin-certbot" class="nav-link" data-scroll-target="#ssl-manual-sin-certbot">SSL Manual (Sin Certbot)</a>
+  <ul class="collapse">
+  <li><a href="#generar-certificado-self-signed" id="toc-generar-certificado-self-signed" class="nav-link" data-scroll-target="#generar-certificado-self-signed">Generar Certificado Self-Signed</a></li>
+  <li><a href="#configuración-ssl-manual" id="toc-configuración-ssl-manual" class="nav-link" data-scroll-target="#configuración-ssl-manual">Configuración SSL Manual</a></li>
+  <li><a href="#usar-en-server-block" id="toc-usar-en-server-block" class="nav-link" data-scroll-target="#usar-en-server-block">Usar en Server Block</a></li>
+  </ul></li>
+  <li><a href="#testing-ssl" id="toc-testing-ssl" class="nav-link" data-scroll-target="#testing-ssl">Testing SSL</a>
+  <ul class="collapse">
+  <li><a href="#verificar-con-curl" id="toc-verificar-con-curl" class="nav-link" data-scroll-target="#verificar-con-curl">Verificar con curl</a></li>
+  <li><a href="#ssl-labs-test" id="toc-ssl-labs-test" class="nav-link" data-scroll-target="#ssl-labs-test">SSL Labs Test</a></li>
+  </ul></li>
+  <li><a href="#casos-de-estudio" id="toc-casos-de-estudio" class="nav-link" data-scroll-target="#casos-de-estudio">Casos de Estudio</a>
+  <ul class="collapse">
+  <li><a href="#caso-1-nginx-con-nuevo-dominio" id="toc-caso-1-nginx-con-nuevo-dominio" class="nav-link" data-scroll-target="#caso-1-nginx-con-nuevo-dominio">Caso 1: Nginx con Nuevo Dominio</a></li>
+  <li><a href="#caso-2-renovar-certificado-expirado" id="toc-caso-2-renovar-certificado-expirado" class="nav-link" data-scroll-target="#caso-2-renovar-certificado-expirado">Caso 2: Renovar Certificado Expirado</a></li>
+  <li><a href="#caso-3-múltiples-subdominios" id="toc-caso-3-múltiples-subdominios" class="nav-link" data-scroll-target="#caso-3-múltiples-subdominios">Caso 3: Múltiples Subdominios</a></li>
+  </ul></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">Resumen</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   <li>Code Appendix</li>
   </ul>
@@ -1210,10 +1286,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/3_ssl_certbot.html"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/3_ssl_certbot.html"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></h1>
-<p class="subtitle lead">HTTPS en Nginx con Let’s Encrypt</p>
+<h1 class="title"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></h1>
+<p class="subtitle lead">HTTPS automático con Let’s Encrypt</p>
 </div>
 
 
@@ -1230,7 +1306,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">Feb 2, 2026</p>
+      <p class="date">Mar 31, 2026</p>
     </div>
   </div>
   
@@ -1242,11 +1318,126 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="unidad-10.3-ssl-con-certbot" class="level1">
-<h1>Unidad 10.3: SSL con Certbot</h1>
-<section id="introduccion" class="level2">
-<h2 class="anchored" data-anchor-id="introduccion">Introduccion</h2>
-<p>Certbot automatiza la emision y renovacion de certificados TLS (Let’s Encrypt). Para que funcione, necesitas un dominio apuntando a tu servidor y el puerto 80/443 accesible desde Internet.</p>
+<section id="unidad-10.3-ssltls-con-certbot" class="level1">
+<h1>Unidad 10.3: SSL/TLS con Certbot</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>Let’s Encrypt ha revolucionado el SSL con certificados gratuitos y automáticos. Certbot es la herramienta oficial que automatiza la emisión, instalación y renovación de certificados TLS.</p>
+</section>
+<section id="fundamentos-de-ssltls" class="level2">
+<h2 class="anchored" data-anchor-id="fundamentos-de-ssltls">Fundamentos de SSL/TLS</h2>
+<section id="por-qué-ssl" class="level3">
+<h3 class="anchored" data-anchor-id="por-qué-ssl">¿Por qué SSL?</h3>
+<pre data-code-line-numbers=""><code>┌─────────────────────────────────────────────────────────────────┐
+│                    SSL/TLS EN PRODUCCIÓN                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   SIN SSL                    CON SSL                            │
+│  ┌─────────┐               ┌─────────┐                         │
+│  │HTTP     │               │HTTPS    │                         │
+│  │         │               │         │                         │
+│  │User: admin             │User: admin                          │
+│  │Pass: secret123   →   │Pass: *** (cifrado)                  │
+│  └─────────┘               └─────────┘                         │
+│                                                                  │
+│   - Datos en texto plano        - Cifrado AES-256               │
+│   - Vulnerable a sniffers      - Autenticación del servidor     │
+│   - Sin validación identidad   - Certificados verificables     │
+│   - Navegadores warn          - Verde en navegador             │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+</section>
+<section id="protocolos-ssltls" class="level3">
+<h3 class="anchored" data-anchor-id="protocolos-ssltls">Protocolos SSL/TLS</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Protocolo</th>
+<th>Seguridad</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>SSLv3</strong></td>
+<td>Inseguro</td>
+<td>❌ Deprecated</td>
+</tr>
+<tr class="even">
+<td><strong>TLS 1.0</strong></td>
+<td>Inseguro</td>
+<td>❌ Deprecated</td>
+</tr>
+<tr class="odd">
+<td><strong>TLS 1.1</strong></td>
+<td>Inseguro</td>
+<td>❌ Deprecated</td>
+</tr>
+<tr class="even">
+<td><strong>TLS 1.2</strong></td>
+<td>Seguro</td>
+<td>✅ Recomendado</td>
+</tr>
+<tr class="odd">
+<td><strong>TLS 1.3</strong></td>
+<td>Muy seguro</td>
+<td>✅ Recomendado</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="certbot-instalación" class="level2">
+<h2 class="anchored" data-anchor-id="certbot-instalación">Certbot: Instalación</h2>
+<section id="instalar-certbot" class="level3">
+<h3 class="anchored" data-anchor-id="instalar-certbot">Instalar Certbot</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar</span></span>
+<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt upgrade <span class="at">-y</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-3" class="code-annotation-target"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar certbot y plugin nginx</span></span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> certbot python3-certbot-nginx</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="3" data-code-annotation="1"><strong>apt update</strong>: Lista de paquetes actualizada</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="7" data-code-annotation="2"><strong>certbot</strong>: Herramienta oficial Let’s Encrypt</span>
+</dd>
+</dl>
+</section>
+<section id="verificar-certbot" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-certbot">Verificar Certbot</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Versión</span></span>
+<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> certbot <span class="at">--version</span></span>
+<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">certbot</span> 2.1.0</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-4" class="code-annotation-target"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Help</span></span>
+<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> certbot <span class="at">--help</span> all</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="4" data-code-annotation="1"><strong>Versión</strong>: Verificar instalación exitosa</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="obtener-certificado" class="level2">
+<h2 class="anchored" data-anchor-id="obtener-certificado">Obtener Certificado</h2>
+<section id="requisitos-previos" class="level3">
+<h3 class="anchored" data-anchor-id="requisitos-previos">Requisitos Previos</h3>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1257,83 +1448,540 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>No podras emitir un certificado real si tu servidor no es accesible publicamente.</strong></p>
-<p><strong>Lo que podria salir mal:</strong> - DNS del dominio no apunta al servidor. - Firewall/router bloquea 80/443. - Estas en una VM sin NAT/port-forward.</p>
-<p><strong>Como prevenirlo:</strong> 1. Valida DNS antes: <code>dig +short tu-dominio.com</code>. # &lt;1&gt; 2. Abre 80/443 en UFW. # &lt;2&gt; 3. Prueba HTTP pubblico antes de ejecutar Certbot. # &lt;3&gt;</p>
+<p><strong>Para obtener un certificado real, el servidor debe ser accesible públicamente.</strong></p>
+<p><strong>Lo que podría salir mal:</strong> - DNS no apunta al servidor - Firewall bloquea puertos 80/443 - Servidor en red local sin port-forward</p>
+<p><strong>Cómo prevenirlo:</strong> 1. Verificar DNS: <code>dig +short tu-dominio.com</code> 2. Abrir puertos: <code>sudo ufw allow 80/tcp &amp;&amp; sudo ufw allow 443/tcp</code> 3. Probar HTTP público antes de certbot</p>
 </div>
 </div>
-<ol type="1">
-<li><strong>dig +short</strong> consulta DNS para verificar que el dominio apunta al servidor.</li>
-<li><strong>ufw allow</strong> abre los puertos necesarios para Let’s Encrypt.</li>
-<li><strong>curl</strong> prueba que el servidor responde HTTP públicamente.</li>
-</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Verificar DNS</span></span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> dig +short example.com</span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">203.0.113.10</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-4" class="code-annotation-target"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Abrir firewall</span></span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow 80/tcp</span>
+<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw allow 443/tcp</span>
+<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ufw status</span>
+<span id="annotated-cell-4-10"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-11"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Probar HTTP público</span></span>
+<span id="annotated-cell-4-12"><a href="#annotated-cell-4-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://example.com</span>
+<span id="annotated-cell-4-13"><a href="#annotated-cell-4-13" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="4" data-code-annotation="1"><strong>DNS</strong>: Dominio apunta a IP del servidor</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="14" data-code-annotation="2"><strong>HTTP</strong>: Respondiendo públicamente</span>
+</dd>
+</dl>
 </section>
-<section id="objetivos-de-aprendizaje" class="level2">
-<h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">Objetivos de aprendizaje</h2>
+<section id="ejecución-de-certbot" class="level3">
+<h3 class="anchored" data-anchor-id="ejecución-de-certbot">Ejecución de Certbot</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtener certificado (modo interactivo)</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot <span class="at">--nginx</span> <span class="at">-d</span> example.com <span class="at">-d</span> www.example.com</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-3" class="code-annotation-target"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Following prompts:</span></span>
+<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Saving debug log to /var/log/letsencrypt/letsencrypt.log</span></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Enter email address: admin@example.com</span></span>
+<span id="annotated-cell-5-8"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Please read the Terms of Service at: https://letsencrypt.org/documents/LE-SA-v1.4-April-3-2024.pdf</span></span>
+<span id="annotated-cell-5-9"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></span>
+<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Would you be willing to share your email address with the Electronic Frontier Foundation?</span></span>
+<span id="annotated-cell-5-11"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># (A)gree/(C)ancel: A</span></span>
+<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span></span>
+<span id="annotated-cell-5-13"><a href="#annotated-cell-5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># IMPORTANT NOTES:</span></span>
+<span id="annotated-cell-5-14"><a href="#annotated-cell-5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  - If you lose your account credentials, you can recover your</span></span>
+<span id="annotated-cell-5-15"><a href="#annotated-cell-5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    account credentials at 'https://letsencrypt.org/docs/accounts/'</span></span>
+<span id="annotated-cell-5-16"><a href="#annotated-cell-5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#  - Your account credentials have been saved in /etc/letsencrypt</span></span>
+<span id="annotated-cell-5-17"><a href="#annotated-cell-5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#  - Your certificate and chain have been saved at:</span></span>
+<span id="annotated-cell-5-18"><a href="#annotated-cell-5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#    /etc/letsencrypt/live/example.com/fullchain.pem</span></span>
+<span id="annotated-cell-5-19"><a href="#annotated-cell-5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#  - Your key file has been saved at:</span></span>
+<span id="annotated-cell-5-20"><a href="#annotated-cell-5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#    /etc/letsencrypt/live/example.com/privkey.pem</span></span>
+<span id="annotated-cell-5-21"><a href="#annotated-cell-5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#  - Your certificate will expire on 2026-06-30.</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="3" data-code-annotation="1"><strong>–nginx</strong>: Auto-configura Nginx</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="22" data-code-annotation="2"><strong>Certificados guardados</strong>: En /etc/letsencrypt/</span>
+</dd>
+</dl>
+</section>
+<section id="opciones-automáticas" class="level3">
+<h3 class="anchored" data-anchor-id="opciones-automáticas">Opciones Automáticas</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-6-1"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># No interactivo (para scripts)</span></span>
+<span id="annotated-cell-6-2"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot <span class="at">--nginx</span> <span class="at">-d</span> example.com <span class="dt">\</span></span>
+<span id="annotated-cell-6-3"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--email</span> admin@example.com <span class="dt">\</span></span>
+<span id="annotated-cell-6-4"><a href="#annotated-cell-6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--agree-tos</span> <span class="dt">\</span></span>
+<span id="annotated-cell-6-5"><a href="#annotated-cell-6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--redirect</span> <span class="dt">\</span></span>
+<span id="annotated-cell-6-6"><a href="#annotated-cell-6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--non-interactive</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-6" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-6-7" class="code-annotation-target"><a href="#annotated-cell-6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-8"><a href="#annotated-cell-6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-9"><a href="#annotated-cell-6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Múltiples dominios</span></span>
+<span id="annotated-cell-6-10"><a href="#annotated-cell-6-10" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot <span class="at">--nginx</span> <span class="at">-d</span> example.com <span class="at">-d</span> www.example.com <span class="at">-d</span> api.example.com</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="7" data-code-annotation="1"><strong>Sin interacción</strong>: Para automation</span>
+</dd>
+</dl>
+</section>
+<section id="múltiples-certificados" class="level3">
+<h3 class="anchored" data-anchor-id="múltiples-certificados">Múltiples Certificados</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-7-1"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Certificado para otro dominio</span></span>
+<span id="annotated-cell-7-2"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot <span class="at">--nginx</span> <span class="at">-d</span> otherdomain.com</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-3" class="code-annotation-target"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-4"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-5"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver todos los certificados</span></span>
+<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot certificates</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="3" data-code-annotation="1"><strong>Otro dominio</strong>: Certificado separado</span>
+</dd>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="7" data-code-annotation="2"><strong>Listar</strong>: Ver todos los certificados</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="configuración-generada" class="level2">
+<h2 class="anchored" data-anchor-id="configuración-generada">Configuración Generada</h2>
+<section id="archivos-de-certificado" class="level3">
+<h3 class="anchored" data-anchor-id="archivos-de-certificado">Archivos de Certificado</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-8-1"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver estructura</span></span>
+<span id="annotated-cell-8-2"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ls <span class="at">-la</span> /etc/letsencrypt/live/example.com/</span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 root root 0 Mar 31 10:00 cert.pem       <span class="co"># Certificado</span></span>
+<span id="annotated-cell-8-4"><a href="#annotated-cell-8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 root root 0 Mar 31 10:00 chain.pem      <span class="co"># Chain</span></span>
+<span id="annotated-cell-8-5"><a href="#annotated-cell-8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 root root 0 Mar 31 10:00 fullchain.pem  <span class="co"># cert + chain</span></span>
+<span id="annotated-cell-8-6"><a href="#annotated-cell-8-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 root root 0 Mar 31 10:00 privkey.pem    <span class="co"># Clave privada</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="7" data-code-annotation="1"><strong>Archivos SSL</strong>: Cert, chain, fullchain, privkey</span>
+</dd>
+</dl>
+</section>
+<section id="configuración-nginx" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-nginx">Configuración Nginx</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver configuración creada</span></span>
+<span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /etc/nginx/sites-available/default-ssl.conf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code>server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name example.com www.example.com;
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+
+    # Redirect HTTP to HTTPS
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    }
+}</code></pre>
+</div>
+</section>
+<section id="configuración-ssl-adicional" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-ssl-adicional">Configuración SSL Adicional</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver archivo de opciones</span></span>
+<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /etc/letsencrypt/options-ssl-nginx.conf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># SSL Settings - generated by Certbot
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers off;
+ssl_ciphers ...;
+# ...</code></pre>
+</div>
+</section>
+</section>
+<section id="renovación-automática" class="level2">
+<h2 class="anchored" data-anchor-id="renovación-automática">Renovación Automática</h2>
+<section id="verificar-renovación" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-renovación">Verificar Renovación</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-13" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-13-1"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test de renovación (dry-run)</span></span>
+<span id="annotated-cell-13-2"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot renew <span class="at">--dry-run</span></span>
+<span id="annotated-cell-13-3"><a href="#annotated-cell-13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Saving</span> debug log to /var/log/letsencrypt/letsencrypt.log</span>
+<span id="annotated-cell-13-4"><a href="#annotated-cell-13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span></span>
+<span id="annotated-cell-13-5"><a href="#annotated-cell-13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Processing</span> /etc/letsencrypt/renewal/example.com.conf</span>
+<span id="annotated-cell-13-6"><a href="#annotated-cell-13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span></span>
+<span id="annotated-cell-13-7"><a href="#annotated-cell-13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Simulating</span> renewal of certificate for the following domains:</span>
+<span id="annotated-cell-13-8"><a href="#annotated-cell-13-8" aria-hidden="true" tabindex="-1"></a><span class="ex">example.com</span> www.example.com</span>
+<span id="annotated-cell-13-9"><a href="#annotated-cell-13-9" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span> <span class="at">-</span></span>
+<span id="annotated-cell-13-10"><a href="#annotated-cell-13-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Congratulations,</span> all simulated renewals succeeded.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="11" data-code-annotation="1"><strong>Simulated renewal</strong>: Todo OK</span>
+</dd>
+</dl>
+</section>
+<section id="cronjob-de-renovación" class="level3">
+<h3 class="anchored" data-anchor-id="cronjob-de-renovación">Cronjob de Renovación</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-14-1"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver cronjob</span></span>
+<span id="annotated-cell-14-2"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo cat /etc/cron.d/certbot</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-14" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-14-3" class="code-annotation-target"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-4"><a href="#annotated-cell-14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-5"><a href="#annotated-cell-14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Output:</span></span>
+<span id="annotated-cell-14-6"><a href="#annotated-cell-14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 0 */12 * * * root test -x /usr/bin/certbot -a \! -d /run/systemd/system &amp;&amp; perl -e 'sleep int(rand(43200))' &amp;&amp; certbot -q renew</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="3" data-code-annotation="1"><strong>Cronjob</strong>: Dos veces al día, con random delay</span>
+</dd>
+</dl>
+</section>
+<section id="renovación-manual" class="level3">
+<h3 class="anchored" data-anchor-id="renovación-manual">Renovación Manual</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-15-1"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Forzar renovación (si está próximo a expirar)</span></span>
+<span id="annotated-cell-15-2"><a href="#annotated-cell-15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot renew</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-15-3" class="code-annotation-target"><a href="#annotated-cell-15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-4"><a href="#annotated-cell-15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-5"><a href="#annotated-cell-15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver fecha de expiración</span></span>
+<span id="annotated-cell-15-6"><a href="#annotated-cell-15-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot certificates <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-A2</span> <span class="st">"Certificate Name"</span></span>
+<span id="annotated-cell-15-7"><a href="#annotated-cell-15-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Certificate</span> Name: example.com</span>
+<span id="annotated-cell-15-8"><a href="#annotated-cell-15-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Expiry</span> Date: 2026-06-30 10:00:00+00:00 <span class="er">(</span><span class="ex">-15</span> days<span class="kw">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="3" data-code-annotation="1"><strong>renew</strong>: Renueva todos los certificados</span>
+</dd>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="9" data-code-annotation="2"><strong>Expiry</strong>: Verificar fecha de expiración</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="ssl-manual-sin-certbot" class="level2">
+<h2 class="anchored" data-anchor-id="ssl-manual-sin-certbot">SSL Manual (Sin Certbot)</h2>
+<section id="generar-certificado-self-signed" class="level3">
+<h3 class="anchored" data-anchor-id="generar-certificado-self-signed">Generar Certificado Self-Signed</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generar certificado auto-firmado</span></span>
+<span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo openssl req <span class="at">-x509</span> <span class="at">-nodes</span> <span class="at">-days</span> 365 <span class="at">-newkey</span> rsa:2048 <span class="dt">\</span></span>
+<span id="annotated-cell-16-3"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">-keyout</span> /etc/ssl/private/nginx-selfsigned.key <span class="dt">\</span></span>
+<span id="annotated-cell-16-4"><a href="#annotated-cell-16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">-out</span> /etc/ssl/certs/nginx-selfsigned.crt <span class="dt">\</span></span>
+<span id="annotated-cell-16-5"><a href="#annotated-cell-16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">-subj</span> <span class="st">"/C=US/ST=Test/L=Test/O=Org/CN=localhost"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="6" data-code-annotation="1"><strong>Self-signed</strong>: Para testing interno</span>
+</dd>
+</dl>
+</section>
+<section id="configuración-ssl-manual" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-ssl-manual">Configuración SSL Manual</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-17-1"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/snippets/ssl-params.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-17-2"><a href="#annotated-cell-17-2" aria-hidden="true" tabindex="-1"></a><span class="st"># SSL Certificate</span></span>
+<span id="annotated-cell-17-3"><a href="#annotated-cell-17-3" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;</span></span>
+<span id="annotated-cell-17-4"><a href="#annotated-cell-17-4" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;</span></span>
+<span id="annotated-cell-17-5"><a href="#annotated-cell-17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-6"><a href="#annotated-cell-17-6" aria-hidden="true" tabindex="-1"></a><span class="st"># SSL Protocolos (TLS 1.2 y 1.3)</span></span>
+<span id="annotated-cell-17-7"><a href="#annotated-cell-17-7" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_protocols TLSv1.2 TLSv1.3;</span></span>
+<span id="annotated-cell-17-8"><a href="#annotated-cell-17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-9"><a href="#annotated-cell-17-9" aria-hidden="true" tabindex="-1"></a><span class="st"># Ciphers seguros</span></span>
+<span id="annotated-cell-17-10"><a href="#annotated-cell-17-10" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_prefer_server_ciphers off;</span></span>
+<span id="annotated-cell-17-11"><a href="#annotated-cell-17-11" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;</span></span>
+<span id="annotated-cell-17-12"><a href="#annotated-cell-17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-13"><a href="#annotated-cell-17-13" aria-hidden="true" tabindex="-1"></a><span class="st"># HSTS</span></span>
+<span id="annotated-cell-17-14"><a href="#annotated-cell-17-14" aria-hidden="true" tabindex="-1"></a><span class="st">add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";</span></span>
+<span id="annotated-cell-17-15"><a href="#annotated-cell-17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-16"><a href="#annotated-cell-17-16" aria-hidden="true" tabindex="-1"></a><span class="st"># OCSP Stapling (optional)</span></span>
+<span id="annotated-cell-17-17"><a href="#annotated-cell-17-17" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_stapling on;</span></span>
+<span id="annotated-cell-17-18"><a href="#annotated-cell-17-18" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_stapling_verify on;</span></span>
+<span id="annotated-cell-17-19"><a href="#annotated-cell-17-19" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-17" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="20" data-code-annotation="1"><strong>SSL seguro</strong>: Configuración manual</span>
+</dd>
+</dl>
+</section>
+<section id="usar-en-server-block" class="level3">
+<h3 class="anchored" data-anchor-id="usar-en-server-block">Usar en Server Block</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-18" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-18-1"><a href="#annotated-cell-18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/sites-available/ssl-manual.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-18-2"><a href="#annotated-cell-18-2" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-18-3"><a href="#annotated-cell-18-3" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 443 ssl http2;</span></span>
+<span id="annotated-cell-18-4"><a href="#annotated-cell-18-4" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name example.com;</span></span>
+<span id="annotated-cell-18-5"><a href="#annotated-cell-18-5" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-18-6"><a href="#annotated-cell-18-6" aria-hidden="true" tabindex="-1"></a><span class="st">    include /etc/nginx/snippets/ssl-params.conf;</span></span>
+<span id="annotated-cell-18-7"><a href="#annotated-cell-18-7" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-18-8"><a href="#annotated-cell-18-8" aria-hidden="true" tabindex="-1"></a><span class="st">    root /var/www/html;</span></span>
+<span id="annotated-cell-18-9"><a href="#annotated-cell-18-9" aria-hidden="true" tabindex="-1"></a><span class="st">    index index.html;</span></span>
+<span id="annotated-cell-18-10"><a href="#annotated-cell-18-10" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-18-11"><a href="#annotated-cell-18-11" aria-hidden="true" tabindex="-1"></a><span class="st">    location / {</span></span>
+<span id="annotated-cell-18-12"><a href="#annotated-cell-18-12" aria-hidden="true" tabindex="-1"></a><span class="st">        try_files $uri $uri/ =404;</span></span>
+<span id="annotated-cell-18-13"><a href="#annotated-cell-18-13" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-18-14"><a href="#annotated-cell-18-14" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-18-15"><a href="#annotated-cell-18-15" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-18" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-18" data-code-lines="16" data-code-annotation="1"><strong>Usar snippet</strong>: Configuración SSL manual</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="testing-ssl" class="level2">
+<h2 class="anchored" data-anchor-id="testing-ssl">Testing SSL</h2>
+<section id="verificar-con-curl" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-con-curl">Verificar con curl</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-19" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver detalles SSL</span></span>
+<span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> https://example.com</span>
+<span id="annotated-cell-19-3"><a href="#annotated-cell-19-3" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
+<span id="annotated-cell-19-4"><a href="#annotated-cell-19-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> nginx</span>
+<span id="annotated-cell-19-5"><a href="#annotated-cell-19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Strict-Transport-Security:</span> max-age=63072000</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-19" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-19-6" class="code-annotation-target"><a href="#annotated-cell-19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-7"><a href="#annotated-cell-19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-19-8"><a href="#annotated-cell-19-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Con verbose</span></span>
+<span id="annotated-cell-19-9"><a href="#annotated-cell-19-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-v</span> https://example.com <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">"SSL|TLS"</span></span>
+<span id="annotated-cell-19-10"><a href="#annotated-cell-19-10" aria-hidden="true" tabindex="-1"></a><span class="ex">*</span>  SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384</span>
+<span id="annotated-cell-19-11"><a href="#annotated-cell-19-11" aria-hidden="true" tabindex="-1"></a><span class="ex">*</span>  ALPN, server accepted to use http/1.1</span>
+<span id="annotated-cell-19-12"><a href="#annotated-cell-19-12" aria-hidden="true" tabindex="-1"></a><span class="ex">*</span>  certificate subject: example.com</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-19" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="6" data-code-annotation="1"><strong>HSTS</strong>: Header presente</span>
+</dd>
+<dt data-target-cell="annotated-cell-19" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="13" data-code-annotation="2"><strong>TLS 1.3</strong>: Versión usada</span>
+</dd>
+</dl>
+</section>
+<section id="ssl-labs-test" class="level3">
+<h3 class="anchored" data-anchor-id="ssl-labs-test">SSL Labs Test</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-20" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-20-1"><a href="#annotated-cell-20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Abrir en navegador</span></span>
+<span id="annotated-cell-20-2"><a href="#annotated-cell-20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo <span class="st">"https://www.ssllabs.com/ssltest/analyze.html?d=example.com"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-20" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-20" data-code-lines="3" data-code-annotation="1"><strong>SSL Labs</strong>: Test completo público</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="casos-de-estudio" class="level2">
+<h2 class="anchored" data-anchor-id="casos-de-estudio">Casos de Estudio</h2>
+<section id="caso-1-nginx-con-nuevo-dominio" class="level3">
+<h3 class="anchored" data-anchor-id="caso-1-nginx-con-nuevo-dominio">Caso 1: Nginx con Nuevo Dominio</h3>
+<p><strong>Escenario</strong>: Agregar SSL a nuevo dominio.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-21" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-21-1"><a href="#annotated-cell-21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. DNS apuntando</span></span>
+<span id="annotated-cell-21-2"><a href="#annotated-cell-21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> dig +short newdomain.com</span>
+<span id="annotated-cell-21-3"><a href="#annotated-cell-21-3" aria-hidden="true" tabindex="-1"></a><span class="ex">203.0.113.10</span></span>
+<span id="annotated-cell-21-4"><a href="#annotated-cell-21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-21-5"><a href="#annotated-cell-21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Instalar Nginx si no existe</span></span>
+<span id="annotated-cell-21-6"><a href="#annotated-cell-21-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> nginx</span>
+<span id="annotated-cell-21-7"><a href="#annotated-cell-21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-21-8"><a href="#annotated-cell-21-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Crear server block</span></span>
+<span id="annotated-cell-21-9"><a href="#annotated-cell-21-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/sites-available/newdomain.com <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-21-10"><a href="#annotated-cell-21-10" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-21-11"><a href="#annotated-cell-21-11" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 80;</span></span>
+<span id="annotated-cell-21-12"><a href="#annotated-cell-21-12" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name newdomain.com www.newdomain.com;</span></span>
+<span id="annotated-cell-21-13"><a href="#annotated-cell-21-13" aria-hidden="true" tabindex="-1"></a><span class="st">    root /var/www/newdomain.com;</span></span>
+<span id="annotated-cell-21-14"><a href="#annotated-cell-21-14" aria-hidden="true" tabindex="-1"></a><span class="st">    index index.html;</span></span>
+<span id="annotated-cell-21-15"><a href="#annotated-cell-21-15" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-21-16"><a href="#annotated-cell-21-16" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-21-17"><a href="#annotated-cell-21-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-21-18"><a href="#annotated-cell-21-18" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ln <span class="at">-sf</span> /etc/nginx/sites-available/newdomain.com /etc/nginx/sites-enabled/</span>
+<span id="annotated-cell-21-19"><a href="#annotated-cell-21-19" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nginx <span class="at">-t</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload nginx</span>
+<span id="annotated-cell-21-20"><a href="#annotated-cell-21-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-21-21"><a href="#annotated-cell-21-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Obtener certificado</span></span>
+<span id="annotated-cell-21-22"><a href="#annotated-cell-21-22" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot <span class="at">--nginx</span> <span class="at">-d</span> newdomain.com <span class="at">-d</span> www.newdomain.com <span class="at">--redirect</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-21" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-21" data-code-lines="23" data-code-annotation="2"><strong>Certbot</strong>: Obtener y configurar SSL</span>
+</dd>
+</dl>
+</section>
+<section id="caso-2-renovar-certificado-expirado" class="level3">
+<h3 class="anchored" data-anchor-id="caso-2-renovar-certificado-expirado">Caso 2: Renovar Certificado Expirado</h3>
+<p><strong>Problema</strong>: Certificado expirado, sitio mostrando advertencia.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-22" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-22-1"><a href="#annotated-cell-22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver estado</span></span>
+<span id="annotated-cell-22-2"><a href="#annotated-cell-22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot certificates</span>
+<span id="annotated-cell-22-3"><a href="#annotated-cell-22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Certificate</span> Name: example.com</span>
+<span id="annotated-cell-22-4"><a href="#annotated-cell-22-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Expiry</span> Date: 2024-03-01 10:00:00+00:00 <span class="er">(</span><span class="ex">EXPIRED</span><span class="kw">)</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-22" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-22-5" class="code-annotation-target"><a href="#annotated-cell-22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-22-6"><a href="#annotated-cell-22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-22-7"><a href="#annotated-cell-22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Renovar</span></span>
+<span id="annotated-cell-22-8"><a href="#annotated-cell-22-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot renew</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-22" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-22-9" class="code-annotation-target"><a href="#annotated-cell-22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-22-10"><a href="#annotated-cell-22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-22-11"><a href="#annotated-cell-22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Recargar Nginx</span></span>
+<span id="annotated-cell-22-12"><a href="#annotated-cell-22-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl reload nginx</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-22" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-22" data-code-lines="5" data-code-annotation="1"><strong>EXPIRED</strong>: Certificado vencido</span>
+</dd>
+<dt data-target-cell="annotated-cell-22" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-22" data-code-lines="9" data-code-annotation="2"><strong>renew</strong>: Renovar manualmente</span>
+</dd>
+</dl>
+</section>
+<section id="caso-3-múltiples-subdominios" class="level3">
+<h3 class="anchored" data-anchor-id="caso-3-múltiples-subdominios">Caso 3: Múltiples Subdominios</h3>
+<p><strong>Escenario</strong>: *.example.com con wildcard o múltiples certificados.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-23" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-23-1"><a href="#annotated-cell-23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 1: Un certificado con múltiples dominios</span></span>
+<span id="annotated-cell-23-2"><a href="#annotated-cell-23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot <span class="at">--nginx</span> <span class="at">-d</span> example.com <span class="at">-d</span> www.example.com <span class="at">-d</span> blog.example.com <span class="at">-d</span> shop.example.com</span>
+<span id="annotated-cell-23-3"><a href="#annotated-cell-23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-23-4"><a href="#annotated-cell-23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 2: Certificado wildcard (requiere DNS validation)</span></span>
+<span id="annotated-cell-23-5"><a href="#annotated-cell-23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot certonly <span class="at">--manual</span> <span class="at">--preferred-challenges</span> dns <span class="at">-d</span> <span class="pp">*</span>.example.com</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+</dl>
+</section>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">Resumen</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Tema</th>
+<th>Comando Clave</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Instalar</td>
+<td><code>apt install certbot</code></td>
+<td>Herramienta TLS</td>
+</tr>
+<tr class="even">
+<td>Certificado</td>
+<td><code>certbot --nginx -d dominio</code></td>
+<td>Obtener certificado</td>
+</tr>
+<tr class="odd">
+<td>Renewal</td>
+<td><code>certbot renew</code></td>
+<td>Renovar</td>
+</tr>
+<tr class="even">
+<td>Test</td>
+<td><code>certbot renew --dry-run</code></td>
+<td>Verificar renovación</td>
+</tr>
+<tr class="odd">
+<td>SSL Manual</td>
+<td><code>openssl req -x509</code></td>
+<td>Certificado self-signed</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
 <ul>
-<li>Instalar Certbot para Nginx</li>
-<li>Emitir certificado (cuando aplica)</li>
-<li>Validar renovacion y configuración generada</li>
+<li><a href="https://letsencrypt.org/">Let’s Encrypt</a></li>
+<li><a href="https://certbot.eff.org/">Certbot Documentation</a></li>
+<li><a href="https://ssl-config.mozilla.org/">Mozilla SSL Configuration</a></li>
+<li><a href="https://www.ssllabs.com/ssltest/">SSL Labs Test</a></li>
 </ul>
-<hr>
-</section>
-<section id="instalacion" class="level2">
-<h2 class="anchored" data-anchor-id="instalacion">Instalacion</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update</span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-4" class="code-annotation-target"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> certbot python3-certbot-nginx</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="1,2" data-code-annotation="1"><strong>apt update</strong> actualiza el indice.</span>
-</dd>
-<dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="4,5" data-code-annotation="2"><strong>apt install certbot</strong> instala Certbot y el plugin para Nginx.</span>
-</dd>
-</dl>
-<hr>
-</section>
-<section id="emitir-certificado-modo-nginx" class="level2">
-<h2 class="anchored" data-anchor-id="emitir-certificado-modo-nginx">Emitir certificado (modo Nginx)</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot <span class="at">--nginx</span> <span class="at">-d</span> tu-dominio.com</span>
-<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Saving</span> debug log to /var/log/letsencrypt/letsencrypt.log</span>
-<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Congratulations!</span> Your certificate and chain have been saved at:</span>
-<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">/etc/letsencrypt/live/tu-dominio.com/fullchain.pem</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="1,5" data-code-annotation="1"><strong>certbot –nginx</strong> edita/crea bloques TLS en Nginx y obtiene el certificado.</span>
-</dd>
-</dl>
-<hr>
-</section>
-<section id="validar-renovacion" class="level2">
-<h2 class="anchored" data-anchor-id="validar-renovacion">Validar renovacion</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot renew <span class="at">--dry-run</span></span>
-<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Congratulations,</span> all simulated renewals succeeded.</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="1,3" data-code-annotation="1"><strong>certbot renew –dry-run</strong> prueba renovacion sin consumir limites.</span>
-</dd>
-</dl>
 
 
 </section>
@@ -1765,13 +2413,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../../unidades/unidad10/2_reverse_proxy.html" class="pagination-link" aria-label="Unidad 10.2: Reverse proxy">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></span>
+      <a href="../../unidades/unidad10/2_reverse_proxy.html" class="pagination-link" aria-label="Unidad 10.2: Reverse Proxy y Balanceo de Carga">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../unidades/unidad10/4_hardening_headers.html" class="pagination-link" aria-label="Unidad 10.4: Hardening basico y headers">
-        <span class="nav-page-text"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../unidades/unidad10/4_hardening_headers.html" class="pagination-link" aria-label="Unidad 10.4: Hardening y Seguridad en Nginx">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

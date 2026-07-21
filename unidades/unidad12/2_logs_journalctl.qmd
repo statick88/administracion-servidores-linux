@@ -1,6 +1,6 @@
 ---
 title: "Unidad 12.2: Logs y journalctl"
-subtitle: "Diagnostico basado en evidencia"
+subtitle: "Diagnóstico basado en evidencia"
 author: "Diego Saavedra"
 date: "2026-02-02"
 date-format: medium
@@ -8,45 +8,299 @@ date-format: medium
 
 # Unidad 12.2: Logs y journalctl
 
-## Introduccion
+## Introducción
 
-En Linux, muchas respuestas estan en logs. `journalctl` permite filtrar por servicio, tiempo y severidad.
+En producción, cuando algo falla, no adivinas. Miras logs. El sistema de logging de Linux (systemd journal) es tu mejor aliado para diagnóstico rápido y preciso. No es magia es evidencia.
 
 ## Objetivos de aprendizaje
 
-- Ver logs de arranque
-- Ver logs de un servicio
-- Seguir logs en tiempo real
+- Dominar journalctl para filtrar por servicio, tiempo y severidad
+- Aplicar patrones de búsqueda en logs de producción
+- Implementar rotación y retención de logs
+- Integrar logging en estrategia de monitoreo
 
 ---
 
 ## Journal del sistema
 
-```bash
-$ sudo journalctl -b -n 50 --no-pager  # <1>
-... logs del ultimo arranque ...
-# <1>
-```
-
-
-
-1. **journalctl -b** muestra logs del boot actual.
-
----
-
-## Logs de un servicio
+### Filtrado por tiempo
 
 ```bash
-$ sudo journalctl -u ssh --since "1 hour ago" --no-pager  # <1>
-... logs de ssh ...
+$ sudo journalctl -b -n 100 --no-pager  # <1>
+abr 02 12:30:45 server01 kernel: [    0.000000] Linux version 5.15.0
+abr 02 12:30:45 server01 kernel: [    0.000000] Command line: BOOT_IMAGE=/vmlinuz
 # <1>
 
-$ sudo journalctl -u nginx -f  # <2>
-... follow logs ...
+$ sudo journalctl --since "2026-04-01 08:00:00" --until "2026-04-01 09:00:00" --no-pager  # <2>
+abr 02 08:15:22 server01 sshd[1234]: Failed password for root from 192.168.1.100 port 44221 ssh2
 # <2>
 ```
 
+1. **journalctl -b -n 100** muestra los últimos 100 mensajes del arranque actual. Útil para ver qué pasó al iniciar.
+2. **--since/--until** filtra por rango de tiempo. Perfecto para analizar incidentes en ventana específica.
 
+### Filtrado por prioridad
 
-1. **journalctl -u** filtra por unidad (servicio).
-2. **-f** sigue logs en tiempo real.
+```bash
+$ sudo journalctl -p err --no-pager  # <1>
+abr 02 10:15:33 server01 systemd[1]: Failed to start Apache2 Service
+abr 02 10:15:33 server01 apachectl[2341]: (98)Address already in use: make_sock: could not bind to address 0.0.0.0:80
+# <1>
+
+$ sudo journalctl -p warning..crit --no-pager  # <2>
+abr 02 09:30:11 server01 kernel: eth0: temperature above threshold
+abr 02 09:45:22 server01 systemd[1]: NetworkManager.service failed
+# <2>
+```
+
+1. **-p err** muestra solo errores (y superiores). Ideal para encontrar la causa raíz de fallos.
+2. **-p warning..crit** filtra desde warning hasta critical. Equivalente a syslog warning, error, crit, alert, emerg.
+
+---
+
+## Logs de servicios específicos
+
+### Por unidad (servicio)
+
+```bash
+$ sudo journalctl -u nginx --no-pager -n 50  # <1>
+abr 02 11:20:15 server01 nginx[3456]: 192.168.1.50 - - [02/Apr/2026:11:20:15 +0000] "GET /api/health HTTP/1.1" 200 15
+abr 02 11:20:18 server01 nginx[3456]: 192.168.1.50 - - [02/Apr/2026:11:20:18 +0000] "GET /api/users HTTP/1.1" 500 234
+# <1>
+
+$ sudo journalctl -u nginx --since "1 hour ago" --no-pager  # <2>
+abr 02 10:25:00 server01 nginx[3456]: nginx: start
+abr 02 10:30:15 server01 nginx[3456]: 192.168.1.55 - - [02/Apr/2026:10:30:15 +0000] "POST /login HTTP/1.1" 401 45
+# <2>
+```
+
+1. **-u nginx** filtra por unidad. Sustituye al grep en archivos de log tradicionales.
+2. **--since "1 hour ago"** es relativo y muy útil para monitoreo en tiempo real.
+
+### Seguimiento en tiempo real
+
+```bash
+$ sudo journalctl -u sshd -f  # <1>
+abr 02 12:35:10 server01 sshd[1234]: Accepted publickey for root from 10.0.0.5 port 52341 ssh2: RSA SHA256:abc123
+abr 02 12:35:45 server01 sshd[1234]: Disconnected from user root 10.0.0.5 port 52341
+# <1>
+
+$ sudo journalctl -u mariadb -f -n 0  # <2>
+# <2>
+```
+
+1. **-f** (follow) funciona como tail -f. Mantiene la terminal abierta mostrando nuevos mensajes.
+2. **-n 0** con follow muestra solo mensajes nuevos, sin historial previo.
+
+---
+
+## Diagnóstico de incidentes reales
+
+### Escenario 1: Servicio que no inicia
+
+```bash
+$ sudo systemctl status apache2  # <1>
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled)
+     Active: failed (Result: exit-code) since Tue 2026-04-02 10:15:33 UTC
+# <1>
+
+$ sudo journalctl -u apache2 -n 30 --no-pager  # <2>
+abr 02 10:15:33 server01 apachectl[2341]: (98)Address already in use: make_sock: could not bind to address 0.0.0.0:80
+abr 02 10:15:33 server01 apachectl[2341]: no listening sockets available, shutting down
+# <2>
+
+$ sudo ss -tlnp | grep :80  # <3>
+LISTEN  0  128  0.0.0.0:80   0.0.0.0:*   users:(("nginx",pid=1234,fd=6))
+# <3>
+```
+
+1. **systemctl status** muestra estado actual del servicio. El resultado "failed" confirma el problema.
+2. **journalctl -u apache2** revela el mensaje exacto: "Address already in use". Puerto 80 ocupado.
+3. **ss -tlnp | grep :80** confirma que nginx está usando el puerto 80. Conflicto detectado.
+
+### Escenario 2: Intentos de acceso sospechosos
+
+```bash
+$ sudo journalctl -u sshd --since "24 hours ago" --no-pager | grep -i "failed" | tail -20  # <1>
+abr 01 14:22:33 server01 sshd[1234]: Failed password for root from 45.33.22.11 port 44221 ssh2
+abr 01 14:22:35 server01 sshd[1234]: Failed password for root from 45.33.22.11 port 44222 ssh2
+abr 01 14:22:38 server01 sshd[1234]: Failed password for root from 45.33.22.11 port 44223 ssh2
+# <1>
+
+$ sudo journalctl -u sshd --since "24 hours ago" --no-pager | awk '/Failed/ {print $1,$2,$11,$13}' | sort | uniq -c | sort -rn  # <2>
+   1245 45.33.22.11
+     89 192.168.1.50
+     12 10.0.0.25
+# <2>
+```
+
+1. **grep "Failed"** aísla intentos fallidos. IP 45.33.22.11 tiene múltiples intentos.
+2. **awk + sort + uniq** resume por IP. 1245 intentos desde 45.33.22.11 es un ataque de fuerza bruta.
+
+### Escenario 3: Alto consumo de recursos
+
+```bash
+$ sudo journalctl -u myapp --since "30 min ago" --no-pager  # <1>
+abr 02 11:45:10 server01 myapp[5678]: ERROR: Connection refused to database
+abr 02 11:45:15 server01 myapp[5678]: WARNING: Connection pool exhausted, waiting 5s
+abr 02 11:45:20 server01 myapp[5678]: ERROR: Connection refused to database
+# <1>
+
+$ sudo systemctl restart myapp && sudo journalctl -u myapp -f  # <2>
+abr 02 11:50:00 server01 myapp[5900]: INFO: Starting myapp service
+abr 02 11:50:01 server01 myapp[5900]: INFO: Database connection established
+# <2>
+```
+
+1. Los logs muestran "Connection pool exhausted" y "Connection refused". La base de datos no responde.
+2. Después de reiniciar, los logs confirman conexión exitosa. El problema era temporal.
+
+---
+
+## Configuración de retención
+
+### Política de retención en journald.conf
+
+```bash
+$ sudo cat /etc/systemd/journald.conf  # <1>
+[Journal]
+SystemMaxUse=500M
+RuntimeMaxUse=200M
+MaxRetentionSec=1month
+MaxFileSec=1week
+# <1>
+```
+
+1. **SystemMaxUse=500M** limita tamaño máximo en disco a 500MB.
+2. **RuntimeMaxUse=200M** limita en /run (se borra al reiniciar).
+3. **MaxRetentionSec=1month** elimina entradas mayores a 1 mes.
+4. **MaxFileSec=1week** comprime archivos mayores a 1 semana.
+
+### Rotación manual
+
+```bash
+$ sudo journalctl --vacuum-size=200M  # <1>
+Vacuuming done, freed 156M of disk space.
+
+$ sudo journalctl --vacuum-time=7days  # <2>
+Vacuuming done, removed 890 archived journal files.
+# <1>
+
+$ sudo journalctl --rotate  # <2>
+# <2>
+```
+
+1. **--vacuum-size** reduce el tamaño total eliminando archivos antiguos.
+2. **--vacuum-time** elimina entradas mayores al tiempo especificado.
+3. **--rotate** fuerza rotación inmediata del journal. Similar a logrotate.
+
+---
+
+## Integración con herramientas de monitoreo
+
+### Exportar a formato estructurado
+
+```bash
+$ sudo journalctl -u nginx -o json --since "1 hour ago" | jq '.MESSAGE, .PRIORITY, ._HOSTNAME'  # <1>
+"GET /health HTTP/1.1 200"
+6
+"server01"
+# <1>
+
+$ sudo journalctl -u nginx -o json --since "1 hour ago" > /tmp/nginx_logs.json  # <2>
+# <2>
+```
+
+1. **-o json** exporta en JSONLines. Ideal para pipelines con jq, Logstash, o Datadog.
+2. Redirect a archivo para análisis posterior o envío a sistema externo.
+
+### Alertas con journalctl + cron
+
+```bash
+$ sudo crontab -e  # <1>
+# Buscar errores críticos cada 5 minutos
+*/5 * * * * journalctl -p err --since "5 minutes ago" --no-pager | mail -s "Critical errors on $(hostname)" admin@empresa.com
+# <1>
+```
+
+1. **cron + journalctl** monitoreo automático. Envía email si hay errores en ventana de 5 minutos.
+
+---
+
+## Casos de uso avanzados
+
+### Buscar en todos los servicios
+
+```bash
+$ sudo journalctl -b --no-pager | grep -i "error\|critical\|failed" | head -20  # <1>
+abr 02 12:00:00 server01 kernel: hardware error - CPU throttling detected
+abr 02 12:00:01 server01 systemd[1]: apache2.service failed
+# <1>
+
+$ sudo journalctl -k --no-pager  # <2>
+abr 02 12:00:00 server01 kernel: Linux version 5.15.0-91-generic
+abr 02 12:00:00 server01 kernel: Command line: BOOT_IMAGE=/vmlinuz-5.15.0-91-generic
+# <2>
+```
+
+1. Sin **-u**, busca en todo el journal. Útil para correlacionar errores entre servicios.
+2. **-k** muestra solo mensajes del kernel (dmesg). Para problemas de hardware o drivers.
+
+### Filtrado por PID y UID
+
+```bash
+$ sudo journalctl _PID=1234 --no-pager  # <1>
+abr 02 11:30:00 server01 nginx[1234]: Starting nginx worker process
+
+$ sudo journalctl _UID=1000 --no-pager  # <2>
+abr 02 11:30:15 server01 systemd[1000]: Starting user manager for UID 1000
+# <1>
+
+$ sudo journalctl _SYSTEMD_UNIT=sshd.service --no-pager  # <3>
+# <3>
+```
+
+1. **_PID** filtra por ID de proceso específico. Útil cuando conoces el PID del problema.
+2. **_UID** filtra por usuario. Para auditar actividad de usuarios específicos.
+3. **_SYSTEMD_UNIT** es equivalente a -u pero con campo estructurado.
+
+---
+
+## Mejores prácticas
+
+### En producción
+
+1. **No grep en vivo**: Usa filtros nativos de journalctl (-u, -p, --since)
+2. **Rotación automática**: Configura journald.conf con límites razonables
+3. **Persistencia**: Asegura que Storage=persistent en /etc/systemd/journald.conf
+4. **Monitoreo activo**: Integra journalctl en tu pipeline de alertas
+
+### Comandos esenciales en producción
+
+| Comando | Caso de uso |
+|---------|------------|
+| `journalctl -u servicio -n 50` | Ver últimos 50 mensajes de un servicio |
+| `journalctl -p err --since "1 hour ago"` | Errores en la última hora |
+| `journalctl -b -n 100` | Logs del último arranque |
+| `journalctl -u servicio -f` | Seguimiento en tiempo real |
+| `journalctl --vacuum-size=200M` | Liberar espacio |
+
+---
+
+## Resumen
+
+- **journalctl** es la herramienta moderna para logs en systemd
+- Filtra por tiempo, prioridad, servicio, PID, UID
+- **-u** (unidad) es el filtro más usado en producción
+- **-f** para seguimiento en tiempo real
+- Configura retención en /etc/systemd/journald.conf
+- Integra con monitoreo y alertas automatizadas
+
+---
+
+## Referencias
+
+- `man journalctl` - Documentación completa
+- `man journald.conf` - Configuración del daemon
+- `journalctl --user` - Logs del usuario actual (no root)

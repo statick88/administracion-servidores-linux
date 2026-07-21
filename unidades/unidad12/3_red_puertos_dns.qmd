@@ -1,6 +1,6 @@
 ---
 title: "Unidad 12.3: Red, puertos y DNS"
-subtitle: "Diagnostico rapido de conectividad"
+subtitle: "Diagnóstico rápido de conectividad"
 author: "Diego Saavedra"
 date: "2026-02-02"
 date-format: medium
@@ -8,46 +8,498 @@ date-format: medium
 
 # Unidad 12.3: Red, puertos y DNS
 
-## Introduccion
+## Introducción
 
-Cuando "no responde", casi siempre es una de estas: IP/ruta, firewall, puerto no escuchando, o DNS.
+En producción, "no responde" es la frase más común. Casi siempre es una de cuatro: IP/ruta incorrecta, firewall bloqueando, servicio no escuchando, o DNS fallando. Vamos a diagnosticar cada caso con metodología, no con intuición.
 
 ## Objetivos de aprendizaje
 
-- Validar IP y rutas
-- Verificar puertos
-- Probar DNS y HTTP
+- Diagnosticar conectividad de red paso a paso
+- Identificar servicios que no escuchan en puertos esperados
+- Resolver problemas DNS comunes en servidores
+- Implementar monitoreo de conectividad
 
 ---
 
-## Checklist rapido
+## Checklist de diagnóstico de red
+
+### Verificación básica de interfaz y IP
 
 ```bash
-$ ip -br addr  # <1>
-enp0s3  UP  192.168.56.10/24
+$ ip -br addr show  # <1>
+lo        UNKNOWN  127.0.0.1/8 ::1/128
+eth0      UP       192.168.56.10/24
 # <1>
 
-$ ip route | head -n 5  # <2>
-default via 192.168.56.1 dev enp0s3
+$ ip link show  # <2>
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT
 # <2>
 
-$ sudo ss -lntp  # <3>
-... puertos en escucha ...
+$ ip route show  # <3>
+default via 192.168.56.1 dev eth0 proto dhcp src 192.168.56.10 metric 100
+192.168.56.0/24 dev eth0 proto kernel scope link src 192.168.56.10
 # <3>
+```
 
-$ resolvectl status | sed -n '1,40p'  # <4>
-... DNS efectivo ...
+1. **ip -br addr** muestra IPs de forma concisa. Valida que eth0 tenga IP correcta.
+2. **ip link** verifica estado de interfaces. "state UP" confirma que está activa.
+3. **ip route** muestra tabla de rutas. Valida gateway y rutas específicas.
+
+### Verificación de conectividad
+
+```bash
+$ ping -c 3 8.8.8.8  # <1>
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=117 time=15.2 ms
+64 bytes desde 8.8.8.8: icmp_seq=2 ttl=117 time=14.8 ms
+# <1>
+
+$ ping -c 3 google.com  # <2>
+ping: google.com: Name or service not known
+# <2>
+```
+
+1. **ping -c 3 8.8.8.8** prueba conectividad hacia afuera. Si falla, problema de ruta/salida.
+2. **ping google.com** prueba resolución DNS. Si IP funciona pero域名 no, problema de DNS.
+
+---
+
+## Diagnóstico de puertos
+
+### Ver servicios escuchando
+
+```bash
+$ ss -tlnp  # <1>
+State    Recv-Q   Send-Q   Local Address:Port   Peer Address:Port   Process
+LISTEN   0        128      0.0.0.0:22           0.0.0.0:*           users:(("sshd",pid=234,fd=3))
+LISTEN   0        128      0.0.0.0:80           0.0.0.0:*           users:(("nginx",pid=456,fd=6))
+LISTEN   0        128      0.0.0.0:3306         0.0.0.0:*           users:(("mariadb",pid=789,fd=20))
+# <1>
+
+$ ss -tlnp | grep :80  # <2>
+LISTEN   0        128      0.0.0.0:80           0.0.0.0:*           users:(("nginx",pid=456,fd=6))
+# <2>
+
+$ ss -tlnp | grep -E ":(22|80|443|3306)"  # <3>
+LISTEN   0        128      0.0.0.0:22           0.0.0.0:*           sshd
+LISTEN   0        128      0.0.0.0:80           nginx
+LISTEN   0        128      0.0.0.0:443          nginx
+LISTEN   0        128      0.0.0.0:3306         mariadb
+# <3>
+```
+
+1. **ss -tlnp** muestra todos los puertos en escucha (-l) en TCP (-t) con proceso (-p). El estándar de facto.
+2. **grep :80** aísla un puerto específico.
+3. Filtro regex para múltiples puertos comunes.
+
+### Conexiones establecidas
+
+```bash
+$ ss -tn  # <1>
+State    Recv-Q   Send-Q   Local Address:Port    Peer Address:Port
+ESTAB    0        0        192.168.56.10:80      192.168.1.50:54321
+ESTAB    0        0        192.168.56.10:22      10.0.0.5:65234
+
+$ ss -tnp | grep ESTAB | wc -l  # <2>
+42
+# <2>
+```
+
+1. **ss -tn** muestra conexiones TCP activas (sin listen). Para ver tráfico en vivo.
+2. Conteo de conexiones establecidas. Útil para detectar ataques DDoS o sobrecarga.
+
+### Verificar puerto específico remoto
+
+```bash
+$ nc -zv google.com 80  # <1>
+Connection to google.com 80 port [tcp/http] succeeded!
+
+$ nc -zv google.com 443  # <2>
+Connection to google.com 443 port [tcp/https] succeeded!
+
+$ nc -zv 192.168.56.10 3306 -w 3  # <3>
+nc: connect to 192.168.56.10 3306 tcp timed out: Connection timed out
+# <3>
+```
+
+1. **nc -zv** testea conectividad TCP a puerto específico. "-z" escanea, "-v" verbose.
+2. Puerto 80 abierto en google.com. HTTP funciona.
+3. **-w 3** timeout de 3 segundos. "Connection timed out" = firewall bloqueando o servicio abajo.
+
+---
+
+## Diagnóstico de firewall
+
+### Ver reglas de UFW
+
+```bash
+$ sudo ufw status verbose  # <1>
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), deny (incoming)
+# <1>
+
+$ sudo ufw status numbered  # <2>
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22                         ALLOW IN    Anywhere
+[ 2] 80                         ALLOW IN    Anywhere
+[ 3] 443                        ALLOW IN    Anywhere
+# <2>
+
+$ sudo ufw deny 3306  # <3>
+Rule added
+Rule added (v6)
+# <3>
+```
+
+1. **ufw status verbose** muestra estado general y política por defecto.
+2. **ufw status numbered** muestra reglas con índices para eliminar o modificar.
+3. **ufw deny 3306** bloquea puerto 3306. Útil para cerrar puertos expuestos innecesariamente.
+
+### Ver reglas iptables/nftables
+
+```bash
+$ sudo iptables -L -n -v  # <1>
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+DROP       all  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:3306
+
+$ sudo nft list ruleset  # <2>
+table ip filter {
+    chain input {
+        type filter hook input priority filter; policy accept;
+        tcp dport 22 accept
+        tcp dport 80 accept
+        tcp dport 3306 drop
+    }
+}
+# <2>
+```
+
+1. **iptables -L -n -v** lista todas las reglas. "-n" muestra IPs numéricas, "-v" verbose.
+2. **nft list ruleset** para sistemas con nftables (Debian 12+, Ubuntu moderno).
+
+---
+
+## Diagnóstico de DNS
+
+### Ver configuración de DNS
+
+```bash
+$ resolvectl status  # <1>
+Global
+       Protocols: -LLMNR +resolve +mDNS5
+       DNS Servers: 8.8.8.8 1.1.1.1
+       DNSSEC: supported
+
+Link 2 (eth0)
+      Current Scopes: DNS
+      Protocols: +LLMNR +resolve +mDNS5
+      Current DNS Server: 8.8.8.8
+      DNS Servers: 8.8.8.8
+# <1>
+
+$ cat /etc/resolv.conf  # <2>
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+# <2>
+
+$ host -t A google.com  # <3>
+google.com has address 142.250.185.46
+# <3>
+```
+
+1. **resolvectl status** es el comando moderno (systemd-resolved). Muestra servidores DNS efectivos.
+2. **/etc/resolv.conf** es el archivo tradicional. En sistemas con systemd-resolved, es un symlink.
+3. **host -t A** consulta registro A. Para verificar resolución de nombres.
+
+### Pruebas de resolución
+
+```bash
+$ dig +short google.com  # <1>
+142.250.185.78
+
+$ dig +short -x 142.250.185.78  # <2>
+sfo07s17-in-f14.1e100.net.
+
+$ nslookup google.com  # <3>
+Server:         8.8.8.8
+Address:        8.8.8.8#53
+Non-authoritative answer:
+Name:   google.com
+Address: 142.250.185.78
+# <1>
+
+$ getent hosts google.com  # <4>
+142.250.185.78 google.com
+# <4>
+```
+
+1. **dig +short** respuesta corta con solo IPs. Perfecto para scripts.
+2. **dig +short -x** resolución inversa (PTR). Útil para verificar reverse DNS de servers.
+3. **nslookup** comando clásico de DNS. Funciona incluso con configuraciones rotas.
+4. **getent hosts** consulta /etc/hosts primero, luego DNS. Para verificar overrides locales.
+
+### DNS cache local
+
+```bash
+$ sudo systemd-resolve --flush-caches  # <1>
+# or
+$ sudo resolvectl flush-caches  # <2>
+# <2>
+
+$ resolvectl statistics  # <3>
+Cache:
+  Current Cache Size: 127
+# <3>
+```
+
+1. **--flush-caches** limpia cache DNS. Útil cuando DNS propagó cambios pero el servidor responde con datos viejos.
+2. **resolvectl flush-caches** comando moderno.
+3. **resolvectl statistics** muestra tamaño de cache y estadísticas.
+
+---
+
+## Casos de diagnóstico reales
+
+### Escenario 1: Servidor web no responde desde afuera
+
+```bash
+$ curl -I http://localhost  # <1>
+HTTP/1.1 200 OK
+
+$ curl -I http://192.168.56.10  # <2>
+curl: (7) Failed to connect to 192.168.56.10: Connection timed out
+
+$ ss -tlnp | grep :80  # <3>
+LISTEN 0 128 0.0.0.0:80 0.0.0.0:* users:(("nginx",pid=456,fd=6))
+# <1>
+
+$ sudo ufw status | grep 80  # <4>
+80/tcp                     ALLOW IN    Anywhere
+# <4>
+```
+
+1. **curl localhost** funciona. El servicio web está corriendo.
+2. **curl IP interna** falla. Problema de red interno o firewall.
+3. Puerto 80 escuchando. Nginx está activo.
+4. UFW permite puerto 80. Firewall no es el problema.
+
+**Diagnóstico:** El servidor responde localmente pero no desde red. Verificar:
+- Interfaces de red del servidor
+- Gateway/rutas
+- Firewall del router/edge
+
+### Escenario 2: No puedo conectar a base de datos remota
+
+```bash
+$ nc -zv 192.168.1.100 3306 -w 3  # <1>
+nc: connect to 192.168.1.100 3306 tcp timed out: Connection refused
+
+$ ss -tlnp | grep 3306  # <2>
+LISTEN 0 128 127.0.0.1:3306 0.0.0.0:* users:(("mariadb",pid=789,fd=20))
+# <2>
+
+$ sudo ufw status | grep 3306  # <3>
+3306/tcp                    DENY        Anywhere
+# <3>
+```
+
+1. **nc** muestra "Connection refused". El puerto no está accepting conexiones.
+2. **ss** revela que MariaDB solo escucha en 127.0.0.1 (localhost). bind-address restrictivo.
+3. UFW bloquea 3306. Puerto denegado por defecto.
+
+**Solución:**
+
+```bash
+# Opción 1: Abrir firewall (si es necesario)
+$ sudo ufw allow 3306/tcp
+
+# Opción 2: Cambiar bind-address en MariaDB
+$ sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+[mysqld]
+bind-address = 0.0.0.0  # <4>
 # <4>
 
-$ curl -I http://localhost  # <5>
-HTTP/1.1 200 OK
+$ sudo systemctl restart mariadb
+```
+
+1. **bind-address = 0.0.0.0** hace que MariaDB escuche en todas las interfaces.
+
+### Escenario 3: DNS resuelve incorrectamente
+
+```bash
+$ ping -c 1 mi-sitio.com  # <1>
+PING mi-sitio.com (93.184.216.34) 56(84) bytes of 64 bytes from 93.184.216.34: icmp_seq=1 ttl=63 time=14.2 ms
+
+$ host mi-sitio.com  # <2>
+mi-sitio.com has address 93.184.216.34
+
+# Pero debería ser 104.21.35.78 (IP nueva después de migración)
+```
+
+1. **ping** responde con IP antigua. DNS no ha actualizado.
+2. Verificar TTL y forzar flush:
+
+```bash
+$ dig +trace mi-sitio.com  # <3>
+mi-sitio.com.    86400   IN  A   93.184.216.34
+# <3>
+
+$ sudo resolvectl flush-caches  # <4>
+# <4>
+
+$ dig mi-sitio.com  # <5>
+mi-sitio.com.    300    IN  A   104.21.35.78
 # <5>
 ```
 
+1. **dig +trace** muestra la cadena de resolución completa.
+2. **flush-caches** limpia cache local.
+3. Después de flush, resuelve la IP correcta (TTL 300 vs 86400).
 
+### Escenario 4: Puerto esperado no está escuchando
 
-1. **ip -br addr** valida IP.
-2. **ip route** valida gateway/rutas.
-3. **ss -lntp** valida puertos.
-4. **resolvectl status** valida DNS efectivo.
-5. **curl -I** valida respuesta HTTP local.
+```bash
+$ sudo ss -tlnp | grep :5432  # <1>
+(empty - PostgreSQL no está corriendo)
+
+$ sudo systemctl status postgresql  # <2>
+● postgresql.service - PostgreSQL RDBMS
+     Loaded: loaded (/lib/systemd/system/postgresql.service; enabled)
+     Active: failed (Result: start-limit-hit)
+# <2>
+
+$ sudo journalctl -u postgresql -n 20 --no-pager  # <3>
+abr 02 14:30:00 server01 postgresql[1234]: 2026-04-02 14:30:00.000 UTC [1234] FATAL: database "myapp" does not exist
+abr 02 14:30:00 server01 postgresql[1234]: 2026-04-02 14:30:00.000 UTC [1234] LOG:  database files are incompatible with server
+# <3>
+```
+
+1. Puerto 5432 vacío. PostgreSQL no está corriendo.
+2. **systemctl status** muestra "failed" con "start-limit-hit". Intentos de reinicio fallidos.
+3. **journalctl** revela la causa: base de datos corrupta o incompatible.
+
+---
+
+## Herramientas de diagnóstico de red
+
+### traceroute / mtr
+
+```bash
+$ traceroute -I 8.8.8.8  # <1>
+traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets
+ 1  gateway (192.168.56.1)  1.234 ms  1.456 ms  1.234 ms
+ 2  10.0.0.1 (10.0.0.1)  5.678 ms  5.890 ms  5.678 ms
+ 3  8.8.8.8 (8.8.8.8)  15.234 ms  15.456 ms  15.234 ms
+# <1>
+
+$ sudo mtr -c 10 8.8.8.8  # <2>
+                                                   My traceroute  [v0.95]
+server01                                            2026-04-02T14:30:00+0000
+Keys:  Help   Display mode   Restart statistics   Order of fields   quit
+                                              Packets               Pings
+ Host                             Loss%   Snt   Last   Avg  Best  Wrst StDev
+  1. gateway                        0.0%   10   1.2   1.4   1.1   2.1  0.3
+  2. 10.0.0.1                       0.0%   10   5.7   5.8   5.6   6.2  0.2
+  3. 8.8.8.8                        0.0%   10  15.2  15.4  14.8  16.2  0.4
+# <2>
+```
+
+1. **traceroute -I** usa ICMP (más lento pero informativo). Muestra cada salto.
+2. **mtr** combina ping + traceroute. Actualiza en tiempo real. Ideal para monitoreo continuo.
+
+### ip neigh (ARP cache)
+
+```bash
+$ ip neigh show  # <1>
+192.168.56.1 dev eth0 lladdr 08:00:27:12:34:56 REACHABLE
+192.168.56.10 dev eth0 lladdr 08:00:27:ab:cd:ef STALE
+# <1>
+
+$ ip neigh flush all  # <2>
+# <2>
+```
+
+1. **ip neigh** muestra cache ARP. "STALE" = entrada válida pero no probada recientemente.
+2. **ip neigh flush all** limpia cache ARP. Útil cuando hay problemas de comunicación en LAN.
+
+---
+
+## Monitoreo de conectividad
+
+### Script de health check
+
+```bash
+#!/bin/bash
+# /usr/local/bin/network-health.sh
+
+HOSTS=("8.8.8.8" "1.1.1.1" "google.com")
+PORTS=(22 80 443 3306)
+EMAIL="admin@empresa.com"
+
+# Test DNS resolution
+for host in "${HOSTS[@]}"; do
+    if ! ping -c 1 -W 2 "$host" > /dev/null 2>&1; then
+        echo "FAIL: Cannot reach $host" | mail -s "Network Alert" $EMAIL
+    fi
+done
+
+# Test ports
+for port in "${PORTS[@]}"; do
+    if ! nc -zv localhost $port > /dev/null 2>&1; then
+        echo "WARN: Port $port not listening" | mail -s "Port Alert" $EMAIL
+    fi
+done
+```
+
+### Cron para monitoreo
+
+```bash
+$ sudo crontab -e  # <1>
+# Check cada 5 minutos
+*/5 * * * * /usr/local/bin/network-health.sh > /dev/null 2>&1
+# <1>
+```
+
+1. **cron + script** ejecuta health check automáticamente cada 5 minutos.
+
+---
+
+## Resumen
+
+### Checklist de diagnóstico
+
+| Paso | Comando | Valida |
+|------|---------|--------|
+| 1 | `ip -br addr` | IP y estado de interfaces |
+| 2 | `ip route` | Gateway y rutas |
+| 3 | `ping 8.8.8.8` | Conectividad externa |
+| 4 | `ss -tlnp` | Puertos escuchando |
+| 5 | `nc -zv host port` | Conectividad a puerto |
+| 6 | `resolvectl status` | DNS efectivo |
+| 7 | `ufw status` | Reglas de firewall |
+
+### Comandos esenciales
+
+- **ss -tlnp** - Ver servicios escuchando
+- **nc -zv host port** - Probar conectividad a puerto
+- **resolvectl status** - Verificar DNS
+- **traceroute/mtr** - Diagnosticar saltos
+- **journalctl -u servicio** - Logs de red/servicio
+
+---
+
+## Referencias
+
+- `man ss` - Socket statistics
+- `man nc` - Netcat
+- `man resolvectl` - DNS resolver
+- `man ufw` - Uncomplicated Firewall
+- `man iptables` - Packet filtering (legacy)
+- `man nft` - Netfilter tables (modern)

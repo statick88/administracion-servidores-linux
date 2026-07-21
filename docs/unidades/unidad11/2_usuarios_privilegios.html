@@ -2,15 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.9.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Diego Saavedra">
 <meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
 
-<title>Unidad 11.2: Usuarios y privilegios – Administración de Servidores Linux</title>
+<title>Unidad 11.2: Usuarios, Privilegios y Seguridad – Administración de Servidores Linux</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -71,17 +74,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-61780a260fdcf47536a34fde95582725.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-68056a18e515a5789c5e26a7aeb7ac61.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-d475e4ab3b4fd243dd6ecd26d4f0399c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
@@ -292,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html">Unidad 11: MariaDB</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad11/2_usuarios_privilegios.html"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html">Unidad 11: MariaDB</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad11/2_usuarios_privilegios.html"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -638,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
- <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+ <span class="menu-text">Unidad 8: SSH y Acceso Remoto Seguro</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -646,7 +648,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  <a href="../../unidades/unidad8/1_ssh_fundamentos_keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Protocolo y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/2_ssh_tunnels.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH Tunnels: Port Forwarding y Proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/3_lab_practico_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Laboratorio Práctico</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -667,22 +679,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y Múltiples Sitios</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/5_lab_practico_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -703,22 +720,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -739,22 +761,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Acceso Remoto y Seguridad de Red</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/5_lab_practico_mariadb.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Laboratorio Práctico - MariaDB</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -775,7 +802,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -791,6 +818,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1194,12 +1226,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#unidad-11.2-usuarios-y-privilegios" id="toc-unidad-11.2-usuarios-y-privilegios" class="nav-link active" data-scroll-target="#unidad-11.2-usuarios-y-privilegios">Unidad 11.2: Usuarios y privilegios</a>
+  <li><a href="#unidad-11.2-usuarios-privilegios-y-seguridad" id="toc-unidad-11.2-usuarios-privilegios-y-seguridad" class="nav-link active" data-scroll-target="#unidad-11.2-usuarios-privilegios-y-seguridad">Unidad 11.2: Usuarios, Privilegios y Seguridad</a>
   <ul class="collapse">
-  <li><a href="#introduccion" id="toc-introduccion" class="nav-link" data-scroll-target="#introduccion">Introduccion</a></li>
-  <li><a href="#objetivos-de-aprendizaje" id="toc-objetivos-de-aprendizaje" class="nav-link" data-scroll-target="#objetivos-de-aprendizaje">Objetivos de aprendizaje</a></li>
-  <li><a href="#crear-db-y-usuario" id="toc-crear-db-y-usuario" class="nav-link" data-scroll-target="#crear-db-y-usuario">Crear DB y usuario</a></li>
-  <li><a href="#validar-acceso" id="toc-validar-acceso" class="nav-link" data-scroll-target="#validar-acceso">Validar acceso</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#arquitectura-de-privilegios" id="toc-arquitectura-de-privilegios" class="nav-link" data-scroll-target="#arquitectura-de-privilegios">Arquitectura de Privilegios</a>
+  <ul class="collapse">
+  <li><a href="#sistema-de-privilegios-mariadb" id="toc-sistema-de-privilegios-mariadb" class="nav-link" data-scroll-target="#sistema-de-privilegios-mariadb">Sistema de Privilegios MariaDB</a></li>
+  </ul></li>
+  <li><a href="#crear-base-de-datos" id="toc-crear-base-de-datos" class="nav-link" data-scroll-target="#crear-base-de-datos">Crear Base de Datos</a>
+  <ul class="collapse">
+  <li><a href="#crear-db-con-charset-correcto" id="toc-crear-db-con-charset-correcto" class="nav-link" data-scroll-target="#crear-db-con-charset-correcto">Crear DB con Charset Correcto</a></li>
+  <li><a href="#tablas-con-charset-correcto" id="toc-tablas-con-charset-correcto" class="nav-link" data-scroll-target="#tablas-con-charset-correcto">Tablas con Charset Correcto</a></li>
+  </ul></li>
+  <li><a href="#crear-y-gestionar-usuarios" id="toc-crear-y-gestionar-usuarios" class="nav-link" data-scroll-target="#crear-y-gestionar-usuarios">Crear y Gestionar Usuarios</a>
+  <ul class="collapse">
+  <li><a href="#usuario-para-aplicación" id="toc-usuario-para-aplicación" class="nav-link" data-scroll-target="#usuario-para-aplicación">Usuario para Aplicación</a></li>
+  <li><a href="#verificar-acceso" id="toc-verificar-acceso" class="nav-link" data-scroll-target="#verificar-acceso">Verificar Acceso</a></li>
+  <li><a href="#tipos-de-usuarios-por-host" id="toc-tipos-de-usuarios-por-host" class="nav-link" data-scroll-target="#tipos-de-usuarios-por-host">Tipos de Usuarios por Host</a></li>
+  </ul></li>
+  <li><a href="#privilegios" id="toc-privilegios" class="nav-link" data-scroll-target="#privilegios">Privilegios</a>
+  <ul class="collapse">
+  <li><a href="#niveles-de-privilegios" id="toc-niveles-de-privilegios" class="nav-link" data-scroll-target="#niveles-de-privilegios">Niveles de Privilegios</a></li>
+  <li><a href="#privilegios-comunes" id="toc-privilegios-comunes" class="nav-link" data-scroll-target="#privilegios-comunes">Privilegios Comunes</a></li>
+  <li><a href="#revocar-privilegios" id="toc-revocar-privilegios" class="nav-link" data-scroll-target="#revocar-privilegios">Revocar Privilegios</a></li>
+  </ul></li>
+  <li><a href="#contraseñas-seguras" id="toc-contraseñas-seguras" class="nav-link" data-scroll-target="#contraseñas-seguras">Contraseñas Seguras</a>
+  <ul class="collapse">
+  <li><a href="#generar-contraseña-segura" id="toc-generar-contraseña-segura" class="nav-link" data-scroll-target="#generar-contraseña-segura">Generar Contraseña Segura</a></li>
+  <li><a href="#políticas-de-contraseña" id="toc-políticas-de-contraseña" class="nav-link" data-scroll-target="#políticas-de-contraseña">Políticas de Contraseña</a></li>
+  </ul></li>
+  <li><a href="#roles-mariadb-10.2" id="toc-roles-mariadb-10.2" class="nav-link" data-scroll-target="#roles-mariadb-10.2">Roles (MariaDB 10.2+)</a>
+  <ul class="collapse">
+  <li><a href="#crear-y-asignar-roles" id="toc-crear-y-asignar-roles" class="nav-link" data-scroll-target="#crear-y-asignar-roles">Crear y Asignar Roles</a></li>
+  <li><a href="#usar-roles" id="toc-usar-roles" class="nav-link" data-scroll-target="#usar-roles">Usar Roles</a></li>
+  </ul></li>
+  <li><a href="#gestión-de-usuarios-en-producción" id="toc-gestión-de-usuarios-en-producción" class="nav-link" data-scroll-target="#gestión-de-usuarios-en-producción">Gestión de Usuarios en Producción</a>
+  <ul class="collapse">
+  <li><a href="#auditoría-de-usuarios" id="toc-auditoría-de-usuarios" class="nav-link" data-scroll-target="#auditoría-de-usuarios">Auditoría de Usuarios</a></li>
+  <li><a href="#eliminar-usuarios" id="toc-eliminar-usuarios" class="nav-link" data-scroll-target="#eliminar-usuarios">Eliminar Usuarios</a></li>
+  <li><a href="#lock-de-usuarios" id="toc-lock-de-usuarios" class="nav-link" data-scroll-target="#lock-de-usuarios">Lock de Usuarios</a></li>
+  </ul></li>
+  <li><a href="#casos-de-estudio" id="toc-casos-de-estudio" class="nav-link" data-scroll-target="#casos-de-estudio">Casos de Estudio</a>
+  <ul class="collapse">
+  <li><a href="#caso-1-aplicación-no-puede-conectar" id="toc-caso-1-aplicación-no-puede-conectar" class="nav-link" data-scroll-target="#caso-1-aplicación-no-puede-conectar">Caso 1: Aplicación No Puede Conectar</a></li>
+  <li><a href="#caso-2-usuario-con-demasiados-privilegios" id="toc-caso-2-usuario-con-demasiados-privilegios" class="nav-link" data-scroll-target="#caso-2-usuario-con-demasiados-privilegios">Caso 2: Usuario con Demasiados Privilegios</a></li>
+  <li><a href="#caso-3-necesito-ver-password-de-usuario" id="toc-caso-3-necesito-ver-password-de-usuario" class="nav-link" data-scroll-target="#caso-3-necesito-ver-password-de-usuario">Caso 3: Necesito Ver Password de Usuario</a></li>
+  </ul></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">Resumen</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   <li>Code Appendix</li>
   </ul>
@@ -1209,10 +1283,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html">Unidad 11: MariaDB</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad11/2_usuarios_privilegios.html"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad11/1_instalacion_seguridad.html">Unidad 11: MariaDB</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad11/2_usuarios_privilegios.html"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></h1>
-<p class="subtitle lead">Operar acceso de forma segura</p>
+<h1 class="title"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></h1>
+<p class="subtitle lead">Gestión de usuarios y permisos en MariaDB</p>
 </div>
 
 
@@ -1229,7 +1303,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">Feb 2, 2026</p>
+      <p class="date">Mar 31, 2026</p>
     </div>
   </div>
   
@@ -1241,75 +1315,591 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="unidad-11.2-usuarios-y-privilegios" class="level1">
-<h1>Unidad 11.2: Usuarios y privilegios</h1>
-<section id="introduccion" class="level2">
-<h2 class="anchored" data-anchor-id="introduccion">Introduccion</h2>
-<p>La base de seguridad en bases de datos es: usuarios por aplicacion, privilegios minimos, y acceso restringido por host.</p>
+<section id="unidad-11.2-usuarios-privilegios-y-seguridad" class="level1">
+<h1>Unidad 11.2: Usuarios, Privilegios y Seguridad</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>La seguridad en bases de datos se basa en: usuarios por aplicación, privilegios mínimos, y acceso restringido por host. En esta unidad vas a aprender a crear usuarios correctamente, gestionar privilegios, y implementar políticas de contraseña seguras.</p>
 </section>
-<section id="objetivos-de-aprendizaje" class="level2">
-<h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">Objetivos de aprendizaje</h2>
-<ul>
-<li>Crear base de datos y usuario</li>
-<li>Otorgar privilegios minimos</li>
-<li>Validar permisos</li>
-</ul>
-<hr>
+<section id="arquitectura-de-privilegios" class="level2">
+<h2 class="anchored" data-anchor-id="arquitectura-de-privilegios">Arquitectura de Privilegios</h2>
+<section id="sistema-de-privilegios-mariadb" class="level3">
+<h3 class="anchored" data-anchor-id="sistema-de-privilegios-mariadb">Sistema de Privilegios MariaDB</h3>
+<pre data-code-line-numbers=""><code>┌─────────────────────────────────────────────────────────────────┐
+│              SISTEMA DE PRIVILEGIOS MARIADB                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   USUARIO                    PRIVILEGIOS                        │
+│  ┌─────────┐               ┌──────────┐                        │
+│  │user@host│ ───────────&gt; │ privileges│                        │
+│  │         │               │          │                        │
+│  └─────────┘               │ SELECT   │ → Leer datos          │
+│                            │ INSERT   │ → Insertar datos      │
+│                            │ UPDATE   │ → Actualizar datos    │
+│                            │ DELETE   │ → Eliminar datos      │
+│                            │ CREATE   │ → Crear objetos       │
+│                            │ DROP     │ → Eliminar objetos    │
+│                            │ GRANT    → → Dar privilegios    │
+│                            └──────────┘                        │
+│                                                                  │
+│   FLUSH PRIVILEGES → Aplicar cambios sin reiniciar               │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
 </section>
-<section id="crear-db-y-usuario" class="level2">
-<h2 class="anchored" data-anchor-id="crear-db-y-usuario">Crear DB y usuario</h2>
+</section>
+<section id="crear-base-de-datos" class="level2">
+<h2 class="anchored" data-anchor-id="crear-base-de-datos">Crear Base de Datos</h2>
+<section id="crear-db-con-charset-correcto" class="level3">
+<h3 class="anchored" data-anchor-id="crear-db-con-charset-correcto">Crear DB con Charset Correcto</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb</span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">MariaDB</span> [<span class="er">(</span><span class="ex">none</span><span class="kw">)</span><span class="ex">]</span><span class="op">&gt;</span> CREATE DATABASE appdb<span class="kw">;</span></span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">MariaDB</span> [<span class="er">(</span><span class="ex">none</span><span class="kw">)</span><span class="ex">]</span><span class="op">&gt;</span> CREATE USER <span class="st">'appuser'</span>@<span class="st">'localhost'</span> IDENTIFIED BY <span class="st">'AppPass-ChangeMe'</span><span class="kw">;</span></span>
-<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">MariaDB</span> [<span class="er">(</span><span class="ex">none</span><span class="kw">)</span><span class="ex">]</span><span class="op">&gt;</span> GRANT SELECT,INSERT,UPDATE,DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
-<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">MariaDB</span> [<span class="er">(</span><span class="ex">none</span><span class="kw">)</span><span class="ex">]</span><span class="op">&gt;</span> FLUSH PRIVILEGES<span class="kw">;</span></span>
-<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">MariaDB</span> [<span class="er">(</span><span class="ex">none</span><span class="kw">)</span><span class="ex">]</span><span class="op">&gt;</span> EXIT<span class="kw">;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="1,7" data-code-annotation="1"><strong>mariadb</strong> abre consola SQL para crear DB/usuario y aplicar permisos.</span>
-</dd>
-</dl>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>ADVERTENCIA CRITICA
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>No uses passwords debiles ni reutilices credenciales.</strong></p>
-<p><strong>Lo que podria salir mal:</strong> - Compromiso de base de datos por credenciales triviales.</p>
-<p><strong>Como prevenirlo:</strong> 1. Usa passwords largos y un gestor. 2. Usa usuarios distintos por app/entorno.</p>
-</div>
-</div>
-<hr>
-</section>
-<section id="validar-acceso" class="level2">
-<h2 class="anchored" data-anchor-id="validar-acceso">Validar acceso</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-u</span> appuser <span class="at">-p</span> <span class="at">-e</span> <span class="st">'SHOW DATABASES;'</span></span>
-<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Enter</span> password:</span>
-<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Database</span></span>
-<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">information_schema</span></span>
-<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">appdb</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb</span>
+<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear base de datos con charset utf8mb4</span></span>
+<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci<span class="kw">;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-5" class="code-annotation-target"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-7"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="annotated-cell-2-8"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">SHOW</span> CREATE DATABASE appdb<span class="kw">;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="1,6" data-code-annotation="1"><strong>mariadb -u … -p</strong> valida que el usuario puede conectarse y ver su DB.</span>
+<span data-code-cell="annotated-cell-2" data-code-lines="5" data-code-annotation="1"><strong>utf8mb4</strong>: Soporte completo para Unicode (emojis, etc.)</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="9" data-code-annotation="2"><strong>Collation unicode_ci</strong>: Case-insensitive para español</span>
 </dd>
 </dl>
+</section>
+<section id="tablas-con-charset-correcto" class="level3">
+<h3 class="anchored" data-anchor-id="tablas-con-charset-correcto">Tablas con Charset Correcto</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">USE</span> appdb<span class="kw">;</span></span>
+<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> TABLE users <span class="er">(</span></span>
+<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">id</span> INT AUTO_INCREMENT PRIMARY KEY,</span>
+<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">username</span> VARCHAR<span class="er">(</span><span class="ex">50</span><span class="kw">)</span> <span class="ex">NOT</span> NULL,</span>
+<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">email</span> VARCHAR<span class="er">(</span><span class="ex">100</span><span class="kw">)</span> <span class="ex">NOT</span> NULL,</span>
+<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">created_at</span> TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+<span id="annotated-cell-3-8"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">)</span> <span class="va">ENGINE</span><span class="op">=</span>InnoDB <span class="ex">DEFAULT</span> CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="9" data-code-annotation="1"><strong>InnoDB + utf8mb4</strong>: Configuración recomendada</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="crear-y-gestionar-usuarios" class="level2">
+<h2 class="anchored" data-anchor-id="crear-y-gestionar-usuarios">Crear y Gestionar Usuarios</h2>
+<section id="usuario-para-aplicación" class="level3">
+<h3 class="anchored" data-anchor-id="usuario-para-aplicación">Usuario para Aplicación</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear usuario con password seguro</span></span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'appuser'</span>@<span class="st">'localhost'</span> IDENTIFIED BY <span class="st">'AppPass-ChangeMe-2026!'</span><span class="kw">;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-3" class="code-annotation-target"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Otorgar privilegios específicos</span></span>
+<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="3" data-code-annotation="1"><strong>Password seguro</strong>: Mínimo 16 caracteres, mayúsculas, minúsculas, números, símbolos</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="8" data-code-annotation="2"><strong>Privilegios mínimos</strong>: Solo lo que necesita la aplicación</span>
+</dd>
+</dl>
+</section>
+<section id="verificar-acceso" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-acceso">Verificar Acceso</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Probar conexión como el nuevo usuario</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-u</span> appuser <span class="at">-p</span> appdb <span class="at">-e</span> <span class="st">'SHOW TABLES;'</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-3" class="code-annotation-target"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver qué puede hacer</span></span>
+<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">SHOW</span> GRANTS FOR <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="3" data-code-annotation="1"><strong>Conexión exitosa</strong>: Puede conectar y ver su DB</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="7" data-code-annotation="2"><strong>GRANTS</strong>: Muestra privilegios del usuario</span>
+</dd>
+</dl>
+</section>
+<section id="tipos-de-usuarios-por-host" class="level3">
+<h3 class="anchored" data-anchor-id="tipos-de-usuarios-por-host">Tipos de Usuarios por Host</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-6-1"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario solo localhost (aplicación en mismo servidor)</span></span>
+<span id="annotated-cell-6-2"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'appuser'</span>@<span class="st">'localhost'</span> IDENTIFIED BY <span class="st">'Password123!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-6-3"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-4"><a href="#annotated-cell-6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario desde red local (servidor web en otra máquina)</span></span>
+<span id="annotated-cell-6-5"><a href="#annotated-cell-6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'appuser'</span>@<span class="st">'10.0.1.0/255.255.255.0'</span> IDENTIFIED BY <span class="st">'Password123!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-6-6"><a href="#annotated-cell-6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-7"><a href="#annotated-cell-6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario desde cualquier lado (NO recomendado para producción)</span></span>
+<span id="annotated-cell-6-8"><a href="#annotated-cell-6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'appuser'</span>@<span class="st">'%'</span> IDENTIFIED BY <span class="st">'Password123!'</span><span class="kw">;</span></span>
+<span id="annotated-cell-6-9"><a href="#annotated-cell-6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-10"><a href="#annotated-cell-6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario específico por IP</span></span>
+<span id="annotated-cell-6-11"><a href="#annotated-cell-6-11" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> USER <span class="st">'appuser'</span>@<span class="st">'10.0.1.20'</span> IDENTIFIED BY <span class="st">'Password123!'</span><span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-6" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-6" data-code-lines="12" data-code-annotation="1"><strong>localhost vs IP vs %</strong>: Diferentes niveles de acceso</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="privilegios" class="level2">
+<h2 class="anchored" data-anchor-id="privilegios">Privilegios</h2>
+<section id="niveles-de-privilegios" class="level3">
+<h3 class="anchored" data-anchor-id="niveles-de-privilegios">Niveles de Privilegios</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 36%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Nivel</th>
+<th>Alcance</th>
+<th>Ejemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Global</strong></td>
+<td>Todas las DB</td>
+<td><code>GRANT ALL ON *.*</code></td>
+</tr>
+<tr class="even">
+<td><strong>Database</strong></td>
+<td>Una DB específica</td>
+<td><code>GRANT ALL ON appdb.*</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Table</strong></td>
+<td>Una tabla</td>
+<td><code>GRANT ALL ON appdb.users</code></td>
+</tr>
+<tr class="even">
+<td><strong>Column</strong></td>
+<td>Columnas específicas</td>
+<td><code>GRANT SELECT(id, name) ON appdb.users</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Routine</strong></td>
+<td>Procedimientos/funciones</td>
+<td><code>GRANT EXECUTE ON appdb.*</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="privilegios-comunes" class="level3">
+<h3 class="anchored" data-anchor-id="privilegios-comunes">Privilegios Comunes</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-7" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-7-1"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aplicación web típica</span></span>
+<span id="annotated-cell-7-2"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-7-3"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-4"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario de solo lectura (reporting)</span></span>
+<span id="annotated-cell-7-5"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT ON appdb.<span class="pp">*</span> TO <span class="st">'readonly'</span>@<span class="st">'%'</span><span class="kw">;</span></span>
+<span id="annotated-cell-7-6"><a href="#annotated-cell-7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-7"><a href="#annotated-cell-7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario con DDL (schema changes)</span></span>
+<span id="annotated-cell-7-8"><a href="#annotated-cell-7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP ON appdb.<span class="pp">*</span> TO <span class="st">'devuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-7-9"><a href="#annotated-cell-7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-7-10"><a href="#annotated-cell-7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario administrador (todas las DB)</span></span>
+<span id="annotated-cell-7-11"><a href="#annotated-cell-7-11" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> ALL PRIVILEGES ON <span class="pp">*</span>.<span class="pp">*</span> TO <span class="st">'admin'</span>@<span class="st">'localhost'</span> WITH GRANT OPTION<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="12" data-code-annotation="1"><strong>GRANT OPTION</strong>: Puede dar privilegios a otros usuarios</span>
+</dd>
+</dl>
+</section>
+<section id="revocar-privilegios" class="level3">
+<h3 class="anchored" data-anchor-id="revocar-privilegios">Revocar Privilegios</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-8-1"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Quitar privilegio específico</span></span>
+<span id="annotated-cell-8-2"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">REVOKE</span> DELETE ON appdb.<span class="pp">*</span> FROM <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-4"><a href="#annotated-cell-8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Quitar todos los privilegios</span></span>
+<span id="annotated-cell-8-5"><a href="#annotated-cell-8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">REVOKE</span> ALL PRIVILEGES ON appdb.<span class="pp">*</span> FROM <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-8-6"><a href="#annotated-cell-8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-7"><a href="#annotated-cell-8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="8" data-code-annotation="1"><strong>REVOKE</strong>: Quitar privilegios otorgados</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="contraseñas-seguras" class="level2">
+<h2 class="anchored" data-anchor-id="contraseñas-seguras">Contraseñas Seguras</h2>
+<section id="generar-contraseña-segura" class="level3">
+<h3 class="anchored" data-anchor-id="generar-contraseña-segura">Generar Contraseña Segura</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Con openssl (32 bytes = ~43 caracteres en base64)</span></span>
+<span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> openssl rand <span class="at">-base64</span> 32</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-9-3" class="code-annotation-target"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-4"><a href="#annotated-cell-9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-5"><a href="#annotated-cell-9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Con pwgen (32 caracteres, segura)</span></span>
+<span id="annotated-cell-9-6"><a href="#annotated-cell-9-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> pwgen <span class="at">-s</span> 32 1</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-9" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-9-7" class="code-annotation-target"><a href="#annotated-cell-9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-8"><a href="#annotated-cell-9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-9"><a href="#annotated-cell-9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Con MariaDB (validate_password plugin)</span></span>
+<span id="annotated-cell-9-10"><a href="#annotated-cell-9-10" aria-hidden="true" tabindex="-1"></a><span class="ex">INSTALL</span> PLUGIN validate_password SONAME <span class="st">'validate_password.so'</span><span class="kw">;</span></span>
+<span id="annotated-cell-9-11"><a href="#annotated-cell-9-11" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_length = 16<span class="kw">;</span></span>
+<span id="annotated-cell-9-12"><a href="#annotated-cell-9-12" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_mixed_case_count = 1<span class="kw">;</span></span>
+<span id="annotated-cell-9-13"><a href="#annotated-cell-9-13" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_number_count = 1<span class="kw">;</span></span>
+<span id="annotated-cell-9-14"><a href="#annotated-cell-9-14" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_special_char_count = 1<span class="kw">;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="3" data-code-annotation="1"><strong>openssl</strong>: Método nativo del sistema</span>
+</dd>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="7" data-code-annotation="2"><strong>pwgen</strong>: Generador dedicado</span>
+</dd>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="15" data-code-annotation="3"><strong>validate_password</strong>: Plugin de MariaDB</span>
+</dd>
+</dl>
+</section>
+<section id="políticas-de-contraseña" class="level3">
+<h3 class="anchored" data-anchor-id="políticas-de-contraseña">Políticas de Contraseña</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-10-1"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Configurar política de contraseñas</span></span>
+<span id="annotated-cell-10-2"><a href="#annotated-cell-10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mariadb</span>
+<span id="annotated-cell-10-3"><a href="#annotated-cell-10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-4"><a href="#annotated-cell-10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver plugins de contraseña</span></span>
+<span id="annotated-cell-10-5"><a href="#annotated-cell-10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">SHOW</span> PLUGINS LIKE <span class="st">'validate%'</span><span class="kw">;</span></span>
+<span id="annotated-cell-10-6"><a href="#annotated-cell-10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-7"><a href="#annotated-cell-10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Configurar políticas</span></span>
+<span id="annotated-cell-10-8"><a href="#annotated-cell-10-8" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_policy = <span class="st">'STRONG'</span><span class="kw">;</span></span>
+<span id="annotated-cell-10-9"><a href="#annotated-cell-10-9" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_length = 20<span class="kw">;</span></span>
+<span id="annotated-cell-10-10"><a href="#annotated-cell-10-10" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_mixed_case_count = 2<span class="kw">;</span></span>
+<span id="annotated-cell-10-11"><a href="#annotated-cell-10-11" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_number_count = 2<span class="kw">;</span></span>
+<span id="annotated-cell-10-12"><a href="#annotated-cell-10-12" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> GLOBAL validate_password_special_char_count = 2<span class="kw">;</span></span>
+<span id="annotated-cell-10-13"><a href="#annotated-cell-10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-14"><a href="#annotated-cell-10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># O en my.cnf:</span></span>
+<span id="annotated-cell-10-15"><a href="#annotated-cell-10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># [mysqld]</span></span>
+<span id="annotated-cell-10-16"><a href="#annotated-cell-10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># validate_password_policy=STRONG</span></span>
+<span id="annotated-cell-10-17"><a href="#annotated-cell-10-17" aria-hidden="true" tabindex="-1"></a><span class="co"># validate_password_length=20</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="18" data-code-annotation="1"><strong>validate_password</strong>: Fuerza contraseñas seguras</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="roles-mariadb-10.2" class="level2">
+<h2 class="anchored" data-anchor-id="roles-mariadb-10.2">Roles (MariaDB 10.2+)</h2>
+<section id="crear-y-asignar-roles" class="level3">
+<h3 class="anchored" data-anchor-id="crear-y-asignar-roles">Crear y Asignar Roles</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear rol de lectura</span></span>
+<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> ROLE <span class="st">'app_readonly'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT ON appdb.<span class="pp">*</span> TO <span class="st">'app_readonly'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear rol de escritura</span></span>
+<span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> ROLE <span class="st">'app_write'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-7"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'app_write'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-8"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-9"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear rol de admin</span></span>
+<span id="annotated-cell-11-10"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a><span class="ex">CREATE</span> ROLE <span class="st">'app_admin'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-11"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> ALL PRIVILEGES ON appdb.<span class="pp">*</span> TO <span class="st">'app_admin'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-12"><a href="#annotated-cell-11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-13"><a href="#annotated-cell-11-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Asignar rol a usuario</span></span>
+<span id="annotated-cell-11-14"><a href="#annotated-cell-11-14" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> <span class="st">'app_readonly'</span> TO <span class="st">'developer'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-15"><a href="#annotated-cell-11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-16"><a href="#annotated-cell-11-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Definir rol por defecto</span></span>
+<span id="annotated-cell-11-17"><a href="#annotated-cell-11-17" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> DEFAULT ROLE <span class="st">'app_readonly'</span> FOR <span class="st">'developer'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-11-18"><a href="#annotated-cell-11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-19"><a href="#annotated-cell-11-19" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="20" data-code-annotation="1"><strong>Roles</strong>: Facilitan gestión de privilegios</span>
+</dd>
+</dl>
+</section>
+<section id="usar-roles" class="level3">
+<h3 class="anchored" data-anchor-id="usar-roles">Usar Roles</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-12" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-12-1"><a href="#annotated-cell-12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario activa rol</span></span>
+<span id="annotated-cell-12-2"><a href="#annotated-cell-12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> ROLE <span class="st">'app_write'</span><span class="kw">;</span></span>
+<span id="annotated-cell-12-3"><a href="#annotated-cell-12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-4"><a href="#annotated-cell-12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver rol activo</span></span>
+<span id="annotated-cell-12-5"><a href="#annotated-cell-12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">SELECT</span> CURRENT_ROLE<span class="er">(</span><span class="kw">);</span></span>
+<span id="annotated-cell-12-6"><a href="#annotated-cell-12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-7"><a href="#annotated-cell-12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Cambiar a rol diferente</span></span>
+<span id="annotated-cell-12-8"><a href="#annotated-cell-12-8" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> ROLE <span class="st">'app_readonly'</span><span class="kw">;</span></span>
+<span id="annotated-cell-12-9"><a href="#annotated-cell-12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-12-10"><a href="#annotated-cell-12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Quitar rol activo</span></span>
+<span id="annotated-cell-12-11"><a href="#annotated-cell-12-11" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> ROLE NONE<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="gestión-de-usuarios-en-producción" class="level2">
+<h2 class="anchored" data-anchor-id="gestión-de-usuarios-en-producción">Gestión de Usuarios en Producción</h2>
+<section id="auditoría-de-usuarios" class="level3">
+<h3 class="anchored" data-anchor-id="auditoría-de-usuarios">Auditoría de Usuarios</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-13" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-13-1"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listar todos los usuarios</span></span>
+<span id="annotated-cell-13-2"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">SELECT</span> User, Host, plugin, password_lifetime FROM mysql.user ORDER BY User<span class="kw">;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-13" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-13-3" class="code-annotation-target"><a href="#annotated-cell-13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-4"><a href="#annotated-cell-13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-5"><a href="#annotated-cell-13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver privilegios de cada usuario</span></span>
+<span id="annotated-cell-13-6"><a href="#annotated-cell-13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">SELECT</span> user, host, db, select_priv, insert_priv, update_priv, delete_priv </span>
+<span id="annotated-cell-13-7"><a href="#annotated-cell-13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">FROM</span> mysql.db ORDER BY user, db<span class="kw">;</span></span>
+<span id="annotated-cell-13-8"><a href="#annotated-cell-13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-9"><a href="#annotated-cell-13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver usuarios sin password o expirados</span></span>
+<span id="annotated-cell-13-10"><a href="#annotated-cell-13-10" aria-hidden="true" tabindex="-1"></a><span class="ex">SELECT</span> user, host FROM mysql.user WHERE password = <span class="st">''</span> OR password IS NULL<span class="kw">;</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="3" data-code-annotation="1"><strong>Usuarios del sistema</strong>: Ver todos</span>
+</dd>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="11" data-code-annotation="2"><strong>Sin password</strong>: Usuarios vulnerables</span>
+</dd>
+</dl>
+</section>
+<section id="eliminar-usuarios" class="level3">
+<h3 class="anchored" data-anchor-id="eliminar-usuarios">Eliminar Usuarios</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-14-1"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminar usuario específico</span></span>
+<span id="annotated-cell-14-2"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">DROP</span> USER <span class="st">'olduser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-14-3"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-4"><a href="#annotated-cell-14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminar todos los usuarios de un host</span></span>
+<span id="annotated-cell-14-5"><a href="#annotated-cell-14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">DROP</span> USER <span class="st">'appuser'</span>@<span class="st">'%'</span><span class="kw">;</span></span>
+<span id="annotated-cell-14-6"><a href="#annotated-cell-14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-7"><a href="#annotated-cell-14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="annotated-cell-14-8"><a href="#annotated-cell-14-8" aria-hidden="true" tabindex="-1"></a><span class="ex">SELECT</span> User, Host FROM mysql.user<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="9" data-code-annotation="1"><strong>DROP USER</strong>: Eliminar permanentemente</span>
+</dd>
+</dl>
+</section>
+<section id="lock-de-usuarios" class="level3">
+<h3 class="anchored" data-anchor-id="lock-de-usuarios">Lock de Usuarios</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-15-1"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bloquear usuario (sin eliminar)</span></span>
+<span id="annotated-cell-15-2"><a href="#annotated-cell-15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ALTER</span> USER <span class="st">'olduser'</span>@<span class="st">'localhost'</span> ACCOUNT LOCK<span class="kw">;</span></span>
+<span id="annotated-cell-15-3"><a href="#annotated-cell-15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-4"><a href="#annotated-cell-15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Desbloquear</span></span>
+<span id="annotated-cell-15-5"><a href="#annotated-cell-15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">ALTER</span> USER <span class="st">'olduser'</span>@<span class="st">'localhost'</span> ACCOUNT UNLOCK<span class="kw">;</span></span>
+<span id="annotated-cell-15-6"><a href="#annotated-cell-15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-7"><a href="#annotated-cell-15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Cambiar password sin saber la anterior (como root)</span></span>
+<span id="annotated-cell-15-8"><a href="#annotated-cell-15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> PASSWORD FOR <span class="st">'appuser'</span>@<span class="st">'localhost'</span> = PASSWORD<span class="er">(</span><span class="st">'NewPassword123!'</span><span class="kw">);</span></span>
+<span id="annotated-cell-15-9"><a href="#annotated-cell-15-9" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="10" data-code-annotation="1"><strong>ACCOUNT LOCK</strong>: useful para empleados que se van</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="casos-de-estudio" class="level2">
+<h2 class="anchored" data-anchor-id="casos-de-estudio">Casos de Estudio</h2>
+<section id="caso-1-aplicación-no-puede-conectar" class="level3">
+<h3 class="anchored" data-anchor-id="caso-1-aplicación-no-puede-conectar">Caso 1: Aplicación No Puede Conectar</h3>
+<p><strong>Problema</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mariadb <span class="at">-u</span> appuser <span class="at">-p</span> <span class="at">-e</span> <span class="st">"SELECT * FROM users"</span></span>
+<span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ERROR</span> 1045 <span class="er">(</span><span class="ex">28000</span><span class="kw">)</span><span class="bu">:</span> Access denied for user <span class="st">'appuser'</span>@<span class="st">'localhost'</span> <span class="er">(</span><span class="ex">using</span> password: YES<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Diagnóstico</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-17-1"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar que el usuario existe</span></span>
+<span id="annotated-cell-17-2"><a href="#annotated-cell-17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">SELECT</span> User, Host, plugin FROM mysql.user WHERE User=<span class="st">'appuser'</span><span class="kw">;</span></span>
+<span id="annotated-cell-17-3"><a href="#annotated-cell-17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-4"><a href="#annotated-cell-17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar privilegios</span></span>
+<span id="annotated-cell-17-5"><a href="#annotated-cell-17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">SHOW</span> GRANTS FOR <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+</dl>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Resetear password</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> PASSWORD FOR <span class="st">'appuser'</span>@<span class="st">'localhost'</span> = PASSWORD<span class="er">(</span><span class="st">'NewSecurePassword123!'</span><span class="kw">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="caso-2-usuario-con-demasiados-privilegios" class="level3">
+<h3 class="anchored" data-anchor-id="caso-2-usuario-con-demasiados-privilegios">Caso 2: Usuario con Demasiados Privilegios</h3>
+<p><strong>Problema</strong>: Usuario de aplicación tiene acceso a todas las bases de datos.</p>
+<p><strong>Diagnóstico</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-19" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-19-1"><a href="#annotated-cell-19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">SHOW</span> GRANTS FOR <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="annotated-cell-19-2"><a href="#annotated-cell-19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Grants for appuser@localhost: GRANT SELECT, INSERT, UPDATE, DELETE ON *.* TO 'appuser'@'localhost'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-19" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-19" data-code-lines="3" data-code-annotation="1"><strong>Con <em>.</em></strong>: Tiene acceso a TODAS las bases de datos</span>
+</dd>
+</dl>
+<p><strong>Solución</strong>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Revocar privilegios globales</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">REVOKE</span> SELECT, INSERT, UPDATE, DELETE ON <span class="pp">*</span>.<span class="pp">*</span> FROM <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Otorgar solo a la DB específica</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'appuser'</span>@<span class="st">'localhost'</span><span class="kw">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">FLUSH</span> PRIVILEGES<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="caso-3-necesito-ver-password-de-usuario" class="level3">
+<h3 class="anchored" data-anchor-id="caso-3-necesito-ver-password-de-usuario">Caso 3: Necesito Ver Password de Usuario</h3>
+<p><strong>Problema</strong>: No se puede ver password de usuario (está hasheado).</p>
+<p><strong>Solución</strong>: No se puede ver el password original. Solo se puede:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Resetear password</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ALTER</span> USER <span class="st">'appuser'</span>@<span class="st">'localhost'</span> IDENTIFIED BY <span class="st">'NewPassword123!'</span><span class="kw">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># O verificar que el password funciona (sin saber el original)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">SET</span> PASSWORD FOR <span class="st">'appuser'</span>@<span class="st">'localhost'</span> = PASSWORD<span class="er">(</span><span class="st">'TestPassword123!'</span><span class="kw">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">Resumen</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 46%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tema</th>
+<th>Comando Clave</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Crear DB</td>
+<td><code>CREATE DATABASE db CHARACTER SET utf8mb4</code></td>
+<td>Base de datos</td>
+</tr>
+<tr class="even">
+<td>Crear Usuario</td>
+<td><code>CREATE USER 'user'@'host' IDENTIFIED BY 'pass'</code></td>
+<td>Usuario</td>
+</tr>
+<tr class="odd">
+<td>Privilegios</td>
+<td><code>GRANT SELECT ON db.* TO 'user'@'host'</code></td>
+<td>Acceso</td>
+</tr>
+<tr class="even">
+<td>Roles</td>
+<td><code>CREATE ROLE 'rolename'</code></td>
+<td>Agrupar privilegios</td>
+</tr>
+<tr class="odd">
+<td>Auditar</td>
+<td><code>SHOW GRANTS FOR 'user'@'host'</code></td>
+<td>Ver permisos</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
+<ul>
+<li><a href="https://mariadb.com/kb/en/user-account-management/">MariaDB User Management</a></li>
+<li><a href="https://mariadb.com/kb/en/grant/#privilege-levels">MariaDB Privileges</a></li>
+<li><a href="https://mariadb.com/kb/en/validate-password-plugin/">validate_password Plugin</a></li>
+</ul>
 
 
 </section>
@@ -1741,13 +2331,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="pagination-link" aria-label="Unidad 11.1: Instalacion y seguridad inicial">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></span>
+      <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="pagination-link" aria-label="Unidad 11: MariaDB - Base de Datos en Producción">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../unidades/unidad11/3_backup_restore.html" class="pagination-link" aria-label="Unidad 11.3: Backup y restore">
-        <span class="nav-page-text"><span class="chapter-title">Unidad 11.3: Backup y restore</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../unidades/unidad11/3_backup_restore.html" class="pagination-link" aria-label="Unidad 11.3: Backup y Restauración">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

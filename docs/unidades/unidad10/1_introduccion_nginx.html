@@ -2,15 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.9.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Diego Saavedra">
 <meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
 
-<title>Unidad 10.1: Introduccion a Nginx – Administración de Servidores Linux</title>
+<title>Unidad 10: Nginx - Servidor Web y Reverse Proxy – Administración de Servidores Linux</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -71,17 +74,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-61780a260fdcf47536a34fde95582725.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-68056a18e515a5789c5e26a7aeb7ac61.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-d475e4ab3b4fd243dd6ecd26d4f0399c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
@@ -292,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -638,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
- <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
+ <span class="menu-text">Unidad 8: SSH y Acceso Remoto Seguro</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -646,7 +648,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introducción a la web</span></a>
+  <a href="../../unidades/unidad8/1_ssh_fundamentos_keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Protocolo y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/2_ssh_tunnels.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH Tunnels: Port Forwarding y Proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/3_lab_practico_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Laboratorio Práctico</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -667,22 +679,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y Múltiples Sitios</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/5_lab_practico_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -703,22 +720,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -739,22 +761,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Acceso Remoto y Seguridad de Red</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/5_lab_practico_mariadb.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Laboratorio Práctico - MariaDB</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -775,7 +802,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -791,6 +818,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1194,14 +1226,64 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#unidad-10.1-introduccion-a-nginx" id="toc-unidad-10.1-introduccion-a-nginx" class="nav-link active" data-scroll-target="#unidad-10.1-introduccion-a-nginx">Unidad 10.1: Introduccion a Nginx</a>
+  <li><a href="#unidad-10-nginx-en-producción" id="toc-unidad-10-nginx-en-producción" class="nav-link active" data-scroll-target="#unidad-10-nginx-en-producción">Unidad 10: Nginx en Producción</a>
   <ul class="collapse">
-  <li><a href="#introduccion" id="toc-introduccion" class="nav-link" data-scroll-target="#introduccion">Introduccion</a></li>
-  <li><a href="#objetivos-de-aprendizaje" id="toc-objetivos-de-aprendizaje" class="nav-link" data-scroll-target="#objetivos-de-aprendizaje">Objetivos de aprendizaje</a></li>
-  <li><a href="#instalacion-ubuntu" id="toc-instalacion-ubuntu" class="nav-link" data-scroll-target="#instalacion-ubuntu">Instalacion (Ubuntu)</a></li>
-  <li><a href="#validar-servicio-y-puertos" id="toc-validar-servicio-y-puertos" class="nav-link" data-scroll-target="#validar-servicio-y-puertos">Validar servicio y puertos</a></li>
-  <li><a href="#probar-respuesta-http" id="toc-probar-respuesta-http" class="nav-link" data-scroll-target="#probar-respuesta-http">Probar respuesta HTTP</a></li>
-  <li><a href="#rutas-clave-en-ubuntu" id="toc-rutas-clave-en-ubuntu" class="nav-link" data-scroll-target="#rutas-clave-en-ubuntu">Rutas clave en Ubuntu</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#arquitectura-de-nginx" id="toc-arquitectura-de-nginx" class="nav-link" data-scroll-target="#arquitectura-de-nginx">Arquitectura de Nginx</a>
+  <ul class="collapse">
+  <li><a href="#modelo-asíncrono-vs-apache" id="toc-modelo-asíncrono-vs-apache" class="nav-link" data-scroll-target="#modelo-asíncrono-vs-apache">Modelo Asíncrono vs Apache</a></li>
+  <li><a href="#flujo-de-request-en-nginx" id="toc-flujo-de-request-en-nginx" class="nav-link" data-scroll-target="#flujo-de-request-en-nginx">Flujo de Request en Nginx</a></li>
+  </ul></li>
+  <li><a href="#instalación-en-producción" id="toc-instalación-en-producción" class="nav-link" data-scroll-target="#instalación-en-producción">Instalación en Producción</a>
+  <ul class="collapse">
+  <li><a href="#paquetes-recomendados" id="toc-paquetes-recomendados" class="nav-link" data-scroll-target="#paquetes-recomendados">Paquetes Recomendados</a></li>
+  <li><a href="#verificar-instalación" id="toc-verificar-instalación" class="nav-link" data-scroll-target="#verificar-instalación">Verificar Instalación</a></li>
+  <li><a href="#prueba-de-respuesta" id="toc-prueba-de-respuesta" class="nav-link" data-scroll-target="#prueba-de-respuesta">Prueba de Respuesta</a></li>
+  </ul></li>
+  <li><a href="#estructura-de-archivos" id="toc-estructura-de-archivos" class="nav-link" data-scroll-target="#estructura-de-archivos">Estructura de Archivos</a></li>
+  <li><a href="#server-blocks-virtualhosts" id="toc-server-blocks-virtualhosts" class="nav-link" data-scroll-target="#server-blocks-virtualhosts">Server Blocks (VirtualHosts)</a>
+  <ul class="collapse">
+  <li><a href="#configuración-de-server-block" id="toc-configuración-de-server-block" class="nav-link" data-scroll-target="#configuración-de-server-block">Configuración de Server Block</a></li>
+  <li><a href="#habilitar-y-verificar" id="toc-habilitar-y-verificar" class="nav-link" data-scroll-target="#habilitar-y-verificar">Habilitar y Verificar</a></li>
+  <li><a href="#probar-server-block" id="toc-probar-server-block" class="nav-link" data-scroll-target="#probar-server-block">Probar Server Block</a></li>
+  </ul></li>
+  <li><a href="#reverse-proxy" id="toc-reverse-proxy" class="nav-link" data-scroll-target="#reverse-proxy">Reverse Proxy</a>
+  <ul class="collapse">
+  <li><a href="#concepto" id="toc-concepto" class="nav-link" data-scroll-target="#concepto">Concepto</a></li>
+  <li><a href="#reverse-proxy-a-aplicación" id="toc-reverse-proxy-a-aplicación" class="nav-link" data-scroll-target="#reverse-proxy-a-aplicación">Reverse Proxy a Aplicación</a></li>
+  <li><a href="#proxy-a-múltiples-backends-load-balancing" id="toc-proxy-a-múltiples-backends-load-balancing" class="nav-link" data-scroll-target="#proxy-a-múltiples-backends-load-balancing">Proxy a Múltiples Backends (Load Balancing)</a></li>
+  <li><a href="#websocket-support" id="toc-websocket-support" class="nav-link" data-scroll-target="#websocket-support">WebSocket Support</a></li>
+  </ul></li>
+  <li><a href="#ssltls-con-certbot" id="toc-ssltls-con-certbot" class="nav-link" data-scroll-target="#ssltls-con-certbot">SSL/TLS con Certbot</a>
+  <ul class="collapse">
+  <li><a href="#instalación-de-certbot" id="toc-instalación-de-certbot" class="nav-link" data-scroll-target="#instalación-de-certbot">Instalación de Certbot</a></li>
+  <li><a href="#obtener-certificado" id="toc-obtener-certificado" class="nav-link" data-scroll-target="#obtener-certificado">Obtener Certificado</a></li>
+  <li><a href="#configuración-ssl-generada" id="toc-configuración-ssl-generada" class="nav-link" data-scroll-target="#configuración-ssl-generada">Configuración SSL Generada</a></li>
+  <li><a href="#ssl-de-producción-manual" id="toc-ssl-de-producción-manual" class="nav-link" data-scroll-target="#ssl-de-producción-manual">SSL de Producción Manual</a></li>
+  <li><a href="#renovación-automática" id="toc-renovación-automática" class="nav-link" data-scroll-target="#renovación-automática">Renovación Automática</a></li>
+  </ul></li>
+  <li><a href="#hardening-de-nginx" id="toc-hardening-de-nginx" class="nav-link" data-scroll-target="#hardening-de-nginx">Hardening de Nginx</a>
+  <ul class="collapse">
+  <li><a href="#ocultar-información" id="toc-ocultar-información" class="nav-link" data-scroll-target="#ocultar-información">1. Ocultar Información</a></li>
+  <li><a href="#security-headers" id="toc-security-headers" class="nav-link" data-scroll-target="#security-headers">2. Security Headers</a></li>
+  <li><a href="#rate-limiting" id="toc-rate-limiting" class="nav-link" data-scroll-target="#rate-limiting">3. Rate Limiting</a></li>
+  <li><a href="#proteger-archivos-sensibles" id="toc-proteger-archivos-sensibles" class="nav-link" data-scroll-target="#proteger-archivos-sensibles">4. Proteger Archivos Sensibles</a></li>
+  <li><a href="#configuración-completa-de-producción" id="toc-configuración-completa-de-producción" class="nav-link" data-scroll-target="#configuración-completa-de-producción">Configuración Completa de Producción</a></li>
+  </ul></li>
+  <li><a href="#casos-de-estudio" id="toc-casos-de-estudio" class="nav-link" data-scroll-target="#casos-de-estudio">Casos de Estudio</a>
+  <ul class="collapse">
+  <li><a href="#caso-1-node.js-api-detrás-de-nginx" id="toc-caso-1-node.js-api-detrás-de-nginx" class="nav-link" data-scroll-target="#caso-1-node.js-api-detrás-de-nginx">Caso 1: Node.js API Detrás de Nginx</a></li>
+  <li><a href="#caso-2-múltiples-dominios-con-nginx" id="toc-caso-2-múltiples-dominios-con-nginx" class="nav-link" data-scroll-target="#caso-2-múltiples-dominios-con-nginx">Caso 2: Múltiples Dominios con Nginx</a></li>
+  <li><a href="#caso-3-nginx-como-cache" id="toc-caso-3-nginx-como-cache" class="nav-link" data-scroll-target="#caso-3-nginx-como-cache">Caso 3: Nginx como Cache</a></li>
+  </ul></li>
+  <li><a href="#monitoreo-y-logs" id="toc-monitoreo-y-logs" class="nav-link" data-scroll-target="#monitoreo-y-logs">Monitoreo y Logs</a>
+  <ul class="collapse">
+  <li><a href="#logs-de-nginx" id="toc-logs-de-nginx" class="nav-link" data-scroll-target="#logs-de-nginx">Logs de Nginx</a></li>
+  <li><a href="#monitoreo-con-systemd" id="toc-monitoreo-con-systemd" class="nav-link" data-scroll-target="#monitoreo-con-systemd">Monitoreo con systemd</a></li>
+  <li><a href="#health-check" id="toc-health-check" class="nav-link" data-scroll-target="#health-check">Health Check</a></li>
+  </ul></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">Resumen</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   <li>Code Appendix</li>
   </ul>
@@ -1211,10 +1293,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html">Unidad 10: Nginx y SSL</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad10/1_introduccion_nginx.html"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></h1>
-<p class="subtitle lead">Instalacion y conceptos operativos</p>
+<h1 class="title"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></h1>
+<p class="subtitle lead">Nginx de producción: configuración, reverse proxy, SSL y hardening</p>
 </div>
 
 
@@ -1231,7 +1313,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">Feb 2, 2026</p>
+      <p class="date">Mar 31, 2026</p>
     </div>
   </div>
   
@@ -1243,99 +1325,980 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="unidad-10.1-introduccion-a-nginx" class="level1">
-<h1>Unidad 10.1: Introduccion a Nginx</h1>
-<section id="introduccion" class="level2">
-<h2 class="anchored" data-anchor-id="introduccion">Introduccion</h2>
-<p>Nginx se usa mucho como servidor web y reverse proxy. En servidores, lo tipico es: Nginx en 80/443, aplicaciones atras (Node, Python, etc.), y certificados TLS con Certbot.</p>
+<section id="unidad-10-nginx-en-producción" class="level1">
+<h1>Unidad 10: Nginx en Producción</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>Nginx es el servidor web más usado en internet y el estándar para reverse proxy. Su modelo asíncrono basado en eventos lo hace extremadamente eficiente para alto tráfico. En esta unidad vas a dominar Nginx desde la instalación hasta el hardening de producción.</p>
 </section>
-<section id="objetivos-de-aprendizaje" class="level2">
-<h2 class="anchored" data-anchor-id="objetivos-de-aprendizaje">Objetivos de aprendizaje</h2>
-<ul>
-<li>Instalar Nginx en Ubuntu Server</li>
-<li>Validar servicio, puertos y respuesta HTTP</li>
-<li>Identificar ubicaciones clave de configuracion</li>
-</ul>
-<hr>
+<section id="arquitectura-de-nginx" class="level2">
+<h2 class="anchored" data-anchor-id="arquitectura-de-nginx">Arquitectura de Nginx</h2>
+<section id="modelo-asíncrono-vs-apache" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-asíncrono-vs-apache">Modelo Asíncrono vs Apache</h3>
+<pre data-code-line-numbers=""><code>┌─────────────────────────────────────────────────────────────────┐
+│               NGINX vs APACHE: ARQUITECTURA                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   APACHE (Modelo híbrido)         NGINX (Modelo asíncrono)    │
+│  ┌─────────┐  ┌─────────┐         ┌─────────┐                  │
+│  │Worker 1 │  │Worker 2 │         │         │                  │
+│  │Thread 1 │  │Thread 2 │         │  Event  │ ← 1 proceso      │
+│  │Request  │  │Request  │         │  Loop   │   maneja miles   │
+│  │   A     │  │   B     │         │         │   de conexiones  │
+│  └─────────┘  └─────────┘         └─────────┘                  │
+│                                                                  │
+│   1 request × thread              1 proceso = N conexiones     │
+│   + overhead de threads           + bajo consumo memoria        │
+│                                                                  │
+│   Mejor para: legacy PHP          Mejor para: alto tráfico,     │
+│                                    static files, reverse proxy  │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
 </section>
-<section id="instalacion-ubuntu" class="level2">
-<h2 class="anchored" data-anchor-id="instalacion-ubuntu">Instalacion (Ubuntu)</h2>
+<section id="flujo-de-request-en-nginx" class="level3">
+<h3 class="anchored" data-anchor-id="flujo-de-request-en-nginx">Flujo de Request en Nginx</h3>
+<pre data-code-line-numbers=""><code>1. TCP Handshake (puerto 80/443)
+       │
+       ▼
+2. Nginx Event Loop acepta conexión
+       │
+       ▼
+3. Parse de headers HTTP
+       │
+       ▼
+4. Matching de server_name (virtual host)
+       │
+       ▼
+5. Matching de location (rewrite/filter/alias)
+       │
+       ▼
+6. Handler: static file / proxy_pass / fastcgi
+       │
+       ▼
+7. Escribir a access.log
+       │
+ ▼
+Cierre o keep-alive</code></pre>
+</section>
+</section>
+<section id="instalación-en-producción" class="level2">
+<h2 class="anchored" data-anchor-id="instalación-en-producción">Instalación en Producción</h2>
+<section id="paquetes-recomendados" class="level3">
+<h3 class="anchored" data-anchor-id="paquetes-recomendados">Paquetes Recomendados</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update</span>
-<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-4" class="code-annotation-target"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> nginx</span>
-<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Reading</span> package lists... Done</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="1,2" data-code-annotation="1"><strong>apt update</strong> actualiza el indice de paquetes.</span>
-</dd>
-<dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-1" data-code-lines="4,6" data-code-annotation="2"><strong>apt install nginx</strong> instala Nginx.</span>
-</dd>
-</dl>
-<hr>
-</section>
-<section id="validar-servicio-y-puertos" class="level2">
-<h2 class="anchored" data-anchor-id="validar-servicio-y-puertos">Validar servicio y puertos</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-1" class="code-annotation-target"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl status nginx <span class="at">--no-pager</span></span>
-<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> nginx.service <span class="at">-</span> A high performance web server and a reverse proxy server</span>
-<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Loaded:</span> loaded <span class="er">(</span><span class="ex">/lib/systemd/system/nginx.service</span><span class="kw">;</span> <span class="ex">enabled</span><span class="kw">;</span> <span class="ex">vendor</span> preset: enabled<span class="kw">)</span></span>
-<span id="annotated-cell-2-4"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> active <span class="er">(</span><span class="ex">running</span><span class="kw">)</span></span>
-<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-7" class="code-annotation-target"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">':(80|443)\b'</span></span>
-<span id="annotated-cell-2-8"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 511 0.0.0.0:80  0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="st">"nginx"</span><span class="ex">,pid=2345,fd=6</span><span class="kw">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="1,5" data-code-annotation="1"><strong>systemctl status nginx</strong> confirma que el servicio esta activo.</span>
-</dd>
-<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
-<dd>
-<span data-code-cell="annotated-cell-2" data-code-lines="7,9" data-code-annotation="2"><strong>ss -lntp</strong> valida puertos en escucha (80/443).</span>
-</dd>
-</dl>
-<hr>
-</section>
-<section id="probar-respuesta-http" class="level2">
-<h2 class="anchored" data-anchor-id="probar-respuesta-http">Probar respuesta HTTP</h2>
-<div class="code-with-filename">
-<div class="code-with-filename-file">
-<pre><strong>BASH</strong></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
-<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
-<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> nginx/1.24.0 <span class="er">(</span><span class="ex">Ubuntu</span><span class="kw">)</span></span>
-<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Content-Type:</span> text/html</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-3" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar índice</span></span>
+<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt upgrade <span class="at">-y</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-3" class="code-annotation-target"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar Nginx + utilidades</span></span>
+<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> nginx nginx-extras <span class="dt">\</span></span>
+<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a>    certbot python3-certbot-nginx <span class="dt">\</span></span>
+<span id="annotated-cell-3-8"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a>    openssl logrotate</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="1,5" data-code-annotation="1"><strong>curl -I</strong> valida respuesta HTTP de Nginx.</span>
+<span data-code-cell="annotated-cell-3" data-code-lines="3" data-code-annotation="1"><strong>apt update</strong>: Lista de paquetes actualizada</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="9" data-code-annotation="2"><strong>nginx-extras</strong>: Módulos adicionales (more headers, etc.)</span>
 </dd>
 </dl>
-<hr>
 </section>
-<section id="rutas-clave-en-ubuntu" class="level2">
-<h2 class="anchored" data-anchor-id="rutas-clave-en-ubuntu">Rutas clave en Ubuntu</h2>
+<section id="verificar-instalación" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-instalación">Verificar Instalación</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estado del servicio</span></span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl status nginx <span class="at">--no-pager</span></span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> nginx.service <span class="at">-</span> A high performance web server and a reverse proxy server</span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Loaded:</span> loaded <span class="er">(</span><span class="ex">/lib/systemd/system/nginx.service</span><span class="kw">;</span> <span class="ex">enabled</span><span class="kw">)</span></span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> active <span class="er">(</span><span class="ex">running</span><span class="kw">)</span> <span class="ex">since</span> Tue 2026-03-31 10:00:00 UTC</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-6" class="code-annotation-target"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Puertos en escucha</span></span>
+<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span> <span class="kw">|</span> <span class="fu">grep</span> nginx</span>
+<span id="annotated-cell-4-10"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 511 0.0.0.0:80  0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="st">"nginx"</span><span class="ex">,pid=1234,fd=6</span><span class="kw">)</span></span>
+<span id="annotated-cell-4-11"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 511 0.0.0.0:443 0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="st">"nginx"</span><span class="ex">,pid=1234,fd=8</span><span class="kw">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="6" data-code-annotation="1"><strong>systemctl status</strong>: Confirmar servicio activo</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="12" data-code-annotation="2"><strong>Puertos 80 y 443</strong>: Escuchando en todas las interfaces</span>
+</dd>
+</dl>
+</section>
+<section id="prueba-de-respuesta" class="level3">
+<h3 class="anchored" data-anchor-id="prueba-de-respuesta">Prueba de Respuesta</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Headers básicos</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> nginx/1.24.0 <span class="er">(</span><span class="ex">Ubuntu</span><span class="kw">)</span></span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Content-Type:</span> text/html</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-6" class="code-annotation-target"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-8"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># HTML completo</span></span>
+<span id="annotated-cell-5-9"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-s</span> http://localhost <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span></span>
+<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>!DOCTYPE <span class="ex">html</span><span class="op">&gt;</span></span>
+<span id="annotated-cell-5-11"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>html<span class="op">&gt;</span></span>
+<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>head<span class="op">&gt;</span></span>
+<span id="annotated-cell-5-13"><a href="#annotated-cell-5-13" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>title<span class="op">&gt;</span>Welcome <span class="ex">to</span> nginx!<span class="op">&lt;</span>/title<span class="op">&gt;</span></span>
+<span id="annotated-cell-5-14"><a href="#annotated-cell-5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="6" data-code-annotation="1"><strong>curl -I</strong>: Muestra headers de respuesta</span>
+</dd>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="15" data-code-annotation="2"><strong>curl -s</strong>: Descarga HTML completo</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="estructura-de-archivos" class="level2">
+<h2 class="anchored" data-anchor-id="estructura-de-archivos">Estructura de Archivos</h2>
+<pre data-code-line-numbers=""><code>/etc/nginx/
+├── nginx.conf              # Config principal (includes others)
+├── conf.d/                 # Configuraciones adicionales (*.conf)
+├── sites-available/        # Server blocks disponibles
+├── sites-enabled/         # Server blocks activos (symlinks)
+├── snippets/               # Fragmentos reutilizables
+├── modules-available/      # Módulos dinámicos
+├── modules-enabled/        # Módulos activos
+└── mime.types              # Tipos MIME
+
+/var/log/nginx/
+├── access.log              # Todos los requests
+├── error.log               # Errores
+├── site1.access.log       # Logs por sitio (si configurado)
+└── site1.error.log</code></pre>
+<p>###nginx.conf: Estructura Principal</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code>user www-data;
+worker_processes auto;          # Auto-detect CPU cores
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 1024;    # Conexiones por worker
+    multi_accept on;
+    use epoll;                  # Linux optimized
+}
+
+http {
+    # Basic settings
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    # Logging
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    # MIME types
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # Include site configs
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}</code></pre>
+</div>
+</section>
+<section id="server-blocks-virtualhosts" class="level2">
+<h2 class="anchored" data-anchor-id="server-blocks-virtualhosts">Server Blocks (VirtualHosts)</h2>
+<p>###Server Block Básico</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-8-1"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear estructura de directorios</span></span>
+<span id="annotated-cell-8-2"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mkdir <span class="at">-p</span> /var/www/mysite/<span class="dt">{public</span><span class="op">,</span><span class="dt">logs}</span></span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-4"><a href="#annotated-cell-8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear contenido</span></span>
+<span id="annotated-cell-8-5"><a href="#annotated-cell-8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo <span class="st">'&lt;!DOCTYPE html&gt;&lt;h1&gt;My Site&lt;/h1&gt;'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /var/www/mysite/public/index.html</span>
+<span id="annotated-cell-8-6"><a href="#annotated-cell-8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-7"><a href="#annotated-cell-8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Permisos</span></span>
+<span id="annotated-cell-8-8"><a href="#annotated-cell-8-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo chown <span class="at">-R</span> www-data:www-data /var/www/mysite</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="9" data-code-annotation="1"><strong>Estructura</strong>: Document root y logs separados</span>
+</dd>
+</dl>
+<section id="configuración-de-server-block" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-de-server-block">Configuración de Server Block</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/sites-available/mysite.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 80;</span></span>
+<span id="annotated-cell-9-4"><a href="#annotated-cell-9-4" aria-hidden="true" tabindex="-1"></a><span class="st">    listen [::]:80;</span></span>
+<span id="annotated-cell-9-5"><a href="#annotated-cell-9-5" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name mysite.local www.mysite.local;</span></span>
+<span id="annotated-cell-9-6"><a href="#annotated-cell-9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-7"><a href="#annotated-cell-9-7" aria-hidden="true" tabindex="-1"></a><span class="st">    # Document root</span></span>
+<span id="annotated-cell-9-8"><a href="#annotated-cell-9-8" aria-hidden="true" tabindex="-1"></a><span class="st">    root /var/www/mysite/public;</span></span>
+<span id="annotated-cell-9-9"><a href="#annotated-cell-9-9" aria-hidden="true" tabindex="-1"></a><span class="st">    index index.html index.htm;</span></span>
+<span id="annotated-cell-9-10"><a href="#annotated-cell-9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-11"><a href="#annotated-cell-9-11" aria-hidden="true" tabindex="-1"></a><span class="st">    # Access log específico</span></span>
+<span id="annotated-cell-9-12"><a href="#annotated-cell-9-12" aria-hidden="true" tabindex="-1"></a><span class="st">    access_log /var/www/mysite/logs/access.log;</span></span>
+<span id="annotated-cell-9-13"><a href="#annotated-cell-9-13" aria-hidden="true" tabindex="-1"></a><span class="st">    error_log /var/www/mysite/logs/error.log;</span></span>
+<span id="annotated-cell-9-14"><a href="#annotated-cell-9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-15"><a href="#annotated-cell-9-15" aria-hidden="true" tabindex="-1"></a><span class="st">    # Directorio raíz</span></span>
+<span id="annotated-cell-9-16"><a href="#annotated-cell-9-16" aria-hidden="true" tabindex="-1"></a><span class="st">    location / {</span></span>
+<span id="annotated-cell-9-17"><a href="#annotated-cell-9-17" aria-hidden="true" tabindex="-1"></a><span class="st">        try_files $uri $uri/ =404;</span></span>
+<span id="annotated-cell-9-18"><a href="#annotated-cell-9-18" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-9-19"><a href="#annotated-cell-9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-20"><a href="#annotated-cell-9-20" aria-hidden="true" tabindex="-1"></a><span class="st">    # Directorios protegidos</span></span>
+<span id="annotated-cell-9-21"><a href="#annotated-cell-9-21" aria-hidden="true" tabindex="-1"></a><span class="st">    location /private/ {</span></span>
+<span id="annotated-cell-9-22"><a href="#annotated-cell-9-22" aria-hidden="true" tabindex="-1"></a><span class="st">        deny all;</span></span>
+<span id="annotated-cell-9-23"><a href="#annotated-cell-9-23" aria-hidden="true" tabindex="-1"></a><span class="st">        return 403;</span></span>
+<span id="annotated-cell-9-24"><a href="#annotated-cell-9-24" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-9-25"><a href="#annotated-cell-9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-26"><a href="#annotated-cell-9-26" aria-hidden="true" tabindex="-1"></a><span class="st">    # Static files con cache</span></span>
+<span id="annotated-cell-9-27"><a href="#annotated-cell-9-27" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {</span></span>
+<span id="annotated-cell-9-28"><a href="#annotated-cell-9-28" aria-hidden="true" tabindex="-1"></a><span class="st">        expires 30d;</span></span>
+<span id="annotated-cell-9-29"><a href="#annotated-cell-9-29" aria-hidden="true" tabindex="-1"></a><span class="st">        add_header Cache-Control "public, no-transform";</span></span>
+<span id="annotated-cell-9-30"><a href="#annotated-cell-9-30" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-9-31"><a href="#annotated-cell-9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-32"><a href="#annotated-cell-9-32" aria-hidden="true" tabindex="-1"></a><span class="st">    # Prevenir acceso a archivos ocultos</span></span>
+<span id="annotated-cell-9-33"><a href="#annotated-cell-9-33" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~ /\. {</span></span>
+<span id="annotated-cell-9-34"><a href="#annotated-cell-9-34" aria-hidden="true" tabindex="-1"></a><span class="st">        deny all;</span></span>
+<span id="annotated-cell-9-35"><a href="#annotated-cell-9-35" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-9-36"><a href="#annotated-cell-9-36" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-9-37"><a href="#annotated-cell-9-37" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="38" data-code-annotation="1"><strong>Server block completo</strong>: root, logs, seguridad, cache</span>
+</dd>
+</dl>
+</section>
+<section id="habilitar-y-verificar" class="level3">
+<h3 class="anchored" data-anchor-id="habilitar-y-verificar">Habilitar y Verificar</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-10-1"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar (crear symlink)</span></span>
+<span id="annotated-cell-10-2"><a href="#annotated-cell-10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ln <span class="at">-sf</span> /etc/nginx/sites-available/mysite.conf /etc/nginx/sites-enabled/mysite.conf</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-10" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-10-3" class="code-annotation-target"><a href="#annotated-cell-10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-4"><a href="#annotated-cell-10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-5"><a href="#annotated-cell-10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Deshabilitar default (opcional)</span></span>
+<span id="annotated-cell-10-6"><a href="#annotated-cell-10-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo rm <span class="at">-f</span> /etc/nginx/sites-enabled/default</span>
+<span id="annotated-cell-10-7"><a href="#annotated-cell-10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-8"><a href="#annotated-cell-10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Validar configuración</span></span>
+<span id="annotated-cell-10-9"><a href="#annotated-cell-10-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nginx <span class="at">-t</span></span>
+<span id="annotated-cell-10-10"><a href="#annotated-cell-10-10" aria-hidden="true" tabindex="-1"></a><span class="ex">nginx:</span> the configuration file /etc/nginx/nginx.conf syntax is ok</span>
+<span id="annotated-cell-10-11"><a href="#annotated-cell-10-11" aria-hidden="true" tabindex="-1"></a><span class="ex">nginx:</span> configuration file /etc/nginx/nginx.conf test is successful</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-10" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-10-12" class="code-annotation-target"><a href="#annotated-cell-10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-13"><a href="#annotated-cell-10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-14"><a href="#annotated-cell-10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Recargar</span></span>
+<span id="annotated-cell-10-15"><a href="#annotated-cell-10-15" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl reload nginx</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="3" data-code-annotation="1"><strong>ln -sf</strong>: Crea symlink para habilitar</span>
+</dd>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="12" data-code-annotation="2"><strong>nginx -t</strong>: Test de sintaxis</span>
+</dd>
+</dl>
+</section>
+<section id="probar-server-block" class="level3">
+<h3 class="anchored" data-anchor-id="probar-server-block">Probar Server Block</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Con Host header</span></span>
+<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-H</span> <span class="st">'Host: mysite.local'</span> http://127.0.0.1</span>
+<span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>!DOCTYPE <span class="ex">html</span><span class="op">&gt;&lt;</span>h1<span class="op">&gt;</span>My Site<span class="op">&lt;</span>/h1<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-11" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-11-4" class="code-annotation-target"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver logs</span></span>
+<span id="annotated-cell-11-7"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tail /var/www/mysite/logs/access.log</span>
+<span id="annotated-cell-11-8"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a><span class="ex">127.0.0.1</span> <span class="at">-</span> <span class="at">-</span> [31/Mar/2026:10:15:00 +0000] <span class="st">"GET / HTTP/1.1"</span> 200 123 <span class="st">"-"</span> <span class="st">"curl/8.1.0"</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="4" data-code-annotation="1"><strong>curl -H</strong>: Simula request con Host header</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="reverse-proxy" class="level2">
+<h2 class="anchored" data-anchor-id="reverse-proxy">Reverse Proxy</h2>
+<section id="concepto" class="level3">
+<h3 class="anchored" data-anchor-id="concepto">Concepto</h3>
+<pre data-code-line-numbers=""><code>┌─────────────────────────────────────────────────────────────────┐
+│                    REVERSE PROXY NGINX                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   INTERNET                  NGINX              BACKEND          │
+│  ┌─────────┐            ┌─────────┐        ┌─────────┐          │
+│  │ cliente │ ──────────&gt; │ :80/:443│ ──────&gt; │ :3000   │          │
+│  │         │  request    │ proxy   │         │ (app)   │          │
+│  └─────────┘            └─────────┘        └─────────┘          │
+│                                                                  │
+│   NGINX: load balancer, SSL terminator, cache, logs centralizados│
+│   BACKEND: Node, Python, Go, Java - solo localhost              │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+</section>
+<section id="reverse-proxy-a-aplicación" class="level3">
+<h3 class="anchored" data-anchor-id="reverse-proxy-a-aplicación">Reverse Proxy a Aplicación</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-13" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-13-1"><a href="#annotated-cell-13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/sites-available/api-proxy.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-13-2"><a href="#annotated-cell-13-2" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-13-3"><a href="#annotated-cell-13-3" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 80;</span></span>
+<span id="annotated-cell-13-4"><a href="#annotated-cell-13-4" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name api.example.com;</span></span>
+<span id="annotated-cell-13-5"><a href="#annotated-cell-13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-6"><a href="#annotated-cell-13-6" aria-hidden="true" tabindex="-1"></a><span class="st">    # Proxy a backend</span></span>
+<span id="annotated-cell-13-7"><a href="#annotated-cell-13-7" aria-hidden="true" tabindex="-1"></a><span class="st">    location / {</span></span>
+<span id="annotated-cell-13-8"><a href="#annotated-cell-13-8" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_pass http://127.0.0.1:3000;</span></span>
+<span id="annotated-cell-13-9"><a href="#annotated-cell-13-9" aria-hidden="true" tabindex="-1"></a><span class="st">        </span></span>
+<span id="annotated-cell-13-10"><a href="#annotated-cell-13-10" aria-hidden="true" tabindex="-1"></a><span class="st">        # Headers esenciales</span></span>
+<span id="annotated-cell-13-11"><a href="#annotated-cell-13-11" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header Host $host;</span></span>
+<span id="annotated-cell-13-12"><a href="#annotated-cell-13-12" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Real-IP $remote_addr;</span></span>
+<span id="annotated-cell-13-13"><a href="#annotated-cell-13-13" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span></span>
+<span id="annotated-cell-13-14"><a href="#annotated-cell-13-14" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Forwarded-Proto $scheme;</span></span>
+<span id="annotated-cell-13-15"><a href="#annotated-cell-13-15" aria-hidden="true" tabindex="-1"></a><span class="st">        </span></span>
+<span id="annotated-cell-13-16"><a href="#annotated-cell-13-16" aria-hidden="true" tabindex="-1"></a><span class="st">        # Timeouts</span></span>
+<span id="annotated-cell-13-17"><a href="#annotated-cell-13-17" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_connect_timeout 60s;</span></span>
+<span id="annotated-cell-13-18"><a href="#annotated-cell-13-18" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_send_timeout 60s;</span></span>
+<span id="annotated-cell-13-19"><a href="#annotated-cell-13-19" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_read_timeout 60s;</span></span>
+<span id="annotated-cell-13-20"><a href="#annotated-cell-13-20" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-13-21"><a href="#annotated-cell-13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-22"><a href="#annotated-cell-13-22" aria-hidden="true" tabindex="-1"></a><span class="st">    # Health check endpoint</span></span>
+<span id="annotated-cell-13-23"><a href="#annotated-cell-13-23" aria-hidden="true" tabindex="-1"></a><span class="st">    location /health {</span></span>
+<span id="annotated-cell-13-24"><a href="#annotated-cell-13-24" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_pass http://127.0.0.1:3000/health;</span></span>
+<span id="annotated-cell-13-25"><a href="#annotated-cell-13-25" aria-hidden="true" tabindex="-1"></a><span class="st">        access_log off;</span></span>
+<span id="annotated-cell-13-26"><a href="#annotated-cell-13-26" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-13-27"><a href="#annotated-cell-13-27" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-13-28"><a href="#annotated-cell-13-28" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-13-29"><a href="#annotated-cell-13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-13-30"><a href="#annotated-cell-13-30" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ln <span class="at">-sf</span> /etc/nginx/sites-available/api-proxy.conf /etc/nginx/sites-enabled/</span>
+<span id="annotated-cell-13-31"><a href="#annotated-cell-13-31" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nginx <span class="at">-t</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload nginx</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-13" data-code-lines="32" data-code-annotation="1"><strong>Proxy completo</strong>: Headers, timeouts, health check</span>
+</dd>
+</dl>
+</section>
+<section id="proxy-a-múltiples-backends-load-balancing" class="level3">
+<h3 class="anchored" data-anchor-id="proxy-a-múltiples-backends-load-balancing">Proxy a Múltiples Backends (Load Balancing)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-14-1"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/sites-available/loadbalancer.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-14-2"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="st">upstream backend {</span></span>
+<span id="annotated-cell-14-3"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a><span class="st">    least_conn;  # Menos conexiones</span></span>
+<span id="annotated-cell-14-4"><a href="#annotated-cell-14-4" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-14-5"><a href="#annotated-cell-14-5" aria-hidden="true" tabindex="-1"></a><span class="st">    server 10.0.1.11:3000 weight=5;</span></span>
+<span id="annotated-cell-14-6"><a href="#annotated-cell-14-6" aria-hidden="true" tabindex="-1"></a><span class="st">    server 10.0.1.12:3000 weight=3;</span></span>
+<span id="annotated-cell-14-7"><a href="#annotated-cell-14-7" aria-hidden="true" tabindex="-1"></a><span class="st">    server 10.0.1.13:3000 weight=2;</span></span>
+<span id="annotated-cell-14-8"><a href="#annotated-cell-14-8" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-14-9"><a href="#annotated-cell-14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-10"><a href="#annotated-cell-14-10" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-14-11"><a href="#annotated-cell-14-11" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 80;</span></span>
+<span id="annotated-cell-14-12"><a href="#annotated-cell-14-12" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name api.example.com;</span></span>
+<span id="annotated-cell-14-13"><a href="#annotated-cell-14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-14"><a href="#annotated-cell-14-14" aria-hidden="true" tabindex="-1"></a><span class="st">    location / {</span></span>
+<span id="annotated-cell-14-15"><a href="#annotated-cell-14-15" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_pass http://backend;</span></span>
+<span id="annotated-cell-14-16"><a href="#annotated-cell-14-16" aria-hidden="true" tabindex="-1"></a><span class="st">        </span></span>
+<span id="annotated-cell-14-17"><a href="#annotated-cell-14-17" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header Host $host;</span></span>
+<span id="annotated-cell-14-18"><a href="#annotated-cell-14-18" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Real-IP $remote_addr;</span></span>
+<span id="annotated-cell-14-19"><a href="#annotated-cell-14-19" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span></span>
+<span id="annotated-cell-14-20"><a href="#annotated-cell-14-20" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Forwarded-Proto $scheme;</span></span>
+<span id="annotated-cell-14-21"><a href="#annotated-cell-14-21" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-14-22"><a href="#annotated-cell-14-22" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-14-23"><a href="#annotated-cell-14-23" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-14-24"><a href="#annotated-cell-14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-25"><a href="#annotated-cell-14-25" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ln <span class="at">-sf</span> /etc/nginx/sites-available/loadbalancer.conf /etc/nginx/sites-enabled/</span>
+<span id="annotated-cell-14-26"><a href="#annotated-cell-14-26" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nginx <span class="at">-t</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload nginx</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="27" data-code-annotation="1"><strong>Load balancing</strong>: round-robin, least_conn, IP hash</span>
+</dd>
+</dl>
+</section>
+<section id="websocket-support" class="level3">
+<h3 class="anchored" data-anchor-id="websocket-support">WebSocket Support</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">location</span> /ws/ {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_pass</span> http://127.0.0.1:3000<span class="kw">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># WebSocket headers</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_http_version</span> 1.1<span class="kw">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_set_header</span> Upgrade <span class="va">$http_upgrade</span><span class="kw">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_set_header</span> Connection <span class="st">"upgrade"</span><span class="kw">;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Timeouts extendidos</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_read_timeout</span> 3600s<span class="kw">;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_send_timeout</span> 3600s<span class="kw">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="ssltls-con-certbot" class="level2">
+<h2 class="anchored" data-anchor-id="ssltls-con-certbot">SSL/TLS con Certbot</h2>
+<section id="instalación-de-certbot" class="level3">
+<h3 class="anchored" data-anchor-id="instalación-de-certbot">Instalación de Certbot</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar certbot y plugin nginx</span></span>
+<span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt install <span class="at">-y</span> certbot python3-certbot-nginx</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="3" data-code-annotation="1"><strong>certbot</strong>: Automated TLS con Let’s Encrypt</span>
+</dd>
+</dl>
+</section>
+<section id="obtener-certificado" class="level3">
+<h3 class="anchored" data-anchor-id="obtener-certificado">Obtener Certificado</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-17" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-17-1"><a href="#annotated-cell-17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtener certificado (dominio debe apuntar al servidor)</span></span>
+<span id="annotated-cell-17-2"><a href="#annotated-cell-17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot <span class="at">--nginx</span> <span class="at">-d</span> example.com <span class="at">-d</span> www.example.com</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-17" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-17-3" class="code-annotation-target"><a href="#annotated-cell-17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-4"><a href="#annotated-cell-17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-17-5"><a href="#annotated-cell-17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Following prompts:</span></span>
+<span id="annotated-cell-17-6"><a href="#annotated-cell-17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># - Enter email (for expiry notices)</span></span>
+<span id="annotated-cell-17-7"><a href="#annotated-cell-17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># - Agree ToS (A)</span></span>
+<span id="annotated-cell-17-8"><a href="#annotated-cell-17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># - Share email (optional)</span></span>
+<span id="annotated-cell-17-9"><a href="#annotated-cell-17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - Redirect HTTP to HTTPS (select 1 or 2)</span></span>
+<span id="annotated-cell-17-10"><a href="#annotated-cell-17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># - Done!</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-17" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-17" data-code-lines="3" data-code-annotation="1"><strong>–nginx</strong>: Auto-configura Nginx con SSL</span>
+</dd>
+</dl>
+</section>
+<section id="configuración-ssl-generada" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-ssl-generada">Configuración SSL Generada</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-18" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-18-1"><a href="#annotated-cell-18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver certificado</span></span>
+<span id="annotated-cell-18-2"><a href="#annotated-cell-18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ls <span class="at">-la</span> /etc/letsencrypt/live/example.com/</span>
+<span id="annotated-cell-18-3"><a href="#annotated-cell-18-3" aria-hidden="true" tabindex="-1"></a><span class="ex">fullchain.pem</span>  privkey.pem  cert.pem  chain.pem</span>
+<span id="annotated-cell-18-4"><a href="#annotated-cell-18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-5"><a href="#annotated-cell-18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver configuración nginx</span></span>
+<span id="annotated-cell-18-6"><a href="#annotated-cell-18-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat /etc/nginx/sites-available/default-ssl.conf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-18" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-18" data-code-lines="7" data-code-annotation="1"><strong>Archivos SSL</strong>: Certificado, clave, chain</span>
+</dd>
+</dl>
+</section>
+<section id="ssl-de-producción-manual" class="level3">
+<h3 class="anchored" data-anchor-id="ssl-de-producción-manual">SSL de Producción Manual</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear configuración SSL manual (si certbot no funciona)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/snippets/ssl-params.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st"># SSL Certificate</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="st"># SSL Settings - Protocolos seguros</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_protocols TLSv1.2 TLSv1.3;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_prefer_server_ciphers off;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="st"># SSL Ciphers</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="st"># HSTS</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="st">add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="st"># OCSP Stapling</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_stapling on;</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="st">ssl_stapling_verify on;</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="st">resolver 8.8.8.8 8.8.4.4 valid=300s;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="st">resolver_timeout 5s;</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="renovación-automática" class="level3">
+<h3 class="anchored" data-anchor-id="renovación-automática">Renovación Automática</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-20" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-20-1"><a href="#annotated-cell-20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test de renovación</span></span>
+<span id="annotated-cell-20-2"><a href="#annotated-cell-20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo certbot renew <span class="at">--dry-run</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-20" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-20-3" class="code-annotation-target"><a href="#annotated-cell-20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-4"><a href="#annotated-cell-20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-20-5"><a href="#annotated-cell-20-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver cronjob</span></span>
+<span id="annotated-cell-20-6"><a href="#annotated-cell-20-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo cat /etc/cron.d/certbot</span>
+<span id="annotated-cell-20-7"><a href="#annotated-cell-20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># /etc/cron.d/certbot: certbot renewal cronjob</span></span>
+<span id="annotated-cell-20-8"><a href="#annotated-cell-20-8" aria-hidden="true" tabindex="-1"></a><span class="ex">0</span> <span class="pp">*</span>/12 <span class="pp">*</span> <span class="pp">*</span> <span class="pp">*</span> root test <span class="at">-x</span> /usr/bin/certbot <span class="at">-a</span> <span class="dt">\!</span> <span class="at">-d</span> /run/systemd/system <span class="kw">&amp;&amp;</span> <span class="fu">perl</span> <span class="at">-e</span> <span class="st">'sleep int(rand(43200))'</span> <span class="kw">&amp;&amp;</span> <span class="ex">certbot</span> <span class="at">-q</span> renew</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-20" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-20" data-code-lines="3" data-code-annotation="1"><strong>–dry-run</strong>: Prueba renovación sin usar límites</span>
+</dd>
+<dt data-target-cell="annotated-cell-20" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-20" data-code-lines="9" data-code-annotation="2"><strong>Cronjob</strong>: Dos veces al día, automático</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="hardening-de-nginx" class="level2">
+<h2 class="anchored" data-anchor-id="hardening-de-nginx">Hardening de Nginx</h2>
+<section id="ocultar-información" class="level3">
+<h3 class="anchored" data-anchor-id="ocultar-información">1. Ocultar Información</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre id="annotated-cell-21" class="nginx code-annotation-code" data-code-line-numbers=""><code># En server block o http block
+server_tokens off;           # Ocultar versión
+more_clear_headers Server;    # Ocultar "Server" header
+
+# En http block
+client_max_body_size 10M;     # Limitar upload
+client_body_timeout 60s;      # Timeout de body
+</code></pre>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-21" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-21" data-code-lines="8" data-code-annotation="1"><strong>server_tokens off</strong>: Solo muestra “nginx”</span>
+</dd>
+</dl>
+</section>
+<section id="security-headers" class="level3">
+<h3 class="anchored" data-anchor-id="security-headers">2. Security Headers</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-22" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-22-1"><a href="#annotated-cell-22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/snippets/security-headers.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-22-2"><a href="#annotated-cell-22-2" aria-hidden="true" tabindex="-1"></a><span class="st"># Security Headers</span></span>
+<span id="annotated-cell-22-3"><a href="#annotated-cell-22-3" aria-hidden="true" tabindex="-1"></a><span class="st">add_header X-Frame-Options "SAMEORIGIN" always;</span></span>
+<span id="annotated-cell-22-4"><a href="#annotated-cell-22-4" aria-hidden="true" tabindex="-1"></a><span class="st">add_header X-Content-Type-Options "nosniff" always;</span></span>
+<span id="annotated-cell-22-5"><a href="#annotated-cell-22-5" aria-hidden="true" tabindex="-1"></a><span class="st">add_header X-XSS-Protection "1; mode=block" always;</span></span>
+<span id="annotated-cell-22-6"><a href="#annotated-cell-22-6" aria-hidden="true" tabindex="-1"></a><span class="st">add_header Referrer-Policy "strict-origin-when-cross-origin" always;</span></span>
+<span id="annotated-cell-22-7"><a href="#annotated-cell-22-7" aria-hidden="true" tabindex="-1"></a><span class="st">add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;</span></span>
+<span id="annotated-cell-22-8"><a href="#annotated-cell-22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-22-9"><a href="#annotated-cell-22-9" aria-hidden="true" tabindex="-1"></a><span class="st"># CSP (ajustar según aplicación)</span></span>
+<span id="annotated-cell-22-10"><a href="#annotated-cell-22-10" aria-hidden="true" tabindex="-1"></a><span class="st"># add_header Content-Security-Policy "default-src 'self';" always;</span></span>
+<span id="annotated-cell-22-11"><a href="#annotated-cell-22-11" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-22" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-22" data-code-lines="12" data-code-annotation="1"><strong>Headers de seguridad</strong>: Los 5 esenciales</span>
+</dd>
+</dl>
+</section>
+<section id="rate-limiting" class="level3">
+<h3 class="anchored" data-anchor-id="rate-limiting">3. Rate Limiting</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre id="annotated-cell-23" class="nginx code-annotation-code" data-code-line-numbers=""><code># Definir limit zone
+http {
+    limit_req_zone $binary_remote_addr zone=api_limit:10M rate=10r/s;
+    
+    # En location
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+    }
+}
+</code></pre>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-23" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-23" data-code-lines="10" data-code-annotation="1"><strong>Rate limiting</strong>: 10 requests por segundo, burst de 20</span>
+</dd>
+</dl>
+</section>
+<section id="proteger-archivos-sensibles" class="level3">
+<h3 class="anchored" data-anchor-id="proteger-archivos-sensibles">4. Proteger Archivos Sensibles</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>NGINX</strong></pre>
+</div>
+<pre class="nginx" data-code-line-numbers=""><code># Bloquear archivos sensibles
+location ~ /\.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml) {
+    deny all;
+}
+
+# Bloquear directory listing
+location / {
+    try_files $uri $uri/ =404;
+    autoindex off;
+}</code></pre>
+</div>
+</section>
+<section id="configuración-completa-de-producción" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-completa-de-producción">Configuración Completa de Producción</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-25" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-25-1"><a href="#annotated-cell-25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/sites-available/production.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-25-2"><a href="#annotated-cell-25-2" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-25-3"><a href="#annotated-cell-25-3" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 80;</span></span>
+<span id="annotated-cell-25-4"><a href="#annotated-cell-25-4" aria-hidden="true" tabindex="-1"></a><span class="st">    listen [::]:80;</span></span>
+<span id="annotated-cell-25-5"><a href="#annotated-cell-25-5" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name example.com www.example.com;</span></span>
+<span id="annotated-cell-25-6"><a href="#annotated-cell-25-6" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-7"><a href="#annotated-cell-25-7" aria-hidden="true" tabindex="-1"></a><span class="st">    # Redirect to HTTPS</span></span>
+<span id="annotated-cell-25-8"><a href="#annotated-cell-25-8" aria-hidden="true" tabindex="-1"></a><span class="st">    return 301 https://$server_name$request_uri;</span></span>
+<span id="annotated-cell-25-9"><a href="#annotated-cell-25-9" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-25-10"><a href="#annotated-cell-25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-25-11"><a href="#annotated-cell-25-11" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-25-12"><a href="#annotated-cell-25-12" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 443 ssl http2;</span></span>
+<span id="annotated-cell-25-13"><a href="#annotated-cell-25-13" aria-hidden="true" tabindex="-1"></a><span class="st">    listen [::]:443 ssl http2;</span></span>
+<span id="annotated-cell-25-14"><a href="#annotated-cell-25-14" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name example.com www.example.com;</span></span>
+<span id="annotated-cell-25-15"><a href="#annotated-cell-25-15" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-16"><a href="#annotated-cell-25-16" aria-hidden="true" tabindex="-1"></a><span class="st">    # SSL</span></span>
+<span id="annotated-cell-25-17"><a href="#annotated-cell-25-17" aria-hidden="true" tabindex="-1"></a><span class="st">    include /etc/letsencrypt/options-ssl-nginx.conf;</span></span>
+<span id="annotated-cell-25-18"><a href="#annotated-cell-25-18" aria-hidden="true" tabindex="-1"></a><span class="st">    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;</span></span>
+<span id="annotated-cell-25-19"><a href="#annotated-cell-25-19" aria-hidden="true" tabindex="-1"></a><span class="st">    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;</span></span>
+<span id="annotated-cell-25-20"><a href="#annotated-cell-25-20" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-21"><a href="#annotated-cell-25-21" aria-hidden="true" tabindex="-1"></a><span class="st">    # Root y index</span></span>
+<span id="annotated-cell-25-22"><a href="#annotated-cell-25-22" aria-hidden="true" tabindex="-1"></a><span class="st">    root /var/www/example.com/public;</span></span>
+<span id="annotated-cell-25-23"><a href="#annotated-cell-25-23" aria-hidden="true" tabindex="-1"></a><span class="st">    index index.php index.html;</span></span>
+<span id="annotated-cell-25-24"><a href="#annotated-cell-25-24" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-25"><a href="#annotated-cell-25-25" aria-hidden="true" tabindex="-1"></a><span class="st">    # Security headers</span></span>
+<span id="annotated-cell-25-26"><a href="#annotated-cell-25-26" aria-hidden="true" tabindex="-1"></a><span class="st">    include /etc/nginx/snippets/security-headers.conf;</span></span>
+<span id="annotated-cell-25-27"><a href="#annotated-cell-25-27" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-28"><a href="#annotated-cell-25-28" aria-hidden="true" tabindex="-1"></a><span class="st">    # Logs</span></span>
+<span id="annotated-cell-25-29"><a href="#annotated-cell-25-29" aria-hidden="true" tabindex="-1"></a><span class="st">    access_log /var/www/example.com/logs/access.log;</span></span>
+<span id="annotated-cell-25-30"><a href="#annotated-cell-25-30" aria-hidden="true" tabindex="-1"></a><span class="st">    error_log /var/www/example.com/logs/error.log;</span></span>
+<span id="annotated-cell-25-31"><a href="#annotated-cell-25-31" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-32"><a href="#annotated-cell-25-32" aria-hidden="true" tabindex="-1"></a><span class="st">    # Directorio público</span></span>
+<span id="annotated-cell-25-33"><a href="#annotated-cell-25-33" aria-hidden="true" tabindex="-1"></a><span class="st">    location / {</span></span>
+<span id="annotated-cell-25-34"><a href="#annotated-cell-25-34" aria-hidden="true" tabindex="-1"></a><span class="st">        try_files $uri $uri/ /index.php?$query_string;</span></span>
+<span id="annotated-cell-25-35"><a href="#annotated-cell-25-35" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-25-36"><a href="#annotated-cell-25-36" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-37"><a href="#annotated-cell-25-37" aria-hidden="true" tabindex="-1"></a><span class="st">    # PHP-FPM (si aplica)</span></span>
+<span id="annotated-cell-25-38"><a href="#annotated-cell-25-38" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~ \.php$ {</span></span>
+<span id="annotated-cell-25-39"><a href="#annotated-cell-25-39" aria-hidden="true" tabindex="-1"></a><span class="st">        include snippets/fastcgi-php.conf;</span></span>
+<span id="annotated-cell-25-40"><a href="#annotated-cell-25-40" aria-hidden="true" tabindex="-1"></a><span class="st">        fastcgi_pass unix:/run/php/php8.1-fpm.sock;</span></span>
+<span id="annotated-cell-25-41"><a href="#annotated-cell-25-41" aria-hidden="true" tabindex="-1"></a><span class="st">        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;</span></span>
+<span id="annotated-cell-25-42"><a href="#annotated-cell-25-42" aria-hidden="true" tabindex="-1"></a><span class="st">        include fastcgi_params;</span></span>
+<span id="annotated-cell-25-43"><a href="#annotated-cell-25-43" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-25-44"><a href="#annotated-cell-25-44" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-45"><a href="#annotated-cell-25-45" aria-hidden="true" tabindex="-1"></a><span class="st">    # Static files con cache</span></span>
+<span id="annotated-cell-25-46"><a href="#annotated-cell-25-46" aria-hidden="true" tabindex="-1"></a><span class="st">    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg)$ {</span></span>
+<span id="annotated-cell-25-47"><a href="#annotated-cell-25-47" aria-hidden="true" tabindex="-1"></a><span class="st">        expires 30d;</span></span>
+<span id="annotated-cell-25-48"><a href="#annotated-cell-25-48" aria-hidden="true" tabindex="-1"></a><span class="st">        add_header Cache-Control "public, immutable";</span></span>
+<span id="annotated-cell-25-49"><a href="#annotated-cell-25-49" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-25-50"><a href="#annotated-cell-25-50" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-25-51"><a href="#annotated-cell-25-51" aria-hidden="true" tabindex="-1"></a><span class="st">    # Denegar acceso a privados</span></span>
+<span id="annotated-cell-25-52"><a href="#annotated-cell-25-52" aria-hidden="true" tabindex="-1"></a><span class="st">    location /private/ {</span></span>
+<span id="annotated-cell-25-53"><a href="#annotated-cell-25-53" aria-hidden="true" tabindex="-1"></a><span class="st">        deny all;</span></span>
+<span id="annotated-cell-25-54"><a href="#annotated-cell-25-54" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-25-55"><a href="#annotated-cell-25-55" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-25-56"><a href="#annotated-cell-25-56" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-25" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-25" data-code-lines="57" data-code-annotation="1"><strong>Configuración producción</strong>: SSL, headers, PHP-FPM, cache</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="casos-de-estudio" class="level2">
+<h2 class="anchored" data-anchor-id="casos-de-estudio">Casos de Estudio</h2>
+<section id="caso-1-node.js-api-detrás-de-nginx" class="level3">
+<h3 class="anchored" data-anchor-id="caso-1-node.js-api-detrás-de-nginx">Caso 1: Node.js API Detrás de Nginx</h3>
+<p><strong>Escenario</strong>: API en Node.js puerto 3000, expuesta via Nginx con SSL.</p>
+<pre data-code-line-numbers=""><code>Internet → Nginx (:443) → Node.js (:3000)</code></pre>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-27" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-27-1"><a href="#annotated-cell-27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Backend Node.js corriendo</span></span>
+<span id="annotated-cell-27-2"><a href="#annotated-cell-27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps aux <span class="kw">|</span> <span class="fu">grep</span> node</span>
+<span id="annotated-cell-27-3"><a href="#annotated-cell-27-3" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> server.js  <span class="co"># PID 5678, puerto 3000</span></span>
+<span id="annotated-cell-27-4"><a href="#annotated-cell-27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-27-5"><a href="#annotated-cell-27-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Config Nginx</span></span>
+<span id="annotated-cell-27-6"><a href="#annotated-cell-27-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/sites-available/nodejs-api.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-27-7"><a href="#annotated-cell-27-7" aria-hidden="true" tabindex="-1"></a><span class="st">server {</span></span>
+<span id="annotated-cell-27-8"><a href="#annotated-cell-27-8" aria-hidden="true" tabindex="-1"></a><span class="st">    listen 443 ssl http2;</span></span>
+<span id="annotated-cell-27-9"><a href="#annotated-cell-27-9" aria-hidden="true" tabindex="-1"></a><span class="st">    server_name api.example.com;</span></span>
+<span id="annotated-cell-27-10"><a href="#annotated-cell-27-10" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-27-11"><a href="#annotated-cell-27-11" aria-hidden="true" tabindex="-1"></a><span class="st">    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;</span></span>
+<span id="annotated-cell-27-12"><a href="#annotated-cell-27-12" aria-hidden="true" tabindex="-1"></a><span class="st">    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;</span></span>
+<span id="annotated-cell-27-13"><a href="#annotated-cell-27-13" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-27-14"><a href="#annotated-cell-27-14" aria-hidden="true" tabindex="-1"></a><span class="st">    location / {</span></span>
+<span id="annotated-cell-27-15"><a href="#annotated-cell-27-15" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_pass http://127.0.0.1:3000;</span></span>
+<span id="annotated-cell-27-16"><a href="#annotated-cell-27-16" aria-hidden="true" tabindex="-1"></a><span class="st">        </span></span>
+<span id="annotated-cell-27-17"><a href="#annotated-cell-27-17" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_http_version 1.1;</span></span>
+<span id="annotated-cell-27-18"><a href="#annotated-cell-27-18" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header Upgrade $http_upgrade;</span></span>
+<span id="annotated-cell-27-19"><a href="#annotated-cell-27-19" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header Connection 'upgrade';</span></span>
+<span id="annotated-cell-27-20"><a href="#annotated-cell-27-20" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header Host $host;</span></span>
+<span id="annotated-cell-27-21"><a href="#annotated-cell-27-21" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Real-IP $remote_addr;</span></span>
+<span id="annotated-cell-27-22"><a href="#annotated-cell-27-22" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span></span>
+<span id="annotated-cell-27-23"><a href="#annotated-cell-27-23" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_set_header X-Forwarded-Proto $scheme;</span></span>
+<span id="annotated-cell-27-24"><a href="#annotated-cell-27-24" aria-hidden="true" tabindex="-1"></a><span class="st">        </span></span>
+<span id="annotated-cell-27-25"><a href="#annotated-cell-27-25" aria-hidden="true" tabindex="-1"></a><span class="st">        proxy_cache_bypass $http_upgrade;</span></span>
+<span id="annotated-cell-27-26"><a href="#annotated-cell-27-26" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="annotated-cell-27-27"><a href="#annotated-cell-27-27" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="annotated-cell-27-28"><a href="#annotated-cell-27-28" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-27-29"><a href="#annotated-cell-27-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-27-30"><a href="#annotated-cell-27-30" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ln <span class="at">-sf</span> /etc/nginx/sites-available/nodejs-api.conf /etc/nginx/sites-enabled/</span>
+<span id="annotated-cell-27-31"><a href="#annotated-cell-27-31" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo nginx <span class="at">-t</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload nginx</span>
+<span id="annotated-cell-27-32"><a href="#annotated-cell-27-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-27-33"><a href="#annotated-cell-27-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Probar</span></span>
+<span id="annotated-cell-27-34"><a href="#annotated-cell-27-34" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-k</span> https://api.example.com</span>
+<span id="annotated-cell-27-35"><a href="#annotated-cell-27-35" aria-hidden="true" tabindex="-1"></a><span class="ex">{</span><span class="st">"status"</span><span class="ex">:</span> <span class="st">"ok"</span>, <span class="st">"version"</span>: <span class="st">"1.0.0"</span>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-27" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-27" data-code-lines="36" data-code-annotation="1"><strong>API funcionando</strong>: Nginx proxyificando a Node.js</span>
+</dd>
+</dl>
+</section>
+<section id="caso-2-múltiples-dominios-con-nginx" class="level3">
+<h3 class="anchored" data-anchor-id="caso-2-múltiples-dominios-con-nginx">Caso 2: Múltiples Dominios con Nginx</h3>
+<p><strong>Escenario</strong>: 3 dominios servidos por el mismo Nginx.</p>
+<pre data-code-line-numbers=""><code>site1.example.com → /var/www/site1
+site2.example.com → /var/www/site2  
+api.example.com   → proxy a :3000</code></pre>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-29" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-29-1"><a href="#annotated-cell-29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Site 1</span></span>
+<span id="annotated-cell-29-2"><a href="#annotated-cell-29-2" aria-hidden="true" tabindex="-1"></a><span class="ex">server</span> {</span>
+<span id="annotated-cell-29-3"><a href="#annotated-cell-29-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">listen</span> 80<span class="kw">;</span></span>
+<span id="annotated-cell-29-4"><a href="#annotated-cell-29-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">server_name</span> site1.example.com<span class="kw">;</span></span>
+<span id="annotated-cell-29-5"><a href="#annotated-cell-29-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">root</span> /var/www/site1<span class="kw">;</span></span>
+<span id="annotated-cell-29-6"><a href="#annotated-cell-29-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">index</span> index.html<span class="kw">;</span></span>
+<span id="annotated-cell-29-7"><a href="#annotated-cell-29-7" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span>
+<span id="annotated-cell-29-8"><a href="#annotated-cell-29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-29-9"><a href="#annotated-cell-29-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Site 2</span></span>
+<span id="annotated-cell-29-10"><a href="#annotated-cell-29-10" aria-hidden="true" tabindex="-1"></a><span class="ex">server</span> {</span>
+<span id="annotated-cell-29-11"><a href="#annotated-cell-29-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">listen</span> 80<span class="kw">;</span></span>
+<span id="annotated-cell-29-12"><a href="#annotated-cell-29-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">server_name</span> site2.example.com<span class="kw">;</span></span>
+<span id="annotated-cell-29-13"><a href="#annotated-cell-29-13" aria-hidden="true" tabindex="-1"></a>    <span class="ex">root</span> /var/www/site2<span class="kw">;</span></span>
+<span id="annotated-cell-29-14"><a href="#annotated-cell-29-14" aria-hidden="true" tabindex="-1"></a>    <span class="ex">index</span> index.html<span class="kw">;</span></span>
+<span id="annotated-cell-29-15"><a href="#annotated-cell-29-15" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span>
+<span id="annotated-cell-29-16"><a href="#annotated-cell-29-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-29-17"><a href="#annotated-cell-29-17" aria-hidden="true" tabindex="-1"></a><span class="co"># API</span></span>
+<span id="annotated-cell-29-18"><a href="#annotated-cell-29-18" aria-hidden="true" tabindex="-1"></a><span class="ex">server</span> {</span>
+<span id="annotated-cell-29-19"><a href="#annotated-cell-29-19" aria-hidden="true" tabindex="-1"></a>    <span class="ex">listen</span> 80<span class="kw">;</span></span>
+<span id="annotated-cell-29-20"><a href="#annotated-cell-29-20" aria-hidden="true" tabindex="-1"></a>    <span class="ex">server_name</span> api.example.com<span class="kw">;</span></span>
+<span id="annotated-cell-29-21"><a href="#annotated-cell-29-21" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_pass</span> http://127.0.0.1:3000<span class="kw">;</span></span>
+<span id="annotated-cell-29-22"><a href="#annotated-cell-29-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_set_header</span> Host <span class="va">$host</span><span class="kw">;</span></span>
+<span id="annotated-cell-29-23"><a href="#annotated-cell-29-23" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-29" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-29" data-code-lines="24" data-code-annotation="1"><strong>Múltiples server blocks</strong>: Cada uno con su dominio</span>
+</dd>
+</dl>
+</section>
+<section id="caso-3-nginx-como-cache" class="level3">
+<h3 class="anchored" data-anchor-id="caso-3-nginx-como-cache">Caso 3: Nginx como Cache</h3>
+<p><strong>Escenario</strong>: Cachear respuestas de API para reducir carga en backend.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-30" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-30-1"><a href="#annotated-cell-30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar proxy_cache</span></span>
+<span id="annotated-cell-30-2"><a href="#annotated-cell-30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/nginx/conf.d/cache.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-30-3"><a href="#annotated-cell-30-3" aria-hidden="true" tabindex="-1"></a><span class="st">proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=api_cache:10m max_size=100m inactive=60m use_temp_path=off;</span></span>
+<span id="annotated-cell-30-4"><a href="#annotated-cell-30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-30-5"><a href="#annotated-cell-30-5" aria-hidden="true" tabindex="-1"></a><span class="st">proxy_cache_key "$scheme$request_method$host$request_uri";</span></span>
+<span id="annotated-cell-30-6"><a href="#annotated-cell-30-6" aria-hidden="true" tabindex="-1"></a><span class="st">proxy_cache_valid 200 60m;</span></span>
+<span id="annotated-cell-30-7"><a href="#annotated-cell-30-7" aria-hidden="true" tabindex="-1"></a><span class="st">proxy_cache_valid 404 1m;</span></span>
+<span id="annotated-cell-30-8"><a href="#annotated-cell-30-8" aria-hidden="true" tabindex="-1"></a><span class="st">proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;</span></span>
+<span id="annotated-cell-30-9"><a href="#annotated-cell-30-9" aria-hidden="true" tabindex="-1"></a><span class="st">proxy_cache_lock on;</span></span>
+<span id="annotated-cell-30-10"><a href="#annotated-cell-30-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-30-11"><a href="#annotated-cell-30-11" aria-hidden="true" tabindex="-1"></a><span class="st">add_header X-Cache-Status $upstream_cache_status;</span></span>
+<span id="annotated-cell-30-12"><a href="#annotated-cell-30-12" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-30-13"><a href="#annotated-cell-30-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-30-14"><a href="#annotated-cell-30-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Usar en location</span></span>
+<span id="annotated-cell-30-15"><a href="#annotated-cell-30-15" aria-hidden="true" tabindex="-1"></a><span class="ex">location</span> /api/ {</span>
+<span id="annotated-cell-30-16"><a href="#annotated-cell-30-16" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_pass</span> http://127.0.0.1:3000<span class="kw">;</span></span>
+<span id="annotated-cell-30-17"><a href="#annotated-cell-30-17" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_cache</span> api_cache<span class="kw">;</span></span>
+<span id="annotated-cell-30-18"><a href="#annotated-cell-30-18" aria-hidden="true" tabindex="-1"></a>    <span class="ex">proxy_cache_valid</span> 200 60m<span class="kw">;</span></span>
+<span id="annotated-cell-30-19"><a href="#annotated-cell-30-19" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-30" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-30" data-code-lines="20" data-code-annotation="1"><strong>Cache de 60 min</strong>: Respuestas 200 cacheadas</span>
+</dd>
+</dl>
+</section>
+</section>
+<section id="monitoreo-y-logs" class="level2">
+<h2 class="anchored" data-anchor-id="monitoreo-y-logs">Monitoreo y Logs</h2>
+<section id="logs-de-nginx" class="level3">
+<h3 class="anchored" data-anchor-id="logs-de-nginx">Logs de Nginx</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver access log</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tail <span class="at">-f</span> /var/log/nginx/access.log</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver error log</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tail <span class="at">-f</span> /var/log/nginx/error.log</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Logs específicos por sitio</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tail <span class="at">-f</span> /var/www/example.com/logs/access.log</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Análisis rápido</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> awk <span class="st">'{print $9}'</span> /var/log/nginx/access.log <span class="kw">|</span> <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="at">-c</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-rn</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Status codes: 200 OK, 301 Redirect, 404 Not Found, 500 Error</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="monitoreo-con-systemd" class="level3">
+<h3 class="anchored" data-anchor-id="monitoreo-con-systemd">Monitoreo con systemd</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estado</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl status nginx</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Recursos</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl show nginx <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">"Memory|Tasks|CPU"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="health-check" class="level3">
+<h3 class="anchored" data-anchor-id="health-check">Health Check</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Endpoint de health</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">location</span> /nginx-health {</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">access_log</span> off<span class="kw">;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">200</span> <span class="st">"healthy\n"</span><span class="kw">;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">add_header</span> Content-Type text/plain<span class="kw">;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="resumen" class="level2">
+<h2 class="anchored" data-anchor-id="resumen">Resumen</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Tema</th>
+<th>Comando Clave</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Instalar</td>
+<td><code>apt install nginx</code></td>
+<td>Servidor web y proxy</td>
+</tr>
+<tr class="even">
+<td>Server Block</td>
+<td><code>/etc/nginx/sites-available/</code></td>
+<td>VirtualHosts</td>
+</tr>
+<tr class="odd">
+<td>Validar</td>
+<td><code>nginx -t</code></td>
+<td>Test de sintaxis</td>
+</tr>
+<tr class="even">
+<td>Proxy</td>
+<td><code>proxy_pass</code></td>
+<td>Reverse proxy</td>
+</tr>
+<tr class="odd">
+<td>SSL</td>
+<td><code>certbot --nginx</code></td>
+<td>TLS con Let’s Encrypt</td>
+</tr>
+<tr class="even">
+<td>Hardening</td>
+<td><code>server_tokens off</code></td>
+<td>Ocultar información</td>
+</tr>
+<tr class="odd">
+<td>Headers</td>
+<td><code>add_header X-Frame-Options</code></td>
+<td>Seguridad HTTP</td>
+</tr>
+<tr class="even">
+<td>Rate Limit</td>
+<td><code>limit_req_zone</code></td>
+<td>Prevenir DoS</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
 <ul>
-<li>Config principal: <code>/etc/nginx/nginx.conf</code></li>
-<li>Sitios: <code>/etc/nginx/sites-available/</code> y <code>/etc/nginx/sites-enabled/</code></li>
-<li>Default site: <code>/etc/nginx/sites-available/default</code></li>
-<li>Web root comun: <code>/var/www/html</code></li>
-<li>Logs: <code>/var/log/nginx/access.log</code> y <code>/var/log/nginx/error.log</code></li>
+<li><a href="https://nginx.org/en/docs/">Nginx Documentation</a></li>
+<li><a href="https://docs.nginx.com/nginx/admin-guide/">Nginx Admin Guide</a></li>
+<li><a href="https://ssl-config.mozilla.org/">Mozilla SSL Configuration</a></li>
+<li><a href="https://certbot.eff.org/">Certbot Documentation</a></li>
 </ul>
 
 
@@ -1773,8 +2736,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../unidades/unidad10/2_reverse_proxy.html" class="pagination-link" aria-label="Unidad 10.2: Reverse proxy">
-        <span class="nav-page-text"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../unidades/unidad10/2_reverse_proxy.html" class="pagination-link" aria-label="Unidad 10.2: Reverse Proxy y Balanceo de Carga">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

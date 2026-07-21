@@ -1,63 +1,453 @@
 ---
-title: "Unidad 10.4: Hardening basico y headers"
-subtitle: "Buenas practicas iniciales en Nginx"
+title: "Unidad 10.4: Hardening y Seguridad en Nginx"
+subtitle: "Headers, rate limiting y configuración segura"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 10.4: Hardening basico y headers
+# Unidad 10.4: Hardening y Seguridad en Nginx
 
-## Introduccion
+## Introducción
 
-Una configuracion segura no es solo "tener HTTPS". Tambien importa reducir informacion expuesta y agregar headers basicos.
+Hardening de Nginx significa: ocultar información del servidor, agregar headers de seguridad, configurar rate limiting, y proteger recursos sensibles.
 
-## Objetivos de aprendizaje
+## Hardening Básico
 
-- Agregar headers basicos de seguridad
-- Validar con curl
-
----
-
-## Headers basicos (server block)
-
-Ejemplo para un sitio en `/etc/nginx/sites-available/app.conf`.
+### 1. Ocultar Información del Servidor
 
 ```nginx
-add_header X-Content-Type-Options "nosniff" always;  # <1>
-add_header X-Frame-Options "SAMEORIGIN" always;
-add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+# En http block de nginx.conf
+server_tokens off;  # Ocultar versión de Nginx
+
+# En server block
+more_clear_headers Server;  # Ocultar header "Server" completamente
 # <1>
 ```
 
+1. **server_tokens off**: Solo muestra "nginx" sin versión
 
-
-1. **add_header ... always** agrega headers en respuestas, incluyendo errores.
-
----
-
-## Validar sintaxis y recargar
+**Antes vs Después:**
 
 ```bash
-$ sudo nginx -t  # <1>
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
+# Antes
+$ curl -I http://localhost | grep Server
+Server: nginx/1.24.0 (Ubuntu)
+
+# Después
+$ curl -I http://localhost | grep Server
+Server: nginx
 # <1>
+```
 
-$ sudo systemctl reload nginx  # <2>
-# <2>
+1. **ServerTokens**: Ahora solo dice "nginx"
 
-$ curl -I http://localhost | sed -n '1,20p'  # <3>
+### 2. Limitar Información en Headers
+
+```nginx
+# En nginx.conf - http block
+client_max_body_size 10M;        # Máximo tamaño de request
+client_body_timeout 60s;          # Timeout de body
+client_header_buffer_size 1k;    # Buffer de headers
+large_client_header_buffers 4 16k;  # Headers grandes
+```
+
+### 3. Protección de Archivos
+
+```nginx
+# Bloquear archivos sensibles
+location ~ /\. {
+    deny all;
+    access_log off;
+    log_not_found off;
+}
+
+# Archivos específicos
+location ~* \.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$ {
+    deny all;
+}
+```
+
+## Security Headers
+
+### Headers Esenciales
+
+```bash
+$ sudo tee /etc/nginx/snippets/security-headers.conf <<'EOF'
+# X-Content-Type-Options
+add_header X-Content-Type-Options "nosniff" always;
+
+# X-Frame-Options
+add_header X-Frame-Options "SAMEORIGIN" always;
+
+# Referrer-Policy
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+# X-XSS-Protection
+add_header X-XSS-Protection "1; mode=block" always;
+
+# Permissions-Policy
+add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+
+# Strict-Transport-Security (solo con SSL)
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+EOF
+# <1>
+```
+
+1. **Security headers**: Los 6 esenciales
+
+### Incluir en Server Block
+
+```nginx
+server {
+    listen 80;
+    server_name example.com;
+    
+    # Security headers (solo funciona con SSL para HSTS)
+    include /etc/nginx/snippets/security-headers.conf;
+    
+    # Resto de configuración...
+}
+```
+
+### Verificar Headers
+
+```bash
+# Ver todos los headers
+$ curl -I http://localhost
 HTTP/1.1 200 OK
 Server: nginx
 X-Content-Type-Options: nosniff
 X-Frame-Options: SAMEORIGIN
 Referrer-Policy: strict-origin-when-cross-origin
-# <3>
+X-XSS-Protection: 1; mode=block
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+# <1>
 ```
 
+1. **Todos los headers**: Verificar presencia
 
+### Content Security Policy (CSP)
 
-1. **nginx -t** valida la configuracion.
-2. **systemctl reload nginx** aplica cambios.
-3. **curl -I** verifica headers.
+```bash
+# CSP restrictiva - ajustar según aplicación
+$ sudo tee /etc/nginx/snippets/csp.conf <<'EOF'
+# Basic CSP
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;" always;
+EOF
+
+# CSP más permisiva (para desarrollo)
+add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: *; connect-src 'self' https: wss:;" always;
+```
+
+## Rate Limiting
+
+### Configuración Básica
+
+```nginx
+# En http block
+http {
+    # Definir zone de rate limiting
+    limit_req_zone $binary_remote_addr zone=general:10M rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=api:10M rate=100r/s;
+}
+```
+
+### Aplicar Rate Limit
+
+```nginx
+# Rate limit general (10 req/segundo, burst de 20)
+location / {
+    limit_req zone=general burst=20 nodelay;
+}
+
+# Rate limit para API (100 req/segundo)
+location /api/ {
+    limit_req zone=api burst=50 nodelay;
+}
+```
+
+### Rate Limit con Whitelist
+
+```bash
+# Excluir IPs conocidas
+http {
+    geo $limited {
+        default 1;
+        10.0.0.0/8 0;
+        172.16.0.0/12 0;
+        192.168.0.0/16 0;
+    }
+    
+    limit_req_zone $limited zone=general:10M rate=10r/s;
+}
+```
+
+### Verificar Rate Limiting
+
+```bash
+# Test con curl rápido
+$ for i in {1..15}; do curl -s -o /dev/null -w "%{http_code}\n" http://localhost/api/; done
+
+# Ver logs de rate limit
+$ sudo tail /var/log/nginx/error.log
+2026/03/31 10:15:00 [warn] 1234#1234: *1001 limiting connections by zone "general"
+```
+
+## Conexiones y Tiempo
+
+### Configuración de Keep-Alive
+
+```nginx
+# En http block
+keepalive_timeout 65;
+keepalive_requests 100;
+
+# En server block
+keepalive_timeout 30s;
+keepalive_requests 50;
+```
+
+### Limits de Conexiones
+
+```nginx
+# Limitar conexiones por IP
+limit_conn_zone $binary_remote_addr zone=addr:10M;
+
+server {
+    location / {
+        # Máximo 10 conexiones por IP
+        limit_conn addr 10;
+    }
+}
+```
+
+## Protección de Backend
+
+### Proxy con Autenticación
+
+```nginx
+# Autenticación básica al backend
+location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Authorization $http_authorization;
+    
+    # Solo permitir IPs conocidas
+    allow 10.0.0.0/8;
+    allow 172.16.0.0/12;
+    allow 192.168.0.0/16;
+    deny all;
+}
+```
+
+### Buffering de Respuestas
+
+```nginx
+# Configuración de buffering
+proxy_buffering on;
+proxy_buffer_size 4k;
+proxy_buffers 8 4k;
+proxy_busy_buffers_size 8k;
+proxy_max_temp_file_size 1024m;
+```
+
+## Hardening Completo de Producción
+
+### Configuración Completa
+
+```bash
+$ sudo tee /etc/nginx/sites-available/production-secure.conf <<'EOF'
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com www.example.com;
+    
+    # Security headers (no SSL aún)
+    include /etc/nginx/snippets/security-headers.conf;
+    
+    # Rate limiting
+    limit_req zone=general burst=20 nodelay;
+    
+    root /var/www/example.com/public;
+    index index.html index.htm;
+    
+    # Proteger archivos
+    location ~ /\. {
+        deny all;
+    }
+    
+    location ~* \.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$ {
+        deny all;
+    }
+    
+    # Static files con cache
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+    
+    # Logs
+    access_log /var/log/nginx/example.com-access.log;
+    error_log /var/log/nginx/example.com-error.log;
+}
+
+# HTTPS server block
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name example.com www.example.com;
+    
+    # SSL
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    
+    # Security headers con HSTS
+    include /etc/nginx/snippets/security-headers.conf;
+    
+    # Rate limiting
+    limit_req zone=general burst=20 nodelay;
+    
+    root /var/www/example.com/public;
+    index index.html index.htm;
+    
+    # Proteger archivos
+    location ~ /\. {
+        deny all;
+    }
+    
+    # PHP processing
+    location ~ \.php$ {
+        deny all;
+    }
+    
+    # Logs
+    access_log /var/log/nginx/example.com-ssl-access.log;
+    error_log /var/log/nginx/example.com-ssl-error.log;
+}
+
+# Redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name example.com www.example.com;
+    return 301 https://$server_name$request_uri;
+}
+EOF
+# <1>
+```
+
+1. **Configuración producción**: HTTP/HTTPS, rate limit, security headers
+
+## Casos de Estudio
+
+### Caso 1: Servidor Recibiendo Ataques
+
+**Síntomas**:
+```bash
+# Miles de requests desde una IP
+$ sudo tail /var/log/nginx/access.log | awk '{print $1}' | sort | uniq -c | sort -nr | head
+   5000 45.155.205.233
+    500 10.0.0.50
+# <1>
+```
+
+**Solución**:
+```bash
+# 1. Rate limiting
+$ sudo nginx -t && sudo systemctl reload nginx
+
+# 2. Bloquear IP específica
+$ sudo ufw insert 1 deny from 45.155.205.233
+
+# 3. Verificar
+$ sudo tail /var/log/nginx/error.log
+# <2>
+```
+
+1. **IP atacando**: 5000 requests
+
+### Caso 2: Headers No Aparecen
+
+**Problema**:
+```bash
+$ curl -I http://localhost | grep -i X-Frame
+# (sin output = headers no aplicados)
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# Ver si el include está en la configuración
+$ grep -r "security-headers" /etc/nginx/
+
+# Verificar sintaxis
+$ sudo nginx -t
+# <2>
+```
+
+1. **Headers missing**: No se están aplicando
+
+**Solución**:
+```bash
+# Verificar que el archivo existe
+$ ls -la /etc/nginx/snippets/security-headers.conf
+
+# Agregar manualmente al server block
+location / {
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    # ...
+}
+```
+
+### Caso 3: Upload de Archivos Grande
+
+**Problema**:
+```bash
+$ curl -X POST -F "file=@large.zip" https://example.com/upload
+413 Request Entity Too Large
+# <1>
+```
+
+**Solución**:
+```nginx
+# Aumentar límite
+client_max_body_size 100M;
+proxy_buffering off;
+
+location /upload {
+    client_max_body_size 100M;
+}
+```
+
+1. **413**: Body muy grande
+
+## Checklist de Seguridad Nginx
+
+| Configuración | Valor | Estado |
+|---------------|-------|--------|
+| server_tokens | off | ⏳ |
+| X-Frame-Options | SAMEORIGIN | ⏳ |
+| X-Content-Type-Options | nosniff | ⏳ |
+| Referrer-Policy | strict-origin-when-cross-origin | ⏳ |
+| HSTS | max-age=63072000 | ⏳ |
+| Rate Limit | 10-100 rps | ⏳ |
+| client_max_body_size | 10M | ⏳ |
+| SSL Protocols | TLSv1.2+ | ⏳ |
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Server Tokens | `server_tokens off` | Ocultar versión |
+| Headers | `add_header X-*` | Seguridad HTTP |
+| Rate Limit | `limit_req_zone` | Prevenir DoS |
+| Files | `deny all` | Bloquear acceso |
+| SSL | `ssl_protocols TLSv1.2 TLSv1.3` | TLS seguro |
+
+## Referencias
+
+- [Nginx Security Headers](https://nginx.org/en/docs/http/ngx_http_headers_module.html)
+- [Nginx Rate Limiting](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html)
+- [OWASP Security Headers](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Security_Headers_Cheat_Sheet.html)

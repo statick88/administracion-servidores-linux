@@ -1,79 +1,243 @@
 ---
-title: "Unidad 11.4: Red y acceso remoto"
-subtitle: "bind-address, firewall y buenas practicas"
+title: "Unidad 11.4: Acceso Remoto y Seguridad de Red"
+subtitle: "Configuración de red, firewall y conexiones seguras"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 11.4: Red y acceso remoto
+# Unidad 11.4: Acceso Remoto y Seguridad de Red
 
-## Introduccion
+## Introducción
 
-Exponer una base de datos a red debe ser una decision consciente. En la mayoria de escenarios, la DB no debe ser publica y solo debe ser accesible desde una red privada o desde el mismo host.
+Exponer una base de datos a la red requiere planificación de seguridad. En la mayoría de escenarios, MariaDB debe ser accesible solo desde la red privada o desde el servidor de aplicaciones. Esta unidad cubre bind-address, firewall, SSL/TLS, y mejores prácticas.
 
-## Objetivos de aprendizaje
+## Configuración de Red
 
-- Identificar direccion/puerto en escucha
-- Configurar bind-address (cuando aplica)
-- Proteger con firewall
-
----
-
-## Ver escucha
+### bind-address: Controlar Interfaces
 
 ```bash
-$ sudo ss -lntp | grep ':3306' || true  # <1>
+# Ver configuración actual
+$ mariadb -e "SHOW VARIABLES LIKE 'bind_address';"
++---------------+-------------+
+| Variable_name | Value       |
++---------------+-------------+
+| bind_address  | 127.0.0.1  |
++---------------+-------------+
+# <1>
+
+# Solo localhost (default seguro)
+```
+
+1. **127.0.0.1**: Solo acceso local
+
+### Cambiar bind-address
+
+```bash
+# Para escuchar en todas las interfaces (CUIDADO)
+$ sudo sed -i "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# Para escuchar solo en IP específica
+$ sudo sed -i "s/^bind-address.*/bind-address = 10.0.1.5/" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+$ sudo systemctl restart mariadb
+
+# Verificar
+$ ss -lntp | grep 3306
+LISTEN 0 80 0.0.0.0:3306 0.0.0.0:* users:(("mariadbd",pid=1234,fd=20))
 # <1>
 ```
 
+1. **0.0.0.0**: Todas las interfaces
 
+## Firewall
 
-1. **ss -lntp** valida si MariaDB escucha en 3306/tcp.
-
----
-
-## bind-address (ejemplo en Ubuntu)
-
-En MariaDB, el archivo suele estar en `/etc/mysql/mariadb.conf.d/50-server.cnf`.
+### UFW: Control de Acceso
 
 ```bash
-$ sudo grep -n '^bind-address' /etc/mysql/mariadb.conf.d/50-server.cnf || true  # <1>
-bind-address            = 127.0.0.1
+# Ver estado
+$ sudo ufw status
+
+# Abrir solo desde IP específica (servidor de aplicaciones)
+$ sudo ufw allow from 10.0.1.20 to any port 3306
+# <1>
+
+# Abrir desde red privada
+$ sudo ufw allow from 10.0.1.0/24 to any port 3306
+
+# Ver reglas
+$ sudo ufw status numbered
+```
+
+1. **Solo una IP**: Acceso muy restrictivo
+
+### iptables: Reglas Avanzadas
+
+```bash
+# Aceptar solo desde red local
+$ sudo iptables -A INPUT -p tcp -s 10.0.1.0/24 --dport 3306 -j ACCEPT
+
+# Dropear todo lo demás
+$ sudo iptables -A INPUT -p tcp --dport 3306 -j DROP
+
+# Ver reglas
+$ sudo iptables -L -n -v --line-numbers
 # <1>
 ```
 
+1. **iptables**: Control granular
 
+## Acceso Remoto Seguro
 
-1. **grep bind-address** muestra si esta limitado a loopback.
-
-:::{.callout-tip}
-## RECOMENDACION
-
-**Si tu app y DB estan en el mismo servidor, manten bind-address en 127.0.0.1.**
-
-Casos de uso:
-- Stack monolitico (Nginx + app + DB en el mismo host).
-
-Cuando aplicar:
-- Cuando no necesitas conexiones desde otra maquina.
-:::
-
----
-
-## Firewall (UFW)
+### Configurar Usuario para Acceso Remoto
 
 ```bash
-$ sudo ufw status  # <1>
-Status: active
-# <1>
+$ sudo mariadb
 
-$ sudo ufw allow from 192.168.56.0/24 to any port 3306 proto tcp  # <2>
-Rule added
-# <2>
+# Crear usuario para acceso remoto
+CREATE USER 'appuser'@'%' IDENTIFIED BY 'SecureRemotePass123!';
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'%';
+FLUSH PRIVILEGES;
+
+# O限定 a IP específica
+CREATE USER 'appuser'@'10.0.1.20' IDENTIFIED BY 'SecureAppPass123!';
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'10.0.1.20';
+FLUSH PRIVILEGES;
+# <1>
 ```
 
+1. **Acceso remoto**: Desde cualquier host o IP específica
 
+### Probar Conexión Remota
 
-1. **ufw status** valida estado del firewall.
-2. **ufw allow from ...** permite 3306 solo desde una red especifica.
+```bash
+# Desde otra máquina
+$ mariadb -h 10.0.1.5 -u appuser -p appdb
+
+# Verificar conexión
+$ mariadb -h 10.0.1.5 -u appuser -p appdb -e "SELECT VERSION();"
+# <1>
+```
+
+1. **Conexión remota**: Funcionando
+
+## SSL/TLS para Conexiones Remotas
+
+### Generar Certificados
+
+```bash
+# Generar certificados SSL
+$ sudo openssl req -new -x509 -nodes -days 365 \
+    -keyout /etc/mysql/ssl/mariadb-key.pem \
+    -out /etc/mysql/ssl/mariadb-cert.pem \
+    -subj "/C=US/ST=State/L=City/O=Org/CN=mariadb-server"
+# <1>
+
+# Permisos
+$ sudo chmod 600 /etc/mysql/ssl/mariadb-key.pem
+$ sudo chmod 644 /etc/mysql/ssl/mariadb-cert.pem
+```
+
+1. **Certificados SSL**: Para conexiones cifradas
+
+### Configurar SSL en MariaDB
+
+```bash
+# Agregar a my.cnf
+$ sudo tee /etc/mysql/mariadb.conf.d/ssl.cnf <<'EOF'
+[mysqld]
+ssl-ca=/etc/mysql/ssl/mariadb-cert.pem
+ssl-cert=/etc/mysql/ssl/mariadb-cert.pem
+ssl-key=/etc/mysql/ssl/mariadb-key.pem
+require-secure-transport=ON
+
+[client]
+ssl-ca=/etc/mysql/ssl/mariadb-cert.pem
+ssl-cert=/etc/mysql/ssl/mariadb-cert.pem
+ssl-key=/etc/mysql/ssl/mariadb-key.pem
+EOF
+
+$ sudo systemctl restart mariadb
+
+# Verificar SSL
+$ mariadb -e "SHOW VARIABLES LIKE '%ssl%';"
+# <1>
+```
+
+1. **SSL habilitado**: Conexiones cifradas
+
+### Forzar SSL
+
+```bash
+# Requerir SSL para usuario específico
+$ sudo mariadb
+
+ALTER USER 'appuser'@'%' REQUIRE SSL;
+FLUSH PRIVILEGES;
+# <1>
+```
+
+1. **REQUIRE SSL**: Solo conexiones cifradas
+
+## Casos de Estudio
+
+### Caso 1: Conexión Externa Bloqueada
+
+**Problema**: No se puede conectar desde otro servidor.
+
+**Diagnóstico**:
+```bash
+# Ver si MariaDB escucha en red
+$ ss -lntp | grep 3306
+
+# Ver bind-address
+$ mariadb -e "SHOW VARIABLES LIKE 'bind_address';"
+
+# Ver firewall
+$ sudo ufw status
+$ sudo iptables -L -n | grep 3306
+# <1>
+```
+
+1. **Múltiples causas**: Verificar cada capa
+
+**Solución**:
+```bash
+# 1. Verificar bind-address
+$ sudo sed -i 's/bind-address=127.0.0.1/bind-address=0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
+$ sudo systemctl restart mariadb
+
+# 2. Abrir firewall
+$ sudo ufw allow from 10.0.1.0/24 to any port 3306
+
+# 3. Verificar usuario
+$ mariadb -e "SELECT User, Host FROM mysql.user WHERE User='appuser';"
+```
+
+### Caso 2: Necesito Conectar desde Múltiples Oficinas
+
+**Escenario**: Diferentes oficinas en diferentes IPs.
+
+```bash
+# Permitir desde múltiples redes
+$ sudo ufw allow from 10.0.10.0/24 to any port 3306  # Oficina 1
+$ sudo ufw allow from 10.0.20.0/24 to any port 3306  # Oficina 2
+$ sudo ufw allow from 10.0.30.0/24 to any port 3306  # Oficina 3
+# <1>
+```
+
+1. **Múltiples redes**: Una regla por red
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| bind-address | `0.0.0.0` | Escuchar en red |
+| Firewall | `ufw allow from IP` | Control acceso |
+| Usuario remoto | `CREATE USER 'user'@'%'` | Acceso desde fuera |
+| SSL | `require-secure-transport=ON` | Cifrado forzado |
+
+## Referencias
+
+- [MariaDB Security](https://mariadb.com/kb/en/security/)
+- [UFW Documentation](https://help.ubuntu.com/community/UFW)

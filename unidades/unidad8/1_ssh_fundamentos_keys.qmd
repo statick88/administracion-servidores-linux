@@ -1,0 +1,454 @@
+# SSH: Protocolo y Configuración
+
+## Introducción
+
+SSH (Secure Shell) es el protocolo estándar para administración remota de servidores Linux. En esta unidad vas a dominar SSH desde fundamentos hasta técnicas avanzadas de tunneling y hardening de producción.
+
+## Arquitectura del Protocolo SSH
+
+### Modelo Cliente-Servidor
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    CONEXIÓN SSH                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   CLIENTE SSH                              SERVIDOR SSH           │
+│  ┌─────────────┐                        ┌─────────────┐         │
+│  │  Puerto 22  │ ═════════════════════> │  sshd       │         │
+│  │  (salida)   │   Cifrado TLS-like     │  listening │         │
+│  └─────────────┘                        └─────────────┘         │
+│                                                                  │
+│  Protocolo: TCP/22                                               │
+│  Encryption: AES-256, ChaCha20-Poly1305                          │
+│  Key Exchange: ECDH, Curve25519                                  │
+│  Auth: Password, Keys, 2FA                                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Flujo de Conexión SSH
+
+```
+1. TCP Handshake (puerto 22)
+       │
+       ▼
+2. Key Exchange (Diffie-Hellman)
+       │
+       ▼
+3. Server Key Verification (host keys en /etc/ssh/)
+       │
+       ▼
+4. Session Encryption Established
+       │
+       ▼
+5. User Authentication
+   - Password (menos seguro)
+   - SSH Keys (recomendado)
+   - 2FA (más seguro)
+       │
+       ▼
+6. Shell interactivo / Command execution
+```
+
+## Tipos de Keys SSH
+
+### Comparativa de Algoritmos
+
+| Algoritmo | Tamaño | Seguridad | Rendimiento | Recomendación |
+|-----------|--------|-----------|-------------|---------------|
+| **RSA** | 2048 bits | Baja | Rápido | No usar |
+| **RSA** | 3072 bits | Media | Rápido | Mínimo aceptable |
+| **RSA** | 4096 bits | Alta | Medio | Legacy systems |
+| **ECDSA** | 256 bits | Alta | Rápido | Deprecated (NSA) |
+| **Ed25519** | 256 bits | Muy Alta | Muy rápido | ✅ **Recomendado** |
+| **Ed448** | 448 bits | Extrema | Medio | Alta seguridad |
+
+### Generación de Keys
+
+#### Ed25519 (Recomendado para producción)
+
+```bash
+# Generar clave Ed25519 con comentario descriptivo
+$ ssh-keygen -t ed25519 -C "usuario@servidor-prod-$(date +%Y%m%d)"
+# <1>
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/user/.ssh/id_ed25519): 
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/user/.ssh/id_ed25519.
+Your public key has been saved in /home/user/.ssh/id_ed25519.pub.
+
+$ ls -la ~/.ssh/id_ed25519*
+-rw------- 1 user user  464 Mar 31 10:30 id_ed25519      # <2>
+-rw-r--r-- 1 user user  104 Mar 31 10:30 id_ed25519.pub  # <3>
+```
+
+1. **ssh-keygen -t ed25519**: Genera clave Ed25519 (256 bits de seguridad)
+2. **id_ed25519**: Clave privada - **NUNCA** compartir, permisos 600
+3. **id_ed25519.pub**: Clave pública - libre distribución
+
+#### RSA 4096 (Para sistemas legacy)
+
+```bash
+# Solo si el servidor no soporta Ed25519
+$ ssh-keygen -t rsa -b 4096 -C "legacy-server-$(date +%Y%m%d)"
+# <1>
+```
+
+1. **-b 4096**: Bits de tamaño (mínimo 4096 para seguridad aceptable)
+
+### Verificar Key Fingerprint
+
+```bash
+# Ver fingerprint de tu clave antes de copiar al servidor
+$ ssh-keygen -lf ~/.ssh/id_ed25519
+# <1>
+
+256 SHA256:abcd1234... usuario@servidor-prod-20240331 (ED25519)
+
+$ ssh-keygen -E md5 -lf ~/.ssh/id_ed25519
+# <2>
+256 MD5:abcd:1234:... (ED25519)
+```
+
+1. **-l**: List fingerprint, **-f**: file
+2. **-E md5**: Output en MD5 (para comparación visual)
+
+##部署 Keys a Servidor
+
+### Método 1: ssh-copy-id (Automático)
+
+```bash
+# Copiar clave pública al servidor
+$ ssh-copy-id -i ~/.ssh/id_ed25519.pub usuario@192.168.1.100
+# <1>
+
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/user/.ssh/id_ed25519.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to match the existing ones that are already configured
+usuario@192.168.1.100's password: 
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh usuario@192.168.1.100"
+and check to make sure only the key(s) you wanted were added.
+```
+
+1. **ssh-copy-id**: Automatiza la copia de clave pública y permisos
+
+### Método 2: Manual
+
+```bash
+# En el CLIENTE: mostrar clave pública
+$ cat ~/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB9H... usuario@servidor-prod-20240331
+
+# En el SERVIDOR: crear directorio y archivo
+$ mkdir -p ~/.ssh && chmod 700 ~/.ssh
+$ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB9H... usuario@servidor-prod-20240331" >> ~/.ssh/authorized_keys
+$ chmod 600 ~/.ssh/authorized_keys
+```
+
+### Método 3: SSH Config (Para múltiples servidores)
+
+```bash
+# Agregar al ~/.ssh/config
+$ cat >> ~/.ssh/config << 'EOF'
+# Servidor de Producción
+Host prod-web-01
+    HostName 192.168.1.100
+    User admin
+    IdentityFile ~/.ssh/id_ed25519
+    ForwardAgent yes
+    ServerAliveInterval 60
+
+Host prod-db-01
+    HostName 192.168.1.101
+    User dba
+    IdentityFile ~/.ssh/id_ed25519
+    Port 2222
+
+Host prod-*
+    User admin
+    IdentityFile ~/.ssh/id_ed25519
+    StrictHostKeyChecking accept-new
+EOF
+
+$ chmod 600 ~/.ssh/config
+```
+
+## Configuración de sshd (Hardening)
+
+### Archivo de Configuración Principal
+
+```bash
+# Ubicación del archivo de configuración
+$ ls -la /etc/ssh/sshd_config
+-rw-r----- 1 root root 3769 Jan 15  2024 /etc/ssh/sshd_config
+```
+
+### Configuración de Producción Segura
+
+```bash
+# Editar configuración del servidor SSH
+$ sudoedit /etc/ssh/sshd_config
+# <1>
+
+# === CONFIGURACIÓN BÁSICA ===
+Port 22                                  # Puerto (considerar cambiar)
+ListenAddress 0.0.0.0                    # IPv4only para producción
+AddressFamily any                        # IPv4 e IPv6
+
+# === PROTOCOLO Y CIPHERS ===
+Protocol 2                                # Solo SSHv2
+PermitRootLogin no                        # NO permitir root directo
+MaxAuthTries 3                           # Máximo 3 intentos
+MaxSessions 10                           # Máx sesiones simultáneas
+
+# === AUTH CONFIG ===
+PasswordAuthentication no              # NO passwords, solo keys
+PubkeyAuthentication yes                # SI keys públicas
+AuthorizedKeysFile .ssh/authorized_keys # Ubicación de keys
+PermitEmptyPasswords no                 # NO passwords vacíos
+ChallengeResponseAuthentication no      # NO challenge-response
+KerberosAuthentication no               # NO Kerberos
+GSSAPIAuthentication no                 # NO GSSAPI
+
+# === ENCRYPTION (Hardening) ===
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+# <2>
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512
+HostKeyAlgorithms ssh-ed25519,ssh-rsa-sha2-256,ssh-rsa-sha2-512
+# <3>
+
+# === SESION ===
+ClientAliveInterval 300                 # Keepalive cada 5 min
+ClientAliveCountMax 2                   # Max 2 keepalives sin respuesta
+TCPKeepAlive yes                        # TCP keepalive
+Compression delayed                     # Compresión después de auth
+
+# === LOGGING ===
+LogLevel VERBOSE                        # Verbose para auditoría
+SyslogFacility AUTH
+
+# === RESTRICCIONES ===
+AllowUsers admin usuario@192.168.1.0/24  # Whitelist usuarios/redes
+AllowGroup sshusers                      # Grupo específico
+DenyUsers root testuser                  # Blacklist usuarios
+
+# === BANNER ===
+Banner /etc/ssh/banner                   # Banner de aviso legal
+```
+
+1. **sshd_config**: Archivo principal de configuración del daemon SSH
+2. **Ciphers**: Solo algoritmos fuertes (ChaCha20-Poly1305, AES-256-GCM)
+3. **KexAlgorithms**: Solo key exchange modernos (Curve25519, DH-group16)
+
+### Banner de Aviso Legal
+
+```bash
+# Crear banner de advertencia legal
+$ sudo cat > /etc/ssh/banner << 'EOF'
+********************************************************************
+*                    ACCESO AUTORIZADO ÚNICAMENTE                   *
+*                                                                  *
+*  Este sistema es para uso exclusivo de personal autorizado.     *
+*  Todo acceso, uso o intento de acceso no autorizado será        *
+*  procesado y puede resultar en acción legal civil y/o criminal.*
+*                                                                  *
+*  Todas las actividades son monitoreadas y registradas.          *
+*  Al usar este sistema, usted acepta estas condiciones.          *
+********************************************************************
+EOF
+
+$ sudo chmod 644 /etc/ssh/banner
+```
+
+### Validar Configuración
+
+```bash
+# Verificar sintaxis antes de reiniciar
+$ sudo sshd -t
+# <1>
+
+# Si hay errores, los muestra. Si está OK, no hay output.
+```
+
+1. **-t**: Test mode - verifica configuración sin reiniciar
+
+### Reiniciar Servicio
+
+```bash
+# Debian/Ubuntu
+$ sudo systemctl restart sshd
+
+# Verificar estado
+$ sudo systemctl status sshd
+● sshd.service - OpenSSH server daemon
+     Loaded: loaded (/lib/systemd/system/sshd.service; enabled)
+     Active: active (running) since Tue 2024-03-31 10:00:00 UTC
+   Main PID: 1234 (sshd)
+```
+
+## Casos de Estudio
+
+### Caso 1: Servidor Expuesto a Internet con 10k Intentos SSH/Día
+
+**Escenario**: Servidor en producción con IP pública recibiendo ataques de fuerza bruta constantes.
+
+**Síntomas**:
+```bash
+$ lastb | head -20
+admin    ssh:notty   45.155.205.233   Tue Mar 31 09:15:45
+root     ssh:notty   45.155.205.233   Tue Mar 31 09:15:44
+test     ssh:notty   45.155.205.233   Tue Mar 31 09:15:43
+admin    ssh:notty   45.155.205.233   Tue Mar 31 09:15:42
+...
+
+$ sudo journalctl -u sshd --since "1 hour ago" | grep -c "Failed"
+# <1>
+147
+```
+
+1. **lastb**: Muestra intentos de login fallidos
+
+**Solución Implementada**:
+
+```bash
+# 1. Verificar que fail2ban está instalado
+$ which fail2ban-server
+/usr/bin/fail2ban-server
+
+# 2. Configurar jail para SSH
+$ sudo cat > /etc/fail2ban/jail.local << 'EOF'
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+bantime = 86400
+findtime = 600
+action = iptables-allports
+EOF
+
+# 3. Iniciar fail2ban
+$ sudo systemctl enable --now fail2ban
+
+# 4. Verificar bans activos
+$ sudo fail2ban-client status sshd
+Status for the jail: sshd
+|- Filter
+|  |- Currently failed: 3
+|  |- Total failed: 156
+|  `- File list: /var/log/auth.log
+`- Actions
+   |- Currently banned: 45
+   |- Total banned: 156
+   `- Banned IP list: 45.155.205.233, 185.220.101.42, ...
+```
+
+**Resultado después de 24 horas**:
+```bash
+$ sudo fail2ban-client status sshd
+Status for the jail: sshd
+|- Filter
+|  |- Currently failed: 0
+|  `- Total failed: 15
+`- Actions
+   |- Currently banned: 12
+   `- Total banned: 234
+```
+
+### Caso 2: Necesito Acceso SSH sin Contraseña a Múltiples Servidores
+
+**Escenario**: Administrador con 20+ servidores necesita acceso sin escribir passwords.
+
+**Solución**: SSH Keys + SSH Config
+
+```bash
+# 1. Generar key una sola vez
+$ ssh-keygen -t ed25519 -C "admin@empresa-$(date +%Y)"
+
+# 2. Distribuir a todos los servidores
+$ for server in web{01..10} db{01..05} lb{01..03}; do
+    ssh-copy-id -i ~/.ssh/id_ed25519.pub admin@$server
+  done
+
+# 3. Configurar SSH config para acceso rápido
+$ cat >> ~/.ssh/config << 'EOF'
+#Servers Produccion
+Host web01 web02 web03
+    HostName 10.0.1.{11,12,13}
+    User admin
+    
+Host db01 db02
+    HostName 10.0.2.{11,12}
+    User dba
+    
+Host lb01
+    HostName 10.0.3.11
+    User admin
+EOF
+```
+
+**Uso después**:
+```bash
+# Antes (escribir password cada vez)
+$ ssh admin@web01
+password: ************
+
+# Después (directo)
+$ ssh web01
+admin@web01:~$
+```
+
+### Caso 3: Desarrollador Necesita Acceso a DB vía Jump Host
+
+**Escenario**: Desarrollador en laptop → Servidor Bastion → Base de datos en red privada.
+
+```
+Internet → Laptop → Bastion (público) → DB Server (privado 10.0.5.0/24)
+```
+
+**Solución**: SSH Agent Forwarding + ProxyJump
+
+```bash
+# Configuración en laptop del desarrollador
+$ cat >> ~/.ssh/config << 'EOF'
+# Jump Host
+Host bastion
+    HostName bastion.empresa.com
+    User developer
+    IdentityFile ~/.ssh/id_ed25519
+    
+# Base de datos a través del jump
+Host db-privada
+    HostName 10.0.5.100
+    User dba
+    ProxyJump bastion
+    IdentityFile ~/.ssh/id_ed25519
+EOF
+
+# Conexión directa (SSH hace el tunnel automáticamente)
+$ ssh db-privada
+# <1>
+```
+
+1. **ProxyJump**: Automáticamente crea el tunnel a través del bastion
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Generar Key | `ssh-keygen -t ed25519` | Crear clave segura |
+| Copiar Key | `ssh-copy-id` | Deploy a servidor |
+| Config Cliente | `~/.ssh/config` | Multi-servidor |
+| Hardening | `/etc/ssh/sshd_config` | Seguridad servidor |
+| Test Config | `sshd -t` | Validar configuración |
+| Keep Alive | `ClientAliveInterval 300` | Evitar desconexiones |
+
+## Referencias
+
+- [OpenSSH Manual](https://www.openssh.com/manual.html)
+- [sshd_config(5)](https://man.openbsd.org/sshd_config.5)
+- [Mozilla SSH Guidelines](https://wiki.mozilla.org/Security/Server_Side_TLS)

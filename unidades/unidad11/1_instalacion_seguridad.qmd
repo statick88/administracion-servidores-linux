@@ -1,90 +1,682 @@
 ---
-title: "Unidad 11.1: Instalacion y seguridad inicial"
-subtitle: "MariaDB en servidores"
+title: "Unidad 11: MariaDB - Base de Datos en Producción"
+subtitle: "Instalación, configuración, seguridad y operaciones de MariaDB"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 11.1: Instalacion y seguridad inicial
+# Unidad 11: MariaDB en Producción
 
-## Introduccion
+## Introducción
 
-MariaDB es una base de datos relacional compatible con MySQL, muy usada en servidores Linux. La operacion profesional empieza con una instalacion limpia, un servicio estable y un hardening inicial.
+MariaDB es el reemplazo directo de MySQL en la mayoría de distribuciones Linux. Es una base de datos relacional utilizada por millones de aplicaciones web. En esta unidad vas a dominar la instalación, configuración de producción, usuarios y privilegios, backups, y acceso remoto seguro.
 
-## Objetivos de aprendizaje
+## Arquitectura de MariaDB
 
-- Instalar MariaDB
-- Validar servicio y socket/puerto
-- Ejecutar hardening inicial con `mysql_secure_installation`
+### Componentes Principales
 
----
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 ARQUITECTURA MARIADB                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   CLIENTE                 MARIADB SERVER                        │
+│  ┌─────────┐            ┌──────────┐                           │
+│  │mysql CLI│ ──────────>│ mysqld   │                           │
+│  │PHP/Python│           │ (daemon) │                           │
+│  │Node.js │            │          │                           │
+│  └─────────┘            └──────────┘                           │
+│                              │                                  │
+│                    ┌─────────┴─────────┐                       │
+│                    │                  │                        │
+│               Storage           Memory                        │
+│               (InnoDB)          (Query Cache)                 │
+│                                                                  │
+│   Puerto: 3306         Socket: /run/mysqld/mysqld.sock          │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-## Instalacion (Ubuntu)
+### InnoDB vs MyISAM
+
+| Característica | InnoDB | MyISAM |
+|----------------|--------|--------|
+| **Transacciones** | ✅ ACID | ❌ |
+| **Bloqueo** | Row-level | Table-level |
+| **Foreign Keys** | ✅ | ❌ |
+| **Crash Recovery** | ✅ | ❌ |
+| **Full-text Search** | ✅ (10.6+) | ✅ |
+| **Performance Lectura** | Moderada | Rápida |
+| **Por defecto** | ✅ (MariaDB 10.2+) | Deprecated |
+
+## Instalación en Producción
+
+### Instalación de MariaDB Server
 
 ```bash
-$ sudo apt update  # <1>
+# Actualizar índice de paquetes
+$ sudo apt update && sudo apt upgrade -y
 # <1>
 
-$ sudo apt install -y mariadb-server  # <2>
-Reading package lists... Done
+# Instalar MariaDB Server
+$ sudo apt install -y mariadb-server mariadb-client
 # <2>
 ```
 
+1. **apt update**: Lista de paquetes actualizada
+2. **mariadb-server**: Servidor de base de datos
 
-
-1. **apt update** actualiza el indice de paquetes.
-2. **apt install mariadb-server** instala servidor MariaDB.
-
----
-
-## Validar servicio y socket
+### Instalar Versión Específica (Opcional)
 
 ```bash
-$ systemctl status mariadb --no-pager  # <1>
+# Agregar repositorio oficial MariaDB
+$ sudo apt install -y software-properties-common
+$ sudo add-apt-repository 'ppa:mariadb/stable'
+$ sudo apt update && sudo apt install -y mariadb-server
+# <1>
+```
+
+1. **Versión estable**: Obtener última versión estable
+
+### Verificar Instalación
+
+```bash
+# Estado del servicio
+$ sudo systemctl status mariadb --no-pager
 ● mariadb.service - MariaDB 10.11.6 database server
-     Active: active (running)
+     Loaded: loaded (/lib/systemd/system/mariadb.service; enabled)
+     Active: active (running) since Tue 2026-03-31 10:00:00 UTC
+     Main PID: 1234 (mariadbd)
 # <1>
 
-$ sudo ss -lntp | grep ':3306' || true  # <2>
+# Versión de MariaDB
+$ mariadb --version
+mariadb  Ver 15.1 Distrib 10.11.6-MariaDB, for debian-linux-gnu (x86_64) using readline 3.0
+# <2>
+```
+
+1. **systemctl status**: Confirmar servicio activo
+2. **Versión**: MariaDB 10.11.6
+
+### Validar Conexión
+
+```bash
+# Conexión local (socket)
+$ sudo mariadb -u root
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 50
+Server version: 10.11.6-MariaDB-1ubuntu0.1 Ubuntu 24.04
+
+MariaDB [(none)]> SELECT VERSION();
++--------------------+
+| VERSION()          |
++--------------------+
+| 10.11.6-MariaDB    |
++--------------------+
+
+MariaDB [(none)]> EXIT;
+# <1>
+```
+
+1. **mariadb -u root**: Conexión como root (sin password tras instalación)
+
+## Hardening Inicial
+
+### mysql_secure_installation
+
+```bash
+$ sudo mysql_secure_installation
+
+# Following prompts:
+Switch to unix_socket authentication [Y/n] n  # <1>
+Change the root password? [Y/n] Y           # <2>
+New password: ********
+Confirm password: ********
+
+Remove anonymous users? [Y/n] Y              # <3>
+Disallow root login remotely? [Y/n] Y         # <4>
+Remove test database and access to it? [Y/n] Y
+Reload privilege tables now? [Y/n] Y         # <5>
+# <1>
+```
+
+1. **unix_socket**: Autenticación via usuario del sistema
+2. **Password root**: Establecer password fuerte
+3. **Anonymous users**: Eliminar usuarios anónimos
+4. **Remote root**: Deshabilitar login remoto de root
+5. **Flush privileges**: Recargar tabla de privilegios
+
+### Hardening Manual
+
+```bash
+# Conectar como root
+$ sudo mariadb
+
+# 1. Cambiar password de root
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'StrongRootPass-2026!';
+FLUSH PRIVILEGES;
+
+# 2. Eliminar usuarios anónimos
+DELETE FROM mysql.user WHERE User='';
+FLUSH PRIVILEGES;
+
+# 3. Eliminar base de datos de test
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test';
+FLUSH PRIVILEGES;
+
+# 4. Ver usuarios restantes
+SELECT User, Host, plugin FROM mysql.user ORDER BY User;
+# <1>
+```
+
+1. **Hardening manual**: Control total sobre la configuración
+
+## Configuración de Producción
+
+### Archivo de Configuración
+
+```bash
+# Ver configuración actual
+$ sudo mariadb -e "SHOW VARIABLES LIKE 'max_connections';"
++--------------------+
+| max_connections    |
++--------------------+
+| 151                |
++--------------------+
+
+# Archivo de configuración
+$ ls -la /etc/mysql/
+mariadb.conf.d  my.cnf
+# <1>
+```
+
+1. **Config files**: /etc/mysql/mariadb.conf.d/50-server.cnf
+
+### Configuración de Producción
+
+```bash
+$ sudo tee /etc/mysql/mariadb.conf.d/99-production.cnf <<'EOF'
+[mysqld]
+# Conexiones
+max_connections = 200
+wait_timeout = 60
+interactive_timeout = 60
+
+# InnoDB
+innodb_buffer_pool_size = 1G          # 70% de RAM disponible
+innodb_log_file_size = 256M
+innodb_flush_log_at_trx_commit = 2     # Sécurité + rendimiento
+innodb_flush_method = O_DIRECT
+
+# Logs
+log_error = /var/log/mysql/error.log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+# Character set
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Seguridad
+local_infile = 0
+skip_symbolic_links = 1
+bind-address = 127.0.0.1               # Solo localhost por defecto
+
+[client]
+default-character-set = utf8mb4
+EOF
+
+$ sudo systemctl restart mariadb
+# <1>
+```
+
+1. **Production config**: Optimizado para producción
+
+### Variables Importantes
+
+```bash
+# Ver variables clave
+$ mariadb -e "
+SHOW VARIABLES LIKE 'innodb_buffer_pool_size';
+SHOW VARIABLES LIKE 'max_connections';
+SHOW VARIABLES LIKE 'character_set%';
+SHOW VARIABLES LIKE 'bind-address';
+"
+# <1>
+```
+
+1. **Variables importantes**: Buffer pool, conexiones, charset
+
+## Usuarios y Privilegios
+
+### Crear Usuario para Aplicación
+
+```bash
+$ sudo mariadb
+
+# Crear base de datos
+CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+# <1>
+
+# Crear usuario con privilegios específicos
+CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'StrongAppPass-2026!';
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';
+FLUSH PRIVILEGES;
 # <2>
 
-$ sudo ls -l /run/mysqld/mysqld.sock  # <3>
-srwxrwxrwx 1 mysql mysql 0 Feb  2 12:30 /run/mysqld/mysqld.sock
+# Verificar privilegios
+SHOW GRANTS FOR 'appuser'@'localhost';
 # <3>
 ```
 
+1. **Database**: DB específica para la aplicación
+2. **Usuario**: Con privilegios mínimos necesarios
+3. **GRANTS**: Ver qué puede hacer el usuario
 
-
-1. **systemctl status mariadb** valida que el servicio esta corriendo.
-2. **ss -lntp** valida el puerto 3306 si esta habilitado (en muchos casos MariaDB escucha solo en loopback).
-3. **mysqld.sock** confirma socket local, comun en instalaciones seguras.
-
----
-
-## Hardening inicial
+### Usuario con Múltiples Hosts
 
 ```bash
-$ sudo mysql_secure_installation  # <1>
-... (preguntas interactivas) ...
+# Usuario para desarrollo (localhost)
+CREATE USER 'devuser'@'localhost' IDENTIFIED BY 'DevPass123!';
+GRANT ALL PRIVILEGES ON appdb.* TO 'devuser'@'localhost';
+
+# Usuario para aplicación (servidor web)
+CREATE USER 'appuser'@'10.0.1.0/255.255.255.0' IDENTIFIED BY 'AppNetworkPass!';
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'10.0.1.0/255.255.255.0';
+
+# Usuario de solo lectura (monitoring)
+CREATE USER 'readonly'@'%' IDENTIFIED BY 'ReadOnlyPass!';
+GRANT SELECT ON appdb.* TO 'readonly'@'%';
+
+FLUSH PRIVILEGES;
 # <1>
 ```
 
+1. **Múltiples hosts**: Por IP o red específica
 
-
-1. **mysql_secure_installation** aplica endurecimiento basico (password root, eliminar usuarios anonimos, deshabilitar login remoto de root, etc.).
-
----
-
-## Prueba rapida
+### Roles (MariaDB 10.2+)
 
 ```bash
-$ sudo mariadb -e 'SELECT VERSION();'  # <1>
-VERSION()
-10.11.6-MariaDB-0ubuntu0.24.04.1
+# Crear rol
+CREATE ROLE 'app_readonly';
+GRANT SELECT ON appdb.* TO 'app_readonly';
+
+# Crear rol escribir
+CREATE ROLE 'app_write';
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'app_write';
+
+# Asignar rol a usuario
+GRANT 'app_readonly' TO 'developer1'@'localhost';
+SET DEFAULT ROLE 'app_readonly' FOR 'developer1'@'localhost';
+
+FLUSH PRIVILEGES;
 # <1>
 ```
 
+1. **Roles**: Agrupar privilegios para facilitar gestión
 
+### Contraseñas Seguras
 
-1. **mariadb -e** ejecuta un query y valida que puedes conectarte localmente.
+```bash
+# Generar contraseña segura
+$ openssl rand -base64 32
+# <1>
+
+# O usar pwgen
+$ sudo apt install -y pwgen
+$ pwgen -s 32 1
+# <2>
+```
+
+1. **openssl**: Generador seguro
+2. **pwgen**: Password generator
+
+## Backups
+
+### mysqldump (Backup Lógico)
+
+```bash
+# Backup de base de datos específica
+$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql
+# <1>
+
+# Backup de todas las bases de datos
+$ sudo mysqldump -u root -p --all-databases > /backup/all-databases-$(date +%Y%m%d).sql
+# <2>
+
+# Backup con gzip (comprimido)
+$ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz
+# <3>
+```
+
+1. **Base específica**: Un archivo por DB
+2. **Todas**: Un archivo con todas las DB
+3. **Comprimido**: Ahorro de espacio
+
+### Restaurar Backup
+
+```bash
+# Restaurar base de datos
+$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
+# <1>
+
+# Restaurar todas las DB
+$ sudo mariadb -u root -p < /backup/all-databases-20260331.sql
+# <2>
+
+# Desde archivo comprimido
+$ zcat /backup/appdb-20260331.sql.gz | sudo mariadb -u root -p appdb
+# <3>
+```
+
+1. **Restaurar DB específica**
+2. **Restaurar todo**
+3. **Comprimido**: Pipe desde gzip
+
+### MariaDB Backup (Físico)
+
+```bash
+# Instalar MariaDB Backup tool
+$ sudo apt install -y mariadb-backup
+
+# Backup físico
+$ sudo mariabackup --backup \
+    --target-dir=/backup/full-$(date +%Y%m%d) \
+    --user=root --password='StrongRootPass-2026!'
+# <1>
+
+# Restaurar物理 backup
+$ sudo mariabackup --prepare \
+    --target-dir=/backup/full-20260331
+
+$ sudo systemctl stop mariadb
+
+$ sudo mariabackup --restore \
+    --target-dir=/backup/full-20260331 \
+    --user=root --password='StrongRootPass-2026!'
+
+$ sudo chown -R mysql:mysql /var/lib/mysql
+$ sudo systemctl start mariadb
+# <2>
+```
+
+1. **mariabackup**: Backup rápido para grandes DB
+2. **Restaurar**: Pasos para restaurar
+
+### Cronjob para Backups Automáticos
+
+```bash
+# Crear script de backup
+$ sudo tee /usr/local/bin/backup-mariadb.sh <<'EOF'
+#!/bin/bash
+DATE=$(date +%Y%m%d)
+BACKUP_DIR="/backup"
+DB_NAME="appdb"
+DB_USER="backupuser"
+DB_PASS="BackupUserPass123!"
+
+# Crear directorio si no existe
+mkdir -p $BACKUP_DIR
+
+# Realizar backup
+mysqldump -u $DB_USER -p"$DB_PASS" $DB_NAME | gzip > $BACKUP_DIR/${DB_NAME}-${DATE}.sql.gz
+
+# Eliminar backups de más de 7 días
+find $BACKUP_DIR -name "*.sql.gz" -mtime +7 -delete
+
+# Notificar (opcional)
+echo "Backup completado: $DATE" | logger -t backup-mariadb
+EOF
+
+$ sudo chmod +x /usr/local/bin/backup-mariadb.sh
+
+# Agregar a crontab
+$ sudo crontab -e
+# Agregar línea:
+# 0 3 * * * /usr/local/bin/backup-mariadb.sh
+# <1>
+```
+
+1. **Cronjob diario**: Backup automático a las 3 AM
+
+## Acceso Remoto
+
+### Habilitar Acceso Remoto
+
+```bash
+# Editar configuración
+$ sudo sed -i "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# Reiniciar
+$ sudo systemctl restart mariadb
+
+# Ver puerto
+$ sudo ss -lntp | grep 3306
+LISTEN 0 80 0.0.0.0:3306 0.0.0.0:* users:(("mariadbd",pid=2345,fd=20))
+# <1>
+```
+
+1. **bind-address 0.0.0.0**: Escuchar en todas las interfaces
+
+### Configurar Usuario para Acceso Remoto
+
+```bash
+$ sudo mariadb
+
+# Crear usuario para acceso remoto
+CREATE USER 'appuser'@'%' IDENTIFIED BY 'RemoteAppPass!';
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'%';
+FLUSH PRIVILEGES;
+
+# Verificar
+SELECT User, Host FROM mysql.user WHERE User='appuser';
+# <1>
+```
+
+1. **% wildcard**: Cualquier host
+
+### Firewall
+
+```bash
+# Abrir puerto solo para red específica
+$ sudo ufw allow from 10.0.1.0/24 to any port 3306
+# <1>
+
+# O solo desde servidor web
+$ sudo ufw allow from 10.0.1.20 to any port 3306
+```
+
+1. **UFW**: Firewall uncomplicated
+
+## Casos de Estudio
+
+### Caso 1: Base de Datos Lenta
+
+**Síntomas**:
+```bash
+$ mariadb -u appuser -p -e "SELECT * FROM orders WHERE date > '2026-01-01'"
+# Tarda 30+ segundos
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# Ver queries lentos
+$ sudo tail -50 /var/log/mysql/slow.log
+# <2>
+
+# Ver EXPLAIN
+EXPLAIN SELECT * FROM orders WHERE date > '2026-01-01';
+# <3>
+```
+
+1. **Query lento**: 30+ segundos
+2. **Slow query log**: Ver queries problemáticos
+3. **EXPLAIN**: Analizar plan de ejecución
+
+**Solución**:
+```bash
+# Agregar índice
+ALTER TABLE orders ADD INDEX idx_date (date);
+
+# Verificar
+EXPLAIN SELECT * FROM orders WHERE date > '2026-01-01';
+# <1>
+```
+
+### Caso 2: Too Many Connections
+
+**Problema**:
+```bash
+$ mariadb -u appuser -p
+ERROR 1040 (08004): Too many connections
+# <1>
+```
+
+**Diagnóstico**:
+```bash
+# Ver conexiones actuales
+$ mariadb -e "SHOW STATUS LIKE 'Threads_connected';"
++---------------------+
+| Threads_connected   |
++---------------------+
+| 151                 |
++---------------------+
+
+# Ver max
+$ mariadb -e "SHOW VARIABLES LIKE 'max_connections';"
++--------------------+
+| max_connections    |
++--------------------+
+| 151                |
++--------------------+
+# <2>
+```
+
+1. **Too many connections**: Límite alcanzado
+2. **max_connections**: Solo 151
+
+**Solución**:
+```bash
+# Aumentar conexiones (agregar a my.cnf)
+# [mysqld]
+max_connections = 300
+
+$ sudo systemctl restart mariadb
+```
+
+### Caso 3: Contraseña Root Olvidada
+
+**Problema**: No se puede conectar como root.
+
+**Solución**:
+```bash
+# Detener MariaDB
+$ sudo systemctl stop mariadb
+
+# Iniciar en modo seguro
+$ sudo mysqld_safe --skip-grant-tables --skip-networking &
+
+# Conectar sin password
+$ sudo mariadb
+
+# Resetear password
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewRootPass2026!';
+
+# Detener y reiniciar normal
+$ sudo killall mysqld
+$ sudo systemctl start mariadb
+# <1>
+```
+
+1. **Modo safe**: Sin privilegios, permite reset
+
+### Caso 4: Recovery Después de Crash
+
+**Problema**: Base de datos no inicia después de apagón.
+
+**Diagnóstico**:
+```bash
+$ sudo systemctl start mariadb
+Job for mariadb.service failed because a timeout was exceeded.
+
+# Ver logs
+$ sudo journalctl -u mariadb -n 50
+# <1>
+```
+
+**Solución**:
+```bash
+# Recovery mode
+$ sudo mysqld --innodb-force-recovery=1 &
+
+# Verificar tablas
+$ sudo mariadb -e "CHECK TABLE dbname.tablename;"
+
+# dump y restore si es necesario
+$ sudo mysqldump -A > /backup/before-fix.sql
+
+# Detener y reiniciar normal
+$ sudo killall mysqld
+$ sudo mysqld_safe --innodb-recovery &
+
+# Luego restaurar
+$ sudo mariadb < /backup/before-fix.sql
+# <2>
+```
+
+1. **Force recovery**: Opciones 1-6 según gravedad
+
+## Monitoreo
+
+### Ver Estado de Conexiones
+
+```bash
+# Conexiones por usuario
+$ mariadb -e "
+SELECT user, host, COUNT(*) as connections 
+FROM information_schema.processlist 
+GROUP BY user, host;
+"
+
+# Queries por segundo
+$ mariadb -e "
+SHOW GLOBAL STATUS LIKE 'Questions';
+SHOW GLOBAL STATUS LIKE 'Uptime';
+"
+```
+
+### Health Check
+
+```bash
+# Script de health check
+#!/bin/bash
+RESULT=$(mariadb -u root -p'STRONG_PASSWORD' -e "SELECT 1" 2>/dev/null)
+if [ "$RESULT" = "1" ]; then
+    echo "MariaDB OK"
+    exit 0
+else
+    echo "MariaDB FAIL"
+    exit 1
+fi
+```
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Instalar | `apt install mariadb-server` | Base de datos |
+| Hardening | `mysql_secure_installation` | Seguridad inicial |
+| Usuario | `CREATE USER` + `GRANT` | Acceso controlado |
+| Backup | `mysqldump` | Backup lógico |
+| Restaurar | `mariadb < backup.sql` | Recuperación |
+| Acceso Remoto | `bind-address = 0.0.0.0` | Conexiones externas |
+
+## Referencias
+
+- [MariaDB Documentation](https://mariadb.com/kb/en/)
+- [MariaDB Knowledge Base](https://mariadb.com/kb/en/knowledge-base/)
+- [MySQLTuner](https://github.com/major/MySQLTuner-perl)

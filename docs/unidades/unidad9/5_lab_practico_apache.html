@@ -2,14 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.9.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Diego Saavedra">
 <meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
 
-<title>Introducción a la web – Administración de Servidores Linux</title>
+<title>Unidad 9: Laboratorio Práctico - Apache en Producción – Administración de Servidores Linux</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -65,22 +69,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<link href="../../unidades/unidad8/99_recursos.html" rel="next">
-<link href="../../unidades/unidad7/99_recursos.html" rel="prev">
+<link href="../../unidades/unidad9/99_recursos.html" rel="next">
+<link href="../../unidades/unidad9/4_seguridad_basica_apache.html" rel="prev">
 <link href="../../logo.jpeg" rel="icon" type="image/jpeg">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-61780a260fdcf47536a34fde95582725.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-68056a18e515a5789c5e26a7aeb7ac61.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c213800f9ad2c394781badd4e3c4d3bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-d475e4ab3b4fd243dd6ecd26d4f0399c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
 <script src="../../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
@@ -291,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad8/intro_web.html">Unidad 8: Introducción a Servidores Web</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad8/intro_web.html"><span class="chapter-title">Introducción a la web</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html">Unidad 9: Apache (Servidor Web)</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad9/5_lab_practico_apache.html"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -636,16 +639,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
- <span class="menu-text">Unidad 8: Introducción a Servidores Web</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 8: SSH y Acceso Remoto Seguro</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad8/intro_web.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Introducción a la web</span></a>
+  <a href="../../unidades/unidad8/1_ssh_fundamentos_keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Protocolo y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/2_ssh_tunnels.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH Tunnels: Port Forwarding y Proxy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad8/3_lab_practico_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">SSH: Laboratorio Práctico</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -657,31 +670,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
  <span class="menu-text">Unidad 9: Apache (Servidor Web)</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.1: Introduccion a Apache</span></a>
+  <a href="../../unidades/unidad9/1_introduccion_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9: Apache HTTP Server - Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuracion, logs y modulos</span></a>
+  <a href="../../unidades/unidad9/2_configuracion_logs_modulos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.2: Configuración, Logs y Módulos</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y sitios</span></a>
+  <a href="../../unidades/unidad9/3_virtualhosts_sites.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.3: VirtualHosts y Múltiples Sitios</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad basica en Apache</span></a>
+  <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad9/5_lab_practico_apache.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -702,22 +720,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.1: Introduccion a Nginx</span></a>
+  <a href="../../unidades/unidad10/1_introduccion_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Nginx - Servidor Web y Reverse Proxy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse proxy</span></a>
+  <a href="../../unidades/unidad10/2_reverse_proxy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.2: Reverse Proxy y Balanceo de Carga</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL con Certbot</span></a>
+  <a href="../../unidades/unidad10/3_ssl_certbot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.3: SSL/TLS con Certbot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening basico y headers</span></a>
+  <a href="../../unidades/unidad10/4_hardening_headers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10.4: Hardening y Seguridad en Nginx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad10/5_lab_practico_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 10: Laboratorio Práctico - Nginx en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -738,22 +761,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.1: Instalacion y seguridad inicial</span></a>
+  <a href="../../unidades/unidad11/1_instalacion_seguridad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: MariaDB - Base de Datos en Producción</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios y privilegios</span></a>
+  <a href="../../unidades/unidad11/2_usuarios_privilegios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.2: Usuarios, Privilegios y Seguridad</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y restore</span></a>
+  <a href="../../unidades/unidad11/3_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.3: Backup y Restauración</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Red y acceso remoto</span></a>
+  <a href="../../unidades/unidad11/4_red_acceso_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11.4: Acceso Remoto y Seguridad de Red</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad11/5_lab_practico_mariadb.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 11: Laboratorio Práctico - MariaDB</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -774,7 +802,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.1: Metodologia de diagnostico</span></a>
+  <a href="../../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -790,6 +818,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1193,41 +1226,87 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#qué-es-la-web" id="toc-qué-es-la-web" class="nav-link active" data-scroll-target="#qué-es-la-web">¿Qué es la web?</a></li>
-  <li><a href="#diferencia-entre-internet-y-la-web" id="toc-diferencia-entre-internet-y-la-web" class="nav-link" data-scroll-target="#diferencia-entre-internet-y-la-web">Diferencia entre Internet y la Web:</a></li>
-  <li><a href="#ejemplo-de-productosservicios" id="toc-ejemplo-de-productosservicios" class="nav-link" data-scroll-target="#ejemplo-de-productosservicios">Ejemplo de productos/servicios:</a></li>
-  <li><a href="#cómo-funciona-la-web" id="toc-cómo-funciona-la-web" class="nav-link" data-scroll-target="#cómo-funciona-la-web">¿Cómo funciona la web?</a></li>
-  <li><a href="#qué-es-un-navegador-web" id="toc-qué-es-un-navegador-web" class="nav-link" data-scroll-target="#qué-es-un-navegador-web">¿Qué es un navegador web?</a></li>
-  <li><a href="#qué-es-html" id="toc-qué-es-html" class="nav-link" data-scroll-target="#qué-es-html">¿Qué es HTML?</a></li>
-  <li><a href="#qué-es-css" id="toc-qué-es-css" class="nav-link" data-scroll-target="#qué-es-css">¿Qué es CSS?</a></li>
-  <li><a href="#qué-es-javascript" id="toc-qué-es-javascript" class="nav-link" data-scroll-target="#qué-es-javascript">¿Qué es JavaScript?</a></li>
-  <li><a href="#qué-es-node.js" id="toc-qué-es-node.js" class="nav-link" data-scroll-target="#qué-es-node.js">¿Qué es Node.js?</a></li>
-  <li><a href="#qué-es-react" id="toc-qué-es-react" class="nav-link" data-scroll-target="#qué-es-react">¿Qué es React?</a></li>
-  <li><a href="#frontend-vs.-backend" id="toc-frontend-vs.-backend" class="nav-link" data-scroll-target="#frontend-vs.-backend">Frontend vs.&nbsp;Backend</a></li>
-  <li><a href="#api-y-api-rest" id="toc-api-y-api-rest" class="nav-link" data-scroll-target="#api-y-api-rest">API y API REST</a></li>
-  <li><a href="#extra" id="toc-extra" class="nav-link" data-scroll-target="#extra">Extra</a>
+  <li><a href="#laboratorio-9-apache-http-server-en-producción" id="toc-laboratorio-9-apache-http-server-en-producción" class="nav-link active" data-scroll-target="#laboratorio-9-apache-http-server-en-producción">Laboratorio 9: Apache HTTP Server en Producción</a>
   <ul class="collapse">
-  <li><a href="#server-site-rendering" id="toc-server-site-rendering" class="nav-link" data-scroll-target="#server-site-rendering">Server Site Rendering:</a></li>
-  <li><a href="#conclusión" id="toc-conclusión" class="nav-link" data-scroll-target="#conclusión">Conclusión</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#objetivos-del-laboratorio" id="toc-objetivos-del-laboratorio" class="nav-link" data-scroll-target="#objetivos-del-laboratorio">Objetivos del Laboratorio</a></li>
+  <li><a href="#requisitos" id="toc-requisitos" class="nav-link" data-scroll-target="#requisitos">Requisitos</a></li>
+  <li><a href="#duración" id="toc-duración" class="nav-link" data-scroll-target="#duración">Duración</a></li>
+  <li><a href="#parte-1-instalación-y-validación" id="toc-parte-1-instalación-y-validación" class="nav-link" data-scroll-target="#parte-1-instalación-y-validación">Parte 1: Instalación y Validación</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-1.1-instalar-apache" id="toc-ejercicio-1.1-instalar-apache" class="nav-link" data-scroll-target="#ejercicio-1.1-instalar-apache">Ejercicio 1.1: Instalar Apache</a></li>
+  <li><a href="#ejercicio-1.2-validar-puerto-y-respuesta" id="toc-ejercicio-1.2-validar-puerto-y-respuesta" class="nav-link" data-scroll-target="#ejercicio-1.2-validar-puerto-y-respuesta">Ejercicio 1.2: Validar Puerto y Respuesta</a></li>
+  <li><a href="#ejercicio-1.3-identificar-rutas-clave" id="toc-ejercicio-1.3-identificar-rutas-clave" class="nav-link" data-scroll-target="#ejercicio-1.3-identificar-rutas-clave">Ejercicio 1.3: Identificar Rutas Clave</a></li>
+  </ul></li>
+  <li><a href="#parte-2-módulos-y-configuración" id="toc-parte-2-módulos-y-configuración" class="nav-link" data-scroll-target="#parte-2-módulos-y-configuración">Parte 2: Módulos y Configuración</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-2.1-habilitar-módulos" id="toc-ejercicio-2.1-habilitar-módulos" class="nav-link" data-scroll-target="#ejercicio-2.1-habilitar-módulos">Ejercicio 2.1: Habilitar Módulos</a></li>
+  <li><a href="#ejercicio-2.2-validar-configuración" id="toc-ejercicio-2.2-validar-configuración" class="nav-link" data-scroll-target="#ejercicio-2.2-validar-configuración">Ejercicio 2.2: Validar Configuración</a></li>
+  </ul></li>
+  <li><a href="#parte-3-virtualhosts" id="toc-parte-3-virtualhosts" class="nav-link" data-scroll-target="#parte-3-virtualhosts">Parte 3: VirtualHosts</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-3.1-crear-estructura-de-directorios" id="toc-ejercicio-3.1-crear-estructura-de-directorios" class="nav-link" data-scroll-target="#ejercicio-3.1-crear-estructura-de-directorios">Ejercicio 3.1: Crear Estructura de Directorios</a></li>
+  <li><a href="#ejercicio-3.2-crear-contenido" id="toc-ejercicio-3.2-crear-contenido" class="nav-link" data-scroll-target="#ejercicio-3.2-crear-contenido">Ejercicio 3.2: Crear Contenido</a></li>
+  <li><a href="#ejercicio-3.3-crear-virtualhosts" id="toc-ejercicio-3.3-crear-virtualhosts" class="nav-link" data-scroll-target="#ejercicio-3.3-crear-virtualhosts">Ejercicio 3.3: Crear VirtualHosts</a></li>
+  <li><a href="#ejercicio-3.4-habilitar-y-probar" id="toc-ejercicio-3.4-habilitar-y-probar" class="nav-link" data-scroll-target="#ejercicio-3.4-habilitar-y-probar">Ejercicio 3.4: Habilitar y Probar</a></li>
+  </ul></li>
+  <li><a href="#parte-4-hardening" id="toc-parte-4-hardening" class="nav-link" data-scroll-target="#parte-4-hardening">Parte 4: Hardening</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-4.1-ocultar-información" id="toc-ejercicio-4.1-ocultar-información" class="nav-link" data-scroll-target="#ejercicio-4.1-ocultar-información">Ejercicio 4.1: Ocultar Información</a></li>
+  <li><a href="#ejercicio-4.2-security-headers" id="toc-ejercicio-4.2-security-headers" class="nav-link" data-scroll-target="#ejercicio-4.2-security-headers">Ejercicio 4.2: Security Headers</a></li>
+  <li><a href="#ejercicio-4.3-rate-limiting" id="toc-ejercicio-4.3-rate-limiting" class="nav-link" data-scroll-target="#ejercicio-4.3-rate-limiting">Ejercicio 4.3: Rate Limiting</a></li>
+  </ul></li>
+  <li><a href="#parte-5-ssl-básico" id="toc-parte-5-ssl-básico" class="nav-link" data-scroll-target="#parte-5-ssl-básico">Parte 5: SSL Básico</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-5.1-instalar-certbot" id="toc-ejercicio-5.1-instalar-certbot" class="nav-link" data-scroll-target="#ejercicio-5.1-instalar-certbot">Ejercicio 5.1: Instalar Certbot</a></li>
+  <li><a href="#ejercicio-5.2-certificado-auto-firmado-testing" id="toc-ejercicio-5.2-certificado-auto-firmado-testing" class="nav-link" data-scroll-target="#ejercicio-5.2-certificado-auto-firmado-testing">Ejercicio 5.2: Certificado Auto-firmado (Testing)</a></li>
+  <li><a href="#ejercicio-5.3-probar-ssl" id="toc-ejercicio-5.3-probar-ssl" class="nav-link" data-scroll-target="#ejercicio-5.3-probar-ssl">Ejercicio 5.3: Probar SSL</a></li>
+  </ul></li>
+  <li><a href="#parte-6-docker-para-pruebas" id="toc-parte-6-docker-para-pruebas" class="nav-link" data-scroll-target="#parte-6-docker-para-pruebas">Parte 6: Docker para Pruebas</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-6.1-crear-contenedor-apache" id="toc-ejercicio-6.1-crear-contenedor-apache" class="nav-link" data-scroll-target="#ejercicio-6.1-crear-contenedor-apache">Ejercicio 6.1: Crear Contenedor Apache</a></li>
+  <li><a href="#ejercicio-6.2-configurar-desde-host" id="toc-ejercicio-6.2-configurar-desde-host" class="nav-link" data-scroll-target="#ejercicio-6.2-configurar-desde-host">Ejercicio 6.2: Configurar desde Host</a></li>
+  </ul></li>
+  <li><a href="#parte-7-vps-real-opcional" id="toc-parte-7-vps-real-opcional" class="nav-link" data-scroll-target="#parte-7-vps-real-opcional">Parte 7: VPS Real (Opcional)</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-7.1-deployar-a-vps" id="toc-ejercicio-7.1-deployar-a-vps" class="nav-link" data-scroll-target="#ejercicio-7.1-deployar-a-vps">Ejercicio 7.1: Deployar a VPS</a></li>
+  <li><a href="#ejercicio-7.2-hardening-en-vps" id="toc-ejercicio-7.2-hardening-en-vps" class="nav-link" data-scroll-target="#ejercicio-7.2-hardening-en-vps">Ejercicio 7.2: Hardening en VPS</a></li>
+  </ul></li>
+  <li><a href="#verificación-de-laboratorio" id="toc-verificación-de-laboratorio" class="nav-link" data-scroll-target="#verificación-de-laboratorio">Verificación de Laboratorio</a></li>
+  <li><a href="#limpieza" id="toc-limpieza" class="nav-link" data-scroll-target="#limpieza">Limpieza</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   <li>Code Appendix</li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/unidades/unidad8/intro_web.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/unidades/unidad9/5_lab_practico_apache.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad8/intro_web.html">Unidad 8: Introducción a Servidores Web</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad8/intro_web.html"><span class="chapter-title">Introducción a la web</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../unidades/unidad9/1_introduccion_apache.html">Unidad 9: Apache (Servidor Web)</a></li><li class="breadcrumb-item"><a href="../../unidades/unidad9/5_lab_practico_apache.html"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Introducción a la web</span></h1>
+<h1 class="title"><span class="chapter-title">Unidad 9: Laboratorio Práctico - Apache en Producción</span></h1>
+<p class="subtitle lead">Instalación, configuración y hardening de Apache</p>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">Mar 31, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -1237,207 +1316,595 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div class="[.center]">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="./images/intro_to_web.png" class="img-fluid figure-img" width="200"></p>
-<figcaption>Intro to Web</figcaption>
-</figure>
-</div>
-</div>
-<section id="qué-es-la-web" class="level2">
-<h2 class="anchored" data-anchor-id="qué-es-la-web">¿Qué es la web?</h2>
-<p><strong>Definición</strong>: La web es un sistema de documentos interconectados que se acceden a través de Internet.</p>
+<section id="laboratorio-9-apache-http-server-en-producción" class="level1">
+<h1>Laboratorio 9: Apache HTTP Server en Producción</h1>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>En este laboratorio vas a instalar Apache, configurar VirtualHosts múltiples, aplicar hardening de seguridad, y configurar SSL básico. Vas a usar Docker para pruebas locales y un VPS real para las pruebas finales de producción.</p>
 </section>
-<section id="diferencia-entre-internet-y-la-web" class="level2">
-<h2 class="anchored" data-anchor-id="diferencia-entre-internet-y-la-web">Diferencia entre Internet y la Web:</h2>
-<p>Internet es una red global de computadoras conectadas entre sí que permite el intercambio de información (red de redes). La Web (o la World Wide Web, WWW) es una forma específica de acceder a la información a través de documentos interconectados (páginas web) usando navegadores. La web es solo una parte de Internet.</p>
-</section>
-<section id="ejemplo-de-productosservicios" class="level2">
-<h2 class="anchored" data-anchor-id="ejemplo-de-productosservicios">Ejemplo de productos/servicios:</h2>
-<p><strong>Google Search</strong>: Un motor de búsqueda que accede a la web para ofrecer resultados.</p>
-<p><strong>Facebook, Twitter, Instagram</strong>: Redes sociales que permiten interactuar con contenido en la web.</p>
-</section>
-<section id="cómo-funciona-la-web" class="level2">
-<h2 class="anchored" data-anchor-id="cómo-funciona-la-web">¿Cómo funciona la web?</h2>
-<p>Proceso de carga de una página web:</p>
+<section id="objetivos-del-laboratorio" class="level2">
+<h2 class="anchored" data-anchor-id="objetivos-del-laboratorio">Objetivos del Laboratorio</h2>
+<p>Al completar este laboratorio podrás:</p>
 <ol type="1">
-<li><p>Un usuario escribe una URL en su navegador (ej., www.ejemplo.com).</p></li>
-<li><p>El navegador envía una solicitud HTTP a un servidor web donde está alojada la página.</p></li>
-<li><p>El servidor responde con archivos HTML, CSS y JavaScript.</p></li>
-<li><p>El navegador interpreta estos archivos y muestra la página web.</p></li>
+<li>Instalar y validar Apache en Ubuntu Server</li>
+<li>Configurar múltiples VirtualHosts con logs separados</li>
+<li>Aplicar hardening de seguridad (ServerTokens, headers)</li>
+<li>Configurar SSL básico con certificados</li>
+<li>Implementar rate limiting y protección</li>
 </ol>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p><strong>Amazon</strong>: Cuando accedes a la tienda, tu navegador hace solicitudes HTTP al servidor de Amazon para cargar los productos, imágenes, y precios.</p>
 </section>
-<section id="qué-es-un-navegador-web" class="level2">
-<h2 class="anchored" data-anchor-id="qué-es-un-navegador-web">¿Qué es un navegador web?</h2>
-<p><strong>Definición</strong>: El navegador es un software que permite acceder a las páginas web. Interpreta el código HTML, CSS y JavaScript para mostrar la información en forma de contenido visual.</p>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p>Google Chrome, Mozilla Firefox, Safari: Son navegadores que permiten ver páginas web y usar aplicaciones en línea como Gmail, YouTube, etc.</p>
+<section id="requisitos" class="level2">
+<h2 class="anchored" data-anchor-id="requisitos">Requisitos</h2>
+<ul>
+<li>Máquina con Docker instalado</li>
+<li>Acceso a un VPS con IP pública (opcional para pruebas finales)</li>
+<li>Puerto 80 y 443 accesibles</li>
+</ul>
 </section>
-<section id="qué-es-html" class="level2">
-<h2 class="anchored" data-anchor-id="qué-es-html">¿Qué es HTML?</h2>
-<p><strong>Definición</strong>: HTML (HyperText Markup Language) es el lenguaje de marcado estándar utilizado para crear páginas web. Define la estructura de los documentos web mediante etiquetas.</p>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p><strong>Wikipedia</strong>: La información se estructura usando HTML, con encabezados, párrafos, listas y enlaces para organizar el contenido.</p>
-<p><strong>Ejemplo de código básico HTML</strong>:</p>
+<section id="duración" class="level2">
+<h2 class="anchored" data-anchor-id="duración">Duración</h2>
+<p><strong>120 minutos</strong></p>
+<hr>
+</section>
+<section id="parte-1-instalación-y-validación" class="level2">
+<h2 class="anchored" data-anchor-id="parte-1-instalación-y-validación">Parte 1: Instalación y Validación</h2>
+<section id="ejercicio-1.1-instalar-apache" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-1.1-instalar-apache">Ejercicio 1.1: Instalar Apache</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
-<pre><strong>HTML</strong></pre>
+<pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">head</span><span class="dt">&gt;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">title</span><span class="dt">&gt;</span>Mi Página Web<span class="dt">&lt;/</span><span class="kw">title</span><span class="dt">&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">head</span><span class="dt">&gt;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">h1</span><span class="dt">&gt;</span>Bienvenidos a mi sitio web<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Este es un párrafo de texto.<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://www.google.com"</span><span class="dt">&gt;</span>Ir a Google<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar e instalar</span></span>
+<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt install <span class="at">-y</span> apache2 apache2-utils</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-3" class="code-annotation-target"><a href="#annotated-cell-1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver estado del servicio</span></span>
+<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl status apache2 <span class="at">--no-pager</span></span>
+<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7" aria-hidden="true" tabindex="-1"></a><span class="ex">●</span> apache2.service <span class="at">-</span> The Apache HTTP Server</span>
+<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Loaded:</span> loaded <span class="er">(</span><span class="ex">/lib/systemd/system/apache2.service</span><span class="kw">;</span> <span class="ex">enabled</span><span class="kw">)</span></span>
+<span id="annotated-cell-1-9"><a href="#annotated-cell-1-9" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Active:</span> active <span class="er">(</span><span class="ex">running</span><span class="kw">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="3" data-code-annotation="1"><strong>apache2-utils</strong>: Incluye <code>ab</code> para testing de carga</span>
+</dd>
+</dl>
 </section>
-<section id="qué-es-css" class="level2">
-<h2 class="anchored" data-anchor-id="qué-es-css">¿Qué es CSS?</h2>
-<p><strong>Definición</strong>: CSS (Cascading Style Sheets) es un lenguaje utilizado para describir la presentación de un documento HTML. Permite estilizar elementos como el color, tamaño y disposición de los elementos en la página.</p>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p><strong>Netflix</strong>: La interfaz de usuario de Netflix se diseña con CSS para que el contenido (películas, series) se muestre de manera atractiva y organizada.</p>
-<p><strong>Ejemplo de código CSS</strong>:</p>
+<section id="ejercicio-1.2-validar-puerto-y-respuesta" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-1.2-validar-puerto-y-respuesta">Ejercicio 1.2: Validar Puerto y Respuesta</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
-<pre><strong>CSS</strong></pre>
+<pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>body {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="dv">Arial</span><span class="op">,</span> <span class="dv">sans-serif</span><span class="op">;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-color</span><span class="ch">:</span> <span class="cn">#f0f0f0</span><span class="op">;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>h1 {</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">color</span><span class="ch">:</span> <span class="cn">#2c3e50</span><span class="op">;</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>p {</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-size</span><span class="ch">:</span> <span class="dv">16</span><span class="dt">px</span><span class="op">;</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-2" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver puerto en escucha</span></span>
+<span id="annotated-cell-2-2"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ss <span class="at">-lntp</span> <span class="kw">|</span> <span class="fu">grep</span> apache</span>
+<span id="annotated-cell-2-3"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">LISTEN</span> 0 511 0.0.0.0:80 0.0.0.0:<span class="pp">*</span> users:<span class="er">(</span><span class="kw">(</span><span class="st">"apache2"</span><span class="ex">,pid=1234,fd=4</span><span class="kw">))</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-4" class="code-annotation-target"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-5"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-2-6"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Probar respuesta HTTP</span></span>
+<span id="annotated-cell-2-7"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost</span>
+<span id="annotated-cell-2-8"><a href="#annotated-cell-2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">HTTP/1.1</span> 200 OK</span>
+<span id="annotated-cell-2-9"><a href="#annotated-cell-2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> Apache/2.4.58 <span class="er">(</span><span class="ex">Ubuntu</span><span class="kw">)</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="4" data-code-annotation="1"><strong>Puerto 80</strong>: Confirmado que está escuchando</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="10" data-code-annotation="2"><strong>Headers</strong>: Servidor respondiendo</span>
+</dd>
+</dl>
 </section>
-<section id="qué-es-javascript" class="level2">
-<h2 class="anchored" data-anchor-id="qué-es-javascript">¿Qué es JavaScript?</h2>
-<p><strong>Definición</strong>: JavaScript es un lenguaje de programación que permite agregar interactividad a las páginas web. Se ejecuta en el navegador del usuario, lo que permite crear dinámicamente contenido o interactuar con el servidor sin necesidad de recargar la página.</p>
-<p><strong>Conceptos básicos de JavaScript</strong>:</p>
-<p><strong>Variables</strong>: Contienen datos (números, cadenas de texto, etc.).</p>
+<section id="ejercicio-1.3-identificar-rutas-clave" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-1.3-identificar-rutas-clave">Ejercicio 1.3: Identificar Rutas Clave</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
-<pre><strong>JAVASCRIPT</strong></pre>
+<pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> nombre <span class="op">=</span> <span class="st">"Juan"</span><span class="op">;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Funciones<span class="op">:</span> Bloques de código que realizan una tarea específica<span class="op">.</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>javascript</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>Copiar código</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">saludar</span>() {</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">"¡Hola, "</span> <span class="op">+</span> nombre <span class="op">+</span> <span class="st">"!"</span>)<span class="op">;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">saludar</span>()<span class="op">;</span>  <span class="co">// Imprime: ¡Hola, Juan!</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>Eventos<span class="op">:</span> JavaScript se utiliza para manejar eventos como clics o movimientos del ratón<span class="op">.</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>javascript</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>Copiar código</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">"boton"</span>)<span class="op">.</span><span class="at">onclick</span> <span class="op">=</span> <span class="kw">function</span>() {</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">alert</span>(<span class="st">"¡Botón presionado!"</span>)<span class="op">;</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver estructura</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-la</span> /etc/apache2/</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver configuración principal</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> head <span class="at">-30</span> /etc/apache2/apache2.conf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p><strong>Google Maps</strong>: Utiliza JavaScript para mostrar mapas interactivos y permitir que los usuarios hagan clic en ubicaciones. <strong>YouTube</strong>: Utiliza JavaScript para permitir la reproducción de videos y la interacción con la interfaz.</p>
+<hr>
 </section>
-<section id="qué-es-node.js" class="level2">
-<h2 class="anchored" data-anchor-id="qué-es-node.js">¿Qué es Node.js?</h2>
-<p><strong>Definición</strong>: Node.js es un entorno de ejecución para JavaScript en el lado del servidor. Permite usar JavaScript para crear aplicaciones backend, lo que facilita la construcción de aplicaciones completas con JavaScript tanto en el frontend como en el backend.</p>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p><strong>Netflix (backend)</strong>: Utiliza Node.js para manejar grandes volúmenes de datos y conexiones en tiempo real para la transmisión de contenido.</p>
-<p><strong>Ejemplo de código básico en Node.js</strong>:</p>
+</section>
+<section id="parte-2-módulos-y-configuración" class="level2">
+<h2 class="anchored" data-anchor-id="parte-2-módulos-y-configuración">Parte 2: Módulos y Configuración</h2>
+<section id="ejercicio-2.1-habilitar-módulos" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-2.1-habilitar-módulos">Ejercicio 2.1: Habilitar Módulos</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
-<pre><strong>JAVASCRIPT</strong></pre>
+<pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> http <span class="op">=</span> <span class="pp">require</span>(<span class="st">'http'</span>)<span class="op">;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> server <span class="op">=</span> http<span class="op">.</span><span class="fu">createServer</span>((req<span class="op">,</span> res) <span class="kw">=&gt;</span> {</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  res<span class="op">.</span><span class="fu">write</span>(<span class="st">'¡Hola Mundo!'</span>)<span class="op">;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  res<span class="op">.</span><span class="fu">end</span>()<span class="op">;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>server<span class="op">.</span><span class="fu">listen</span>(<span class="dv">3000</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'Servidor corriendo en http://localhost:3000'</span>)<span class="op">;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-4" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar módulos esenciales</span></span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod headers</span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod ssl</span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod rewrite</span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod proxy</span>
+<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod proxy_http</span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod deflate</span>
+<span id="annotated-cell-4-8"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod expires</span>
+<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-10"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver módulos cargados</span></span>
+<span id="annotated-cell-4-11"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apache2ctl <span class="at">-M</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">"ssl|headers|rewrite|proxy"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<dl>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="12" data-code-annotation="1"><strong>Módulos</strong>: Verificar que están activos</span>
+</dd>
+</dl>
 </section>
-<section id="qué-es-react" class="level2">
-<h2 class="anchored" data-anchor-id="qué-es-react">¿Qué es React?</h2>
-<p><strong>Definicióno</strong>: React es una biblioteca de JavaScript para construir interfaces de usuario. Permite crear aplicaciones web interactivas mediante la construcción de componentes reutilizables que gestionan su propio estado.</p>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p><strong>Facebook</strong>: Fue desarrollado con React para construir interfaces de usuario rápidas y reactivas. <strong>Instagram</strong>: Utiliza React para gestionar la interacción con las publicaciones, los comentarios y las actualizaciones en tiempo real.</p>
-<p><strong>Ejemplo de código básico en React</strong>:</p>
+<section id="ejercicio-2.2-validar-configuración" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-2.2-validar-configuración">Ejercicio 2.2: Validar Configuración</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
-<pre><strong>JAVASCRIPT</strong></pre>
+<pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> React<span class="op">,</span> { useState } <span class="im">from</span> <span class="st">'react'</span><span class="op">;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">App</span>() {</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [contador<span class="op">,</span> setContador] <span class="op">=</span> <span class="fu">useState</span>(<span class="dv">0</span>)<span class="op">;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> (</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>div<span class="op">&gt;</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      <span class="op">&lt;</span>h1<span class="op">&gt;</span><span class="dt">Contador</span><span class="op">:</span> {contador}<span class="op">&lt;/</span>h1<span class="op">&gt;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      <span class="op">&lt;</span>button onClick<span class="op">=</span>{() <span class="kw">=&gt;</span> <span class="fu">setContador</span>(contador <span class="op">+</span> <span class="dv">1</span>)}<span class="op">&gt;</span>Incrementar<span class="op">&lt;/</span>button<span class="op">&gt;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;/</span>div<span class="op">&gt;</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  )<span class="op">;</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> App<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-5" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test de sintaxis</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest</span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Syntax</span> OK</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-4" class="code-annotation-target"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar estado después de cambios</span></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo systemctl status apache2 <span class="at">--no-pager</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-5" data-code-lines="4" data-code-annotation="1"><strong>Syntax OK</strong>: Configuración válida</span>
+</dd>
+</dl>
+<hr>
 </section>
-<section id="frontend-vs.-backend" class="level2">
-<h2 class="anchored" data-anchor-id="frontend-vs.-backend">Frontend vs.&nbsp;Backend</h2>
-<p><strong>Definición</strong>:</p>
-<p><strong>Frontend</strong>: Es la parte de la aplicación con la que interactúan los usuarios. Incluye todo lo que se ve en la pantalla: diseño, contenido y la lógica de interactividad (HTML, CSS, JavaScript, React).</p>
-<p><strong>Backend</strong>: Es la parte “invisible” que maneja los datos y la lógica del servidor. Se encarga de procesar las solicitudes de los usuarios, interactuar con bases de datos y enviar respuestas al frontend (Node.js, Python, Ruby, PHP).</p>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p><strong>Amazon (Frontend)</strong>: La página que ves cuando compras algo, donde se muestran los productos, el carrito y el proceso de pago.</p>
-<p><strong>Amazon (Backend)</strong>: Los sistemas que gestionan los inventarios, las transacciones y la autenticación de usuarios.</p>
 </section>
-<section id="api-y-api-rest" class="level2">
-<h2 class="anchored" data-anchor-id="api-y-api-rest">API y API REST</h2>
-<p><strong>Definición</strong>:</p>
-<p><strong>API (Interfaz de Programación de Aplicaciones)</strong>: Es un conjunto de reglas y herramientas que permiten que diferentes aplicaciones se comuniquen entre sí. En la web, las APIs permiten que el frontend y el backend intercambien datos.</p>
-<p><strong>API REST (Representational State Transfer)</strong>: Es un estilo arquitectónico para diseñar APIs que usan HTTP y siguen principios como la claridad en las URLs, el uso de métodos HTTP (GET, POST, PUT, DELETE) y la estructura de datos en formato JSON.</p>
-<p><strong>Ejemplo de productos/servicios</strong>:</p>
-<p><strong>Twitter API</strong>: Permite a las aplicaciones externas interactuar con Twitter, como publicar tuits o leer mensajes.</p>
-<p><strong>Spotify API</strong>: Permite integrar las funciones de Spotify (como reproducir canciones) en otras aplicaciones.</p>
-<p><strong>Ejemplo de llamada a una API REST</strong>:</p>
+<section id="parte-3-virtualhosts" class="level2">
+<h2 class="anchored" data-anchor-id="parte-3-virtualhosts">Parte 3: VirtualHosts</h2>
+<section id="ejercicio-3.1-crear-estructura-de-directorios" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-3.1-crear-estructura-de-directorios">Ejercicio 3.1: Crear Estructura de Directorios</h3>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
-<pre><strong>JAVASCRIPT</strong></pre>
+<pre><strong>BASH</strong></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fetch</span>(<span class="st">'https://api.ejemplo.com/data'</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(response <span class="kw">=&gt;</span> response<span class="op">.</span><span class="fu">json</span>())</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(data <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(data))<span class="op">;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Ejemplo de respuesta:</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">// {</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">//   "nombre": "Juan",</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">//   "edad": 30</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">// }</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-6" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-6-1"><a href="#annotated-cell-6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear directorios para dos sitios</span></span>
+<span id="annotated-cell-6-2"><a href="#annotated-cell-6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mkdir <span class="at">-p</span> /var/www/clients/<span class="dt">{site1</span><span class="op">,</span><span class="dt">site2}</span>/public</span>
+<span id="annotated-cell-6-3"><a href="#annotated-cell-6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mkdir <span class="at">-p</span> /var/www/clients/<span class="dt">{site1</span><span class="op">,</span><span class="dt">site2}</span>/logs</span>
+<span id="annotated-cell-6-4"><a href="#annotated-cell-6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-6-5"><a href="#annotated-cell-6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Permisos</span></span>
+<span id="annotated-cell-6-6"><a href="#annotated-cell-6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo chown <span class="at">-R</span> www-data:www-data /var/www/clients</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="extra" class="level1">
-<h1>Extra</h1>
-<section id="server-site-rendering" class="level2">
-<h2 class="anchored" data-anchor-id="server-site-rendering">Server Site Rendering:</h2>
-<p><strong>Definición</strong>:</p>
+<section id="ejercicio-3.2-crear-contenido" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-3.2-crear-contenido">Ejercicio 3.2: Crear Contenido</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Site 1</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo <span class="st">'&lt;!DOCTYPE html&gt;&lt;h1&gt;Site 1 - OK&lt;/h1&gt;'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /var/www/clients/site1/public/index.html</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Site 2</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo <span class="st">'&lt;!DOCTYPE html&gt;&lt;h1&gt;Site 2 - OK&lt;/h1&gt;'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /var/www/clients/site2/public/index.html</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
-<section id="conclusión" class="level2">
-<h2 class="anchored" data-anchor-id="conclusión">Conclusión</h2>
-<p>La web es un sistema de documentos interconectados que se acceden a través de Internet. Los navegadores web permiten acceder a la web y mostrar páginas creadas con HTML, CSS y JavaScript. Node.js permite ejecutar JavaScript en el lado del servidor, mientras que React facilita la creación de interfaces de usuario interactivas. Las APIs y las APIs REST permiten que las aplicaciones se comuniquen entre sí y compartan datos.</p>
+<section id="ejercicio-3.3-crear-virtualhosts" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-3.3-crear-virtualhosts">Ejercicio 3.3: Crear VirtualHosts</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-8" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-8-1"><a href="#annotated-cell-8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Site 1</span></span>
+<span id="annotated-cell-8-2"><a href="#annotated-cell-8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/sites-available/site1.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-8-3"><a href="#annotated-cell-8-3" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;VirtualHost *:80&gt;</span></span>
+<span id="annotated-cell-8-4"><a href="#annotated-cell-8-4" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerName site1.local</span></span>
+<span id="annotated-cell-8-5"><a href="#annotated-cell-8-5" aria-hidden="true" tabindex="-1"></a><span class="st">    DocumentRoot /var/www/clients/site1/public</span></span>
+<span id="annotated-cell-8-6"><a href="#annotated-cell-8-6" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-8-7"><a href="#annotated-cell-8-7" aria-hidden="true" tabindex="-1"></a><span class="st">    ErrorLog /var/www/clients/site1/logs/error.log</span></span>
+<span id="annotated-cell-8-8"><a href="#annotated-cell-8-8" aria-hidden="true" tabindex="-1"></a><span class="st">    CustomLog /var/www/clients/site1/logs/access.log combined</span></span>
+<span id="annotated-cell-8-9"><a href="#annotated-cell-8-9" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-8-10"><a href="#annotated-cell-8-10" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;Directory /var/www/clients/site1/public&gt;</span></span>
+<span id="annotated-cell-8-11"><a href="#annotated-cell-8-11" aria-hidden="true" tabindex="-1"></a><span class="st">        Options -Indexes +FollowSymLinks</span></span>
+<span id="annotated-cell-8-12"><a href="#annotated-cell-8-12" aria-hidden="true" tabindex="-1"></a><span class="st">        AllowOverride None</span></span>
+<span id="annotated-cell-8-13"><a href="#annotated-cell-8-13" aria-hidden="true" tabindex="-1"></a><span class="st">        Require all granted</span></span>
+<span id="annotated-cell-8-14"><a href="#annotated-cell-8-14" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/Directory&gt;</span></span>
+<span id="annotated-cell-8-15"><a href="#annotated-cell-8-15" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/VirtualHost&gt;</span></span>
+<span id="annotated-cell-8-16"><a href="#annotated-cell-8-16" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-8-17"><a href="#annotated-cell-8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-8-18"><a href="#annotated-cell-8-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Site 2</span></span>
+<span id="annotated-cell-8-19"><a href="#annotated-cell-8-19" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/sites-available/site2.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-8-20"><a href="#annotated-cell-8-20" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;VirtualHost *:80&gt;</span></span>
+<span id="annotated-cell-8-21"><a href="#annotated-cell-8-21" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerName site2.local</span></span>
+<span id="annotated-cell-8-22"><a href="#annotated-cell-8-22" aria-hidden="true" tabindex="-1"></a><span class="st">    DocumentRoot /var/www/clients/site2/public</span></span>
+<span id="annotated-cell-8-23"><a href="#annotated-cell-8-23" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-8-24"><a href="#annotated-cell-8-24" aria-hidden="true" tabindex="-1"></a><span class="st">    ErrorLog /var/www/clients/site2/logs/error.log</span></span>
+<span id="annotated-cell-8-25"><a href="#annotated-cell-8-25" aria-hidden="true" tabindex="-1"></a><span class="st">    CustomLog /var/www/clients/site2/logs/access.log combined</span></span>
+<span id="annotated-cell-8-26"><a href="#annotated-cell-8-26" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-8-27"><a href="#annotated-cell-8-27" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;Directory /var/www/clients/site2/public&gt;</span></span>
+<span id="annotated-cell-8-28"><a href="#annotated-cell-8-28" aria-hidden="true" tabindex="-1"></a><span class="st">        Options -Indexes +FollowSymLinks</span></span>
+<span id="annotated-cell-8-29"><a href="#annotated-cell-8-29" aria-hidden="true" tabindex="-1"></a><span class="st">        AllowOverride None</span></span>
+<span id="annotated-cell-8-30"><a href="#annotated-cell-8-30" aria-hidden="true" tabindex="-1"></a><span class="st">        Require all granted</span></span>
+<span id="annotated-cell-8-31"><a href="#annotated-cell-8-31" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/Directory&gt;</span></span>
+<span id="annotated-cell-8-32"><a href="#annotated-cell-8-32" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/VirtualHost&gt;</span></span>
+<span id="annotated-cell-8-33"><a href="#annotated-cell-8-33" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-8" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-8" data-code-lines="34" data-code-annotation="1"><strong>Dos VirtualHosts</strong>: Con logs separados</span>
+</dd>
+</dl>
+</section>
+<section id="ejercicio-3.4-habilitar-y-probar" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-3.4-habilitar-y-probar">Ejercicio 3.4: Habilitar y Probar</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-9" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-9-1"><a href="#annotated-cell-9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar sitios</span></span>
+<span id="annotated-cell-9-2"><a href="#annotated-cell-9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2ensite site1.conf</span>
+<span id="annotated-cell-9-3"><a href="#annotated-cell-9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2ensite site2.conf</span>
+<span id="annotated-cell-9-4"><a href="#annotated-cell-9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-5"><a href="#annotated-cell-9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Deshabilitar default</span></span>
+<span id="annotated-cell-9-6"><a href="#annotated-cell-9-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2dissite 000-default.conf</span>
+<span id="annotated-cell-9-7"><a href="#annotated-cell-9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-8"><a href="#annotated-cell-9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Validar y recargar</span></span>
+<span id="annotated-cell-9-9"><a href="#annotated-cell-9-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span>
+<span id="annotated-cell-9-10"><a href="#annotated-cell-9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-11"><a href="#annotated-cell-9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Probar</span></span>
+<span id="annotated-cell-9-12"><a href="#annotated-cell-9-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-H</span> <span class="st">'Host: site1.local'</span> http://localhost</span>
+<span id="annotated-cell-9-13"><a href="#annotated-cell-9-13" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>h1<span class="op">&gt;</span>Site <span class="ex">1</span> <span class="at">-</span> OK<span class="op">&lt;</span>/h1<span class="op">&gt;</span></span>
+<span id="annotated-cell-9-14"><a href="#annotated-cell-9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-9-15"><a href="#annotated-cell-9-15" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-H</span> <span class="st">'Host: site2.local'</span> http://localhost</span>
+<span id="annotated-cell-9-16"><a href="#annotated-cell-9-16" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>h1<span class="op">&gt;</span>Site <span class="ex">2</span> <span class="at">-</span> OK<span class="op">&lt;</span>/h1<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-9" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-9" data-code-lines="17" data-code-annotation="1"><strong>Dos sitios</strong>: Verificar que cada uno responde correctamente</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="parte-4-hardening" class="level2">
+<h2 class="anchored" data-anchor-id="parte-4-hardening">Parte 4: Hardening</h2>
+<section id="ejercicio-4.1-ocultar-información" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-4.1-ocultar-información">Ejercicio 4.1: Ocultar Información</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-10" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-10-1"><a href="#annotated-cell-10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear configuración de seguridad</span></span>
+<span id="annotated-cell-10-2"><a href="#annotated-cell-10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/conf-available/security-hardening.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-10-3"><a href="#annotated-cell-10-3" aria-hidden="true" tabindex="-1"></a><span class="st">ServerTokens Prod</span></span>
+<span id="annotated-cell-10-4"><a href="#annotated-cell-10-4" aria-hidden="true" tabindex="-1"></a><span class="st">ServerSignature Off</span></span>
+<span id="annotated-cell-10-5"><a href="#annotated-cell-10-5" aria-hidden="true" tabindex="-1"></a><span class="st">TraceEnable Off</span></span>
+<span id="annotated-cell-10-6"><a href="#annotated-cell-10-6" aria-hidden="true" tabindex="-1"></a><span class="st">Timeout 30</span></span>
+<span id="annotated-cell-10-7"><a href="#annotated-cell-10-7" aria-hidden="true" tabindex="-1"></a><span class="st">KeepAlive On</span></span>
+<span id="annotated-cell-10-8"><a href="#annotated-cell-10-8" aria-hidden="true" tabindex="-1"></a><span class="st">MaxKeepAliveRequests 100</span></span>
+<span id="annotated-cell-10-9"><a href="#annotated-cell-10-9" aria-hidden="true" tabindex="-1"></a><span class="st">KeepAliveTimeout 5</span></span>
+<span id="annotated-cell-10-10"><a href="#annotated-cell-10-10" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-10-11"><a href="#annotated-cell-10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-12"><a href="#annotated-cell-10-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enconf security-hardening</span>
+<span id="annotated-cell-10-13"><a href="#annotated-cell-10-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span>
+<span id="annotated-cell-10-14"><a href="#annotated-cell-10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-10-15"><a href="#annotated-cell-10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="annotated-cell-10-16"><a href="#annotated-cell-10-16" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost <span class="kw">|</span> <span class="fu">grep</span> Server</span>
+<span id="annotated-cell-10-17"><a href="#annotated-cell-10-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> Apache</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-10" data-code-lines="18" data-code-annotation="1"><strong>ServerTokens</strong>: Ahora solo dice “Apache”</span>
+</dd>
+</dl>
+</section>
+<section id="ejercicio-4.2-security-headers" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-4.2-security-headers">Ejercicio 4.2: Security Headers</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-11" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-11-1"><a href="#annotated-cell-11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear configuración de headers</span></span>
+<span id="annotated-cell-11-2"><a href="#annotated-cell-11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/conf-available/security-headers.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-11-3"><a href="#annotated-cell-11-3" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;IfModule mod_headers.c&gt;</span></span>
+<span id="annotated-cell-11-4"><a href="#annotated-cell-11-4" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set X-Content-Type-Options "nosniff"</span></span>
+<span id="annotated-cell-11-5"><a href="#annotated-cell-11-5" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set X-Frame-Options "SAMEORIGIN"</span></span>
+<span id="annotated-cell-11-6"><a href="#annotated-cell-11-6" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set Referrer-Policy "strict-origin-when-cross-origin"</span></span>
+<span id="annotated-cell-11-7"><a href="#annotated-cell-11-7" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set X-XSS-Protection "1; mode=block"</span></span>
+<span id="annotated-cell-11-8"><a href="#annotated-cell-11-8" aria-hidden="true" tabindex="-1"></a><span class="st">    Header always set X-Powered-By "Production"</span></span>
+<span id="annotated-cell-11-9"><a href="#annotated-cell-11-9" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/IfModule&gt;</span></span>
+<span id="annotated-cell-11-10"><a href="#annotated-cell-11-10" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-11-11"><a href="#annotated-cell-11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-12"><a href="#annotated-cell-11-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enconf security-headers</span>
+<span id="annotated-cell-11-13"><a href="#annotated-cell-11-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span>
+<span id="annotated-cell-11-14"><a href="#annotated-cell-11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-11-15"><a href="#annotated-cell-11-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar headers</span></span>
+<span id="annotated-cell-11-16"><a href="#annotated-cell-11-16" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-I</span> http://localhost <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-iE</span> <span class="st">"x-|server"</span></span>
+<span id="annotated-cell-11-17"><a href="#annotated-cell-11-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Server:</span> Apache</span>
+<span id="annotated-cell-11-18"><a href="#annotated-cell-11-18" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Content-Type-Options:</span> nosniff</span>
+<span id="annotated-cell-11-19"><a href="#annotated-cell-11-19" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Frame-Options:</span> SAMEORIGIN</span>
+<span id="annotated-cell-11-20"><a href="#annotated-cell-11-20" aria-hidden="true" tabindex="-1"></a><span class="ex">Referrer-Policy:</span> strict-origin-when-cross-origin</span>
+<span id="annotated-cell-11-21"><a href="#annotated-cell-11-21" aria-hidden="true" tabindex="-1"></a><span class="ex">X-Powered-By:</span> Production</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-11" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-11" data-code-lines="22" data-code-annotation="1"><strong>Todos los headers</strong>: Verificar que están presentes</span>
+</dd>
+</dl>
+</section>
+<section id="ejercicio-4.3-rate-limiting" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-4.3-rate-limiting">Ejercicio 4.3: Rate Limiting</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar rate limiting</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod ratelimit</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear configuración</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/conf-available/rate-limit.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;IfModule mod_ratelimit.c&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerRateLimitRPS 100</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerRateLimitBurst 200</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/IfModule&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enconf rate-limit</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="parte-5-ssl-básico" class="level2">
+<h2 class="anchored" data-anchor-id="parte-5-ssl-básico">Parte 5: SSL Básico</h2>
+<section id="ejercicio-5.1-instalar-certbot" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-5.1-instalar-certbot">Ejercicio 5.1: Instalar Certbot</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar certbot</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt install <span class="at">-y</span> certbot python3-certbot-apache</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar SSL</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2enmod ssl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="ejercicio-5.2-certificado-auto-firmado-testing" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-5.2-certificado-auto-firmado-testing">Ejercicio 5.2: Certificado Auto-firmado (Testing)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-14" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-14-1"><a href="#annotated-cell-14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generar certificado</span></span>
+<span id="annotated-cell-14-2"><a href="#annotated-cell-14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo openssl req <span class="at">-x509</span> <span class="at">-nodes</span> <span class="at">-days</span> 365 <span class="at">-newkey</span> rsa:2048 <span class="dt">\</span></span>
+<span id="annotated-cell-14-3"><a href="#annotated-cell-14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">-keyout</span> /etc/ssl/private/apache-selfsigned.key <span class="dt">\</span></span>
+<span id="annotated-cell-14-4"><a href="#annotated-cell-14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">-out</span> /etc/ssl/certs/apache-selfsigned.crt <span class="dt">\</span></span>
+<span id="annotated-cell-14-5"><a href="#annotated-cell-14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">-subj</span> <span class="st">"/C=US/ST=Test/L=Test/O=Test/CN=localhost"</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-14" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-14-6" class="code-annotation-target"><a href="#annotated-cell-14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-7"><a href="#annotated-cell-14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-8"><a href="#annotated-cell-14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear VirtualHost SSL</span></span>
+<span id="annotated-cell-14-9"><a href="#annotated-cell-14-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo tee /etc/apache2/sites-available/site1-ssl.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="annotated-cell-14-10"><a href="#annotated-cell-14-10" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;VirtualHost *:443&gt;</span></span>
+<span id="annotated-cell-14-11"><a href="#annotated-cell-14-11" aria-hidden="true" tabindex="-1"></a><span class="st">    ServerName site1.local</span></span>
+<span id="annotated-cell-14-12"><a href="#annotated-cell-14-12" aria-hidden="true" tabindex="-1"></a><span class="st">    DocumentRoot /var/www/clients/site1/public</span></span>
+<span id="annotated-cell-14-13"><a href="#annotated-cell-14-13" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-14-14"><a href="#annotated-cell-14-14" aria-hidden="true" tabindex="-1"></a><span class="st">    SSLEngine on</span></span>
+<span id="annotated-cell-14-15"><a href="#annotated-cell-14-15" aria-hidden="true" tabindex="-1"></a><span class="st">    SSLCertificateFile /etc/ssl/certs/apache-selfsigned.crt</span></span>
+<span id="annotated-cell-14-16"><a href="#annotated-cell-14-16" aria-hidden="true" tabindex="-1"></a><span class="st">    SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key</span></span>
+<span id="annotated-cell-14-17"><a href="#annotated-cell-14-17" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="annotated-cell-14-18"><a href="#annotated-cell-14-18" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;Directory /var/www/clients/site1/public&gt;</span></span>
+<span id="annotated-cell-14-19"><a href="#annotated-cell-14-19" aria-hidden="true" tabindex="-1"></a><span class="st">        Options -Indexes +FollowSymLinks</span></span>
+<span id="annotated-cell-14-20"><a href="#annotated-cell-14-20" aria-hidden="true" tabindex="-1"></a><span class="st">        AllowOverride None</span></span>
+<span id="annotated-cell-14-21"><a href="#annotated-cell-14-21" aria-hidden="true" tabindex="-1"></a><span class="st">        Require all granted</span></span>
+<span id="annotated-cell-14-22"><a href="#annotated-cell-14-22" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/Directory&gt;</span></span>
+<span id="annotated-cell-14-23"><a href="#annotated-cell-14-23" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/VirtualHost&gt;</span></span>
+<span id="annotated-cell-14-24"><a href="#annotated-cell-14-24" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="annotated-cell-14-25"><a href="#annotated-cell-14-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-14-26"><a href="#annotated-cell-14-26" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo a2ensite site1-ssl.conf</span>
+<span id="annotated-cell-14-27"><a href="#annotated-cell-14-27" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apachectl configtest <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> systemctl reload apache2</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="6" data-code-annotation="1"><strong>Certificado auto-firmado</strong>: Para testing</span>
+</dd>
+<dt data-target-cell="annotated-cell-14" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-14" data-code-lines="28" data-code-annotation="2"><strong>SSL enabled</strong>: Puerto 443 activo</span>
+</dd>
+</dl>
+</section>
+<section id="ejercicio-5.3-probar-ssl" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-5.3-probar-ssl">Ejercicio 5.3: Probar SSL</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-15" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-15-1"><a href="#annotated-cell-15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Probar HTTPS con curl</span></span>
+<span id="annotated-cell-15-2"><a href="#annotated-cell-15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-k</span> https://localhost</span>
+<span id="annotated-cell-15-3"><a href="#annotated-cell-15-3" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>h1<span class="op">&gt;</span>Site <span class="ex">1</span> <span class="at">-</span> OK<span class="op">&lt;</span>/h1<span class="op">&gt;</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-15" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-15-4" class="code-annotation-target"><a href="#annotated-cell-15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-5"><a href="#annotated-cell-15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-15-6"><a href="#annotated-cell-15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver detalles SSL</span></span>
+<span id="annotated-cell-15-7"><a href="#annotated-cell-15-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-k</span> <span class="at">-v</span> https://localhost <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">"SSL|TLS"</span></span>
+<span id="annotated-cell-15-8"><a href="#annotated-cell-15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">*</span>  SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384</span>
+<span id="annotated-cell-15-9"><a href="#annotated-cell-15-9" aria-hidden="true" tabindex="-1"></a><span class="ex">*</span>  ALPN, server accepted to use http/1.1</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="4" data-code-annotation="1"><strong>-k</strong>: Aceptar certificado no válido</span>
+</dd>
+<dt data-target-cell="annotated-cell-15" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-15" data-code-lines="10" data-code-annotation="2"><strong>TLSv1.3</strong>: Versión usada</span>
+</dd>
+</dl>
+<hr>
+</section>
+</section>
+<section id="parte-6-docker-para-pruebas" class="level2">
+<h2 class="anchored" data-anchor-id="parte-6-docker-para-pruebas">Parte 6: Docker para Pruebas</h2>
+<section id="ejercicio-6.1-crear-contenedor-apache" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-6.1-crear-contenedor-apache">Ejercicio 6.1: Crear Contenedor Apache</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-16" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy code-annotated"><code class="sourceCode bash"><span id="annotated-cell-16-1"><a href="#annotated-cell-16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear red Docker</span></span>
+<span id="annotated-cell-16-2"><a href="#annotated-cell-16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker network create lab-apache-net</span>
+<span id="annotated-cell-16-3"><a href="#annotated-cell-16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-4"><a href="#annotated-cell-16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Iniciar contenedor Apache</span></span>
+<span id="annotated-cell-16-5"><a href="#annotated-cell-16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker run <span class="at">-d</span> <span class="at">--name</span> apache-server <span class="dt">\</span></span>
+<span id="annotated-cell-16-6"><a href="#annotated-cell-16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--network</span> lab-apache-net <span class="dt">\</span></span>
+<span id="annotated-cell-16-7"><a href="#annotated-cell-16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">-p</span> 8080:80 <span class="dt">\</span></span>
+<span id="annotated-cell-16-8"><a href="#annotated-cell-16-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">-p</span> 8443:443 <span class="dt">\</span></span>
+<span id="annotated-cell-16-9"><a href="#annotated-cell-16-9" aria-hidden="true" tabindex="-1"></a>    httpd:2.4</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-16" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-16-10" class="code-annotation-target"><a href="#annotated-cell-16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-11"><a href="#annotated-cell-16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-16-12"><a href="#annotated-cell-16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar</span></span>
+<span id="annotated-cell-16-13"><a href="#annotated-cell-16-13" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker ps <span class="kw">|</span> <span class="fu">grep</span> apache</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-16" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="10" data-code-annotation="1"><strong>Contenedor</strong>: Puerto 8080→80, 8443→443</span>
+</dd>
+<dt data-target-cell="annotated-cell-16" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-16" data-code-lines="14" data-code-annotation="2"><strong>Docker Apache</strong>: Imagen oficial</span>
+</dd>
+</dl>
+</section>
+<section id="ejercicio-6.2-configurar-desde-host" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-6.2-configurar-desde-host">Ejercicio 6.2: Configurar desde Host</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Copiar configuración al contenedor</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker cp /etc/apache2/sites-available/site1.conf apache-server:/usr/local/apache2/conf/extra/</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar configuración (interactivo)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec apache-server bash <span class="at">-c</span> <span class="st">"echo 'Include conf/extra/site1.conf' &gt;&gt; /usr/local/apache2/conf/httpd.conf"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Recargar</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec apache-server apachectl graceful</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="parte-7-vps-real-opcional" class="level2">
+<h2 class="anchored" data-anchor-id="parte-7-vps-real-opcional">Parte 7: VPS Real (Opcional)</h2>
+<section id="ejercicio-7.1-deployar-a-vps" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-7.1-deployar-a-vps">Ejercicio 7.1: Deployar a VPS</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-18" data-code-line-numbers=""><pre class="sourceCode bash code-annotation-code code-with-copy"><code class="sourceCode bash"><span id="annotated-cell-18-1"><a href="#annotated-cell-18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conectar al VPS</span></span>
+<span id="annotated-cell-18-2"><a href="#annotated-cell-18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh usuario@tu-vps <span class="st">"sudo apt update &amp;&amp; sudo apt install -y apache2"</span></span>
+<span id="annotated-cell-18-3"><a href="#annotated-cell-18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-4"><a href="#annotated-cell-18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Copiar configuración</span></span>
+<span id="annotated-cell-18-5"><a href="#annotated-cell-18-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> scp /etc/apache2/sites-available/site1.conf usuario@tu-vps:/tmp/</span>
+<span id="annotated-cell-18-6"><a href="#annotated-cell-18-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> scp /etc/apache2/conf-available/security-<span class="pp">*</span>.conf usuario@tu-vps:/tmp/</span>
+<span id="annotated-cell-18-7"><a href="#annotated-cell-18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-18-8"><a href="#annotated-cell-18-8" aria-hidden="true" tabindex="-1"></a><span class="co"># En VPS: aplicar configuración</span></span>
+<span id="annotated-cell-18-9"><a href="#annotated-cell-18-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh usuario@tu-vps <span class="st">"sudo cp /tmp/*.conf /etc/apache2/conf-available/ &amp;&amp; sudo a2ensite site1 &amp;&amp; sudo a2enconf security-hardening security-headers &amp;&amp; sudo apachectl configtest &amp;&amp; sudo systemctl reload apache2"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<dl>
+<dt data-target-cell="annotated-cell-18" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-18" data-code-lines="10" data-code-annotation="1"><strong>Deploy</strong>: Copiar config al VPS real</span>
+</dd>
+</dl>
+</section>
+<section id="ejercicio-7.2-hardening-en-vps" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-7.2-hardening-en-vps">Ejercicio 7.2: Hardening en VPS</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aplicar todas las configuraciones de seguridad</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh usuario@tu-vps <span class="op">&lt;&lt; 'EOF'</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="st">sudo a2enmod headers ssl rewrite</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="st">sudo cp /tmp/security-*.conf /etc/apache2/conf-available/</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="st">sudo a2enconf security-hardening security-headers</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="st">sudo apachectl configtest</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="st">sudo systemctl reload apache2</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="verificación-de-laboratorio" class="level2">
+<h2 class="anchored" data-anchor-id="verificación-de-laboratorio">Verificación de Laboratorio</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Habilidad</th>
+<th>Verificación</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Apache instalado</td>
+<td><code>systemctl status apache2</code> activo</td>
+</tr>
+<tr class="even">
+<td>Puerto 80</td>
+<td><code>ss -lntp \| grep :80</code></td>
+</tr>
+<tr class="odd">
+<td>VirtualHosts</td>
+<td><code>curl -H 'Host: site1.local' localhost</code></td>
+</tr>
+<tr class="even">
+<td>Hardening</td>
+<td><code>curl -I localhost \| grep Server</code></td>
+</tr>
+<tr class="odd">
+<td>Headers</td>
+<td><code>curl -I localhost \| grep X-</code></td>
+</tr>
+<tr class="even">
+<td>SSL</td>
+<td><code>curl -k https://localhost</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="limpieza" class="level2">
+<h2 class="anchored" data-anchor-id="limpieza">Limpieza</h2>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En VPS (si aplicó)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh usuario@tu-vps <span class="st">"sudo a2dissite site1 site1-ssl &amp;&amp; sudo a2disconf security-hardening security-headers &amp;&amp; sudo systemctl reload apache2"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Docker</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker stop apache-server <span class="kw">&amp;&amp;</span> <span class="ex">docker</span> rm apache-server</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker network rm lab-apache-net</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
+<ul>
+<li><a href="https://httpd.apache.org/">Apache Official</a></li>
+<li><a href="https://httpd.apache.org/docs/2.4/security.html">Apache Security Documentation</a></li>
+<li><a href="https://certbot.eff.org/">Certbot</a></li>
+</ul>
 
 
 </section>
@@ -1869,13 +2336,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../../unidades/unidad7/99_recursos.html" class="pagination-link" aria-label="Unidad 7: Recursos">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 7: Recursos</span></span>
+      <a href="../../unidades/unidad9/4_seguridad_basica_apache.html" class="pagination-link" aria-label="Unidad 9.4: Seguridad en Apache">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Unidad 9.4: Seguridad en Apache</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../unidades/unidad8/99_recursos.html" class="pagination-link" aria-label="Unidad 8: Recursos">
-        <span class="nav-page-text"><span class="chapter-title">Unidad 8: Recursos</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../unidades/unidad9/99_recursos.html" class="pagination-link" aria-label="Unidad 9: Recursos">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 9: Recursos</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1903,7 +2370,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </a>
   </li>  
 </ul>
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/unidades/unidad8/intro_web.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/unidades/unidad9/5_lab_practico_apache.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

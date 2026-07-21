@@ -1,0 +1,461 @@
+---
+title: "Unidad 9: Laboratorio Práctico - Apache en Producción"
+subtitle: "Instalación, configuración y hardening de Apache"
+author: "Diego Saavedra"
+date: "2026-03-31"
+date-format: medium
+---
+
+# Laboratorio 9: Apache HTTP Server en Producción
+
+## Introducción
+
+En este laboratorio vas a instalar Apache, configurar VirtualHosts múltiples, aplicar hardening de seguridad, y configurar SSL básico. Vas a usar Docker para pruebas locales y un VPS real para las pruebas finales de producción.
+
+## Objetivos del Laboratorio
+
+Al completar este laboratorio podrás:
+
+1. Instalar y validar Apache en Ubuntu Server
+2. Configurar múltiples VirtualHosts con logs separados
+3. Aplicar hardening de seguridad (ServerTokens, headers)
+4. Configurar SSL básico con certificados
+5. Implementar rate limiting y protección
+
+## Requisitos
+
+- Máquina con Docker instalado
+- Acceso a un VPS con IP pública (opcional para pruebas finales)
+- Puerto 80 y 443 accesibles
+
+## Duración
+
+**120 minutos**
+
+---
+
+## Parte 1: Instalación y Validación
+
+### Ejercicio 1.1: Instalar Apache
+
+```bash
+# Actualizar e instalar
+$ sudo apt update && sudo apt install -y apache2 apache2-utils
+# <1>
+
+# Ver estado del servicio
+$ sudo systemctl status apache2 --no-pager
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled)
+     Active: active (running)
+# <2>
+```
+
+1. **apache2-utils**: Incluye `ab` para testing de carga
+
+### Ejercicio 1.2: Validar Puerto y Respuesta
+
+```bash
+# Ver puerto en escucha
+$ sudo ss -lntp | grep apache
+LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:(("apache2",pid=1234,fd=4))
+# <1>
+
+# Probar respuesta HTTP
+$ curl -I http://localhost
+HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)
+# <2>
+```
+
+1. **Puerto 80**: Confirmado que está escuchando
+2. **Headers**: Servidor respondiendo
+
+### Ejercicio 1.3: Identificar Rutas Clave
+
+```bash
+# Ver estructura
+$ ls -la /etc/apache2/
+
+# Ver configuración principal
+$ head -30 /etc/apache2/apache2.conf
+```
+
+---
+
+## Parte 2: Módulos y Configuración
+
+### Ejercicio 2.1: Habilitar Módulos
+
+```bash
+# Habilitar módulos esenciales
+$ sudo a2enmod headers
+$ sudo a2enmod ssl
+$ sudo a2enmod rewrite
+$ sudo a2enmod proxy
+$ sudo a2enmod proxy_http
+$ sudo a2enmod deflate
+$ sudo a2enmod expires
+
+# Ver módulos cargados
+$ sudo apache2ctl -M | grep -E "ssl|headers|rewrite|proxy"
+# <1>
+```
+
+1. **Módulos**: Verificar que están activos
+
+### Ejercicio 2.2: Validar Configuración
+
+```bash
+# Test de sintaxis
+$ sudo apachectl configtest
+Syntax OK
+# <1>
+
+# Verificar estado después de cambios
+$ sudo systemctl status apache2 --no-pager
+```
+
+1. **Syntax OK**: Configuración válida
+
+---
+
+## Parte 3: VirtualHosts
+
+### Ejercicio 3.1: Crear Estructura de Directorios
+
+```bash
+# Crear directorios para dos sitios
+$ sudo mkdir -p /var/www/clients/{site1,site2}/public
+$ sudo mkdir -p /var/www/clients/{site1,site2}/logs
+
+# Permisos
+$ sudo chown -R www-data:www-data /var/www/clients
+# <1>
+```
+
+### Ejercicio 3.2: Crear Contenido
+
+```bash
+# Site 1
+$ echo '<!DOCTYPE html><h1>Site 1 - OK</h1>' | sudo tee /var/www/clients/site1/public/index.html
+
+# Site 2
+$ echo '<!DOCTYPE html><h1>Site 2 - OK</h1>' | sudo tee /var/www/clients/site2/public/index.html
+```
+
+### Ejercicio 3.3: Crear VirtualHosts
+
+```bash
+# Site 1
+$ sudo tee /etc/apache2/sites-available/site1.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName site1.local
+    DocumentRoot /var/www/clients/site1/public
+    
+    ErrorLog /var/www/clients/site1/logs/error.log
+    CustomLog /var/www/clients/site1/logs/access.log combined
+    
+    <Directory /var/www/clients/site1/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+</VirtualHost>
+EOF
+
+# Site 2
+$ sudo tee /etc/apache2/sites-available/site2.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName site2.local
+    DocumentRoot /var/www/clients/site2/public
+    
+    ErrorLog /var/www/clients/site2/logs/error.log
+    CustomLog /var/www/clients/site2/logs/access.log combined
+    
+    <Directory /var/www/clients/site2/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+</VirtualHost>
+EOF
+# <1>
+```
+
+1. **Dos VirtualHosts**: Con logs separados
+
+### Ejercicio 3.4: Habilitar y Probar
+
+```bash
+# Habilitar sitios
+$ sudo a2ensite site1.conf
+$ sudo a2ensite site2.conf
+
+# Deshabilitar default
+$ sudo a2dissite 000-default.conf
+
+# Validar y recargar
+$ sudo apachectl configtest && sudo systemctl reload apache2
+
+# Probar
+$ curl -H 'Host: site1.local' http://localhost
+<h1>Site 1 - OK</h1>
+
+$ curl -H 'Host: site2.local' http://localhost
+<h1>Site 2 - OK</h1>
+# <1>
+```
+
+1. **Dos sitios**: Verificar que cada uno responde correctamente
+
+---
+
+## Parte 4: Hardening
+
+### Ejercicio 4.1: Ocultar Información
+
+```bash
+# Crear configuración de seguridad
+$ sudo tee /etc/apache2/conf-available/security-hardening.conf <<'EOF'
+ServerTokens Prod
+ServerSignature Off
+TraceEnable Off
+Timeout 30
+KeepAlive On
+MaxKeepAliveRequests 100
+KeepAliveTimeout 5
+EOF
+
+$ sudo a2enconf security-hardening
+$ sudo apachectl configtest && sudo systemctl reload apache2
+
+# Verificar
+$ curl -I http://localhost | grep Server
+Server: Apache
+# <1>
+```
+
+1. **ServerTokens**: Ahora solo dice "Apache"
+
+### Ejercicio 4.2: Security Headers
+
+```bash
+# Crear configuración de headers
+$ sudo tee /etc/apache2/conf-available/security-headers.conf <<'EOF'
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set X-Powered-By "Production"
+</IfModule>
+EOF
+
+$ sudo a2enconf security-headers
+$ sudo apachectl configtest && sudo systemctl reload apache2
+
+# Verificar headers
+$ curl -I http://localhost | grep -iE "x-|server"
+Server: Apache
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+X-Powered-By: Production
+# <1>
+```
+
+1. **Todos los headers**: Verificar que están presentes
+
+### Ejercicio 4.3: Rate Limiting
+
+```bash
+# Habilitar rate limiting
+$ sudo a2enmod ratelimit
+
+# Crear configuración
+$ sudo tee /etc/apache2/conf-available/rate-limit.conf <<'EOF'
+<IfModule mod_ratelimit.c>
+    ServerRateLimitRPS 100
+    ServerRateLimitBurst 200
+</IfModule>
+EOF
+
+$ sudo a2enconf rate-limit
+$ sudo apachectl configtest && sudo systemctl reload apache2
+```
+
+---
+
+## Parte 5: SSL Básico
+
+### Ejercicio 5.1: Instalar Certbot
+
+```bash
+# Instalar certbot
+$ sudo apt install -y certbot python3-certbot-apache
+
+# Habilitar SSL
+$ sudo a2enmod ssl
+```
+
+### Ejercicio 5.2: Certificado Auto-firmado (Testing)
+
+```bash
+# Generar certificado
+$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/ssl/private/apache-selfsigned.key \
+    -out /etc/ssl/certs/apache-selfsigned.crt \
+    -subj "/C=US/ST=Test/L=Test/O=Test/CN=localhost"
+# <1>
+
+# Crear VirtualHost SSL
+$ sudo tee /etc/apache2/sites-available/site1-ssl.conf <<'EOF'
+<VirtualHost *:443>
+    ServerName site1.local
+    DocumentRoot /var/www/clients/site1/public
+    
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/certs/apache-selfsigned.crt
+    SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
+    
+    <Directory /var/www/clients/site1/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+</VirtualHost>
+EOF
+
+$ sudo a2ensite site1-ssl.conf
+$ sudo apachectl configtest && sudo systemctl reload apache2
+# <2>
+```
+
+1. **Certificado auto-firmado**: Para testing
+2. **SSL enabled**: Puerto 443 activo
+
+### Ejercicio 5.3: Probar SSL
+
+```bash
+# Probar HTTPS con curl
+$ curl -k https://localhost
+<h1>Site 1 - OK</h1>
+# <1>
+
+# Ver detalles SSL
+$ curl -k -v https://localhost 2>&1 | grep -E "SSL|TLS"
+*  SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+*  ALPN, server accepted to use http/1.1
+# <2>
+```
+
+1. **-k**: Aceptar certificado no válido
+2. **TLSv1.3**: Versión usada
+
+---
+
+## Parte 6: Docker para Pruebas
+
+### Ejercicio 6.1: Crear Contenedor Apache
+
+```bash
+# Crear red Docker
+$ docker network create lab-apache-net
+
+# Iniciar contenedor Apache
+$ docker run -d --name apache-server \
+    --network lab-apache-net \
+    -p 8080:80 \
+    -p 8443:443 \
+    httpd:2.4
+# <1>
+
+# Verificar
+$ docker ps | grep apache
+# <2>
+```
+
+1. **Contenedor**: Puerto 8080→80, 8443→443
+2. **Docker Apache**: Imagen oficial
+
+### Ejercicio 6.2: Configurar desde Host
+
+```bash
+# Copiar configuración al contenedor
+$ docker cp /etc/apache2/sites-available/site1.conf apache-server:/usr/local/apache2/conf/extra/
+
+# Habilitar configuración (interactivo)
+$ docker exec apache-server bash -c "echo 'Include conf/extra/site1.conf' >> /usr/local/apache2/conf/httpd.conf"
+
+# Recargar
+$ docker exec apache-server apachectl graceful
+```
+
+---
+
+## Parte 7: VPS Real (Opcional)
+
+### Ejercicio 7.1: Deployar a VPS
+
+```bash
+# Conectar al VPS
+$ ssh usuario@tu-vps "sudo apt update && sudo apt install -y apache2"
+
+# Copiar configuración
+$ scp /etc/apache2/sites-available/site1.conf usuario@tu-vps:/tmp/
+$ scp /etc/apache2/conf-available/security-*.conf usuario@tu-vps:/tmp/
+
+# En VPS: aplicar configuración
+$ ssh usuario@tu-vps "sudo cp /tmp/*.conf /etc/apache2/conf-available/ && sudo a2ensite site1 && sudo a2enconf security-hardening security-headers && sudo apachectl configtest && sudo systemctl reload apache2"
+# <1>
+```
+
+1. **Deploy**: Copiar config al VPS real
+
+### Ejercicio 7.2: Hardening en VPS
+
+```bash
+# Aplicar todas las configuraciones de seguridad
+$ ssh usuario@tu-vps << 'EOF'
+sudo a2enmod headers ssl rewrite
+sudo cp /tmp/security-*.conf /etc/apache2/conf-available/
+sudo a2enconf security-hardening security-headers
+sudo apachectl configtest
+sudo systemctl reload apache2
+EOF
+```
+
+---
+
+## Verificación de Laboratorio
+
+| Habilidad | Verificación |
+|-----------|-------------|
+| Apache instalado | `systemctl status apache2` activo |
+| Puerto 80 | `ss -lntp \| grep :80` |
+| VirtualHosts | `curl -H 'Host: site1.local' localhost` |
+| Hardening | `curl -I localhost \| grep Server` |
+| Headers | `curl -I localhost \| grep X-` |
+| SSL | `curl -k https://localhost` |
+
+---
+
+## Limpieza
+
+```bash
+# En VPS (si aplicó)
+$ ssh usuario@tu-vps "sudo a2dissite site1 site1-ssl && sudo a2disconf security-hardening security-headers && sudo systemctl reload apache2"
+
+# Docker
+$ docker stop apache-server && docker rm apache-server
+$ docker network rm lab-apache-net
+```
+
+---
+
+## Referencias
+
+- [Apache Official](https://httpd.apache.org/)
+- [Apache Security Documentation](https://httpd.apache.org/docs/2.4/security.html)
+- [Certbot](https://certbot.eff.org/)

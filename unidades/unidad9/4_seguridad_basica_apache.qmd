@@ -1,112 +1,487 @@
 ---
-title: "Unidad 9.4: Seguridad basica en Apache"
-subtitle: "Permisos, headers y superficie minima"
+title: "Unidad 9.4: Seguridad en Apache"
+subtitle: "Hardening, headers y SSL para producción"
 author: "Diego Saavedra"
-date: "2026-02-02"
+date: "2026-03-31"
 date-format: medium
 ---
 
-# Unidad 9.4: Seguridad basica en Apache
+# Unidad 9.4: Seguridad en Apache
 
-## Introduccion
+## Introducción
 
-Hardening basico en Apache consiste en: exponer lo minimo, evitar configuraciones inseguras, y dejar evidencias (headers/logs/configtest).
+Hardening de Apache significa: reducir la superficie de ataque, ocultar información sensible, habilitar headers de seguridad, y configurar SSL/TLS correctamente.
 
-## Objetivos de aprendizaje
+## Hardening Básico
 
-- Reducir informacion expuesta
-- Habilitar headers basicos de seguridad
-- Verificar con curl
-
----
-
-## Quitar informacion innecesaria (ServerTokens/ServerSignature)
-
-En Ubuntu, puedes definir directivas globales en `/etc/apache2/conf-available/`.
+### 1. Ocultar Información del Servidor
 
 ```bash
-$ sudo tee /etc/apache2/conf-available/security-hardening.conf >/dev/null <<'EOF'  # <1>
+# Crear configuración de seguridad
+$ sudo tee /etc/apache2/conf-available/security-hardening.conf <<'EOF'
+# Ocultar versión y SO
 ServerTokens Prod
 ServerSignature Off
+ServerResolver Off
+
+# DisableTRACE (previene XST)
+TraceEnable Off
+
+# Timeout reducido (default es 300)
+Timeout 30
+
+# KeepAlive configuration
+KeepAlive On
+MaxKeepAliveRequests 100
+KeepAliveTimeout 5
 EOF
+
+# Habilitar configuración
+$ sudo a2enconf security-hardening
+
+# Validar y recargar
+$ sudo apachectl configtest && sudo systemctl reload apache2
 # <1>
-
-$ sudo a2enconf security-hardening  # <2>
-Enabling conf security-hardening.
-# <2>
-
-$ sudo apachectl configtest  # <3>
-Syntax OK
-# <3>
-
-$ sudo systemctl reload apache2  # <4>
-# <4>
 ```
 
+1. **ServerTokens Prod**: Solo muestra "Apache", sin versión
 
-
-1. **tee + heredoc** crea un archivo de configuracion global.
-2. **a2enconf** habilita configuraciones en `conf-enabled/`.
-3. **apachectl configtest** valida sintaxis.
-4. **systemctl reload** aplica cambios.
-
----
-
-## Headers basicos
+### Verificar Hardening Básico
 
 ```bash
-$ sudo a2enmod headers  # <1>
-Enabling module headers.
-# <1>
+# Antes
+$ curl -I http://localhost | grep Server
+Server: Apache/2.4.58 (Ubuntu)
 
-$ sudo tee /etc/apache2/conf-available/security-headers.conf >/dev/null <<'EOF'  # <2>
+# Después
+$ curl -I http://localhost | grep Server
+Server: Apache
+# <1>
+```
+
+1. **ServerTokens Prod**: Oculta versión y SO
+
+## Security Headers
+
+### Headers Esenciales
+
+```bash
+# Habilitar módulo headers
+$ sudo a2enmod headers
+
+# Crear configuración de headers
+$ sudo tee /etc/apache2/conf-available/security-headers.conf <<'EOF'
 <IfModule mod_headers.c>
-  Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "SAMEORIGIN"
-  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    # Prevenir MIME sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Prevenir clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Referrer policy seguro
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # XSS protection (legacy pero útil)
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Ocultar versión de PHP u otros
+    Header always set X-Powered-By "Production"
+    
+    # Permissions Policy (navegador)
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 </IfModule>
 EOF
-# <2>
 
-$ sudo a2enconf security-headers  # <3>
-Enabling conf security-headers.
-# <3>
+# Habilitar configuración
+$ sudo a2enconf security-headers
 
-$ sudo apachectl configtest  # <4>
-Syntax OK
-# <4>
-
-$ sudo systemctl reload apache2  # <5>
-# <5>
+# Validar y recargar
+$ sudo apachectl configtest && sudo systemctl reload apache2
+# <1>
 ```
 
+1. **Headers de seguridad**: Los 5 que todo servidor debe tener
 
-
-1. **a2enmod headers** habilita mod_headers.
-2. **tee + heredoc** define headers basicos.
-3. **a2enconf** habilita la configuracion.
-4. **apachectl configtest** valida sintaxis.
-5. **systemctl reload** aplica cambios.
-
----
-
-## Verificar headers
+### Verificar Headers
 
 ```bash
-$ curl -I http://localhost | sed -n '1,15p'  # <1>
+# Ver todos los headers
+$ curl -I http://localhost
 HTTP/1.1 200 OK
 Server: Apache
 X-Content-Type-Options: nosniff
 X-Frame-Options: SAMEORIGIN
 Referrer-Policy: strict-origin-when-cross-origin
+X-XSS-Protection: 1; mode=block
+X-Powered-By: Production
+Permissions-Policy: geolocation=(), microphone=(), camera=()
 # <1>
 ```
 
+1. **Todos los headers**: Verificación de hardenización
 
+### Content Security Policy (CSP)
 
-1. **curl -I** verifica headers de respuesta.
+```bash
+# CSP básico - ajustar según la aplicación
+$ sudo tee /etc/apache2/conf-available/csp-basic.conf <<'EOF'
+<IfModule mod_headers.c>
+    # CSP restrictiva (ajustar según necesidad)
+    Header always set Content-Security-Policy "\
+        default-src 'self'; \
+        script-src 'self' 'unsafe-inline' 'unsafe-eval'; \
+        style-src 'self' 'unsafe-inline'; \
+        img-src 'self' data: https:; \
+        font-src 'self' data:; \
+        connect-src 'self'; \
+        frame-ancestors 'self'; \
+        base-uri 'self'; \
+        form-action 'self'; \
+        frame-ancestors 'none' \
+    "
+</IfModule>
+EOF
+# <1>
+```
 
-## Mejores practicas
+1. **CSP**: Content Security Policy - protege contra XSS e injection
 
-- Configtest antes de cada reload.
-- Logs siempre: si no esta en logs, no paso.
+## SSL/TLS en Producción
+
+### Instalar SSL
+
+```bash
+# Instalar certbot
+$ sudo apt install -y certbot python3-certbot-apache
+
+# Habilitar módulo SSL
+$ sudo a2enmod ssl
+
+# Habilitar sitio SSL default
+$ sudo a2ensite default-ssl
+
+# Ver configuración
+$ cat /etc/apache2/sites-available/default-ssl.conf | grep -A5 "SSLEngine"
+SSLEngine on
+SSLCertificateFile      /etc/ssl/certs/ssl-cert-snakeoil.pem
+SSLCertificateKeyFile   /etc/ssl/private/ssl-cert-snakeoil.key
+# <2>
+```
+
+1. **Certbot**: Autobots para Let's Encrypt
+2. **default-ssl**: Plantilla SSL básica
+
+### Configurar SSL Seguro
+
+```bash
+# Crear configuración SSL profesional
+$ sudo tee /etc/apache2/conf-available/ssl-secure.conf <<'EOF'
+<IfModule mod_ssl.c>
+    # SSL Protocol versions (disable SSLv3, TLS 1.0, 1.1)
+    SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1
+    
+    # Ciphers seguros
+    SSLCipherSuite ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+    SSLHonorCipherOrder off
+    
+    # SSL options
+    SSLOptions +StdEnvVars +ExportCertData
+    
+    # HSTS (HTTP Strict Transport Security)
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    
+    # OCSP Stapling
+    SSLUseStapling off
+    SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
+</IfModule>
+EOF
+
+$ sudo a2enconf ssl-secure
+$ sudo apachectl configtest && sudo systemctl reload apache2
+# <1>
+```
+
+1. **SSL seguro**: TLS 1.2/1.3, ciphers modernos, HSTS
+
+### Certbot con Let's Encrypt
+
+```bash
+# Obtener certificado (reemplazar dominio)
+$ sudo certbot --apache -d ejemplo.com -d www.ejemplo.com
+# <1>
+
+# Following interactive prompts:
+# - Enter email address
+# - Agree ToS
+# - Choose redirect (recomendado: 1 - redirect)
+# - Done!
+```
+
+1. **Certbot**: Automatiza SSL con Let's Encrypt
+
+### Verificar SSL
+
+```bash
+# Ver configuración después de certbot
+$ ls /etc/apache2/sites-enabled/
+default-ssl.conf (with SSL config by Certbot)
+
+# Test con curl
+$ curl -I -k https://localhost
+HTTP/1.1 200 OK
+Server: Apache
+Strict-Transport-Security: max-age=63072000
+# <1>
+
+# Verificar con SSL Labs (opcional)
+# https://www.ssllabs.com/ssltest/
+```
+
+1. **HSTS**: El header Strict-Transport-Security está presente
+
+## Rate Limiting
+
+### Configuración de Rate Limit
+
+```bash
+# Habilitar módulo
+$ sudo a2enmod ratelimit
+
+# Crear configuración
+$ sudo tee /etc/apache2/conf-available/rate-limit.conf <<'EOF'
+<IfModule mod_ratelimit.c>
+    # 100 requests por segundo por IP
+    ServerRateLimitRPS 100
+    
+    # Burst de hasta 200
+    ServerRateLimitBurst 200
+    
+    # Bytes por segundo
+    ServerRateLimitAvgRate 100
+    ServerRateLimitBurst 500
+</IfModule>
+EOF
+
+$ sudo a2enconf rate-limit
+$ sudo apachectl configtest && sudo systemctl reload apache2
+# <1>
+```
+
+1. **Rate limiting**: Protege contra DoS básico
+
+## Protección de Archivos
+
+### .htaccess
+
+```bash
+# Proteger archivos sensibles
+$ sudo tee /var/www/html/.htaccess <<'EOF'
+# Denegar acceso a todos los archivos
+<FilesMatch "^\.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$">
+    Require all denied
+</FilesMatch>
+
+# Prevenir directory listing
+Options -Indexes
+
+# Prevenir acceso a directorios
+<Directory />
+    Require all denied
+</Directory>
+
+# Permitir solo archivos específicos
+<FilesMatch "\.(jpg|jpeg|png|gif|ico|css|js|html|php)$">
+    Require all granted
+</FilesMatch>
+EOF
+# <1>
+```
+
+1. **.htaccess**: Reglas de acceso por directorio
+
+### AllowOverride
+
+```bash
+# Enable .htaccess en VirtualHost
+$ sudo sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/sites-available/mysite.conf
+
+$ sudo apachectl configtest && sudo systemctl reload apache2
+```
+
+## Protección con autenticación
+
+### Autenticación Básica
+
+```bash
+# Crear archivo de passwords
+$ sudo htpasswd -c /var/www/clients/mysite/.htpasswd admin
+New password: ********
+Re-type new password: ********
+# <1>
+
+# Agregar más usuarios
+$ sudo htpasswd /var/www/clients/mysite/.htpasswd developer
+
+# Crear .htaccess
+$ sudo tee /var/www/clients/mysite/public/.htaccess <<'EOF'
+AuthType Basic
+AuthName "Restricted Area"
+AuthUserFile /var/www/clients/mysite/.htpasswd
+Require valid-user
+EOF
+
+# Ajustar permisos
+$ sudo chown www-data:www-data /var/www/clients/mysite/.htpasswd
+$ sudo chmod 640 /var/www/clients/mysite/.htpasswd
+# <2>
+```
+
+1. **htpasswd**: Crea archivo de autenticación
+2. **Permisos**: security - solo www-data puede leer
+
+## Casos de Estudio
+
+### Caso 1: Servidor Expuesto a Internet con Scanner
+
+**Escenario**: Servidor recibiendo miles de requests a paths aleatorios.
+
+```bash
+# Ver logs
+$ sudo tail -100 /var/log/apache2/access.log
+192.168.1.100 - - [31/Mar/2026:10:00:00] "GET /wp-admin/ HTTP/1.1" 404
+192.168.1.100 - - [31/Mar/2026:10:00:01] "GET /phpmyadmin HTTP/1.1" 404
+192.168.1.100 - - [31/Mar/2026:10:00:02] "GET /.git/config HTTP/1.1" 404
+# <1>
+```
+
+**Solución**:
+```bash
+# 1. Rate limiting
+$ sudo a2enmod ratelimit
+$ sudo a2enconf rate-limit
+
+# 2. Bloquear user-agents sospechosos
+$ sudo tee /etc/apache2/conf-available/block-bots.conf <<'EOF'
+<IfModule mod_setenvif.no>
+    SetEnvIfNoCase User-Agent "Nikto|sqlmap|nessus|Nmap|masscan|metasploit" bad_bot
+    <Limit GET POST>
+        Order allow,deny
+        Allow from all
+        Deny from env=bad_bot
+    </Limit>
+</IfModule>
+EOF
+
+$ sudo a2enconf block-bots
+$ sudo systemctl reload apache2
+```
+
+1. **Scanner**: Buscando vulnerabilidades comunes
+
+### Caso 2: Need HTTPS pero no Certbot
+
+**Escenario**: Certificado auto-firmado para desarrollo interno.
+
+```bash
+# Generar certificado auto-firmado
+$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/ssl/private/apache-selfsigned.key \
+    -out /etc/ssl/certs/apache-selfsigned.crt \
+    -subj "/C=US/ST=State/L=City/O=Org/CN=internal.example.com"
+# <1>
+
+# Configurar VirtualHost con SSL
+$ sudo tee /etc/apache2/sites-available/internal-ssl.conf <<'EOF'
+<VirtualHost *:443>
+    ServerName internal.example.com
+    DocumentRoot /var/www/internal/public
+    
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/certs/apache-selfsigned.crt
+    SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
+    
+    <Directory /var/www/internal/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+</VirtualHost>
+EOF
+
+$ sudo a2ensite internal-ssl.conf
+$ sudo apachectl configtest && sudo systemctl reload apache2
+
+# Probar (aceptar certificado)
+$ curl -k https://localhost
+# <2>
+```
+
+1. **Certificado auto-firmado**: Para testing interno
+2. **-k**: Aceptar certificados no válidos
+
+### Caso 3: Content Leaking
+
+**Escenario**: Archivos sensibles accesibles desde web.
+
+```bash
+# Ver qué es accesible
+$ curl http://localhost/.env
+DB_PASSWORD=secret123
+# <1>
+
+# Proteger
+$ sudo tee /etc/apache2/conf-available/prevent-leak.conf <<'EOF'
+<FilesMatch "^\.(env|git|htaccess|htpasswd|ini|conf|config|yml|yaml|json|md|sql)$">
+    Require all denied
+</FilesMatch>
+
+# Also prevent directory listing
+<DirectoryMatch "^/var/www/.*/">
+    Options -Indexes
+</DirectoryMatch>
+EOF
+
+$ sudo a2enconf prevent-leak
+$ sudo systemctl reload apache2
+
+# Verificar
+$ curl -I http://localhost/.env
+HTTP/1.1 403 Forbidden
+# <2>
+```
+
+1. **.env expuesto**: Credentials en texto plano
+2. **403 Forbidden**: Archivo bloqueado
+
+## Checklist de Seguridad Apache
+
+| Config | Valor Recomendado | Estado |
+|--------|-------------------|--------|
+| ServerTokens | Prod | ⏳ |
+| ServerSignature | Off | ⏳ |
+| TraceEnable | Off | ⏳ |
+| X-Frame-Options | SAMEORIGIN | ⏳ |
+| X-Content-Type-Options | nosniff | ⏳ |
+| Referrer-Policy | strict-origin-when-cross-origin | ⏳ |
+| HSTS (SSL) | max-age=63072000 | ⏳ |
+| SSLProtocol | TLSv1.2/TLSv1.3 only | ⏳ |
+| Rate Limit | 100 RPS | ⏳ |
+| AllowOverride | None (o configuración específica) | ⏳ |
+
+## Resumen
+
+| Tema | Comando Clave | Propósito |
+|------|---------------|-----------|
+| Hardening | `ServerTokens Prod` | Ocultar información |
+| Headers | `mod_headers` | Seguridad HTTP |
+| SSL | `mod_ssl + certbot` | HTTPS |
+| Rate Limit | `mod_ratelimit` | Prevenir DoS |
+| Auth | `htpasswd` | Autenticación |
+| Files | `<FilesMatch>` | Bloquear archivos |
+
+## Referencias
+
+- [Apache Security Guide](https://httpd.apache.org/docs/2.4/security.html)
+- [OWASP SSL Configuration](https://github.com/OWASP/CheatSheetSeries)
+- [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/)
+- [HSTS Preload List](https://hstspreload.org/)
