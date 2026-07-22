@@ -1,0 +1,652 @@
+---
+title: "UNIDAD VIII: Introducción a Docker"
+---
+
+# UNIDAD VIII: Introducción a Docker
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+- Explicar **qué es Docker** y por qué resuelve el problema histórico de la portabilidad del software.
+- Diferenciar **imágenes** y **contenedores**, y describir la **arquitectura** de Docker (Engine, daemon, CLI, registry).
+- Instalar y verificar Docker en el entorno del curso: **WSL2 (Ubuntu 24.04 LTS) + Docker Desktop**.
+- Construir **imágenes** con un `Dockerfile` (FROM, RUN, COPY, CMD, EXPOSE) y entender las **capas** y los **tags**.
+- Ejecutar y gestionar **contenedores** (`run`, `ps`, `exec`, `logs`, `stop/start/rm`), volúmenes y redes bridge.
+- Aplicar **buenas prácticas y seguridad** desde el día 1 (no root innecesario, limpieza, protección del socket).
+
+---
+
+## 1. ¿Qué es Docker y por qué importa?
+
+**Docker** es una plataforma que permite desarrollar, enviar y ejecutar aplicaciones en **contenedores**. Un contenedor es una instancia ejecutable de una **imagen**: una plantilla inmutable que empaqueta el código, las dependencias, el runtime, las bibliotecas y la configuración necesarios para que la aplicación corra de forma **aislada y consistente**.
+
+La analogía clásica del transporte es perfecta: la **imagen** es el **plano/plantilla** (lo que se replica), y el **contenedor** es la **instancia en ejecución** (lo que efectivamente se "mueve" y corre).
+
+Docker puso fin a la famosa excusa *"en mi máquina funciona"*. Al empaquetar la app y sus dependencias juntas, garantizas que se comporte **igual** en desarrollo, testing y producción.
+
+### El problema que Docker resuelve: contraste con las Máquinas Virtuales
+
+Antes de Docker, el aislamiento se lograba con **máquinas virtuales (VMs)** completas: cada VM incluía un **sistema operativo invitado (guest OS)** entero sobre un hypervisor. Eso es pesado y lento.
+
+| Aspecto | Máquina Virtual (VM) | Contenedor Docker |
+|---------|----------------------|-------------------|
+| **Aislamiento** | Hardware virtualizado (hypervisor) | Kernel compartido, namespace/cgroups |
+| **Guest OS** | Sí, un SO completo por VM | No, comparte el kernel del host |
+| **Peso base** | 2–4 GB RAM + disco del SO | MB, arranque en segundos |
+| **Arranque** | Minutos | Milisegundos–segundos |
+| **Densidad** | Pocas VMs por host | Cientos de contenedores |
+| **Portabilidad** | Dependiente del hypervisor | "Build once, run anywhere" |
+
+::: {.callout-note}
+## 📝 NOTA
+
+Los contenedores **no** reemplazan a las VMs en todos los casos: cuando necesitas un kernel distinto o aislamiento fuerte de seguridad, una VM sigue siendo la mejor opción. Docker complementa, no sustituye, la virtualización.
+:::
+
+### Regla de oro del curso: WSL2 + Docker Desktop, sin VMs pesadas
+
+> **No instalamos ISOs en VirtualBox/VMware.** Este curso usa **virtualización ligera nativa**.
+
+::: {.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Usar VirtualBox / VMware / ISOs como método de instalación de Docker en este curso es incorrecto.**
+
+**Lo que podría salir mal:**
+- VirtualBox en Apple Silicon (M1/M2/M3) **no funciona** (x86_64 vs ARM64).
+- VMware Workstation tiene licenciamiento complejo y overhead alto.
+- Una VM consume 2–4 GB de RAM solo para el hypervisor + guest OS, sin contar tu aplicación.
+- Los laboratorios asumen el stack WSL2 + Docker Desktop; perderás tiempo reconfigurando.
+
+**Cómo prevenirlo:**
+1. En Windows: instala **WSL2 + Ubuntu 24.04 LTS** y luego **Docker Desktop** con integración WSL.
+2. En macOS: instala directamente **Docker Desktop** (incluye el engine y la integración).
+3. Verifica siempre con `docker version` y `docker run hello-world` antes de avanzar.
+:::
+
+---
+
+## 2. Arquitectura de Docker
+
+Docker sigue un modelo **cliente-servidor**. El **Docker Client** (la CLI `docker`) habla con el **Docker Daemon** (`dockerd`) mediante una API REST sobre un socket. El daemon construye, ejecuta y distribuye contenedores.
+
+```text
+ +---------------------------+
+ |      Docker Client        |   CLI: docker run, pull, build...
+ |        (docker)           |
+ +-----------+---------------+
+             |
+             |  REST API (unix:///var/run/docker.sock)
+             v
+ +---------------------------+
+ |      Docker Daemon        |   dockerd: build, run, network, volumes
+ |    (Docker Engine core)   |
+ +-----------+---------------+
+             |
+     +-------+--------+
+     |                |
+     v                v
+ +----------+   +-----------------+
+ | Imágenes |   |   Contenedores  |   runtimes (containerd, runc)
+ | (capas/  |   |  (procesos      |
+ |  layers) |   |   aislados)     |
+ +----+-----+   +-----------------+
+      ^
+      | docker pull / docker push
+ +----+---------------------+
+ |  Registry (Docker Hub)  |   repositorio de imágenes
+ |  hub.docker.com          |
+ +--------------------------+
+```
+
+### Componentes clave
+
+- **Docker Engine**: el conjunto de herramientas (daemon + REST API + cliente) que crea y ejecuta contenedores.
+- **Docker Daemon (`dockerd`)**: proceso en segundo plano que gestiona objetos Docker (imágenes, contenedores, redes, volúmenes).
+- **Docker CLI (`docker`)**: la interfaz que usas para enviar comandos al daemon.
+- **Imágenes**: plantillas inmutables, construidas por capas, de las que nacen los contenedores.
+- **Contenedores**: instancias en ejecución de una imagen; procesos aislados con su propio filesystem, red y recursos.
+- **Registries**: almacenes de imágenes. **Docker Hub** es el público por defecto; las empresas usan registros privados (GHCR, ECR, GCR, Harbor).
+- **containerd / runc**: el daemon delega la ejecución real a `containerd`, que a su vez usa `runc` (implementación de la OCI) para crear los contenedores.
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Casos de uso:**
+- Desarrollo local reproducible entre todo el equipo.
+- CI/CD: misma imagen de build en pipeline y producción.
+- Microservicios y arquitecturas basadas en contenedores.
+
+**Cuándo aplicar:**
+- Siempre que quieras aislar una app de su entorno host.
+- Cuando necesites escalar horizontalmente (más contenedores = más réplicas).
+:::
+
+---
+
+## 3. Instalación en el entorno del curso (WSL2 + Docker Desktop)
+
+El curso estandariza **Ubuntu 24.04 LTS** como base. En Windows usamos WSL2; en macOS, Docker Desktop aporta su propio runtime ligero. También puedes instalar **Docker Engine** directamente sobre Ubuntu vía los repositorios oficiales.
+
+::: {.panel-tabset}
+
+### Linux (Ubuntu 24.04 LTS — Docker Engine oficial)
+
+```bash
+$ sudo apt update  # <1>
+$ sudo apt install -y ca-certificates curl gnupg  # <2>
+$ sudo install -m 0755 -d /etc/apt/keyrings  # <3>
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg  # <4>
+$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null  # <5>
+$ sudo apt update  # <6>
+$ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  # <7>
+$ sudo usermod -aG docker $USER  # <8>
+```
+
+1. **apt update** refresca el índice de paquetes disponibles.
+2. **ca-certificates curl gnupg** son prerequisitos para descargar y validar la clave del repo.
+3. **install -m 0755 -d** crea el directorio de llaves con permisos correctos.
+4. **curl + gpg --dearmor** descarga e importa la clave oficial de Docker al keyring.
+5. **tee** agrega el repositorio de Docker a la lista de fuentes de APT.
+6. **apt update** vuelve a refrescar para reconocer los paquetes de Docker.
+7. **docker-ce / docker-ce-cli / containerd.io / buildx / compose** instala el Engine completo.
+8. **usermod -aG docker** añade tu usuario al grupo `docker` (requiere re-login para aplicar).
+
+### macOS (Docker Desktop)
+
+```bash
+$ brew install --cask docker  # <1>
+# Luego abre Docker Desktop desde Applications y espera a que el ícono sea estable  # <2>
+```
+
+1. **brew install --cask docker** instala Docker Desktop vía Homebrew (alternativa a descargar el .dmg).
+2. Docker Desktop en macOS crea su propio runtime ligero; no necesitas WSL (eso es solo Windows).
+
+### Windows (WSL2 + Docker Desktop)
+
+```powershell
+PS> wsl --install -d Ubuntu-24.04  # <1>
+PS> # Descargar e instalar Docker Desktop desde https://www.docker.com/products/docker-desktop/  # <2>
+PS> # En Settings -> Resources -> WSL Integration: habilitar Ubuntu-24.04  # <3>
+```
+
+1. **wsl --install -d Ubuntu-24.04** instala WSL2 con Ubuntu 24.04 LTS.
+2. Docker Desktop para Windows se integra con el kernel WSL2 (elige "Use WSL 2 instead of Hyper-V").
+3. La integración WSL hace que el daemon Docker sea accesible directamente desde la terminal Ubuntu.
+
+:::
+
+### Verificación obligatoria
+
+Sin importar el SO, valida que todo funciona con estos dos comandos desde tu terminal (en Windows, dentro de WSL2):
+
+```bash
+$ docker version  # <1>
+Client: Docker Engine - Community
+ Version:           27.3.1
+ Server: Docker Engine - Community
+  Engine:
+   Version:          27.3.1
+# <1>
+
+$ docker run --rm hello-world  # <2>
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+...
+Hello from Docker!
+# <2>
+```
+
+1. **docker version** muestra Client y Server (Engine); si falta el Server, el daemon no arrancó.
+2. **docker run --rm hello-world** descarga la imagen de prueba y confirma que el daemon puede crear y ejecutar contenedores.
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+Si `docker version` muestra el cliente pero **no** el servidor, revisa que Docker Desktop esté corriendo (Windows/macOS) o que el servicio esté activo en Linux (`sudo systemctl status docker`). En WSL2, asegúrate de haber habilitado la integración del distro en Docker Desktop.
+:::
+
+---
+
+## 4. Imágenes Docker
+
+Una **imagen** es una plantilla **inmutable** y **portátil**, compuesta por **capas (layers)** de solo lectura. Cada instrucción del `Dockerfile` genera una capa nueva. De una imagen nacen los contenedores.
+
+### Gestión básica de imágenes
+
+```bash
+$ docker pull nginx:stable  # <1>
+stable: Pulling from library/nginx
+...
+# <1>
+
+$ docker images  # <2>
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+nginx        stable    3926ab8e3a5b   2 weeks ago   192MB
+# <2>
+
+$ docker rmi nginx:stable  # <3>
+Untagged: nginx:stable
+Deleted: sha256:3926ab8e3a5b...
+# <3>
+```
+
+1. **docker pull** descarga una imagen (y sus capas) desde Docker Hub; `:stable` es el tag.
+2. **docker images** lista las imágenes locales con repo, tag, ID, tamaño y fecha.
+3. **docker rmi** elimina una imagen local por nombre:tag o por IMAGE ID.
+
+### Capas (layers) y tags
+
+- **Capas**: cada `RUN`, `COPY`, `ADD` del Dockerfile añade una capa. Las capas se cachean y se reutilizan entre builds, lo que acelera reconstrucciones.
+- **Tags**: etiquetas legibles (`:latest`, `:1.2.0`, `:stable`) que apuntan a un `IMAGE ID`. Sin tag, Docker asume `:latest`. Nunca confíes ciegamente en `:latest` en producción.
+
+### El Dockerfile: tu receta de construcción
+
+El `Dockerfile` **no usa shebang** (no es un script del shell, es un archivo de instrucciones que interpreta el daemon). Instrucciones principales:
+
+| Instrucción | Propósito |
+|-------------|-----------|
+| `FROM` | Imagen base (ej. `ubuntu:24.04`, `node:20-alpine`). |
+| `RUN` | Ejecuta comandos durante el build (instala paquetes). |
+| `COPY` | Copia archivos del host al filesystem de la imagen. |
+| `CMD` | Comando por defecto al arrancar el contenedor (solo uno efectivo). |
+| `EXPOSE` | Documenta el puerto que la app escucha (no lo publica solo). |
+| `WORKDIR` | Define el directorio de trabajo de las siguientes instrucciones. |
+| `ENV` | Define variables de entorno en la imagen. |
+
+### Dockerfile de ejemplo completo
+
+```dockerfile
+# Imagen base: Node.js 20 sobre Alpine (ligero, ~120MB)
+FROM node:20-alpine
+
+# Define el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copia primero solo el manifest para aprovechar la cache de capas
+COPY package*.json ./
+
+# Instala dependencias en tiempo de build
+RUN npm install --omit=dev
+
+# Copia el resto del codigo fuente de la aplicacion
+COPY . .
+
+# Documenta que la app escucha en el puerto 3000
+EXPOSE 3000
+
+# Variable de entorno de ejemplo
+ENV NODE_ENV=production
+
+# Comando por defecto al ejecutar el contenedor
+CMD ["node", "server.js"]
+```
+
+### `.dockerignore`
+
+Funciona como un `.gitignore`: le dice a Docker qué archivos **no** deben copiarse al contexto de build (node_modules, `.git`, secretos, caches). Reduce el tamaño del contexto y acelera los builds.
+
+```bash
+$ cat .dockerignore  # <1>
+node_modules
+.git
+.env
+*.log
+dist
+# <1>
+```
+
+1. **.dockerignore** excluye carpetas y archivos del contexto enviado al daemon al hacer `docker build`.
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+Ordena las instrucciones del Dockerfile de lo **menos** al **más** cambiante (`FROM` → deps → código). Así las capas inferiores se cachean y no se reconstruyen en cada cambio de código.
+:::
+
+### Construir la imagen
+
+```bash
+$ docker build -t mi-app:1.0 .  # <1>
+[+] Building 12.3s (10/10) FINISHED
+# <1>
+```
+
+1. **docker build -t mi-app:1.0 .** construye la imagen usando el Dockerfile del directorio actual (`.`) y la etiqueta como `mi-app:1.0`.
+
+---
+
+## 5. Contenedores Docker
+
+Un contenedor es una **instancia en ejecución** de una imagen. Aquí está el ciclo de vida completo.
+
+### Crear y ejecutar con `docker run`
+
+```bash
+$ docker run -d -p 8080:80 --name web -e ENV=prod -v $(pwd)/datos:/usr/share/nginx/html --rm nginx:stable  # <1>
+a1b2c3d4e5f6...
+# <1>
+```
+
+1. **docker run** con flags: `-d` (segundo plano), `-p 8080:80` (host:contenedor), `--name web` (nombre legible), `-e ENV=prod` (variable de entorno), `-v` (monta volumen host→contenedor), `--rm` (auto-elimina al salir).
+
+### Flags esenciales de `docker run`
+
+| Flag | Significado |
+|------|-------------|
+| `-d` | Detached: corre en segundo plano. |
+| `-p HOST:CONTAINER` | Publica (mapea) un puerto del host al contenedor. |
+| `-v HOST:CONTENEDOR` | Monta un volumen (bind mount o named volume). |
+| `--name` | Asigna un nombre legible al contenedor. |
+| `-e KEY=VAL` | Define una variable de entorno. |
+| `--rm` | Elimina el contenedor automáticamente al detenerse. |
+| `-it` | Modo interactivo + TTY (para `bash`, `sh`). |
+
+### Inspección y operación
+
+```bash
+$ docker ps  # <1>
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
+a1b2c3d4e5f6   nginx:stable   "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   0.0.0.0:8080->80/tcp   web
+# <1>
+
+$ docker ps -a  # <2>
+# lista TODOS, incluidos los detenidos
+# <2>
+
+$ docker logs -f web  # <3>
+# sigue (follow) la salida stdout/stderr del contenedor
+# <3>
+
+$ docker exec -it web sh  # <4>
+# abre una shell interactiva DENTRO del contenedor en ejecucion
+# <4>
+```
+
+1. **docker ps** lista los contenedores en ejecución y su mapeo de puertos.
+2. **docker ps -a** lista todos los contenedores, también los detenidos.
+3. **docker logs -f** muestra y sigue los logs del contenedor en vivo.
+4. **docker exec -it** ejecuta un comando (aquí `sh`) dentro de un contenedor ya activo.
+
+### Detener, iniciar y eliminar
+
+```bash
+$ docker stop web  # <1>
+web
+# <1>
+
+$ docker start web  # <2>
+web
+# <2>
+
+$ docker rm web  # <3>
+web
+# <3>
+```
+
+1. **docker stop** envía SIGTERM y detiene el contenedor de forma limpia.
+2. **docker start** reanuda un contenedor detenido.
+3. **docker rm** elimina el contenedor (debe estar detenido, salvo con `-f`).
+
+### Volúmenes y persistencia
+
+Los contenedores son efímeros: lo que escriben en su filesystem desaparece al eliminarlos. Para **persistir datos** usamos volúmenes.
+
+```bash
+$ docker volume create db-data  # <1>
+db-data
+# <1>
+
+$ docker run -d --name postgres -v db-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=secret postgres:16  # <2>
+# <2>
+
+$ docker volume ls  # <3>
+DRIVER    VOLUME NAME
+local     db-data
+# <3>
+
+$ docker volume rm db-data  # <4>
+# <4>
+```
+
+1. **docker volume create** crea un volumen nombrado gestionado por Docker.
+2. **-v db-data:/var/lib/postgresql/data** monta el volumen en la ruta de datos de Postgres.
+3. **docker volume ls** lista los volúmenes existentes.
+4. **docker volume rm** elimina un volumen (¡cuidado: borra los datos!).
+
+### Redes: el driver bridge
+
+Por defecto, los contenedores se conectan a la red **bridge** (`docker0`), aislada del host pero con salida a Internet. Para que dos contenedores se hablen, los unimos a una red propia.
+
+```bash
+$ docker network create mi-red  # <1>
+# <1>
+
+$ docker run -d --name api --network mi-red my-api:1.0  # <2>
+$ docker run -d --name db --network mi-red postgres:16  # <3>
+# <3>
+```
+
+1. **docker network create** define una red bridge personalizada.
+2. **--network mi-red** conecta el contenedor `api` a esa red.
+3. **db** queda en la misma red; `api` puede resolver a `db` por nombre DNS interno.
+
+### Script de ciclo de vida (ejemplo bash)
+
+```bash
+#!/bin/bash
+# Script de ejemplo: despliega y limpia un contenedor Nginx de prueba  # <1>
+set -euo pipefail  # <2>
+
+NOMBRE="web-demo"
+PUERTO_HOST=8080
+PUERTO_CONT=80
+
+echo "Descargando imagen nginx..."
+docker pull nginx:stable  # <3>
+
+echo "Levantando contenedor $NOMBRE en puerto $PUERTO_HOST..."
+docker run -d -p "${PUERTO_HOST}:${PUERTO_CONT}" --name "$NOMBRE" nginx:stable  # <4>
+
+echo "Contenedor activo:"
+docker ps --filter "name=${NOMBRE}"  # <5>
+
+echo "Deteniendo y eliminando contenedor..."
+docker stop "$NOMBRE"  # <6>
+docker rm "$NOMBRE"  # <7>
+
+echo "Listo. Contenedor limpiado."
+```
+
+1. Comentario general: script educativo de ciclo de vida de un contenedor.
+2. **set -euo pipefail** hace que el script falle ante errores, variables sin definir o fallos en pipelines.
+3. **docker pull nginx:stable** asegura tener la imagen local antes de correr.
+4. **docker run -d -p** publica el puerto y corre en segundo plano con nombre fijo.
+5. **docker ps --filter** lista solo nuestro contenedor para verificar.
+6. **docker stop** detiene el contenedor de forma limpia.
+7. **docker rm** lo elimina para no dejar basura.
+
+---
+
+## 6. Docker Compose (vista previa)
+
+Para aplicaciones multi-contenedor usamos **Docker Compose**, que define servicios, redes y volúmenes en un único archivo `docker-compose.yml` (YAML).
+
+```bash
+$ docker compose up -d  # <1>
+[+] Running 2/2
+ ✔ Container api   Started
+ ✔ Container db    Started
+# <1>
+```
+
+1. **docker compose up -d** construye (si aplica) y levanta todo el stack en segundo plano.
+
+Ejemplo mínimo de `docker-compose.yml`:
+
+```yaml
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"   # host:contenedor
+    volumes:
+      - .:/app        # bind mount del codigo
+    environment:
+      - NODE_ENV=production
+  db:
+    image: postgres:16
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=secret
+
+volumes:
+  db-data:
+```
+
+::: {.callout-note}
+## 📝 NOTA
+
+El comando moderno es `docker compose` (plugin v2, sin guion). En entornos antiguos puedes ver `docker-compose` (binario v1, deprecated). El curso usa la versión v2.
+:::
+
+---
+
+## 7. DevContainers (entornos de desarrollo reproducibles)
+
+Un **DevContainer** es un contenedor Docker usado como entorno de desarrollo completo, integrado con VS Code mediante la extensión *Dev Containers*. Garantiza que todo el equipo trabaje con las mismas herramientas, versiones y dependencias, sin "contaminar" el SO host.
+
+```bash
+$ code .  # <1>
+# En VS Code: F1 -> "Dev Containers: Reopen in Container"  # <2>
+```
+
+1. **code .** abre el proyecto (desde WSL2 o Linux).
+2. La paleta de comandos de VS Code reconstruye el entorno dentro del contenedor definido en `.devcontainer/devcontainer.json`.
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+Usa DevContainers para aislar el toolchain de cada proyecto (Python, Node, Go) y evitar conflictos de versiones en tu máquina. El curso los utiliza como entorno de laboratorio reproducible.
+:::
+
+---
+
+## 8. Buenas prácticas y seguridad
+
+::: {.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Seguridad en contenedores: errores comunes que exponen tu sistema.**
+
+**Lo que podría salir mal:**
+- Correr procesos como `root` dentro del contenedor facilita escalada de privilegios si hay fuga de aislamiento.
+- Acumular imágenes y contenedores huérfanos llena el disco (`/var/lib/docker`) y degrada el host.
+- Exponer el socket de Docker (`/var/run/docker.sock`) a un contenedor equivale a darle control total del host.
+- Usar `:latest` en producción rompe la reproducibilidad y dificulta rollbacks.
+
+**Cómo prevenirlo:**
+1. Define un usuario no root en el Dockerfile (`RUN useradd -m app && USER app`).
+2. Limpia periódicamente con `docker system prune -a` y elimina volúmenes huérfanos.
+3. Nunca montes `/var/run/docker.sock` salvo herramientas de infraestructura de absoluta confianza.
+4. Fija tags versionados (`:1.0.0`) y escanea imágenes con `docker scout` o Trivy.
+5. Aplica el principio de mínimo privilegio: solo los puertos y volúmenes estrictamente necesarios.
+:::
+
+```bash
+$ docker system prune -a --volumes  # <1>
+WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all images without at least one container associated
+  - all build cache
+# <1>
+```
+
+1. **docker system prune -a --volumes** libera espacio eliminando contenedores detenidos, redes e imágenes huérfanas (¡borra también volúmenes no usados!).
+
+---
+
+## 9. Resumen y Próximos Pasos
+
+::: {.callout-tip}
+## ✅ Lo esencial de la Unidad VIII
+
+1. **Docker** empqueta app + dependencias en contenedores aislados y portátiles.
+2. **Arquitectura**: Cliente → Daemon (`dockerd`) → Imágenes/Contenedores ↔ Registry.
+3. **Entorno del curso**: WSL2 (Ubuntu 24.04 LTS) + Docker Desktop. Nada de VirtualBox/VMware/ISO.
+4. **Imágenes** se construyen con `Dockerfile` por capas; se versionan con **tags**.
+5. **Contenedores** se viven con `run`, `ps`, `exec`, `logs`, `stop/start/rm`, volúmenes y redes bridge.
+6. **Seguridad**: no-root, limpieza y jamás exponer el socket de Docker.
+:::
+
+### 📋 Checklist de competencias Unidad VIII
+
+- [ ] Explicar la diferencia entre imagen y contenedor.
+- [ ] Describir la arquitectura Docker (cliente/daemon/registry).
+- [ ] Instalar y verificar Docker (WSL2 + Docker Desktop o Engine oficial).
+- [ ] Escribir un `Dockerfile` con FROM, RUN, COPY, CMD, EXPOSE.
+- [ ] Usar `docker pull`, `images`, `build`, `rmi`.
+- [ ] Ejecutar contenedores con `-d`, `-p`, `-v`, `--name`, `-e`, `--rm`.
+- [ ] Inspeccionar con `ps`, `logs`, `exec -it`.
+- [ ] Crear volúmenes y redes bridge.
+- [ ] Aplicar buenas prácticas de seguridad (no-root, limpieza, socket).
+
+---
+
+## 10. Recursos y Referencias
+
+- **Docker Documentation**: <https://docs.docker.com/>
+- **Docker Desktop (WSL2)**: <https://docs.docker.com/desktop/wsl/>
+- **Dockerfile reference**: <https://docs.docker.com/reference/dockerfile/>
+- **Docker Compose spec**: <https://docs.docker.com/compose/compose-file/>
+- **Dev Containers**: <https://containers.dev/>
+- **Docker Scout (seguridad)**: <https://docs.docker.com/scout/>
+- **WSL Documentation**: <https://learn.microsoft.com/windows/wsl/>
+
+---
+
+## 11. Quiz Interactivo (quizdown)
+
+```{quizdown}
+---
+shuffleAnswers: true
+---
+
+## ¿Qué es una imagen Docker?
+
+- [ ] Un contenedor en ejecución
+- [x] Una plantilla inmutable compuesta por capas
+- [ ] Un hypervisor de tipo 2
+- [ ] El daemon dockerd
+
+## ¿Cuál es la ventaja principal de los contenedores sobre las VMs?
+
+- [ ] Necesitan un guest OS completo
+- [x] Comparten el kernel del host y arrancan en segundos
+- [ ] Son más pesados en disco
+- [ ] Requieren VirtualBox
+
+## ¿Qué instrucción del Dockerfile define el comando por defecto al arrancar?
+
+- [ ] RUN
+- [ ] COPY
+- [x] CMD
+- [ ] EXPOSE
+
+## El flag `-p 8080:80` en `docker run` significa:
+
+- [ ] Puerto 8080 del contenedor al 80 del host
+- [x] Puerto 8080 del host mapeado al 80 del contenedor
+- [ ] Elimina el contenedor al salir
+- [ ] Lo corre en segundo plano
+
+## ¿Por qué NO debes exponer `/var/run/docker.sock` a un contenedor?
+
+- [ ] Porque ocupa mucho disco
+- [x] Porque otorga control total del host Docker a ese contenedor
+- [ ] Porque rompe la red bridge
+- [ ] Porque solo funciona en Windows
+```
