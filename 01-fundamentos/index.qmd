@@ -72,30 +72,39 @@ En este curso usamos **Ubuntu 24.04 LTS (Noble Numbat)** — soporte hasta 2029,
 
 ```powershell
 # 1. Habilitar WSL + Virtual Machine Platform
-dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart  # <1>
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart              # <2>
 
 # 2. Instalar WSL2 + Ubuntu 24.04
-wsl --install -d Ubuntu-24.04
+wsl --install -d Ubuntu-24.04  # <3>
 
 # 3. Reiniciar y completar configuración (usuario/contraseña)
-wsl
+wsl  # <4>
 ```
+
+1. **`dism.exe` — WSL feature**: Habilita el subsistema Windows para Linux (requiere reinicio pendiente con `/norestart`)
+2. **`dism.exe` — VirtualMachinePlatform**: Habilita Hyper-V ligero necesario para WSL2 (kernel real vs traducción)
+3. **`wsl --install`**: Descarga e instala Ubuntu 24.04 LTS como distribución WSL2 por defecto
+4. **`wsl`**: Abre la terminal WSL2 tras reiniciar; pide crear usuario y contraseña初次
 :::
 
 ### Verificar instalación
 
 ```bash
 # Dentro de WSL2 (Ubuntu)
-cat /etc/os-release
+cat /etc/os-release   # <1>
 # PRETTY_NAME="Ubuntu 24.04.1 LTS"
 
-uname -r
+uname -r              # <2>
 # 6.6.x-microsoft-standard-WSL2  <-- Kernel Linux real
 
-ls /mnt/c/Users/
+ls /mnt/c/Users/      # <3>
 # Tu usuario Windows visible
 ```
+
+1. **`cat /etc/os-release`**: Muestra distro y versión exacta; confirma que WSL2 instaló Ubuntu correctamente
+2. **`uname -r`**: Muestra el kernel — debe ser `microsoft-standard-WSL2`, no un kernel genérico
+3. **`ls /mnt/c/Users/`**: Verifica integración filesystem Windows↔Linux; `/mnt/c/` es el disco C: montado
 
 ### 2.2 Docker Desktop — Contenedores en Windows/macOS/Linux
 
@@ -110,9 +119,12 @@ ls /mnt/c/Users/
 4. Verificar:
 
 ```bash
-docker version
-docker run --rm hello-world
+docker version        # <1>
+docker run --rm hello-world  # <2>
 ```
+
+1. **`docker version`**: Muestra Client y Server (Engine); confirma que Docker Desktop corrió correctamente dentro de WSL2
+2. **`docker run --rm hello-world`**: Descarga imagen `hello-world`, la ejecuta, y la elimina (`--rm`); prueba completa del pipeline
 :::
 
 ::: {.callout-warning}
@@ -134,20 +146,28 @@ docker run --rm hello-world
 
 ```bash
 # ¿Dónde estoy?
-pwd
+pwd                     # <1>
 # /home/tu-usuario
 
 # ¿Quién soy?
-whoami
-id
+whoami                  # <2>
+id                      # <3>
 # uid=1000(tu-usuario) gid=1000(tu-usuario) groups=1000(tu-usuario),27(sudo),998(docker)
 
 # Ayuda integrada (léela siempre)
-man ls          # Manual completo (q para salir)
-ls --help       # Resumen rápido
-info bash       # Documentación extensa
-tldr tar        # Ejemplos prácticos (instalar: npm i -g tldr)
+man ls          # <4>          # Manual completo (q para salir)
+ls --help       # <5>          # Resumen rápido
+info bash       # <6>          # Documentación extensa
+tldr tar        # <7>          # Ejemplos prácticos (instalar: npm i -g tldr)
 ```
+
+1. **`pwd`**: Imprime directorio de trabajo actual; base para rutas absolutas/relativas
+2. **`whoami`**: Retorna nombre del usuario efectivo (puede diferir de `login` con `su`)
+3. **`id`**: Muestra UID, GID y grupos del usuario; verifica membresía en `sudo`, `docker`, etc.
+4. **`man ls`**: Manual completo de la sección 1; fuente oficial de documentación del comando
+5. **`ls --help`**: Resumen rápido de flags; alternativa cuando `man` es demasiado denso
+6. **`info bash`**: Documentación extensa en formato GNU Info; cubre scripting Bash completo
+7. **`tldr`**: Alternativa comunitaria a `man` con ejemplos prácticos; requiere instalación previa
 
 ::: {.callout-note}
 ## Atajos de productividad (memóralos)
@@ -187,23 +207,32 @@ tldr tar        # Ejemplos prácticos (instalar: npm i -g tldr)
 
 ```bash
 # Navegación básica
-cd /etc/nginx          # Ruta absoluta
-cd ../sites-available  # Relativa (sube uno, baja a sites-available)
-cd ~                   # Home ($HOME)
-cd -                   # Directorio anterior (toggle)
-cd                     # Sin args = home
+cd /etc/nginx          # <1>  # Ruta absoluta
+cd ../sites-available  # <2>  # Relativa (sube uno, baja a sites-available)
+cd ~                   # <3>  # Home ($HOME)
+cd -                   # <4>  # Directorio anterior (toggle)
+cd                     # <5>  # Sin args = home
 
 # Listar con detalle
-ls -la                 # -l largo, -a ocultos
-ls -lh /var/log        # -h human-readable (K, M, G)
-tree -L 2 /etc         # Vista árbol (instalar: sudo apt install tree)
+ls -la                 # <6>  # -l largo, -a ocultos
+ls -lh /var/log        # <7>  # -h human-readable (K, M, G)
+tree -L 2 /etc         # <8>  # Vista árbol (instalar: sudo apt install tree)
 ```
+
+1. **`cd /etc/nginx`**: Navegación con ruta absoluta desde la raíz; funciona desde cualquier directorio
+2. **`cd ../sites-available`**: Ruta relativa: `..` sube un nivel, luego baja a `sites-available`
+3. **`cd ~`**: Abreviación del home del usuario (`$HOME`); equivalente a `cd /home/tu-usuario`
+4. **`cd -`**: Alterna entre el directorio actual y el anterior; útil para ir y volver rápido
+5. **`cd`**: Sin argumentos lleva al home; forma rápida de "reset" de ubicación
+6. **`ls -la`**: `-l` muestra permisos/owner/size; `-a` incluye archivos ocultos (`.git`, `.env`)
+7. **`ls -lh /var/log`**: `-h` muestra tamaños legibles (K, M, G) en vez de bytes crudos
+8. **`tree -L 2 /etc`**: Muestra estructura de directorios como árbol; `-L 2` limita profundidad
 
 ### 3.3 Permisos y ACLs — Seguridad desde el día 1
 
 ```bash
 # Ver permisos
-ls -l script.sh
+ls -l script.sh         # <1>
 # -rwxr-xr-- 1 usuario usuario 123 Jul 20 10:00 script.sh
 #  ^   ^   ^   ^
 #  |   |   |   └─ Otros: r--
@@ -212,23 +241,35 @@ ls -l script.sh
 #  └─────────── Tipo: - archivo, d directorio, l symlink
 
 # Cambiar permisos (simbólico - más legible)
-chmod u+x script.sh           # Dueño +x
-chmod g-w,o-rwx archivo.conf  # Grupo -write, Otros -rwx
+chmod u+x script.sh           # <2>  # Dueño +x
+chmod g-w,o-rwx archivo.conf  # <3>  # Grupo -write, Otros -rwx
 
 # Cambiar permisos (octal - para scripts/automatización)
-chmod 750 script.sh           # rwxr-x---
-chmod 640 archivo.conf        # rw-r-----
+chmod 750 script.sh           # <4>  # rwxr-x---
+chmod 640 archivo.conf        # <5>  # rw-r-----
 
 # Cambiar owner/group
-sudo chown usuario:grupo archivo
-sudo chown -R www-data:www-data /var/www/html  # Recursivo
+sudo chown usuario:grupo archivo                  # <6>
+sudo chown -R www-data:www-data /var/www/html     # <7>  # Recursivo
 
 # ACLs - Control de acceso extendido (más granular que u/g/o)
-setfacl -m u:deploy:rwx /var/www/html    # Usuario deploy RWX
-setfacl -m g:devops:rx /etc/nginx        # Grupo devops RX
-getfacl /var/www/html                    # Ver ACLs
-setfacl -b /ruta                         # Borrar todas las ACLs
+setfacl -m u:deploy:rwx /var/www/html    # <8>  # Usuario deploy RWX
+setfacl -m g:devops:rx /etc/nginx        # <9>  # Grupo devops RX
+getfacl /var/www/html                    # <10> # Ver ACLs
+setfacl -b /ruta                         # <11> # Borrar todas las ACLs
 ```
+
+1. **`ls -l script.sh`**: Muestra cadena de permisos: tipo (1), owner (3), grupo (3), otros (3), y bits speciales
+2. **`chmod u+x`**: Simbólico — agrega ejecución (`+x`) solo al dueño (`u`); más legible que octal
+3. **`chmod g-w,o-rwx`**: Simbólico — quita escritura al grupo y todos los bits a otros en una sola línea
+4. **`chmod 750`**: Octal — `7`=rwx dueño, `5`=rx grupo, `0`=nada otros; estándar para scripts ejecutables
+5. **`chmod 640`**: Octal — `6`=rw dueño, `4`=r grupo, `0`=nada otros; estándar para configs sensibles
+6. **`chown usuario:grupo`**: Cambia dueño y grupo de un archivo; requiere root
+7. **`chown -R`**: Recursivo — aplica ownership a todo el árbol de directorios; cuidado en `/`
+8. **`setfacl -m u:deploy:rwx`**: ACL — da permisos RWX al usuario `deploy` sin cambiar owner/group
+9. **`setfacl -m g:devops:rx`**: ACL — da RX al grupo `devops`; complementa permisos POSIX básicos
+10. **`getfacl`**: Muestra permisos POSIX + ACLs; verifica que la ACL se aplicó correctamente
+11. **`setfacl -b`**: Elimina todas las ACLs, dejando solo permisos POSIX estándar
 
 ::: {.callout-tip}
 ## Regla de oro permisos Abacom
@@ -243,22 +284,26 @@ setfacl -b /ruta                         # Borrar todas las ACLs
 
 ```bash
 # nano - simple, modeless
-nano archivo.txt
+nano archivo.txt        # <1>
 # Atajos: Ctrl+O guardar, Ctrl+X salir, Ctrl+K cortar línea, Ctrl+U pegar
 
 # vim / nvim - modal, potente (aprenderlo paga dividendos)
-vim archivo.txt
+vim archivo.txt         # <2>
 # Modos: Normal (ESC), Insert (i/a/o), Visual (v/V), Command (:)
 # Básicos: :w guardar, :q salir, :wq guardar y salir, :q! forzar salida
 # Movimiento: h/j/k/l, w/b (palabras), 0/$ (inicio/fin línea), gg/G (inicio/fin archivo)
 # Edición: dd borrar línea, yy copiar, p pegar, u deshacer, Ctrl+R rehacer
 
 # Config mínima recomendada (~/.vimrc o init.lua para nvim)
-set number relativenumber
+set number relativenumber        # <3>
 set tabstop=2 shiftwidth=2 expandtab
 set ignorecase smartcase
 set cursorline
 ```
+
+1. **`nano archivo.txt`**: Editor modeless ideal para edits rápidos; sin curva de aprendizaje
+2. **`vim archivo.txt`**: Editor modal con curva de aprendizaje pero productividad superior; estándar en servidores
+3. **Config vim**: `number relativenumber` muestra números de línea relativos; `tabstop=2 expandtab` usa 2 espacios; `ignorecase smartcase` busca case-insensitive salvo que haya mayúsculas
 
 ---
 
@@ -266,26 +311,36 @@ set cursorline
 
 ```bash
 # Actualizar índice de paquetes
-sudo apt update
+sudo apt update              # <1>
 
 # Actualizar paquetes instalados (seguro)
-sudo apt upgrade
+sudo apt upgrade             # <2>
 
 # Buscar paquetes
-apt search nginx
-apt show nginx
+apt search nginx             # <3>
+apt show nginx               # <4>
 
 # Instalar
-sudo apt install -y nginx curl jq htop tree vim-nox
+sudo apt install -y nginx curl jq htop tree vim-nox  # <5>
 
 # Eliminar (purge = borra config también)
-sudo apt remove nginx
-sudo apt purge nginx
+sudo apt remove nginx        # <6>
+sudo apt purge nginx         # <7>
 
 # Limpiar caché
-sudo apt autoremove -y
-sudo apt clean
+sudo apt autoremove -y       # <8>
+sudo apt clean               # <9>
 ```
+
+1. **`apt update`**: Descarga índices de paquetes de repositorios; SIEMPRE ejecutar antes de instalar
+2. **`apt upgrade`**: Actualiza paquetes instalados sin quitar nada; seguro para producción
+3. **`apt search nginx`**: Busca paquetes por nombre/descripción; retorna lista de coincidencias
+4. **`apt show nginx`**: Muestra metadatos del paquete: versión, dependencias, tamaño, descripción
+5. **`apt install -y`**: Instala paquetes; `-y` confirma automáticamente (necesario en scripts)
+6. **`apt remove`**: Desinstala el paquete pero conserva configuración en `/etc`
+7. **`apt purge`**: Desinstala Y borra configuración; usar cuando se quiere limpieza total
+8. **`apt autoremove -y`**: Elimina dependencias huérfanas que ya no usa ningún paquete instalado
+9. **`apt clean`**: Borra `/var/cache/apt/archives/*.deb`; libera disco sin afectar paquetes instalados
 
 ---
 
@@ -312,15 +367,18 @@ sudo apt clean
 
 ```bash
 # Ejecuta y guarda salida en ~/lab01-evidencia.txt
-{
+{                                               # <1>
   echo "=== WSL ===" && wsl -l -v
   echo -e "\n=== Docker ===" && docker version --format '{{.Server.Version}}'
   echo -e "\n=== Groups ===" && groups
   echo -e "\n=== SSH Key ===" && cat ~/.ssh/id_ed25519.pub
   echo -e "\n=== Git ===" && git config --global --list
   echo -e "\n=== Paquetes clave ===" && dpkg -l | grep -E 'htop|tree|jq|vim|docker'
-} > ~/lab01-evidencia.txt
+} > ~/lab01-evidencia.txt                        # <2>
 ```
+
+1. **Bloque `{...}`**: Agrupa múltiples comandos en una sola unidad; cada `echo` + comando imprime sección separada
+2. **`> ~/lab01-evidencia.txt`**: Redirige todo el stdout del bloque a un archivo; genera evidencia documentada del lab
 :::
 
 ---

@@ -41,37 +41,46 @@ Al finalizar esta unidad, serás capaz de:
 
 ```bash
 # Actualizar índice (SIEMPRE antes de instalar)
-sudo apt update
+sudo apt update                                        # <1>
 
 # Listar actualizaciones disponibles
-apt list --upgradable
+apt list --upgradable                                  # <2>
 
 # Actualizar paquetes (seguro: no quita, solo sube versiones)
-sudo apt upgrade
+sudo apt upgrade                                       # <3>
 
 # Actualizar con resolución de dependencias completa (puede quitar/añadir)
-sudo apt full-upgrade
+sudo apt full-upgrade                                  # <4>
 
 # Buscar paquetes
-apt search nginx
+apt search nginx                                       # <5>
 apt show nginx                    # Detalles: versión, deps, tamaño, descripción
 apt policy nginx                  # Versiones disponibles y pinning
 
 # Instalar (con -y para no interactivo en scripts)
-sudo apt install -y nginx curl jq htop vim-nox
+sudo apt install -y nginx curl jq htop vim-nox        # <6>
 
 # Reinstalar (reparar archivos corruptos)
-sudo apt install --reinstall nginx
+sudo apt install --reinstall nginx                     # <7>
 
 # Eliminar (purge = borra configs en /etc)
 sudo apt remove nginx
-sudo apt purge nginx
+sudo apt purge nginx                                   # <8>
 
 # Limpiar
 sudo apt autoremove -y            # Quita dependencias huérfanas
 sudo apt clean                    # Borra /var/cache/apt/archives/*.deb
 sudo apt autoclean                # Borra solo versiones antiguas
 ```
+
+1. **`apt update`**: Descarga índices de repositorios (Packages.gz); SIEMPRE ejecutar antes de instalar para asegurar que apt conozca versiones disponibles
+2. **`apt list --upgradable`**: Lista paquetes con actualizaciones pendientes sin instalar nada; revisa antes de `upgrade`
+3. **`apt upgrade`**: Actualiza paquetes a versiones más nuevas sin quitar ni añadir dependencias; seguro para producción
+4. **`apt full-upgrade`**: Actualiza con resolución completa de dependencias; puede quitar paquetes obsoletos para satisfacer nuevas dependencias
+5. **`apt search nginx`**: Busca paquetes por nombre/descripción en todos los repos habilitados; retorna lista de coincidencias
+6. **`apt install -y`**: Instala paquetes con todas sus dependencias; `-y` confirma automáticamente (necesario en scripts no interactivos)
+7. **`apt install --reinstall`**: Reinstala el paquete preservando configuración; útil cuando archivos de programa están corruptos
+8. **`apt purge`**: Desinstala el paquete Y borra configuración en `/etc`; usar cuando se quiere limpieza total
 
 ### 1.3 Gestión de repositorios y claves GPG — **Crítico para seguridad**
 
@@ -85,46 +94,61 @@ sudo apt autoclean                # Borra solo versiones antiguas
 
 ```bash
 # 1. Descargar clave y guardar en keyrings (solo root readable)
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
+sudo mkdir -p /etc/apt/keyrings                                                      # <1>
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg  # <2>
+sudo chmod a+r /etc/apt/keyrings/docker.gpg                                          # <3>
 
 # 2. Añadir repo con signed-by apuntando a la clave
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
   https://download.docker.com/linux/ubuntu \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null                           # <4>
 
 # 3. Actualizar e instalar
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt update                                                                      # <5>
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  # <6>
 ```
+
+1. **`mkdir -p /etc/apt/keyrings`**: Crea directorio para claves GPG modernas; `-p` no falla si ya existe
+2. **`curl | gpg --dearmor`**: Descarga clave en formato ASCII y la convierte a formato binario GPG; `-o` guarda en keyring específico
+3. **`chmod a+r`**: Permite lectura a todos los usuarios del sistema; apt necesita leer la clave para verificar paquetes
+4. **`tee /etc/apt/sources.list.d/`**: Escribe archivo de repo con `signed-by` apuntando a la clave GPG; `> /dev/null` suprime output
+5. **`apt update`**: Refresca índices con el nuevo repo; apt ahora confía en paquetes firmados por esta clave
+6. **`apt install`**: Instala Docker CE y componentes; todos verificados contra la clave GPG configurada
 
 #### Verificar clave de un repo existente
 
 ```bash
 # Listar claves confiadas
-ls -la /etc/apt/keyrings/
-gpg --list-keys --keyring /etc/apt/keyrings/docker.gpg
+ls -la /etc/apt/keyrings/                                                              # <1>
+gpg --list-keys --keyring /etc/apt/keyrings/docker.gpg                                # <2>
 
 # Ver fingerprint
-gpg --show-keys /etc/apt/keyrings/docker.gpg
+gpg --show-keys /etc/apt/keyrings/docker.gpg                                          # <3>
 # pub   rsa4096 2017-02-22 [SCEA]
 #       9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88
 # uid           Docker Release Tool (releasedocker) <docker@docker.com>
 ```
 
+1. **`ls -la /etc/apt/keyrings/`**: Lista claves GPG instaladas; verifica que la clave descargó correctamente
+2. **`gpg --list-keys`**: Muestra clave pública completa del keyring; verifica que es la clave oficial del vendor
+3. **`gpg --show-keys`**: Muestra fingerprint (huella digital) de la clave; compara con fingerprint oficial del vendor para verificar autenticidad
+
 ### 1.4 PPA (Personal Package Archives) — Solo cuando sea necesario
 
 ```bash
 # Añadir PPA (ej: git-core para Git latest)
-sudo add-apt-repository -y ppa:git-core/ppa
+sudo add-apt-repository -y ppa:git-core/ppa               # <1>
 # Internamente: descarga clave, crea /etc/apt/sources.list.d/git-core-ubuntu-ppa-noble.sources
 
-sudo apt update
-sudo apt install -y git
+sudo apt update                                           # <2>
+sudo apt install -y git                                   # <3>
 ```
+
+1. **`add-apt-repository`**: Añade PPA oficial de Ubuntu; internamente descarga clave GPG y crea archivo sources automáticamente
+2. **`apt update`**: Refresca índices para incluir paquetes del nuevo PPA
+3. **`apt install -y git`**: Instala Git desde el PPA (versión más reciente que la del repo oficial de Ubuntu)
 
 ::: {.callout-tip}
 ## Buenas prácticas PPA
@@ -139,23 +163,28 @@ sudo apt install -y git
 
 ```bash
 # Método 1: apt-mark hold (simple, por paquete)
-sudo apt-mark hold docker-ce docker-ce-cli containerd.io
+sudo apt-mark hold docker-ce docker-ce-cli containerd.io   # <1>
 # Ver holds: apt-mark showhold
 # Quitar hold: sudo apt-mark unhold docker-ce
 
 # Método 2: /etc/apt/preferences.d/ (pinning granular, prioridad)
-cat <<'EOF' | sudo tee /etc/apt/preferences.d/docker-pin
+cat <<'EOF' | sudo tee /etc/apt/preferences.d/docker-pin   # <2>
 Package: docker-ce
 Pin: version 5:27.1.*
-Pin-Priority: 1001
+Pin-Priority: 1001                                         # <3>
 
 Package: docker-ce-cli
 Pin: version 5:27.1.*
 Pin-Priority: 1001
 EOF
 # Prioridad > 1000 = fuerza esa versión aunque haya más nuevas
-# Verificar: apt policy docker-ce
+# Verificar: apt policy docker-ce                            # <4>
 ```
+
+1. **`apt-mark hold`**: Marca paquetes para no actualizarse con `apt upgrade`; simple pero no granular
+2. **`cat <<'EOF'`**: Here-document crea archivo de configuración de pinning inline; evita edición manual con nano/vim
+3. **`Pin-Priority: 1001`**: Prioridad > 1000 fuerza esa versión específica aunque existan más nuevas; `5:27.1.*` usa wildcard
+4. **`apt policy`**: Verifica que el pinning funcionó; muestra versión prioritaria con `***` marcada
 
 ---
 
@@ -184,17 +213,23 @@ EOF
 
 ```bash
 # Habilitar repos oficiales (EPEL, CRB/PowerTools)
-sudo dnf install -y epel-release
-sudo dnf config-manager --set-enabled crb  # RHEL 9 / Rocky 9 / Alma 9
+sudo dnf install -y epel-release                           # <1>
+sudo dnf config-manager --set-enabled crb                  # <2>  # RHEL 9 / Rocky 9 / Alma 9
 
 # Añadir repo Docker (ejemplo)
-sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo  # <3>
 # Clave se importa automáticamente al primer dnf install
 
 # Ver claves importadas
-rpm -qa gpg-pubkey*
-rpm -qi gpg-pubkey-<id>-<version>
+rpm -qa gpg-pubkey*                                        # <4>
+rpm -qi gpg-pubkey-<id>-<version>                          # <5>
 ```
+
+1. **`epel-release`**: Instala repositorio EPEL (Extra Packages for Enterprise Linux); extiende paquetes disponibles en RHEL
+2. **`config-manager --set-enabled crb`**: Habilita CRB (CodeReady Builder); contiene headers y librerías de desarrollo
+3. **`--add-repo`**: Añade repo Docker para RHEL; DNF descarga clave GPG automáticamente al primer install
+4. **`rpm -qa gpg-pubkey*`**: Lista todas las claves GPG importadas al sistema; verifica que la clave Docker está presente
+5. **`rpm -qi`**: Muestra información detallada de una clave GPG específica; verifica fingerprint y metadatos
 
 ---
 
@@ -210,34 +245,47 @@ rpm -qi gpg-pubkey-<id>-<version>
 
 ```bash
 # Instalar Flatpak
-sudo apt install -y flatpak
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+sudo apt install -y flatpak                                                    # <1>
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo  # <2>
 
 # Buscar e instalar (ej: VS Code, pero preferimos code-server en server)
-flatpak search vscode
-flatpak install flathub com.visualstudio.code
+flatpak search vscode                                                          # <3>
+flatpak install flathub com.visualstudio.code                                  # <4>
 
 # Ejecutar
-flatpak run com.visualstudio.code
+flatpak run com.visualstudio.code                                              # <5>
 
 # Actualizar todo
-flatpak update
+flatpak update                                                                 # <6>
 
 # Permisos (flatpak permission-show com.app)
-flatpak permission-set filesystem home com.visualstudio.code yes
+flatpak permission-set filesystem home com.visualstudio.code yes               # <7>
 ```
+
+1. **`apt install flatpak`**: Instala el framework Flatpak en Ubuntu; necesario antes de añadir repositorios
+2. **`remote-add flathub`**: Añade Flathub (repo oficial de Flatpak); `--if-not-exists` evita duplicar si ya existe
+3. **`flatpak search vscode`**: Busca paquetes en todos los repos Flatpak configurados; retorna IDs de aplicaciones
+4. **`flatpak install`**: Descarga e instala la aplicación con todas sus dependencias y runtimes; pide confirmación
+5. **`flatpak run`**: Ejecuta la aplicación dentro del sandbox Flatpak con permisos configurados
+6. **`flatpak update`**: Actualiza todas las aplicaciones y runtimes Flatpak instalados
+7. **`permission-set`**: Concede permiso de acceso al directorio home dentro del sandbox; por defecto es restrictivo
 
 ### 3.2 Snap (Ubuntu lo trae por defecto)
 
 ```bash
 # Snapd ya instalado en Ubuntu
-snap find certbot
-sudo snap install --classic certbot  # --classic = acceso completo al sistema
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
+snap find certbot                                                             # <1>
+sudo snap install --classic certbot                                           # <2>  # --classic = acceso completo al sistema
+sudo ln -s /snap/bin/certbot /usr/bin/certbot                                 # <3>
 
 # Servicios snap (systemd units)
-systemctl list-units snap.*
+systemctl list-units snap.*                                                   # <4>
 ```
+
+1. **`snap find`**: Busca paquetes en el Snap Store; muestra versiones, tamaños y descripciones
+2. **`snap install --classic`**: Instala certbot con acceso completo al sistema (necesario para leer configs de nginx/apache)
+3. **`ln -s`**: Crea symlink para que `certbot` esté en PATH del sistema; sin esto solo funciona con `/snap/bin/certbot`
+4. **`systemctl list-units snap.*`**: Lista servicios systemd de snaps; verifica que snapd está corriendo correctamente
 
 ::: {.callout-note}
 ## En servidores: Preferir APT/DNF + Contenedores
@@ -251,13 +299,18 @@ systemctl list-units snap.*
 
 ```bash
 # Descargar, dar permisos, ejecutar
-wget https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.appimage
-chmod +x nvim-linux64.appimage
-./nvim-linux64.appimage
+wget https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.appimage  # <1>
+chmod +x nvim-linux64.appimage                                                        # <2>
+./nvim-linux64.appimage                                                               # <3>
 
 # Integrar en sistema (opcional)
-sudo mv nvim-linux64.appimage /usr/local/bin/nvim
+sudo mv nvim-linux64.appimage /usr/local/bin/nvim                                     # <4>
 ```
+
+1. **`wget`**: Descarga el binario AppImage desde GitHub Releases; verifica checksum después de descargar
+2. **`chmod +x`**: Marca el archivo como ejecutable; sin esto el shell no puede ejecutarlo
+3. **`./nvim-linux64.appimage`**: Ejecuta el binario directamente; funciona sin instalación del sistema
+4. **`mv /usr/local/bin/`**: Integra el binario en PATH del sistema; disponible globalmente como `nvim`
 
 ---
 
@@ -267,36 +320,45 @@ sudo mv nvim-linux64.appimage /usr/local/bin/nvim
 
 ```bash
 # Identidad
-git config --global user.name "Tu Nombre"
-git config --global user.email "tu-email@abacom.cl"
+git config --global user.name "Tu Nombre"                                      # <1>
+git config --global user.email "tu-email@abacom.cl"                            # <2>
 
 # Editor y comportamiento
-git config --global core.editor "nvim"
-git config --global init.defaultBranch main
-git config --global pull.rebase true          # Rebase en pull (historial limpio)
-git config --global push.autoSetupRemote true # Push crea tracking branch
-git config --global fetch.prune true          # Limpia refs remotos borrados
+git config --global core.editor "nvim"                                         # <3>
+git config --global init.defaultBranch main                                    # <4>
+git config --global pull.rebase true                                           # <5>
+git config --global push.autoSetupRemote true                                  # <6>
+git config --global fetch.prune true                                           # <7>
 
 # Aliases útiles
-git config --global alias.st "status -sb"
+git config --global alias.st "status -sb"                                     # <8>
 git config --global alias.co "checkout"
 git config --global alias.br "branch"
-git config --global alias.lg "log --oneline --graph --decorate --all"
+git config --global alias.lg "log --oneline --graph -- decorate --all"
 git config --global alias.last "log -1 --stat"
 ```
+
+1. **`user.name`**: Identidad del autor en commits; se muestra en `git log` y GitHub/GitLab
+2. **`user.email`**: Email asociado a commits; debe coincidir con email de GitHub/GitLab para vincular commits
+3. **`core.editor`**: Editor por defecto para commits, merges, rebase; nvim es rápido y disponible en servidores
+4. **`init.defaultBranch main`**: Rama por defecto al crear repos; `main` es el estándar actual (antes `master`)
+5. **`pull.rebase true`**: Rebase en pull en vez de merge; historial limpio sin commits de merge innecesarios
+6. **`push.autoSetupRemote true`**: Push crea tracking branch automáticamente; evita error "no upstream branch"
+7. **`fetch.prune true`**: Limpia refs de ramas remotas eliminadas; mantiene el historial local limpio
+8. **`alias.st`**: Atajo para `status -sb`; formato compacto que muestra rama actual y archivos modificados
 
 ### 4.2 Claves SSH (ed25519) — Ya generadas en Unidad I, pero repasemos
 
 ```bash
 # Generar (si no existe)
-ssh-keygen -t ed25519 -C "tu-email@abacom.cl" -f ~/.ssh/id_ed25519_abacom
+ssh-keygen -t ed25519 -C "tu-email@abacom.cl" -f ~/.ssh/id_ed25519_abacom    # <1>
 
 # Agente SSH
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519_abacom
+eval "$(ssh-agent -s)"                                                        # <2>
+ssh-add ~/.ssh/id_ed25519_abacom                                              # <3>
 
 # Config por host (~/.ssh/config)
-cat <<'EOF' >> ~/.ssh/config
+cat <<'EOF' >> ~/.ssh/config                                                  # <4>
 Host github.com
   HostName github.com
   User git
@@ -309,17 +371,24 @@ Host gitlab.com
   IdentityFile ~/.ssh/id_ed25519_abacom
   IdentitiesOnly yes
 EOF
-chmod 600 ~/.ssh/config
+chmod 600 ~/.ssh/config                                                       # <5>
 
 # Probar
-ssh -T git@github.com
+ssh -T git@github.com                                                         # <6>
 ```
+
+1. **`ssh-keygen -t ed25519`**: Genera par de claves ed25519 (más seguro que RSA); `-C` comenta con email para identificación
+2. **`ssh-agent -s`**: Inicia agente SSH que mantiene claves en memoria; evita escribir passphrase en cada uso
+3. **`ssh-add`**: Registra la clave privada en el agente SSH; disponible para autenticación automática
+4. **`cat <<'EOF' >>`**: Añade configuración por host al archivo SSH; cada host usa su clave específica
+5. **`chmod 600`**: Permisos restrictivos para config SSH; sin esto SSH rechaza el archivo por seguridad
+6. **`ssh -T git@github.com`**: Test de autenticación SSH con GitHub; muestra "Hi username!" si la clave funciona
 
 ### 4.3 Firma de commits con GPG — **Requerido en Abacom**
 
 ```bash
 # 1. Generar clave GPG (si no tienes)
-gpg --full-generate-key
+gpg --full-generate-key                                                       # <1>
 # Tipo: RSA and RSA (default)
 # Tamaño: 4096
 # Expira: 2y (o 0 = no expira)
@@ -327,30 +396,40 @@ gpg --full-generate-key
 # Passphrase: FUERTE, guárdala en password manager
 
 # 2. Obtener key ID
-gpg --list-secret-keys --keyid-format=long
+gpg --list-secret-keys --keyid-format=long                                   # <2>
 # sec   rsa4096/ABCDEF1234567890 2026-07-20 [SC] [expires: 2028-07-20]
 #                               ^^^^^^^^^^^^^^^^^ KEY ID
 
 # 3. Configurar Git
-git config --global user.signingkey ABCDEF1234567890
-git config --global commit.gpgsign true           # Firmar TODOS los commits
+git config --global user.signingkey ABCDEF1234567890                          # <3>
+git config --global commit.gpgsign true           # Firmar TODOS los commits   # <4>
 git config --global tag.gpgsign true              # Firmar tags
-git config --global gpg.program gpg               # o gpg2
+git config --global gpg.program gpg               # o gpg2                     # <5>
 
 # 4. Exportar clave pública y subir a GitHub/GitLab
-gpg --armor --export ABCDEF1234567890
+gpg --armor --export ABCDEF1234567890                                         # <6>
 # Copiar output → Settings → SSH and GPG keys → New GPG key
 ```
+
+1. **`gpg --full-generate-key`**: Genera par de claves GPG con opciones completas; RSA 4096 bits es estándar de seguridad
+2. **`gpg --list-secret-keys`**: Muestra clave privada con ID largo; `--keyid-format=long` revela el Key ID necesario para Git
+3. **`user.signingkey`**: Configura Git para usar esta clave específica al firmar commits
+4. **`commit.gpgsign true`**: Firma TODOS los commits automáticamente; sin esto solo firma con `-S` manual
+5. **`gpg.program`**: Especifica binario GPG a usar; `gpg2` es la versión moderna en algunas distros
+6. **`gpg --armor --export`**: Exporta clave pública en formato ASCII (armor); copiar output completo a GitHub/GitLab
 
 ### 4.4 Verificar firma
 
 ```bash
 # Ver commits firmados
-git log --show-signature -1
-git verify-commit HEAD
+git log --show-signature -1                                                   # <1>
+git verify-commit HEAD                                                         # <2>
 
 # En GitHub/GitLab: verás "Verified" badge verde
 ```
+
+1. **`git log --show-signature`**: Muestra último commit con información de firma GPG; verifica que el commit está firmado
+2. **`git verify-commit HEAD`**: Verifica criptográficamente la firma del commit HEAD; falla si la firma es inválida
 
 ---
 
@@ -377,17 +456,28 @@ git verify-commit HEAD
 ### Evidencia
 
 ```bash
-{
-  echo "=== Docker Repo ===" && cat /etc/apt/sources.list.d/docker.list
-  echo -e "\n=== Docker Key ===" && gpg --show-keys /etc/apt/keyrings/docker.gpg
-  echo -e "\n=== Docker Pinning ===" && cat /etc/apt/preferences.d/docker-pin
-  echo -e "\n=== APT Policy ===" && apt policy docker-ce
-  echo -e "\n=== Git Config ===" && git config --global --list
-  echo -e "\n=== SSH Test ===" && ssh -T git@github.com 2>&1 | head -3
-  echo -e "\n=== GPG Key ===" && gpg --list-secret-keys --keyid-format=long
-  echo -e "\n=== Commit Test ===" && git -C /tmp/test-repo log --show-signature -1 2>/dev/null || echo "Crear repo test y commitear"
-} > ~/lab02-evidencia.txt
+{                                                                       # <1>
+  echo "=== Docker Repo ===" && cat /etc/apt/sources.list.d/docker.list  # <2>
+  echo -e "\n=== Docker Key ===" && gpg --show-keys /etc/apt/keyrings/docker.gpg  # <3>
+  echo -e "\n=== Docker Pinning ===" && cat /etc/apt/preferences.d/docker-pin    # <4>
+  echo -e "\n=== APT Policy ===" && apt policy docker-ce                          # <5>
+  echo -e "\n=== Git Config ===" && git config --global --list                   # <6>
+  echo -e "\n=== SSH Test ===" && ssh -T git@github.com 2>&1 | head -3           # <7>
+  echo -e "\n=== GPG Key ===" && gpg --list-secret-keys --keyid-format=long      # <8>
+  echo -e "\n=== Commit Test ===" && git -C /tmp/test-repo log --show-signature -1 2>/dev/null || echo "Crear repo test y commitear"  # <9>
+} > ~/lab02-evidencia.txt                                                       # <10>
 ```
+
+1. **Bloque `{...}`**: Agrupa múltiples comandos para ejecutar como una sola unidad
+2. **Docker Repo**: Verifica que el archivo de repo Docker existe y tiene el formato correcto con `signed-by`
+3. **Docker Key**: Muestra fingerprint de la clave GPG de Docker; compara con la oficial para verificar autenticidad
+4. **Docker Pinning**: Verifica que el pinning de versión está configurado correctamente
+5. **APT Policy**: Confirma que `docker-ce` tiene prioridad 1001 (forzada a versión específica)
+6. **Git Config**: Lista toda la configuración global de Git; verifica identidad y aliases
+7. **SSH Test**: Prueba autenticación SSH con GitHub; muestra "Hi username!" si funciona
+8. **GPG Key**: Lista claves GPG secretas con IDs largos; verifica que la clave configurada existe
+9. **Commit Test**: Ver firma del último commit en repositorio de prueba; muestra "Verified" si GPG funciona
+10. **Redirección `>`**: Guarda todo el output en archivo de evidencia para entregar al instructor
 :::
 
 ---

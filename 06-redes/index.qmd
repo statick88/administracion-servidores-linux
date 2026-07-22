@@ -30,67 +30,87 @@ Al finalizar esta unidad, serás capaz de:
 ### 1.1 `ip` — Reemplazo de `ifconfig`/`route`/`arp`
 
 ```bash
-# Interfaces y estado
-ip -br link                   # Tabla compacta: nombre, estado, MAC
-ip -br addr                   # IPs asignadas por interfaz
-ip link show eth0             # Detalle de una interfaz
+ip -br link                          # <1>
+ip -br addr                          # <2>
+ip link show eth0                    # <3>
 
-# Direccionamiento
-ip addr add 10.0.1.50/24 dev eth0
-ip addr del 10.0.1.50/24 dev eth0
+ip addr add 10.0.1.50/24 dev eth0    # <4>
+ip addr del 10.0.1.50/24 dev eth0    # <5>
 
-# Rutas
-ip route                      # Tabla de rutas
-ip route add 192.168.10.0/24 via 10.0.1.1 dev eth0
-ip route del default
-ip route add default via 10.0.1.1 dev eth0
+ip route                             # <6>
+ip route add 192.168.10.0/24 via 10.0.1.1 dev eth0  # <7>
+ip route del default                 # <8>
+ip route add default via 10.0.1.1 dev eth0           # <9>
 
-# Neighbor (ARP/NDP)
-ip neigh show                 # Tabla ARP/IPv6 neighbors
-ip neigh flush dev eth0       # Limpiar cache ARP
+ip neigh show                        # <10>
+ip neigh flush dev eth0              # <11>
 ```
+
+1. **ip -br link** muestra todas las interfaces en formato compacto: nombre, estado (UP/DOWN), y MAC. `-br` abbreviation produce una tabla legible sin detalle excesivo.
+2. **ip -br addr** muestra las IPs asignadas a cada interfaz con su máscara de subred. Verifica configuración de direccionamiento de forma rápida.
+3. **ip link show eth0** muestra detalle de una interfaz específica: estado, MTU, group, promiscuity, y propiedades de enlace. Útil para diagnosticar problemas de capa 2.
+4. **ip addr add** asigna una IP a la interfaz sin reiniciarla. Cambio temporal que se pierde al reiniciar. Para persistencia usar Netplan.
+5. **ip addr del** elimina una IP de la interfaz. Útil para remover una IP temporal sin afectar otras configuraciones de la interfaz.
+6. **ip route** muestra la tabla de rutas actual: destinos, gateways, métricas y interfaces de salida. Primera línea de diagnóstico de conectividad.
+7. **ip route add** agrega una ruta estática a una red específica vía un gateway. `dev eth0` especifica la interfaz de salida.
+8. **ip route del default** elimina la ruta por defecto. Paso previo a cambiar el gateway de salida.
+9. **ip route add default** establece un nuevo gateway por defecto. Todo tráfico sin ruta específica usa este gateway.
+10. **ip neigh show** muestra la tabla ARP/NDP: mapeos de IP a MAC de vecinos descubiertos en la red local.
+11. **ip neigh flush** borra la cache ARP de la interfaz. Forza rediscovery de vecinos, útil tras cambiar IPs o detectar conflictos ARP.
 
 ### 1.2 `ss` — Reemplazo de `netstat` (socket statistics)
 
 ```bash
-# Puertos en escucha (TCP/UDP) con proceso
-sudo ss -lntp                 # -l listen, -n numeric, -t tcp, -p process
-sudo ss -lnup                 # UDP
+sudo ss -lntp                        # <1>
+sudo ss -lnup                        # <2>
 
-# Conexiones establecidas
-ss -tnp state established     # TCP established
-ss -tnp state time-wait       # TIME-WAIT (debug conexiones cerradas)
+ss -tnp state established            # <3>
+ss -tnp state time-wait              # <4>
 
-# Filtros avanzados
-ss -tnp 'sport = :443'        # Solo puerto 443 origen
-ss -tnp 'dport = :80'         # Solo puerto 80 destino
-ss -tnp 'src 10.0.1.0/24'     # Solo origen red
-ss -tnp 'dst 8.8.8.8'         # Solo destino IP
+ss -tnp 'sport = :443'               # <5>
+ss -tnp 'dport = :80'                # <6>
+ss -tnp 'src 10.0.1.0/24'            # <7>
+ss -tnp 'dst 8.8.8.8'               # <8>
 
-# Estadísticas
-ss -s                         # Resumen global
-ss -ti                        # Info TCP interna (cwnd, rtt, retrans)
+ss -s                                # <9>
+ss -ti                               # <10>
 ```
+
+1. **ss -lntp** lista puertos en escucha con información de proceso. `-l` listen, `-n` numérico (sin resolución DNS), `-t` TCP, `-p` muestra el PID/nombre del proceso. Diagnóstico de servicios activos.
+2. **ss -lnup** lo mismo pero para UDP. `-u` selecciona sockets UDP. Importante porque UDP no tiene estado de conexión.
+3. **ss state established** filtra solo conexiones TCP establecidas. Útil para ver qué clientes están conectados activamente a servicios.
+4. **ss state time-wait** muestra conexiones en estado TIME-WAIT (cerca de cerrarse). Muchas en TIME-WAIT indican conexiones de corta vida o problemas de Keep-Alive.
+5. **ss 'sport = :443'** filtra por puerto de origen 443. Verifica tráfico saliente de HTTPS desde el servidor.
+6. **ss 'dport = :80'** filtra por puerto de destino 80. Muestra conexiones entrantes al servicio HTTP.
+7. **ss 'src 10.0.1.0/24'** filtra conexiones con origen en una subred específica. Auditar tráfico de una red interna.
+8. **ss 'dst 8.8.8.8'** filtra conexiones con destino a una IP específica. Verificar comunicaciones con un servidor externo.
+9. **ss -s** muestra un resumen global: total de sockets por estado (TCP established, time-wait, etc.). Vista rápida de la carga de conexiones del sistema.
+10. **ss -ti** muestra información TCP interna de las conexiones:拥塞窗口 (cwnd), round-trip time (rtt), retransmisiones. Diagnosticar problemas de rendimiento de red.
 
 ### 1.3 DNS — `resolvectl` (systemd-resolved) y `dig`/`drill`
 
 ```bash
-# Estado de resolved
-resolvectl status             # Config por interfaz, servidores DNS, dominios
-resolvectl query api.abacom.cl   # Resolución A/AAAA
-resolvectl query -t SRV _ldap._tcp.abacom.cl  # Registros SRV
+resolvectl status                   # <1>
+resolvectl query api.abacom.cl      # <2>
+resolvectl query -t SRV _ldap._tcp.abacom.cl  # <3>
 
-# Flush cache
-resolvectl flush-caches
+resolvectl flush-caches             # <4>
 
-# dig (clásico, más opciones)
-dig +short api.abacom.cl
-dig @1.1.1.1 api.abacom.cl +dnssec
-dig axfr abacom.cl @ns1.abacom.cl  # Transferencia de zona (si permitida)
+dig +short api.abacom.cl            # <5>
+dig @1.1.1.1 api.abacom.cl +dnssec # <6>
+dig axfr abacom.cl @ns1.abacom.cl  # <7>
 
-# drill (alternativa ligera, sintaxis similar a dig)
-drill api.abacom.cl
+drill api.abacom.cl                 # <8>
 ```
+
+1. **resolvectl status** muestra el estado de systemd-resolved: configuración por interfaz, servidores DNS activos, dominios de búsqueda, y nivel de caché. Diagnóstico completo del resolver.
+2. **resolvectl query** resuelve un nombre y muestra registros A, AAAA y metadatos. Más informativo que `host` porque incluye estado de la resolución y servidor que respondió.
+3. **resolvectl query -t SRV** solicita registros SRV específicos. Los SRV indican host:puerto para servicios (LDAP, Kerberos, etc.). Esencial en entornos de dominio.
+4. **resolvectl flush-caches** borra la caché DNS del resolved. Forzar resolución fresca tras cambios de DNS o problemas de resolución.
+5. **dig +short** muestra solo la IP resultado sin cabeceras. Versión rápida para scripts y diagnóstico manual.
+6. **dig @1.1.1.1 +dnssec** consulta un DNS específico (Cloudflare) y verifica DNSSEC. Permite comparar resolución entre diferentes servidores DNS.
+7. **dig axfr** intenta una transferencia de zona completa desde el nameserver. Solo funciona si el servidor lo permite (generalmente deshabilitado en producción).
+8. **drill** alternativa ligera a dig con sintaxis similar. Más rápido para consultas básicas y produce output más limpio.
 
 ::: {.callout-tip}
 ## ✅ Checklist diagnóstico red (orden)
@@ -110,10 +130,10 @@ drill api.abacom.cl
 ### 2.1 Estructura y archivos
 
 ```bash
-# Archivos en /etc/netplan/ (orden lexicográfico, último gana)
-ls /etc/netplan/
-# 01-netcfg.yaml, 50-cloud-init.yaml, 99-custom.yaml
+ls /etc/netplan/                    # <1>
 ```
+
+1. **ls /etc/netplan/** lista los archivos de configuración de Netplan. El orden lexicográfico determina la prioridad: el último archivo sobreescribe los anteriores. Patrón típico: `01-netcfg.yaml` (base), `50-cloud-init.yaml` (cloud), `99-custom.yaml` (override manual).
 
 ### 2.2 Ejemplos comunes
 
@@ -165,16 +185,17 @@ network:
 ```
 
 ```bash
-# Validar sintaxis
-sudo netplan generate
+sudo netplan generate               # <1>
 
-# Aplicar (con --debug para ver errores)
-sudo netplan apply --debug
+sudo netplan apply --debug          # <2>
 
-# Revertir si falla (en 120s auto-revert)
-sudo netplan apply
+sudo netplan apply                  # <3>
 # Si no puedes acceder, espera 120s o reinicia
 ```
+
+1. **netplan generate** compila los archivos YAML en configuraciones systemd-networkd o NetworkManager. No aplica cambios, solo verifica sintaxis y genera los archivos internos.
+2. **netplan apply --debug** aplica la configuración y muestra detalle de cada paso. El flag `--debug` es esencial para diagnosticar errores de configuración que otherwise serían silenciosos.
+3. **netplan apply** aplica con auto-revert en 120 segundos. Si pierdes conectividad tras aplicar, el sistema revierte automáticamente. Si no puedes acceder, esperar el timeout o reiniciar.
 
 ### 2.3 `systemd-networkd` — Alternativa nativa (sin Netplan)
 
@@ -197,9 +218,12 @@ RouteMetric=100
 ```
 
 ```bash
-sudo systemctl enable --now systemd-networkd systemd-resolved
-sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+sudo systemctl enable --now systemd-networkd systemd-resolved  # <1>
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf  # <2>
 ```
+
+1. **systemctl enable --now** habilita e inicia ambos servicios en un solo comando. `systemd-networkd` gestiona la red, `systemd-resolved` gestiona la resolución DNS. Sin ellos, Netplan no funciona.
+2. **ln -sf** crea un enlace simbólico que apunta `/etc/resolv.conf` al stub resolver de systemd. Esto asegura que las consultas DNS pasen por systemd-resolved en lugar de un `/etc/resolv.conf` estático.
 
 ---
 
@@ -224,68 +248,87 @@ Volume Group (VG) ── vgcreate vg_data /dev/sdb
 ### 3.2 Operaciones diarias
 
 ```bash
-# 1. Crear PV en disco nuevo
-sudo pvcreate /dev/nvme1n1
-sudo pvs /dev/nvme1n1
+sudo pvcreate /dev/nvme1n1          # <1>
+sudo pvs /dev/nvme1n1               # <2>
 
-# 2. Crear VG
-sudo vgcreate vg_data /dev/nvme1n1
-sudo vgs vg_data
+sudo vgcreate vg_data /dev/nvme1n1  # <3>
+sudo vgs vg_data                    # <4>
 
-# 3. Crear LVs (con thin provisioning opcional)
-sudo lvcreate -n lv_app -L 100G vg_data
-sudo lvcreate -n lv_logs -L 50G vg_data
-sudo lvcreate -n lv_db -L 200G vg_data
-sudo lvs vg_data
+sudo lvcreate -n lv_app -L 100G vg_data   # <5>
+sudo lvcreate -n lv_logs -L 50G vg_data   # <6>
+sudo lvcreate -n lv_db -L 200G vg_data    # <7>
+sudo lvs vg_data                    # <8>
 
-# 4. Crear filesystem y montar
-sudo mkfs.ext4 /dev/vg_data/lv_app
-sudo mkdir -p /srv/app
-sudo mount /dev/vg_data/lv_app /srv/app
+sudo mkfs.ext4 /dev/vg_data/lv_app  # <9>
+sudo mkdir -p /srv/app              # <10>
+sudo mount /dev/vg_data/lv_app /srv/app   # <11>
 ```
+
+1. **pvcreate** inicializa un disco o partición como Physical Volume de LVM. Marca el disco con metadatos LVM y lo prepara para ser agregado a un Volume Group.
+2. **pvs** muestra el PV creado con su tamaño, estado y asignación a VG. Verificación de que el disco fue correctamente inicializado.
+3. **vgcreate** crea un Volume Group que agrupa uno o más PVs. El VG actúa como un pool de almacenamiento del cual se extraen Logical Volumes.
+4. **vgs** muestra el VG con su tamaño total, espacio libre y número de LVs. Verificación del pool de almacenamiento disponible.
+5. **lvcreate -n lv_app -L 100G** crea un Logical Volume de 100GB para la aplicación. El LV es lo que finalmente se formatea y monta.
+6. **lvcreate -n lv_logs -L 50G** crea un LV separado para logs. Separar logs de la aplicación evita que un crecimiento descontrolado de logs llene el disco de la app.
+7. **lvcreate -n lv_db -L 200G** crea un LV para la base de datos. Tamaño mayor porque las DBs suelen ser el componente con mayor demanda de almacenamiento.
+8. **lvs** muestra los LVs del VG con su tamaño y uso. Verificación de que los tres LVs fueron creados correctamente.
+9. **mkfs.ext4** formatea el LV con el sistema de archivos ext4. Alternativa: `mkfs.xfs` para XFS que es mejor para archivos grandes.
+10. **mkdir -p** crea el directorio de montaje (y padres si no existen). `-p` evita error si el directorio ya existe.
+11. **mount** monta el LV en el directorio. El LV ahora es accesible como `/srv/app` con el espacio asignado.
 
 ### 3.3 Redimensionar (Online — ext4/XFS)
 
 ```bash
-# Extender LV + FS (ext4: resize2fs, XFS: xfs_growfs)
-sudo lvextend -L +50G /dev/vg_data/lv_app
-sudo resize2fs /dev/vg_data/lv_app        # ext4
-# sudo xfs_growfs /srv/app                # XFS (montado)
+sudo lvextend -L +50G /dev/vg_data/lv_app   # <1>
+sudo resize2fs /dev/vg_data/lv_app           # <2>
+# sudo xfs_growfs /srv/app                   # <3>
 
-# Reducir (SOLO ext4, REQUIERE desmontar)
-sudo umount /srv/app
-sudo e2fsck -f /dev/vg_data/lv_app
-sudo resize2fs /dev/vg_data/lv_app 80G
-sudo lvreduce -L 80G /dev/vg_data/lv_app
-sudo mount /dev/vg_data/lv_app /srv/app
+sudo umount /srv/app                          # <4>
+sudo e2fsck -f /dev/vg_data/lv_app           # <5>
+sudo resize2fs /dev/vg_data/lv_app 80G       # <6>
+sudo lvreduce -L 80G /dev/vg_data/lv_app     # <7>
+sudo mount /dev/vg_data/lv_app /srv/app      # <8>
 ```
+
+1. **lvextend -L +50G** extiende el LV en 50GB. El `+` indica incremento desde el tamaño actual. Sin `+` sería tamaño absoluto.
+2. **resize2fs** extiende el filesystem ext4 para llenar el nuevo espacio del LV. Operación online (sin desmontar). Solo para ext4.
+3. **xfs_growfs** equivalente para XFS. Se usa el punto de montaje, no el device path. Solo extiende, nunca reduce.
+4. **umount** desmonta antes de reducir. Reducir un filesystem montado causa corrupción de datos. Paso obligatorio para reducción.
+5. **e2fsck -f** fuerza verificación del filesystem antes de reducir. Detecta errores que podrían corromperse durante la reducción.
+6. **resize2fs 80G** reduce el filesystem a 80GB. Primero se reduce el FS, luego el LV (orden inverso a la extensión).
+7. **lvreduce -L 80G** reduce el LV a 80GB. Solo después de que el FS fue reducido. Si el LV se reduce primero, se pierden datos.
+8. **mount** remonta el LV reducido. El espacio ahora es 80GB y el FS está intacto.
 
 ### 3.4 Snapshots (Backup consistente)
 
 ```bash
-# Crear snapshot (COW - Copy on Write)
-sudo lvcreate -L 10G -s -n lv_app_snap_$(date +%F) /dev/vg_data/lv_app
+sudo lvcreate -L 10G -s -n lv_app_snap_$(date +%F) /dev/vg_data/lv_app  # <1>
 
-# Montar snapshot para backup
-sudo mkdir -p /mnt/snap
-sudo mount /dev/vg_data/lv_app_snap_2026-07-20 /mnt/snap
+sudo mkdir -p /mnt/snap             # <2>
+sudo mount /dev/vg_data/lv_app_snap_2026-07-20 /mnt/snap  # <3>
 # rsync /mnt/snap/ /mnt/backup/app/
-sudo umount /mnt/snap
+sudo umount /mnt/snap               # <4>
 
-# Eliminar snapshot
-sudo lvremove vg_data/lv_app_snap_2026-07-20
+sudo lvremove vg_data/lv_app_snap_2026-07-20  # <5>
 ```
+
+1. **lvcreate -s -n** crea un snapshot COW (Copy on Write). `-s` marca como snapshot, `-L 10G` es el espacio COW reservado (no el tamaño total del LV original). El `$(date +%F)` genera un nombre con la fecha.
+2. **mkdir -p** crea el directorio de montaje para el snapshot. Se usa un directorio temporal separado del LV original.
+3. **mount** monta el snapshot como si fuera un disco normal. Permite acceder al contenido exacto del LV al momento de crear el snapshot, ideal para backups consistentes.
+4. **umount** desmonta el snapshot después de usarlo. No olvidar desmontar antes de eliminar.
+5. **lvremove** elimina el snapshot. Liberar el espacio COW reservado. El snapshot consume espacio del VG mientras existe.
 
 ### 3.5 Thin Provisioning (Over-provisioning controlado)
 
 ```bash
-# Crear pool thin
-sudo lvcreate -L 1T -T vg_data/thinpool
-# Crear LVs thin (tamaño virtual > pool físico)
-sudo lvcreate -V 500G -T vg_data/thinpool -n lv_thin_app
-# Monitoreo uso real
-sudo lvs -o +data_percent,vg_data/thinpool
+sudo lvcreate -L 1T -T vg_data/thinpool        # <1>
+sudo lvcreate -V 500G -T vg_data/thinpool -n lv_thin_app  # <2>
+sudo lvs -o +data_percent,vg_data/thinpool      # <3>
 ```
+
+1. **lvcreate -L -T** crea un pool thin de 1TB. El pool es el espacio físico real reservado. Los LVs thin extraen espacio de este pool de forma dinámica.
+2. **lvcreate -V -T** crea un LV thin con tamaño virtual de 500GB dentro del pool. El LV "ve" 500GB pero solo consume espacio del pool cuando se escribe datos. Permite over-provisioning controlado.
+3. **lvs -o +data_percent** muestra el porcentaje de uso real del thinpool. Monitorear para evitar que el pool se llene (causa errores de escritura en todos los LVs del pool).
 
 ---
 
@@ -328,17 +371,20 @@ tmpfs                   /run/user/1000 tmpfs defaults,noatime,nosuid,nodev,uid=1
 ### 4.3 Validar y probar
 
 ```bash
-# Sintaxis
-sudo findmnt --verify --verbose
+sudo findmnt --verify --verbose     # <1>
 
-# Montar todo (sin reiniciar)
-sudo mount -a
+sudo mount -a                       # <2>
 
-# Probar un entry específico
-sudo mount /srv/app
-sudo systemctl daemon-reload
-sudo systemctl restart local-fs.target
+sudo mount /srv/app                 # <3>
+sudo systemctl daemon-reload        # <4>
+sudo systemctl restart local-fs.target  # <5>
 ```
+
+1. **findmnt --verify --verbose** verifica la sintaxis de `/etc/fstab` sin montar. Detecta errores de UUID, opciones inválidas o dispositivos inexistentes antes de causar problemas al reiniciar.
+2. **mount -a** monta todas las entradas de fstab que no están montadas. Prueba que las configuraciones de fstab funcionan sin reiniciar.
+3. **mount /srv/app** monta una entrada específica de fstab por su punto de montaje. Prueba individual de una entrada sin afectar las demás.
+4. **daemon-reload** recarga las unidades systemd generadas a partir de fstab. Necesario tras cambiar entradas fstab que usan `x-systemd.automount`.
+5. **restart local-fs.target** reinicia el target de montaje de filesystems. Fuerza re-evaluación de todas las entradas fstab gestonadas por systemd.
 
 ---
 
@@ -347,27 +393,34 @@ sudo systemctl restart local-fs.target
 ### 5.1 `ufw` (Uncomplicated Firewall) — Frontend iptables/nftables
 
 ```bash
-# Instalar y configurar por defecto deny
-sudo apt install -y ufw
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw default deny routed
+sudo apt install -y ufw             # <1>
+sudo ufw default deny incoming      # <2>
+sudo ufw default allow outgoing     # <3>
+sudo ufw default deny routed        # <4>
 
-# Reglas permitidas (ejemplos)
-sudo ufw allow 22/tcp comment 'SSH'
-sudo ufw allow 80,443/tcp comment 'HTTP/HTTPS'
-sudo ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL solo red interna'
-sudo ufw allow from 10.0.1.0/24 to any port 22 comment 'SSH solo mgmt'
+sudo ufw allow 22/tcp comment 'SSH' # <5>
+sudo ufw allow 80,443/tcp comment 'HTTP/HTTPS'  # <6>
+sudo ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL solo red interna'  # <7>
+sudo ufw allow from 10.0.1.0/24 to any port 22 comment 'SSH solo mgmt'  # <8>
 
-# Habilitar (¡cuidado si estás por SSH!)
-sudo ufw enable
+sudo ufw enable                     # <9>
 
-# Ver estado numerado
-sudo ufw status numbered
+sudo ufw status numbered            # <10>
 
-# Borrar regla
-sudo ufw delete 3
+sudo ufw delete 3                   # <11>
 ```
+
+1. **apt install ufw** instala Uncomplicated Firewall. Frontend simplificado para iptables/nftables en Ubuntu.
+2. **ufw default deny incoming** bloquea todo tráfico entrante por defecto. Política de seguridad: solo permitir lo explícitamente abierto.
+3. **ufw default allow outgoing** permite todo tráfico saliente. Los servidores necesitan salir a Internet para actualizaciones y dependencias.
+4. **ufw default deny routed** bloquea tráfico que cruza el servidor (forwarding). Previenes que el servidor actúe como router no autorizado.
+5. **ufw allow 22/tcp** abre el puerto SSH. El `comment` documenta la regla en `ufw status`. Sin SSH podrías quedarte fuera del servidor.
+6. **ufw allow 80,443/tcp** abre HTTP y HTTPS en un solo comando. Coma separa múltiples puertos.
+7. **ufw allow from...to any port 5432** permite PostgreSQL solo desde una subred específica. Regla deSegmentación: la DB solo accesible desde la red interna.
+8. **ufw allow from...to any port 22** restringe SSH a una subred de gestión. Múltiples capas de seguridad: SSH + restricción de origen.
+9. **ufw enable** activa el firewall. ¡Cuidado si estás por SSH sin regla SSH! Si pierdes acceso, esperar timeout o usar consola del proveedor.
+10. **ufw status numbered** muestra las reglas con números de índice. Los números permiten eliminar reglas específicas con `ufw delete`.
+11. **ufw delete 3** elimina la regla número 3. Verificar con `status numbered` antes de borrar para no eliminar la regla equivocada.
 
 ### 5.2 `nftables` — Bajo nivel (si necesitas control total)
 
@@ -396,23 +449,28 @@ table inet filter {
 ```
 
 ```bash
-sudo nft -c /etc/nftables.conf  # Validar
-sudo systemctl enable --now nftables
+sudo nft -c /etc/nftables.conf     # <1>
+sudo systemctl enable --now nftables  # <2>
 ```
+
+1. **nft -c** verifica la sintaxis del archivo de configuración sin aplicar. `-c` check mode: parsea y reporta errores sin modificar las reglas activas.
+2. **systemctl enable --now nftables** habilita e inicia el servicio nftables. Carga las reglas al arrancar y las aplica inmediatamente.
 
 ### 5.3 Auditoría de puertos y servicios
 
 ```bash
-# Puertos escuchando con proceso
-sudo ss -lntp | head -20
+sudo ss -lntp | head -20           # <1>
 
-# Puertos abiertos al exterior (desde otra máquina)
-nmap -sS -p- 10.0.1.50          # SYN scan todos puertos
-nmap -sU --top-ports 100 10.0.1.50  # UDP top 100
+nmap -sS -p- 10.0.1.50             # <2>
+nmap -sU --top-ports 100 10.0.1.50  # <3>
 
-# Procesos con sockets abiertos
-sudo lsof -i -P -n | grep LISTEN
+sudo lsof -i -P -n | grep LISTEN    # <4>
 ```
+
+1. **ss -lntp | head -20** muestra los 20 puertos en escucha con su proceso. Vista rápida de qué servicios están expuestos.
+2. **nmap -sS -p-** realiza un SYN scan de todos los 65535 puertos. Desde otra máquina para ver qué puertos están abiertos al exterior. `-sS` es stealth (no completa el handshake).
+3. **nmap -sU --top-ports 100** escanea los 100 puertos UDP más comunes. UDP es menos común pero servicios como DNS, SNMP y NTP usan UDP.
+4. **lsof -i -P -n | grep LISTEN** muestra procesos con sockets abiertos. `-i` internet, `-P` sin resolver puertos, `-n` sin resolver DNS. Más detail que ss porque incluye el ejecutable completo.
 
 ---
 
@@ -437,17 +495,27 @@ sudo lsof -i -P -n | grep LISTEN
 
 ```bash
 {
-  echo "=== Netplan ===" && cat /etc/netplan/99-abacom.yaml
-  echo -e "\n=== IP/Route ===" && ip -br addr && ip route
-  echo -e "\n=== DNS ===" && resolvectl status
-  echo -e "\n=== LVM ===" && pvs && vgs && lvs
-  echo -e "\n=== fstab ===" && grep -v '^#' /etc/fstab | grep -v '^$'
-  echo -e "\n=== Mounts ===" && findmnt -T /srv/app -T /var/log/app -T /var/lib/mysql
-  echo -e "\n=== UFW ===" && sudo ufw status numbered
-  echo -e "\n=== Puertos ===" && sudo ss -lntp
-  echo -e "\n=== Snapshot test ===" && sudo lvs vg_data/lv_app_snap_* 2>/dev/null || echo "No snapshots"
+  echo "=== Netplan ===" && cat /etc/netplan/99-abacom.yaml   # <1>
+  echo -e "\n=== IP/Route ===" && ip -br addr && ip route     # <2>
+  echo -e "\n=== DNS ===" && resolvectl status                # <3>
+  echo -e "\n=== LVM ===" && pvs && vgs && lvs               # <4>
+  echo -e "\n=== fstab ===" && grep -v '^#' /etc/fstab | grep -v '^$'  # <5>
+  echo -e "\n=== Mounts ===" && findmnt -T /srv/app -T /var/log/app -T /var/lib/mysql  # <6>
+  echo -e "\n=== UFW ===" && sudo ufw status numbered         # <7>
+  echo -e "\n=== Puertos ===" && sudo ss -lntp                 # <8>
+  echo -e "\n=== Snapshot test ===" && sudo lvs vg_data/lv_app_snap_* 2>/dev/null || echo "No snapshots"  # <9>
 } > ~/lab06-evidencia.txt
 ```
+
+1. **cat /etc/netplan/99-abacom.yaml** muestra la configuración de red aplicada. Evidencia de que la IP estática, DNS y rutas fueron configuradas correctamente.
+2. **ip -br addr && ip route** verifica que la interfaz tiene la IP configurada y que la ruta por defecto apunta al gateway correcto.
+3. **resolvectl status** muestra el estado del resolved: servidores DNS activos, dominios de búsqueda, y caché operativa.
+4. **pvs && vgs && lvs** muestra el estado completo de LVM: Physical Volumes, Volume Groups y Logical Volumes creados en el lab.
+5. **grep -v '^#' /etc/fstab** muestra solo las entradas activas de fstab (sin comentarios ni líneas vacías). Verifica UUIDs y opciones configuradas.
+6. **findmnt -T** muestra los puntos de montaje de los LVs. Verifica que los directorios están montados con las opciones correctas.
+7. **ufw status numbered** muestra las reglas de firewall con números. Evidencia de que SSH, HTTP/HTTPS y PostgreSQL están configurados.
+8. **ss -lntp** muestra los puertos en escucha. Verifica que los servicios están activos y escuchando en los puertos esperados.
+9. **lvs vg_data/lv_app_snap_*** busca snapshots creados. El `2>/dev/null || echo "No snapshots"` maneja el caso de que no existan snapshots aún.
 :::
 
 ---

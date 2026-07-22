@@ -126,9 +126,11 @@ echo "✅ Certbot instalado correctamente"
 ### 2.2 Verificar plugin Nginx
 
 ```bash
-certbot plugins --prepare
+certbot plugins --prepare  # <1>
 # Buscar: nginx (Authenticator/Installer)
 ```
+
+1. **certbot plugins --prepare** carga y prepara todos los plugins disponibles de Certbot. Salida esperada: `nginx (Authenticator, Installer) 2.11.0`. Verifica que el plugin Nginx está instalado antes de emitir certificados.
 
 ---
 
@@ -469,14 +471,17 @@ echo "✅ Nginx configurado para ${DOMINIO} con TLS hardening"
 ### 5.1 Systemd Timer (Incluido en paquete Certbot snap/apt)
 
 ```bash
-# Verificar timer activo
-systemctl status certbot.timer
+systemctl status certbot.timer  # <1>
 # o (snap)
-systemctl status snap.certbot.renew.timer
+systemctl status snap.certbot.renew.timer  # <2>
 
 # Ver próximos disparos
-systemctl list-timers --all | grep certbot
+systemctl list-timers --all | grep certbot  # <3>
 ```
+
+1. **systemctl status certbot.timer** verifica que el timer de renovación automática está activo. Salida esperada: `active (waiting)` con `NEXT` mostrando la próxima ejecución.
+2. **snap.certbot.renew.timer** es el equivalente para instalaciones via snap. Mismo estado esperado: `active`.
+3. **systemctl list-timers...grep certbot** muestra todas las ejecuciones programadas del timer. Útil para ver cuándo se ejecutó y cuándo será la próxima.
 
 **Comportamiento por defecto**: Ejecuta `certbot renew` 2 veces al día (aleatorio 0-12h). Renueva certificados que expiran en < 30 días.
 
@@ -535,8 +540,10 @@ curl -X POST -H 'Content-type: application/json' \
 ```
 
 ```bash
-chmod +x /etc/letsencrypt/renewal-hooks/post/*.sh
+chmod +x /etc/letsencrypt/renewal-hooks/post/*.sh  # <1>
 ```
+
+1. **chmod +x** hace ejecutables los scripts de hook de renovación. Estos scripts se ejecutan automáticamente después de cada renovación exitosa de Certbot. Sin este permiso, los hooks no se ejecutan.
 
 ---
 
@@ -586,13 +593,15 @@ Una vez en la [lista preload](https://hstspreload.org/), **no puedes quitar HTTP
 ### 6.4 Verificar HSTS
 
 ```bash
-# Ver header HSTS
-curl -I -k https://tudominio.com/ | grep -i strict-transport-security
+curl -I -k https://tudominio.com/ | grep -i strict-transport-security  # <1>
 # strict-transport-security: max-age=31536000; includeSubDomains; preload
 
 # Test HSTS preload eligibility
-# https://hstspreload.org/?domain=tudominio.com
+# https://hstspreload.org/?domain=tudominio.com  # <2>
 ```
+
+1. **curl -I -k** obtiene solo los headers HTTPS. `grep -i strict-transport-security` extrae el header HSTS. Valores esperados: `max-age=31536000` (1 año), `includeSubDomains`, `preload`.
+2. **hstspreload.org** es la herramienta oficial de Chromium para verificar si tu dominio califica para la lista HSTS preload. Evalúa max-age, includeSubDomains, y si todos los subdominios usan HTTPS.
 
 ---
 
@@ -619,20 +628,20 @@ resolver_timeout 5s;
 ### 7.3 Verificar OCSP Stapling
 
 ```bash
-# OpenSSL test
-openssl s_client -connect tudominio.com:443 -status -servername tudominio.com < /dev/null 2>&1 | grep -A 17 "OCSP response"
-
+openssl s_client -connect tudominio.com:443 -status -servername tudominio.com < /dev/null 2>&1 | grep -A 17 "OCSP response"  # <1>
 # Debería mostrar:
 # OCSP response:
 # OCSP Response Data:
 #     OCSP Response Status: successful (0x0)
-#     Response Type: Basic OCSP Response
 #     ...
 #     Cert Status: good
 
-# Online test: https://www.ssllabs.com/ssltest/analyze.html?d=tudominio.com
+# Online test: https://www.ssllabs.com/ssltest/analyze.html?d=tudominio.com  # <2>
 # Buscar: "OCSP Stapling: Yes"
 ```
+
+1. **openssl s_client -status** envía una petición OCSP stapling al servidor. `grep -A 17 "OCSP response"` extrae la respuesta OCSP completa. Valores esperados: `Response Status: successful`, `Cert Status: good`.
+2. **SSL Labs** prueba completa del servidor TLS: cipher suites, protocolos, OCSP stapling, HSTS, certificate chain. Grade A/A+ es la meta.
 
 ::: {.callout-tip}
 ## OCSP Must-Staple
@@ -640,13 +649,14 @@ openssl s_client -connect tudominio.com:443 -status -servername tudominio.com < 
 Extensión en el certificado que **obliga** al servidor a enviar OCSP staple. Si no lo hace, el navegador rechaza la conexión.
 
 ```bash
-# Solicitar al emitir (requiere CA compatible — Let's Encrypt lo soporta desde 2020)
-certbot --nginx -d tudominio.com --must-staple
+certbot --nginx -d tudominio.com --must-staple  # <1>
 
-# Verificar en certificado
-openssl x509 -in /etc/letsencrypt/live/tudominio.com/cert.pem -noout -text | grep -i must-staple
+openssl x509 -in /etc/letsencrypt/live/tudominio.com/cert.pem -noout -text | grep -i must-staple  # <2>
 # TLS Feature: status_request (OID 1.3.6.1.5.5.7.1.24)
 ```
+
+1. **certbot --must-staple** solicita la extensión OCSP Must-Staple al emitir el certificado. Obliga al servidor a enviar OCSP staple en cada conexión TLS; sin él, el navegador rechaza la conexión.
+2. **openssl x509...grep must-staple** verifica que la extensión está presente en el certificado emitido. La línea `TLS Feature: status_request` confirma que Must-Staple está habilitado.
 :::
 
 ---
@@ -705,10 +715,12 @@ done
 ```
 
 ```bash
-chmod +x /usr/local/bin/check-cert-expiry.sh
-# Cron diario a las 6 AM
-echo "0 6 * * * root /usr/local/bin/check-cert-expiry.sh >> /var/log/cert-check.log 2>&1" > /etc/cron.d/cert-expiry-check
+chmod +x /usr/local/bin/check-cert-expiry.sh  # <1>
+echo "0 6 * * * root /usr/local/bin/check-cert-expiry.sh >> /var/log/cert-check.log 2>&1" > /etc/cron.d/cert-expiry-check  # <2>
 ```
+
+1. **chmod +x** hace ejecutable el script de verificación de expiración. Sin este permiso, cron no puede ejecutarlo.
+2. **echo...> /etc/cron.d/cert-expiry-check** crea un archivo cron que ejecuta el script diariamente a las 6 AM. La salida se redirige a `/var/log/cert-check.log` para auditoría.
 
 ### 8.2 Prometheus + Node Exporter (Observabilidad Avanzada)
 
@@ -762,62 +774,60 @@ chmod 644 "$OUTPUT"
 ### 9.1 Error: "Connection refused" / "Timeout" durante emisión
 
 ```bash
-# 1. Verificar DNS
-dig +short tudominio.com
+dig +short tudominio.com  # <1>
 # Debe coincidir con IP pública del servidor
 
-# 2. Verificar puertos desde Internet
 # Desde máquina externa:
-nc -zv tudominio.com 80
+nc -zv tudominio.com 80  # <2>
 nc -zv tudominio.com 443
 
-# 3. Verificar firewall local
-ufw status verbose
+ufw status verbose  # <3>
 # Debe permitir 80, 443/tcp
 
-# 4. Verificar Nginx escucha
-ss -ltnp | grep -E ':80|:443'
+ss -ltnp | grep -E ':80|:443'  # <4>
 ```
+
+1. **dig +short** resuelve el dominio a IP. Si no coincide con la IP pública del servidor, Let's Encrypt no puede validar el dominio.
+2. **nc -zv** prueba conectividad TCP a puertos específicos desde máquina externa. Puertos 80 y 443 deben estar abiertos y accesibles públicamente.
+3. **ufw status verbose** muestra el firewall con detalles. Debe mostrar reglas que permitan puertos 80 y 443/tcp.
+4. **ss -ltnp...grep** verifica que Nginx está escuchando activamente en puertos 80 y 443. Si no aparece, Nginx no está corriendo o está en otro puerto.
 
 ### 9.2 Error: "Rate limited" (Demasiados certificados)
 
 ```bash
-# Ver límites actuales
-certbot certificates | head -20
+certbot certificates | head -20  # <1>
 
-# Esperar (se resetea semanalmente) o usar dominio diferente
-# Para testing: usa staging
-certbot --nginx --staging -d test.tudominio.com
+certbot --nginx --staging -d test.tudominio.com  # <2>
 ```
+
+1. **certbot certificates** lista todos los certificados emitidos con su estado y fechas de expiración. `head -20` muestra los primeros 20 para revisión rápida.
+2. **certbot --staging** usa el environment de staging de Let's Encrypt (rate limits más altos). Ideal para testing sin consumir los límites reales de emisión.
 
 ### 9.3 Error: "Invalid response from /well-known/acme-challenge"
 
 ```bash
-# 1. Verificar que Nginx sirve el challenge
-curl -I http://tudominio.com/.well-known/acme-challenge/test
+curl -I http://tudominio.com/.well-known/acme-challenge/test  # <1>
 
-# 2. Verificar configuración location en Nginx
-nginx -T | grep -A5 -B5 'acme-challenge'
+nginx -T | grep -A5 -B5 'acme-challenge'  # <2>
 
-# 3. Permisos webroot
-ls -la /var/www/html/.well-known/acme-challenge/
+ls -la /var/www/html/.well-known/acme-challenge/  # <3>
 # Debe ser legible por www-data
 ```
+
+1. **curl -I...acme-challenge** prueba si Nginx sirve el directorio de desafíos ACME. Debe retornar 200 o 404 (no 403 Forbidden). Si retorna 403, hay un bloqueo de acceso.
+2. **nginx -T...grep** muestra la configuración completa de Nginx con contexto alrededor de `acme-challenge`. Verifica que la directiva `location /.well-known/acme-challenge/` existe y apunta al webroot correcto.
+3. **ls -la** verifica permisos del directorio de desafíos. Debe ser legible por el usuario `www-data` (proceso Nginx). Permisos típicos: `drwxr-xr-x www-data www-data`.
 
 ### 9.4 Renovación falla: "PluginError: Could not install certificate"
 
 ```bash
-# Verificar logs
-cat /var/log/letsencrypt/letsencrypt.log | tail -50
+cat /var/log/letsencrypt/letsencrypt.log | tail -50  # <1>
 
-# Causas comunes:
-# - Configuración Nginx rota (nginx -t falla)
-# - Permisos /etc/letsencrypt
-# - Plugin nginx no detecta server_name correcto
-
-# Forzar renovación manual
-certbot renew --force-renewal --dry-run
+certbot renew --force-renewal --dry-run  # <2>
 ```
+
+1. **cat...tail -50** muestra las últimas 50 líneas del log de Let's Encrypt. Contiene errores detallados: permisos, configuración rota, plugin errors. Primera fuente de diagnóstico cuando la renovación falla.
+2. **certbot renew --force-renewal --dry-run** fuerza una renovación de prueba sin consumir rate limits. Simula la renovación completa y reporta si hay errores en la configuración Nginx o permisos.
 
 ---
 
@@ -869,20 +879,30 @@ certbot renew --force-renewal --dry-run
 ### Evidencia a Entregar (Capturas/Texto)
 
 ```bash
-# Ejecuta y guarda salida en ~/lab10-evidencia.txt
 {
-  echo "=== Certbot Version ===" && certbot --version
-  echo -e "\n=== Certificados ===" && certbot certificates
-  echo -e "\n=== Nginx Config Test ===" && nginx -t
-  echo -e "\n=== HTTPS Headers ===" && curl -I -k https://tudominio.com/
-  echo -e "\n=== HTTP Redirect ===" && curl -I http://tudominio.com/
-  echo -e "\n=== OCSP Stapling ===" && openssl s_client -connect tudominio.com:443 -status -servername tudominio.com < /dev/null 2>&1 | grep -A 17 "OCSP response"
-  echo -e "\n=== Renovación Dry-run ===" && certbot renew --dry-run
-  echo -e "\n=== Timer Status ===" && systemctl status certbot.timer --no-pager
-  echo -e "\n=== Check Expiry Script ===" && /usr/local/bin/check-cert-expiry.sh
-  echo -e "\n=== SSL Labs Grade ===" && echo "Verificar en: https://www.ssllabs.com/ssltest/analyze.html?d=tudominio.com"
+  echo "=== Certbot Version ===" && certbot --version  # <1>
+  echo -e "\n=== Certificados ===" && certbot certificates  # <2>
+  echo -e "\n=== Nginx Config Test ===" && nginx -t  # <3>
+  echo -e "\n=== HTTPS Headers ===" && curl -I -k https://tudominio.com/  # <4>
+  echo -e "\n=== HTTP Redirect ===" && curl -I http://tudominio.com/  # <5>
+  echo -e "\n=== OCSP Stapling ===" && openssl s_client -connect tudominio.com:443 -status -servername tudominio.com < /dev/null 2>&1 | grep -A 17 "OCSP response"  # <6>
+  echo -e "\n=== Renovación Dry-run ===" && certbot renew --dry-run  # <7>
+  echo -e "\n=== Timer Status ===" && systemctl status certbot.timer --no-pager  # <8>
+  echo -e "\n=== Check Expiry Script ===" && /usr/local/bin/check-cert-expiry.sh  # <9>
+  echo -e "\n=== SSL Labs Grade ===" && echo "Verificar en: https://www.ssllabs.com/ssltest/analyze.html?d=tudominio.com"  # <10>
 } > ~/lab10-evidencia.txt
 ```
+
+1. **certbot --version** confirma la versión instalada (2.11+ snap, 2.1+ apt). Versión mínima recomendada: 2.11.0 para soporte completo de EAB y perfiles.
+2. **certbooks certificates** lista todos los certificados con dominios, expiración y estado. Verifica que el certificado emitido aparece como válido.
+3. **nginx -t** valida la configuración Nginx. Debe mostrar `syntax is ok` y `test is successful`. Si falla, la configuración TLS tiene errores.
+4. **curl -I -k https** obtiene headers HTTPS. Valores esperados: `HTTP/2 200`, `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options`.
+5. **curl -I http** verifica redirect HTTP→HTTPS. Debe retornar `HTTP/1.1 301` con `Location: https://tudominio.com/`.
+6. **openssl s_client -status** verifica OCSP Stapling. Salida esperada: `OCSP Response Status: successful`, `Cert Status: good`.
+7. **certbot renew --dry-run** prueba la renovación automática sin consumir rate limits. Debe mostrar "Congratulations, all simulated renewals succeeded".
+8. **systemctl status certbot.timer** verifica que el timer de renovación está activo. Estado esperado: `active (waiting)`.
+9. **check-cert-expiry.sh** ejecuta el script de verificación de expiración. Lista todos los certificados con días restantes.
+10. **SSL Labs** herramienta online para evaluar la configuración TLS completa. Grade A/A+ es la meta.
 
 ### Criterios de Aceptación
 

@@ -31,17 +31,22 @@ Al finalizar esta unidad, serás capaz de:
 ### 1.1 Conceptos y política por defecto
 
 ```bash
-# Estado actual
-sudo ufw status verbose
-sudo ufw status numbered
+sudo ufw status verbose          # <1>
+sudo ufw status numbered         # <2>
 ```
 
+1. **ufw status verbose** muestra estado completo: política por defecto, número de reglas, logging activo, y modo de ejecución (activo/pausado). La primera vez que ejecutas este comando indica si ufw está activo o inactivo.
+2. **ufw status numbered** muestra las reglas con números de índice. Los números son críticos para insertar o eliminar reglas en posiciones específicas.
+
 ```bash
-# Política deny-by-default (RECOMENDADA)
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw default deny routed
+sudo ufw default deny incoming   # <1>
+sudo ufw default allow outgoing  # <2>
+sudo ufw default deny routed     # <3>
 ```
+
+1. **ufw default deny incoming** bloquea todo tráfico entrante no explícitamente permitido. Política de seguridad mínima para servidores: solo abrir lo que se necesita.
+2. **ufw default allow outgoing** permite todo tráfico saliente. Los servidores necesitan salir para actualizaciones, DNS, dependencias y notificaciones.
+3. **ufw default deny routed** bloquea tráfico que cruza el servidor (forwarding). Impide que el servidor actúe como router no autorizado entre redes.
 
 ::: {.callout-warning}
 ## ⚠️ Antes de activar ufw
@@ -58,60 +63,59 @@ sudo ufw allow 2222/tcp comment 'SSH custom'
 ### 1.2 Reglas típicas de servidor
 
 ```bash
-# Servicios web
-sudo ufw allow 80/tcp comment 'HTTP'
-sudo ufw allow 443/tcp comment 'HTTPS'
+sudo ufw allow 80/tcp comment 'HTTP'     # <1>
+sudo ufw allow 443/tcp comment 'HTTPS'   # <2>
 
-# Base de datos (SOLO desde red interna)
-sudo ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL internal'
-sudo ufw allow from 10.0.0.0/8 to any port 3306 comment 'MySQL internal'
+sudo ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL internal'  # <3>
+sudo ufw allow from 10.0.0.0/8 to any port 3306 comment 'MySQL internal'        # <4>
 
-# Docker (si usas host networking)
-# ufw NO gestiona reglas de Docker directamente; ver sección Docker
-
-# Rate limiting (ufw 0.36+)
-sudo ufw limit 22/tcp comment 'SSH rate limit'
-# Equivale a: 6 conexiones / 30 seg desde misma IP
+sudo ufw limit 22/tcp comment 'SSH rate limit'  # <5>
 ```
+
+1. **ufw allow 80/tcp** abre el puerto HTTP. Comentando cada regla facilita auditorías y`ufw status numbered` para identificar rápidamente cada regla.
+2. **ufw allow 443/tcp** abre HTTPS. En producción, 80 suele redirigir a 443, pero ambos deben estar abiertos para la transición.
+3. **ufw allow from...port 5432** permite PostgreSQL solo desde la red interna. Regla Segmentación: la base de datos no expuesta al exterior.
+4. **ufw allow from...port 3306** permite MySQL solo desde la red interna. Misma lógica que PostgreSQL: acceso restringido por origen.
+5. **ufw limit 22/tcp** aplica rate-limiting a SSH: máximo 6 conexiones en 30 segundos desde la misma IP. Si excede, la IP se bloquea temporalmente. Más seguro que solo `allow`.
 
 ### 1.3 Logging y auditoría
 
 ```bash
-# Habilitar logging (bajo/medium/high/full)
-sudo ufw logging medium
+sudo ufw logging medium          # <1>
 
-# Ver logs
-sudo journalctl -u ufw -f
-# O en /var/log/ufw.log (si rsyslog configurado)
-
-# Formato: [UFW BLOCK] IN=eth0 OUT= MAC=... SRC=1.2.3.4 DST=10.0.0.5 ...
+sudo journalctl -u ufw -f        # <2>
 ```
+
+1. **ufw logging medium** habilita logging de packets bloqueados y permitidos con nivel medio. Niveles: off, low (solo blocked), medium (+ allowed), high (+ rate-limited), full (todo). Medium es el balance ideal para producción.
+2. **journalctl -u ufw -f** sigue en tiempo real los logs de ufw. `+f` = follow: muestra nuevos eventos conforme ocurren. Los logs aparecen también en`/var/log/ufw.log` si rsyslog está configurado.
 
 ### 1.4 Gestión de reglas numeradas
 
 ```bash
-# Insertar en posición específica
-sudo ufw insert 1 allow from 203.0.113.0/24 to any port 22 comment 'Admin VPN'
+sudo ufw insert 1 allow from 203.0.113.0/24 to any port 22 comment 'Admin VPN'  # <1>
 
-# Borrar por número
-sudo ufw delete 3
+sudo ufw delete 3                    # <2>
 
-# Reset completo (cuidado)
-sudo ufw --force reset
+sudo ufw --force reset               # <3>
 ```
+
+1. **ufw insert 1** inserta la regla en la posición 1 (tope de la lista). Las reglas se evalúan en orden: la primera que coincide gana. Insertar arriba garantiza prioridad.
+2. **ufw delete 3** elimina la regla número 3. Siempre verificar con`ufw status numbered` antes de borrar para no eliminar la regla equivocada.
+3. **ufw --force reset** elimina TODAS las reglas y restablece políticas por defecto. Peligroso: si estás por SSH, perderás acceso si no tienes regla SSH antes de reactivar.
 
 ### 1.5 Perfiles de aplicaciones
 
 ```bash
-# Listar perfiles
-sudo ufw app list
+sudo ufw app list                   # <1>
 
-# Info de perfil
-sudo ufw app info 'Nginx Full'
+sudo ufw app info 'Nginx Full'     # <2>
 
-# Usar perfil
-sudo ufw allow 'Nginx Full'
+sudo ufw allow 'Nginx Full'        # <3>
 ```
+
+1. **ufw app list** muestra todos los perfiles de aplicaciones disponibles. Cada perfil define puertos y protocolos para un servicio conocido (Nginx, OpenSSH, Apache, etc.).
+2. **ufw app info 'Nginx Full'** muestra los detalles del perfil: puertos que abre (80/tcp + 443/tcp), descripción y reglas que aplicaría. Verificar antes de habilitar.
+3. **ufw allow 'Nginx Full'** habilita todas las reglas del perfil Nginx (HTTP + HTTPS). Más fácil que escribir dos reglas separadas. El perfil se actualiza si el paquete Nginx cambia puertos.
 
 ---
 
@@ -120,15 +124,10 @@ sudo ufw allow 'Nginx Full'
 ### 2.1 Instalación y estructura
 
 ```bash
-sudo apt install -y fail2ban
-
-# Configuración principal (NO editar directamente)
-# /etc/fail2ban/jail.conf → leer solo
-
-# Overrides locales (EDITAR ESTOS)
-# /etc/fail2ban/jail.local
-# /etc/fail2ban/jail.d/*.local
+sudo apt install -y fail2ban           # <1>
 ```
+
+1. **apt install fail2ban** instala el daemon de protección contra fuerza bruta. Lee logs del sistema y bloquea IPs que exceden intentos fallidos. Configuración principal en`/etc/fail2ban/jail.conf` (solo lectura).
 
 ### 2.2 Configuración base `/etc/fail2ban/jail.local`
 
@@ -200,22 +199,24 @@ ignoreregex =
 ### 2.4 Comandos operativos
 
 ```bash
-# Estado
-sudo fail2ban-client status
-sudo fail2ban-client status sshd
+sudo fail2ban-client status           # <1>
+sudo fail2ban-client status sshd      # <2>
 
-# Ver IPs baneadas
-sudo fail2ban-client get sshd banip
+sudo fail2ban-client get sshd banip   # <3>
 
-# Desbanear IP
-sudo fail2ban-client set sshd unbanip 192.0.2.100
+sudo fail2ban-client set sshd unbanip 192.0.2.100  # <4>
 
-# Recargar configuración
-sudo fail2ban-client reload
+sudo fail2ban-client reload           # <5>
 
-# Logs fail2ban
-sudo journalctl -u fail2ban -f
+sudo journalctl -u fail2ban -f        # <6>
 ```
+
+1. **fail2ban-client status** muestra todos los jails activos y el número de IPs baneadas en cada uno. Vista general del estado del servicio.
+2. **fail2ban-client status sshd** muestra detail del jail SSH: IPs baneadas actualmente, total de bans, y configuración activa.
+3. **fail2ban-client get sshd banip** retorna la lista de IPs baneadas en el jail sshd. Útil para scripts de monitoreo o para verificar si una IP legítima fue bloqueada.
+4. **fail2ban-client set sshd unbanip** desbanea una IP específica del jail sshd. Usar cuando una IP legítima es bloqueada por exceder maxretry.
+5. **fail2ban-client reload** recarga la configuración sin reiniciar el daemon. Aplica cambios en jail.local sin perder bans activos.
+6. **journalctl -u fail2ban -f** sigue en tiempo real los logs de fail2ban: bans, unbans, y errores de filtro.
 
 ---
 
@@ -270,10 +271,12 @@ HostKeyAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512,rsa-
 ```
 
 ```bash
-# Validar y recargar
-sudo sshd -t
-sudo systemctl reload ssh
+sudo sshd -t                     # <1>
+sudo systemctl reload ssh        # <2>
 ```
+
+1. **sshd -t** verifica la sintaxis del archivo de configuración sshd_config sin aplicar. Si hay errores, sshd no arrancaría. Ejecutar siempre ANTES de recargar.
+2. **systemctl reload ssh** aplica la nueva configuración sin reiniciar el daemon. A diferencia de restart, no cierra sesiones activas. Solo funciona si la config pasó la verificación con -t.
 
 ---
 
@@ -323,11 +326,12 @@ fs.suid_dumpable = 0
 ```
 
 ```bash
-# Aplicar
-sudo sysctl --system
-# Verificar
-sysctl -a | grep -E '(syncookies|rp_filter|ptrace|dmesg)'
+sudo sysctl --system              # <1>
+sysctl -a | grep -E '(syncookies|rp_filter|ptrace|dmesg)'  # <2>
 ```
+
+1. **sysctl --system** carga y aplica todos los archivos de configuración sysctl del sistema (incluye /etc/sysctl.d/ y /etc/sysctl.conf). Ejecutar después de modificar archivos .conf para que los parámetros tomen efecto.
+2. **sysctl -a | grep** verifica que los parámetros específicos fueron aplicados. synthcookies, rp_filter, ptrace_scope y dmesg_restrict son los más críticos de hardening.
 
 ---
 
@@ -336,9 +340,12 @@ sysctl -a | grep -E '(syncookies|rp_filter|ptrace|dmesg)'
 ### 5.1 Instalación y reglas base
 
 ```bash
-sudo apt install -y auditd audispd-plugins
-sudo systemctl enable --now auditd
+sudo apt install -y auditd audispd-plugins  # <1>
+sudo systemctl enable --now auditd          # <2>
 ```
+
+1. **apt install auditd audispd-plugins** instala el daemon de auditoría del sistema y los plugins de procesamiento de eventos. auditd registra eventos de seguridad: accesos a archivos, cambios de identidad, comandos privilegiados.
+2. **systemctl enable --now auditd** habilita e inicia auditd al arrancar. Las reglas se cargan automáticamente desde /etc/audit/rules.d/.
 
 ### 5.2 `/etc/audit/rules.d/abacom.rules`
 
@@ -381,26 +388,29 @@ sudo systemctl enable --now auditd
 ```
 
 ```bash
-# Cargar reglas
-sudo augenrules --load
-sudo systemctl restart auditd
+sudo augenrules --load           # <1>
+sudo systemctl restart auditd    # <2>
 
-# Verificar
-sudo auditctl -l
+sudo auditctl -l                 # <3>
 ```
+
+1. **augenrules --load** compila y carga las reglas de auditoría desde /etc/audit/rules.d/. Combina todas las reglas en un archivo temporal y las envía al kernel.
+2. **systemctl restart auditd** reinicia el daemon después de cargar nuevas reglas. Asegura que las reglas se apliquen completamente.
+3. **auditctl -l** lista todas las reglas de auditoría activas en el kernel. Verificar que las reglas de abacom.rules aparecen en la lista.
 
 ### 5.3 Consultas útiles
 
 ```bash
-# Buscar por clave
-sudo ausearch -k access-denied --raw | aureport -f -i
+sudo ausearch -k access-denied --raw | aureport -f -i  # <1>
 
-# Reporte de comandos privilegiados
-sudo aureport -k privileged-cmd -i
+sudo aureport -k privileged-cmd -i                     # <2>
 
-# Últimos 100 eventos
-sudo ausearch -ts recent -l 100 --raw | aureport -f -i
+sudo ausearch -ts recent -l 100 --raw | aureport -f -i # <3>
 ```
+
+1. **ausearch -k access-denied** busca eventos por clave (key) y los pasa a aureport para generar un reporte legible. `--raw` salida sin procesar; `-f -i` formatea archivos e IPs legibles.
+2. **aureport -k privileged-cmd** genera un reporte de todos los comandos ejecutados como root por usuarios no root. Detecta uso indebido de sudo o comandos privilegiados.
+3. **ausearch -ts recent** busca los eventos más recientes (últimas 100 entradas). Útil para auditorías en tiempo real o después de un incidente.
 
 ---
 
@@ -409,17 +419,20 @@ sudo ausearch -ts recent -l 100 --raw | aureport -f -i
 ### 6.1 Instalación y ejecución
 
 ```bash
-# Desde repositorio oficial (más actual)
-curl -fsSL https://packages.cisofy.com/keys/cisofy-software-public.key | sudo gpg --dearmor -o /etc/apt/keyrings/cisofy.gpg
-echo "deb [signed-by=/etc/apt/keyrings/cisofy.gpg] https://packages.cisofy.com/community/lynis/deb/ stable main" | sudo tee /etc/apt/sources.list.d/lynis.list
-sudo apt update && sudo apt install -y lynis
+curl -fsSL https://packages.cisofy.com/keys/cisofy-software-public.key | sudo gpg --dearmor -o /etc/apt/keyrings/cisofy.gpg  # <1>
+echo "deb [signed-by=/etc/apt/keyrings/cisofy.gpg] https://packages.cisofy.com/community/lynis/deb/ stable main" | sudo tee /etc/apt/sources.list.d/lynis.list  # <2>
+sudo apt update && sudo apt install -y lynis  # <3>
 
-# Ejecutar auditoría completa
-sudo lynis audit system --quick --no-colors
+sudo lynis audit system --quick --no-colors  # <4>
 
-# Solo categorías específicas
-sudo lynis audit system --tests-category=authentication,file-system,networking
+sudo lynis audit system --tests-category=authentication,file-system,networking  # <5>
 ```
+
+1. **curl...gpg --dearmor** descarga la clave pública del repositorio CISOfy y la convierte al formato apt. Firma digital que permite a apt verificar la autenticidad del paquete Lynis.
+2. **echo...tee** agrega el repositorio oficial de Lynis a las fuentes de apt. `signed-by` vincula el repo con la clave descargada en el paso 1.
+3. **apt update && apt install -y lynis** actualiza índices e instala Lynis. Herramienta de auditoría de seguridad que verifica configuración del sistema contra benchmarks.
+4. **lynis audit system --quick** ejecuta una auditoría completa pero rápido. `--no-colors` produce salida limpia para logs y reportes. El hardening index al final indica la postura de seguridad (0-100).
+5. **lynis audit system --tests-category** ejecuta solo categorías específicas. Útil para auditar solo áreas de interés sin recorrer todo el sistema.
 
 ### 6.2 Integración CI/CD (GitHub Actions ejemplo)
 
@@ -507,14 +520,21 @@ USER appuser
 
 ```bash
 {
-  echo "=== UFW ===" && sudo ufw status numbered
-  echo -e "\n=== Fail2Ban SSH ===" && sudo fail2ban-client status sshd
-  echo -e "\n=== SSH Config ===" && sudo sshd -T | grep -E '^port|^passwordauthentication|^pubkeyauthentication|^permitrootlogin|^allowgroups|^clientalive'
-  echo -e "\n=== Sysctl Sample ===" && sysctl net.ipv4.tcp_syncookies net.ipv4.conf.all.rp_filter kernel.yama.ptrace_scope
-  echo -e "\n=== Audit Rules ===" && sudo auditctl -l | head -20
-  echo -e "\n=== Lynis ===" && sudo lynis audit system --quick --no-colors 2>&1 | tail -30
+  echo "=== UFW ===" && sudo ufw status numbered  # <1>
+  echo -e "\n=== Fail2Ban SSH ===" && sudo fail2ban-client status sshd  # <2>
+  echo -e "\n=== SSH Config ===" && sudo sshd -T | grep -E '^port|^passwordauthentication|^pubkeyauthentication|^permitrootlogin|^allowgroups|^clientalive'  # <3>
+  echo -e "\n=== Sysctl Sample ===" && sysctl net.ipv4.tcp_syncookies net.ipv4.conf.all.rp_filter kernel.yama.ptrace_scope  # <4>
+  echo -e "\n=== Audit Rules ===" && sudo auditctl -l | head -20  # <5>
+  echo -e "\n=== Lynis ===" && sudo lynis audit system --quick --no-colors 2>&1 | tail -30  # <6>
 } > ~/lab07-evidencia.txt
 ```
+
+1. **ufw status numbered** muestra el firewall configurado con reglas numeradas. Evidencia de que las reglas SSH, HTTP/HTTPS y rate-limiting están aplicadas.
+2. **fail2ban-client status sshd** muestra el estado del jail SSH: IPs baneadas, configuración activa (maxretry, bantime). Verifica que fail2ban está protegiendo SSH.
+3. **sshd -T | grep** extrae la configuración efectiva de sshd: puerto, autenticación, grupos permitidos, timeouts. Confirmación de que el hardening SSH está aplicado.
+4. **sysctl** muestra valores críticos de hardening: tcp_syncookies (SYN flood), rp_filter (spoofing), ptrace_scope (debugging).
+5. **auditctl -l | head -20** muestra las primeras 20 reglas de auditoría cargadas. Evidencia de que auditd está configurado con reglas de identidad, privilegios y accesos denegados.
+6. **lynis audit system...tail -30** muestra las últimas 30 líneas de la auditoría Lynis, incluyendo el hardening index. Meta: puntaje > 70 sin hallazgos críticos.
 :::
 
 ---
