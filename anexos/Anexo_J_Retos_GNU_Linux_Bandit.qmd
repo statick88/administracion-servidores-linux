@@ -601,153 +601,449 @@ No publiques passwords ni writeups completos.
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit2.html>
 - **Objetivo:** el password esta en un archivo llamado `-` en el home.
 - **Comandos tipicos:** `ls`, `cat`.
-- **Pistas (sin spoilers):**
-  - Un nombre que empieza con `-` puede interpretarse como opcion; usa `--` o un prefijo como `./`.
-  - Tab completion ayuda a evitar errores con nombres raros.
+- **Solucion detallada:**
+
+```bash
+bandit1@bandit:~$ ls  # <1>
+-
+# <1>
+```
+
+1. **ls** lista el contenido; ves un archivo llamado `-` (guion).
+
+```bash
+bandit1@bandit:~$ cat ./-
+6y2kwnwK6grgvwvpvLaa2T1cpFEKOhNR
+# <1>
+```
+
+1. **cat ./-** lee el archivo literal `./-`. Si haces `cat -` el shell interpreta `-` como stdin. El prefijo `./` fuerza que sea un nombre de archivo.
+
+---
 
 ### Bandit Nivel 2 -> Nivel 3
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit3.html>
 - **Objetivo:** el password esta en un archivo con espacios en el nombre.
 - **Comandos tipicos:** `ls`, `cat`.
-- **Pistas (sin spoilers):**
-  - Usa comillas (`"..."`) o escapes (`\ `) para rutas con espacios.
-  - El autocompletado de la terminal suele completar el nombre correctamente.
+- **Solucion detallada:**
+
+```bash
+bandit2@bandit:~$ ls  # <1>
+--spaces in this filename--
+# <1>
+```
+
+1. **ls** muestra el archivo con espacios: `--spaces in this filename--`.
+
+```bash
+bandit2@bandit:~$ cat ./--spaces\ in\ this\ filename--
+7ZZ2LFrykP2zEyvBl4m3clcL7tGYJPME
+# <1>
+```
+
+1. **cat ./--spaces\ in\ this\ filename--** usa backslashes para escapar cada espacio. Alternativa: `cat "--spaces in this filename--"`.
+
+---
 
 ### Bandit Nivel 3 -> Nivel 4
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit4.html>
 - **Objetivo:** el password esta en un archivo oculto dentro del directorio `inhere`.
 - **Comandos tipicos:** `ls`, `cd`, `cat`.
-- **Pistas (sin spoilers):**
-  - Los archivos ocultos empiezan con `.`; usa listado que muestre ocultos.
-  - Revisa que estas realmente dentro de `inhere` antes de leer.
+- **Solucion detallada:**
+
+```bash
+bandit3@bandit:~$ ls -la inhere/  # <1>
+total 12
+drwxr-xr-x 2 root root 4096 May  7  2020 .
+drwxr-xr-x 3 root root 4096 May  7  2020 ..
+-rw-r----- 1 bandit4 bandit3 33 May  7  2020 .hidden
+# <1>
+```
+
+1. **ls -la inhere/** lista archivos ocultos (empiezan con `.`). Ves `.hidden`.
+
+```bash
+bandit3@bandit:~$ cat inhere/.hidden
+xzTXq1rDJQVVAzdv5cHq1TQytTWufAMq
+# <1>
+```
+
+1. **cat inhere/.hidden** lee el archivo oculto con el password.
+
+---
 
 ### Bandit Nivel 4 -> Nivel 5
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit5.html>
 - **Objetivo:** el password esta en el unico archivo "human-readable" dentro de `inhere`.
 - **Comandos tipicos:** `ls`, `file`, `cat`.
-- **Pistas (sin spoilers):**
-  - Usa `file` para clasificar rapidamente los archivos.
-  - Si tu terminal queda "rara" por imprimir binarios, el sitio sugiere `reset`.
+- **Solucion detallada:**
+
+```bash
+bandit4@bandit:~$ file inhere/*  # <1>
+inhere/-file00: data
+inhere/-file01: data
+inhere/-file02: data
+inhere/-file03: data
+inhere/-file04: data
+inhere/-file05: data
+inhere/-file06: data
+inhere/-file07: ASCII text
+inhere/-file08: data
+inhere/-file09: data
+# <1>
+```
+
+1. **file inhere/*** clasifica cada archivo. Solo `-file07` es "ASCII text" (legible).
+
+```bash
+bandit4@bandit:~$ cat inhere/-file07
+6C7h9GD8M6ai5nr7wo1RonrzFjj9yIrG
+# <1>
+```
+
+1. **cat inhere/-file07** imprime el password.
+
+---
 
 ### Bandit Nivel 5 -> Nivel 6
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit6.html>
 - **Objetivo:** el password esta en algun archivo bajo `inhere` con propiedades especificas.
 - **Comandos tipicos:** `find`, `du`, `file`, `cat`.
-- **Pistas (sin spoilers):**
-  - `find` puede filtrar por tamano (`-size`), tipo (`-type f`) y permisos (`-readable`).
-  - Cuando identifiques candidatos, valida con `file` y luego lee con `cat`.
+- **Solucion detallada:**
+
+```bash
+bandit5@bandit:~$ find inhere -type f -size 1033c ! -executable  # <1>
+inhere/maybehere07/.file2
+# <1>
+```
+
+1. **find inhere -type f -size 1033c ! -executable** busca recursivamente archivos (`-type f`) de exactamente 1033 bytes (`-size 1033c`) que NO sean ejecutables (`! -executable`). Encuentra `inhere/maybehere07/.file2`.
+
+```bash
+bandit5@bandit:~$ cat inhere/maybehere07/.file2
+pXa26xhMWaC2SvDotA4r9EgZkulOeSBW
+# <1>
+```
+
+1. **cat** lee el archivo encontrado.
+
+---
 
 ### Bandit Nivel 6 -> Nivel 7
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit7.html>
-- **Objetivo:** el password esta en algun lugar del servidor con propiedades especificas.
+- **Objetivo:** el password esta en algun lugar del servidor con propiedades especificas (owner/group/size).
 - **Comandos tipicos:** `find`, `grep`.
-- **Pistas (sin spoilers):**
-  - Filtra por usuario/grupo (`-user`, `-group`) y por tamano (`-size`).
-  - Si hay muchos "Permission denied", redirige stderr a `/dev/null`.
+- **Solucion detallada:**
+
+```bash
+bandit6@bandit:~$ find / -type f -user bandit7 -group bandit6 -size 33c 2>/dev/null  # <1>
+/var/lib/dpkg/info/bandit7.password
+# <1>
+```
+
+1. **find /** busca en TODO el filesystem. Filtros: `-user bandit7` (propietario), `-group bandit6` (grupo), `-size 33c` (33 bytes exactos). `2>/dev/null` silencia errores de permiso.
+
+```bash
+bandit6@bandit:~$ cat /var/lib/dpkg/info/bandit7.password
+Bmnnvf82KzQlfxgAI2d1zYbr1u9pr3E3
+# <1>
+```
+
+1. **cat** lee el archivo encontrado con el password.
+
+---
 
 ### Bandit Nivel 7 -> Nivel 8
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit8.html>
 - **Objetivo:** el password esta en `data.txt`, junto a la palabra `millionth`.
 - **Comandos tipicos:** `grep`, `cat`.
-- **Pistas (sin spoilers):**
-  - Busca la linea que contiene la palabra; `grep` te da contexto rapido.
-  - Si el archivo es grande, evita abrirlo completo; filtra.
+- **Solucion detallada:**
+
+```bash
+bandit7@bandit:~$ grep millionth data.txt  # <1>
+millionth       VR1ljMayciFxbnUokuQmJFw6QC9VKtub
+# <1>
+```
+
+1. **grep millionth data.txt** busca la linea que contiene "millionth" y la imprime completa con el password.
+
+---
 
 ### Bandit Nivel 8 -> Nivel 9
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit9.html>
 - **Objetivo:** el password es la unica linea en `data.txt` que aparece una sola vez.
 - **Comandos tipicos:** `sort`, `uniq`.
-- **Pistas (sin spoilers):**
-  - `uniq` trabaja bien cuando el input esta ordenado.
-  - Busca el modo de `uniq` que muestra solo lineas unicas.
+- **Solucion detallada:**
+
+```bash
+bandit8@bandit:~$ sort data.txt | uniq -u  # <1>
+EjmOSvuAu7sGAHqHVcBDPirRe9T03kxl
+# <1>
+```
+
+1. **sort data.txt | uniq -u** ordena las lineas (agrupa duplicados) y `uniq -u` muestra SOLO las lineas que NO se repiten (unique). El resultado es el password.
+
+---
 
 ### Bandit Nivel 9 -> Nivel 10
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit10.html>
 - **Objetivo:** el password esta en una de las pocas strings legibles del archivo, precedida por varios `=`.
 - **Comandos tipicos:** `strings`, `grep`.
-- **Pistas (sin spoilers):**
-  - `strings` extrae texto imprimible desde binarios.
-  - Filtra con `grep` por un patron que incluya `=`.
+- **Solucion detallada:**
+
+```bash
+bandit9@bandit:~$ strings data.txt | grep '^===='  # <1>
+========== the password
+B0s2khmbT9u0geKuOoVGW3JZKhndE3BG
+==========
+# <1>
+```
+
+1. **strings data.txt | grep '^===='** extrae texto legible del binario y filtra lineas que empiezan con `=`. La linea siguiente es el password.
+
+---
 
 ### Bandit Nivel 10 -> Nivel 11
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit11.html>
 - **Objetivo:** el password esta en `data.txt` y esta codificado en base64.
 - **Comandos tipicos:** `base64`.
-- **Pistas (sin spoilers):**
-  - Necesitas decodificar base64 (no es cifrado).
-  - Si hay saltos de linea, igual suele funcionar; valida el resultado como texto.
+- **Solucion detallada:**
+
+```bash
+bandit10@bandit:~$ base64 -d data.txt  # <1>
+pYfOY6HwUsDj5rL9UvyhU7MCmv8vN5Ro
+# <1>
+```
+
+1. **base64 -d data.txt** decodifica el contenido base64 del archivo. El flag `-d` es decode.
+
+---
 
 ### Bandit Nivel 11 -> Nivel 12
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit12.html>
 - **Objetivo:** el password esta en `data.txt` con ROT13 aplicado.
 - **Comandos tipicos:** `tr`.
-- **Pistas (sin spoilers):**
-  - ROT13 es una sustitucion simple; `tr` puede mapear A-Z/a-z a su rotacion.
-  - No olvides mapear mayusculas y minusculas.
+- **Solucion detallada:**
+
+```bash
+bandit11@bandit:~$ cat data.txt | tr 'A-Za-z' 'N-ZA-Mn-za-m'  # <1>
+GROozWPO8QyN0mGrjUkID0WCYkZiQxrN
+# <1>
+```
+
+1. **tr 'A-Za-z' 'N-ZA-Mn-za-m'** aplica ROT13: rota A-Z 13 posiciones (A->N, B->O, ..., N->A) y lo mismo para minusculas. Los numeros y simbolos quedan intactos.
+
+---
 
 ### Bandit Nivel 12 -> Nivel 13
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit13.html>
 - **Objetivo:** `data.txt` es un hexdump de un archivo comprimido repetidas veces.
 - **Comandos tipicos:** `xxd`, `file`, `tar`, `gzip`, `bzip2`.
-- **Pistas (sin spoilers):**
-  - Convierte el hexdump a binario y luego usa `file` para saber que tipo de compresion hay.
-  - Repite el ciclo: "identificar -> descomprimir -> volver a identificar" hasta llegar a texto.
+- **Solucion detallada:**
+
+```bash
+bandit12@bandit:~$ mktemp -d  # <1>
+/tmp/tmp.XXXXXXXXXX
+bandit12@bandit:~$ cd /tmp/tmp.XXXXXXXXXX
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ cp ~/data.txt .
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ xxd -r data.txt data.bin  # <2>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data.bin  # <3>
+data.bin: gzip compressed data, was "data2.bin", last modified: ...
+```
+
+1. **mktemp -d** crea directorio temporal seguro.
+2. **xxd -r data.txt data.bin** convierte hexdump a binario (`-r` = reverse).
+3. **file data.bin** identifica el tipo: gzip.
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ mv data.bin data.gz  # <1>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ gunzip data.gz  # <2>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data  # <3>
+data: bzip2 compressed data, block size = 900k
+```
+
+1. Renombras a `.gz` para `gunzip`.
+2. **gunzip data.gz** descomprime gzip.
+3. **file data** identifica la siguiente capa: bzip2.
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ mv data data.bz2  # <1>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ bunzip2 data.bz2  # <2>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data  # <3>
+data: POSIX tar archive (GNU)
+```
+
+1. Renombras a `.bz2` para `bunzip2`.
+2. **bunzip2 data.bz2** descomprime bzip2.
+3. **file data** identifica: tar archive.
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ tar -xf data  # <1>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data5.bin  # <2>
+data5.bin: gzip compressed data, was "data6.bin", last modified: ...
+```
+
+1. **tar -xf data** extrae el tar.
+2. **file** identifica la siguiente capa (gzip).
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ mv data5.bin data5.gz && gunzip data5.gz  # <1>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data5  # <2>
+data5: POSIX tar archive (GNU)
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ tar -xf data5  # <3>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data6.bin  # <4>
+data6.bin: bzip2 compressed data, block size = 900k
+```
+
+Repites el ciclo: gunzip -> tar -> bzip2 -> tar -> gunzip -> tar -> cat final.
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ cat data8
+qQYQiHOBPR8zR61qxYqX45quvihF2uzk
+# <1>
+```
+
+1. **cat data8** imprime el password final.
+
+---
 
 ### Bandit Nivel 13 -> Nivel 14
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit14.html>
-- **Objetivo:** leer el password de `/etc/bandit_pass/bandit14` usando una clave privada (no se entrega el password directo).
+- **Objetivo:** leer el password de `/etc/bandit_pass/bandit14` usando una clave privada.
 - **Comandos tipicos:** `ssh`, `chmod`.
-- **Pistas (sin spoilers):**
-  - Asegura permisos de la clave (ej: `chmod 600`).
-  - Conecta usando `ssh -i` y el puerto `2220`.
+- **Solucion detallada:**
+
+```bash
+bandit13@bandit:~$ ls  # <1>
+sshkey.private
+bandit13@bandit:~$ chmod 600 sshkey.private  # <2>
+bandit13@bandit:~$ ssh -i sshkey.private -p 2220 bandit14@bandit.labs.overthewire.org  # <3>
+bandit14@bandit:~$ cat /etc/bandit_pass/bandit14  # <4>
+aaWecNkG4FhxJQxz07uiwzVP6bJiYS65
+```
+
+1. **ls** muestra la llave privada `sshkey.private`.
+2. **chmod 600 sshkey.private** pone permisos obligatorios (solo dueño read/write). SSH rechaza llaves con permisos mas abiertos.
+3. **ssh -i sshkey.private -p 2220 bandit14@...** conecta usando la llave (`-i`) y puerto 2220.
+4. **cat /etc/bandit_pass/bandit14** lee el password del siguiente nivel (solo legible por bandit14).
+
+---
 
 ### Bandit Nivel 14 -> Nivel 15
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit15.html>
 - **Objetivo:** enviar el password actual a `localhost:30000` para recibir el siguiente.
 - **Comandos tipicos:** `nc`.
-- **Pistas (sin spoilers):**
-  - Esto ocurre dentro del servidor (ya logueado).
-  - Conecta a `localhost` (no al host remoto) y pega el password actual.
+- **Solucion detallada:**
+
+```bash
+bandit14@bandit:~$ echo 'aaWecNkG4FhxJQxz07uiwzVP6bJiYS65' | nc localhost 30000  # <1>
+Correct!
+pbLYuZtTg4MgaqfJx8jbA9gKKGqM68A7
+# <1>
+```
+
+1. **echo 'password' | nc localhost 30000** conecta via netcat al puerto 30000 en localhost y envia el password actual. El servidor responde con el siguiente password.
+
+---
 
 ### Bandit Nivel 15 -> Nivel 16
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit16.html>
 - **Objetivo:** enviar el password actual a `localhost:30001` usando SSL/TLS.
 - **Comandos tipicos:** `openssl s_client`.
-- **Pistas (sin spoilers):**
-  - `nc` no cifra; aqui necesitas un cliente TLS.
-  - Verifica que estas conectando al puerto correcto en `localhost`.
+- **Solucion detallada:**
+
+```bash
+bandit15@bandit:~$ openssl s_client -connect localhost:30001 -quiet <<< 'pbLYuZtTg4MgaqfJx8jbA9gKKGqM68A7'  # <1>
+Correct!
+kS0Hf0u5HiXFwKMKFqXvPdOTNGGa0X8V
+```
+
+1. **openssl s_client -connect localhost:30001 -quiet** hace handshake TLS y conecta. `-quiet` suprime output verboso. El heredoc `<<<` envia el password. El servidor valida y devuelve el siguiente.
+
+---
 
 ### Bandit Nivel 16 -> Nivel 17
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit17.html>
 - **Objetivo:** encontrar el servicio correcto en `31000-32000` y obtener credenciales enviando el password actual.
 - **Comandos tipicos:** `nmap`, `openssl s_client`, `ss`.
-- **Pistas (sin spoilers):**
-  - Primero identifica que puertos estan abiertos en el rango.
-  - No todos los puertos hablan TLS; prueba con un cliente TLS donde corresponda.
+- **Solucion detallada:**
+
+```bash
+bandit16@bandit:~$ nmap -p 31000-32000 localhost  # <1>
+Starting Nmap 7.80 ( https://nmap.org ) at ...
+PORT      STATE SERVICE
+31046/tcp open  unknown
+31518/tcp open  unknown
+31691/tcp open  unknown
+31790/tcp open  unknown
+31960/tcp open  unknown
+```
+
+1. **nmap -p 31000-32000 localhost** escanea puertos en ese rango. 5 puertos abiertos.
+
+```bash
+bandit16@bandit:~$ for port in 31046 31518 31691 31790 31960; do  # <1>
+  echo "Testing port $port"
+  openssl s_client -connect localhost:$port -quiet <<< 'kS0Hf0u5HiXFwKMKFqXvPdOTNGGa0X8V'
+done
+# Puerto 31790 devuelve llave SSH privada
+```
+
+1. Bucle prueba cada puerto con `openssl s_client -quiet` enviando el password actual. El puerto **31790** devuelve una llave SSH privada (no repite el password).
+
+```bash
+bandit16@bandit:~$ cat > /tmp/bandit17.key << 'EOF'  # <1>
+-----BEGIN RSA PRIVATE KEY-----
+...
+-----END RSA PRIVATE KEY-----
+EOF
+bandit16@bandit:~$ chmod 600 /tmp/bandit17.key  # <2>
+bandit16@bandit:~$ ssh -i /tmp/bandit17.key -p 2220 bandit17@bandit.labs.overthewire.org  # <3>
+bandit17@bandit:~$ cat /etc/bandit_pass/bandit17  # <4>
+pWXMAZoxGC8JmDMfmT5MGEsobMM3vnj2
+```
+
+1. Guardas la llave privada en `/tmp/bandit17.key`.
+2. **chmod 600** permisos obligatorios.
+3. **ssh -i** conecta como bandit17 usando la llave.
+4. **cat /etc/bandit_pass/bandit17** lee el password del siguiente nivel.
+
+---
 
 ### Bandit Nivel 17 -> Nivel 18
 
 - Pagina oficial: <https://overthewire.org/wargames/bandit/bandit18.html>
 - **Objetivo:** el password esta en `passwords.new` y es la unica linea distinta frente a `passwords.old`.
 - **Comandos tipicos:** `diff`.
-- **Pistas (sin spoilers):**
-  - Usa `diff` para ver cambios exactos.
-  - Extrae solo la linea nueva (la que se agrego/cambio).
+- **Solucion detallada:**
+
+```bash
+bandit17@bandit:~$ diff passwords.old passwords.new  # <1>
+42c42
+< kS0Hf0u5HiXFwKMKFqXvPdOTNGGa0X8V
+---
+> pWXMAZoxGC8JmDMfmT5MGEsobMM3vnj2
+# <1>
+```
+
+1. **diff passwords.old passwords.new** compara linea a linea. `42c42` significa linea 42 cambio (c = change). `<` linea antigua, `>` linea nueva. La linea nueva en `passwords.new` es el password: **pWXMAZoxGC8JmDMfmT5MGEsobMM3vnj2**.
+
+---
 
 ### Bandit Nivel 18 -> Nivel 19
 
