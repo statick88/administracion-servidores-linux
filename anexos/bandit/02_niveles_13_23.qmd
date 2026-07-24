@@ -1,0 +1,425 @@
+---
+title: "Niveles 13→14 hasta 23→24"
+subtitle: "SSH con llaves, netcat, TLS, cron jobs y scripts"
+---
+
+### Bandit Nivel 13 -> Nivel 14
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit14.html>
+- **Objetivo:** leer el password de `/etc/bandit_pass/bandit14` usando una clave privada.
+- **Comandos tipicos:** `ssh`, `chmod`.
+- **Solucion detallada:**
+
+```bash
+bandit13@bandit:~$ ls  # <1>
+sshkey.private
+bandit13@bandit:~$ chmod 600 sshkey.private  # <2>
+bandit13@bandit:~$ ssh -i sshkey.private -p 2220 bandit14@bandit.labs.overthewire.org  # <3>
+bandit14@bandit:~$ cat /etc/bandit_pass/bandit14  # <4>
+**PASSWORD_NIVEL_14**
+```
+
+1. **ls** muestra la llave privada `sshkey.private`.
+2. **chmod 600 sshkey.private** pone permisos obligatorios (solo dueño read/write). SSH rechaza llaves con permisos mas abiertos.
+3. **ssh -i sshkey.private -p 2220 bandit14@...** conecta usando la llave (`-i`) y puerto 2220.
+4. **cat /etc/bandit_pass/bandit14** lee el password del siguiente nivel (solo legible por bandit14).
+
+---
+
+### Bandit Nivel 14 -> Nivel 15
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit15.html>
+- **Objetivo:** enviar el password actual a `localhost:30000` para recibir el siguiente.
+- **Comandos tipicos:** `nc`.
+- **Solucion detallada:**
+
+```bash
+bandit14@bandit:~$ echo '**PASSWORD_NIVEL_14**' | nc localhost 30000  # <1>
+Correct!
+**PASSWORD_NIVEL_15**
+# <1>
+```
+
+1. **echo 'password' | nc localhost 30000** conecta via netcat al puerto 30000 en localhost y envia el password actual. El servidor responde con el siguiente password.
+
+---
+
+### Bandit Nivel 15 -> Nivel 16
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit16.html>
+- **Objetivo:** enviar el password actual a `localhost:30001` usando SSL/TLS.
+- **Comandos tipicos:** `openssl s_client`.
+- **Solucion detallada:**
+
+```bash
+bandit15@bandit:~$ openssl s_client -connect localhost:30001 -quiet <<< '**PASSWORD_NIVEL_15**'  # <1>
+Correct!
+**PASSWORD_NIVEL_16**
+```
+
+1. **openssl s_client -connect localhost:30001 -quiet** hace handshake TLS y conecta. `-quiet` suprime output verboso. El heredoc `<<<` envia el password. El servidor valida y devuelve el siguiente.
+
+---
+
+### Bandit Nivel 16 -> Nivel 17
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit17.html>
+- **Objetivo:** encontrar el servicio correcto en `31000-32000` y obtener credenciales enviando el password actual.
+- **Comandos tipicos:** `nmap`, `openssl s_client`, `ss`.
+- **Solucion detallada:**
+
+```bash
+bandit16@bandit:~$ nmap -p 31000-32000 localhost  # <1>
+Starting Nmap 7.80 ( https://nmap.org ) at ...
+PORT      STATE SERVICE
+31046/tcp open  unknown
+31518/tcp open  unknown
+31691/tcp open  unknown
+31790/tcp open  unknown
+31960/tcp open  unknown
+```
+
+1. **nmap -p 31000-32000 localhost** escanea puertos en ese rango. 5 puertos abiertos.
+
+```bash
+bandit16@bandit:~$ for port in 31046 31518 31691 31790 31960; do  # <1>
+  echo "Testing port $port"
+  openssl s_client -connect localhost:$port -quiet <<< '**PASSWORD_NIVEL_16**'
+done
+# Puerto 31790 devuelve llave SSH privada
+```
+
+1. Bucle prueba cada puerto con `openssl s_client -quiet` enviando el password actual. El puerto **31790** devuelve una llave SSH privada (no repite el password).
+
+```bash
+bandit16@bandit:~$ cat > /tmp/bandit17.key << 'EOF'  # <1>
+-----BEGIN RSA PRIVATE KEY-----
+...
+-----END RSA PRIVATE KEY-----
+EOF
+bandit16@bandit:~$ chmod 600 /tmp/bandit17.key  # <2>
+bandit16@bandit:~$ ssh -i /tmp/bandit17.key -p 2220 bandit17@bandit.labs.overthewire.org  # <3>
+bandit17@bandit:~$ cat /etc/bandit_pass/bandit17  # <4>
+**PASSWORD_NIVEL_17**
+```
+
+1. Guardas la llave privada en `/tmp/bandit17.key`.
+2. **chmod 600** permisos obligatorios.
+3. **ssh -i** conecta como bandit17 usando la llave.
+4. **cat /etc/bandit_pass/bandit17** lee el password del siguiente nivel.
+
+---
+
+### Bandit Nivel 17 -> Nivel 18
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit18.html>
+- **Objetivo:** el password esta en `passwords.new` y es la unica linea distinta frente a `passwords.old`.
+- **Comandos tipicos:** `diff`.
+- **Solucion detallada:**
+
+```bash
+bandit17@bandit:~$ diff passwords.old passwords.new  # <1>
+42c42
+< **PASSWORD_NIVEL_16**
+---
+> **PASSWORD_NIVEL_17**
+# <1>
+```
+
+1. **diff passwords.old passwords.new** compara linea a linea. `42c42` significa linea 42 cambio (c = change). `<` linea antigua, `>` linea nueva. La linea nueva en `passwords.new` es el password: ****PASSWORD_NIVEL_17****.
+
+---
+
+### Bandit Nivel 18 -> Nivel 19
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit19.html>
+- **Objetivo:** el password esta en `readme`, pero al entrar por SSH te desloguean por `.bashrc`.
+- **Comandos tipicos:** `ssh`, `cat`.
+- **Concepto clave:** Ejecucion remota de comandos via SSH sin shell interactivo.
+
+#### Resolucion paso a paso
+
+El problema es que el `.bashrc` del usuario bandit18 cierra la conexion inmediatamente. La solucion es ejecutar el comando directamente en la linea de SSH, antes de que el shell interactivo se cierre:
+
+```bash
+$ ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme  # <1>
+```
+
+<output esperado: el password del siguiente nivel>
+
+1. **ssh user@host cat archivo** ejecuta `cat readme` en el servidor remoto sin iniciar un shell interactivo. El comando se ejecuta antes de que `.bashrc` cierre la conexion, y la salida se muestra en tu terminal local.
+
+**Por que funciona:** Cuando pasas un comando despues del usuario@host, SSH ejecuta ese comando directamente en el servidor y regresa la salida. No hay shell interactivo donde `.bashrc` pueda intervenir.
+
+### Bandit Nivel 19 -> Nivel 20
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit20.html>
+- **Objetivo:** usar un binario setuid en el home para leer el password del siguiente usuario.
+- **Comandos tipicos:** `ls`, `cat`.
+- **Concepto clave:** Binarios setuid — ejecutar comandos con los permisos del propietario del binario.
+
+#### Resolucion paso a paso
+
+1. Explora el home y encuentra el binario `bandit20-do`:
+
+```bash
+$ ls -la  # <1>
+-rwsr-x--- 1 bandit20 bandit19 14872 ... bandit20-do
+```
+
+1. **ls -la** muestra el bit `s` en la posicion de permisos de ejecucion del propietario (`-rws`). Esto indica **setuid**: cuando ejecutas el binario, corre con los permisos de `bandit20`, no de `bandit19`.
+
+2. Usa el binario para ejecutar `cat` sobre el password de bandit20:
+
+```bash
+$ ./bandit20-do cat /etc/bandit_pass/bandit20  # <1>
+```
+
+<output esperado: password de bandit20>
+
+1. **bandit20-do** ejecuta el comando que le pases (`cat /etc/bandit_pass/bandit20`) con privilegios de `bandit20`, que si tiene acceso a ese archivo.
+
+:::{.callout-tip}
+## 💡 RECOMENDACION
+
+Los binarios setuid son un concepto fundamental de seguridad en Linux. Siempre revisa `ls -la` en/buscar archivos con el bit `s` activado — pueden ser la clave para escalar privilegios legítimamente.
+:::
+
+### Bandit Nivel 20 -> Nivel 21
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit21.html>
+- **Objetivo:** usar un binario setuid que se conecta a `localhost:<puerto>` y reenvia una linea.
+- **Comandos tipicos:** `nc`, `tmux`/`screen`.
+- **Concepto clave:** Ejecucion concurrente — necesitas dos procesos simultaneos.
+
+#### Resolucion paso a paso
+
+1. Analiza el binario `bandit21-do`:
+
+```bash
+$ ls -la  # <1>
+-rwsr-x--- 1 bandit21 bandit20 14872 ... bandit21-do
+```
+
+1. **ls -la** confirma que es un binario setuid que se conecta a un puerto.
+
+2. Necesitas dos terminales. En la primera, escucha en un puerto local:
+
+```bash
+$ nc -lnp 5555  # <1>
+```
+
+1. **nc -lnp 5555** abre un servidor en el puerto 5555 escuchando conexiones entrantes. La bandera `-l` (listen) pone a `nc` en modo servidor, `-n` evita resolucion DNS, y `-p 5555` especifica el puerto.
+
+3. En la segunda terminal, ejecuta el binario apuntando al puerto que escuchas:
+
+```bash
+$ ./bandit21-do nc localhost 5555  # <1>
+```
+
+1. **bandit21-do** ejecuta `nc localhost 5555` con privilegios de `bandit21`. Se conecta a tu servidor `nc` y envia el password como una linea de texto.
+
+4. Deberias ver el password en la primera terminal donde escuchabas.
+
+:::{.callout-tip}
+## 💡 TRUCO: USAR tmux PARA MULTIPLES TERMINALES
+
+Si no tienes `tmux` o `screen` configurados, puedes usar **job control** de bash:
+
+```bash
+$ nc -lnp 5555 &  # <1>
+[1] 12345
+$ ./bandit21-do nc localhost 5555  # <2>
+```
+
+1. **nc -lnp 5555 &** ejecuta el servidor en background
+2. El binario se ejecuta en foreground y el password se muestra en la misma terminal
+
+`tmux` es la herramienta recomendada para sesiones de terminal multiples en servidores remotos.
+:::
+
+### Bandit Nivel 21 -> Nivel 22
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit22.html>
+- **Objetivo:** descubrir que programa corre por cron mirando `/etc/cron.d/`.
+- **Comandos tipicos:** `cat`, `ls`.
+- **Concepto clave:** Tareas programadas (cron jobs) — entender como se ejecutan tareas automaticas en Linux.
+
+#### Resolucion paso a paso
+
+1. Explora el directorio de cron:
+
+```bash
+$ ls /etc/cron.d/  # <1>
+cronjob_bandit22_root
+```
+
+1. **ls /etc/cron.d/** muestra los archivos de configuracion de cron. Cada archivo define tareas programadas.
+
+2. Lee el contenido del archivo de cron:
+
+```bash
+$ cat /etc/cron.d/cronjob_bandit22_root  # <1>
+@reboot bandit22 /usr/bin/cronjob_bandit22.sh &> /dev/null
+* * * * * bandit22 /usr/bin/cronjob_bandit22.sh &> /dev/null
+```
+
+1. **cat** revela que el sistema ejecuta `/usr/bin/cronjob_bandit22.sh` cada minuto como usuario `bandit22`.
+
+3. Examina el script que se ejecuta:
+
+```bash
+$ cat /usr/bin/cronjob_bandit22.sh  # <1>
+#!/bin/sh
+chmod 644 /tmp/t7EU6bYQhpmRHfBtPr6gMXI1l2FifmNC
+```
+
+1. **cat** muestra que el script cambia los permisos de un archivo en `/tmp`. El password esta contenido en ese archivo.
+
+4. Lee el archivo:
+
+```bash
+$ cat /tmp/t7EU6bYQhpmRHfBtPr6gMXI1l2FifmNC  # <1>
+```
+
+<output esperado: password de bandit22>
+
+1. **cat** lee el contenido del archivo temporal donde se almacena el password.
+
+:::{.callout-note}
+## 📝 NOTA
+
+Los cron jobs en `/etc/cron.d/` se ejecutan con formato: `minuto hora dia_mes mes dia_semana usuario comando`. El `&> /dev/null` redirige toda la salida a `/dev/null` para que no se generen emails al sistema.
+:::
+
+### Bandit Nivel 22 -> Nivel 23
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit23.html>
+- **Objetivo:** analizar cron y el comando que ejecuta.
+- **Comandos tipicos:** `cat`, `grep`.
+- **Concepto clave:** Cron dinamico — el script genera archivos con nombres basados en timestamps.
+
+#### Resolucion paso a paso
+
+1. Revisa los archivos de cron:
+
+```bash
+$ ls /etc/cron.d/  # <1>
+cronjob_bandit23_root
+```
+
+1. **ls** muestra el archivo de cron de bandit23.
+
+2. Lee el cron job:
+
+```bash
+$ cat /etc/cron.d/cronjob_bandit23_root  # <1>
+* * * * * bandit23 /usr/bin/cronjob_bandit23.sh 2>&1
+```
+
+1. **cat** revela que se ejecuta un script cada minuto como usuario `bandit23`. La redireccion `2>&1` captura tanto stdout como stderr.
+
+3. Analiza el script:
+
+```bash
+$ cat /usr/bin/cronjob_bandit23.sh  # <1>
+#!/bin/sh
+myname=$(whoami)
+mytarget=$(echo I am user $myname | md5sum | cut -d ' ' -f 1)
+echo "Using passwordless private key $mytarget as the new password" > /tmp/$mytarget
+```
+
+1. **cat** muestra la logica del script:
+   - Obtiene el nombre del usuario actual (`whoami`)
+   - Genera un hash MD5 de la cadena "I am user bandit23"
+   - Crea un archivo en `/tmp` con ese hash como nombre
+   - El password es el hash MD5 generado
+
+4. Ejecuta el script manualmente o calcula el hash:
+
+```bash
+$ echo I am user bandit23 | md5sum | cut -d ' ' -f 1  # <1>
+```
+
+<output esperado: hash MD5>
+
+1. **md5sum** genera el hash MD5 de la cadena. `cut` extrae solo el hash (sin el asterisco).
+
+5. Usa el hash para leer el password:
+
+```bash
+$ cat /tmp/<hash_md5>  # <1>
+```
+
+<output esperado: password de bandit23>
+
+1. **cat** lee el archivo temporal cuyo nombre es el hash MD5.
+
+:::{.callout-tip}
+## 💡 TRUCO: EJECUTAR SCRIPTS SIN MODIFICARLOS
+
+Cuando un script genera archivos, puedes ejecutarlo directamente para generar el archivo sin necesidad de modificarlo. Esto es util para entender que hace sin alterar el estado del sistema.
+:::
+
+### Bandit Nivel 23 -> Nivel 24
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit24.html>
+- **Objetivo:** analizar cron y el comando que ejecuta.
+- **Comandos tipicos:** `cat`, `bash`.
+- **Concepto clave:** Scripts de cron con permisos problematicos — inyeccion de codigo en scripts ejecutados por otros usuarios.
+
+#### Resolucion paso a paso
+
+1. Examina el cron job:
+
+```bash
+$ cat /etc/cron.d/cronjob_bandit24_root  # <1>
+* * * * * root /usr/bin/cronjob_bandit24.sh &> /dev/null
+```
+
+1. **cat** revela que el script se ejecuta como **root** cada minuto.
+
+2. Analiza el script:
+
+```bash
+$ cat /usr/bin/cronjob_bandit24.sh  # <1>
+#!/bin/sh
+for i in /var/spool/mail/*; do
+  su $(basename $i) <<< "password de $i"
+done
+```
+
+1. **cat** muestra que el script itera sobre archivos en `/var/spool/mail/` y ejecuta `su` para cada usuario.
+
+3. Crea un script que se ejecute cuando el cron corra como tu usuario:
+
+```bash
+$ echo 'cat /etc/bandit_pass/bandit24 > /tmp/bandit24_password' > /tmp/cripto_script.sh  # <1>
+$ chmod 777 /tmp/cripto_script.sh  # <2>
+```
+
+1. **echo** crea un script que lee el password de bandit24
+2. **chmod 777** da permisos de ejecucion a todos (necesario para que el cron pueda ejecutarlo)
+
+4. Espera a que el cron corra (hasta 1 minuto) y luego lee el resultado:
+
+```bash
+$ cat /tmp/bandit24_password  # <1>
+```
+
+<output esperado: password de bandit24>
+
+1. **cat** muestra el password que fue escrito por el script ejecutado por cron.
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRITICA
+
+**Permisos de scripts en cron**
+
+Los scripts ejecutados por cron como root son peligrosos si tienen permisos de escritura para otros usuarios. Si un script en `/usr/bin/` es modificable por usuarios normales, un atacante podria inyectar codigo malicioso que se ejecutaria como root.
+
+**Como prevenirlo:**
+1. Los scripts de cron siempre deben ser propiedad de root
+2. Permisos recomendados: `chmod 700` (solo root ejecuta)
+3. Usa `ls -la` para verificar antes de modificar
+:::

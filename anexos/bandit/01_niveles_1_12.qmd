@@ -1,0 +1,326 @@
+---
+title: "Niveles 1→2 hasta 12→13"
+subtitle: "Resolución detallada de los primeros 12 niveles"
+---
+
+### Bandit Nivel 1 -> Nivel 2
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit2.html>
+- **Objetivo:** el password esta en un archivo llamado `-` en el home.
+- **Comandos tipicos:** `ls`, `cat`.
+- **Solucion detallada:**
+
+```bash
+bandit1@bandit:~$ ls  # <1>
+-
+# <1>
+```
+
+1. **ls** lista el contenido; ves un archivo llamado `-` (guion).
+
+```bash
+bandit1@bandit:~$ cat ./-
+**PASSWORD_NIVEL_2**
+# <1>
+```
+
+1. **cat ./-** lee el archivo literal `./-`. Si haces `cat -` el shell interpreta `-` como stdin. El prefijo `./` fuerza que sea un nombre de archivo.
+
+---
+
+### Bandit Nivel 2 -> Nivel 3
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit3.html>
+- **Objetivo:** el password esta en un archivo con espacios en el nombre.
+- **Comandos tipicos:** `ls`, `cat`.
+- **Solucion detallada:**
+
+```bash
+bandit2@bandit:~$ ls  # <1>
+--spaces in this filename--
+# <1>
+```
+
+1. **ls** muestra el archivo con espacios: `--spaces in this filename--`.
+
+```bash
+bandit2@bandit:~$ cat ./--spaces\ in\ this\ filename--
+**PASSWORD_NIVEL_3**
+# <1>
+```
+
+1. **cat ./--spaces\ in\ this\ filename--** usa backslashes para escapar cada espacio. Alternativa: `cat "--spaces in this filename--"`.
+
+---
+
+### Bandit Nivel 3 -> Nivel 4
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit4.html>
+- **Objetivo:** el password esta en un archivo oculto dentro del directorio `inhere`.
+- **Comandos tipicos:** `ls`, `cd`, `cat`.
+- **Solucion detallada:**
+
+```bash
+bandit3@bandit:~$ ls -la inhere/  # <1>
+total 12
+drwxr-xr-x 2 root root 4096 May  7  2020 .
+drwxr-xr-x 3 root root 4096 May  7  2020 ..
+-rw-r----- 1 bandit4 bandit3 33 May  7  2020 .hidden
+# <1>
+```
+
+1. **ls -la inhere/** lista archivos ocultos (empiezan con `.`). Ves `.hidden`.
+
+```bash
+bandit3@bandit:~$ cat inhere/.hidden
+**PASSWORD_NIVEL_4**
+# <1>
+```
+
+1. **cat inhere/.hidden** lee el archivo oculto con el password.
+
+---
+
+### Bandit Nivel 4 -> Nivel 5
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit5.html>
+- **Objetivo:** el password esta en el unico archivo "human-readable" dentro de `inhere`.
+- **Comandos tipicos:** `ls`, `file`, `cat`.
+- **Solucion detallada:**
+
+```bash
+bandit4@bandit:~$ file inhere/*  # <1>
+inhere/-file00: data
+inhere/-file01: data
+inhere/-file02: data
+inhere/-file03: data
+inhere/-file04: data
+inhere/-file05: data
+inhere/-file06: data
+inhere/-file07: ASCII text
+inhere/-file08: data
+inhere/-file09: data
+# <1>
+```
+
+1. **file inhere/*** clasifica cada archivo. Solo `-file07` es "ASCII text" (legible).
+
+```bash
+bandit4@bandit:~$ cat inhere/-file07
+**PASSWORD_NIVEL_5**
+# <1>
+```
+
+1. **cat inhere/-file07** imprime el password.
+
+---
+
+### Bandit Nivel 5 -> Nivel 6
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit6.html>
+- **Objetivo:** el password esta en algun archivo bajo `inhere` con propiedades especificas.
+- **Comandos tipicos:** `find`, `du`, `file`, `cat`.
+- **Solucion detallada:**
+
+```bash
+bandit5@bandit:~$ find inhere -type f -size 1033c ! -executable  # <1>
+inhere/maybehere07/.file2
+# <1>
+```
+
+1. **find inhere -type f -size 1033c ! -executable** busca recursivamente archivos (`-type f`) de exactamente 1033 bytes (`-size 1033c`) que NO sean ejecutables (`! -executable`). Encuentra `inhere/maybehere07/.file2`.
+
+```bash
+bandit5@bandit:~$ cat inhere/maybehere07/.file2
+**PASSWORD_NIVEL_6**
+# <1>
+```
+
+1. **cat** lee el archivo encontrado.
+
+---
+
+### Bandit Nivel 6 -> Nivel 7
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit7.html>
+- **Objetivo:** el password esta en algun lugar del servidor con propiedades especificas (owner/group/size).
+- **Comandos tipicos:** `find`, `grep`.
+- **Solucion detallada:**
+
+```bash
+bandit6@bandit:~$ find / -type f -user bandit7 -group bandit6 -size 33c 2>/dev/null  # <1>
+/var/lib/dpkg/info/bandit7.password
+# <1>
+```
+
+1. **find /** busca en TODO el filesystem. Filtros: `-user bandit7` (propietario), `-group bandit6` (grupo), `-size 33c` (33 bytes exactos). `2>/dev/null` silencia errores de permiso.
+
+```bash
+bandit6@bandit:~$ cat /var/lib/dpkg/info/bandit7.password
+**PASSWORD_NIVEL_7**
+# <1>
+```
+
+1. **cat** lee el archivo encontrado con el password.
+
+---
+
+### Bandit Nivel 7 -> Nivel 8
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit8.html>
+- **Objetivo:** el password esta en `data.txt`, junto a la palabra `millionth`.
+- **Comandos tipicos:** `grep`, `cat`.
+- **Solucion detallada:**
+
+```bash
+bandit7@bandit:~$ grep millionth data.txt  # <1>
+millionth       **PASSWORD_NIVEL_8**
+# <1>
+```
+
+1. **grep millionth data.txt** busca la linea que contiene "millionth" y la imprime completa con el password.
+
+---
+
+### Bandit Nivel 8 -> Nivel 9
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit9.html>
+- **Objetivo:** el password es la unica linea en `data.txt` que aparece una sola vez.
+- **Comandos tipicos:** `sort`, `uniq`.
+- **Solucion detallada:**
+
+```bash
+bandit8@bandit:~$ sort data.txt | uniq -u  # <1>
+**PASSWORD_NIVEL_9**
+# <1>
+```
+
+1. **sort data.txt | uniq -u** ordena las lineas (agrupa duplicados) y `uniq -u` muestra SOLO las lineas que NO se repiten (unique). El resultado es el password.
+
+---
+
+### Bandit Nivel 9 -> Nivel 10
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit10.html>
+- **Objetivo:** el password esta en una de las pocas strings legibles del archivo, precedida por varios `=`.
+- **Comandos tipicos:** `strings`, `grep`.
+- **Solucion detallada:**
+
+```bash
+bandit9@bandit:~$ strings data.txt | grep '^===='  # <1>
+========== the password
+**PASSWORD_NIVEL_10**
+==========
+# <1>
+```
+
+1. **strings data.txt | grep '^===='** extrae texto legible del binario y filtra lineas que empiezan con `=`. La linea siguiente es el password.
+
+---
+
+### Bandit Nivel 10 -> Nivel 11
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit11.html>
+- **Objetivo:** el password esta en `data.txt` y esta codificado en base64.
+- **Comandos tipicos:** `base64`.
+- **Solucion detallada:**
+
+```bash
+bandit10@bandit:~$ base64 -d data.txt  # <1>
+**PASSWORD_NIVEL_11**
+# <1>
+```
+
+1. **base64 -d data.txt** decodifica el contenido base64 del archivo. El flag `-d` es decode.
+
+---
+
+### Bandit Nivel 11 -> Nivel 12
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit12.html>
+- **Objetivo:** el password esta en `data.txt` con ROT13 aplicado.
+- **Comandos tipicos:** `tr`.
+- **Solucion detallada:**
+
+```bash
+bandit11@bandit:~$ cat data.txt | tr 'A-Za-z' 'N-ZA-Mn-za-m'  # <1>
+**PASSWORD_NIVEL_12**
+# <1>
+```
+
+1. **tr 'A-Za-z' 'N-ZA-Mn-za-m'** aplica ROT13: rota A-Z 13 posiciones (A->N, B->O, ..., N->A) y lo mismo para minusculas. Los numeros y simbolos quedan intactos.
+
+---
+
+### Bandit Nivel 12 -> Nivel 13
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit13.html>
+- **Objetivo:** `data.txt` es un hexdump de un archivo comprimido repetidas veces.
+- **Comandos tipicos:** `xxd`, `file`, `tar`, `gzip`, `bzip2`.
+- **Solucion detallada:**
+
+```bash
+bandit12@bandit:~$ mktemp -d  # <1>
+/tmp/tmp.XXXXXXXXXX
+bandit12@bandit:~$ cd /tmp/tmp.XXXXXXXXXX
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ cp ~/data.txt .
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ xxd -r data.txt data.bin  # <2>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data.bin  # <3>
+data.bin: gzip compressed data, was "data2.bin", last modified: ...
+```
+
+1. **mktemp -d** crea directorio temporal seguro.
+2. **xxd -r data.txt data.bin** convierte hexdump a binario (`-r` = reverse).
+3. **file data.bin** identifica el tipo: gzip.
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ mv data.bin data.gz  # <1>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ gunzip data.gz  # <2>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data  # <3>
+data: bzip2 compressed data, block size = 900k
+```
+
+1. Renombras a `.gz` para `gunzip`.
+2. **gunzip data.gz** descomprime gzip.
+3. **file data** identifica la siguiente capa: bzip2.
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ mv data data.bz2  # <1>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ bunzip2 data.bz2  # <2>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data  # <3>
+data: POSIX tar archive (GNU)
+```
+
+1. Renombras a `.bz2` para `bunzip2`.
+2. **bunzip2 data.bz2** descomprime bzip2.
+3. **file data** identifica: tar archive.
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ tar -xf data  # <1>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data5.bin  # <2>
+data5.bin: gzip compressed data, was "data6.bin", last modified: ...
+```
+
+1. **tar -xf data** extrae el tar.
+2. **file** identifica la siguiente capa (gzip).
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ mv data5.bin data5.gz && gunzip data5.gz  # <1>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data5  # <2>
+data5: POSIX tar archive (GNU)
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ tar -xf data5  # <3>
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ file data6.bin  # <4>
+data6.bin: bzip2 compressed data, block size = 900k
+```
+
+Repites el ciclo: gunzip -> tar -> bzip2 -> tar -> gunzip -> tar -> cat final.
+
+```bash
+bandit12@bandit:/tmp/tmp.XXXXXXXXXX$ cat data8
+**PASSWORD_NIVEL_13**
+# <1>
+```
+
+1. **cat data8** imprime el password final.
+
+---

@@ -1,0 +1,537 @@
+---
+title: "Niveles 24→25 hasta 33→34"
+subtitle: "Fuerza bruta, shells restringidos, Git avanzado y nivel final"
+---
+
+### Bandit Nivel 24 -> Nivel 25
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit25.html>
+- **Objetivo:** daemon en `localhost:30002` pide password + pin de 4 digitos.
+- **Comandos tipicos:** `nc`, `bash`.
+- **Concepto clave:** Fuerza bruta controlada — automatizar intentos contra un servicio de autenticacion.
+
+#### Resolucion paso a paso
+
+1. Conectate al daemon para entender el protocolo:
+
+```bash
+$ nc localhost 30002  # <1>
+```
+
+1. **nc** se conecta al daemon. Te pide el password de bandit24 y un PIN de 4 digitos.
+
+2. Crea un script que genere todos los intentos posibles (0000-9999):
+
+```bash
+$ for i in $(seq -w 0 9999); do echo "BANDIT24密码 $i"; done > /tmp/bandit24_pin.txt  # <1>
+```
+
+1. **seq -w** genera numeros del 0000 al 9999 con ceros a la izquierda. Cada linea contiene el password seguido del PIN candidato.
+
+3. Envia los intentos al daemon y filtra la respuesta correcta:
+
+```bash
+$ cat /tmp/bandit24_pin.txt | nc localhost 30002 | grep -v "Wrong"  # <1>
+```
+
+1. **grep -v "Wrong"** filtra todas las respuestas que contienen "Wrong" y muestra solo la respuesta correcta.
+
+:::{.callout-tip}
+## 💡 TRUCO: AUTOMATIZACION DE FUERZA BRUTA
+
+Para servicios que aceptan archivos, puedes generar el payload completo en un archivo y enviolo de una vez. Esto es mas rapido que enviar linea por linea con un loop. El comando `seq -w` genera numeros con ceros a la izquierda, que es esencial para PINs de longitud fija.
+:::
+
+### Bandit Nivel 25 -> Nivel 26
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit26.html>
+- **Objetivo:** entrar como `bandit26`, pero su shell no es bash; debes entenderlo y escapar.
+- **Comandos tipicos:** `ssh`, `more`, `vi`.
+- **Concepto clave:** Shells restringidos — entender como funcionan los shells no estandar y como escapar de ellos.
+
+#### Resolucion paso a paso
+
+1. Intenta conectarte por SSH como bandit26:
+
+```bash
+$ ssh bandit26@bandit.labs.overthewire.org -p 2220  # <1>
+```
+
+1. **ssh** te conecta pero te desloguea inmediatamente porque el shell de bandit26 no es interactivo.
+
+2. Verifica el shell real de bandit26 en `/etc/passwd`:
+
+```bash
+$ cat /etc/passwd | grep bandit26  # <1>
+bandit26:x:11026:11026::/home/bandit26:/usr/bin/showtext
+```
+
+1. **cat** revela que el shell de bandit26 es `/usr/bin/showtext`, no `/bin/bash`.
+
+3. Examina el script `showtext`:
+
+```bash
+$ cat /usr/bin/showtext  # <1>
+#!/bin/sh
+export TERM=linux
+exec more /etc/bandit_pass/bandit26
+```
+
+1. **cat** muestra que el script ejecuta `more` sobre el archivo del password. `more` es un paginador que te muestra el contenido y espera interaccion.
+
+4. Cuando `more` se activa, presiona `v` para abrir el editor `vi`:
+
+```bash
+# Dentro de more, presiona:
+v  # <1>
+```
+
+1. **v** en `more` abre el archivo en `vi`. Desde `vi`, puedes ejecutar un shell:
+
+```bash
+# En vi, escribe:
+:!sh  # <1>
+```
+
+1. **:!sh** ejecuta un shell desde `vi`. Ahora tienes una shell funcional como `bandit26`.
+
+:::{.callout-tip}
+## 💡 CONCEPTO: SHELLS NO ESTANDAR
+
+En `/etc/passwd`, el campo 7 define el shell de inicio. Si un usuario tiene un shell como `/usr/bin/showtext` en lugar de `/bin/bash`, no tendra una sesion interactiva normal. Sin embargo, herramientas como `more`, `less`, `vi` y `man` pueden abrir shells internamente usando el caracter `!`.
+:::
+
+### Bandit Nivel 26 -> Nivel 27
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit27.html>
+- **Objetivo:** con una shell funcional, obtener el password de `bandit27`.
+- **Comandos tipicos:** `cat`, `ls`.
+- **Concepto clave:** Escalada de privilegios — despues de obtener una shell, busca el password de bandit27.
+
+#### Resolucion paso a paso
+
+1. Ya tienes una shell como `bandit26` (del nivel anterior).
+
+2. Lee el password de bandit27:
+
+```bash
+$ cat /etc/bandit_pass/bandit27  # <1>
+```
+
+<output esperado: password de bandit27>
+
+1. **cat** lee el archivo del password. Como ya tienes una shell funcional, puedes acceder directamente.
+
+3. Guarda el password en tus notas:
+
+```bash
+$ echo "PASSWORD_NIVEL_27" > /tmp/bandit27_pass  # <1>
+```
+
+1. **echo** guarda el password en un archivo temporal para referencia.
+
+:::{.callout-note}
+## 📝 NOTA
+
+Este nivel es relativamente directo una vez que tienes una shell funcional. La dificultad real esta en el nivel anterior (25→26) donde debes escapar del shell restringido. Una vez dentro, el patron `/etc/bandit_pass/` sigue funcionando.
+:::
+
+### Bandit Nivel 27 -> Nivel 28
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit28.html>
+- **Objetivo:** clonar un repo git via SSH y encontrar el password.
+- **Comandos tipicos:** `git`, `ssh`.
+- **Concepto clave:** Git sobre SSH — clonar repositorios remotos con autenticacion por llave.
+
+#### Resolucion paso a paso
+
+1. Clona el repositorio usando SSH:
+
+```bash
+$ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo  # <1>
+```
+
+1. **git clone** con la URL SSH clonara el repositorio. Te pedira la contrasena de bandit28.
+
+2. Explora el repositorio:
+
+```bash
+$ cd repo  # <1>
+$ ls -la  # <2>
+$ cat README.md  # <3>
+```
+
+1. **cd** entra al repositorio
+2. **ls -la** muestra el contenido
+3. **cat** lee el README que contiene informacion sobre el password pero no el password en texto plano
+
+3. Revisa el historial de commits:
+
+```bash
+$ git log  # <1>
+```
+
+1. **git log** muestra todos los commits. Busca el commit donde se agrego el README.
+
+4. Muestra el diff de un commit especifico:
+
+```bash
+$ git show <commit_hash>  # <1>
+```
+
+1. **git show** muestra los cambios de un commit. El password suele aparecer en el diff como texto plano que fue reemplazado.
+
+:::{.callout-tip}
+## 💡 TRUCO: BUSCAR PASSWORDS EN GIT
+
+Los passwords en repositorios git nunca se borran completamente — permanecen en el historial de commits. Usa `git log -p` para buscar cambios que contengan "password" o `git log --all -p` para incluir todas las ramas. El comando `git show <hash>` te permite ver el contenido exacto de un commit.
+:::
+
+### Bandit Nivel 28 -> Nivel 29
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit29.html>
+- **Objetivo:** repo git via SSH; el password no siempre esta en `master`.
+- **Comandos tipicos:** `git`.
+- **Concepto clave:** Ramas en Git — el contenido puede estar en ramas diferentes a `master`/`main`.
+
+#### Resolucion paso a paso
+
+1. Clona el repositorio:
+
+```bash
+$ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo  # <1>
+```
+
+1. **git clone** clona el repositorio remoto.
+
+2. Lista todas las ramas, incluyendo las remotas:
+
+```bash
+$ git branch -a  # <1>
+* master
+  remotes/origin/master
+  remotes/origin/dev
+```
+
+1. **git branch -a** muestra todas las ramas. Nota que hay una rama `dev` que no es la rama por defecto.
+
+3. Cambia a la rama `dev`:
+
+```bash
+$ git checkout dev  # <1>
+Switched to branch 'dev'
+```
+
+1. **git checkout dev** cambia a la rama `dev`. Ahora puedes ver su contenido.
+
+4. Lee el README en esta rama:
+
+```bash
+$ cat README.md  # <1>
+```
+
+1. **cat** muestra el contenido del README que contiene el password en esta rama.
+
+:::{.callout-tip}
+## 💡 CONCEPTO: RAMAS EN GIT
+
+En Git, las ramas son punteros a diferentes versiones del codigo. El password puede estar en `master` pero no en `dev`, o viceversa. Siempre usa `git branch -a` para ver todas las ramas disponibles y explora cada una. Las ramas remotas (`remotes/origin/`) se clonan automaticamente pero no se checkoutan hasta que lo pidas explicitamente.
+:::
+
+### Bandit Nivel 29 -> Nivel 30
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit30.html>
+- **Objetivo:** repo git via SSH; puede involucrar tags.
+- **Comandos tipicos:** `git`.
+- **Concepto clave:** Tags en Git — marcadores de commits especificos que pueden contener informacion oculta.
+
+#### Resolucion paso a paso
+
+1. Clona el repositorio:
+
+```bash
+$ git clone ssh://bandit29-git@localhost:2220/home/bandit29-git/repo  # <1>
+```
+
+1. **git clone** clona el repositorio remoto.
+
+2. Lista los tags:
+
+```bash
+$ git tag  # <1>
+```
+
+1. **git tag** muestra todos los tags del repositorio. Los tags son marcadores de commits especificos.
+
+3. Muestra el contenido de un tag:
+
+```bash
+$ git show <tag_name>  # <1>
+```
+
+1. **git show** muestra el commit que el tag referencia, incluyendo el diff con el commit anterior.
+
+4. Tambien explora el historial de commits:
+
+```bash
+$ git log --all --oneline  # <1>
+```
+
+1. **git log --all --oneline** muestra todos los commits de todas las ramas en formato compacto.
+
+:::{.callout-tip}
+## 💡 CONCEPTO: TAGS EN GIT
+
+Los tags son punteros inmutables a commits especificos. Se usan para marcar releases (v1.0, v2.0) pero tambien pueden contener passwords o informacion sensible que se olvido eliminar. Usa `git tag -l` para listar y `git show <tag>` para inspectar. Los tags no se muestran en `git log` por defecto — necesitas `git log --all`.
+:::
+
+### Bandit Nivel 30 -> Nivel 31
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit31.html>
+- **Objetivo:** repo git via SSH; hay una accion especifica que debes realizar.
+- **Comandos tipicos:** `git`.
+- **Concepto clave:** Git push — modificar un repositorio remoto y enviar los cambios.
+
+#### Resolucion paso a paso
+
+1. Clona el repositorio:
+
+```bash
+$ git clone ssh://bandit30-git@localhost:2220/home/bandit30-git/repo  # <1>
+```
+
+1. **git clone** clona el repositorio remoto.
+
+2. Lee el README:
+
+```bash
+$ cat README.md  # <1>
+```
+
+1. **cat** muestra las instrucciones del nivel — normalmente indica que debes crear un archivo con un contenido especifico.
+
+3. Crea el archivo requerido:
+
+```bash
+$ echo "May I come in?" > key.txt  # <1>
+```
+
+1. **echo** crea el archivo con el contenido solicitado.
+
+4. Agrega, commitea y push:
+
+```bash
+$ git add key.txt  # <1>
+$ git commit -m "Add key"  # <2>
+$ git push origin master  # <3>
+```
+
+1. **git add** agrega el archivo al staging area
+2. **git commit** crea un commit con los cambios
+3. **git push** envia los cambios al repositorio remoto — el servidor verificara si el contenido es correcto
+
+:::{.callout-tip}
+## 💡 TRUCO: GIT PUSH CON AUTENTICACION
+
+Cuando hagas `git push` a un repositorio SSH, Git te pedira la contrasena. Si el push es rechazado, verifica que el contenido del archivo sea exactamente el solicitado — incluso un espacio o salto de linea extra puede causar fallo.
+:::
+
+### Bandit Nivel 31 -> Nivel 32
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit32.html>
+- **Objetivo:** repo git via SSH; sigue las instrucciones del repo.
+- **Comandos tipicos:** `git`.
+- **Concepto clave:** Git hooks — scripts que se ejecutan automaticamente antes de ciertas acciones de git.
+
+#### Resolucion paso a paso
+
+1. Clona el repositorio:
+
+```bash
+$ git clone ssh://bandit31-git@localhost:2220/home/bandit31-git/repo  # <1>
+```
+
+1. **git clone** clona el repositorio remoto.
+
+2. Lee el README:
+
+```bash
+$ cat README.md  # <1>
+```
+
+1. **cat** muestra las instrucciones — este nivel requiere crear un archivo especifico y hacer push.
+
+3. Crea el archivo con el contenido exacto:
+
+```bash
+$ echo "I am the boss!" > .git/description  # <1>
+```
+
+1. **echo** crea el archivo con el contenido exacto solicitado.
+
+4. Commitea y push:
+
+```bash
+$ git add .git/description  # <1>
+$ git commit -m "Add description"  # <2>
+$ git push origin master  # <3>
+```
+
+1. **git add** agrega el archivo
+2. **git commit** crea el commit
+3. **git push** envia los cambios — el servidor verificara el contenido
+
+:::{.callout-note}
+## 📝 NOTA
+
+Git hooks son scripts en `.git/hooks/` que se ejecutan antes/despues de acciones como commit, push, etc. En este nivel, el servidor puede tener hooks que verifican el contenido del commit. Si el push falla, lee cuidadosamente los mensajes de error del servidor — suelen indicar que esta mal.
+:::
+
+### Bandit Nivel 32 -> Nivel 33
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit33.html>
+- **Objetivo:** escape adicional (despues de git).
+- **Comandos tipicos:** `sh`, `man`.
+- **Concepto clave:** Uppercase shell — un shell que solo acepta comandos en mayusculas.
+
+#### Resolucion paso a paso
+
+1. Clona el repositorio:
+
+```bash
+$ git clone ssh://bandit32-git@localhost:2220/home/bandit32-git/repo  # <1>
+```
+
+1. **git clone** clona el repositorio remoto.
+
+2. Lee el README:
+
+```bash
+$ cat README.md  # <1>
+```
+
+1. **cat** muestra las instrucciones — este nivel tiene un shell que solo acepta comandos en mayusculas.
+
+3. Accede al shell restringido:
+
+```bash
+$ ./bandit33-do sh  # <1>
+$ BANDIT33-DO>  # <2>
+```
+
+1. **bandit33-do** ejecuta `sh` con privilegios de bandit33
+2. El prompt indica que estas en el shell restringido
+
+4. Ejecuta comandos en mayusculas:
+
+```bash
+$ BANDIT33-DO> WHOAMI  # <1>
+bandit33
+$ BANDIT33-DO> CAT /ETC/BANDIT_PASS/BANDIT33  # <2>
+```
+
+<output esperado: password de bandit33>
+
+1. **WHOAMI** funciona porque esta en mayusculas
+2. **CAT** funciona porque esta en mayusculas
+
+:::{.callout-tip}
+## 💡 CONCEPTO: SHELLS RESTRINGIDOS
+
+Algunos shells restringidos solo aceptan comandos en mayusculas. Esto es una forma basica de control de acceso. Sin embargo, bash y sh no distinguen entre mayusculas y minusculas para comandos — la restriccion esta en el shell restringido, no en el sistema operativo. Para escapar, prueba rutas absolutas (`/bin/bash`) o binarios que no esten filtrados.
+:::
+
+### Bandit Nivel 33 -> Nivel 34
+
+- Pagina oficial: <https://overthewire.org/wargames/bandit/bandit34.html>
+- **Objetivo:** sigue las instrucciones del nivel final en la pagina oficial.
+- **Comandos tipicos:** depende del nivel.
+- **Concepto clave:** Nivel final — completa el desafio y celebra tu logro.
+
+#### Resolucion paso a paso
+
+1. Lee la pagina oficial del nivel:
+
+```bash
+$ curl -s https://overthewire.org/wargames/bandit/bandit34.html  # <1>
+```
+
+1. **curl** descarga el contenido de la pagina oficial. El nivel final normalmente tiene instrucciones especificas.
+
+2. Sigue las instrucciones de la pagina — el nivel final puede requerir:
+   - Leer un archivo especifico
+   - Ejecutar un comando particular
+   - Completar un desafio final
+
+3. Cuando completes el nivel, veras un mensaje de felicitacion:
+
+```
+Congratulations, you've made it through the entire Bandit game!
+```
+
+:::{.callout-tip}
+## 💡 FELICIDADES
+
+Si has llegado hasta aqui, has completado exitosamente todos los 34 niveles de Bandit. Has aprendido:
+
+- Conexion SSH y ejecucion remota de comandos
+- Navegacion de archivos y permisos en Linux
+- Uso de filtros de texto (`grep`, `sort`, `uniq`, `cut`, `tr`)
+- Tareas programadas (cron jobs) y su exploacion
+- Git basico y tecniques de enumeracion
+- Escalada de privilegios y shells restringidos
+- Automatizacion de tareas con scripts
+
+Estos son los fundamentos esenciales para cualquier administrador de sistemas o profesional de ciberseguridad.
+:::
+
+## Resumen de Comandos
+
+| Comando | Descripcion | Ejemplo |
+|---------|-------------|---------|
+| `ssh -p 2220` | Conexion SSH con puerto especifico | `ssh bandit0@bandit.labs.overthewire.org -p 2220` |
+| `cat` | Mostrar contenido de archivos | `cat readme` |
+| `ls -la` | Listar archivos con detalles | `ls -la` |
+| `grep` | Filtrar lineas por patron | `grep "password" file` |
+| `find` | Buscar archivos | `find / -name "*.txt"` |
+| `file` | Identificar tipo de archivo | `file *` |
+| `nc` | Netcat — conexion a red | `nc localhost 30000` |
+| `git clone` | Clonar repositorio | `git clone ssh://...` |
+| `git log` | Ver historial de commits | `git log --all --oneline` |
+| `git branch -a` | Listar ramas | `git branch -a` |
+| `git show` | Ver contenido de commit | `git show <hash>` |
+| `git tag` | Listar tags | `git tag` |
+
+## Trucos y Atajos
+
+1. **SSH con ejecucion remota:** `ssh user@host "comando"` ejecuta el comando sin shell interactivo
+2. **tmux para multiples terminales:** `tmux new -s sesion` crea una sesion, `Ctrl+b d` la desvincula
+3. **Busqueda en historial de git:** `git log --all -p | grep -B5 -A5 "password"` busca passwords en commits
+4. **Permisos setuid:** Busca archivos con `find / -perm -u=s -type f 2>/dev/null`
+5. **Cron jobs:** Revisa `/etc/cron.d/`, `/var/spool/cron/` y `/etc/crontab`
+6. **Shells restringidos:** Prueba rutas absolutas (`/bin/bash`) o binarios no filtrados
+
+:::{.callout-tip}
+## 💡 RECOMENDACION
+
+**Mejores practicas**
+
+| Aspecto | Recomendacion |
+|---------|---------------|
+| **Puerto SSH** | Usa `ssh -p 2220 ...` (no `host:puerto`). |
+| **Seguridad** | Verifica la huella cuando sea un servidor real. |
+| **Orden** | Anota: `nivel`, `usuario`, `password`, `comandos`, `resultado`. |
+| **Etica** | No publiques passwords ni soluciones completas. |
+:::
+
+## Resumen
+
+- El puerto en SSH se especifica con `-p`.
+- En Bandit, el Nivel 0 se trata de conectarte por SSH y leer `readme`.
+- Guarda el password del siguiente nivel en tus notas locales y continua con `bandit1`.
+
+## Referencias
+
+- OverTheWire Bandit: <https://overthewire.org/wargames/bandit/>
+- SSH (Wikipedia): <https://en.wikipedia.org/wiki/Secure_Shell>
+- Manual `ssh(1)`: <https://man.openbsd.org/ssh>
