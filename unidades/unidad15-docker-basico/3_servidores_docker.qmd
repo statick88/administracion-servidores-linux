@@ -1,0 +1,395 @@
+::: {.justify}
+# Servidores en Docker
+
+::: {.center}
+![Docker](./images/docker.png){width=200px}
+:::
+
+## Introduccion
+
+Docker permite ejecutar servidores de bases de datos, web y aplicaciones de forma rapida y aislada. En esta leccion, veremos como levantar los servidores mas comunes usando contenedores Docker, incluyendo su Dockerfile y docker-compose.yml para cada uno.
+
+::: {.callout-note}
+Cada servidor se ejecuta de forma aislada. Puedes combinar multiples servicios en un solo archivo docker-compose.yml para crear stacks completos de desarrollo.
+:::
+
+## MySQL en Docker
+
+### Dockerfile
+
+```dockerfile
+FROM mysql:8.0  # <1>
+ENV MYSQL_ROOT_PASSWORD=root123  # <2>
+ENV MYSQL_DATABASE=miapp  # <3>
+ENV MYSQL_USER=admin  # <4>
+ENV MYSQL_PASSWORD=admin123  # <5>
+EXPOSE 3306  # <6>
+```
+
+1. **FROM** establece la imagen oficial de MySQL 8.0.
+2. **ENV MYSQL_ROOT_PASSWORD** define la contrasena del usuario root de MySQL.
+3. **ENV MYSQL_DATABASE** crea una base de datos automaticamente al iniciar.
+4. **ENV MYSQL_USER** crea un usuario adicional con privilegios sobre la base de datos.
+5. **ENV MYSQL_PASSWORD** establece la contrasena del usuario creado.
+6. **EXPOSE** documenta el puerto estandar de MySQL (3306).
+
+### docker-compose.yml
+
+```yaml
+services:  # <1>
+  mysql:  # <2>
+    image: mysql:8.0  # <3>
+    environment:  # <4>
+      MYSQL_ROOT_PASSWORD: root123  # <5>
+      MYSQL_DATABASE: miapp  # <6>
+      MYSQL_USER: admin  # <7>
+      MYSQL_PASSWORD: admin123  # <8>
+    ports:  # <9>
+      - "3306:3306"  # <10>
+    volumes:  # <11>
+      - mysql_data:/var/lib/mysql  # <12>
+```
+
+1. **services** define los contenedores del stack.
+2. **mysql** nombre del servicio de base de datos.
+3. **image** usa la imagen oficial de MySQL 8.0.
+4. **environment** define las variables de entorno para configurar MySQL.
+5. **MYSQL_ROOT_PASSWORD** contrasena del usuario root.
+6. **MYSQL_DATABASE** nombre de la base de datos a crear automaticamente.
+7. **MYSQL_USER** usuario adicional que se creara.
+8. **MYSQL_PASSWORD** contrasena del usuario adicional.
+9. **ports** mapea puertos entre host y contenedor.
+10. **3306:3306** expone el puerto estandar de MySQL.
+11. **volumes** define volumenes para persistir datos.
+12. **mysql_data:/var/lib/mysql** monta el volumen en la ruta de datos de MySQL.
+
+```bash
+$ docker-compose up -d  # <1>
+# <1>
+```
+
+1. **docker-compose up -d** inicia MySQL en segundo plano y crea la base de datos y usuario automaticamente.
+
+::: {.callout-warning}
+Nunca uses contrasenas debiles en entornos de produccion. Utiliza secretos de Docker o variables de entorno seguras para gestionar credenciales.
+:::
+
+## PostgreSQL en Docker
+
+### Dockerfile
+
+```dockerfile
+FROM postgres:15  # <1>
+ENV POSTGRES_USER=admin  # <2>
+ENV POSTGRES_PASSWORD=admin123  # <3>
+ENV POSTGRES_DB=miapp  # <4>
+EXPOSE 5432  # <5>
+```
+
+1. **FROM** establece la imagen oficial de PostgreSQL 15.
+2. **ENV POSTGRES_USER** define el usuario administrador de PostgreSQL.
+3. **ENV POSTGRES_PASSWORD** establece la contrasena del usuario.
+4. **ENV POSTGRES_DB** crea una base de datos automaticamente al iniciar.
+5. **EXPOSE** documenta el puerto estandar de PostgreSQL (5432).
+
+### docker-compose.yml
+
+```yaml
+services:  # <1>
+  postgres:  # <2>
+    image: postgres:15  # <3>
+    environment:  # <4>
+      POSTGRES_USER: admin  # <5>
+      POSTGRES_PASSWORD: admin123  # <6>
+      POSTGRES_DB: miapp  # <7>
+    ports:  # <8>
+      - "5432:5432"  # <9>
+    volumes:  # <10>
+      - pg_data:/var/lib/postgresql/data  # <11>
+```
+
+1. **services** define los contenedores del stack.
+2. **postgres** nombre del servicio de base de datos.
+3. **image** usa la imagen oficial de PostgreSQL 15.
+4. **environment** define las variables de entorno para configurar PostgreSQL.
+5. **POSTGRES_USER** usuario administrador que se creara.
+6. **POSTGRES_PASSWORD** contrasena del usuario administrador.
+7. **POSTGRES_DB** nombre de la base de datos a crear.
+8. **ports** mapea puertos entre host y contenedor.
+9. **5432:5432** expone el puerto estandar de PostgreSQL.
+10. **volumes** define volumenes para persistir datos.
+11. **pg_data:/var/lib/postgresql/data** monta el volumen en la ruta de datos de PostgreSQL.
+
+```bash
+$ docker-compose up -d  # <1>
+# <1>
+```
+
+1. **docker-compose up -d** inicia PostgreSQL en segundo plano con la base de datos y usuario configurados.
+
+## MongoDB en Docker
+
+### Dockerfile
+
+```dockerfile
+FROM mongo:6  # <1>
+EXPOSE 27017  # <2>
+```
+
+1. **FROM** establece la imagen oficial de MongoDB 6.
+2. **EXPOSE** documenta el puerto estandar de MongoDB (27017).
+
+### docker-compose.yml
+
+```yaml
+services:  # <1>
+  mongo:  # <2>
+    image: mongo:6  # <3>
+    ports:  # <4>
+      - "27017:27017"  # <5>
+    volumes:  # <6>
+      - mongo_data:/data/db  # <7>
+    environment:  # <8>
+      MONGO_INITDB_ROOT_USERNAME: admin  # <9>
+      MONGO_INITDB_ROOT_PASSWORD: admin123  # <10>
+```
+
+1. **services** define los contenedores del stack.
+2. **mongo** nombre del servicio de base de datos.
+3. **image** usa la imagen oficial de MongoDB 6.
+4. **ports** mapea puertos entre host y contenedor.
+5. **27017:27017** expone el puerto estandar de MongoDB.
+6. **volumes** define volumenes para persistir datos.
+7. **mongo_data:/data/db** monta el volumen en la ruta de datos de MongoDB.
+8. **environment** define las variables de entorno para configurar MongoDB.
+9. **MONGO_INITDB_ROOT_USERNAME** usuario administrador que se creara al iniciar.
+10. **MONGO_INITDB_ROOT_PASSWORD** contrasena del usuario administrador.
+
+```bash
+$ docker-compose up -d  # <1>
+# <1>
+```
+
+1. **docker-compose up -d** inicia MongoDB en segundo plano con autenticacion habilitada.
+
+## Apache en Docker
+
+### Dockerfile
+
+```dockerfile
+FROM httpd:2.4  # <1>
+COPY ./html /usr/local/apache2/htdocs/  # <2>
+EXPOSE 80  # <3>
+```
+
+1. **FROM** establece la imagen oficial de Apache HTTP Server 2.4.
+2. **COPY** transfiere los archivos HTML al directorio de contenido del servidor.
+3. **EXPOSE** documenta el puerto estandar de HTTP (80).
+
+### docker-compose.yml
+
+```yaml
+services:  # <1>
+  apache:  # <2>
+    build: .  # <3>
+    ports:  # <4>
+      - "8080:80"  # <5>
+    volumes:  # <6>
+      - ./html:/usr/local/apache2/htdocs/  # <7>
+```
+
+1. **services** define los contenedores del stack.
+2. **apache** nombre del servicio web.
+3. **build** construye la imagen desde el Dockerfile en el directorio actual.
+4. **ports** mapea puertos entre host y contenedor.
+5. **8080:80** expone el puerto 80 de Apache en el puerto 8080 del host.
+6. **volumes** define volumenes para sincronizar archivos.
+7. **./html:/usr/local/apache2/htdocs/** monta el directorio HTML local en el directorio de contenido de Apache.
+
+```bash
+$ docker-compose up -d  # <1>
+# <1>
+```
+
+1. **docker-compose up -d** inicia Apache en segundo plano. Accede a la aplicacion en `http://localhost:8080`.
+
+## Nginx en Docker
+
+### Dockerfile
+
+```dockerfile
+FROM nginx:alpine  # <1>
+COPY ./html /usr/share/nginx/html/  # <2>
+COPY ./nginx.conf /etc/nginx/nginx.conf  # <3>
+EXPOSE 80  # <4>
+```
+
+1. **FROM** establece la imagen oficial de Nginx en variante Alpine (ligera).
+2. **COPY** transfiere los archivos HTML al directorio de contenido por defecto.
+3. **COPY** transfiere la configuracion personalizada de Nginx.
+4. **EXPOSE** documenta el puerto estandar de HTTP (80).
+
+### docker-compose.yml
+
+```yaml
+services:  # <1>
+  nginx:  # <2>
+    build: .  # <3>
+    ports:  # <4>
+      - "8080:80"  # <5>
+    volumes:  # <6>
+      - ./html:/usr/share/nginx/html/  # <7>
+      - ./nginx.conf:/etc/nginx/nginx.conf  # <8>
+```
+
+1. **services** define los contenedores del stack.
+2. **nginx** nombre del servicio web.
+3. **build** construye la imagen desde el Dockerfile en el directorio actual.
+4. **ports** mapea puertos entre host y contenedor.
+5. **8080:80** expone el puerto 80 de Nginx en el puerto 8080 del host.
+6. **volumes** define volumenes para sincronizar archivos y configuracion.
+7. **./html:/usr/share/nginx/html/** monta el directorio HTML local.
+8. **./nginx.conf:/etc/nginx/nginx.conf** monta la configuracion personalizada de Nginx.
+
+```bash
+$ docker-compose up -d  # <1>
+# <1>
+```
+
+1. **docker-compose up -d** inicia Nginx en segundo plano. Accede a la aplicacion en `http://localhost:8080`.
+
+::: {.callout-tip}
+Nginx es significativamente mas ligero que Apache gracias a su arquitectura basada en eventos. Usa la variante `alpine` para imagenes aun mas pequenias.
+:::
+
+## Node.js en Docker
+
+### Dockerfile
+
+```dockerfile
+FROM node:18-alpine  # <1>
+WORKDIR /app  # <2>
+COPY package*.json .  # <3>
+RUN npm install  # <4>
+COPY . .  # <5>
+EXPOSE 3000  # <6>
+CMD ["node", "server.js"]  # <7>
+```
+
+1. **FROM** establece la imagen oficial de Node.js 18 en variante Alpine.
+2. **WORKDIR** define `/app` como directorio de trabajo.
+3. **COPY** transfiere `package.json` y `package-lock.json` para instalar dependencias primero.
+4. **RUN** ejecuta la instalacion de dependencias.
+5. **COPY** transfiere el codigo fuente de la aplicacion.
+6. **EXPOSE** documenta el puerto que usa la aplicacion.
+7. **CMD** define el comando para iniciar el servidor Node.js.
+
+### docker-compose.yml
+
+```yaml
+services:  # <1>
+  node:  # <2>
+    build: .  # <3>
+    ports:  # <4>
+      - "3000:3000"  # <5>
+    volumes:  # <6>
+      - .:/app  # <7>
+      - /app/node_modules  # <8>
+```
+
+1. **services** define los contenedores del stack.
+2. **node** nombre del servicio Node.js.
+3. **build** construye la imagen desde el Dockerfile.
+4. **ports** mapea puertos entre host y contenedor.
+5. **3000:3000** expone el puerto 3000 de la aplicacion.
+6. **volumes** define volumenes para sincronizar codigo.
+7. **.:/app** monta el directorio actual en `/app` para desarrollo con hot-reload.
+8. **/app/node_modules** excluye `node_modules` del bind mount para evitar sobreescribir las dependencias instaladas en la imagen.
+
+```bash
+$ docker-compose up -d  # <1>
+# <1>
+```
+
+1. **docker-compose up -d** inicia Node.js en segundo plano. Accede a la aplicacion en `http://localhost:3000`.
+
+::: {.callout-warning}
+En produccion, no uses bind mounts para el codigo fuente. La imagen debe contener todo lo necesario para ejecutar la aplicacion de forma autonoma.
+:::
+
+## Práctica
+
+- Configura un stack completo con MySQL y una aplicacion Node.js que se conecte a ella.
+- Crea un docker-compose.yml con los servicios necesarios.
+
+::: {.callout-tip collapse="true"}
+## Resolucion de la Actividad Practica
+
+**docker-compose.yml**
+
+```yaml
+services:  # <1>
+  app:  # <2>
+    build: .  # <3>
+    ports:  # <4>
+      - "3000:3000"  # <5>
+    depends_on:  # <6>
+      - mysql  # <7>
+    environment:  # <8>
+      DB_HOST: mysql  # <9>
+      DB_USER: admin  # <10>
+      DB_PASSWORD: admin123  # <11>
+      DB_NAME: miapp  # <12>
+    networks:
+      - app_red
+  mysql:  # <13>
+    image: mysql:8.0  # <14>
+    environment:  # <15>
+      MYSQL_ROOT_PASSWORD: root123  # <16>
+      MYSQL_DATABASE: miapp  # <17>
+      MYSQL_USER: admin  # <18>
+      MYSQL_PASSWORD: admin123  # <19>
+    ports:  # <20>
+      - "3306:3306"  # <21>
+    volumes:  # <22>
+      - mysql_data:/var/lib/mysql  # <23>
+    networks:
+      - app_red
+volumes:  # <24>
+  mysql_data:  # <25>
+networks:
+  app_red:
+```
+
+1. **services** define los contenedores del stack.
+2. **app** servicio de la aplicacion Node.js.
+3. **build** construye la imagen desde el Dockerfile en el directorio actual.
+4. **ports** mapea puertos de la aplicacion.
+5. **3000:3000** expone el puerto de la aplicacion.
+6. **depends_on** establece que la app depende de MySQL.
+7. **mysql** indica que MySQL debe iniciarse primero.
+8. **environment** define variables de entorno para la conexion a la base de datos.
+9. **DB_HOST** hostname del servicio MySQL (Docker resuelve por nombre).
+10. **DB_USER** usuario de MySQL para la conexion.
+11. **DB_PASSWORD** contrasena del usuario.
+12. **DB_NAME** nombre de la base de datos a utilizar.
+13. **mysql** servicio de base de datos MySQL.
+14. **image** usa la imagen oficial de MySQL 8.0.
+15. **environment** configura MySQL con usuario root, base de datos y usuario adicional.
+16. **MYSQL_ROOT_PASSWORD** contrasena del usuario root.
+17. **MYSQL_DATABASE** base de datos a crear automaticamente.
+18. **MYSQL_USER** usuario adicional que se creara.
+19. **MYSQL_PASSWORD** contrasena del usuario adicional.
+20. **ports** mapea puertos de MySQL.
+21. **3306:3306** expone el puerto estandar de MySQL.
+22. **volumes** define el volumen para persistir datos.
+23. **mysql_data:/var/lib/mysql** monta el volumen en la ruta de datos de MySQL.
+24. **volumes** declara los volumenes utilizados.
+25. **mysql_data** nombre del volumen para datos persistentes de MySQL.
+:::
+
+# Conclusiones
+
+En esta leccion aprendimos a ejecutar los servidores mas comunes usando Docker: MySQL, PostgreSQL, MongoDB, Apache, Nginx y Node.js. Cada servidor incluye su Dockerfile y docker-compose.yml, lo que permite levantar stacks completos de desarrollo con un solo comando. Docker facilita la experimentacion y el despliegue rapido de servicios sin afectar el sistema operativo host.
+
+:::

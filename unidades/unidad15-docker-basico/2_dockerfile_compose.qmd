@@ -1,0 +1,338 @@
+::: {.justify}
+# Dockerfile y Docker Compose
+
+::: {.center}
+![Docker](./images/docker.png){width=100px} + ![Compose](./images/1-docker-compose.png){width=200px}
+:::
+
+## Introduccion
+
+Dockerfile y Docker Compose son herramientas esenciales para la construccion y gestion de aplicaciones Docker. Un **Dockerfile** es un archivo de texto que define como se construira una imagen Docker, mientras que **Docker Compose** es una herramienta para definir y gestionar aplicaciones Docker con multiples contenedores.
+
+En esta leccion, aprenderemos a usar Dockerfile y Docker Compose para personalizar imagenes Docker y orquestar servicios en un entorno multi-contenedor.
+
+## Dockerfile
+
+Un Dockerfile es un archivo de texto que contiene una serie de instrucciones para construir una imagen Docker. Cada instruccion crea una capa (layer) en la imagen, lo que permite un cacheo eficiente de cambios.
+
+### Instrucciones principales
+
+| Instruccion | Proposito |
+|-------------|-----------|
+| `FROM` | Establece la imagen base |
+| `WORKDIR` | Define el directorio de trabajo |
+| `COPY` | Transfiere archivos del host al contenedor |
+| `RUN` | Ejecuta comandos durante la construccion |
+| `EXPOSE` | Documenta el puerto que usa la aplicacion |
+| `CMD` | Define el comando por defecto al iniciar |
+| `ENV` | Establece variables de entorno |
+| `ARG` | Define argumentos de construccion |
+
+### Ejemplo: Aplicacion Node.js con Express
+
+Primero, inicializamos el proyecto y creamos los archivos necesarios:
+
+```bash
+$ npm init -y  # <1>
+$ npm install express  # <2>
+# <1>
+# <2>
+```
+
+1. **npm init** inicializa un proyecto Node.js creando `package.json` con valores por defecto (`-y` acepta todos los prompts).
+2. **npm install** descarga y instala Express en `node_modules/` y lo agrega como dependencia en `package.json`.
+
+Creamos los siguientes archivos:
+- `server.js`
+- `package.json`
+- `Dockerfile`
+- `docker-compose.yml`
+
+### server.js
+
+```javascript
+const express = require('express');  // <1>
+const app = express();  // <2>
+const port = 3000;  // <3>
+
+app.get('/', (req, res) => {  // <4>
+  res.send('Hello, World!');
+});
+
+app.listen(port, () => {  // <5>
+  console.log(`Server running at http://localhost:${port}/`);
+});
+```
+
+1. **require** importa el modulo Express desde `node_modules/`.
+2. **express()** crea una instancia de la aplicacion web.
+3. **port** define el puerto de escucha del servidor.
+4. **app.get** registra una ruta GET para la raiz `/` que responde con un saludo.
+5. **app.listen** inicia el servidor y escucha conexiones en el puerto definido.
+
+### Dockerfile
+
+```dockerfile
+FROM node:14  # <1>
+WORKDIR /app  # <2>
+COPY package.json .  # <3>
+RUN npm install  # <4>
+COPY . .  # <5>
+EXPOSE 3000  # <6>
+CMD ["node", "server.js"]  # <7>
+```
+
+1. **FROM** establece la imagen base oficial de Node.js 14.
+2. **WORKDIR** crea y define `/app` como directorio de trabajo dentro del contenedor.
+3. **COPY** transfiere `package.json` al directorio de trabajo para instalar dependencias primero.
+4. **RUN** ejecuta `npm install` para instalar las dependencias definidas en `package.json`.
+5. **COPY** transfiere todo el codigo fuente de la aplicacion al contenedor.
+6. **EXPOSE** documenta el puerto que la aplicacion utilizara (no lo abre realmente).
+7. **CMD** define el comando por defecto que se ejecuta al iniciar el contenedor.
+
+::: {.callout-tip}
+Coloca la instruccion COPY de `package.json` antes de COPY del codigo fuente. Asi, las capas de dependencias se cachean y no se reinstalan en cada cambio de codigo.
+:::
+
+::: {.callout-warning}
+Nunca incluyas archivos innecesarios en la imagen (como `node_modules/`, `.git/`, o archivos temporales). Utiliza un `.dockerignore` para excluirlos.
+:::
+
+## Docker Compose
+
+Docker Compose es una herramienta para definir y gestionar aplicaciones Docker con multiples contenedores. Permite definir servicios, redes y volumenes en un archivo YAML y orquestar la ejecucion de los contenedores.
+
+### Estructura basica de docker-compose.yml
+
+```yaml
+services:  # <1>
+  myapp:  # <2>
+    build:  # <3>
+      context: .  # <4>
+      dockerfile: Dockerfile  # <5>
+    ports:  # <6>
+      - "3000:3000"  # <7>
+    volumes:  # <8>
+      - .:/app  # <9>
+    networks:  # <10>
+      - mi_red  # <11>
+networks:  # <12>
+  mi_red:  # <13>
+```
+
+1. **services** define el bloque principal de contenedores de la aplicacion.
+2. **myapp** nombre del servicio; puede tener cualquier identificador.
+3. **build** indica que Docker debe construir la imagen desde un Dockerfile.
+4. **context** establece el directorio de contexto para la construccion (`.` = directorio actual).
+5. **dockerfile** especifica que archivo Dockerfile usar para la construccion.
+6. **ports** define el mapeo de puertos entre host y contenedor.
+7. **3000:3000** expone el puerto 3000 del host hacia el puerto 3000 del contenedor.
+8. **volumes** define volumenes montados para sincronizar archivos.
+9. **.:/app** monta el directorio actual en `/app` dentro del contenedor (util para desarrollo con hot-reload).
+10. **networks** lista las redes que el servicio utilizara.
+11. **mi_red** nombre de la red a la que se conecta el servicio.
+12. **networks** (bloque superior) define las redes disponibles.
+13. **mi_red** define la red personalizada.
+
+::: {.callout-tip}
+El puerto del lado izquierdo de los dos puntos en el archivo docker-compose.yml es el puerto en el host, mientras que el puerto del lado derecho es el puerto en el contenedor.
+:::
+
+### Ejemplo: Aplicacion Node.js + MongoDB
+
+Este ejemplo crea una aplicacion Node.js que se conecta a una base de datos MongoDB, todo orquestado con Docker Compose.
+
+**server.js**
+
+```javascript
+const express = require('express');  // <1>
+const mongoose = require('mongoose');  // <2>
+
+const app = express();  // <3>
+const port = 3000;  // <4>
+
+mongoose.connect('mongodb://mongo:27017/miapp')  // <5>
+  .then(() => console.log('Conectado a MongoDB'))
+  .catch(err => console.error('Error de conexion:', err));
+
+app.get('/', (req, res) => {  // <6>
+  res.send('App conectada a MongoDB!');
+});
+
+app.listen(port, () => {  // <7>
+  console.log(`Servidor en http://localhost:${port}`);
+});
+```
+
+1. **require** importa Express para el servidor web.
+2. **require** importa Mongoose para interactuar con MongoDB.
+3. **express()** crea la instancia de la aplicacion.
+4. **port** define el puerto de escucha.
+5. **mongoose.connect** se conecta a MongoDB usando el nombre del servicio `mongo` como hostname (Docker resuelve DNS internamente).
+6. **app.get** define la ruta raiz que responde con un mensaje.
+7. **app.listen** inicia el servidor.
+
+**package.json**
+
+```json
+{
+  "name": "miapp",
+  "dependencies": {
+    "express": "^4.18.0",
+    "mongoose": "^7.0.0"
+  }
+}
+```
+
+**Dockerfile**
+
+```dockerfile
+FROM node:14  # <1>
+WORKDIR /app  # <2>
+COPY package.json .  # <3>
+RUN npm install  # <4>
+COPY . .  # <5>
+EXPOSE 3000  # <6>
+CMD ["node", "server.js"]  # <7>
+```
+
+1. **FROM** establece la imagen base de Node.js 14.
+2. **WORKDIR** define `/app` como directorio de trabajo.
+3. **COPY** transfiere `package.json` para instalar dependencias primero.
+4. **RUN** ejecuta la instalacion de dependencias.
+5. **COPY** transfiere el codigo fuente.
+6. **EXPOSE** documenta el puerto de la aplicacion.
+7. **CMD** define el comando de inicio del contenedor.
+
+**docker-compose.yml**
+
+```yaml
+services:  # <1>
+  myapp:  # <2>
+    build: .  # <3>
+    ports:  # <4>
+      - "3000:3000"  # <5>
+    depends_on:  # <6>
+      - mongo  # <7>
+    networks:
+      - mi_red
+  mongo:  # <8>
+    image: mongo:6  # <9>
+    ports:  # <10>
+      - "27017:27017"  # <11>
+    volumes:  # <12>
+      - mongo_data:/data/db  # <13>
+    networks:
+      - mi_red
+volumes:  # <14>
+  mongo_data:  # <15>
+networks:
+  mi_red:
+```
+
+1. **services** define los contenedores de la aplicacion.
+2. **myapp** servicio de la aplicacion Node.js.
+3. **build** construye la imagen desde el Dockerfile en el directorio actual.
+4. **ports** mapea puertos de la aplicacion.
+5. **3000:3000** expone el puerto 3000 de la aplicacion.
+6. **depends_on** establece que `myapp` depende de `mongo` (inicia despues).
+7. **mongo** indica que el servicio `mongo` debe iniciarse primero.
+8. **mongo** servicio de base de datos MongoDB.
+9. **image** usa la imagen oficial de MongoDB version 6.
+10. **ports** mapea puertos de MongoDB.
+11. **27017:27017** expone el puerto estandar de MongoDB.
+12. **volumes** define el volumen para persistir datos de MongoDB.
+13. **mongo_data:/data/db** monta el volumen `mongo_data` en la ruta de datos de MongoDB.
+14. **volumes** (bloque superior) declara los volumenes utilizados.
+15. **mongo_data** nombre del volumen para datos persistentes de MongoDB.
+
+Para iniciar la aplicacion:
+
+```bash
+$ docker-compose up -d  # <1>
+# <1>
+```
+
+1. **docker-compose up** construye las imagenes (si es necesario) e inicia los contenedores. `-d` ejecuta en modo detached (segundo plano).
+
+Para verificar que los contenedores estan en ejecucion:
+
+```bash
+$ docker ps  # <1>
+# <1>
+```
+
+1. **docker ps** muestra todos los contenedores en ejecucion, incluyendo `myapp` y `mongo`.
+
+Para detener y eliminar todo:
+
+```bash
+$ docker-compose down  # <1>
+# <1>
+```
+
+1. **docker-compose down** detiene y elimina los contenedores, redes y volumenes creados por `up`.
+
+::: {.callout-tip}
+Si realizas cambios en el Dockerfile y deseas reconstruir la imagen, usa:
+
+```bash
+$ docker-compose up --build  # <1>
+# <1>
+```
+
+1. **--build** fuerza la reconstruccion de la imagen antes de iniciar los contenedores, aplicando cambios en el Dockerfile.
+:::
+
+## Práctica
+
+- Crea un Dockerfile para una aplicacion Python simple.
+- Configura un archivo docker-compose.yml para ejecutar la aplicacion.
+
+::: {.callout-tip collapse="true"}
+## Resolucion de la Actividad Practica
+
+Ejemplo de aplicacion Python simple (`app.py`):
+
+```python
+print("Hello, World!")  # <1>
+```
+
+1. **print** imprime un saludo por consola como punto de entrada de la aplicacion.
+
+Ejemplo de Dockerfile:
+
+```dockerfile
+FROM python:3.12  # <1>
+WORKDIR /app  # <2>
+COPY . .  # <3>
+CMD ["python", "app.py"]  # <4>
+```
+
+1. **FROM** establece la imagen base oficial de Python 3.12.
+2. **WORKDIR** crea y define `/app` como directorio de trabajo.
+3. **COPY** transfiere todo el codigo fuente al contenedor.
+4. **CMD** define el comando para ejecutar la aplicacion Python al iniciar el contenedor.
+
+Ejemplo de docker-compose.yml:
+
+```yaml
+services:  # <1>
+  myapp:  # <2>
+    build:  # <3>
+      context: .
+      dockerfile: Dockerfile
+    image: my-python-app  # <4>
+```
+
+1. **services** define el bloque de contenedores de la aplicacion.
+2. **myapp** nombre del servicio.
+3. **build** indica que la imagen se construye desde un Dockerfile.
+4. **image** asigna un nombre a la imagen construida para identificarla en el registro local.
+:::
+
+# Conclusiones
+
+En esta leccion, aprendimos a usar Dockerfile y Docker Compose para construir y gestionar aplicaciones Docker. Con Dockerfile, podemos personalizar imagenes Docker para nuestras aplicaciones, mientras que Docker Compose nos permite definir y orquestar servicios en un entorno multi-contenedor. Estas herramientas son esenciales para el desarrollo y despliegue de aplicaciones en contenedores Docker.
+
+:::
