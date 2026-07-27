@@ -1,0 +1,403 @@
+---
+title: "Despliegue con Docker Compose"
+subtitle: "Levantando la pila completa de observabilidad"
+author: "Diego Saavedra"
+date: "2026-07-27"
+---
+
+# Despliegue con Docker Compose
+
+## Introducción
+
+En esta sección vamos a crear el archivo `docker-compose.yml` que levanta **todos los servicios** de la pila de observabilidad: Prometheus, Grafana, Node Exporter, NetBox, PostgreSQL y Redis. Un solo comando, todos los servicios corriendo.
+
+---
+
+## 1. Preparación del Entorno
+
+### Crear la Estructura de Directorios
+
+```bash
+# Crear directorio raíz del proyecto
+$ sudo mkdir -p /opt/monitoring  # <1>
+$ sudo chown -R $USER:$USER /opt/monitoring  # <2>
+$ cd /opt/monitoring
+
+# Crear subdirectorios para configuración y datos
+$ mkdir -p prometheus grafana/provisioning/datasources  # <3>
+$ mkdir -p grafana/provisioning/dashboards grafana/dashboards  # <4>
+$ mkdir -p netbox data/prometheus data/grafana data/netbox  # <5>
+```
+1. **mkdir -p /opt/monitoring**: Crea el directorio raíz donde vivirá toda la pila.
+2. **chown**: Cambia el propietario a tu usuario actual para evitar problemas de permisos.
+3. **prometheus + grafana/provisioning/datasources**: Directorios para las configuraciones de Prometheus y el auto-discovery de datasources en Grafana.
+4. **grafana/provisioning/dashboards + grafana/dashboards**: Para dashboards provisionados automáticamente y dashboards personalizados.
+5. **data/***: Directorios para datos persistentes (volumes de Docker).
+
+### Verificar Estructura
+
+```bash
+$ tree /opt/monitoring/ -L 3  # <1>
+/opt/monitoring/
+├── data
+│   ├── grafana
+│   ├── netbox
+│   └── prometheus
+├── grafana
+│   ├── dashboards
+│   └── provisioning
+│       ├── dashboards
+│       └── datasources
+├── netbox
+└── prometheus
+```
+1. **tree -L 3**: Muestra la estructura de directorios hasta 3 niveles de profundidad.
+
+---
+
+## 2. Archivo docker-compose.yml
+
+### Versión Completa
+
+Crea el archivo `/opt/monitoring/docker-compose.yml`:
+
+```yaml
+# docker-compose.yml - Pila de Observabilidad
+# Prometheus + Grafana + Node Exporter + NetBox
+version: '3.8'
+
+services:
+  # ──────────────────────────────────────────────────────────────
+  # NODE EXPORTER - Métricas del sistema
+  # ──────────────────────────────────────────────────────────────
+  node-exporter:
+    image: prom/node-exporter:latest  # <1>
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro  # <2>
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring
+
+  # ──────────────────────────────────────────────────────────────
+  # PROMETHEUS - Motor de métricas y alertas
+  # ──────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest  # <3>
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro  # <4>
+      - data/prometheus:/prometheus  # <5>
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'  # <6>
+      - '--web.enable-lifecycle'
+    depends_on:
+      - node-exporter
+    networks:
+      - monitoring
+
+  # ──────────────────────────────────────────────────────────────
+  # GRAFANA - Visualización y dashboards
+  # ──────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest  # <7>
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin  # <8>
+      - GF_SECURITY_ADMIN_PASSWORD=changeme_production  # <9>
+      - GF_USERS_ALLOW_SIGN_UP=false  # <10>
+    volumes:
+      - data/grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro  # <11>
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
+  # ──────────────────────────────────────────────────────────────
+  # POSTGRESQL - Base de datos para NetBox
+  # ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine  # <12>
+    container_name: netbox-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=netbox
+      - POSTGRES_USER=netbox
+      - POSTGRES_PASSWORD=changeme_netbox  # <13>
+    volumes:
+      - data/netbox:/var/lib/postgresql/data  # <14>
+    networks:
+      - monitoring
+
+  # ──────────────────────────────────────────────────────────────
+  # REDIS - Caché para NetBox
+  # ──────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine  # <15>
+    container_name: netbox-redis
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  # ──────────────────────────────────────────────────────────────
+  # NETBOX - Inventario de infraestructura (SSoT)
+  # ──────────────────────────────────────────────────────────────
+  netbox:
+    image: netboxcommunity/netbox:latest  # <16>
+    container_name: netbox
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - SUPERUSER_NAME=admin
+      - SUPERUSER_EMAIL=admin@ejemplo.com
+      - SUPERUSER_PASSWORD=changeme_netbox  # <17>
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=netbox
+      - DATABASE_USER=netbox
+      - DATABASE_PASSWORD=changeme_netbox
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SECRET_KEY=REEMPLAZA_CON_CLAVE_ALEATORIA  # Genera con: openssl rand -hex 32  # <18>
+    networks:
+      - monitoring
+
+# ──────────────────────────────────────────────────────────────
+# RED DEFINIDA
+# ──────────────────────────────────────────────────────────────
+networks:
+  monitoring:  # <19>
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24  # <20>
+```
+1. **prom/node-exporter:latest**: Imagen oficial de Prometheus para Node Exporter. Expone métricas del sistema en el puerto 9100.
+2. **/proc:/host/proc:ro**: Monta el sistema de archivos del host en modo solo lectura para recolectar métricas reales.
+3. **prom/prometheus:latest**: Imagen oficial de Prometheus. El motor central de métricas.
+4. **prometheus.yml:ro**: Archivo de configuración montado en modo solo lectura. Prometheus no puede modificarlo.
+5. **data/prometheus:/prometheus**: Volumen persistente para los datos de series temporales.
+6. **--storage.tsdb.retention.time=30d**: Retiene datos por 30 días. después de eso, Prometheus los elimina automáticamente.
+7. **grafana/grafana:latest**: Imagen oficial de Grafana. Panel de visualización.
+8. **GF_SECURITY_ADMIN_USER=admin**: Usuario administrador por defecto de Grafana.
+9. **GF_SECURITY_ADMIN_PASSWORD=changeme_production**: **CAMBIA ESTE VALOR** en producción. Es la contraseña del admin.
+10. **GF_USERS_ALLOW_SIGN_UP=false**: Deshabilita el registro público de usuarios. Solo el admin puede crear cuentas.
+11. **provisioning:ro**: Directorio de provisioning para auto-configurar datasources y dashboards al iniciar.
+12. **postgres:16-alpine**: PostgreSQL 16 en imagen Alpine (ligera). Base de datos para NetBox.
+13. **POSTGRES_PASSWORD=changeme_netbox**: **CAMBIA ESTE VALOR** en producción. Contraseña de la base de datos.
+14. **data/netbox:/var/lib/postgresql/data**: Datos persistentes de PostgreSQL.
+15. **redis:7-alpine**: Redis 7 en imagen Alpine. Caché para sesiones de NetBox.
+16. **netboxcommunity/netbox:latest**: Imagen oficial de NetBox. Inventario de infraestructura.
+17. **SUPERUSER_PASSWORD=changeme_netbox**: **CAMBIA ESTE VALOR**. Contraseña del superusuario de NetBox.
+18. **SECRET_KEY**: Clave secreta para sesiones. Genera una aleatoria con `openssl rand -hex 32`.
+19. **networks monitoring**: Red bridge definida para todos los servicios.
+20. **subnet: 172.20.0.0/24**: Subred específica para la pila de monitoreo.
+
+::: {.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Los valores `changeme_*` son CONTRASEÑAS POR DEFECTO.** En producción, debes:
+
+1. Generar contraseñas fuertes: `openssl rand -base64 32`
+2. Usar un gestor de secretos (Docker Secrets, HashiCorp Vault)
+3. **NUNCA** subir el `docker-compose.yml` con contraseñas reales a repositorios públicos
+
+**Lo que podría salir mal:**
+- Un atacante accede a tu NetBox y modifica el inventario
+- Alguien roba métricas sensibles de Prometheus
+- Te bloquean por usar credenciales débiles en auditorías de seguridad
+:::
+
+---
+
+## 3. Configuración de Prometheus
+
+### Archivo prometheus.yml
+
+Crea `/opt/monitoring/prometheus/prometheus.yml`:
+
+```yaml
+# prometheus.yml - Configuración de Prometheus
+global:
+  scrape_interval: 15s  # <1>
+  evaluation_interval: 15s  # <2>
+
+scrape_configs:
+  # ──────────────────────────────────────────────────────────────
+  # Scrape de Prometheus a sí mismo
+  # ──────────────────────────────────────────────────────────────
+  - job_name: 'prometheus'  # <3>
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ──────────────────────────────────────────────────────────────
+  # Scrape de Node Exporter (métricas del sistema)
+  # ──────────────────────────────────────────────────────────────
+  - job_name: 'node-exporter'  # <4>
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          environment: 'production'  # <5>
+          instance: 'servidor-principal'
+
+  # ──────────────────────────────────────────────────────────────
+  # Scrape de contenedores Docker (opcional)
+  # ──────────────────────────────────────────────────────────────
+  - job_name: 'docker'  # <6>
+    static_configs:
+      - targets: ['host.docker.internal:9323']
+```
+1. **scrape_interval**: Intervalo global de scrape. 15 segundos es estándar para monitoreo de infraestructura.
+2. **evaluation_interval**: Cada cuánto evalúa las reglas de alerta. Misma frecuencia que scrape_interval.
+3. **job_name prometheus**: Prometheus se monitorea a sí mismo. Útil para verificar su propia salud.
+4. **job_name node-exporter**: Scrape del Node Exporter que expone métricas del sistema operativo.
+5. **labels**: Etiquetas que se agregan a todas las métricas de este target. Útil para filtrar en Grafana.
+6. **job_name docker**: Scrape del daemon de Docker (requiere habilitar métricas en Docker).
+
+---
+
+## 4. Levantar la Pila
+
+### Comando de Inicio
+
+```bash
+# Navegar al directorio del proyecto
+$ cd /opt/monitoring  # <1>
+
+# Levantar todos los servicios en segundo plano
+$ docker compose up -d  # <2>
+[+] Running 6/6
+ ✔ Network monitoring_monitoring   Created
+ ✔ Container netbox-redis          Started
+ ✔ Container netbox-postgres       Started
+ ✔ Container node-exporter         Started
+ ✔ Container prometheus            Started
+ ✔ Container grafana               Started
+ ✔ Container netbox                Started
+```
+1. **cd /opt/monitoring**: Asegúrate de estar en el directorio correcto donde está el `docker-compose.yml`.
+2. **docker compose up -d**: Levanta todos los servicios en modo *detached* (segundo plano). La primera vez tarda en descargar las imágenes.
+
+### Verificar Estado
+
+```bash
+# Ver todos los contenedores corriendo
+$ docker compose ps  # <1>
+NAME                IMAGE                       STATUS          PORTS
+grafana             grafana/grafana:latest      Up 2 minutes    0.0.0.0:3000->3000/tcp
+netbox              netboxcommunity/netbox:latest Up 2 minutes  0.0.0.0:8080->8080/tcp
+netbox-postgres     postgres:16-alpine          Up 2 minutes    5432/tcp
+netbox-redis        redis:7-alpine              Up 2 minutes    6379/tcp
+prometheus          prom/prometheus:latest      Up 2 minutes    0.0.0.0:9090->9090/tcp
+node-exporter       prom/node-exporter:latest   Up 2 minutes    0.0.0.0:9100->9100/tcp
+
+# Ver logs de un servicio específico
+$ docker compose logs prometheus --tail=20  # <2>
+```
+1. **docker compose ps**: Lista todos los contenedores del proyecto, su estado y puertos expuestos.
+2. **logs --tail=20**: Muestra las últimas 20 líneas de logs de Prometheus. Útil para verificar que no hay errores.
+
+### Verificar Servicios
+
+```bash
+# Verificar Prometheus
+$ curl -s http://localhost:9090/-/healthy  # <1>
+Prometheus Server is Healthy.
+
+# Verificar Grafana
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health  # <2>
+200
+
+# Verificar Node Exporter
+$ curl -s http://localhost:9100/metrics | head -5  # <3>
+# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
+# TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{cpu="0",mode="idle"} 12345.67
+```
+1. **Prometheus /-/healthy**: Endpoint de salud de Prometheus. Devuelve 200 si está funcionando.
+2. **Grafana /api/health**: API de salud de Grafana. Devuelve 200 si está operativo.
+3. **Node Exporter /metrics**: Endpoint de métricas. Devuelve todas las métricas del sistema en formato Prometheus.
+
+---
+
+## 5. Comandos Útiles del Día a Día
+
+### Gestión de la Pila
+
+```bash
+# Detener todos los servicios (sin eliminar volumes)
+$ docker compose stop  # <1>
+
+# Iniciar servicios detenidos
+$ docker compose start  # <2>
+
+# Reiniciar un servicio específico
+$ docker compose restart grafana  # <3>
+
+# Ver logs en tiempo real
+$ docker compose logs -f prometheus  # <4>
+
+# Detener y eliminar TODO (contenedores, redes, volumes)
+$ docker compose down -v  # <5>
+
+# Actualizar imágenes
+$ docker compose pull  # <6>
+$ docker compose up -d  # <7>
+```
+1. **docker compose stop**: Detiene todos los contenedores sin eliminarlos. Los datos en volumes se conservan.
+2. **docker compose start**: Inicia contenedores que estaban detenidos.
+3. **docker compose restart grafana**: Reinicia solo Grafana. Útil después de cambiar configuración.
+4. **docker compose logs -f**: Sigue los logs en tiempo real (como `tail -f`).
+5. **docker compose down -v**: **PELIGROSO**. Elimina contenedores, redes Y volumes. Pierdes todos los datos.
+6. **docker compose pull**: Descarga las últimas versiones de las imágenes.
+7. **docker compose up -d**: Recrea los contenedores con las nuevas imágenes.
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Antes de `docker compose down -v`**, verifica que tengas backups de:
+- Datos de Prometheus (`data/prometheus/`)
+- Datos de Grafana (`data/grafana/`)
+- Datos de NetBox/PostgreSQL (`data/netbox/`)
+- Configuraciones personalizadas
+
+En producción, usa estrategias de backup automatizado.
+:::
+
+---
+
+## Resumen
+
+| Paso | Comando | Propósito |
+|------|---------|-----------|
+| 1 | `mkdir -p /opt/monitoring` | Crear estructura de directorios |
+| 2 | `docker compose up -d` | Levantar todos los servicios |
+| 3 | `docker compose ps` | Verificar estado de contenedores |
+| 4 | `curl localhost:9090` | Verificar Prometheus |
+| 5 | `curl localhost:3000` | Verificar Grafana |
+| 6 | `curl localhost:9100` | Verificar Node Exporter |
+
+En la siguiente sección, vamos a configurar Prometheus y Grafana para que empiecen a recolectar y visualizar métricas.

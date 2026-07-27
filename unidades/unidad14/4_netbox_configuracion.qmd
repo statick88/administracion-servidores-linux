@@ -1,0 +1,331 @@
+---
+title: "Configuración de NetBox"
+subtitle: "Single Source of Truth para tu infraestructura"
+author: "Diego Saavedra"
+date: "2026-07-27"
+---
+
+# Configuración de NetBox
+
+## Introducción
+
+**NetBox** es el inventario de infraestructura de referencia (Single Source of Truth o SSoT). Mientras Prometheus y Grafana te dicen *cómo está funcionando* tu infraestructura, NetBox te dice *qué tienes* y *dónde está*.
+
+---
+
+## 1. ¿Qué Gestiona NetBox?
+
+| Categoría | Ejemplos |
+|-----------|----------|
+| **Dispositivos** | Servidores, switches, routers, firewalls |
+| **Interfaces** | eth0, ens160, bond0, VLANs |
+| **Direcciones IP** | IPv4, IPv6, rangos, asignaciones |
+| **Sitios** | Datacenters, oficinas, sucursales |
+| **Circuitos** | Enlaces ISP, MPLS, VPN |
+| **VLANs** | Segmentación de red |
+| **Power** | PDUs, UPS, fuentes de alimentación |
+| **Tenant** | Departamentos, clientes, proyectos |
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**NetBox no es un monitor.** No recolecta métricas ni alertas. Es un **inventario declarativo**: le dices qué tienes, dónde está, y cómo está conectado. Esto permite correlacionar datos de monitoreo con información de activos.
+
+**Ejemplo:** Si Prometheus te alerta que el servidor `srv-web-01` tiene CPU alta, NetBox te dice que ese servidor está en el **Datacenter Principal**, tiene una IP **192.168.1.10**, y está conectado al **Switch Core-01** por el puerto **eth0**.
+:::
+
+---
+
+## 2. Primer Acceso a NetBox
+
+### Levantar NetBox
+
+```bash
+# Si NetBox no está corriendo
+$ cd /opt/monitoring  # <1>
+$ docker compose up -d netbox postgres redis  # <2>
+
+# Verificar que está listo (puede tardar 1-2 minutos la primera vez)
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  # <3>
+200
+```
+1. **cd /opt/monitoring**: Navega al directorio del proyecto.
+2. **docker compose up -d**: Levanta NetBox y sus dependencias (PostgreSQL y Redis).
+3. **curl verificar**: Verifica que NetBox esté respondiendo. La primera vez tarda en inicializar la base de datos.
+
+### Credenciales por Defecto
+
+| Campo | Valor |
+|-------|-------|
+| **URL** | `http://localhost:8080` |
+| **Usuario** | `admin` |
+| **Contraseña** | `changeme_netbox` |
+
+::: {.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Cambia la contraseña inmediatamente** después del primer inicio de sesión:
+
+1. Inicia sesión con `admin` / `changeme_netbox`
+2. Ve a **Admin → Users → admin**
+3. Escribe una contraseña nueva fuerte
+4. Haz clic en **Update**
+
+**Lo que podría salir mal:**
+- Alguien accede a tu inventario y modifica dispositivos
+- Se exponen IPs, credentials, y estructura de red
+- Un atacante usa NetBox como pivot point para entender tu infraestructura
+:::
+
+---
+
+## 3. Configuración Inicial
+
+### Crear un Sitio (Site)
+
+Los **Sitios** representan ubicaciones físicas (datacenters, oficinas, etc.).
+
+1. Ve a **Organization → Sites → + Add**
+2. Completa el formulario:
+
+| Campo | Valor |
+|-------|-------|
+| **Name** | `Datacenter Principal` |
+| **Slug** | `dc-principal` |
+| **Status** | Active |
+| **Region** | Crea una región nueva: `Latinoamérica` |
+| **Time zone** | `America/Guayaquil` |
+| **Description** | Datacenter principal de la empresa |
+
+3. Haz clic en **Create**
+
+### Crear una Región
+
+1. Ve a **Organization → Regions → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| **Name** | `Latinoamérica` |
+| **Slug** | `latam` |
+
+3. Haz clic en **Create**
+
+### Crear un Tenant
+
+Los **Tenant** representan departamentos, clientes o unidades de negocio.
+
+1. Ve a **Organization → Tenants → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| **Name** | `Departamento de TI` |
+| **Slug** | `depto-ti` |
+| **Group** | Crea un grupo nuevo: `Interno` |
+
+3. Haz clic en **Create**
+
+---
+
+## 4. Registrar Dispositivos
+
+### Crear un Dispositivo (Servidor)
+
+1. Ve to **Devices → Devices → + Add**
+2. Completa el formulario:
+
+| Campo | Valor |
+|-------|-------|
+| **Name** | `srv-web-01` |
+| **Device type** | Crea un tipo nuevo: `Server 1U` |
+| **Role** | Crea un rol nuevo: `Web Server` |
+| **Site** | `Datacenter Principal` |
+| **Tenant** | `Departamento de TI` |
+| **Status** | Active |
+| **Primary IP** | Asignar después |
+
+3. Haz clic en **Create**
+
+### Crear Tipo de Dispositivo
+
+Antes de crear el dispositivo, necesitas definir los tipos:
+
+1. Ve a **Devices → Device Types → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| **Manufacturer** | Crea uno nuevo: `Dell` |
+| **Model** | `PowerEdge R740` |
+| **Slug** | `poweredge-r740` |
+| **U Height** | `1` (altura en unidades de rack) |
+| **Is full depth** | `True` |
+
+3. Haz clic en **Create**
+
+### Crear Rol de Dispositivo
+
+1. Ve a **Devices → Device Roles → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| **Name** | `Web Server` |
+| **Slug** | `web-server` |
+| **Color** | `#00ff00` (verde) |
+| **VM Role** | `False` (es un servidor físico) |
+
+3. Haz clic en **Create**
+
+---
+
+## 5. Configurar Interfaces de Red
+
+### Agregar Interfaz al Dispositivo
+
+1. Abre el dispositivo `srv-web-01`
+2. Ve a la pestaña **Interfaces**
+3. Haz clic en **+ Add**
+
+| Campo | Valor |
+|-------|-------|
+| **Name** | `eth0` |
+| **Type** | `1000BASE-T (1GE)` |
+| **Status** | `Active` |
+| **Enabled** | `True` |
+
+4. Haz clic en **Create**
+
+### Agregar Dirección IP
+
+1. Ve a **IPAM → IP Addresses → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| **Address** | `192.168.1.10/24` |
+| **Status** | `Active` |
+| **Role** | `Loopback` (o `Primary`) |
+| **DNS Name** | `srv-web-01.ejemplo.com` |
+| **Description** | IP principal del servidor web |
+
+3. Haz clic en **Create**
+4. Asigna la IP a la interfaz `eth0` del dispositivo
+
+---
+
+## 6. Gestión de VLANs
+
+### Crear VLANs
+
+1. Ve a **IPAM → VLANs → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| **Name** | `VLAN-DMZ` |
+| **VID** | `100` |
+| **Site** | `Datacenter Principal` |
+| **Status** | `Active` |
+| **Role** | `Production` |
+
+3. Haz clic en **Create**
+
+### Crear Prefijos de Red
+
+Los **Prefijos** definen rangos de IPs disponibles:
+
+1. Ve a **IPAM → Prefixes → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| **Prefix** | `192.168.1.0/24` |
+| **Site** | `Datacenter Principal` |
+| **VLAN** | `VLAN-DMZ` |
+| **Status** | `Active` |
+| **Role** | `Container` |
+| **Description** | Rango de IPs para servidores DMZ |
+
+3. Haz clic en **Create**
+
+---
+
+## 7. Exportar Datos de NetBox
+
+### API de NetBox
+
+NetBox expone una API REST completa. Puedes consultarla con `curl`:
+
+```bash
+# Listar todos los dispositivos
+$ curl -s -H "Authorization: Token TU_TOKEN_AQUI" \
+  http://localhost:8080/api/dcim/devices/ | python3 -m json.tool  # <1>
+
+# Listar todas las direcciones IP
+$ curl -s -H "Authorization: Token TU_TOKEN_AQUI" \
+  http://localhost:8080/api/ipam/ip-addresses/ | python3 -m json.tool  # <2>
+
+# Exportar en formato CSV
+$ curl -s -H "Authorization: Token TU_TOKEN_AQUI" \
+  http://localhost:8080/api/dcim/devices/?format=csv > dispositivos.csv  # <3>
+```
+1. **API dispositivos**: Devuelve todos los dispositivos registrados en JSON.
+2. **API IPs**: Devuelve todas las direcciones IP asignadas.
+3. **Export CSV**: Exporta los dispositivos en formato CSV para importar en hojas de cálculo.
+
+### Generar Token de API
+
+1. Ve a **Admin → Tokens → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| **Key** | Dejar vacío (se genera automáticamente) |
+| **Write enabled** | `True` (si necesitas modificar datos) |
+| **Allowed IPs** | `172.20.0.0/24` (solo la red de monitoreo) |
+
+3. Haz clic en **Create**
+4. **Copia la clave generada** — solo se muestra una vez
+
+---
+
+## 8. Correlacionar Prometheus con NetBox
+
+### Consulta Cruzada
+
+Puedes usar la API de NetBox para enriquecer las alertas de Prometheus con información de inventario:
+
+```bash
+# Script: obtener IP de un dispositivo desde NetBox
+$ DEVICE_NAME="srv-web-01"  # <1>
+$ NETBOX_TOKEN="tu_token_aqui"
+$ NETBOX_URL="http://localhost:8080"
+
+$ DEVICE_IP=$(curl -s -H "Authorization: Token $NETBOX_TOKEN" \
+  "$NETBOX_URL/api/ipam/ip-addresses/?device=$DEVICE_NAME" \
+  | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['results'][0]['address'])" \
+  | cut -d'/' -f1)  # <2>
+
+$ echo "IP de $DEVICE_NAME: $DEVICE_IP"  # <3>
+```
+1. **DEVICE_NAME**: Nombre del dispositivo a buscar en NetBox.
+2. **DEVICE_IP**: Extrae la IP del dispositivo usando la API de NetBox y `python3` para parsear el JSON.
+3. **echo**: Muestra la IP encontrada.
+
+---
+
+## Resumen
+
+| Acción | Ubicación en NetBox |
+|--------|---------------------|
+| Crear sitio | Organization → Sites |
+| Crear dispositivo | Devices → Devices |
+| Agregar interfaz | Devices → [dispositivo] → Interfaces |
+| Asignar IP | IPAM → IP Addresses |
+| Crear VLAN | IPAM → VLANs |
+| Definir rango de IPs | IPAM → Prefixes |
+| Generar token API | Admin → Tokens |
+
+En la siguiente sección, vamos a crear un laboratorio práctico donde todo esto se junta.

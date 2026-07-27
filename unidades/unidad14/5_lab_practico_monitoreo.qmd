@@ -1,0 +1,668 @@
+---
+title: "Laboratorio Práctico: Monitoreo e Inventario"
+subtitle: "Evidencia del laboratorio con la pila completa"
+author: "Diego Saavedra"
+date: "2026-07-27"
+---
+
+# Laboratorio Práctico: Monitoreo e Inventario
+
+## Introducción
+
+En este laboratorio vas a levantar la pila completa de observabilidad (Prometheus, Grafana, Node Exporter, NetBox, PostgreSQL, Redis) con Docker Compose, verificar que cada servicio funciona, y generar evidencia documentada de cada paso.
+
+**Duración estimada:** 120 minutos
+
+**Objetivos:**
+
+- Levantar la pila de monitoreo con un solo comando
+- Verificar el estado de cada servicio
+- Configurar Grafana con Prometheus como datasource
+- Importar un dashboard preconfigurado
+- Registrar dispositivos en NetBox
+- Generar evidencia consolidada
+
+---
+
+## Pre-lab: Preparación del Entorno
+
+### Crear Estructura de Directorios
+
+```bash
+# Crear directorio raíz del proyecto
+$ sudo mkdir -p /opt/monitoring  # <1>
+$ sudo chown -R $USER:$USER /opt/monitoring
+$ cd /opt/monitoring
+
+# Crear subdirectorios
+$ mkdir -p prometheus grafana/provisioning/datasources  # <2>
+$ mkdir -p grafana/provisioning/dashboards grafana/dashboards
+$ mkdir -p netbox data/prometheus data/grafana data/netbox
+```
+1. **mkdir -p /opt/monitoring**: Crea el directorio raíz donde vivirá toda la pila.
+2. **Subdirectorios**: Cada servicio necesita sus propios directorios de configuración y datos.
+
+### Crear docker-compose.yml
+
+```bash
+$ cat > /opt/monitoring/docker-compose.yml << 'DOCKEREOF'  # <1>
+version: '3.8'
+
+services:
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - data/prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - node-exporter
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=changeme_production
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - data/grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: netbox-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=netbox
+      - POSTGRES_USER=netbox
+      - POSTGRES_PASSWORD=changeme_netbox
+    volumes:
+      - data/netbox:/var/lib/postgresql/data
+    networks:
+      - monitoring
+
+  redis:
+    image: redis:7-alpine
+    container_name: netbox-redis
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  netbox:
+    image: netboxcommunity/netbox:latest
+    container_name: netbox
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - SUPERUSER_NAME=admin
+      - SUPERUSER_EMAIL=admin@ejemplo.com
+      - SUPERUSER_PASSWORD=changeme_netbox
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=netbox
+      - DATABASE_USER=netbox
+      - DATABASE_PASSWORD=changeme_netbox
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SECRET_KEY=REEMPLAZA_CON_CLAVE_ALEATORIA  # Genera con: openssl rand -hex 32
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+DOCKEREOF
+```
+1. **cat > docker-compose.yml**: Crea el archivo usando heredoc. Copia el contenido exacto del bloque.
+
+### Crear prometheus.yml
+
+```bash
+$ cat > /opt/monitoring/prometheus/prometheus.yml << 'PROMEOF'  # <1>
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          environment: 'production'
+PROMEOF
+```
+1. **prometheus.yml**: Configuración de Prometheus que scrapea sus propias métricas y las de Node Exporter.
+
+### Crear Datasource de Grafana
+
+```bash
+$ cat > /opt/monitoring/grafana/provisioning/datasources/prometheus.yml << 'GFEOF'  # <1>
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+GFEOF
+```
+1. **Datasource provisioning**: Grafana se conecta automáticamente a Prometheus al iniciar.
+
+### Crear Config de Dashboards
+
+```bash
+$ cat > /opt/monitoring/grafana/provisioning/dashboards/dashboard.yml << 'DASH'  # <1>
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
+DASH
+```
+1. **Dashboard provisioning**: Grafana carga automáticamente dashboards desde archivos JSON.
+
+---
+
+## Ejercicio 1: Levantar la Pila
+
+### Iniciar Todos los Servicios
+
+```bash
+$ cd /opt/monitoring  # <1>
+$ docker compose up -d  # <2>
+[+] Running 6/6
+ ✔ Network monitoring_monitoring   Created
+ ✔ Container netbox-redis          Started
+ ✔ Container netbox-postgres       Started
+ ✔ Container node-exporter         Started
+ ✔ Container prometheus            Started
+ ✔ Container grafana               Started
+ ✔ Container netbox                Started
+```
+1. **cd**: Asegúrate de estar en el directorio correcto.
+2. **docker compose up -d**: Levanta todos los servicios en modo detached. La primera vez tarda en descargar imágenes.
+
+### Verificar Contenedores
+
+```bash
+$ docker compose ps  # <1>
+NAME                IMAGE                       STATUS          PORTS
+grafana             grafana/grafana:latest      Up 30 seconds   0.0.0.0:3000->3000/tcp
+netbox              netboxcommunity/netbox:latest Up 30 seconds  0.0.0.0:8080->8080/tcp
+netbox-postgres     postgres:16-alpine          Up 30 seconds   5432/tcp
+netbox-redis        redis:7-alpine              Up 30 seconds   6379/tcp
+prometheus          prom/prometheus:latest      Up 30 seconds   0.0.0.0:9090->9090/tcp
+node-exporter       prom/node-exporter:latest   Up 30 seconds   0.0.0.0:9100->9100/tcp
+```
+1. **docker compose ps**: Verifica que los 6 contenedores estén corriendo.
+
+### Verificar Cada Servicio
+
+```bash
+# Prometheus
+$ curl -s http://localhost:9090/-/healthy  # <1>
+Prometheus Server is Healthy.
+
+# Grafana
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health  # <2>
+200
+
+# Node Exporter
+$ curl -s http://localhost:9100/metrics | head -3  # <3>
+# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
+# TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{cpu="0",mode="idle"} 12345.67
+
+# NetBox
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  # <4>
+200
+```
+1. **Prometheus**: Endpoint de salud. Devuelve texto plano si está OK.
+2. **Grafana**: API de salud. Devuelve HTTP 200 si está operativo.
+3. **Node Exporter**: Endpoint de métricas. Devuelve todas las métricas del sistema.
+4. **NetBox**: Página principal. Devuelve HTTP 200 si está listo.
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+Si NetBox tarda mucho en estar listo (más de 2 minutos), revisa los logs:
+
+```bash
+$ docker compose logs netbox --tail=30  # <1>
+```
+
+1. **logs --tail=30**: Muestra las últimas 30 líneas de logs de NetBox para diagnosticar problemas.
+:::
+
+---
+
+## Ejercicio 2: Explorar Prometheus
+
+### Acceder a la UI
+
+1. Abre `http://localhost:9090` en tu navegador
+2. Navega a **Status → Targets**
+3. Verifica que ambos targets estén en estado **UP**:
+
+| Job | Target | Estado |
+|-----|--------|--------|
+| prometheus | localhost:9090 | UP |
+| node-exporter | node-exporter:9100 | UP |
+
+### Ejecutar Consultas PromQL
+
+Ve a la pestaña **Graph** y ejecuta estas consultas:
+
+```promql
+# 1. Uso de CPU total (porcentaje)
+100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)  # <1>
+
+# 2. Memoria total en GB
+node_memory_MemTotal_bytes / 1024 / 1024 / 1024  # <2>
+
+# 3. Memoria disponible en GB
+node_memory_MemAvailable_bytes / 1024 / 1024 / 1024  # <3>
+
+# 4. Espacio en disco (/) en GB
+node_filesystem_avail_bytes{mountpoint="/"} / 1024 / 1024 / 1024  # <4>
+
+# 5. Tráfico de red recibido (bytes/s)
+rate(node_network_receive_bytes_total{device!="lo"}[5m])  # <5>
+```
+1. **CPU %**: Calcula el porcentaje de CPU no-idle.
+2. **Memoria total**: Muestra cuánta memoria física tiene el sistema.
+3. **Memoria disponible**: Memoria que puede ser usada (incluye buffers/cache reutilizable).
+4. **Disco libre**: Espacio disponible en la partición raíz.
+5. **Red recibida**: Tasa de bytes recibidos por segundo.
+
+### Verificar Scrape
+
+```bash
+# Desde la terminal, verificar que Prometheus está scrapeando
+$ curl -s http://localhost:9090/api/v1/targets | python3 -c " \
+  import sys, json; \
+  data = json.load(sys.stdin); \
+  [print(f'{t[\"labels\"][\"job\"]}: {t[\"health\"]}') for t in data['data']['activeTargets']]"  # <1>
+
+prometheus: up
+node-exporter: up
+```
+1. **api/v1/targets**: Devuelve el estado de todos los targets que Prometheus está scrapeando.
+
+---
+
+## Ejercicio 3: Configurar Grafana
+
+### Acceder a Grafana
+
+1. Abre `http://localhost:3000` en tu navegador
+2. Inicia sesión con:
+   - **Usuario:** `admin`
+   - **Contraseña:** `changeme_production`
+
+### Verificar Datasource
+
+1. Ve a **Configuration → Data Sources**
+2. Verifica que **Prometheus** esté configurado como datasource por defecto
+3. Haz clic en **Save & Test** para verificar la conexión
+
+### Importar Dashboard
+
+1. Ve a **Dashboards → Import**
+2. Escribe el ID `1860` en el campo "Import via grafana.com"
+3. Haz clic en **Load**
+4. Selecciona el datasource **Prometheus**
+5. Haz clic en **Import**
+
+### Crear Dashboard Personalizado
+
+Si prefieres crear tu propio dashboard:
+
+1. Ve a **Dashboards → New Dashboard**
+2. Haz clic en **Add new panel**
+3. En **Query**, escribe:
+
+```promql
+100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+```
+
+4. En **Panel title**, escribe "CPU Usage %"
+5. Haz clic en **Apply**
+6. Repite para memoria:
+
+```promql
+(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
+```
+
+7. Guarda el dashboard con el nombre "Servidor Linux Básico"
+
+---
+
+## Ejercicio 4: Registrar Dispositivos en NetBox
+
+### Acceder a NetBox
+
+1. Abre `http://localhost:8080` en tu navegador
+2. Inicia sesión con:
+   - **Usuario:** `admin`
+   - **Contraseña:** `changeme_netbox`
+3. **CAMBIA LA CONTRASEÑA** inmediatamente
+
+### Crear un Sitio
+
+1. Ve a **Organization → Sites → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| Name | `Datacenter Principal` |
+| Slug | `dc-principal` |
+| Status | Active |
+
+3. Haz clic en **Create**
+
+### Crear Tipo de Dispositivo
+
+1. Ve a **Devices → Device Types → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| Manufacturer | Crea uno nuevo: `Dell` |
+| Model | `PowerEdge R740` |
+| Slug | `poweredge-r740` |
+| U Height | `1` |
+
+3. Haz clic en **Create**
+
+### Crear Rol de Dispositivo
+
+1. Ve a **Devices → Device Roles → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| Name | `Web Server` |
+| Slug | `web-server` |
+| Color | `#00ff00` |
+
+3. Haz clic en **Create**
+
+### Registrar 3 Servidores
+
+Repite para cada servidor:
+
+| Nombre | IP | Interfaz |
+|--------|-----|----------|
+| `srv-web-01` | `192.168.1.10/24` | `eth0` |
+| `srv-web-02` | `192.168.1.11/24` | `eth0` |
+| `srv-db-01` | `192.168.1.20/24` | `eth0` |
+
+Para cada servidor:
+
+1. Ve a **Devices → Devices → + Add**
+2. Completa Name, Device type, Role, Site
+3. Haz clic en **Create**
+4. Abre el dispositivo → pestaña **Interfaces** → **+ Add**
+5. Agrega interfaz `eth0` tipo `1000BASE-T (1GE)`
+6. Ve a **IPAM → IP Addresses → + Add**
+7. Agrega la IP y asígnala a la interfaz `eth0`
+
+### Generar Token de API
+
+1. Ve a **Admin → Tokens → + Add**
+2. Completa:
+
+| Campo | Valor |
+|-------|-------|
+| Write enabled | True |
+
+3. Haz clic en **Create**
+4. **Copia la clave** (solo se muestra una vez)
+
+---
+
+## Ejercicio 5: Correlacionar Datos
+
+### Consultar NetBox desde API
+
+```bash
+# Reemplaza TU_TOKEN con el token generado
+$ NETBOX_TOKEN="TU_TOKEN_AQUI"  # <1>
+
+# Listar dispositivos
+$ curl -s -H "Authorization: Token $NETBOX_TOKEN" \
+  http://localhost:8080/api/dcim/devices/ | python3 -m json.tool  # <2>
+
+# Obtener IPs de un dispositivo específico
+$ curl -s -H "Authorization: Token $NETBOX_TOKEN" \
+  "http://localhost:8080/api/ipam/ip-addresses/?device=srv-web-01" \
+  | python3 -c "import sys,json; d=json.load(sys.stdin); \
+    print(d['results'][0]['address'])"  # <3>
+```
+1. **NETBOX_TOKEN**: Token de API generado en NetBox.
+2. **API dispositivos**: Devuelve todos los dispositivos registrados.
+3. **API IPs**: Filtra las IPs de un dispositivo específico.
+
+### Consultar Prometheus por IP
+
+```bash
+# Obtener métricas de un servidor específico
+$ curl -s "http://localhost:9090/api/v1/query?query=\
+  node_cpu_seconds_total{instance=~\"192.168.1.*:9100\"}" \
+  | python3 -m json.tool  # <1>
+```
+1. **query por IP**: Usa regex para filtrar métricas por rango de IPs.
+
+---
+
+## Script de Evidencia
+
+Ejecuta este script para generar un reporte consolidado:
+
+```bash
+#!/bin/bash
+# Script de evidencia - Laboratorio de Monitoreo e Inventario
+# Ejecutar como: bash evidencia.sh > ~/lab14-evidencia.txt 2>&1
+
+echo "=============================================="  # <1>
+echo "  EVIDENCIA LABORATORIO MONITOREO E INVENTARIO"
+echo "=============================================="
+echo "Fecha: $(date)"
+echo "Operador: $(whoami)"
+echo "Servidor: $(hostname)"
+echo ""
+
+echo "=== 1. ESTADO DE CONTENEDORES ==="
+docker compose -f /opt/monitoring/docker-compose.yml ps
+echo ""
+
+echo "=== 2. VERIFICACION DE SERVICIOS ==="
+echo "--- Prometheus ---"
+curl -s http://localhost:9090/-/healthy
+echo ""
+echo "--- Grafana ---"
+curl -s http://localhost:3000/api/health
+echo ""
+echo "--- Node Exporter ---"
+curl -s http://localhost:9100/metrics | head -5
+echo ""
+echo "--- NetBox ---"
+curl -s -o /dev/null -w "HTTP Status: %{http_code}" http://localhost:8080
+echo ""
+echo ""
+
+echo "=== 3. METRICAS DEL SISTEMA ==="
+echo "--- CPU Usage ---"
+curl -s "http://localhost:9090/api/v1/query?query=100-(avg(rate(node_cpu_seconds_total{mode='idle'}[5m]))*100)" | python3 -m json.tool
+echo ""
+echo "--- Memory Usage ---"
+curl -s "http://localhost:9090/api/v1/query?query=(1-node_memory_MemAvailable_bytes/node_memory_MemTotal_bytes)*100" | python3 -m json.tool
+echo ""
+echo "--- Disk Usage ---"
+curl -s "http://localhost:9090/api/v1/query?query=(1-node_filesystem_avail_bytes{mountpoint='/'}/node_filesystem_size_bytes{mountpoint='/'})" | python3 -m json.tool
+echo ""
+
+echo "=== 4. PROMETHEUS TARGETS ==="
+curl -s http://localhost:9090/api/v1/targets | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for t in data['data']['activeTargets']:
+    print(f\"  {t['labels']['job']}: {t['health']}\")
+"
+echo ""
+
+echo "=== 5. GRAFANA DATASOURCES ==="
+curl -s -u admin:changeme_production http://localhost:3000/api/datasources | python3 -m json.tool
+echo ""
+
+echo "=== 6. PUERTOS EN USO ==="
+ss -tlnp | grep -E '(3000|8080|9090|9100)'
+echo ""
+
+echo "=== 7. DISCO Y MEMORIA DEL HOST ==="
+echo "--- Disco ---"
+df -h /
+echo ""
+echo "--- Memoria ---"
+free -h
+echo ""
+
+echo "=============================================="
+echo "  FIN DE EVIDENCIA"
+echo "=============================================="
+```
+1. **evidencia.sh**: Script consolidado que captura TODO lo necesario para demostrar que el laboratorio fue completado exitosamente.
+
+### Ejecutar el Script
+
+```bash
+$ chmod +x evidencia.sh  # <1>
+$ bash evidencia.sh > ~/lab14-evidencia.txt 2>&1  # <2>
+$ cat ~/lab14-evidencia.txt  # <3>
+```
+1. **chmod +x**: Hace el script ejecutable.
+2. **bash evidencia.sh**: Ejecuta el script y guarda la salida en un archivo.
+3. **cat**: Muestra el contenido del archivo de evidencia.
+
+---
+
+## Checklist de Validación
+
+Verifica que puedes marcar **TODOS** estos puntos:
+
+| # | Verificación | Estado |
+|---|-------------|--------|
+| 1 | Los 6 contenedores están corriendo | ☐ |
+| 2 | Prometheus está healthy y scrapeando targets | ☐ |
+| 3 | Grafana tiene Prometheus como datasource | ☐ |
+| 4 | Grafana muestra datos en tiempo real | ☐ |
+| 5 | NetBox tiene al menos 1 sitio registrado | ☐ |
+| 6 | NetBox tiene al menos 3 dispositivos | ☐ |
+| 7 | NetBox tiene IPs asignadas a interfaces | ☐ |
+| 8 | Token de API de NetBox funciona | ☐ |
+| 9 | Script de evidencia genera output completo | ☐ |
+| 10 | Consultas PromQL devuelven datos | ☐ |
+
+---
+
+## Limpieza
+
+### Detener Servicios (Conservar Datos)
+
+```bash
+$ docker compose -f /opt/monitoring/docker-compose.yml stop  # <1>
+```
+1. **stop**: Detiene todos los contenedores pero conserva los datos en volumes.
+
+### Eliminar Todo (Peligroso)
+
+```bash
+$ docker compose -f /opt/monitoring/docker-compose.yml down -v  # <1>
+$ sudo rm -rf /opt/monitoring/data/*  # <2>
+```
+1. **down -v**: Elimina contenedores, redes Y volumes. Pierdes todos los datos.
+2. **rm data**: Limpia los directorios de datos residuales.
+
+::: {.callout-warning}
+## ⚠️ ADVERTENCIA
+
+**`docker compose down -v` ELIMINA TODOS LOS DATOS permanentemente.** Solo usa esto en entornos de laboratorio. En producción, siempre haz backup antes de limpiar.
+
+**Lo que se pierde:**
+- Todas las series temporales de Prometheus
+- Todos los dashboards de Grafana
+- Todo el inventario de NetBox
+- Toda la base de datos de PostgreSQL
+:::
+
+---
+
+## Resumen
+
+En este laboratorio:
+
+1. **Levantaste** la pila completa con un solo comando
+2. **Verificaste** que cada servicio funciona correctamente
+3. **Exploraste** Prometheus con consultas PromQL
+4. **Configuraste** Grafana con dashboards en tiempo real
+5. **Registraste** dispositivos en NetBox
+6. **Generaste** evidencia documentada del laboratorio
+
+Esta pila es la base para cualquier entorno de producción. En la siguiente sección, encontrarás recursos adicionales para profundizar.

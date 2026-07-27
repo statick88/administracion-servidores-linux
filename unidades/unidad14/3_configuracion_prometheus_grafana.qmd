@@ -1,0 +1,356 @@
+---
+title: "Configuración de Prometheus y Grafana"
+subtitle: "Recolectando y visualizando métricas"
+author: "Diego Saavedra"
+date: "2026-07-27"
+---
+
+# Configuración de Prometheus y Grafana
+
+## Introducción
+
+Prometheus ya está corriendo y recolectando métricas. Ahora vamos a:
+1. Configurar **Grafana** para que se conecte automáticamente a Prometheus.
+2. Importar un **dashboard preconfigurado** para monitoreo de servidores.
+3. Aprender a escribir **consultas PromQL** básicas.
+
+---
+
+## 1. Auto-configuración de Grafana (Provisioning)
+
+### Datasource: Prometheus
+
+Grafana puede auto-descubrir datasources al iniciar. Crea el archivo `/opt/monitoring/grafana/provisioning/datasources/prometheus.yml`:
+
+```yaml
+# provisioning/datasources/prometheus.yml
+apiVersion: 1  # <1>
+
+datasources:
+  - name: Prometheus  # <2>
+    type: prometheus
+    access: proxy  # <3>
+    url: http://prometheus:9090  # <4>
+    isDefault: true  # <5>
+    editable: true  # <6>
+```
+1. **apiVersion: 1**: Versión del formato de provisioning de Grafana.
+2. **name Prometheus**: Nombre que aparecerá en la UI de Grafana como datasource.
+3. **access proxy**: Grafana accede a Prometheus a través del proxy de Docker (no directamente desde el navegador).
+4. **url**: URL interna de Prometheus en la red de Docker. Usa el nombre del servicio, no localhost.
+5. **isDefault**: Este datasource se usa por defecto en todos los paneles.
+6. **editable**: Permite editar la configuración desde la UI de Grafana.
+
+### Dashboard: Node Exporter
+
+Crea el archivo `/opt/monitoring/grafana/provisioning/dashboards/dashboard.yml`:
+
+```yaml
+# provisioning/dashboards/dashboard.yml
+apiVersion: 1  # <1>
+
+providers:
+  - name: 'default'  # <2>
+    orgId: 1
+    folder: ''  # <3>
+    type: file  # <4>
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards  # <5>
+      foldersFromFilesStructure: false
+```
+1. **apiVersion: 1**: Versión del formato de provisioning.
+2. **name default**: Nombre del proveedor de dashboards.
+3. **folder**: Carpeta donde se guardan los dashboards. Vacío = raíz.
+4. **type file**: Lee dashboards desde archivos JSON en el sistema de archivos.
+5. **path**: Directorio donde Grafana busca los archivos JSON de dashboards.
+
+---
+
+## 2. Dashboard de Node Exporter para Grafana
+
+### Importar Dashboard Preconfigurado
+
+En lugar de crear un dashboard desde cero, vamos a importar uno community. Grafana tiene miles de dashboards compartidos en [grafana.com/grafana/dashboards](https://grafana.com/grafana/dashboards).
+
+**Dashboard recomendado: ID 1860** (Node Exporter Full)
+
+#### Paso a Paso para Importar
+
+1. Abre Grafana en `http://localhost:3000`
+2. Inicia sesión con `admin` / `changeme_production`
+3. Navega a **Dashboards → Import**
+4. Escribe el ID `1860` en el campo "Import via grafana.com"
+5. Haz clic en **Load**
+6. Selecciona el datasource **Prometheus**
+7. Haz clic en **Import**
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+El dashboard **1860** (Node Exporter Full) es el más completo para monitoreo de servidores Linux. Incluye paneles para:
+
+- Uso de CPU por modo (idle, user, system, iowait)
+- Uso de memoria (total, usada, buffers, cache)
+- Uso de disco (lecturas, escrituras, espacio)
+- Tráfico de red (enviados, recibidos)
+- Carga del sistema (load average)
+- Procesos activos
+- Temperatura del CPU (si está disponible)
+:::
+
+### Dashboard Personalizado Básico
+
+Si prefieres crear tu propio dashboard, aquí tienes un JSON básico para empezar:
+
+```json
+{
+  "dashboard": {
+    "title": "Servidor Linux Básico",
+    "panels": [
+      {
+        "title": "Uso de CPU",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+            "legendFormat": "CPU Usage %"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+      },
+      {
+        "title": "Uso de Memoria",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100",  // <2>
+            "legendFormat": "Memory Usage %"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+      }
+    ]
+  }
+}
+```
+1. **Uso de CPU**: Calcula el porcentaje de CPU no-idle. `rate()` calcula la tasa de cambio por segundo.
+2. **Uso de Memoria**: Calcula el porcentaje de memoria usada. `MemAvailable` es más preciso que `MemFree`.
+
+---
+
+## 3. PromQL: Consultas Básicas
+
+### ¿Qué es PromQL?
+
+**PromQL** (Prometheus Query Language) es el lenguaje de consultas de Prometheus. Permite filtrar, agrupar y calcular métricas.
+
+### Consultas Esenciales
+
+#### CPU
+
+```promql
+# Uso de CPU porcentaje (promedio de todos los cores)
+100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)  # <1>
+
+# Uso de CPU por modo
+rate(node_cpu_seconds_total{mode="user"}[5m]) * 100  # <2>
+
+# CPU por núcleo
+avg by (cpu) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100  # <3>
+```
+1. **CPU total**: Resta el tiempo idle del 100% para obtener el uso real.
+2. **CPU por modo**: Muestra cuánto tiempo se usa en modo usuario, sistema, etc.
+3. **CPU por núcleo**: Desglosa el uso por cada núcleo del procesador.
+
+#### Memoria
+
+```promql
+# Porcentaje de memoria usada
+(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100  # <1>
+
+# Memoria libre en GB
+node_memory_MemAvailable_bytes / 1024 / 1024 / 1024  # <2>
+
+# Memoria usada por tipo
+node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes  # <3>
+```
+1. **Memoria usada %**: Usa `MemAvailable` (incluye buffers y cache reutilizable).
+2. **Memoria libre GB**: Convierte bytes a gigabytes para facilitar la lectura.
+3. **Memoria usada bytes**: Diferencia entre total y disponible.
+
+#### Disco
+
+```promql
+# Porcentaje de espacio usado en /
+(1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100  # <1>
+
+# Espacio libre en GB
+node_filesystem_avail_bytes{mountpoint="/"} / 1024 / 1024 / 1024  # <2>
+
+# I/O de disco (lecturas por segundo)
+rate(node_disk_reads_completed_total[5m])  # <3>
+```
+1. **Disco usado %**: Porcentaje de espacioUsed en la partición raíz.
+2. **Disco libre GB**: Espacio disponible en gigabytes.
+3. **I/O disco**: Tasa de operaciones de lectura por segundo.
+
+#### Red
+
+```promql
+# Tráfico de red recibido (bytes/s)
+rate(node_network_receive_bytes_total{device!="lo"}[5m])  # <1>
+
+# Tráfico de red enviado (bytes/s)
+rate(node_network_transmit_bytes_total{device!="lo"}[5m])  # <2>
+
+# Errores de red
+rate(node_network_receive_errs_total[5m])  # <3>
+```
+1. **Red recibida**: Tasa de bytes recibidos por segundo, excluyendo la interfaz loopback.
+2. **Red enviada**: Tasa de bytes transmitidos por segundo.
+3. **Errores de red**: Tasa de errores de recepción. idealmente debe ser 0.
+
+---
+
+## 4. Configurar Alertas en Prometheus
+
+### Archivo de Reglas de Alerta
+
+Crea `/opt/monitoring/prometheus/alert_rules.yml`:
+
+```yaml
+# alert_rules.yml - Reglas de alerta para Prometheus
+groups:
+  - name: host_alerts  # <1>
+    rules:
+      - alert: HighCPU  # <2>
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80  # <3>
+        for: 5m  # <4>
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU alta en {{ $labels.instance }}"
+          description: "CPU está al {{ $value | printf \"%.1f\" }}% por más de 5 minutos."
+
+      - alert: HighMemory  # <5>
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Memoria alta en {{ $labels.instance }}"
+          description: "Memoria está al {{ $value | printf \"%.1f\" }}% por más de 5 minutos."
+
+      - alert: DiskSpaceLow  # <6>
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 85
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disco casi lleno en {{ $labels.instance }}"
+          description: "Disco al {{ $value | printf \"%.1f\" }}%. Liberar espacio urgente."
+```
+1. **group host_alerts**: Grupo de reglas relacionadas con el host.
+2. **alert HighCPU**: Nombre de la alerta. Se dispara cuando CPU > 80% por 5 minutos.
+3. **expr**: Expresión PromQL que define la condición de la alerta.
+4. **for: 5m**: La condición debe ser verdadera por 5 minutos antes de disparar la alerta.
+5. **alert HighMemory**: Alerta cuando memoria > 85% por 5 minutos.
+6. **alert DiskSpaceLow**: Alerta crítica cuando disco > 85% por 10 minutos.
+
+### Actualizar Prometheus para Cargar Reglas
+
+Edita `prometheus.yml` para incluir las reglas:
+
+```yaml
+# Agregar esta sección en prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:  # <1>
+  - "alert_rules.yml"
+
+scrape_configs:
+  # ... (configuración existente)
+```
+1. **rule_files**: Lista de archivos de reglas de alerta que Prometheus debe cargar.
+
+### Recargar Prometheus
+
+```bash
+# Recargar configuración sin reiniciar
+$ curl -X POST http://localhost:9090/-/reload  # <1>
+
+# Verificar que las reglas se cargaron
+$ curl -s http://localhost:9090/api/v1/rules | python3 -m json.tool | head -20  # <2>
+```
+1. **reload**: Prometheus recarga la configuración. Requiere `--web.enable-lifecycle` en el comando de inicio.
+2. **api/v1/rules**: Endpoint que muestra todas las reglas cargadas y su estado.
+
+---
+
+## 5. Monitoreo de Contenedores Docker
+
+### Habilitar Métricas de Docker
+
+Para que Prometheus pueda monitorear los contenedores Docker, necesitas habilitar las métricas del daemon Docker.
+
+#### En Linux
+
+Edita `/etc/docker/daemon.json`:
+
+```json
+{
+  "metrics-addr": "0.0.0.0:9323",  // <1>
+  "experimental": true  // <2>
+}
+```
+1. **metrics-addr**: Dirección y puerto donde Docker expone sus métricas.
+2. **experimental**: Habilita funcionalidades experimentales necesarias para métricas.
+
+#### Reiniciar Docker
+
+```bash
+$ sudo systemctl restart docker  # <1>
+$ sudo docker compose up -d  # <2>
+```
+1. **restart docker**: Aplica los cambios de configuración del daemon.
+2. **up -d**: Levanta nuevamente la pila de monitoreo.
+
+### Métricas de Contenedores Disponibles
+
+Una vez habilitado, Prometheus puede scrapear:
+
+```promql
+# Contenedores activos
+count(container_last_seen)  # <1>
+
+# Uso de CPU por contenedor
+rate(container_cpu_usage_seconds_total[5m]) * 100  # <2>
+
+# Uso de memoria por contenedor
+container_memory_usage_bytes / 1024 / 1024  # <3>
+
+# Tráfico de red por contenedor
+rate(container_network_receive_bytes_total[5m])  # <4>
+```
+1. **Contenedores activos**: Cuenta cuántos contenedores están corriendo.
+2. **CPU por contenedor**: Porcentaje de CPU usado por cada contenedor.
+3. **Memoria por contenedor**: Memoria usada en megabytes.
+4. **Red por contenedor**: Tráfico de red recibido por segundo.
+
+---
+
+## Resumen
+
+| Componente | Archivo | Propósito |
+|------------|---------|-----------|
+| **Datasource** | `grafana/provisioning/datasources/prometheus.yml` | Auto-conectar Grafana a Prometheus |
+| **Dashboard Config** | `grafana/provisioning/dashboards/dashboard.yml` | Auto-cargar dashboards |
+| **Dashboard JSON** | `grafana/dashboards/*.json` | Paneles de visualización |
+| **Alert Rules** | `prometheus/alert_rules.yml` | Reglas de alerta |
+| **Prometheus Config** | `prometheus/prometheus.yml` | Configuración principal |
+
+En la siguiente sección, vamos a configurar NetBox como inventario de infraestructura.

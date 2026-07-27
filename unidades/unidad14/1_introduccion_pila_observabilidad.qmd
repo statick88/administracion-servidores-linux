@@ -1,0 +1,245 @@
+---
+title: "Monitoreo, Inventario y Observabilidad con Docker"
+subtitle: "NetBox, Prometheus y Grafana para servidores Linux"
+author: "Diego Saavedra"
+date: "2026-07-27"
+---
+
+# Unidad 14: Monitoreo, Inventario y Observabilidad
+
+## Introducción
+
+Un servidor sin monitoreo es un servidor a ciegas. No sabes cuándo se va a caer, cuándo se queda sin disco, o cuándo un servicio deja de responder. En esta unidad vas a construir una **pila completa de observabilidad** usando Docker: un inventario de infraestructura (NetBox), un sistema de métricas (Prometheus) y un dashboard visual (Grafana).
+
+**¿Por qué Docker?** Porque todos estos componentes son contenedores. Los levantas con un solo `docker compose up`, los actualizas con un `docker compose pull`, y los dejas de lado con `docker compose down`. Sin dependencias del sistema, sin conflictos de versiones, sin drama.
+
+---
+
+## Objetivos de la Unidad
+
+Al finalizar esta unidad, serás capaz de:
+
+1. Explicar la diferencia entre **monitoreo**, **inventario** y **observabilidad**.
+2. Describir la **arquitectura** de una pila de observabilidad con Prometheus, Grafana y NetBox.
+3. Implementar la pila completa usando **Docker Compose**.
+4. Configurar **Prometheus** para recolectar métricas de hosts y contenedores.
+5. Crear **dashboards en Grafana** para visualizar el estado del sistema.
+6. Desplegar **NetBox** como fuente única de verdad (SSoT) para el inventario de infraestructura.
+7. Aplicar **buenas prácticas** de seguridad y persistencia en entornos de producción.
+
+---
+
+## 1. Conceptos Fundamentales
+
+### Monitoreo vs. Inventario vs. Observabilidad
+
+Estos tres conceptos se superponen pero son distintos:
+
+| Concepto | Qué responde | Ejemplo |
+|----------|-------------|---------|
+| **Monitoreo** | ¿Está funcionando? | "El CPU está al 85%, el servicio nginx responde" |
+| **Inventario** | ¿Qué tengo? | "Tengo 3 servidores web, 2 bases de datos, 1 balanceador" |
+| **Observabilidad** | ¿Por qué está pasando? | "El CPU subió porque el job de reporting corre a las 3am y genera I/O intensivo" |
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Monitoreo** te dice que algo falló. **Observabilidad** te dice por qué. **Inventario** te dice dónde está. Los tres juntos te dan control total sobre tu infraestructura.
+:::
+
+### La Pila de Observabilidad que Vamos a Construir
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PILA DE OBSERVABILIDAD                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     │
+│   │   NetBox     │    │  Prometheus  │    │   Grafana    │     │
+│   │  (Inventario)│    │  (Métricas)  │    │ (Visualización)│   │
+│   └──────┬───────┘    └──────┬───────┘    └──────┬───────┘     │
+│          │                    │                    │              │
+│          │                    │                    │              │
+│   ┌──────┴───────┐    ┌──────┴───────┐    ┌──────┴───────┐     │
+│   │ PostgreSQL   │    │  Node        │    │  Datasources │     │
+│   │ Redis        │    │  Exporter    │    │  (Prometheus)│     │
+│   └──────────────┘    └──────────────┘    └──────────────┘     │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Fluxo de Datos
+
+Los datos fluyen en una dirección:
+
+1. **Node Exporter** (en cada host) expone métricas del sistema en `:9100/metrics`.
+2. **Prometheus** hace *scrape* de Node Exporter cada 15 segundos y almacena las series temporales.
+3. **Grafana** consulta Prometheus y muestra dashboards visualizados.
+4. **NetBox** almacena el inventario estático (IPs, dispositivos, circuitos) y se enlaza con Prometheus para enriquecer métricas con contexto de negocio.
+
+::: {.callout-note}
+## 📝 NOTA
+
+Prometheus no recibe datos empujados (*push*). En su lugar, **hace preguntas** (*pull/scrape*) a los endpoints de métricas. Esto simplifica la arquitectura: los exporters solo exponen un HTTP endpoint y Prometheus se encarga de recolectar.
+:::
+
+---
+
+## 2. Componentes de la Pila
+
+### Prometheus: El Motor de Métricas
+
+**Prometheus** es un sistema de monitoreo y alerting open-source diseñado para la fiabilidad. Sus características clave:
+
+- **Modelo de datos**: Series temporales con etiquetas (labels). Ejemplo: `node_cpu_seconds_total{mode="idle",cpu="0"}`.
+- **Lenguaje de consulta**: PromQL (Prometheus Query Language).
+- **Scrape-based**: No necesita agentes instalados; solo un HTTP endpoint accesible.
+- **Alertas**: Alertmanager procesa alertas y las envía por email, Slack, webhook, etc.
+
+```yaml
+# Ejemplo de configuración de scrape en Prometheus
+scrape_configs:
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']  # <1>
+    scrape_interval: 15s  # <2>
+```
+1. **targets**: Lista de endpoints que Prometheus debe scrapear. Aquí apuntamos al contenedor `node-exporter` en el puerto 9100.
+2. **scrape_interval**: Cada cuánto tiempo Prometheus pregunta por métricas. 15 segundos es un buen equilibrio entre precisión y carga.
+
+### Grafana: El Panel de Control
+
+**Grafana** es la herramienta de visualización. Conecta a Prometheus como *datasource* y crea dashboards interactivos:
+
+- **Dashboards**: Paneles con gráficos, tablas, estadísticas y alertas.
+- **Variables**: Dashboards dinámicos que cambian según el host o servicio seleccionado.
+- **Alertas**: Puedes configurar alertas directamente en Grafana basadas en métricas de Prometheus.
+- **Export/Import**: Dashboards compartidos como JSON.
+
+### NetBox: El Inventario (SSoT)
+
+**NetBox** es la **fuente única de verdad** (*Single Source of Truth*) para tu infraestructura:
+
+- **Inventario de dispositivos**: Servidores, switches, routers, firewalls.
+- **Gestión de IPs**: Asignación de direcciones IP, rangos, VRFs.
+- **Topología de red**: Circuitos, conexiones entre dispositivos.
+- **Documentación**: Rack elevations, interfaces, cables.
+- **API**: REST API completa para integración con otras herramientas.
+
+::: {.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**NetBox NO es una herramienta de monitoreo.** No recolecta métricas ni alerta sobre el estado de los dispositivos. NetBox almacena el **inventario estático**: qué tienes, dónde está, quién es el responsable. Para saber si algo está funcionando, usa Prometheus y Grafana.
+:::
+
+---
+
+## 3. Requisitos del Entorno
+
+### Hardware Mínimo
+
+| Recurso | Mínimo | Recomendado |
+|---------|--------|-------------|
+| **CPU** | 2 cores | 4+ cores |
+| **RAM** | 4 GB | 8+ GB |
+| **Disco** | 20 GB libres | 50+ GB (métricas acumuladas) |
+| **Red** | Acceso a internet | Acceso LAN + internet |
+
+### Software Requerido
+
+```bash
+# Verificar Docker instalado
+$ docker --version  # <1>
+Docker version 27.5.1, build 9f9e405
+
+# Verificar Docker Compose
+$ docker compose version  # <2>
+Docker Compose version v2.32.4
+```
+1. **docker --version**: Necesitas Docker 20.10+ para compatibilidad completa con Compose.
+2. **docker compose version**: El plugin `docker compose` (sin guion) reemplaza al binario `docker-compose` (con guion).
+
+### Puertos que Debemos Exponer
+
+| Servicio | Puerto | Propósito |
+|----------|--------|-----------|
+| **Prometheus** | 9090 | UI y API de Prometheus |
+| **Grafana** | 3000 | UI de Grafana (dashboards) |
+| **NetBox** | 8080 | UI de NetBox (inventario) |
+| **Node Exporter** | 9100 | Métricas del sistema (host) |
+
+::: {.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**No expongas estos puertos a internet** sin autenticación y TLS. En producción, úsalos solo en red interna o detrás de un reverse proxy con autenticación.
+:::
+
+---
+
+## 4. Arquitectura del Despliegue
+
+### Estructura de Directorios
+
+```
+/opt/monitoring/
+├── docker-compose.yml          # Orquestación de todos los servicios
+├── prometheus/
+│   ├── prometheus.yml          # Configuración de Prometheus
+│   └── alertmanager.yml        # Configuración de alertas (opcional)
+├── grafana/
+│   ├── provisioning/
+│   │   ├── datasources/
+│   │   │   └── prometheus.yml  # Auto-configuración del datasource
+│   │   └── dashboards/
+│   │       └── dashboard.yml   # Configuración de dashboards
+│   └── dashboards/
+│       └── node-exporter.json  # Dashboard preconfigurado
+├── netbox/
+│   ├── configuration.py        # Configuración de NetBox
+│   └── docker-compose.override.yml  # Overrides específicos
+└── data/
+    ├── prometheus/             # Datos persistentes de Prometheus
+    ├── grafana/                # Datos persistentes de Grafana
+    └── netbox/                 # Datos persistentes de NetBox (PostgreSQL)
+```
+
+### Diagrama de Red
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     RED INTERNA (172.20.0.0/24)                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   HOST A (172.20.0.10)                                          │
+│   ├── node-exporter:9100 ──────┐                               │
+│   └── app-server:8080          │                               │
+│                                 │                               │
+│   HOST B (172.20.0.11)          │                               │
+│   ├── node-exporter:9100 ──────┤                               │
+│   └── app-server:8080          │                               │
+│                                 │                               │
+│   ┌─────────────────────────────┘                               │
+│   │                                                              │
+│   │   SERVIDOR DE MONITOREO (172.20.0.100)                      │
+│   │   ├── prometheus:9090 ←── scrape ──→ node-exporters        │
+│   │   ├── grafana:3000 ←──── query ──── prometheus             │
+│   │   ├── netbox:8080 ────── inventario ──→ PostgreSQL          │
+│   │   └── postgres:5432 ──── datos ────── netbox               │
+│   │                                                              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Resumen
+
+| Componente | Rol | Puerto | Datos |
+|------------|-----|--------|-------|
+| **Prometheus** | Motor de métricas | 9090 | Series temporales (scrape) |
+| **Grafana** | Visualización | 3000 | Dashboards (consulta Prometheus) |
+| **NetBox** | Inventario (SSoT) | 8080 | Dispositivos, IPs, topología |
+| **Node Exporter** | Métricas del host | 9100 | CPU, RAM, disco, red |
+| **PostgreSQL** | Base de datos | 5432 | Datos de NetBox |
+| **Redis** | Caché | 6379 | Sesiones de NetBox |
+
+En la siguiente sección, vamos a desplegar toda esta pila con un solo comando: `docker compose up`.
