@@ -1,0 +1,351 @@
+---
+title: "Anexo N: Configuración de SSH con Llaves para Servidores"
+author: "Diego Saavedra"
+date: "2026-07-21"
+bibliography: ../references.bib
+biblio-style: apalike
+---
+
+# Anexo N: Configuración de SSH con Llaves para Servidores
+
+Tutorial práctico paso a paso para configurar acceso SSH sin contraseña a servidores Ubuntu Server usando llaves criptográficas ed25519.
+
+---
+
+## ¿Por qué SSH con llaves?
+
+Las contraseñas son vulnerables a ataques de fuerza bruta. Las llaves criptográficas son:
+
+- **Más seguras**: La llave privada nunca sale de tu máquina
+- **Más cómodas**: No necesitas recordar contraseñas
+- **Más rápidas**: Autenticación instantánea
+
+**Comparación de métodos:**
+
+| Método | Seguridad | Comodidad | Velocidad |
+|---|---|---|---|
+| Contraseña | ⚠️ Baja | ❌ Mala | ⚠️ Lenta |
+| Llave SSH | ✅ Alta | ✅ Buena | ✅ Rápida |
+| Llave + Agente | ✅✅ Muy alta | ✅✅ Excelente | ✅✅ Instantánea |
+
+---
+
+## Paso 1: Generar Llave SSH
+
+### Linux / macOS
+
+```bash
+$ ssh-keygen -t ed25519 -C "tu@email.com"
+```
+
+Salida esperada:
+
+```
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/usuario/.ssh/id_ed25519):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/usuario/.ssh/id_ed25519
+Your public key has been saved in /home/usuario/.ssh/id_ed25519.pub
+```
+
+### Windows (PowerShell)
+
+```powershell
+PS> ssh-keygen -t ed25519 -C "tu@email.com"
+```
+
+**¿Qué está pasando?**
+
+1. Se generan dos archivos: `id_ed25519` (privada) y `id_ed25519.pub` (pública)
+2. La passphrase protege tu llave privada en disco
+3. Si pierdes la passphrase, pierdes acceso — guárdala en un gestor de contraseñas
+
+### Si el servidor no acepta ed25519
+
+Algunos servidores antiguos no soportan ed25519. Usa RSA como alternativa:
+
+```bash
+$ ssh-keygen -t rsa -b 4096 -C "tu@email.com"
+```
+
+:::{.callout-warning}
+## ⚠️ Preferir ed25519 sobre RSA
+
+ed25519 es más rápido, más seguro y produce llaves más cortas. Solo usa RSA si el servidor lo requiere explícitamente.
+:::
+
+---
+
+## Paso 2: Copiar Llave al Servidor
+
+### Usando ssh-copy-id (Linux / macOS)
+
+```bash
+$ ssh-copy-id ubuntu@192.168.1.100
+```
+
+Te pedirá la contraseña **una última vez**:
+
+```
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s)
+ubuntu@192.168.1.100's password:
+
+Number of key(s) added: 1
+```
+
+**¿Qué hace ssh-copy-id?**
+
+1. Copia automáticamente tu llave pública al servidor
+2. La guarda en `~/.ssh/authorized_keys` del servidor
+3. Solo necesitas hacer esto **una vez por servidor**
+
+### Si ssh-copy-id no está disponible (Windows)
+
+Usa este método manual:
+
+```powershell
+# Copiar contenido de la llave pública
+PS> type $env:USERPROFILE\.ssh\id_ed25519.pub
+
+# Conectarte al servidor y agregar al authorized_keys
+PS> ssh ubuntu@192.168.1.100
+ubuntu@servidor:~$ mkdir -p ~/.ssh && chmod 700 ~/.ssh
+ubuntu@servidor:~$ echo "TU_LLAVE_PUBLICA_AQUI" >> ~/.ssh/authorized_keys
+ubuntu@servidor:~$ chmod 600 ~/.ssh/authorized_keys
+```
+
+---
+
+## Paso 3: Configurar ~/.ssh/config
+
+Crea o edita el archivo `~/.ssh/config` en tu computadora local:
+
+```bash
+$ nano ~/.ssh/config
+```
+
+Agrega esta configuración:
+
+```
+Host servidor-ubuntu
+    HostName 192.168.1.100
+    User ubuntu
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+Guarda el archivo y dale permisos:
+
+```bash
+$ chmod 600 ~/.ssh/config
+```
+
+### Configuración avanzada
+
+```
+Host servidor-ubuntu
+    HostName 192.168.1.100
+    User ubuntu
+    IdentityFile ~/.ssh/id_ed25519
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    ForwardAgent yes
+```
+
+**Opciones útiles:**
+
+| Opción | Descripción |
+|---|---|
+| `ServerAliveInterval 60` | Envía keepalive cada 60 segundos |
+| `ServerAliveCountMax 3` | Cierra conexión tras 3 fallos de keepalive |
+| `ForwardAgent yes` | Reenvía el agente SSH al servidor remoto |
+| `StrictHostKeyChecking no` | Añade el host automáticamente (solo desarrollo) |
+
+---
+
+## Paso 4: Conectarte Sin Contraseña
+
+Ahora puedes conectarte así:
+
+```bash
+$ ssh servidor-ubuntu
+```
+
+Sin pedir contraseña. Así de simple.
+
+### Verificación
+
+```bash
+$ ssh -T servidor-ubuntu
+```
+
+Si todo está bien, verás:
+
+```
+Welcome to Ubuntu!
+```
+
+---
+
+## Paso 5 (Opcional): Configurar Agente SSH
+
+El agente SSH mantiene tus llaves cargadas en memoria para no reingresar la passphrase cada vez.
+
+### Linux / macOS
+
+```bash
+# Iniciar el agente
+$ eval "$(ssh-agent -s)"
+Agent pid 12345
+
+# Agregar la llave
+$ ssh-add ~/.ssh/id_ed25519
+Enter passphrase for ~/.ssh/id_ed25519: [tu passphrase]
+Identity added: ~/.ssh/id_ed25519
+```
+
+### Persistir el agente al iniciar sesión
+
+Agrega a `~/.bashrc` o `~/.zshrc`:
+
+```bash
+# Auto-iniciar ssh-agent
+if [ -z "$SSH_AUTH_SOCK" ]; then
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/id_ed25519 2>/dev/null
+fi
+```
+
+### macOS: Usar Keychain
+
+```bash
+$ ssh-add -K ~/.ssh/id_ed25519
+```
+
+Agrega a `~/.ssh/config`:
+
+```
+Host *
+    AddKeysToAgent yes
+    UseKeychain yes
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+:::{.callout-tip}
+## 💡 La passphrase nunca se guarda en texto plano
+
+El agente SSH almacena la llave descifrada en memoria, pero la passphrase nunca se escribe en disco. Si tu máquina se apaga, necesitarás reingresarla.
+:::
+
+---
+
+## Resumen de Archivos SSH
+
+| Archivo | Ubicación | Propósito |
+|---|---|---|
+| `id_ed25519` | Tu computadora | Llave privada (NUNCA compartir) |
+| `id_ed25519.pub` | Tu computadora | Llave pública (copiar al servidor) |
+| `authorized_keys` | Servidor | Lista de llaves permitidas |
+| `config` | Tu computadora | Atajos de conexión |
+
+---
+
+## Troubleshooting SSH
+
+### Problema: Todavía pide contraseña
+
+```
+Causas comunes:
+
+1. Permisos incorrectos en el servidor
+   └─ Solución: chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys
+
+2. SELinux habilitado
+   └─ Solución: restorecon -Rv ~/.ssh
+
+3. sshd_config con PasswordAuthentication yes
+   └─ Solución: Editar /etc/ssh/sshd_config y cambiar a no
+```
+
+### Problema: "Permission denied (publickey)"
+
+```
+Causas:
+
+1. La llave no se copió correctamente
+   └─ Solución: ssh-copy-id usuario@ip_nuevamente
+
+2. El servidor no acepta llaves ed25519
+   └─ Solución: Generar con ssh-keygen -t rsa -b 4096
+
+3. Nombre de usuario incorrect
+   └─ Solución: Verificar con whoami en el servidor
+```
+
+### Problema: Conexión muy lenta
+
+```
+Causas:
+
+1. Resolución DNS lenta en el servidor
+   └─ Solución: Usar IP directa en HostName
+
+2. Reverse DNS no configurado
+   └─ Solución: Agregar UseDNS no en /etc/ssh/sshd_config
+
+3. Timeout de autenticación
+   └─ Solución: Agregar ServerAliveInterval 60 en config
+```
+
+---
+
+## Seguridad: Buenas Prácticas
+
+### En el servidor
+
+1. **Deshabilitar login con contraseña** en producción:
+
+```bash
+$ sudo nano /etc/ssh/sshd_config
+```
+
+Cambiar:
+
+```
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
+```
+
+2. **Cambiar el puerto SSH** (opcional):
+
+```
+Port 2222
+```
+
+3. **Restringir usuarios**:
+
+```
+AllowUsers ubuntu admin
+```
+
+4. **Reiniciar sshd**:
+
+```bash
+$ sudo systemctl restart sshd
+```
+
+### En el cliente
+
+- **Nunca compartas tu llave privada** (`id_ed25519`)
+- **Usa passphrase** en todas las llaves
+- **Usa un gestor de contraseñas** para las passphrases
+- **Revisa los fingerprints** antes de aceptar conexiones
+
+---
+
+## Referencias
+
+- [OpenSSH Manual](https://www.openssh.com/manual.html)
+- [Arch Wiki: SSH](https://wiki.archlinux.org/title/SSH)
+- [Ubuntu SSH Guide](https://help.ubuntu.com/community/SSH)
