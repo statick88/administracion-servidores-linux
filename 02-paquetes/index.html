@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Diego Saavedra - Instructor Principal">
+<meta name="dcterms.date" content="2026-07-20">
+<meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
+
+<title>UNIDAD II: Gestión de Paquetes y Entornos – Administración de Servidores Linux</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../03-scripting/index.html" rel="next">
+<link href="../01-fundamentos/index.html" rel="prev">
+<link href="../logo.jpeg" rel="icon" type="image/jpeg">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-23bbe8b5e4efc1e257f6d59dce478b08.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-abfa4615eba2ed0d4bb7fb949ed9c296.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e2c78d758adb40864c429e99cf005747.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdown-init.js"></script>
+<link href="../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+<script src="../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
+<link href="../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../02-paquetes/index.html">UNIDAD II: Gestión de Paquetes y Entornos</a></li><li class="breadcrumb-item"><a href="../02-paquetes/index.html"><span class="chapter-title">UNIDAD II: Gestión de Paquetes y Entornos</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../logo.jpeg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../logo.jpeg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Administración de Servidores Linux</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/statick88/administracion-servidores-linux" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Administración de Servidores Linux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introducción al Curso</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acerca del Instructor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../license.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licencia</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SETUP.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Guía de Configuración del Entorno</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../glosario.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Glosario del Curso</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD I: Fundamentos de Linux y Virtualización Ligera</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../01-fundamentos/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD I: Fundamentos de Linux y Virtualización Ligera</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">UNIDAD II: Gestión de Paquetes y Entornos</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../02-paquetes/index.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">UNIDAD II: Gestión de Paquetes y Entornos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD III: Scripting y Automatización con Bash</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../03-scripting/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD III: Scripting y Automatización con Bash</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD IV: Administración y Seguridad de Usuarios</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../04-usuarios/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD IV: Administración y Seguridad de Usuarios</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD V: Gestión de Procesos y Logs</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../05-procesos/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD V: Gestión de Procesos y Logs</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD VI: Redes y Almacenamiento Local</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../06-redes/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD VI: Redes y Almacenamiento Local</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD VII: Seguridad Práctica - Hardening</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../07-seguridad/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD VII: Seguridad Práctica — Hardening</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD VIII: Introducción a Docker</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../08-docker/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD VIII: Introducción a Docker</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD IX: Nginx como Servidor Web y Proxy</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../09-nginx/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD IX: Nginx como Servidor Web y Proxy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD X: Certificados SSL y HTTPS</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../10-ssl/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD X: Certificados SSL y HTTPS</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../11-bases-datos/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 12: Diagnostico y Troubleshooting</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/2_logs_journalctl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.2: Logs y journalctl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/3_red_puertos_dns.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.3: Red, puertos y DNS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 13: Usuarios y Permisos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/1_usuarios_grupos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Usuarios y Grupos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/2_permisos_chmod.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Permisos y chmod</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/3_sudo_administracion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sudo y Administración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/4_lab_practico_usuarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio Práctico: Usuarios y Permisos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Recursos y Referencias</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 14: Monitoreo e Inventario con Docker</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/1_introduccion_pila_observabilidad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Monitoreo, Inventario y Observabilidad con Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/2_docker_compose_deploy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Despliegue con Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/3_configuracion_prometheus_grafana.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración de Prometheus y Grafana</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/4_netbox_configuracion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración de NetBox</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/5_lab_practico_monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio Práctico: Monitoreo e Inventario</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 15: Docker Básico</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/1_introduccion_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduccion a Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/2_dockerfile_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dockerfile y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/3_servidores_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Servidores en Docker</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false">
+ <span class="menu-text">Laboratorios Prácticos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-17" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorios Prácticos - Administración de Servidores Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab0_fundamentos_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 0: Diagnostico Basico del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab1_fundamentos_wsl2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 1: Fundamentos WSL2 y Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab4_usuarios_permisos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2: Gestión de Usuarios y Permisos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab5_procesos_servicios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 3: Administración de Procesos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab5b_troubleshooting_integrado.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab6_redes_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4: Redes y SSH</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab6b_almacenamiento_montajes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab7_hardening_ufw_fail2ban.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2B: Hardening Basico Post-Instalacion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab8_docker_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4B: Docker y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9_http_diagnostico_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 6: HTTP Basico y Diagnostico Web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9_nginx_virtualhost.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 9: Nginx - Sitio y Virtual Host</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9b_nginx_reverseproxy_tls.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 8: Nginx - Reverse Proxy + TLS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab11_bd_mariadb_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Bases de Datos en Contenedores — MariaDB</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false">
+ <span class="menu-text">Laboratorios Avanzados</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-18" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab13_openclaw_telegram_tailscale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab14_opencode_ssh_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: OpenCode + SSH - Administración Remota de Servidores</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">Prácticas por Unidad</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 1: Fundamentos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 2: Instalacion y Primer Hardening</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 3: Terminal y Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 4: Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad12.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 12: Troubleshooting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 6: Almacenamiento</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 7: Redes basicas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 8: HTTP Basico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 9: Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 10: Nginx y SSL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad11.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 11: MariaDB</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false">
+ <span class="menu-text">Retos GNU/Linux (Wargames)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-20" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retos GNU/Linux (Bandit)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/01_niveles_1_12.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 1→2 hasta 12→13</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/02_niveles_13_23.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 13→14 hasta 23→24</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/03_niveles_24_34.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 24→25 hasta 33→34</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-21" role="navigation" aria-expanded="false">
+ <span class="menu-text">Presentaciones (Reveal.js)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-21" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-21" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../presentaciones.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Presentaciones (Reveal.js)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-22" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 1: Fundamentos)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-22" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-22" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_B_Editores_Vi_Nvim.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo B: Editores Vi y Nvim - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_L_SSH_GitHub_Minicurso.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Minicurso: Configuración de SSH para GitHub</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_H_SSH_SCP_Keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo H: SSH, SCP y Llaves - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_D_Herramientas_Monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_F_Ranger_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Ranger: Gestor de Archivos Terminal para Servidores</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 2: Intermedio)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-23" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-24" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 3: Avanzado)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-24" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-24" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_G_OpenCode_Gestion_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo G: OpenCode - Mini-Curso para Gestión de Servidores</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_I_Openclaw_Telegram_Abacombot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/rsync-nginx-course.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Rsync y Nginx - Guía de Laboratorio</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-25" role="navigation" aria-expanded="false">
+ <span class="menu-text">Evaluación: Quizzes Interactivos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-25" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-25" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluación: Quizzes Interactivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 1: Fundamentos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 2: Instalación y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 3: Comandos Básicos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 4: Docker y Containerización</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 5: Procesos y Servicios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 6: Almacenamiento y Sistemas de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 7: Redes Básicas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 8: Introducción a Servidores Web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 9: Apache (Servidor Web)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 10: Nginx y SSL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad11.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 11: MariaDB/MySQL</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false">
+ <span class="menu-text">Evaluación: Quizzes Avanzados (Bonus)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-26" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/README_avanzado.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quizzes Avanzados (Bonus)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Docker en Producción</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Nginx y SSL en Producción</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Troubleshooting en Linux</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#unidad-ii-gestión-de-paquetes-y-entornos" id="toc-unidad-ii-gestión-de-paquetes-y-entornos" class="nav-link active" data-scroll-target="#unidad-ii-gestión-de-paquetes-y-entornos">UNIDAD II: Gestión de Paquetes y Entornos</a>
+  <ul class="collapse">
+  <li><a href="#objetivos-de-la-unidad" id="toc-objetivos-de-la-unidad" class="nav-link" data-scroll-target="#objetivos-de-la-unidad">Objetivos de la Unidad</a></li>
+  <li><a href="#gestión-de-paquetes-en-ubuntudebian-apt-avanzado" id="toc-gestión-de-paquetes-en-ubuntudebian-apt-avanzado" class="nav-link" data-scroll-target="#gestión-de-paquetes-en-ubuntudebian-apt-avanzado">1. Gestión de Paquetes en Ubuntu/Debian — APT Avanzado</a>
+  <ul class="collapse">
+  <li><a href="#conceptos-clave" id="toc-conceptos-clave" class="nav-link" data-scroll-target="#conceptos-clave">1.1 Conceptos clave</a></li>
+  <li><a href="#comandos-esenciales" id="toc-comandos-esenciales" class="nav-link" data-scroll-target="#comandos-esenciales">1.2 Comandos esenciales</a></li>
+  <li><a href="#gestión-de-repositorios-y-claves-gpg-crítico-para-seguridad" id="toc-gestión-de-repositorios-y-claves-gpg-crítico-para-seguridad" class="nav-link" data-scroll-target="#gestión-de-repositorios-y-claves-gpg-crítico-para-seguridad">1.3 Gestión de repositorios y claves GPG — <strong>Crítico para seguridad</strong></a></li>
+  <li><a href="#ppa-personal-package-archives-solo-cuando-sea-necesario" id="toc-ppa-personal-package-archives-solo-cuando-sea-necesario" class="nav-link" data-scroll-target="#ppa-personal-package-archives-solo-cuando-sea-necesario">1.4 PPA (Personal Package Archives) — Solo cuando sea necesario</a></li>
+  <li><a href="#holdpinning-congelar-versiones-en-producción" id="toc-holdpinning-congelar-versiones-en-producción" class="nav-link" data-scroll-target="#holdpinning-congelar-versiones-en-producción">1.5 Hold/Pinning — Congelar versiones en producción</a></li>
+  </ul></li>
+  <li><a href="#gestión-de-paquetes-en-rhelfedora-dnf" id="toc-gestión-de-paquetes-en-rhelfedora-dnf" class="nav-link" data-scroll-target="#gestión-de-paquetes-en-rhelfedora-dnf">2. Gestión de Paquetes en RHEL/Fedora — DNF</a>
+  <ul class="collapse">
+  <li><a href="#equivalencias-apt-dnf" id="toc-equivalencias-apt-dnf" class="nav-link" data-scroll-target="#equivalencias-apt-dnf">2.1 Equivalencias APT ↔︎ DNF</a></li>
+  <li><a href="#repos-y-claves-en-dnf" id="toc-repos-y-claves-en-dnf" class="nav-link" data-scroll-target="#repos-y-claves-en-dnf">2.2 Repos y claves en DNF</a></li>
+  </ul></li>
+  <li><a href="#flatpak-snap-y-appimage-apps-de-usuario-sandbox" id="toc-flatpak-snap-y-appimage-apps-de-usuario-sandbox" class="nav-link" data-scroll-target="#flatpak-snap-y-appimage-apps-de-usuario-sandbox">3. Flatpak, Snap y AppImage — Apps de usuario / sandbox</a>
+  <ul class="collapse">
+  <li><a href="#flatpak-recomendado-para-apps-de-usuario" id="toc-flatpak-recomendado-para-apps-de-usuario" class="nav-link" data-scroll-target="#flatpak-recomendado-para-apps-de-usuario">3.1 Flatpak (recomendado para apps de usuario)</a></li>
+  <li><a href="#snap-ubuntu-lo-trae-por-defecto" id="toc-snap-ubuntu-lo-trae-por-defecto" class="nav-link" data-scroll-target="#snap-ubuntu-lo-trae-por-defecto">3.2 Snap (Ubuntu lo trae por defecto)</a></li>
+  <li><a href="#appimage-binario-portable" id="toc-appimage-binario-portable" class="nav-link" data-scroll-target="#appimage-binario-portable">3.3 AppImage — Binario portable</a></li>
+  </ul></li>
+  <li><a href="#git-configuración-profesional-y-firma-de-commits" id="toc-git-configuración-profesional-y-firma-de-commits" class="nav-link" data-scroll-target="#git-configuración-profesional-y-firma-de-commits">4. Git — Configuración profesional y firma de commits</a>
+  <ul class="collapse">
+  <li><a href="#configuración-base-obligatoria" id="toc-configuración-base-obligatoria" class="nav-link" data-scroll-target="#configuración-base-obligatoria">4.1 Configuración base (obligatoria)</a></li>
+  <li><a href="#claves-ssh-ed25519-ya-generadas-en-unidad-i-pero-repasemos" id="toc-claves-ssh-ed25519-ya-generadas-en-unidad-i-pero-repasemos" class="nav-link" data-scroll-target="#claves-ssh-ed25519-ya-generadas-en-unidad-i-pero-repasemos">4.2 Claves SSH (ed25519) — Ya generadas en Unidad I, pero repasemos</a></li>
+  <li><a href="#firma-de-commits-con-gpg-requerido-en-abacom" id="toc-firma-de-commits-con-gpg-requerido-en-abacom" class="nav-link" data-scroll-target="#firma-de-commits-con-gpg-requerido-en-abacom">4.3 Firma de commits con GPG — <strong>Requerido en Abacom</strong></a></li>
+  <li><a href="#verificar-firma" id="toc-verificar-firma" class="nav-link" data-scroll-target="#verificar-firma">4.4 Verificar firma</a></li>
+  </ul></li>
+  <li><a href="#laboratorio-práctico-repos-claves-y-git-pro" id="toc-laboratorio-práctico-repos-claves-y-git-pro" class="nav-link" data-scroll-target="#laboratorio-práctico-repos-claves-y-git-pro">5. Laboratorio Práctico: Repos, Claves y Git Pro</a></li>
+  <li><a href="#resumen-y-próximos-pasos" id="toc-resumen-y-próximos-pasos" class="nav-link" data-scroll-target="#resumen-y-próximos-pasos">6. Resumen y Próximos Pasos</a>
+  <ul class="collapse">
+  <li><a href="#checklist-de-competencias-unidad-ii" id="toc-checklist-de-competencias-unidad-ii" class="nav-link" data-scroll-target="#checklist-de-competencias-unidad-ii">📋 Checklist de competencias Unidad II</a></li>
+  </ul></li>
+  <li><a href="#recursos-y-referencias" id="toc-recursos-y-referencias" class="nav-link" data-scroll-target="#recursos-y-referencias">7. Recursos y Referencias</a></li>
+  <li><a href="#quiz-interactivo-quizdown" id="toc-quiz-interactivo-quizdown" class="nav-link" data-scroll-target="#quiz-interactivo-quizdown">8. Quiz Interactivo (quizdown)</a></li>
+  </ul></li>
+  <li>Code Appendix</li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/02-paquetes/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../02-paquetes/index.html">UNIDAD II: Gestión de Paquetes y Entornos</a></li><li class="breadcrumb-item"><a href="../02-paquetes/index.html"><span class="chapter-title">UNIDAD II: Gestión de Paquetes y Entornos</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">UNIDAD II: Gestión de Paquetes y Entornos</span></h1>
+<p class="subtitle lead">APT vs DNF, PPA, Flatpak/Snap, Firmas GPG, Git — Enfoque Práctico Abacom™</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra - Instructor Principal </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 20, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="unidad-ii-gestión-de-paquetes-y-entornos" class="level1">
+<h1>UNIDAD II: Gestión de Paquetes y Entornos</h1>
+<section id="objetivos-de-la-unidad" class="level2">
+<h2 class="anchored" data-anchor-id="objetivos-de-la-unidad">Objetivos de la Unidad</h2>
+<p>Al finalizar esta unidad, serás capaz de:</p>
+<ul>
+<li>Gestionar paquetes en <strong>Ubuntu/Debian (APT)</strong> y <strong>RHEL/Fedora (DNF)</strong> con fluidez.</li>
+<li>Añadir repositorios de terceros (<strong>PPA</strong>, repos oficiales Docker, Kubernetes, Node.js) verificando <strong>firmas GPG</strong>.</li>
+<li>Entender y usar <strong>Flatpak/Snap</strong> para aplicaciones de usuario y <strong>AppImage</strong> para binarios portables.</li>
+<li>Configurar <strong>Git</strong> con claves SSH, firmas de commits (GPG), y flujos de trabajo profesionales.</li>
+<li>Aplicar <strong>pinning/apt preferences</strong> para congelar versiones críticas en servidores.</li>
+</ul>
+<hr>
+</section>
+<section id="gestión-de-paquetes-en-ubuntudebian-apt-avanzado" class="level2">
+<h2 class="anchored" data-anchor-id="gestión-de-paquetes-en-ubuntudebian-apt-avanzado">1. Gestión de Paquetes en Ubuntu/Debian — APT Avanzado</h2>
+<section id="conceptos-clave" class="level3">
+<h3 class="anchored" data-anchor-id="conceptos-clave">1.1 Conceptos clave</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 43%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concepto</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Paquete (.deb)</strong></td>
+<td>Archivo binario con metadatos, dependencias, scripts pre/post-inst.</td>
+</tr>
+<tr class="even">
+<td><strong>Repositorio</strong></td>
+<td>Servidor con índice <code>Packages.gz</code> + archivos <code>.deb</code> firmados.</td>
+</tr>
+<tr class="odd">
+<td><strong>Clave GPG</strong></td>
+<td>Firma criptográfica que garantiza integridad y autoría del repo.</td>
+</tr>
+<tr class="even">
+<td><strong>Índice local</strong></td>
+<td><code>/var/lib/apt/lists/</code> — cache de metadatos (<code>apt update</code> lo refresca).</td>
+</tr>
+<tr class="odd">
+<td><strong>Caché de paquetes</strong></td>
+<td><code>/var/cache/apt/archives/</code> — <code>.deb</code> descargados (<code>apt clean</code> los borra).</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="comandos-esenciales" class="level3">
+<h3 class="anchored" data-anchor-id="comandos-esenciales">1.2 Comandos esenciales</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar índice (SIEMPRE antes de instalar)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update                                        </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Listar actualizaciones disponibles</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> list <span class="at">--upgradable</span>                                  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar paquetes (seguro: no quita, solo sube versiones)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt upgrade                                       </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar con resolución de dependencias completa (puede quitar/añadir)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt full-upgrade                                  </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Buscar paquetes</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> search nginx                                       </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> show nginx                    <span class="co"># Detalles: versión, deps, tamaño, descripción</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> policy nginx                  <span class="co"># Versiones disponibles y pinning</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar (con -y para no interactivo en scripts)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> nginx curl jq htop vim-nox        </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Reinstalar (reparar archivos corruptos)</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">--reinstall</span> nginx                     </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminar (purge = borra configs en /etc)</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt remove nginx</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt purge nginx                                   </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Limpiar</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt autoremove <span class="at">-y</span>            <span class="co"># Quita dependencias huérfanas</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt clean                    <span class="co"># Borra /var/cache/apt/archives/*.deb</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt autoclean                <span class="co"># Borra solo versiones antiguas</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>apt update</code></strong>: Descarga índices de repositorios (Packages.gz); SIEMPRE ejecutar antes de instalar para asegurar que apt conozca versiones disponibles</li>
+<li><strong><code>apt list --upgradable</code></strong>: Lista paquetes con actualizaciones pendientes sin instalar nada; revisa antes de <code>upgrade</code></li>
+<li><strong><code>apt upgrade</code></strong>: Actualiza paquetes a versiones más nuevas sin quitar ni añadir dependencias; seguro para producción</li>
+<li><strong><code>apt full-upgrade</code></strong>: Actualiza con resolución completa de dependencias; puede quitar paquetes obsoletos para satisfacer nuevas dependencias</li>
+<li><strong><code>apt search nginx</code></strong>: Busca paquetes por nombre/descripción en todos los repos habilitados; retorna lista de coincidencias</li>
+<li><strong><code>apt install -y</code></strong>: Instala paquetes con todas sus dependencias; <code>-y</code> confirma automáticamente (necesario en scripts no interactivos)</li>
+<li><strong><code>apt install --reinstall</code></strong>: Reinstala el paquete preservando configuración; útil cuando archivos de programa están corruptos</li>
+<li><strong><code>apt purge</code></strong>: Desinstala el paquete Y borra configuración en <code>/etc</code>; usar cuando se quiere limpieza total</li>
+</ol>
+</section>
+<section id="gestión-de-repositorios-y-claves-gpg-crítico-para-seguridad" class="level3">
+<h3 class="anchored" data-anchor-id="gestión-de-repositorios-y-claves-gpg-crítico-para-seguridad">1.3 Gestión de repositorios y claves GPG — <strong>Crítico para seguridad</strong></h3>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ Nunca añadas repos sin verificar su clave GPG
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>apt-key</code> está <strong>deprecated</strong>. Usa el formato moderno <code>signed-by</code> en <code>/etc/apt/sources.list.d/</code>.</p>
+</div>
+</div>
+<section id="formato-moderno-debian-12ubuntu-22.04" class="level4">
+<h4 class="anchored" data-anchor-id="formato-moderno-debian-12ubuntu-22.04">Formato moderno (Debian 12+/Ubuntu 22.04+)</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Descargar clave y guardar en keyrings (solo root readable)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mkdir <span class="at">-p</span> /etc/apt/keyrings                                                      </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://download.docker.com/linux/ubuntu/gpg <span class="kw">|</span> <span class="fu">sudo</span> gpg <span class="at">--dearmor</span> <span class="at">-o</span> /etc/apt/keyrings/docker.gpg  </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod a+r /etc/apt/keyrings/docker.gpg                                          </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Añadir repo con signed-by apuntando a la clave</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="dt">\</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"deb [arch=</span><span class="va">$(</span><span class="ex">dpkg</span> <span class="at">--print-architecture</span><span class="va">)</span><span class="st"> signed-by=/etc/apt/keyrings/docker.gpg] </span><span class="dt">\</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">  https://download.docker.com/linux/ubuntu </span><span class="dt">\</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st">  </span><span class="va">$(</span><span class="bu">.</span> /etc/os-release <span class="kw">&amp;&amp;</span> <span class="bu">echo</span> <span class="st">"</span><span class="va">$VERSION_CODENAME</span><span class="st">"</span><span class="va">)</span><span class="st"> stable"</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sudo</span> tee /etc/apt/sources.list.d/docker.list <span class="op">&gt;</span> /dev/null                           </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Actualizar e instalar</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update                                                                      </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>mkdir -p /etc/apt/keyrings</code></strong>: Crea directorio para claves GPG modernas; <code>-p</code> no falla si ya existe</li>
+<li><strong><code>curl | gpg --dearmor</code></strong>: Descarga clave en formato ASCII y la convierte a formato binario GPG; <code>-o</code> guarda en keyring específico</li>
+<li><strong><code>chmod a+r</code></strong>: Permite lectura a todos los usuarios del sistema; apt necesita leer la clave para verificar paquetes</li>
+<li><strong><code>tee /etc/apt/sources.list.d/</code></strong>: Escribe archivo de repo con <code>signed-by</code> apuntando a la clave GPG; <code>&gt; /dev/null</code> suprime output</li>
+<li><strong><code>apt update</code></strong>: Refresca índices con el nuevo repo; apt ahora confía en paquetes firmados por esta clave</li>
+<li><strong><code>apt install</code></strong>: Instala Docker CE y componentes; todos verificados contra la clave GPG configurada</li>
+</ol>
+</section>
+<section id="verificar-clave-de-un-repo-existente" class="level4">
+<h4 class="anchored" data-anchor-id="verificar-clave-de-un-repo-existente">Verificar clave de un repo existente</h4>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listar claves confiadas</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> /etc/apt/keyrings/                                                              </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--list-keys</span> <span class="at">--keyring</span> /etc/apt/keyrings/docker.gpg                                </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver fingerprint</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--show-keys</span> /etc/apt/keyrings/docker.gpg                                          </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># pub   rsa4096 2017-02-22 [SCEA]</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#       9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># uid           Docker Release Tool (releasedocker) &lt;docker@docker.com&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>ls -la /etc/apt/keyrings/</code></strong>: Lista claves GPG instaladas; verifica que la clave descargó correctamente</li>
+<li><strong><code>gpg --list-keys</code></strong>: Muestra clave pública completa del keyring; verifica que es la clave oficial del vendor</li>
+<li><strong><code>gpg --show-keys</code></strong>: Muestra fingerprint (huella digital) de la clave; compara con fingerprint oficial del vendor para verificar autenticidad</li>
+</ol>
+</section>
+</section>
+<section id="ppa-personal-package-archives-solo-cuando-sea-necesario" class="level3">
+<h3 class="anchored" data-anchor-id="ppa-personal-package-archives-solo-cuando-sea-necesario">1.4 PPA (Personal Package Archives) — Solo cuando sea necesario</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Añadir PPA (ej: git-core para Git latest)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository <span class="at">-y</span> ppa:git-core/ppa               </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Internamente: descarga clave, crea /etc/apt/sources.list.d/git-core-ubuntu-ppa-noble.sources</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update                                           </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> git                                   </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>add-apt-repository</code></strong>: Añade PPA oficial de Ubuntu; internamente descarga clave GPG y crea archivo sources automáticamente</li>
+<li><strong><code>apt update</code></strong>: Refresca índices para incluir paquetes del nuevo PPA</li>
+<li><strong><code>apt install -y git</code></strong>: Instala Git desde el PPA (versión más reciente que la del repo oficial de Ubuntu)</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Buenas prácticas PPA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Preferir repos oficiales</strong> (Docker, Kubernetes, NodeSource, PostgreSQL) sobre PPAs.</li>
+<li><strong>Revisar actividad</strong>: launchpad.net/~usuario/+archive/ubuntu/ppa — ¿actualizado recientemente?</li>
+<li><strong>Eliminar PPAs obsoletos</strong>: <code>sudo add-apt-repository --remove ppa:usuario/ppa</code></li>
+<li><strong>Pinning</strong>: Congela versión si el PPA rompe estabilidad (ver 1.6).</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="holdpinning-congelar-versiones-en-producción" class="level3">
+<h3 class="anchored" data-anchor-id="holdpinning-congelar-versiones-en-producción">1.5 Hold/Pinning — Congelar versiones en producción</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Método 1: apt-mark hold (simple, por paquete)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-mark hold docker-ce docker-ce-cli containerd.io   </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver holds: apt-mark showhold</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Quitar hold: sudo apt-mark unhold docker-ce</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Método 2: /etc/apt/preferences.d/ (pinning granular, prioridad)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&lt;&lt;'EOF'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/apt/preferences.d/docker-pin   </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">Package: docker-ce</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">Pin: version 5:27.1.*</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="st">Pin-Priority: 1001                                         </span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="st">Package: docker-ce-cli</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="st">Pin: version 5:27.1.*</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="st">Pin-Priority: 1001</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Prioridad &gt; 1000 = fuerza esa versión aunque haya más nuevas</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar: apt policy docker-ce                            </span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>apt-mark hold</code></strong>: Marca paquetes para no actualizarse con <code>apt upgrade</code>; simple pero no granular</li>
+<li><strong><code>cat &lt;&lt;'EOF'</code></strong>: Here-document crea archivo de configuración de pinning inline; evita edición manual con nano/vim</li>
+<li><strong><code>Pin-Priority: 1001</code></strong>: Prioridad &gt; 1000 fuerza esa versión específica aunque existan más nuevas; <code>5:27.1.*</code> usa wildcard</li>
+<li><strong><code>apt policy</code></strong>: Verifica que el pinning funcionó; muestra versión prioritaria con <code>***</code> marcada</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="gestión-de-paquetes-en-rhelfedora-dnf" class="level2">
+<h2 class="anchored" data-anchor-id="gestión-de-paquetes-en-rhelfedora-dnf">2. Gestión de Paquetes en RHEL/Fedora — DNF</h2>
+<blockquote class="blockquote">
+<p>Aunque el curso usa Ubuntu, <strong>saber DNF es obligatorio</strong> para certificaciones (RHCSA/RHCE) y entornos enterprise.</p>
+</blockquote>
+<section id="equivalencias-apt-dnf" class="level3">
+<h3 class="anchored" data-anchor-id="equivalencias-apt-dnf">2.1 Equivalencias APT ↔︎ DNF</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 35%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Acción</th>
+<th>APT (Ubuntu/Debian)</th>
+<th>DNF (RHEL/Fedora/Rocky/Alma)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Actualizar índice</td>
+<td><code>apt update</code></td>
+<td><code>dnf check-update</code> / <code>dnf makecache</code></td>
+</tr>
+<tr class="even">
+<td>Actualizar todo</td>
+<td><code>apt upgrade</code></td>
+<td><code>dnf upgrade</code></td>
+</tr>
+<tr class="odd">
+<td>Buscar</td>
+<td><code>apt search pkg</code></td>
+<td><code>dnf search pkg</code></td>
+</tr>
+<tr class="even">
+<td>Info paquete</td>
+<td><code>apt show pkg</code></td>
+<td><code>dnf info pkg</code></td>
+</tr>
+<tr class="odd">
+<td>Instalar</td>
+<td><code>apt install pkg</code></td>
+<td><code>dnf install pkg</code></td>
+</tr>
+<tr class="even">
+<td>Eliminar</td>
+<td><code>apt remove/purge pkg</code></td>
+<td><code>dnf remove pkg</code></td>
+</tr>
+<tr class="odd">
+<td>Listar instalados</td>
+<td><code>apt list --installed</code></td>
+<td><code>dnf list installed</code></td>
+</tr>
+<tr class="even">
+<td>Info repo</td>
+<td><code>apt policy</code></td>
+<td><code>dnf repolist -v</code></td>
+</tr>
+<tr class="odd">
+<td>Limpiar caché</td>
+<td><code>apt clean</code></td>
+<td><code>dnf clean all</code></td>
+</tr>
+<tr class="even">
+<td>Grupo de paquetes</td>
+<td><code>apt install tasksel</code></td>
+<td><code>dnf group install "Development Tools"</code></td>
+</tr>
+<tr class="odd">
+<td>Historial</td>
+<td><code>/var/log/apt/history.log</code></td>
+<td><code>dnf history</code></td>
+</tr>
+<tr class="even">
+<td>Rollback</td>
+<td>Manual</td>
+<td><code>dnf history undo &lt;id&gt;</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="repos-y-claves-en-dnf" class="level3">
+<h3 class="anchored" data-anchor-id="repos-y-claves-en-dnf">2.2 Repos y claves en DNF</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar repos oficiales (EPEL, CRB/PowerTools)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dnf install <span class="at">-y</span> epel-release                           </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dnf config-manager <span class="at">--set-enabled</span> crb                    <span class="co"># RHEL 9 / Rocky 9 / Alma 9</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Añadir repo Docker (ejemplo)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dnf config-manager <span class="at">--add-repo</span> https://download.docker.com/linux/rhel/docker-ce.repo  </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Clave se importa automáticamente al primer dnf install</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver claves importadas</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="ex">rpm</span> <span class="at">-qa</span> gpg-pubkey<span class="pp">*</span>                                        </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="ex">rpm</span> <span class="at">-qi</span> gpg-pubkey-<span class="op">&lt;</span>id<span class="op">&gt;</span>-<span class="op">&lt;</span>version<span class="op">&gt;</span>                          </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>epel-release</code></strong>: Instala repositorio EPEL (Extra Packages for Enterprise Linux); extiende paquetes disponibles en RHEL</li>
+<li><strong><code>config-manager --set-enabled crb</code></strong>: Habilita CRB (CodeReady Builder); contiene headers y librerías de desarrollo</li>
+<li><strong><code>--add-repo</code></strong>: Añade repo Docker para RHEL; DNF descarga clave GPG automáticamente al primer install</li>
+<li><strong><code>rpm -qa gpg-pubkey*</code></strong>: Lista todas las claves GPG importadas al sistema; verifica que la clave Docker está presente</li>
+<li><strong><code>rpm -qi</code></strong>: Muestra información detallada de una clave GPG específica; verifica fingerprint y metadatos</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="flatpak-snap-y-appimage-apps-de-usuario-sandbox" class="level2">
+<h2 class="anchored" data-anchor-id="flatpak-snap-y-appimage-apps-de-usuario-sandbox">3. Flatpak, Snap y AppImage — Apps de usuario / sandbox</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 14%">
+<col style="width: 16%">
+<col style="width: 47%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tecnología</th>
+<th>Origen</th>
+<th>Sandbox</th>
+<th>Uso típico en servidores</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Flatpak</strong></td>
+<td>Freedesktop</td>
+<td>Sí (bubblewrap)</td>
+<td>Apps GUI de usuario, runtimes versionados</td>
+</tr>
+<tr class="even">
+<td><strong>Snap</strong></td>
+<td>Canonical</td>
+<td>Sí (AppArmor)</td>
+<td>Algunas herramientas CLI (microk8s, lxd, certbot)</td>
+</tr>
+<tr class="odd">
+<td><strong>AppImage</strong></td>
+<td>Independiente</td>
+<td>No (pero portable)</td>
+<td>Binarios únicos sin instalación (ej: <code>nvim.appimage</code>)</td>
+</tr>
+</tbody>
+</table>
+<section id="flatpak-recomendado-para-apps-de-usuario" class="level3">
+<h3 class="anchored" data-anchor-id="flatpak-recomendado-para-apps-de-usuario">3.1 Flatpak (recomendado para apps de usuario)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Instalar Flatpak</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> flatpak                                                    </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">flatpak</span> remote-add <span class="at">--if-not-exists</span> flathub https://flathub.org/repo/flathub.flatpakrepo  </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Buscar e instalar (ej: VS Code, pero preferimos code-server en server)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">flatpak</span> search vscode                                                          </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="ex">flatpak</span> install flathub com.visualstudio.code                                  </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejecutar</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="ex">flatpak</span> run com.visualstudio.code                                              </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar todo</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="ex">flatpak</span> update                                                                 </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Permisos (flatpak permission-show com.app)</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="ex">flatpak</span> permission-set filesystem home com.visualstudio.code yes               </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>apt install flatpak</code></strong>: Instala el framework Flatpak en Ubuntu; necesario antes de añadir repositorios</li>
+<li><strong><code>remote-add flathub</code></strong>: Añade Flathub (repo oficial de Flatpak); <code>--if-not-exists</code> evita duplicar si ya existe</li>
+<li><strong><code>flatpak search vscode</code></strong>: Busca paquetes en todos los repos Flatpak configurados; retorna IDs de aplicaciones</li>
+<li><strong><code>flatpak install</code></strong>: Descarga e instala la aplicación con todas sus dependencias y runtimes; pide confirmación</li>
+<li><strong><code>flatpak run</code></strong>: Ejecuta la aplicación dentro del sandbox Flatpak con permisos configurados</li>
+<li><strong><code>flatpak update</code></strong>: Actualiza todas las aplicaciones y runtimes Flatpak instalados</li>
+<li><strong><code>permission-set</code></strong>: Concede permiso de acceso al directorio home dentro del sandbox; por defecto es restrictivo</li>
+</ol>
+</section>
+<section id="snap-ubuntu-lo-trae-por-defecto" class="level3">
+<h3 class="anchored" data-anchor-id="snap-ubuntu-lo-trae-por-defecto">3.2 Snap (Ubuntu lo trae por defecto)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Snapd ya instalado en Ubuntu</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">snap</span> find certbot                                                             </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snap install <span class="at">--classic</span> certbot                                             <span class="co"># --classic = acceso completo al sistema</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ln <span class="at">-s</span> /snap/bin/certbot /usr/bin/certbot                                 </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Servicios snap (systemd units)</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> list-units snap.<span class="pp">*</span>                                                   </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>snap find</code></strong>: Busca paquetes en el Snap Store; muestra versiones, tamaños y descripciones</li>
+<li><strong><code>snap install --classic</code></strong>: Instala certbot con acceso completo al sistema (necesario para leer configs de nginx/apache)</li>
+<li><strong><code>ln -s</code></strong>: Crea symlink para que <code>certbot</code> esté en PATH del sistema; sin esto solo funciona con <code>/snap/bin/certbot</code></li>
+<li><strong><code>systemctl list-units snap.*</code></strong>: Lista servicios systemd de snaps; verifica que snapd está corriendo correctamente</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>En servidores: Preferir APT/DNF + Contenedores
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Flatpak/Snap</strong>: Overhead de sandbox, arranque más lento, no diseñados para servicios systemd.</li>
+<li><strong>Certbot</strong>: Usa <code>apt install certbot</code> o <strong>Docker</strong> (<code>certbot/certbot</code>), no snap.</li>
+<li><strong>Herramientas CLI modernas</strong> (kubectl, helm, terraform): Descarga binario verificado o usa <strong>asdf/mise</strong> (version manager).</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="appimage-binario-portable" class="level3">
+<h3 class="anchored" data-anchor-id="appimage-binario-portable">3.3 AppImage — Binario portable</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Descargar, dar permisos, ejecutar</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.appimage  </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x nvim-linux64.appimage                                                        </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">./nvim-linux64.appimage</span>                                                               </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Integrar en sistema (opcional)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mv nvim-linux64.appimage /usr/local/bin/nvim                                     </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>wget</code></strong>: Descarga el binario AppImage desde GitHub Releases; verifica checksum después de descargar</li>
+<li><strong><code>chmod +x</code></strong>: Marca el archivo como ejecutable; sin esto el shell no puede ejecutarlo</li>
+<li><strong><code>./nvim-linux64.appimage</code></strong>: Ejecuta el binario directamente; funciona sin instalación del sistema</li>
+<li><strong><code>mv /usr/local/bin/</code></strong>: Integra el binario en PATH del sistema; disponible globalmente como <code>nvim</code></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="git-configuración-profesional-y-firma-de-commits" class="level2">
+<h2 class="anchored" data-anchor-id="git-configuración-profesional-y-firma-de-commits">4. Git — Configuración profesional y firma de commits</h2>
+<section id="configuración-base-obligatoria" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-base-obligatoria">4.1 Configuración base (obligatoria)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Identidad</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.name <span class="st">"Tu Nombre"</span>                                      </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.email <span class="st">"tu-email@abacom.cl"</span>                            </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Editor y comportamiento</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> core.editor <span class="st">"nvim"</span>                                         </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> init.defaultBranch main                                    </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> pull.rebase true                                           </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> push.autoSetupRemote true                                  </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> fetch.prune true                                           </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Aliases útiles</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.st <span class="st">"status -sb"</span>                                     </span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.co <span class="st">"checkout"</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.br <span class="st">"branch"</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.lg <span class="st">"log --oneline --graph -- decorate --all"</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.last <span class="st">"log -1 --stat"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>user.name</code></strong>: Identidad del autor en commits; se muestra en <code>git log</code> y GitHub/GitLab</li>
+<li><strong><code>user.email</code></strong>: Email asociado a commits; debe coincidir con email de GitHub/GitLab para vincular commits</li>
+<li><strong><code>core.editor</code></strong>: Editor por defecto para commits, merges, rebase; nvim es rápido y disponible en servidores</li>
+<li><strong><code>init.defaultBranch main</code></strong>: Rama por defecto al crear repos; <code>main</code> es el estándar actual (antes <code>master</code>)</li>
+<li><strong><code>pull.rebase true</code></strong>: Rebase en pull en vez de merge; historial limpio sin commits de merge innecesarios</li>
+<li><strong><code>push.autoSetupRemote true</code></strong>: Push crea tracking branch automáticamente; evita error “no upstream branch”</li>
+<li><strong><code>fetch.prune true</code></strong>: Limpia refs de ramas remotas eliminadas; mantiene el historial local limpio</li>
+<li><strong><code>alias.st</code></strong>: Atajo para <code>status -sb</code>; formato compacto que muestra rama actual y archivos modificados</li>
+</ol>
+</section>
+<section id="claves-ssh-ed25519-ya-generadas-en-unidad-i-pero-repasemos" class="level3">
+<h3 class="anchored" data-anchor-id="claves-ssh-ed25519-ya-generadas-en-unidad-i-pero-repasemos">4.2 Claves SSH (ed25519) — Ya generadas en Unidad I, pero repasemos</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generar (si no existe)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh-keygen</span> <span class="at">-t</span> ed25519 <span class="at">-C</span> <span class="st">"tu-email@abacom.cl"</span> <span class="at">-f</span> ~/.ssh/id_ed25519_abacom    </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Agente SSH</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="bu">eval</span> <span class="st">"</span><span class="va">$(</span><span class="fu">ssh-agent</span> <span class="at">-s</span><span class="va">)</span><span class="st">"</span>                                                        </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh-add</span> ~/.ssh/id_ed25519_abacom                                              </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Config por host (~/.ssh/config)</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&lt;&lt;'EOF'</span> <span class="op">&gt;&gt;</span> ~/.ssh/config                                                  </span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="st">Host github.com</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="st">  HostName github.com</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="st">  User git</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="st">  IdentityFile ~/.ssh/id_ed25519_abacom</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="st">  IdentitiesOnly yes</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="st">Host gitlab.com</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="st">  HostName gitlab.com</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="st">  User git</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="st">  IdentityFile ~/.ssh/id_ed25519_abacom</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="st">  IdentitiesOnly yes</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 600 ~/.ssh/config                                                       </span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Probar</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-T</span> git@github.com                                                         </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>ssh-keygen -t ed25519</code></strong>: Genera par de claves ed25519 (más seguro que RSA); <code>-C</code> comenta con email para identificación</li>
+<li><strong><code>ssh-agent -s</code></strong>: Inicia agente SSH que mantiene claves en memoria; evita escribir passphrase en cada uso</li>
+<li><strong><code>ssh-add</code></strong>: Registra la clave privada en el agente SSH; disponible para autenticación automática</li>
+<li><strong><code>cat &lt;&lt;'EOF' &gt;&gt;</code></strong>: Añade configuración por host al archivo SSH; cada host usa su clave específica</li>
+<li><strong><code>chmod 600</code></strong>: Permisos restrictivos para config SSH; sin esto SSH rechaza el archivo por seguridad</li>
+<li><strong><code>ssh -T git@github.com</code></strong>: Test de autenticación SSH con GitHub; muestra “Hi username!” si la clave funciona</li>
+</ol>
+</section>
+<section id="firma-de-commits-con-gpg-requerido-en-abacom" class="level3">
+<h3 class="anchored" data-anchor-id="firma-de-commits-con-gpg-requerido-en-abacom">4.3 Firma de commits con GPG — <strong>Requerido en Abacom</strong></h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Generar clave GPG (si no tienes)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--full-generate-key</span>                                                       </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Tipo: RSA and RSA (default)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Tamaño: 4096</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Expira: 2y (o 0 = no expira)</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Nombre/Email: mismo que git config</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Passphrase: FUERTE, guárdala en password manager</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Obtener key ID</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--list-secret-keys</span> <span class="at">--keyid-format</span><span class="op">=</span>long                                   </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># sec   rsa4096/ABCDEF1234567890 2026-07-20 [SC] [expires: 2028-07-20]</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#                               ^^^^^^^^^^^^^^^^^ KEY ID</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Configurar Git</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.signingkey ABCDEF1234567890                          </span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> commit.gpgsign true           <span class="co"># Firmar TODOS los commits   </span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> tag.gpgsign true              <span class="co"># Firmar tags</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> gpg.program gpg               <span class="co"># o gpg2                     </span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Exportar clave pública y subir a GitHub/GitLab</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--armor</span> <span class="at">--export</span> ABCDEF1234567890                                         </span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Copiar output → Settings → SSH and GPG keys → New GPG key</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>gpg --full-generate-key</code></strong>: Genera par de claves GPG con opciones completas; RSA 4096 bits es estándar de seguridad</li>
+<li><strong><code>gpg --list-secret-keys</code></strong>: Muestra clave privada con ID largo; <code>--keyid-format=long</code> revela el Key ID necesario para Git</li>
+<li><strong><code>user.signingkey</code></strong>: Configura Git para usar esta clave específica al firmar commits</li>
+<li><strong><code>commit.gpgsign true</code></strong>: Firma TODOS los commits automáticamente; sin esto solo firma con <code>-S</code> manual</li>
+<li><strong><code>gpg.program</code></strong>: Especifica binario GPG a usar; <code>gpg2</code> es la versión moderna en algunas distros</li>
+<li><strong><code>gpg --armor --export</code></strong>: Exporta clave pública en formato ASCII (armor); copiar output completo a GitHub/GitLab</li>
+</ol>
+</section>
+<section id="verificar-firma" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-firma">4.4 Verificar firma</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ver commits firmados</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--show-signature</span> <span class="at">-1</span>                                                   </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> verify-commit HEAD                                                         </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># En GitHub/GitLab: verás "Verified" badge verde</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>git log --show-signature</code></strong>: Muestra último commit con información de firma GPG; verifica que el commit está firmado</li>
+<li><strong><code>git verify-commit HEAD</code></strong>: Verifica criptográficamente la firma del commit HEAD; falla si la firma es inválida</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="laboratorio-práctico-repos-claves-y-git-pro" class="level2">
+<h2 class="anchored" data-anchor-id="laboratorio-práctico-repos-claves-y-git-pro">5. Laboratorio Práctico: Repos, Claves y Git Pro</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>🎯 Lab 02 — Paquetes, Repos y Git (45-60 min)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<section id="checklist" class="level3">
+<h3 class="anchored" data-anchor-id="checklist">Checklist</h3>
+<ul class="task-list">
+<li><label><input type="checkbox"><code>apt update &amp;&amp; apt install -y curl gpg software-properties-common</code></label></li>
+<li><label><input type="checkbox">Añadir repo <strong>Docker oficial</strong> con clave GPG en <code>/etc/apt/keyrings/</code> y <code>signed-by</code></label></li>
+<li><label><input type="checkbox"><code>apt update &amp;&amp; apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin</code></label></li>
+<li><label><input type="checkbox">Verificar: <code>docker version</code> y <code>docker run --rm hello-world</code></label></li>
+<li><label><input type="checkbox">Añadir repo <strong>NodeSource</strong> (Node.js 20 LTS) con clave GPG</label></li>
+<li><label><input type="checkbox"><code>apt install -y nodejs</code> y verificar <code>node -v</code> (debe ser v20.x)</label></li>
+<li><label><input type="checkbox">Configurar <strong>pinning</strong> para <code>docker-ce</code> versión 27.x en <code>/etc/apt/preferences.d/</code></label></li>
+<li><label><input type="checkbox"><code>apt policy docker-ce</code> muestra prioridad 1001</label></li>
+<li><label><input type="checkbox">Git: <code>user.name</code>, <code>user.email</code>, <code>init.defaultBranch main</code>, <code>pull.rebase true</code></label></li>
+<li><label><input type="checkbox">Generar/usar clave SSH ed25519, probar <code>ssh -T git@github.com</code></label></li>
+<li><label><input type="checkbox">Generar clave GPG 4096, configurar <code>commit.gpgsign true</code>, subir pública a GitHub</label></li>
+<li><label><input type="checkbox">Hacer commit de prueba: <code>git commit -S -m "test: commit firmado"</code> → verificar en GitHub “Verified”</label></li>
+</ul>
+</section>
+<section id="evidencia" class="level3">
+<h3 class="anchored" data-anchor-id="evidencia">Evidencia</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span>                                                                       </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">"=== Docker Repo ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">cat</span> /etc/apt/sources.list.d/docker.list  </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Docker Key ==="</span> <span class="kw">&amp;&amp;</span> <span class="ex">gpg</span> <span class="at">--show-keys</span> /etc/apt/keyrings/docker.gpg  </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Docker Pinning ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">cat</span> /etc/apt/preferences.d/docker-pin    </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== APT Policy ==="</span> <span class="kw">&amp;&amp;</span> <span class="ex">apt</span> policy docker-ce                          </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Git Config ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">git</span> config <span class="at">--global</span> <span class="at">--list</span>                   </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== SSH Test ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">ssh</span> <span class="at">-T</span> git@github.com <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-3</span>           </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== GPG Key ==="</span> <span class="kw">&amp;&amp;</span> <span class="ex">gpg</span> <span class="at">--list-secret-keys</span> <span class="at">--keyid-format</span><span class="op">=</span>long      </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Commit Test ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">git</span> <span class="at">-C</span> /tmp/test-repo log <span class="at">--show-signature</span> <span class="at">-1</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="bu">echo</span> <span class="st">"Crear repo test y commitear"</span>  </span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;</span> ~/lab02-evidencia.txt                                                       </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>Bloque <code>{...}</code></strong>: Agrupa múltiples comandos para ejecutar como una sola unidad</li>
+<li><strong>Docker Repo</strong>: Verifica que el archivo de repo Docker existe y tiene el formato correcto con <code>signed-by</code></li>
+<li><strong>Docker Key</strong>: Muestra fingerprint de la clave GPG de Docker; compara con la oficial para verificar autenticidad</li>
+<li><strong>Docker Pinning</strong>: Verifica que el pinning de versión está configurado correctamente</li>
+<li><strong>APT Policy</strong>: Confirma que <code>docker-ce</code> tiene prioridad 1001 (forzada a versión específica)</li>
+<li><strong>Git Config</strong>: Lista toda la configuración global de Git; verifica identidad y aliases</li>
+<li><strong>SSH Test</strong>: Prueba autenticación SSH con GitHub; muestra “Hi username!” si funciona</li>
+<li><strong>GPG Key</strong>: Lista claves GPG secretas con IDs largos; verifica que la clave configurada existe</li>
+<li><strong>Commit Test</strong>: Ver firma del último commit en repositorio de prueba; muestra “Verified” si GPG funciona</li>
+<li><strong>Redirección <code>&gt;</code></strong>: Guarda todo el output en archivo de evidencia para entregar al instructor</li>
+</ol>
+</section>
+</div>
+</div>
+<hr>
+</section>
+<section id="resumen-y-próximos-pasos" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-y-próximos-pasos">6. Resumen y Próximos Pasos</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>✅ Lo esencial de la Unidad II
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol start="11" type="1">
+<li><strong>APT moderno</strong>: <code>signed-by</code> en <code>/etc/apt/sources.list.d/</code>, claves en <code>/etc/apt/keyrings/</code>. Olvida <code>apt-key</code>.</li>
+<li><strong>Pinning</strong>: Congela versiones críticas (<code>docker-ce</code>, <code>kubernetes</code>, <code>postgresql</code>) con <code>/etc/apt/preferences.d/</code>.</li>
+<li><strong>DNF</strong>: Equivalencias 1:1 con APT. <code>dnf history undo</code> es superpoder para rollback.</li>
+<li><strong>Flatpak/Snap/AppImage</strong>: Para apps de usuario, no para servicios de servidor. Usa contenedores.</li>
+<li><strong>Git Pro</strong>: SSH ed25519 + GPG signing obligatorio. <code>commit.gpgsign true</code> siempre.</li>
+</ol>
+</div>
+</div>
+<section id="checklist-de-competencias-unidad-ii" class="level3">
+<h3 class="anchored" data-anchor-id="checklist-de-competencias-unidad-ii">📋 Checklist de competencias Unidad II</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">Actualizar índice, instalar, purgar, limpiar con APT/DNF.</label></li>
+<li><label><input type="checkbox">Añadir repo de terceros (Docker, NodeSource, Kubernetes) verificando GPG.</label></li>
+<li><label><input type="checkbox">Configurar pinning/hold para congelar versiones en producción.</label></li>
+<li><label><input type="checkbox">Explicar diferencias Flatpak/Snap/AppImage y cuándo usar cada uno.</label></li>
+<li><label><input type="checkbox">Configurar Git global: identidad, editor, rebase, push auto, aliases.</label></li>
+<li><label><input type="checkbox">Generar/usar clave SSH ed25519 con <code>~/.ssh/config</code> por host.</label></li>
+<li><label><input type="checkbox">Generar clave GPG 4096, firmar commits/tags, verificar en GitHub/GitLab.</label></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="recursos-y-referencias" class="level2">
+<h2 class="anchored" data-anchor-id="recursos-y-referencias">7. Recursos y Referencias</h2>
+<ul>
+<li><strong>APT Manual</strong>: <code>man apt</code>, <code>man sources.list</code>, <code>man apt_preferences</code></li>
+<li><strong>DNF Docs</strong>: <a href="https://dnf.readthedocs.io/" class="uri">https://dnf.readthedocs.io/</a></li>
+<li><strong>Docker Install Ubuntu</strong>: <a href="https://docs.docker.com/engine/install/ubuntu/" class="uri">https://docs.docker.com/engine/install/ubuntu/</a></li>
+<li><strong>NodeSource Repos</strong>: <a href="https://github.com/nodesource/distributions" class="uri">https://github.com/nodesource/distributions</a></li>
+<li><strong>GitHub GPG Signing</strong>: <a href="https://docs.github.com/en/authentication/managing-commit-signature-verification" class="uri">https://docs.github.com/en/authentication/managing-commit-signature-verification</a></li>
+<li><strong>Flatpak Docs</strong>: <a href="https://docs.flatpak.org/" class="uri">https://docs.flatpak.org/</a></li>
+<li><strong>Snapcraft Docs</strong>: <a href="https://snapcraft.io/docs" class="uri">https://snapcraft.io/docs</a></li>
+</ul>
+<hr>
+</section>
+<section id="quiz-interactivo-quizdown" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-interactivo-quizdown">8. Quiz Interactivo (quizdown)</h2>
+<div class="quizdown">
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es el formato moderno para añadir un repo APT con clave GPG verificada?
+
+- [ ] `apt-key add clave.gpg &amp;&amp; echo "deb http://repo" &gt; /etc/apt/sources.list.d/repo.list`
+- [x] Clave en `/etc/apt/keyrings/clave.gpg` y `deb [signed-by=/etc/apt/keyrings/clave.gpg] http://repo` en `.sources` o `.list`
+- [ ] `apt install --allow-unauthenticated repo-package`
+- [ ] Copiar clave a `/etc/apt/trusted.gpg.d/`
+
+## Comando DNF equivalente a `apt list --installed`:
+
+- [ ] `dnf list available`
+- [x] `dnf list installed`
+- [ ] `dnf repoquery --installed`
+- [ ] `rpm -qa`
+
+## Para congelar la versión de `docker-ce` en 27.x en Ubuntu, ¿qué archivo creas?
+
+- [ ] `/etc/apt/holds.d/docker`
+- [x] `/etc/apt/preferences.d/docker-pin` con `Pin-Priority: 1001`
+- [ ] `/etc/apt/sources.list.d/docker.pin`
+- [ ] `echo "docker-ce hold" | sudo dpkg --set-selections`
+
+## ¿Qué tecnología de sandbox NO está diseñada para servicios systemd en servidores?
+
+- [ ] Docker (containers)
+- [ ] systemd-nspawn
+- [x] Snap / Flatpak
+- [ ] Podman
+
+## Configuración Git para firmar TODOS los commits por defecto:
+
+- [ ] `git config --global commit.sign true`
+- [x] `git config --global commit.gpgsign true`
+- [ ] `git config --global gpg.sign all`
+- [ ] `git config --global sign.commits true`
+</div>
+
+
+</section>
+</section>
+<section class="level1">
+<h1>Code Appendix</h1>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../01-fundamentos/index.html" class="pagination-link" aria-label="UNIDAD I: Fundamentos de Linux y Virtualización Ligera">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">UNIDAD I: Fundamentos de Linux y Virtualización Ligera</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../03-scripting/index.html" class="pagination-link" aria-label="UNIDAD III: Scripting y Automatización con Bash">
+        <span class="nav-page-text"><span class="chapter-title">UNIDAD III: Scripting y Automatización con Bash</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link active" href="../about.html" aria-current="page">
+<p>Sobre el Curso</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../license.html">
+<p>Licencia</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://statick88.github.io">
+<p>Instructor: statick88.github.io</p>
+</a>
+  </li>  
+</ul>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/02-paquetes/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

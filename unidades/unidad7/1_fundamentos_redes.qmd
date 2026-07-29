@@ -37,15 +37,15 @@ Al final de esta leccion, podras:
 ## Identificar interfaces e IP
 
 ```bash
-$ ip -br link  # <1>
+$ ip -br link  
 lo               UNKNOWN        00:00:00:00:00:00
 enp0s3           UP             08:00:27:12:34:56
-# <1>
 
-$ ip -br addr  # <2>
+
+$ ip -br addr  
 lo               UNKNOWN        127.0.0.1/8 ::1/128
 enp0s3           UP             192.168.56.10/24 fe80::a00:27ff:fe12:3456/64
-# <2>
+
 ```
 
 
@@ -58,10 +58,10 @@ enp0s3           UP             192.168.56.10/24 fe80::a00:27ff:fe12:3456/64
 ## Validar ruta por defecto (gateway)
 
 ```bash
-$ ip route  # <1>
+$ ip route  
 default via 192.168.56.1 dev enp0s3
 192.168.56.0/24 dev enp0s3 proto kernel scope link src 192.168.56.10
-# <1>
+
 ```
 
 
@@ -73,10 +73,10 @@ default via 192.168.56.1 dev enp0s3
 ## Revisar puertos en escucha
 
 ```bash
-$ sudo ss -lntp  # <1>
+$ sudo ss -lntp  
 State   Recv-Q  Send-Q   Local Address:Port  Peer Address:Port  Process
 LISTEN  0       4096     0.0.0.0:22          0.0.0.0:*          users:("sshd",pid=812,fd=3)
-# <1>
+
 ```
 
 
@@ -93,10 +93,10 @@ LISTEN  0       4096     0.0.0.0:22          0.0.0.0:*          users:("sshd",pi
 
 #### Linux
 ```bash
-$ ip -br addr  # <1>
+$ ip -br addr  
 lo     UNKNOWN 127.0.0.1/8 ::1/128
 eth0   UP      192.168.1.10/24
-# <1>
+
 ```
 
 
@@ -105,12 +105,12 @@ eth0   UP      192.168.1.10/24
 
 #### macOS
 ```bash
-$ ifconfig | head -n 18  # <1>
+$ ifconfig | head -n 18  
 lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
   inet 127.0.0.1 netmask 0xff000000
 en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
   inet 192.168.1.20 netmask 0xffffff00 broadcast 192.168.1.255
-# <1>
+
 ```
 
 
@@ -119,7 +119,7 @@ en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
 
 #### Windows
 ```powershell
-PS> ipconfig  # <1>
+PS> ipconfig  
 
 Windows IP Configuration
 
@@ -127,7 +127,7 @@ Ethernet adapter Ethernet:
    IPv4 Address. . . . . . . . . . . : 192.168.1.30
    Subnet Mask . . . . . . . . . . . : 255.255.255.0
    Default Gateway . . . . . . . . . : 192.168.1.1
-# <1>
+
 ```
 
 

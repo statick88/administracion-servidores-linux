@@ -31,10 +31,10 @@ Un Dockerfile es un archivo de texto que contiene una serie de instrucciones par
 Primero, inicializamos el proyecto y creamos los archivos necesarios:
 
 ```bash
-$ npm init -y  # <1>
-$ npm install express  # <2>
-# <1>
-# <2>
+$ npm init -y  
+$ npm install express  
+
+
 ```
 
 1. **npm init** inicializa un proyecto Node.js creando `package.json` con valores por defecto (`-y` acepta todos los prompts).
@@ -71,13 +71,13 @@ app.listen(port, () => {  // <5>
 ### Dockerfile
 
 ```dockerfile
-FROM node:14  # <1>
-WORKDIR /app  # <2>
-COPY package.json .  # <3>
-RUN npm install  # <4>
-COPY . .  # <5>
-EXPOSE 3000  # <6>
-CMD ["node", "server.js"]  # <7>
+FROM node:14  
+WORKDIR /app  
+COPY package.json .  
+RUN npm install  
+COPY . .  
+EXPOSE 3000  
+CMD ["node", "server.js"]  
 ```
 
 1. **FROM** establece la imagen base oficial de Node.js 14.
@@ -103,19 +103,19 @@ Docker Compose es una herramienta para definir y gestionar aplicaciones Docker c
 ### Estructura basica de docker-compose.yml
 
 ```yaml
-services:  # <1>
-  myapp:  # <2>
-    build:  # <3>
-      context: .  # <4>
-      dockerfile: Dockerfile  # <5>
-    ports:  # <6>
-      - "3000:3000"  # <7>
-    volumes:  # <8>
-      - .:/app  # <9>
-    networks:  # <10>
-      - mi_red  # <11>
-networks:  # <12>
-  mi_red:  # <13>
+services:  
+  myapp:  
+    build:  
+      context: .  
+      dockerfile: Dockerfile  
+    ports:  
+      - "3000:3000"  
+    volumes:  
+      - .:/app  
+    networks:  
+      - mi_red  
+networks:  
+  mi_red:  
 ```
 
 1. **services** define el bloque principal de contenedores de la aplicacion.
@@ -185,13 +185,13 @@ app.listen(port, () => {  // <7>
 **Dockerfile**
 
 ```dockerfile
-FROM node:14  # <1>
-WORKDIR /app  # <2>
-COPY package.json .  # <3>
-RUN npm install  # <4>
-COPY . .  # <5>
-EXPOSE 3000  # <6>
-CMD ["node", "server.js"]  # <7>
+FROM node:14  
+WORKDIR /app  
+COPY package.json .  
+RUN npm install  
+COPY . .  
+EXPOSE 3000  
+CMD ["node", "server.js"]  
 ```
 
 1. **FROM** establece la imagen base de Node.js 14.
@@ -205,25 +205,25 @@ CMD ["node", "server.js"]  # <7>
 **docker-compose.yml**
 
 ```yaml
-services:  # <1>
-  myapp:  # <2>
-    build: .  # <3>
-    ports:  # <4>
-      - "3000:3000"  # <5>
-    depends_on:  # <6>
-      - mongo  # <7>
+services:  
+  myapp:  
+    build: .  
+    ports:  
+      - "3000:3000"  
+    depends_on:  
+      - mongo  
     networks:
       - mi_red
-  mongo:  # <8>
-    image: mongo:6  # <9>
-    ports:  # <10>
-      - "27017:27017"  # <11>
-    volumes:  # <12>
-      - mongo_data:/data/db  # <13>
+  mongo:  
+    image: mongo:6  
+    ports:  
+      - "27017:27017"  
+    volumes:  
+      - mongo_data:/data/db  
     networks:
       - mi_red
-volumes:  # <14>
-  mongo_data:  # <15>
+volumes:  
+  mongo_data:  
 networks:
   mi_red:
 ```
@@ -247,8 +247,8 @@ networks:
 Para iniciar la aplicacion:
 
 ```bash
-$ docker-compose up -d  # <1>
-# <1>
+$ docker-compose up -d  
+
 ```
 
 1. **docker-compose up** construye las imagenes (si es necesario) e inicia los contenedores. `-d` ejecuta en modo detached (segundo plano).
@@ -256,8 +256,8 @@ $ docker-compose up -d  # <1>
 Para verificar que los contenedores estan en ejecucion:
 
 ```bash
-$ docker ps  # <1>
-# <1>
+$ docker ps  
+
 ```
 
 1. **docker ps** muestra todos los contenedores en ejecucion, incluyendo `myapp` y `mongo`.
@@ -265,8 +265,8 @@ $ docker ps  # <1>
 Para detener y eliminar todo:
 
 ```bash
-$ docker-compose down  # <1>
-# <1>
+$ docker-compose down  
+
 ```
 
 1. **docker-compose down** detiene y elimina los contenedores, redes y volumenes creados por `up`.
@@ -275,8 +275,8 @@ $ docker-compose down  # <1>
 Si realizas cambios en el Dockerfile y deseas reconstruir la imagen, usa:
 
 ```bash
-$ docker-compose up --build  # <1>
-# <1>
+$ docker-compose up --build  
+
 ```
 
 1. **--build** fuerza la reconstruccion de la imagen antes de iniciar los contenedores, aplicando cambios en el Dockerfile.
@@ -293,7 +293,7 @@ $ docker-compose up --build  # <1>
 Ejemplo de aplicacion Python simple (`app.py`):
 
 ```python
-print("Hello, World!")  # <1>
+print("Hello, World!")  
 ```
 
 1. **print** imprime un saludo por consola como punto de entrada de la aplicacion.
@@ -301,10 +301,10 @@ print("Hello, World!")  # <1>
 Ejemplo de Dockerfile:
 
 ```dockerfile
-FROM python:3.12  # <1>
-WORKDIR /app  # <2>
-COPY . .  # <3>
-CMD ["python", "app.py"]  # <4>
+FROM python:3.12  
+WORKDIR /app  
+COPY . .  
+CMD ["python", "app.py"]  
 ```
 
 1. **FROM** establece la imagen base oficial de Python 3.12.
@@ -315,12 +315,12 @@ CMD ["python", "app.py"]  # <4>
 Ejemplo de docker-compose.yml:
 
 ```yaml
-services:  # <1>
-  myapp:  # <2>
-    build:  # <3>
+services:  
+  myapp:  
+    build:  
       context: .
       dockerfile: Dockerfile
-    image: my-python-app  # <4>
+    image: my-python-app  
 ```
 
 1. **services** define el bloque de contenedores de la aplicacion.

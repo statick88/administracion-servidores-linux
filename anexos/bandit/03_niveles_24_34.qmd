@@ -15,7 +15,7 @@ subtitle: "Fuerza bruta, shells restringidos, Git avanzado y nivel final"
 1. Conectate al daemon para entender el protocolo:
 
 ```bash
-$ nc localhost 30002  # <1>
+$ nc localhost 30002  
 ```
 
 1. **nc** se conecta al daemon. Te pide el password de bandit24 y un PIN de 4 digitos.
@@ -23,15 +23,15 @@ $ nc localhost 30002  # <1>
 2. Crea un script que genere todos los intentos posibles (0000-9999):
 
 ```bash
-$ for i in $(seq -w 0 9999); do echo "BANDIT24密码 $i"; done > /tmp/bandit24_pin.txt  # <1>
+$ for i in $(seq -w 0 9999); do echo "BANDIT24密码 $i"; done > /tmp/bandit24_pin.txt  
 ```
 
 1. **seq -w** genera numeros del 0000 al 9999 con ceros a la izquierda. Cada linea contiene el password seguido del PIN candidato.
 
-3. Envia los intentos al daemon y filtra la respuesta correcta:
+2. Envia los intentos al daemon y filtra la respuesta correcta:
 
 ```bash
-$ cat /tmp/bandit24_pin.txt | nc localhost 30002 | grep -v "Wrong"  # <1>
+$ cat /tmp/bandit24_pin.txt | nc localhost 30002 | grep -v "Wrong"  
 ```
 
 1. **grep -v "Wrong"** filtra todas las respuestas que contienen "Wrong" y muestra solo la respuesta correcta.
@@ -51,10 +51,10 @@ Para servicios que aceptan archivos, puedes generar el payload completo en un ar
 
 #### Resolucion paso a paso
 
-1. Intenta conectarte por SSH como bandit26:
+2. Intenta conectarte por SSH como bandit26:
 
 ```bash
-$ ssh bandit26@bandit.labs.overthewire.org -p 2220  # <1>
+$ ssh bandit26@bandit.labs.overthewire.org -p 2220  
 ```
 
 1. **ssh** te conecta pero te desloguea inmediatamente porque el shell de bandit26 no es interactivo.
@@ -62,16 +62,16 @@ $ ssh bandit26@bandit.labs.overthewire.org -p 2220  # <1>
 2. Verifica el shell real de bandit26 en `/etc/passwd`:
 
 ```bash
-$ cat /etc/passwd | grep bandit26  # <1>
+$ cat /etc/passwd | grep bandit26  
 bandit26:x:11026:11026::/home/bandit26:/usr/bin/showtext
 ```
 
 1. **cat** revela que el shell de bandit26 es `/usr/bin/showtext`, no `/bin/bash`.
 
-3. Examina el script `showtext`:
+2. Examina el script `showtext`:
 
 ```bash
-$ cat /usr/bin/showtext  # <1>
+$ cat /usr/bin/showtext  
 #!/bin/sh
 export TERM=linux
 exec more /etc/bandit_pass/bandit26
@@ -79,18 +79,18 @@ exec more /etc/bandit_pass/bandit26
 
 1. **cat** muestra que el script ejecuta `more` sobre el archivo del password. `more` es un paginador que te muestra el contenido y espera interaccion.
 
-4. Cuando `more` se activa, presiona `v` para abrir el editor `vi`:
+2. Cuando `more` se activa, presiona `v` para abrir el editor `vi`:
 
 ```bash
 # Dentro de more, presiona:
-v  # <1>
+v  
 ```
 
 1. **v** en `more` abre el archivo en `vi`. Desde `vi`, puedes ejecutar un shell:
 
 ```bash
 # En vi, escribe:
-:!sh  # <1>
+:!sh  
 ```
 
 1. **:!sh** ejecuta un shell desde `vi`. Ahora tienes una shell funcional como `bandit26`.
@@ -110,22 +110,22 @@ En `/etc/passwd`, el campo 7 define el shell de inicio. Si un usuario tiene un s
 
 #### Resolucion paso a paso
 
-1. Ya tienes una shell como `bandit26` (del nivel anterior).
+2. Ya tienes una shell como `bandit26` (del nivel anterior).
 
-2. Lee el password de bandit27:
+3. Lee el password de bandit27:
 
 ```bash
-$ cat /etc/bandit_pass/bandit27  # <1>
+$ cat /etc/bandit_pass/bandit27  
 ```
 
 <output esperado: password de bandit27>
 
 1. **cat** lee el archivo del password. Como ya tienes una shell funcional, puedes acceder directamente.
 
-3. Guarda el password en tus notas:
+2. Guarda el password en tus notas:
 
 ```bash
-$ echo "PASSWORD_NIVEL_27" > /tmp/bandit27_pass  # <1>
+$ echo "PASSWORD_NIVEL_27" > /tmp/bandit27_pass  
 ```
 
 1. **echo** guarda el password en un archivo temporal para referencia.
@@ -145,10 +145,10 @@ Este nivel es relativamente directo una vez que tienes una shell funcional. La d
 
 #### Resolucion paso a paso
 
-1. Clona el repositorio usando SSH:
+2. Clona el repositorio usando SSH:
 
 ```bash
-$ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo  # <1>
+$ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo  
 ```
 
 1. **git clone** con la URL SSH clonara el repositorio. Te pedira la contrasena de bandit28.
@@ -156,27 +156,27 @@ $ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo  # <1>
 2. Explora el repositorio:
 
 ```bash
-$ cd repo  # <1>
-$ ls -la  # <2>
-$ cat README.md  # <3>
+$ cd repo  
+$ ls -la  
+$ cat README.md  
 ```
 
 1. **cd** entra al repositorio
 2. **ls -la** muestra el contenido
 3. **cat** lee el README que contiene informacion sobre el password pero no el password en texto plano
 
-3. Revisa el historial de commits:
+4. Revisa el historial de commits:
 
 ```bash
-$ git log  # <1>
+$ git log  
 ```
 
 1. **git log** muestra todos los commits. Busca el commit donde se agrego el README.
 
-4. Muestra el diff de un commit especifico:
+2. Muestra el diff de un commit especifico:
 
 ```bash
-$ git show <commit_hash>  # <1>
+$ git show <commit_hash>  
 ```
 
 1. **git show** muestra los cambios de un commit. El password suele aparecer en el diff como texto plano que fue reemplazado.
@@ -196,10 +196,10 @@ Los passwords en repositorios git nunca se borran completamente — permanecen e
 
 #### Resolucion paso a paso
 
-1. Clona el repositorio:
+2. Clona el repositorio:
 
 ```bash
-$ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo  # <1>
+$ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo  
 ```
 
 1. **git clone** clona el repositorio remoto.
@@ -207,7 +207,7 @@ $ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo  # <1>
 2. Lista todas las ramas, incluyendo las remotas:
 
 ```bash
-$ git branch -a  # <1>
+$ git branch -a  
 * master
   remotes/origin/master
   remotes/origin/dev
@@ -215,19 +215,19 @@ $ git branch -a  # <1>
 
 1. **git branch -a** muestra todas las ramas. Nota que hay una rama `dev` que no es la rama por defecto.
 
-3. Cambia a la rama `dev`:
+2. Cambia a la rama `dev`:
 
 ```bash
-$ git checkout dev  # <1>
+$ git checkout dev  
 Switched to branch 'dev'
 ```
 
 1. **git checkout dev** cambia a la rama `dev`. Ahora puedes ver su contenido.
 
-4. Lee el README en esta rama:
+2. Lee el README en esta rama:
 
 ```bash
-$ cat README.md  # <1>
+$ cat README.md  
 ```
 
 1. **cat** muestra el contenido del README que contiene el password en esta rama.
@@ -247,10 +247,10 @@ En Git, las ramas son punteros a diferentes versiones del codigo. El password pu
 
 #### Resolucion paso a paso
 
-1. Clona el repositorio:
+2. Clona el repositorio:
 
 ```bash
-$ git clone ssh://bandit29-git@localhost:2220/home/bandit29-git/repo  # <1>
+$ git clone ssh://bandit29-git@localhost:2220/home/bandit29-git/repo  
 ```
 
 1. **git clone** clona el repositorio remoto.
@@ -258,23 +258,23 @@ $ git clone ssh://bandit29-git@localhost:2220/home/bandit29-git/repo  # <1>
 2. Lista los tags:
 
 ```bash
-$ git tag  # <1>
+$ git tag  
 ```
 
 1. **git tag** muestra todos los tags del repositorio. Los tags son marcadores de commits especificos.
 
-3. Muestra el contenido de un tag:
+2. Muestra el contenido de un tag:
 
 ```bash
-$ git show <tag_name>  # <1>
+$ git show <tag_name>  
 ```
 
 1. **git show** muestra el commit que el tag referencia, incluyendo el diff con el commit anterior.
 
-4. Tambien explora el historial de commits:
+2. Tambien explora el historial de commits:
 
 ```bash
-$ git log --all --oneline  # <1>
+$ git log --all --oneline  
 ```
 
 1. **git log --all --oneline** muestra todos los commits de todas las ramas en formato compacto.
@@ -294,10 +294,10 @@ Los tags son punteros inmutables a commits especificos. Se usan para marcar rele
 
 #### Resolucion paso a paso
 
-1. Clona el repositorio:
+2. Clona el repositorio:
 
 ```bash
-$ git clone ssh://bandit30-git@localhost:2220/home/bandit30-git/repo  # <1>
+$ git clone ssh://bandit30-git@localhost:2220/home/bandit30-git/repo  
 ```
 
 1. **git clone** clona el repositorio remoto.
@@ -305,25 +305,25 @@ $ git clone ssh://bandit30-git@localhost:2220/home/bandit30-git/repo  # <1>
 2. Lee el README:
 
 ```bash
-$ cat README.md  # <1>
+$ cat README.md  
 ```
 
 1. **cat** muestra las instrucciones del nivel — normalmente indica que debes crear un archivo con un contenido especifico.
 
-3. Crea el archivo requerido:
+2. Crea el archivo requerido:
 
 ```bash
-$ echo "May I come in?" > key.txt  # <1>
+$ echo "May I come in?" > key.txt  
 ```
 
 1. **echo** crea el archivo con el contenido solicitado.
 
-4. Agrega, commitea y push:
+2. Agrega, commitea y push:
 
 ```bash
-$ git add key.txt  # <1>
-$ git commit -m "Add key"  # <2>
-$ git push origin master  # <3>
+$ git add key.txt  
+$ git commit -m "Add key"  
+$ git push origin master  
 ```
 
 1. **git add** agrega el archivo al staging area
@@ -345,10 +345,10 @@ Cuando hagas `git push` a un repositorio SSH, Git te pedira la contrasena. Si el
 
 #### Resolucion paso a paso
 
-1. Clona el repositorio:
+4. Clona el repositorio:
 
 ```bash
-$ git clone ssh://bandit31-git@localhost:2220/home/bandit31-git/repo  # <1>
+$ git clone ssh://bandit31-git@localhost:2220/home/bandit31-git/repo  
 ```
 
 1. **git clone** clona el repositorio remoto.
@@ -356,25 +356,25 @@ $ git clone ssh://bandit31-git@localhost:2220/home/bandit31-git/repo  # <1>
 2. Lee el README:
 
 ```bash
-$ cat README.md  # <1>
+$ cat README.md  
 ```
 
 1. **cat** muestra las instrucciones — este nivel requiere crear un archivo especifico y hacer push.
 
-3. Crea el archivo con el contenido exacto:
+2. Crea el archivo con el contenido exacto:
 
 ```bash
-$ echo "I am the boss!" > .git/description  # <1>
+$ echo "I am the boss!" > .git/description  
 ```
 
 1. **echo** crea el archivo con el contenido exacto solicitado.
 
-4. Commitea y push:
+2. Commitea y push:
 
 ```bash
-$ git add .git/description  # <1>
-$ git commit -m "Add description"  # <2>
-$ git push origin master  # <3>
+$ git add .git/description  
+$ git commit -m "Add description"  
+$ git push origin master  
 ```
 
 1. **git add** agrega el archivo
@@ -396,10 +396,10 @@ Git hooks son scripts en `.git/hooks/` que se ejecutan antes/despues de acciones
 
 #### Resolucion paso a paso
 
-1. Clona el repositorio:
+4. Clona el repositorio:
 
 ```bash
-$ git clone ssh://bandit32-git@localhost:2220/home/bandit32-git/repo  # <1>
+$ git clone ssh://bandit32-git@localhost:2220/home/bandit32-git/repo  
 ```
 
 1. **git clone** clona el repositorio remoto.
@@ -407,27 +407,27 @@ $ git clone ssh://bandit32-git@localhost:2220/home/bandit32-git/repo  # <1>
 2. Lee el README:
 
 ```bash
-$ cat README.md  # <1>
+$ cat README.md  
 ```
 
 1. **cat** muestra las instrucciones — este nivel tiene un shell que solo acepta comandos en mayusculas.
 
-3. Accede al shell restringido:
+2. Accede al shell restringido:
 
 ```bash
-$ ./bandit33-do sh  # <1>
-$ BANDIT33-DO>  # <2>
+$ ./bandit33-do sh  
+$ BANDIT33-DO>  
 ```
 
 1. **bandit33-do** ejecuta `sh` con privilegios de bandit33
 2. El prompt indica que estas en el shell restringido
 
-4. Ejecuta comandos en mayusculas:
+3. Ejecuta comandos en mayusculas:
 
 ```bash
-$ BANDIT33-DO> WHOAMI  # <1>
+$ BANDIT33-DO> WHOAMI  
 bandit33
-$ BANDIT33-DO> CAT /ETC/BANDIT_PASS/BANDIT33  # <2>
+$ BANDIT33-DO> CAT /ETC/BANDIT_PASS/BANDIT33  
 ```
 
 <output esperado: password de bandit33>
@@ -450,10 +450,10 @@ Algunos shells restringidos solo aceptan comandos en mayusculas. Esto es una for
 
 #### Resolucion paso a paso
 
-1. Lee la pagina oficial del nivel:
+3. Lee la pagina oficial del nivel:
 
 ```bash
-$ curl -s https://overthewire.org/wargames/bandit/bandit34.html  # <1>
+$ curl -s https://overthewire.org/wargames/bandit/bandit34.html  
 ```
 
 1. **curl** descarga el contenido de la pagina oficial. El nivel final normalmente tiene instrucciones especificas.

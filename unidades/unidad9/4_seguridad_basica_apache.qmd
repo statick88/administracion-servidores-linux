@@ -41,7 +41,7 @@ $ sudo a2enconf security-hardening
 
 # Validar y recargar
 $ sudo apachectl configtest && sudo systemctl reload apache2
-# <1>
+
 ```
 
 1. **ServerTokens Prod**: Solo muestra "Apache", sin versión
@@ -56,7 +56,7 @@ Server: Apache/2.4.58 (Ubuntu)
 # Después
 $ curl -I http://localhost | grep Server
 Server: Apache
-# <1>
+
 ```
 
 1. **ServerTokens Prod**: Oculta versión y SO
@@ -97,7 +97,7 @@ $ sudo a2enconf security-headers
 
 # Validar y recargar
 $ sudo apachectl configtest && sudo systemctl reload apache2
-# <1>
+
 ```
 
 1. **Headers de seguridad**: Los 5 que todo servidor debe tener
@@ -115,7 +115,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 X-XSS-Protection: 1; mode=block
 X-Powered-By: Production
 Permissions-Policy: geolocation=(), microphone=(), camera=()
-# <1>
+
 ```
 
 1. **Todos los headers**: Verificación de hardenización
@@ -141,7 +141,7 @@ $ sudo tee /etc/apache2/conf-available/csp-basic.conf <<'EOF'
     "
 </IfModule>
 EOF
-# <1>
+
 ```
 
 1. **CSP**: Content Security Policy - protege contra XSS e injection
@@ -165,7 +165,7 @@ $ cat /etc/apache2/sites-available/default-ssl.conf | grep -A5 "SSLEngine"
 SSLEngine on
 SSLCertificateFile      /etc/ssl/certs/ssl-cert-snakeoil.pem
 SSLCertificateKeyFile   /etc/ssl/private/ssl-cert-snakeoil.key
-# <2>
+
 ```
 
 1. **Certbot**: Autobots para Let's Encrypt
@@ -198,7 +198,7 @@ EOF
 
 $ sudo a2enconf ssl-secure
 $ sudo apachectl configtest && sudo systemctl reload apache2
-# <1>
+
 ```
 
 1. **SSL seguro**: TLS 1.2/1.3, ciphers modernos, HSTS
@@ -208,7 +208,7 @@ $ sudo apachectl configtest && sudo systemctl reload apache2
 ```bash
 # Obtener certificado (reemplazar dominio)
 $ sudo certbot --apache -d ejemplo.com -d www.ejemplo.com
-# <1>
+
 
 # Following interactive prompts:
 # - Enter email address
@@ -231,7 +231,7 @@ $ curl -I -k https://localhost
 HTTP/1.1 200 OK
 Server: Apache
 Strict-Transport-Security: max-age=63072000
-# <1>
+
 
 # Verificar con SSL Labs (opcional)
 # https://www.ssllabs.com/ssltest/
@@ -264,7 +264,7 @@ EOF
 
 $ sudo a2enconf rate-limit
 $ sudo apachectl configtest && sudo systemctl reload apache2
-# <1>
+
 ```
 
 1. **Rate limiting**: Protege contra DoS básico
@@ -294,7 +294,7 @@ Options -Indexes
     Require all granted
 </FilesMatch>
 EOF
-# <1>
+
 ```
 
 1. **.htaccess**: Reglas de acceso por directorio
@@ -317,7 +317,7 @@ $ sudo apachectl configtest && sudo systemctl reload apache2
 $ sudo htpasswd -c /var/www/clients/mysite/.htpasswd admin
 New password: ********
 Re-type new password: ********
-# <1>
+
 
 # Agregar más usuarios
 $ sudo htpasswd /var/www/clients/mysite/.htpasswd developer
@@ -333,7 +333,7 @@ EOF
 # Ajustar permisos
 $ sudo chown www-data:www-data /var/www/clients/mysite/.htpasswd
 $ sudo chmod 640 /var/www/clients/mysite/.htpasswd
-# <2>
+
 ```
 
 1. **htpasswd**: Crea archivo de autenticación
@@ -351,7 +351,7 @@ $ sudo tail -100 /var/log/apache2/access.log
 192.168.1.100 - - [31/Mar/2026:10:00:00] "GET /wp-admin/ HTTP/1.1" 404
 192.168.1.100 - - [31/Mar/2026:10:00:01] "GET /phpmyadmin HTTP/1.1" 404
 192.168.1.100 - - [31/Mar/2026:10:00:02] "GET /.git/config HTTP/1.1" 404
-# <1>
+
 ```
 
 **Solución**:
@@ -388,7 +388,7 @@ $ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/ssl/private/apache-selfsigned.key \
     -out /etc/ssl/certs/apache-selfsigned.crt \
     -subj "/C=US/ST=State/L=City/O=Org/CN=internal.example.com"
-# <1>
+
 
 # Configurar VirtualHost con SSL
 $ sudo tee /etc/apache2/sites-available/internal-ssl.conf <<'EOF'
@@ -413,7 +413,7 @@ $ sudo apachectl configtest && sudo systemctl reload apache2
 
 # Probar (aceptar certificado)
 $ curl -k https://localhost
-# <2>
+
 ```
 
 1. **Certificado auto-firmado**: Para testing interno
@@ -427,7 +427,7 @@ $ curl -k https://localhost
 # Ver qué es accesible
 $ curl http://localhost/.env
 DB_PASSWORD=secret123
-# <1>
+
 
 # Proteger
 $ sudo tee /etc/apache2/conf-available/prevent-leak.conf <<'EOF'
@@ -447,7 +447,7 @@ $ sudo systemctl reload apache2
 # Verificar
 $ curl -I http://localhost/.env
 HTTP/1.1 403 Forbidden
-# <2>
+
 ```
 
 1. **.env expuesto**: Credentials en texto plano

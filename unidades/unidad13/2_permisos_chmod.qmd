@@ -2,7 +2,7 @@
 title: "Permisos y chmod"
 author: "Diego Saavedra"
 date: "2026-07-21"
-bibliography: references.bib
+bibliography: ../../references.bib
 biblio-style: apalike
 ---
 
@@ -29,9 +29,9 @@ Los permisos en Linux controlan quién puede leer, escribir y ejecutar archivos.
 ```bash
 $ ls -la /home/diego/archivo.txt
 -rw-r--r-- 1 diego diego 1024 Jul 21 10:30 archivo.txt
-# <1>
-# <2>
-# <3>
+
+
+
 ```
 
 1. **-rw-r--r--** indica tipo y permisos
@@ -60,6 +60,7 @@ $ ls -la /home/diego/archivo.txt
 
 ::: {.panel-tabset}
 
+
 ### Valores octales
 
 #### Linux
@@ -73,14 +74,14 @@ chmod 644 archivo   # rw-r--r-- (propietario: leer/escribir, otros: solo leer)
 chmod 700 archivo   # rwx------ (solo propietario)
 chmod 600 archivo   # rw------- (propietario: leer/escribir)
 chmod 400 archivo   # r-------- (solo lectura para todos)
-# <1>
+
 ```
 1. Estos son los permisos más comunes en servidores Linux
 
 #### macOS
 ```bash
 # Misma notación octal que Linux
-$ chmod 755 script.sh  # <1>
+$ chmod 755 script.sh  
 
 # Verificar permisos
 $ ls -la script.sh
@@ -91,7 +92,7 @@ $ ls -la script.sh
 #### Windows (PowerShell)
 ```powershell
 # Windows usa ACLs en lugar de permisos rwx
-PS> Get-Acl archivo.txt | Format-List  # <1>
+PS> Get-Acl archivo.txt | Format-List  
 
 # Windows no tiene notación octal directa
 # Usa herramientas como icacls o Get-Acl
@@ -110,14 +111,14 @@ chmod 750 script     # rwxr-x--- (propietario: todo, grupo: leer/ejecutar)
 chmod 640 config     # rw-r----- (propietario: leer/escribir, grupo: solo leer)
 chmod 755 /var/www   # rwxr-xr-x (web server puede acceder)
 chmod 600 ~/.ssh/id_rsa  # rw------- (clave SSH privada)
-# <1>
+
 ```
 1. Nunca uses 777 en producción, es un riesgo de seguridad
 
 #### macOS
 ```bash
 # Misma lógica que Linux
-$ chmod 700 ~/Documents  # <1>
+$ chmod 700 ~/Documents  
 $ chmod 644 ~/public.html
 ```
 1. Aplica los mismos principios de seguridad
@@ -125,7 +126,7 @@ $ chmod 644 ~/public.html
 #### Windows (PowerShell)
 ```powershell
 # Windows maneja permisos de forma diferente
-PS> icacls archivo.txt /grant "diego:(R)"  # <1>
+PS> icacls archivo.txt /grant "diego:(R)"  
 PS> icacls archivo.txt /grant "diego:(F)"
 ```
 1. Usa icacls para conceder permisos específicos en Windows
@@ -140,12 +141,13 @@ PS> icacls archivo.txt /grant "diego:(F)"
 
 ::: {.panel-tabset}
 
+
 ### Agregar permisos
 
 #### Linux
 ```bash
 # Agregar permiso de ejecución al propietario
-$ chmod u+x script.sh  # <1>
+$ chmod u+x script.sh  
 
 # Agregar permiso de escritura al grupo
 $ chmod g+w archivo.txt
@@ -156,7 +158,7 @@ $ chmod +x script.sh
 # Verificar cambios
 $ ls -la script.sh
 -rwxr-xr-x 1 diego diego 1024 Jul 21 10:30 script.sh
-# <2>
+
 ```
 1. **u+x** agrega permiso de ejecución (x) al propietario (u)
 
@@ -165,7 +167,7 @@ $ ls -la script.sh
 #### macOS
 ```bash
 # Misma notación simbólica que Linux
-$ chmod u+x script.sh  # <1>
+$ chmod u+x script.sh  
 
 # Verificar
 $ ls -la script.sh
@@ -177,7 +179,7 @@ $ ls -la script.sh
 ```powershell
 # Windows no tiene notación simbólica similar
 # Usa herramientas específicas
-PS> icacls archivo.txt /grant "diego:(RX)"  # <1>
+PS> icacls archivo.txt /grant "diego:(RX)"  
 ```
 1. Concede permisos de lectura y ejecución
 
@@ -188,7 +190,7 @@ PS> icacls archivo.txt /grant "diego:(RX)"  # <1>
 #### Linux
 ```bash
 # Quitar permiso de escritura a otros
-$ chmod o-w archivo.txt  # <1>
+$ chmod o-w archivo.txt  
 
 # Quitar todos los permisos a otros
 $ chmod o-rwx archivo.txt
@@ -205,7 +207,7 @@ $ ls -la archivo.txt
 #### macOS
 ```bash
 # Misma notación
-$ chmod o-w archivo.txt  # <1>
+$ chmod o-w archivo.txt  
 ```
 1. Funciona igual que en Linux
 
@@ -213,7 +215,7 @@ $ chmod o-w archivo.txt  # <1>
 ```powershell
 # Windows no tiene equivalente directo
 # Usa icacls para revocar permisos
-PS> icacls archivo.txt /remove "Usuarios:(W)"  # <1>
+PS> icacls archivo.txt /remove "Usuarios:(W)"  
 ```
 1. Revoca permisos de escritura al grupo Usuarios
 
@@ -224,13 +226,13 @@ PS> icacls archivo.txt /remove "Usuarios:(W)"  # <1>
 #### Linux
 ```bash
 # Cambiar propietario
-$ sudo chown carlos archivo.txt  # <1>
+$ sudo chown carlos archivo.txt  
 
 # Cambiar propietario y grupo
-$ sudo chown carlos:developers archivo.txt  # <2>
+$ sudo chown carlos:developers archivo.txt  
 
 # Cambiar recursivamente
-$ sudo chown -R carlos:developers /var/www/  # <3>
+$ sudo chown -R carlos:developers /var/www/  
 
 # Verificar cambios
 $ ls -la /var/www/
@@ -247,7 +249,7 @@ drwxr-xr-x 2 carlos developers 4096 Jul 21 10:30 html
 #### macOS
 ```bash
 # Misma sintaxis que Linux
-$ sudo chown carlos archivo.txt  # <1>
+$ sudo chown carlos archivo.txt  
 $ sudo chown carlos:staff archivo.txt
 ```
 1. Funciona igual que en Linux
@@ -255,7 +257,7 @@ $ sudo chown carlos:staff archivo.txt
 #### Windows (PowerShell)
 ```powershell
 # Windows no tiene chown, usa Takeown o icacls
-PS> takeown /f archivo.txt /r /d y  # <1>
+PS> takeown /f archivo.txt /r /d y  
 PS> icacls archivo.txt /setowner "carlos"
 ```
 1. **takeown** toma propiedad de archivos en Windows
@@ -270,6 +272,7 @@ PS> icacls archivo.txt /setowner "carlos"
 
 ::: {.panel-tabset}
 
+
 ### SUID (Set User ID)
 
 #### Linux
@@ -277,8 +280,8 @@ PS> icacls archivo.txt /setowner "carlos"
 # SUID en ejecutables
 $ ls -la /usr/bin/passwd
 -rwsr-xr-x 1 root root 68208 Jul 21 10:30 /usr/bin/passwd
-# <1>
-# <2>
+
+
 ```
 1. La **s** en lugar de **x** indica SUID
 
@@ -289,7 +292,7 @@ $ ls -la /usr/bin/passwd
 # SUID funciona igual que en Linux
 $ ls -la /usr/bin/passwd
 -rwsr-xr-x 1 root wheel 68208 Jul 21 10:30 /usr/bin/passwd
-# <1>
+
 ```
 1. macOS también usa SUID para permisos especiales
 
@@ -297,7 +300,7 @@ $ ls -la /usr/bin/passwd
 ```powershell
 # Windows no tiene SUID equivalente
 # Usa "Run as Administrator" o UAC
-PS> Start-Process cmd -Verb RunAs  # <1>
+PS> Start-Process cmd -Verb RunAs  
 ```
 1. Windows usa UAC (User Account Control) en lugar de SUID
 
@@ -310,8 +313,8 @@ PS> Start-Process cmd -Verb RunAs  # <1>
 # SGID en directorios
 $ ls -ld /var/mail
 drwxrwsr-x 2 root mail 4096 Jul 21 10:30 /var/mail
-# <1>
-# <2>
+
+
 ```
 1. La **s** en el grupo indica SGID
 
@@ -322,7 +325,7 @@ drwxrwsr-x 2 root mail 4096 Jul 21 10:30 /var/mail
 # SGID funciona igual que en Linux
 $ ls -ld /var/mail
 drwxrwsr-x 2 root wheel 4096 Jul 21 10:30 /var/mail
-# <1>
+
 ```
 1. macOS también usa SGID para directorios compartidos
 
@@ -330,7 +333,7 @@ drwxrwsr-x 2 root wheel 4096 Jul 21 10:30 /var/mail
 ```powershell
 # Windows no tiene SGID equivalente
 # Usa permisos de grupo en ACLs
-PS> icacls "C:\Compartido" /grant "Usuarios:(OI)(CI)(M)"  # <1>
+PS> icacls "C:\Compartido" /grant "Usuarios:(OI)(CI)(M)"  
 ```
 1. Windows maneja herencia de permisos de forma diferente
 
@@ -343,8 +346,8 @@ PS> icacls "C:\Compartido" /grant "Usuarios:(OI)(CI)(M)"  # <1>
 # Sticky Bit en /tmp
 $ ls -ld /tmp
 drwxrwxrwt 15 root root 4096 Jul 21 10:30 /tmp
-# <1>
-# <2>
+
+
 ```
 1. La **t** en otros indica Sticky Bit
 
@@ -355,7 +358,7 @@ drwxrwxrwt 15 root root 4096 Jul 21 10:30 /tmp
 # Sticky Bit funciona igual que en Linux
 $ ls -ld /tmp
 drwxrwxrwt 15 root wheel 4096 Jul 21 10:30 /tmp
-# <1>
+
 ```
 1. macOS también usa Sticky Bit para directorios compartidos
 
@@ -363,7 +366,7 @@ drwxrwxrwt 15 root wheel 4096 Jul 21 10:30 /tmp
 ```powershell
 # Windows no tiene Sticky Bit equivalente
 # Usa permisos de eliminación en ACLs
-PS> icacls "C:\Temp" /grant "Usuarios:(OI)(CI)(DC)"  # <1>
+PS> icacls "C:\Temp" /grant "Usuarios:(OI)(CI)(DC)"  
 ```
 1. Windows maneja permisos de eliminación de forma diferente
 
@@ -374,18 +377,18 @@ PS> icacls "C:\Temp" /grant "Usuarios:(OI)(CI)(DC)"  # <1>
 #### Linux
 ```bash
 # Establecer SUID
-$ sudo chmod u+s /usr/local/bin/mi_script  # <1>
+$ sudo chmod u+s /usr/local/bin/mi_script  
 
 # Establecer SGID
-$ sudo chmod g+s /var/compartido  # <2>
+$ sudo chmod g+s /var/compartido  
 
 # Establecer Sticky Bit
-$ sudo chmod +t /tmp/compartido  # <3>
+$ sudo chmod +t /tmp/compartido  
 
 # Verificar permisos especiales
 $ ls -la /usr/local/bin/mi_script
 -rwsr-xr-x 1 root root 1024 Jul 21 10:30 mi_script
-# <4>
+
 ```
 1. **u+s** establece SUID en el propietario
 
@@ -398,7 +401,7 @@ $ ls -la /usr/local/bin/mi_script
 #### macOS
 ```bash
 # Misma sintaxis que Linux
-$ sudo chmod u+s /usr/local/bin/mi_script  # <1>
+$ sudo chmod u+s /usr/local/bin/mi_script  
 $ sudo chmod g+s /var/compartido
 ```
 1. Funciona igual que en Linux
@@ -407,7 +410,7 @@ $ sudo chmod g+s /var/compartido
 ```powershell
 # Windows no tiene equivalentes directos
 # Usa herramientas específicas para permisos especiales
-PS> icacls "C:\Compartido" /grant "Todos:(OI)(CI)(RX)"  # <1>
+PS> icacls "C:\Compartido" /grant "Todos:(OI)(CI)(RX)"  
 ```
 1. Windows maneja permisos de forma diferente
 
@@ -431,19 +434,19 @@ PS> icacls "C:\Compartido" /grant "Todos:(OI)(CI)(RX)"  # <1>
 
 ## 🎯 Ejercicios Prácticos
 
-1. Crea un archivo `test.txt` y establece permisos `644`
+2. Crea un archivo `test.txt` y establece permisos `644`
 
-2. Cambia los permisos a `755` usando notación simbólica
+3. Cambia los permisos a `755` usando notación simbólica
 
-3. Agrega permiso de escritura al grupo
+4. Agrega permiso de escritura al grupo
 
-4. Quita todos los permisos a otros
+5. Quita todos los permisos a otros
 
-5. Crea un directorio `compartido` y establece SGID
+6. Crea un directorio `compartido` y establece SGID
 
-6. Crea un archivo en el directorio compartido y verifica que hereda el grupo
+7. Crea un archivo en el directorio compartido y verifica que hereda el grupo
 
-7. Establece Sticky Bit en un directorio temporal
+8. Establece Sticky Bit en un directorio temporal
 
 ---
 

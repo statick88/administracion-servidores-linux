@@ -42,11 +42,11 @@ date: "2026-07-27"
 
 ```bash
 # Si NetBox no está corriendo
-$ cd /opt/monitoring  # <1>
-$ docker compose up -d netbox postgres redis  # <2>
+$ cd /opt/monitoring  
+$ docker compose up -d netbox postgres redis  
 
 # Verificar que está listo (puede tardar 1-2 minutos la primera vez)
-$ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  # <3>
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  
 200
 ```
 1. **cd /opt/monitoring**: Navega al directorio del proyecto.
@@ -66,10 +66,10 @@ $ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  # <3>
 
 **Cambia la contraseña inmediatamente** después del primer inicio de sesión:
 
-1. Inicia sesión con `admin` / `changeme_netbox`
-2. Ve a **Admin → Users → admin**
-3. Escribe una contraseña nueva fuerte
-4. Haz clic en **Update**
+4. Inicia sesión con `admin` / `changeme_netbox`
+5. Ve a **Admin → Users → admin**
+6. Escribe una contraseña nueva fuerte
+7. Haz clic en **Update**
 
 **Lo que podría salir mal:**
 - Alguien accede a tu inventario y modifica dispositivos
@@ -85,8 +85,8 @@ $ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  # <3>
 
 Los **Sitios** representan ubicaciones físicas (datacenters, oficinas, etc.).
 
-1. Ve a **Organization → Sites → + Add**
-2. Completa el formulario:
+8. Ve a **Organization → Sites → + Add**
+9. Completa el formulario:
 
 | Campo | Valor |
 |-------|-------|
@@ -97,26 +97,26 @@ Los **Sitios** representan ubicaciones físicas (datacenters, oficinas, etc.).
 | **Time zone** | `America/Guayaquil` |
 | **Description** | Datacenter principal de la empresa |
 
-3. Haz clic en **Create**
+10. Haz clic en **Create**
 
 ### Crear una Región
 
-1. Ve a **Organization → Regions → + Add**
-2. Completa:
+11. Ve a **Organization → Regions → + Add**
+12. Completa:
 
 | Campo | Valor |
 |-------|-------|
 | **Name** | `Latinoamérica` |
 | **Slug** | `latam` |
 
-3. Haz clic en **Create**
+13. Haz clic en **Create**
 
 ### Crear un Tenant
 
 Los **Tenant** representan departamentos, clientes o unidades de negocio.
 
-1. Ve a **Organization → Tenants → + Add**
-2. Completa:
+14. Ve a **Organization → Tenants → + Add**
+15. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -124,7 +124,7 @@ Los **Tenant** representan departamentos, clientes o unidades de negocio.
 | **Slug** | `depto-ti` |
 | **Group** | Crea un grupo nuevo: `Interno` |
 
-3. Haz clic en **Create**
+16. Haz clic en **Create**
 
 ---
 
@@ -132,8 +132,8 @@ Los **Tenant** representan departamentos, clientes o unidades de negocio.
 
 ### Crear un Dispositivo (Servidor)
 
-1. Ve to **Devices → Devices → + Add**
-2. Completa el formulario:
+17. Ve to **Devices → Devices → + Add**
+18. Completa el formulario:
 
 | Campo | Valor |
 |-------|-------|
@@ -145,14 +145,14 @@ Los **Tenant** representan departamentos, clientes o unidades de negocio.
 | **Status** | Active |
 | **Primary IP** | Asignar después |
 
-3. Haz clic en **Create**
+19. Haz clic en **Create**
 
 ### Crear Tipo de Dispositivo
 
 Antes de crear el dispositivo, necesitas definir los tipos:
 
-1. Ve a **Devices → Device Types → + Add**
-2. Completa:
+20. Ve a **Devices → Device Types → + Add**
+21. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -162,12 +162,12 @@ Antes de crear el dispositivo, necesitas definir los tipos:
 | **U Height** | `1` (altura en unidades de rack) |
 | **Is full depth** | `True` |
 
-3. Haz clic en **Create**
+22. Haz clic en **Create**
 
 ### Crear Rol de Dispositivo
 
-1. Ve a **Devices → Device Roles → + Add**
-2. Completa:
+23. Ve a **Devices → Device Roles → + Add**
+24. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -176,7 +176,7 @@ Antes de crear el dispositivo, necesitas definir los tipos:
 | **Color** | `#00ff00` (verde) |
 | **VM Role** | `False` (es un servidor físico) |
 
-3. Haz clic en **Create**
+25. Haz clic en **Create**
 
 ---
 
@@ -184,9 +184,9 @@ Antes de crear el dispositivo, necesitas definir los tipos:
 
 ### Agregar Interfaz al Dispositivo
 
-1. Abre el dispositivo `srv-web-01`
-2. Ve a la pestaña **Interfaces**
-3. Haz clic en **+ Add**
+26. Abre el dispositivo `srv-web-01`
+27. Ve a la pestaña **Interfaces**
+28. Haz clic en **+ Add**
 
 | Campo | Valor |
 |-------|-------|
@@ -195,12 +195,12 @@ Antes de crear el dispositivo, necesitas definir los tipos:
 | **Status** | `Active` |
 | **Enabled** | `True` |
 
-4. Haz clic en **Create**
+29. Haz clic en **Create**
 
 ### Agregar Dirección IP
 
-1. Ve a **IPAM → IP Addresses → + Add**
-2. Completa:
+30. Ve a **IPAM → IP Addresses → + Add**
+31. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -210,8 +210,8 @@ Antes de crear el dispositivo, necesitas definir los tipos:
 | **DNS Name** | `srv-web-01.ejemplo.com` |
 | **Description** | IP principal del servidor web |
 
-3. Haz clic en **Create**
-4. Asigna la IP a la interfaz `eth0` del dispositivo
+32. Haz clic en **Create**
+33. Asigna la IP a la interfaz `eth0` del dispositivo
 
 ---
 
@@ -219,8 +219,8 @@ Antes de crear el dispositivo, necesitas definir los tipos:
 
 ### Crear VLANs
 
-1. Ve a **IPAM → VLANs → + Add**
-2. Completa:
+34. Ve a **IPAM → VLANs → + Add**
+35. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -230,14 +230,14 @@ Antes de crear el dispositivo, necesitas definir los tipos:
 | **Status** | `Active` |
 | **Role** | `Production` |
 
-3. Haz clic en **Create**
+36. Haz clic en **Create**
 
 ### Crear Prefijos de Red
 
 Los **Prefijos** definen rangos de IPs disponibles:
 
-1. Ve a **IPAM → Prefixes → + Add**
-2. Completa:
+37. Ve a **IPAM → Prefixes → + Add**
+38. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -248,7 +248,7 @@ Los **Prefijos** definen rangos de IPs disponibles:
 | **Role** | `Container` |
 | **Description** | Rango de IPs para servidores DMZ |
 
-3. Haz clic en **Create**
+39. Haz clic en **Create**
 
 ---
 
@@ -261,15 +261,15 @@ NetBox expone una API REST completa. Puedes consultarla con `curl`:
 ```bash
 # Listar todos los dispositivos
 $ curl -s -H "Authorization: Token TU_TOKEN_AQUI" \
-  http://localhost:8080/api/dcim/devices/ | python3 -m json.tool  # <1>
+  http://localhost:8080/api/dcim/devices/ | python3 -m json.tool  
 
 # Listar todas las direcciones IP
 $ curl -s -H "Authorization: Token TU_TOKEN_AQUI" \
-  http://localhost:8080/api/ipam/ip-addresses/ | python3 -m json.tool  # <2>
+  http://localhost:8080/api/ipam/ip-addresses/ | python3 -m json.tool  
 
 # Exportar en formato CSV
 $ curl -s -H "Authorization: Token TU_TOKEN_AQUI" \
-  http://localhost:8080/api/dcim/devices/?format=csv > dispositivos.csv  # <3>
+  http://localhost:8080/api/dcim/devices/?format=csv > dispositivos.csv  
 ```
 1. **API dispositivos**: Devuelve todos los dispositivos registrados en JSON.
 2. **API IPs**: Devuelve todas las direcciones IP asignadas.
@@ -277,8 +277,8 @@ $ curl -s -H "Authorization: Token TU_TOKEN_AQUI" \
 
 ### Generar Token de API
 
-1. Ve a **Admin → Tokens → + Add**
-2. Completa:
+4. Ve a **Admin → Tokens → + Add**
+5. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -286,8 +286,8 @@ $ curl -s -H "Authorization: Token TU_TOKEN_AQUI" \
 | **Write enabled** | `True` (si necesitas modificar datos) |
 | **Allowed IPs** | `172.20.0.0/24` (solo la red de monitoreo) |
 
-3. Haz clic en **Create**
-4. **Copia la clave generada** — solo se muestra una vez
+6. Haz clic en **Create**
+7. **Copia la clave generada** — solo se muestra una vez
 
 ---
 
@@ -299,16 +299,16 @@ Puedes usar la API de NetBox para enriquecer las alertas de Prometheus con infor
 
 ```bash
 # Script: obtener IP de un dispositivo desde NetBox
-$ DEVICE_NAME="srv-web-01"  # <1>
+$ DEVICE_NAME="srv-web-01"  
 $ NETBOX_TOKEN="tu_token_aqui"
 $ NETBOX_URL="http://localhost:8080"
 
 $ DEVICE_IP=$(curl -s -H "Authorization: Token $NETBOX_TOKEN" \
   "$NETBOX_URL/api/ipam/ip-addresses/?device=$DEVICE_NAME" \
   | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['results'][0]['address'])" \
-  | cut -d'/' -f1)  # <2>
+  | cut -d'/' -f1)  
 
-$ echo "IP de $DEVICE_NAME: $DEVICE_IP"  # <3>
+$ echo "IP de $DEVICE_NAME: $DEVICE_IP"  
 ```
 1. **DEVICE_NAME**: Nombre del dispositivo a buscar en NetBox.
 2. **DEVICE_IP**: Extrae la IP del dispositivo usando la API de NetBox y `python3` para parsear el JSON.

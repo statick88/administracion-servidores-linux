@@ -41,14 +41,14 @@ Al completar este laboratorio podrás:
 ```bash
 # Actualizar e instalar
 $ sudo apt update && sudo apt install -y nginx nginx-extras
-# <1>
+
 
 # Ver estado
 $ sudo systemctl status nginx --no-pager
 ● nginx.service - A high performance web server and a reverse proxy server
      Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
      Active: active (running)
-# <2>
+
 ```
 
 1. **nginx-extras**: Módulos adicionales
@@ -64,7 +64,7 @@ LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:("nginx",pid=1234,fd=6)
 $ curl -I http://localhost
 HTTP/1.1 200 OK
 Server: nginx/1.24.0
-# <1>
+
 ```
 
 ### Ejercicio 1.3: Estructura de Archivos
@@ -94,7 +94,7 @@ $ echo '<!DOCTYPE html><h1>Site 2</h1>' | sudo tee /var/www/site2/public/index.h
 
 # Permisos
 $ sudo chown -R www-data:www-data /var/www/site*
-# <1>
+
 ```
 
 ### Ejercicio 2.2: Crear Server Blocks
@@ -135,7 +135,7 @@ server {
     }
 }
 EOF
-# <1>
+
 ```
 
 ### Ejercicio 2.3: Habilitar Sitios
@@ -157,7 +157,7 @@ $ curl -H 'Host: site1.local' http://localhost
 
 $ curl -H 'Host: site2.local' http://localhost
 <h1>Site 2</h1>
-# <1>
+
 ```
 
 ---
@@ -169,7 +169,7 @@ $ curl -H 'Host: site2.local' http://localhost
 ```bash
 # Crear backend falso con netcat o Python
 $ timeout 300 python3 -m http.server 3000 --directory /tmp &
-# <1>
+
 ```
 
 1. **Backend**: Servidor simple en puerto 3000
@@ -199,7 +199,7 @@ $ sudo nginx -t && sudo systemctl reload nginx
 
 # Probar (si hay backend corriendo)
 $ curl -H 'Host: api.local' http://localhost
-# <1>
+
 ```
 
 1. **Proxy**: Forward a backend
@@ -225,7 +225,7 @@ server {
     }
 }
 EOF
-# <1>
+
 ```
 
 1. **Docker backend**: Nginx en contenedor como backend
@@ -242,7 +242,7 @@ $ sudo apt install -y certbot python3-certbot-nginx
 
 # Verificar
 $ certbot --version
-# <1>
+
 ```
 
 ### Ejercicio 4.2: Certificado Auto-firmado (Testing)
@@ -253,7 +253,7 @@ $ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/ssl/private/nginx-selfsigned.key \
     -out /etc/ssl/certs/nginx-selfsigned.crt \
     -subj "/C=US/ST=Test/L=Test/O=Test/CN=localhost"
-# <1>
+
 
 # Crear configuración SSL
 $ sudo tee /etc/nginx/sites-available/ssl-test <<'EOF'
@@ -279,7 +279,7 @@ $ sudo nginx -t && sudo systemctl reload nginx
 # Probar
 $ curl -k https://localhost -H 'Host: ssl.local'
 <h1>Site 1</h1>
-# <2>
+
 ```
 
 1. **Self-signed**: Para testing
@@ -290,7 +290,7 @@ $ curl -k https://localhost -H 'Host: ssl.local'
 ```bash
 # Obtener certificado (dominio real)
 $ sudo certbot --nginx -d example.com -d www.example.com
-# <1>
+
 
 # Ver configuración
 $ ls /etc/letsencrypt/live/example.com/
@@ -314,7 +314,7 @@ $ sudo systemctl reload nginx
 # Verificar
 $ curl -I http://localhost | grep Server
 Server: nginx
-# <1>
+
 ```
 
 ### Ejercicio 5.2: Security Headers
@@ -340,7 +340,7 @@ X-Content-Type-Options: nosniff
 X-Frame-Options: SAMEORIGIN
 Referrer-Policy: strict-origin-when-cross-origin
 X-XSS-Protection: 1; mode=block
-# <1>
+
 ```
 
 ### Ejercicio 5.3: Rate Limiting
@@ -373,11 +373,11 @@ $ docker run -d --name nginx-server \
     --network lab-nginx-net \
     -p 8080:80 \
     nginx:1.25
-# <1>
+
 
 # Ver
 $ docker ps | grep nginx
-# <2>
+
 ```
 
 1. **Puerto 8080**: Mapeo local 8080 → container 80

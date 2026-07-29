@@ -299,11 +299,11 @@ El kernel es la parte más importante. Gestiona:
 
 ```bash
 # Ver información del kernel en Linux
-$ uname -r  # <1>
+$ uname -r  
 5.15.0-89-generic
 
 # Ver módulos del kernel cargados
-$ lsmod | head -10  # <2>
+$ lsmod | head -10  
 Module                  Size  Used by
 overlay                81920  0
 kvm_intel             323584  0
@@ -327,12 +327,12 @@ Los drivers (controladores) permiten que el SO hable con el hardware específico
 
 ```bash
 # Listar dispositivos reconocidos
-$ lspci | grep -E "(Network|VGA|Audio)"  # <1>
+$ lspci | grep -E "(Network|VGA|Audio)"  
 00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630
 00:1f.6 Ethernet controller: Intel Corporation Ethernet Connection
 
 # Ver drivers cargados
-$ lsmod | grep -i eth  # <2>
+$ lsmod | grep -i eth  
 ```
 
 1. **lspci** lista todos los dispositivos PCI conectados al sistema, filtramos solo Network, VGA y Audio
@@ -347,13 +347,13 @@ El shell es lo que **tú ves y usas**. Convierte tus comandos en órdenes que el
 
 ```bash
 # Usando shell bash
-$ ls -la /home  # <1>
+$ ls -la /home  
 total 28
 drwxr-xr-x  3 root root 4096 Jan 29 14:22 .
 drwxr-xr-x 23 root root 4096 Jan 29 14:22 ..
 drwxr-xr-x  5 diego staff 160 Jan 29 14:22 diego
 
-# El shell interpreta "ls -la /home" y le dice al kernel:  # <2>
+# El shell interpreta "ls -la /home" y le dice al kernel:  
 # "Lee el directorio /home y muestra detalles"
 ```
 
@@ -373,11 +373,11 @@ El SO decide **qué programa corre y cuándo**:
 
 ```bash
 # Ver procesos en tiempo real
-$ top -b -n 1 | head -20  # <1>
+$ top -b -n 1 | head -20  
 
 top - 14:40:15 up 247 days, 3:47,  2 users,  load average: 0.92, 0.91, 0.89
-Tasks: 156 total,   1 running, 155 sleeping,   0 stopped,   0 zombie  # <2>
-%Cpu(s):  3.2 us,  2.1 sy,  0.0 ni, 94.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st  # <3>
+Tasks: 156 total,   1 running, 155 sleeping,   0 stopped,   0 zombie  
+%Cpu(s):  3.2 us,  2.1 sy,  0.0 ni, 94.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st  
 ```
 
 1. **top -b -n 1** ejecuta top en modo batch (sin interfaz interactiva) una sola vez
@@ -388,13 +388,13 @@ Tasks: 156 total,   1 running, 155 sleeping,   0 stopped,   0 zombie  # <2>
 
 **Cómo funciona:**
 
-1. El SO maneja un "planificador" (scheduler) que decides cuál proceso ejecutar
+4. El SO maneja un "planificador" (scheduler) que decides cuál proceso ejecutar
 
-2. Si tienes un CPU de 4 núcleos, puede ejecutar 4 cosas simultáneamente
+5. Si tienes un CPU de 4 núcleos, puede ejecutar 4 cosas simultáneamente
 
-3. En paralelo, el SO cambia entre procesos muy rápidamente (time slicing)
+6. En paralelo, el SO cambia entre procesos muy rápidamente (time slicing)
 
-4. Resultado: Parece que 100 programas corren "al mismo tiempo"
+7. Resultado: Parece que 100 programas corren "al mismo tiempo"
 
 ### Gestión de Memoria
 
@@ -402,10 +402,10 @@ El SO asigna RAM a cada proceso de forma segura:
 
 ```bash
 # Ver uso de memoria
-$ cat /proc/meminfo  # <1>
-MemTotal:       16409912 kB    # RAM Total en el sistema  # <2>
-MemFree:         9654832 kB    # RAM Disponible sin usar  # <3>
-MemAvailable:   12506144 kB    # RAM que puede usar si es necesario  # <4>
+$ cat /proc/meminfo  
+MemTotal:       16409912 kB    # RAM Total en el sistema  
+MemFree:         9654832 kB    # RAM Disponible sin usar  
+MemAvailable:   12506144 kB    # RAM que puede usar si es necesario  
 ```
 
 1. **/proc/meminfo** es un archivo virtual que muestra información detallada de memoria del kernel
@@ -430,10 +430,10 @@ El SO es el "policía" que controla acceso a hardware:
 
 ```bash
 # Ver dispositivos de almacenamiento
-$ lsblk  # <1>
-NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT  # <2>
-sda      8:0    0  500G  0 disk  # <3>
-├─sda1   8:1    0    1G  0 part /boot  # <4>
+$ lsblk  
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT  
+sda      8:0    0  500G  0 disk  
+├─sda1   8:1    0    1G  0 part /boot  
 ├─sda2   8:2    0  499G  0 part /
 sdb      8:16   0    2T  0 disk
 └─sdb1   8:17   0    2T  0 part /data
@@ -455,10 +455,10 @@ El SO organiza datos en carpetas y archivos:
 
 ```bash
 # Ver sistema de archivos
-$ df -h  # <1>
-Filesystem      Size  Used Avail Use% Mounted on  # <2>
-/dev/sda2       500G  120G  380G  24% /  # <3>
-/dev/sdb1         2T  1.5T  500G  75% /data  # <4>
+$ df -h  
+Filesystem      Size  Used Avail Use% Mounted on  
+/dev/sda2       500G  120G  380G  24% /  
+/dev/sdb1         2T  1.5T  500G  75% /data  
 tmpfs           7.8G     0  7.8G   0% /dev/shm
 ```
 
@@ -492,12 +492,12 @@ java.lang.OutOfMemoryError: Java heap space
 **Solución comprobada:**
 ```bash
 # ❌ Forma INCORRECTA (buscar espacio en disco)
-$ df -h  # <1>
+$ df -h  
 Filesystem      Size  Used Avail
 /               500G  100G  400G  ← Aún hay espacio!
 
 # ✅ Forma CORRECTA (revisar RAM)
-$ free -h  # <2>
+$ free -h  
                total    used    free
 Mem:          15.6G   14.8G   0.8G  ← ¡RAM llena!
 ```
@@ -518,13 +518,13 @@ El error es de RAM, no de disco. **df** ve espacio en disco, pero **free** muest
 **Solución:**
 ```bash
 # Verificar carga de CPU
-$ uptime  # <1>
-load average: 12.5, 11.2, 10.1  ← Si es > núcleos CPU, está sobrecargado  # <2>
+$ uptime  
+load average: 12.5, 11.2, 10.1  ← Si es > núcleos CPU, está sobrecargado  
 
 # Verificar swap (disco usado como memoria)
-$ swapon -s  # <3>
+$ swapon -s  
 Filename  Size  Used Priority
-/dev/sda1 4000000 3900000 -1  ← Si Used es alto, es el problema  # <4>
+/dev/sda1 4000000 3900000 -1  ← Si Used es alto, es el problema  
 ```
 
 1. **uptime** muestra cuánto tiempo lleva el sistema activo y el "load average" (promedio de procesos en cola)
@@ -660,15 +660,15 @@ Si **free** es muy pequeño o **used** es muy grande, la RAM está llena.
 **Instrucciones:**
 ```bash
 # Paso 1: Ver información del SO
-$ uname -a  # <1>
+$ uname -a  
 # Deberías ver: información del kernel, versión, arquitectura
 
 # Paso 2: Ver los primeros procesos del sistema
-$ ps aux | head -10  # <2>
+$ ps aux | head -10  
 # Deberías ver: procesos del sistema operativo en ejecución
 
 # Paso 3: Ver memoria disponible
-$ free -h  # <3>
+$ free -h  
 # Deberías ver: cuánta RAM tienes y cuánta está disponible
 ```
 
@@ -690,11 +690,11 @@ $ free -h  # <3>
 
 **Pasos:**
 
-1. Abrir **top** o **htop** para ver monitoreo
+4. Abrir **top** o **htop** para ver monitoreo
 
-2. Notar cómo cambian los procesos
+5. Notar cómo cambian los procesos
 
-3. Ejecutar un comando que consume recursos
+6. Ejecutar un comando que consume recursos
 
 **Instrucciones:**
 ```bash

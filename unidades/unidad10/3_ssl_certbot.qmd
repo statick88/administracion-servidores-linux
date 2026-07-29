@@ -53,11 +53,11 @@ Let's Encrypt ha revolucionado el SSL con certificados gratuitos y automáticos.
 ```bash
 # Actualizar
 $ sudo apt update && sudo apt upgrade -y
-# <1>
+
 
 # Instalar certbot y plugin nginx
 $ sudo apt install -y certbot python3-certbot-nginx
-# <2>
+
 ```
 
 1. **apt update**: Lista de paquetes actualizada
@@ -69,7 +69,7 @@ $ sudo apt install -y certbot python3-certbot-nginx
 # Versión
 $ certbot --version
 certbot 2.1.0
-# <1>
+
 
 # Help
 $ certbot --help all
@@ -92,16 +92,16 @@ $ certbot --help all
 - Servidor en red local sin port-forward
 
 **Cómo prevenirlo:**
-1. Verificar DNS: `dig +short tu-dominio.com`
-2. Abrir puertos: `sudo ufw allow 80/tcp && sudo ufw allow 443/tcp`
-3. Probar HTTP público antes de certbot
+2. Verificar DNS: `dig +short tu-dominio.com`
+3. Abrir puertos: `sudo ufw allow 80/tcp && sudo ufw allow 443/tcp`
+4. Probar HTTP público antes de certbot
 :::
 
 ```bash
 # 1. Verificar DNS
 $ dig +short example.com
 203.0.113.10
-# <1>
+
 
 # 2. Abrir firewall
 $ sudo ufw allow 80/tcp
@@ -111,7 +111,7 @@ $ sudo ufw status
 # 3. Probar HTTP público
 $ curl -I http://example.com
 HTTP/1.1 200 OK
-# <2>
+
 ```
 
 1. **DNS**: Dominio apunta a IP del servidor
@@ -122,7 +122,7 @@ HTTP/1.1 200 OK
 ```bash
 # Obtener certificado (modo interactivo)
 $ sudo certbot --nginx -d example.com -d www.example.com
-# <1>
+
 
 # Following prompts:
 # Saving debug log to /var/log/letsencrypt/letsencrypt.log
@@ -141,7 +141,7 @@ $ sudo certbot --nginx -d example.com -d www.example.com
 #  - Your key file has been saved at:
 #    /etc/letsencrypt/live/example.com/privkey.pem
 #  - Your certificate will expire on 2026-06-30.
-# <2>
+
 ```
 
 1. **--nginx**: Auto-configura Nginx
@@ -156,7 +156,7 @@ $ sudo certbot --nginx -d example.com \
     --agree-tos \
     --redirect \
     --non-interactive
-# <1>
+
 
 # Múltiples dominios
 $ sudo certbot --nginx -d example.com -d www.example.com -d api.example.com
@@ -169,11 +169,11 @@ $ sudo certbot --nginx -d example.com -d www.example.com -d api.example.com
 ```bash
 # Certificado para otro dominio
 $ sudo certbot --nginx -d otherdomain.com
-# <1>
+
 
 # Ver todos los certificados
 $ sudo certbot certificates
-# <2>
+
 ```
 
 1. **Otro dominio**: Certificado separado
@@ -190,7 +190,7 @@ $ sudo ls -la /etc/letsencrypt/live/example.com/
 -rw-r--r-- 1 root root 0 Mar 31 10:00 chain.pem      # Chain
 -rw-r--r-- 1 root root 0 Mar 31 10:00 fullchain.pem  # cert + chain
 -rw-r--r-- 1 root root 0 Mar 31 10:00 privkey.pem    # Clave privada
-# <1>
+
 ```
 
 1. **Archivos SSL**: Cert, chain, fullchain, privkey
@@ -200,7 +200,7 @@ $ sudo ls -la /etc/letsencrypt/live/example.com/
 ```bash
 # Ver configuración creada
 $ cat /etc/nginx/sites-available/default-ssl.conf
-# <1>
+
 ```
 
 ```nginx
@@ -225,7 +225,7 @@ server {
 ```bash
 # Ver archivo de opciones
 $ cat /etc/letsencrypt/options-ssl-nginx.conf
-# <1>
+
 ```
 
 ```nginx
@@ -251,7 +251,7 @@ Simulating renewal of certificate for the following domains:
 example.com www.example.com
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Congratulations, all simulated renewals succeeded.
-# <1>
+
 ```
 
 1. **Simulated renewal**: Todo OK
@@ -261,7 +261,7 @@ Congratulations, all simulated renewals succeeded.
 ```bash
 # Ver cronjob
 $ sudo cat /etc/cron.d/certbot
-# <1>
+
 
 # Output:
 # 0 */12 * * * root test -x /usr/bin/certbot -a \! -d /run/systemd/system && perl -e 'sleep int(rand(43200))' && certbot -q renew
@@ -274,13 +274,13 @@ $ sudo cat /etc/cron.d/certbot
 ```bash
 # Forzar renovación (si está próximo a expirar)
 $ sudo certbot renew
-# <1>
+
 
 # Ver fecha de expiración
 $ sudo certbot certificates | grep -A2 "Certificate Name"
 Certificate Name: example.com
     Expiry Date: 2026-06-30 10:00:00+00:00 (-15 days)
-# <2>
+
 ```
 
 1. **renew**: Renueva todos los certificados
@@ -296,7 +296,7 @@ $ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/ssl/private/nginx-selfsigned.key \
     -out /etc/ssl/certs/nginx-selfsigned.crt \
     -subj "/C=US/ST=Test/L=Test/O=Org/CN=localhost"
-# <1>
+
 ```
 
 1. **Self-signed**: Para testing interno
@@ -323,7 +323,7 @@ add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; prelo
 ssl_stapling on;
 ssl_stapling_verify on;
 EOF
-# <1>
+
 ```
 
 1. **SSL seguro**: Configuración manual
@@ -346,7 +346,7 @@ server {
     }
 }
 EOF
-# <1>
+
 ```
 
 1. **Usar snippet**: Configuración SSL manual
@@ -361,14 +361,14 @@ $ curl -I https://example.com
 HTTP/1.1 200 OK
 Server: nginx
 Strict-Transport-Security: max-age=63072000
-# <1>
+
 
 # Con verbose
 $ curl -v https://example.com 2>&1 | grep -E "SSL|TLS"
 *  SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
 *  ALPN, server accepted to use http/1.1
 *  certificate subject: example.com
-# <2>
+
 ```
 
 1. **HSTS**: Header presente
@@ -379,7 +379,7 @@ $ curl -v https://example.com 2>&1 | grep -E "SSL|TLS"
 ```bash
 # Abrir en navegador
 $ echo "https://www.ssllabs.com/ssltest/analyze.html?d=example.com"
-# <1>
+
 ```
 
 1. **SSL Labs**: Test completo público
@@ -413,7 +413,7 @@ $ sudo nginx -t && sudo systemctl reload nginx
 
 # 4. Obtener certificado
 $ sudo certbot --nginx -d newdomain.com -d www.newdomain.com --redirect
-# <2>
+
 ```
 
 1. **DNS**: Verificar que apunta
@@ -428,11 +428,11 @@ $ sudo certbot --nginx -d newdomain.com -d www.newdomain.com --redirect
 $ sudo certbot certificates
 Certificate Name: example.com
     Expiry Date: 2024-03-01 10:00:00+00:00 (EXPIRED)
-# <1>
+
 
 # Renovar
 $ sudo certbot renew
-# <2>
+
 
 # Recargar Nginx
 $ sudo systemctl reload nginx
@@ -451,7 +451,7 @@ $ sudo certbot --nginx -d example.com -d www.example.com -d blog.example.com -d 
 
 # Opción 2: Certificado wildcard (requiere DNS validation)
 $ sudo certbot certonly --manual --preferred-challenges dns -d *.example.com
-# <3>
+
 ```
 
 1. **Múltiples**: Un certificado para todos

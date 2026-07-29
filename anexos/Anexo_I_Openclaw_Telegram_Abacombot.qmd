@@ -68,9 +68,9 @@ El bot de Telegram se llama por defecto **Abacombot** (configurable en BotFather
 - Se filtran datos del servidor por chat.
 
 **Cómo prevenirlo:**
-1. Guarda el token como secreto (archivo root-only o secret manager).
-2. Usa `dmPolicy: "pairing"`.
-3. Usa allowlists (DM y grupos) y mention gating en grupos.
+4. Guarda el token como secreto (archivo root-only o secret manager).
+5. Usa `dmPolicy: "pairing"`.
+6. Usa allowlists (DM y grupos) y mention gating en grupos.
 :::
 
 ---
@@ -78,10 +78,10 @@ El bot de Telegram se llama por defecto **Abacombot** (configurable en BotFather
 ## Paso 2: Clonar OpenClaw
 
 ```bash
-$ git clone https://github.com/openclaw/openclaw.git  # <1>
-$ cd openclaw  # <2>
-# <1>
-# <2>
+$ git clone https://github.com/openclaw/openclaw.git  
+$ cd openclaw  
+
+
 ```
 
 
@@ -94,8 +94,8 @@ $ cd openclaw  # <2>
 ## Paso 3: Levantar OpenClaw en Docker (recomendado)
 
 ```bash
-$ ./docker-setup.sh  # <1>
-# <1>
+$ ./docker-setup.sh  
+
 ```
 
 
@@ -116,12 +116,12 @@ El script ahora soporta flags adicionales:
 Si necesitas levantar el gateway manualmente (sin el script), la ruta de referencia es:
 
 ```bash
-$ docker build -t openclaw:local -f Dockerfile .  # <1>
-$ docker compose run --rm openclaw-cli onboard  # <2>
-$ docker compose up -d openclaw-gateway  # <3>
-# <1>
-# <2>
-# <3>
+$ docker build -t openclaw:local -f Dockerfile .  
+$ docker compose run --rm openclaw-cli onboard  
+$ docker compose up -d openclaw-gateway  
+
+
+
 ```
 
 
@@ -135,8 +135,8 @@ $ docker compose up -d openclaw-gateway  # <3>
 ## Paso 4: Conectar Telegram al Gateway (token)
 
 ```bash
-$ docker compose run --rm openclaw-cli channels add --channel telegram --token "<token>"  # <1>
-# <1>
+$ docker compose run --rm openclaw-cli channels add --channel telegram --token "<token>"  
+
 ```
 
 
@@ -158,7 +158,7 @@ Config mínima (conceptual) para Telegram:
       groups: { "*": { requireMention: true } },
     },
   },
-}  # <1>
+}  
 ```
 
 
@@ -174,10 +174,10 @@ Nota importante sobre grupos:
 ## Paso 6: Verificación (salud + logs)
 
 ```bash
-$ docker compose exec openclaw-gateway node dist/index.js health --token "$OPENCLAW_GATEWAY_TOKEN"  # <1>
-$ docker compose logs -n 200 openclaw-gateway  # <2>
-# <1>
-# <2>
+$ docker compose exec openclaw-gateway node dist/index.js health --token "$OPENCLAW_GATEWAY_TOKEN"  
+$ docker compose logs -n 200 openclaw-gateway  
+
+
 ```
 
 
@@ -192,10 +192,10 @@ $ docker compose logs -n 200 openclaw-gateway  # <2>
 Con `dmPolicy: "pairing"`, el primer DM requiere aprobación.
 
 ```bash
-$ docker compose run --rm openclaw-cli pairing list telegram  # <1>
-$ docker compose run --rm openclaw-cli pairing approve telegram **CODE**  # <2>
-# <1>
-# <2>
+$ docker compose run --rm openclaw-cli pairing list telegram  
+$ docker compose run --rm openclaw-cli pairing approve telegram **CODE**  
+
+
 ```
 
 
@@ -217,12 +217,12 @@ Checklist rápido:
 - Si es grupo: requiere mención y (si aplica) allowlist de grupo/senders.
 
 ```bash
-$ docker compose ps  # <1>
-$ docker compose logs -n 200 openclaw-gateway  # <2>
-$ docker compose run --rm openclaw-cli channels status  # <3>
-# <1>
-# <2>
-# <3>
+$ docker compose ps  
+$ docker compose logs -n 200 openclaw-gateway  
+$ docker compose run --rm openclaw-cli channels status  
+
+
+
 ```
 
 
@@ -240,12 +240,12 @@ Las **Skills** extienden las capacidades del bot permitiéndole ejecutar accione
 ### Instalar Skills
 
 ```bash
-$ docker compose run --rm openclaw-cli skills list  # <1>
-$ docker compose run --rm openclaw-cli skills install system-monitor  # <2>
-$ docker compose run --rm openclaw-cli skills enable system-monitor  # <3>
-# <1>
-# <2>
-# <3>
+$ docker compose run --rm openclaw-cli skills list  
+$ docker compose run --rm openclaw-cli skills install system-monitor  
+$ docker compose run --rm openclaw-cli skills enable system-monitor  
+
+
+
 ```
 
 1. **skills list** muestra skills disponibles en el registro

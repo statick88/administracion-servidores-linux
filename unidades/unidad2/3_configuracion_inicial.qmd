@@ -54,19 +54,19 @@ x = ejecución (exec)  = 1
 
 ```bash
 # **Ver todos los usuarios del sistema**
-cat /etc/passwd  # <1>
+cat /etc/passwd  
 
 # **Ver solo usuarios humanos (UID >= 1000)**
-getent passwd | awk -F: '$3 >= 1000 {print $1}'  # <2>
+getent passwd | awk -F: '$3 >= 1000 {print $1}'  
 
 # **Ver grupos de un usuario**
-groups diego  # <3>
+groups diego  
 
 # **Ver todos los grupos**
-cat /etc/group  # <4>
+cat /etc/group  
 
 # **Ver información detallada de usuario actual**
-id  # <5>
+id  
 
 # **Ejemplo de salida**
 uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom),27(sudo)
@@ -87,10 +87,10 @@ uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom),27(sudo)
 **Crear usuario básico**:
 ```bash
 # **Crear usuario 'carlos' con home en /home/carlos**
-sudo useradd -m -s /bin/bash carlos  # <1>
+sudo useradd -m -s /bin/bash carlos  
 
 # **Asignar contraseña**
-sudo passwd carlos  # <2>
+sudo passwd carlos  
 # Te pedirá que ingreses y confirmes la contraseña
 ```
 
@@ -330,16 +330,16 @@ ssh abacom-prod
 ssh abacom-backup
 
 # **Copiar archivos con SCP también funciona**
-scp miarchivo.txt abacom-prod:~/  # <1>
+scp miarchivo.txt abacom-prod:~/  
 
 # Copiar un archivo usando una clave especifica
-scp -i ~/.ssh/diego_abacom miarchivo.txt diego@192.168.1.100:~/  # <2>
+scp -i ~/.ssh/diego_abacom miarchivo.txt diego@192.168.1.100:~/  
 
 # Copiar un directorio completo (recursivo)
-scp -r carpeta/ abacom-prod:~/  # <3>
+scp -r carpeta/ abacom-prod:~/  
 
 # Copiar desde el servidor hacia tu maquina local
-scp abacom-prod:/var/log/syslog ./syslog  # <4>
+scp abacom-prod:/var/log/syslog ./syslog  
 ```
 
 
@@ -357,13 +357,13 @@ Para transferencias grandes o repetitivas, usa **rsync**: es mas rapido, reinten
 
 ```bash
 # Sincronizar un directorio al servidor (solo diferencias)
-rsync -avz --progress --partial -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  # <1>
+rsync -avz --progress --partial -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  
 
 # Excluir archivos (ej: caches) durante la sincronizacion
-rsync -avz --progress --partial --exclude '.cache/' -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  # <2>
+rsync -avz --progress --partial --exclude '.cache/' -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  
 
 # Traer logs desde el servidor a local
-rsync -avz --progress -e "ssh -i ~/.ssh/diego_abacom" diego@192.168.1.100:/var/log/ ./logs/  # <3>
+rsync -avz --progress -e "ssh -i ~/.ssh/diego_abacom" diego@192.168.1.100:/var/log/ ./logs/  
 ```
 
 
@@ -788,7 +788,7 @@ carlos : carlos developers
 #### macOS (Darwin)
 ```bash
 # En macOS, usuarios se almacenan en Directory Services
-$ dscl . -list /Users | grep -v "^_"  # <1>
+$ dscl . -list /Users | grep -v "^_"  
 root
 diego
 carlos
@@ -865,7 +865,7 @@ $ sudo useradd -m -s /bin/bash -c "Carlos López - Dev" carlos
 # En macOS, crear usuario es más complejo (requiere GUI normalmente)
 # Pero se puede hacer vía dscl:
 
-$ sudo dscl . -create /Users/carlos  # <1>
+$ sudo dscl . -create /Users/carlos  
 $ sudo dscl . -create /Users/carlos UserShell /bin/bash
 $ sudo dscl . -create /Users/carlos RealName "Carlos López"
 $ sudo dscl . -create /Users/carlos UniqueID 501

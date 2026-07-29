@@ -28,19 +28,19 @@ El brochure del curso indica que la Unidad 5 incluye **systemd units** y **journ
 ## systemctl: controlar servicios
 
 ```bash
-$ systemctl status ssh --no-pager  # <1>
+$ systemctl status ssh --no-pager  
 * ssh.service - OpenBSD Secure Shell server
      Loaded: loaded (/lib/systemd/system/ssh.service; enabled)
      Active: active (running) since Sun 2026-02-01 09:10:00 UTC; 2h 15min ago
 
-$ sudo systemctl restart ssh  # <2>
+$ sudo systemctl restart ssh  
 
-$ sudo systemctl enable nginx  # <3>
+$ sudo systemctl enable nginx  
 Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service -> /lib/systemd/system/nginx.service.
 
-$ sudo systemctl disable nginx  # <4>
+$ sudo systemctl disable nginx  
 Removed /etc/systemd/system/multi-user.target.wants/nginx.service.
-# <1>
+
 ```
 
 
@@ -55,12 +55,12 @@ Removed /etc/systemd/system/multi-user.target.wants/nginx.service.
 ## journalctl: logs del servicio
 
 ```bash
-$ journalctl -u ssh --since "30 min ago" --no-pager  # <1>
+$ journalctl -u ssh --since "30 min ago" --no-pager  
 Feb 01 11:12:42 server sshd[2222]: Accepted publickey for ubuntu from 10.0.0.12 port 52014 ssh2
 
-$ journalctl -u nginx -f  # <2>
+$ journalctl -u nginx -f  
 Feb 01 11:20:03 server nginx[2458]: 2026/02/01 11:20:03 [notice] 2458#2458: signal process started
-# <1>
+
 ```
 
 
@@ -78,11 +78,11 @@ Feb 01 11:20:03 server nginx[2458]: 2026/02/01 11:20:03 [notice] 2458#2458: sign
 
 #### Linux
 ```bash
-$ systemctl status nginx --no-pager  # <1>
+$ systemctl status nginx --no-pager  
 * nginx.service - A high performance web server and a reverse proxy server
      Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
      Active: active (running) since Sun 2026-02-01 09:12:14 UTC; 2h 10min ago
-# <1>
+
 ```
 
 
@@ -91,11 +91,11 @@ $ systemctl status nginx --no-pager  # <1>
 
 #### macOS
 ```bash
-$ launchctl list | head -n 5  # <1>
+$ launchctl list | head -n 5  
 PID     Status  Label
   89    0       com.apple.audio.coreaudiod
   95    0       com.apple.WindowServer
-# <1>
+
 ```
 
 
@@ -104,12 +104,12 @@ PID     Status  Label
 
 #### Windows
 ```powershell
-PS> Get-Service -Name w32time | Select-Object Name,Status,StartType  # <1>
+PS> Get-Service -Name w32time | Select-Object Name,Status,StartType  
 
 Name   Status  StartType
 ----   ------  ---------
 w32time Running Automatic
-# <1>
+
 ```
 
 
@@ -136,9 +136,9 @@ Casos de uso:
 - nginx/ssh/mysql no levantan.
 
 Cuando aplicar:
-1. `systemctl status <svc>`
-2. `journalctl -u <svc> --since "30 min ago"`
-3. Corregir configuracion y recien reiniciar.
+2. `systemctl status <svc>`
+3. `journalctl -u <svc> --since "30 min ago"`
+4. Corregir configuracion y recien reiniciar.
 :::
 
 ---

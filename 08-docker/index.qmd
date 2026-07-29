@@ -134,14 +134,14 @@ El curso estandariza **Ubuntu 24.04 LTS** como base. En Windows usamos WSL2; en 
 ### Linux (Ubuntu 24.04 LTS — Docker Engine oficial)
 
 ```bash
-$ sudo apt update  # <1>
-$ sudo apt install -y ca-certificates curl gnupg  # <2>
-$ sudo install -m 0755 -d /etc/apt/keyrings  # <3>
-$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg  # <4>
-$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null  # <5>
-$ sudo apt update  # <6>
-$ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  # <7>
-$ sudo usermod -aG docker $USER  # <8>
+$ sudo apt update  
+$ sudo apt install -y ca-certificates curl gnupg  
+$ sudo install -m 0755 -d /etc/apt/keyrings  
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg  
+$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null  
+$ sudo apt update  
+$ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  
+$ sudo usermod -aG docker $USER  
 ```
 
 1. **apt update** refresca el índice de paquetes disponibles.
@@ -156,8 +156,8 @@ $ sudo usermod -aG docker $USER  # <8>
 ### macOS (Docker Desktop)
 
 ```bash
-$ brew install --cask docker  # <1>
-# Luego abre Docker Desktop desde Applications y espera a que el ícono sea estable  # <2>
+$ brew install --cask docker  
+# Luego abre Docker Desktop desde Applications y espera a que el ícono sea estable  
 ```
 
 1. **brew install --cask docker** instala Docker Desktop vía Homebrew (alternativa a descargar el .dmg).
@@ -166,9 +166,9 @@ $ brew install --cask docker  # <1>
 ### Windows (WSL2 + Docker Desktop)
 
 ```powershell
-PS> wsl --install -d Ubuntu-24.04  # <1>
-PS> # Descargar e instalar Docker Desktop desde https://www.docker.com/products/docker-desktop/  # <2>
-PS> # En Settings -> Resources -> WSL Integration: habilitar Ubuntu-24.04  # <3>
+PS> wsl --install -d Ubuntu-24.04  
+PS> # Descargar e instalar Docker Desktop desde https://www.docker.com/products/docker-desktop/  
+PS> # En Settings -> Resources -> WSL Integration: habilitar Ubuntu-24.04  
 ```
 
 1. **wsl --install -d Ubuntu-24.04** instala WSL2 con Ubuntu 24.04 LTS.
@@ -182,20 +182,20 @@ PS> # En Settings -> Resources -> WSL Integration: habilitar Ubuntu-24.04  # <3>
 Sin importar el SO, valida que todo funciona con estos dos comandos desde tu terminal (en Windows, dentro de WSL2):
 
 ```bash
-$ docker version  # <1>
+$ docker version  
 Client: Docker Engine - Community
  Version:           27.3.1
  Server: Docker Engine - Community
   Engine:
    Version:          27.3.1
-# <1>
 
-$ docker run --rm hello-world  # <2>
+
+$ docker run --rm hello-world  
 Unable to find image 'hello-world:latest' locally
 latest: Pulling from library/hello-world
 ...
 Hello from Docker!
-# <2>
+
 ```
 
 1. **docker version** muestra Client y Server (Engine); si falta el Server, el daemon no arrancó.
@@ -216,20 +216,20 @@ Una **imagen** es una plantilla **inmutable** y **portátil**, compuesta por **c
 ### Gestión básica de imágenes
 
 ```bash
-$ docker pull nginx:stable  # <1>
+$ docker pull nginx:stable  
 stable: Pulling from library/nginx
 ...
-# <1>
 
-$ docker images  # <2>
+
+$ docker images  
 REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
 nginx        stable    3926ab8e3a5b   2 weeks ago   192MB
-# <2>
 
-$ docker rmi nginx:stable  # <3>
+
+$ docker rmi nginx:stable  
 Untagged: nginx:stable
 Deleted: sha256:3926ab8e3a5b...
-# <3>
+
 ```
 
 1. **docker pull** descarga una imagen (y sus capas) desde Docker Hub; `:stable` es el tag.
@@ -288,13 +288,13 @@ CMD ["node", "server.js"]
 Funciona como un `.gitignore`: le dice a Docker qué archivos **no** deben copiarse al contexto de build (node_modules, `.git`, secretos, caches). Reduce el tamaño del contexto y acelera los builds.
 
 ```bash
-$ cat .dockerignore  # <1>
+$ cat .dockerignore  
 node_modules
 .git
 .env
 *.log
 dist
-# <1>
+
 ```
 
 1. **.dockerignore** excluye carpetas y archivos del contexto enviado al daemon al hacer `docker build`.
@@ -308,9 +308,9 @@ Ordena las instrucciones del Dockerfile de lo **menos** al **más** cambiante (`
 ### Construir la imagen
 
 ```bash
-$ docker build -t mi-app:1.0 .  # <1>
+$ docker build -t mi-app:1.0 .  
 [+] Building 12.3s (10/10) FINISHED
-# <1>
+
 ```
 
 1. **docker build -t mi-app:1.0 .** construye la imagen usando el Dockerfile del directorio actual (`.`) y la etiqueta como `mi-app:1.0`.
@@ -324,9 +324,9 @@ Un contenedor es una **instancia en ejecución** de una imagen. Aquí está el c
 ### Crear y ejecutar con `docker run`
 
 ```bash
-$ docker run -d -p 8080:80 --name web -e ENV=prod -v $(pwd)/datos:/usr/share/nginx/html --rm nginx:stable  # <1>
+$ docker run -d -p 8080:80 --name web -e ENV=prod -v $(pwd)/datos:/usr/share/nginx/html --rm nginx:stable  
 a1b2c3d4e5f6...
-# <1>
+
 ```
 
 1. **docker run** con flags: `-d` (segundo plano), `-p 8080:80` (host:contenedor), `--name web` (nombre legible), `-e ENV=prod` (variable de entorno), `-v` (monta volumen host→contenedor), `--rm` (auto-elimina al salir).
@@ -346,22 +346,22 @@ a1b2c3d4e5f6...
 ### Inspección y operación
 
 ```bash
-$ docker ps  # <1>
+$ docker ps  
 CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
 a1b2c3d4e5f6   nginx:stable   "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   0.0.0.0:8080->80/tcp   web
-# <1>
 
-$ docker ps -a  # <2>
+
+$ docker ps -a  
 # lista TODOS, incluidos los detenidos
-# <2>
 
-$ docker logs -f web  # <3>
+
+$ docker logs -f web  
 # sigue (follow) la salida stdout/stderr del contenedor
-# <3>
 
-$ docker exec -it web sh  # <4>
+
+$ docker exec -it web sh  
 # abre una shell interactiva DENTRO del contenedor en ejecucion
-# <4>
+
 ```
 
 1. **docker ps** lista los contenedores en ejecución y su mapeo de puertos.
@@ -372,17 +372,17 @@ $ docker exec -it web sh  # <4>
 ### Detener, iniciar y eliminar
 
 ```bash
-$ docker stop web  # <1>
+$ docker stop web  
 web
-# <1>
 
-$ docker start web  # <2>
-web
-# <2>
 
-$ docker rm web  # <3>
+$ docker start web  
 web
-# <3>
+
+
+$ docker rm web  
+web
+
 ```
 
 1. **docker stop** envía SIGTERM y detiene el contenedor de forma limpia.
@@ -394,20 +394,20 @@ web
 Los contenedores son efímeros: lo que escriben en su filesystem desaparece al eliminarlos. Para **persistir datos** usamos volúmenes.
 
 ```bash
-$ docker volume create db-data  # <1>
+$ docker volume create db-data  
 db-data
-# <1>
 
-$ docker run -d --name postgres -v db-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=secret postgres:16  # <2>
-# <2>
 
-$ docker volume ls  # <3>
+$ docker run -d --name postgres -v db-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=secret postgres:16  
+
+
+$ docker volume ls  
 DRIVER    VOLUME NAME
 local     db-data
-# <3>
 
-$ docker volume rm db-data  # <4>
-# <4>
+
+$ docker volume rm db-data  
+
 ```
 
 1. **docker volume create** crea un volumen nombrado gestionado por Docker.
@@ -420,12 +420,12 @@ $ docker volume rm db-data  # <4>
 Por defecto, los contenedores se conectan a la red **bridge** (`docker0`), aislada del host pero con salida a Internet. Para que dos contenedores se hablen, los unimos a una red propia.
 
 ```bash
-$ docker network create mi-red  # <1>
-# <1>
+$ docker network create mi-red  
 
-$ docker run -d --name api --network mi-red my-api:1.0  # <2>
-$ docker run -d --name db --network mi-red postgres:16  # <3>
-# <3>
+
+$ docker run -d --name api --network mi-red my-api:1.0  
+$ docker run -d --name db --network mi-red postgres:16  
+
 ```
 
 1. **docker network create** define una red bridge personalizada.
@@ -436,25 +436,25 @@ $ docker run -d --name db --network mi-red postgres:16  # <3>
 
 ```bash
 #!/bin/bash
-# Script de ejemplo: despliega y limpia un contenedor Nginx de prueba  # <1>
-set -euo pipefail  # <2>
+# Script de ejemplo: despliega y limpia un contenedor Nginx de prueba  
+set -euo pipefail  
 
 NOMBRE="web-demo"
 PUERTO_HOST=8080
 PUERTO_CONT=80
 
 echo "Descargando imagen nginx..."
-docker pull nginx:stable  # <3>
+docker pull nginx:stable  
 
 echo "Levantando contenedor $NOMBRE en puerto $PUERTO_HOST..."
-docker run -d -p "${PUERTO_HOST}:${PUERTO_CONT}" --name "$NOMBRE" nginx:stable  # <4>
+docker run -d -p "${PUERTO_HOST}:${PUERTO_CONT}" --name "$NOMBRE" nginx:stable  
 
 echo "Contenedor activo:"
-docker ps --filter "name=${NOMBRE}"  # <5>
+docker ps --filter "name=${NOMBRE}"  
 
 echo "Deteniendo y eliminando contenedor..."
-docker stop "$NOMBRE"  # <6>
-docker rm "$NOMBRE"  # <7>
+docker stop "$NOMBRE"  
+docker rm "$NOMBRE"  
 
 echo "Listo. Contenedor limpiado."
 ```
@@ -474,11 +474,11 @@ echo "Listo. Contenedor limpiado."
 Para aplicaciones multi-contenedor usamos **Docker Compose**, que define servicios, redes y volúmenes en un único archivo `docker-compose.yml` (YAML).
 
 ```bash
-$ docker compose up -d  # <1>
+$ docker compose up -d  
 [+] Running 2/2
  ✔ Container api   Started
  ✔ Container db    Started
-# <1>
+
 ```
 
 1. **docker compose up -d** construye (si aplica) y levanta todo el stack en segundo plano.
@@ -519,8 +519,8 @@ El comando moderno es `docker compose` (plugin v2, sin guion). En entornos antig
 Un **DevContainer** es un contenedor Docker usado como entorno de desarrollo completo, integrado con VS Code mediante la extensión *Dev Containers*. Garantiza que todo el equipo trabaje con las mismas herramientas, versiones y dependencias, sin "contaminar" el SO host.
 
 ```bash
-$ code .  # <1>
-# En VS Code: F1 -> "Dev Containers: Reopen in Container"  # <2>
+$ code .  
+# En VS Code: F1 -> "Dev Containers: Reopen in Container"  
 ```
 
 1. **code .** abre el proyecto (desde WSL2 o Linux).
@@ -548,21 +548,21 @@ Usa DevContainers para aislar el toolchain de cada proyecto (Python, Node, Go) y
 - Usar `:latest` en producción rompe la reproducibilidad y dificulta rollbacks.
 
 **Cómo prevenirlo:**
-1. Define un usuario no root en el Dockerfile (`RUN useradd -m app && USER app`).
-2. Limpia periódicamente con `docker system prune -a` y elimina volúmenes huérfanos.
-3. Nunca montes `/var/run/docker.sock` salvo herramientas de infraestructura de absoluta confianza.
-4. Fija tags versionados (`:1.0.0`) y escanea imágenes con `docker scout` o Trivy.
-5. Aplica el principio de mínimo privilegio: solo los puertos y volúmenes estrictamente necesarios.
+3. Define un usuario no root en el Dockerfile (`RUN useradd -m app && USER app`).
+4. Limpia periódicamente con `docker system prune -a` y elimina volúmenes huérfanos.
+5. Nunca montes `/var/run/docker.sock` salvo herramientas de infraestructura de absoluta confianza.
+6. Fija tags versionados (`:1.0.0`) y escanea imágenes con `docker scout` o Trivy.
+7. Aplica el principio de mínimo privilegio: solo los puertos y volúmenes estrictamente necesarios.
 :::
 
 ```bash
-$ docker system prune -a --volumes  # <1>
+$ docker system prune -a --volumes  
 WARNING! This will remove:
   - all stopped containers
   - all networks not used by at least one container
   - all images without at least one container associated
   - all build cache
-# <1>
+
 ```
 
 1. **docker system prune -a --volumes** libera espacio eliminando contenedores detenidos, redes e imágenes huérfanas (¡borra también volúmenes no usados!).
@@ -574,12 +574,12 @@ WARNING! This will remove:
 ::: {.callout-tip}
 ## ✅ Lo esencial de la Unidad VIII
 
-1. **Docker** empqueta app + dependencias en contenedores aislados y portátiles.
-2. **Arquitectura**: Cliente → Daemon (`dockerd`) → Imágenes/Contenedores ↔ Registry.
-3. **Entorno del curso**: WSL2 (Ubuntu 24.04 LTS) + Docker Desktop. Nada de VirtualBox/VMware/ISO.
-4. **Imágenes** se construyen con `Dockerfile` por capas; se versionan con **tags**.
-5. **Contenedores** se viven con `run`, `ps`, `exec`, `logs`, `stop/start/rm`, volúmenes y redes bridge.
-6. **Seguridad**: no-root, limpieza y jamás exponer el socket de Docker.
+2. **Docker** empqueta app + dependencias en contenedores aislados y portátiles.
+3. **Arquitectura**: Cliente → Daemon (`dockerd`) → Imágenes/Contenedores ↔ Registry.
+4. **Entorno del curso**: WSL2 (Ubuntu 24.04 LTS) + Docker Desktop. Nada de VirtualBox/VMware/ISO.
+5. **Imágenes** se construyen con `Dockerfile` por capas; se versionan con **tags**.
+6. **Contenedores** se viven con `run`, `ps`, `exec`, `logs`, `stop/start/rm`, volúmenes y redes bridge.
+7. **Seguridad**: no-root, limpieza y jamás exponer el socket de Docker.
 :::
 
 ### 📋 Checklist de competencias Unidad VIII

@@ -112,10 +112,10 @@ chmod [opciones] [modo] [archivo]
 $ ls -l script.sh
 -rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 script.sh
 
-$ chmod +x script.sh  # <1>
+$ chmod +x script.sh  
 $ ls -l script.sh
 -rwxr-xr-x 1 usuario grupo 1024 Jan 29 10:30 script.sh
-# <2>
+
 ```
 1. `+x` agrega permisos de ejecución para todos
 
@@ -126,18 +126,18 @@ $ ls -l script.sh
 $ chmod +x script.sh
 $ ls -l script.sh
 -rwxr-xr-x@ 1 usuario staff 1024 Jan 29 10:30 script.sh
-# <1>
+
 ```
 1. Funciona igual (@ indica atributos extendidos de macOS)
 
 #### Windows
 ```powershell
-# Windows no tiene permisos estilo Unix en NTFS  # <1>
+# Windows no tiene permisos estilo Unix en NTFS  
 # Si estás en WSL:
 PS> wsl chmod +x script.sh
 
 # En PowerShell puro, no aplica igual
-# <2>
+
 ```
 1. Windows usa permisos ACL diferentes
 
@@ -155,9 +155,9 @@ $ chmod 644 archivo.txt
 $ ls -l archivo.txt
 -rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 archivo.txt
 # Interpretación: 6=rw-, 4=r--, 4=r--
-# <1>
-# <2>
-# <3>
+
+
+
 ```
 1. `6` (rw-) para propietario
 
@@ -170,7 +170,7 @@ $ ls -l archivo.txt
 $ chmod 644 archivo.txt
 $ ls -l archivo.txt
 -rw-r--r-- 1 usuario staff 1024 Jan 29 10:30 archivo.txt
-# <1>
+
 ```
 1. Funciona exactamente igual
 
@@ -183,8 +183,8 @@ PS> wsl chmod 644 archivo.txt
 PS> $acl = Get-Acl archivo.txt
 PS> $rule = New-Object System.Security.AccessControl.FileSystemAccessRule `
     ("usuario", "Modify", "Allow")
-# <1>
-# <2>
+
+
 ```
 1. Mucho más complejo en PowerShell
 
@@ -206,8 +206,8 @@ $ chmod g-w archivo.txt         # Remover escritura del grupo
 $ chmod o-rwx archivo.txt       # Remover todos los permisos a otros
 $ chmod a+r archivo.txt         # Agregar lectura a todos
 $ chmod u=rwx,g=rx,o= archivo.txt  # Establecer permisos exactos
-# <1>
-# <2>
+
+
 ```
 1. Muy flexible y legible
 
@@ -217,7 +217,7 @@ $ chmod u=rwx,g=rx,o= archivo.txt  # Establecer permisos exactos
 ```bash
 $ chmod u+x archivo.txt
 # Funciona idéntico a Linux
-# <1>
+
 ```
 1. Mismo comando y sintaxis
 
@@ -225,7 +225,7 @@ $ chmod u+x archivo.txt
 ```powershell
 # En WSL:
 PS> wsl chmod u+x archivo.txt
-# <1>
+
 ```
 1. Se requiere WSL para sintaxis Unix
 
@@ -239,21 +239,21 @@ PS> wsl chmod u+x archivo.txt
 ```bash
 # Cambiar permisos de todos los archivos en un directorio
 $ chmod -R 755 ~/public_html
-# <1>
+
 ```
 1. `-R` aplica recursivamente a todos los subdirectorios
 
 #### macOS
 ```bash
 $ chmod -R 755 ~/public_html
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> wsl chmod -R 755 ~/public_html
-# <1>
+
 ```
 1. Use WSL para esto
 
@@ -290,8 +290,8 @@ $ ls -l archivo.txt
 $ sudo chown otro-usuario archivo.txt
 $ ls -l archivo.txt
 -rw-r--r-- 1 otro-usuario grupo 1024 Jan 29 10:30 archivo.txt
-# <2>
-# <1>
+
+
 ```
 1. Requiere permisos de administrador (sudo)
 
@@ -302,7 +302,7 @@ $ ls -l archivo.txt
 $ sudo chown otro-usuario archivo.txt
 $ ls -l archivo.txt
 -rw-r--r-- 1 otro-usuario staff 1024 Jan 29 10:30 archivo.txt
-# <1>
+
 ```
 1. Funciona igual que Linux
 
@@ -311,7 +311,7 @@ $ ls -l archivo.txt
 # Windows no tiene chown igual
 # En WSL:
 PS> wsl sudo chown otro-usuario archivo.txt
-# <1>
+
 ```
 1. Requiere WSL
 
@@ -326,21 +326,21 @@ PS> wsl sudo chown otro-usuario archivo.txt
 $ sudo chown usuario:nuevo-grupo archivo.txt
 $ ls -l archivo.txt
 -rw-r--r-- 1 usuario nuevo-grupo 1024 Jan 29 10:30 archivo.txt
-# <1>
+
 ```
 1. Sintaxis: `usuario:grupo`
 
 #### macOS
 ```bash
 $ sudo chown usuario:staff archivo.txt
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> wsl sudo chown usuario:nuevo-grupo archivo.txt
-# <1>
+
 ```
 1. Usa WSL
 
@@ -355,21 +355,21 @@ PS> wsl sudo chown usuario:nuevo-grupo archivo.txt
 $ sudo chgrp nuevo-grupo archivo.txt
 $ ls -l archivo.txt
 -rw-r--r-- 1 usuario nuevo-grupo 1024 Jan 29 10:30 archivo.txt
-# <1>
+
 ```
 1. `chgrp` es una abreviatura de `chown :grupo`
 
 #### macOS
 ```bash
 $ sudo chgrp staff archivo.txt
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> wsl sudo chgrp nuevo-grupo archivo.txt
-# <1>
+
 ```
 1. Usa WSL
 
@@ -382,21 +382,21 @@ PS> wsl sudo chgrp nuevo-grupo archivo.txt
 #### Linux
 ```bash
 $ sudo chown -R usuario:grupo ~/miproyecto
-# <1>
+
 ```
 1. `-R` aplica a todos los archivos y subdirectorios
 
 #### macOS
 ```bash
 $ sudo chown -R usuario:staff ~/myproject
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> wsl sudo chown -R usuario:grupo ~/miproyecto
-# <1>
+
 ```
 1. Use WSL
 
@@ -432,7 +432,7 @@ Existen 3 permisos especiales que modifican el comportamiento:
 # Ver permiso especial
 $ ls -l /usr/bin/sudo
 -rwsr-xr-x 1 root root 1234 Jan 15 10:00 /usr/bin/sudo
-# <1>
+
 ```
 1. La `s` indica setuid (se ejecuta como root)
 
@@ -440,8 +440,8 @@ $ ls -l /usr/bin/sudo
 ```bash
 $ ls -ld /tmp
 drwxrwxrwt 1 root root 4096 Jan 29 10:45 /tmp
-# <1>
-# <2>
+
+
 ```
 1. La `t` al final es sticky bit
 
@@ -451,7 +451,7 @@ drwxrwxrwt 1 root root 4096 Jan 29 10:45 /tmp
 ```bash
 $ chmod u+s archivo      # Agregar setuid
 $ chmod 4755 archivo     # Notación octal (4 = setuid)
-# <1>
+
 ```
 1. Úsalo con cuidado (implicaciones de seguridad)
 
@@ -490,17 +490,17 @@ $ chmod 4755 archivo     # Notación octal (4 = setuid)
 
 ## 🎯 Ejercicios Prácticos
 
-1. Crea un archivo y establece permisos `644`
+2. Crea un archivo y establece permisos `644`
 
-2. Crea un script y hazlo ejecutable con `chmod +x`
+3. Crea un script y hazlo ejecutable con `chmod +x`
 
-3. Crea un directorio y establece `755`
+4. Crea un directorio y establece `755`
 
-4. Usa notación simbólica para remover escritura (`g-w`)
+5. Usa notación simbólica para remover escritura (`g-w`)
 
-5. Ver permisos con `ls -l` e interpreta cada columna
+6. Ver permisos con `ls -l` e interpreta cada columna
 
-6. Cambia grupo de un archivo con `chgrp`
+7. Cambia grupo de un archivo con `chgrp`
 
 ---
 

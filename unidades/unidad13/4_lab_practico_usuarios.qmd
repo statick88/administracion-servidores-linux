@@ -2,6 +2,8 @@
 title: "Laboratorio Práctico: Usuarios y Permisos"
 author: "Diego Saavedra"
 date: "2026-07-21"
+bibliography: ../../references.bib
+biblio-style: apalike
 ---
 
 # Laboratorio Práctico: Usuarios y Permisos
@@ -29,13 +31,13 @@ Al finalizar este laboratorio, serás capaz de:
 
 ```bash
 # Verificar sistema operativo
-$ cat /etc/os-release | head -5  # <1>
+$ cat /etc/os-release | head -5  
 
 # Verificar usuario actual
-$ whoami  # <2>
+$ whoami  
 
 # Verificar permisos de sudo
-$ sudo -l  # <3>
+$ sudo -l  
 ```
 1. Muestra la distribución Linux instalada
 2. Muestra el usuario actual
@@ -49,17 +51,17 @@ $ sudo -l  # <3>
 
 ```bash
 # Crear usuario diego
-$ sudo useradd -m -s /bin/bash diego  # <1>
+$ sudo useradd -m -s /bin/bash diego  
 
 # Crear usuario carlos
-$ sudo useradd -m -s /bin/bash carlos  # <2>
+$ sudo useradd -m -s /bin/bash carlos  
 
 # Establecer contraseñas
-$ sudo passwd diego  # <3>
+$ sudo passwd diego  
 $ sudo passwd carlos
 
 # Verificar creación
-$ id diego  # <4>
+$ id diego  
 uid=1001(diego) gid=1001(diego) groups=1001(diego)
 
 $ id carlos
@@ -74,21 +76,21 @@ uid=1002(carlos) gid=1002(carlos) groups=1002(carlos)
 
 ```bash
 # Crear grupo administradores
-$ sudo groupadd administradores  # <1>
+$ sudo groupadd administradores  
 
 # Agregar usuarios al grupo
-$ sudo usermod -aG administradores diego  # <2>
+$ sudo usermod -aG administradores diego  
 $ sudo usermod -aG administradores carlos
 
 # Verificar membresía
-$ groups diego  # <3>
+$ groups diego  
 diego : diego administradores
 
 $ groups carlos
 carlos : carlos administradores
 
 # Ver todos los grupos
-$ cat /etc/group | grep -E "(diego|carlos|administradores)"  # <4>
+$ cat /etc/group | grep -E "(diego|carlos|administradores)"  
 diego:x:1001:
 carlos:x:1002:
 administradores:x:1003:diego,carlos
@@ -102,17 +104,17 @@ administradores:x:1003:diego,carlos
 
 ```bash
 # Editar sudoers de forma segura
-$ sudo visudo  # <1>
+$ sudo visudo  
 
 # Agregar al final del archivo:
 # Permitir a administradores usar sudo sin contraseña
-%administradores ALL=(ALL) NOPASSWD:ALL  # <2>
+%administradores ALL=(ALL) NOPASSWD:ALL  
 
 # Permitir a diego ejecutar comandos específicos
-diego ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx  # <3>
+diego ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx  
 
 # Verificar configuración
-$ sudo -l  # <4>
+$ sudo -l  
 ```
 1. **visudo** abre el editor de sudoers de forma segura
 2. Configuración para el grupo administradores
@@ -127,15 +129,15 @@ $ sudo -l  # <4>
 
 ```bash
 # Crear directorio de proyecto
-$ mkdir -p /home/diego/proyecto  # <1>
+$ mkdir -p /home/diego/proyecto  
 
 # Crear archivos de prueba
-$ touch /home/diego/proyecto/script.sh  # <2>
+$ touch /home/diego/proyecto/script.sh  
 $ touch /home/diego/proyecto/config.txt
 $ touch /home/diego/proyecto/datos.csv
 
 # Verificar permisos iniciales
-$ ls -la /home/diego/proyecto/  # <3>
+$ ls -la /home/diego/proyecto/  
 total 0
 -rw-r--r-- 1 diego diego 0 Jul 21 10:30 config.txt
 -rw-r--r-- 1 diego diego 0 Jul 21 10:30 datos.csv
@@ -149,22 +151,22 @@ total 0
 
 ```bash
 # Establecer permisos para script (ejecutable)
-$ chmod 755 script.sh  # <1>
+$ chmod 755 script.sh  
 $ ls -la script.sh
 -rwxr-xr-x 1 diego diego 0 Jul 21 10:30 script.sh
 
 # Establecer permisos para configuración (solo lectura)
-$ chmod 644 config.txt  # <2>
+$ chmod 644 config.txt  
 $ ls -la config.txt
 -rw-r--r-- 1 diego diego 0 Jul 21 10:30 config.txt
 
 # Agregar permiso de escritura al grupo
-$ chmod g+w datos.csv  # <3>
+$ chmod g+w datos.csv  
 $ ls -la datos.csv
 -rw-rw-r-- 1 diego diego 0 Jul 21 10:30 datos.csv
 
 # Quitar permisos de escritura a otros
-$ chmod o-w datos.csv  # <4>
+$ chmod o-w datos.csv  
 $ ls -la datos.csv
 -rw-rw---- 1 diego diego 0 Jul 21 10:30 datos.csv
 ```
@@ -177,17 +179,17 @@ $ ls -la datos.csv
 
 ```bash
 # Cambiar propietario de script.sh a carlos
-$ sudo chown carlos script.sh  # <1>
+$ sudo chown carlos script.sh  
 $ ls -la script.sh
 -rwxr-xr-x 1 carlos diego 0 Jul 21 10:30 script.sh
 
 # Cambiar propietario y grupo
-$ sudo chown carlos:administradores config.txt  # <2>
+$ sudo chown carlos:administradores config.txt  
 $ ls -la config.txt
 -rw-r--r-- 1 carlos administradores 0 Jul 21 10:30 config.txt
 
 # Cambiar recursivamente
-$ sudo chown -R carlos:administradores /home/diego/proyecto/  # <3>
+$ sudo chown -R carlos:administradores /home/diego/proyecto/  
 $ ls -la /home/diego/proyecto/
 total 0
 -rw-r--r-- 1 carlos administradores 0 Jul 21 10:30 config.txt
@@ -206,7 +208,7 @@ total 0
 
 ```bash
 # Crear script que necesita permisos de root
-$ nano /usr/local/bin/info_sistema  # <1>
+$ nano /usr/local/bin/info_sistema  
 
 #!/bin/bash
 echo "=== Información del Sistema ==="
@@ -216,18 +218,18 @@ echo "Memoria: $(free -h | grep Mem)"
 echo "Disco: $(df -h / | tail -1)"
 
 # Hacer ejecutable
-$ sudo chmod 755 /usr/local/bin/info_sistema  # <2>
+$ sudo chmod 755 /usr/local/bin/info_sistema  
 
 # Establecer SUID
-$ sudo chmod u+s /usr/local/bin/info_sistema  # <3>
+$ sudo chmod u+s /usr/local/bin/info_sistema  
 
 # Verificar permisos
 $ ls -la /usr/local/bin/info_sistema
 -rwsr-xr-x 1 root root 1024 Jul 21 10:30 /usr/local/bin/info_sistema
-# <4>
+
 
 # Ejecutar como usuario normal
-$ /usr/local/bin/info_sistema  # <5>
+$ /usr/local/bin/info_sistema  
 === Información del Sistema ===
 Fecha: Mon Jul 21 10:30:00 UTC 2026
 ...
@@ -242,27 +244,27 @@ Fecha: Mon Jul 21 10:30:00 UTC 2026
 
 ```bash
 # Crear directorio compartido
-$ sudo mkdir /var/compartido  # <1>
+$ sudo mkdir /var/compartido  
 
 # Establecer SGID
-$ sudo chmod g+s /var/compartido  # <2>
+$ sudo chmod g+s /var/compartido  
 
 # Establecer grupo propietario
-$ sudo chown root:administradores /var/compartido  # <3>
+$ sudo chown root:administradores /var/compartido  
 
 # Verificar permisos
 $ ls -ld /var/compartido
 drwxr-sr-x 2 root administradores 4096 Jul 21 10:30 /var/compartido
-# <4>
+
 
 # Crear archivo como diego
-$ sudo -u diego touch /var/compartido/archivo_diego.txt  # <5>
+$ sudo -u diego touch /var/compartido/archivo_diego.txt  
 
 # Verificar que hereda el grupo
 $ ls -la /var/compartido/
 total 0
 -rw-r--r-- 1 diego administradores 0 Jul 21 10:30 archivo_diego.txt
-# <6>
+
 ```
 1. Crea directorio compartido
 2. Establece SGID para que archivos nuevos hereden el grupo
@@ -275,26 +277,26 @@ total 0
 
 ```bash
 # Crear directorio temporal
-$ sudo mkdir /tmp/compartido  # <1>
+$ sudo mkdir /tmp/compartido  
 
 # Establecer Sticky Bit
-$ sudo chmod +t /tmp/compartido  # <2>
+$ sudo chmod +t /tmp/compartido  
 
 # Verificar permisos
 $ ls -ld /tmp/compartido
 drwxrwxrwt 2 root root 4096 Jul 21 10:30 /tmp/compartido
-# <3>
+
 
 # Crear archivos como diferentes usuarios
-$ sudo -u diego touch /tmp/compartido/archivo_diego.txt  # <4>
+$ sudo -u diego touch /tmp/compartido/archivo_diego.txt  
 $ sudo -u carlos touch /tmp/compartido/archivo_carlos.txt
 
 # Intentar eliminar archivo de otro usuario (debería fallar)
-$ sudo -u diego rm /tmp/compartido/archivo_carlos.txt  # <5>
+$ sudo -u diego rm /tmp/compartido/archivo_carlos.txt  
 rm: cannot remove '/tmp/compartido/archivo_carlos.txt': Operation not permitted
 
 # Eliminar propio archivo (funciona)
-$ sudo -u diego rm /tmp/compartido/archivo_diego.txt  # <6>
+$ sudo -u diego rm /tmp/compartido/archivo_diego.txt  
 ```
 1. Crea directorio temporal
 2. Establece Sticky Bit
@@ -311,16 +313,16 @@ $ sudo -u diego rm /tmp/compartido/archivo_diego.txt  # <6>
 
 ```bash
 # Ver historial de sudo
-$ sudo grep sudo /var/log/auth.log  # <1>
+$ sudo grep sudo /var/log/auth.log  
 
 # Ver intentos fallidos
-$ sudo grep "FAILED" /var/log/auth.log  # <2>
+$ sudo grep "FAILED" /var/log/auth.log  
 
 # Ver historial reciente
-$ sudo journalctl -u sudo  # <3>
+$ sudo journalctl -u sudo  
 
 # Buscar comandos específicos
-$ sudo grep "COMMAND=/usr/bin/systemctl" /var/log/auth.log  # <4>
+$ sudo grep "COMMAND=/usr/bin/systemctl" /var/log/auth.log  
 ```
 1. Muestra todos los intentos de sudo
 2. Muestra intentos fallidos
@@ -331,7 +333,7 @@ $ sudo grep "COMMAND=/usr/bin/systemctl" /var/log/auth.log  # <4>
 
 ```bash
 # Habilitar logging de sudo
-$ sudo visudo  # <1>
+$ sudo visudo  
 
 # Agregar al final:
 Defaults logfile="/var/log/sudo.log"
@@ -339,10 +341,10 @@ Defaults log_input, log_output
 Defaults iolog_dir="/var/log/sudo-io/%{user}"
 
 # Reiniciar servicio de logs
-$ sudo systemctl restart rsyslog  # <2>
+$ sudo systemctl restart rsyslog  
 
 # Verificar que se creó el archivo de logs
-$ ls -la /var/log/sudo.log  # <3>
+$ ls -la /var/log/sudo.log  
 ```
 1. Habilita logging detallado de sudo
 2. Reinicia el servicio de logs para aplicar cambios
@@ -361,12 +363,12 @@ Crea un directorio compartido donde:
 
 ```bash
 # Solución
-$ sudo mkdir /var/compartido_desarrollo  # <1>
+$ sudo mkdir /var/compartido_desarrollo  
 $ sudo groupadd desarrollo
 $ sudo usermod -aG desarrollo diego
 $ sudo usermod -aG desarrollo carlos
 $ sudo chown root:desarrollo /var/compartido_desarrollo
-$ sudo chmod 2775 /var/compartido_desarrollo  # <2>
+$ sudo chmod 2775 /var/compartido_desarrollo  
 $ ls -ld /var/compartido_desarrollo
 drwxrwsr-x 2 root desarrollo 4096 Jul 21 10:30 /var/compartido_desarrollo
 ```
@@ -383,11 +385,11 @@ Crea un script que:
 
 ```bash
 #!/bin/bash
-echo "=== Reporte de Usuarios ===" > /tmp/reporte_usuarios.txt  # <1>
+echo "=== Reporte de Usuarios ===" > /tmp/reporte_usuarios.txt  
 echo "Fecha: $(date)" >> /tmp/reporte_usuarios.txt
 echo "" >> /tmp/reporte_usuarios.txt
 
-for user in $(cut -d: -f1 /etc/passwd); do  # <2>
+for user in $(cut -d: -f1 /etc/passwd); do  
     echo "Usuario: $user" >> /tmp/reporte_usuarios.txt
     echo "  Grupos: $(groups $user 2>/dev/null)" >> /tmp/reporte_usuarios.txt
     echo "  Sudo: $(sudo -l -U $user 2>/dev/null | grep -c 'may run')" >> /tmp/reporte_usuarios.txt
@@ -408,15 +410,15 @@ Configura sudoers para que:
 
 ```bash
 # Solución
-$ sudo visudo  # <1>
+$ sudo visudo  
 
 # Agregar al final:
-%admin ALL=(ALL) NOPASSWD:ALL  # <2>
+%admin ALL=(ALL) NOPASSWD:ALL  
 
-diego ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx, /usr/bin/systemctl restart apache2  # <3>
+diego ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart nginx, /usr/bin/systemctl restart apache2  
 carlos ALL=(ALL) NOPASSWD:/usr/bin/systemctl restart mysql, /usr/bin/systemctl restart postgresql
 
-Defaults !sudoedit  # <4>
+Defaults !sudoedit  
 Defaults !rm
 Defaults !mkfs
 Defaults !dd
@@ -434,18 +436,18 @@ Defaults !dd
 
 ```bash
 # Verificar usuarios
-$ id diego  # <1>
+$ id diego  
 $ id carlos
 
 # Verificar grupos
-$ groups diego  # <2>
+$ groups diego  
 $ groups carlos
 
 # Verificar sudo
-$ sudo -l  # <3>
+$ sudo -l  
 
 # Verificar permisos
-$ ls -la /home/diego/proyecto/  # <4>
+$ ls -la /home/diego/proyecto/  
 $ ls -ld /var/compartido
 $ ls -ld /tmp/compartido
 ```
@@ -462,15 +464,15 @@ $ ls -ld /tmp/compartido
 
 ```bash
 # Eliminar usuarios
-$ sudo userdel -r diego  # <1>
+$ sudo userdel -r diego  
 $ sudo userdel -r carlos
 
 # Eliminar grupos
-$ sudo groupdel administradores  # <2>
+$ sudo groupdel administradores  
 $ sudo groupdel desarrollo
 
 # Eliminar directorios de prueba
-$ sudo rm -rf /var/compartido  # <3>
+$ sudo rm -rf /var/compartido  
 $ sudo rm -rf /var/compartido_desarrollo
 $ sudo rm -rf /tmp/compartido
 ```

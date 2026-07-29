@@ -30,20 +30,20 @@ Al finalizar esta unidad, serás capaz de:
 ### 1.1 `ip` — Reemplazo de `ifconfig`/`route`/`arp`
 
 ```bash
-ip -br link                          # <1>
-ip -br addr                          # <2>
-ip link show eth0                    # <3>
+ip -br link                          
+ip -br addr                          
+ip link show eth0                    
 
-ip addr add 10.0.1.50/24 dev eth0    # <4>
-ip addr del 10.0.1.50/24 dev eth0    # <5>
+ip addr add 10.0.1.50/24 dev eth0    
+ip addr del 10.0.1.50/24 dev eth0    
 
-ip route                             # <6>
-ip route add 192.168.10.0/24 via 10.0.1.1 dev eth0  # <7>
-ip route del default                 # <8>
-ip route add default via 10.0.1.1 dev eth0           # <9>
+ip route                             
+ip route add 192.168.10.0/24 via 10.0.1.1 dev eth0  
+ip route del default                 
+ip route add default via 10.0.1.1 dev eth0           
 
-ip neigh show                        # <10>
-ip neigh flush dev eth0              # <11>
+ip neigh show                        
+ip neigh flush dev eth0              
 ```
 
 1. **ip -br link** muestra todas las interfaces en formato compacto: nombre, estado (UP/DOWN), y MAC. `-br` abbreviation produce una tabla legible sin detalle excesivo.
@@ -61,19 +61,19 @@ ip neigh flush dev eth0              # <11>
 ### 1.2 `ss` — Reemplazo de `netstat` (socket statistics)
 
 ```bash
-sudo ss -lntp                        # <1>
-sudo ss -lnup                        # <2>
+sudo ss -lntp                        
+sudo ss -lnup                        
 
-ss -tnp state established            # <3>
-ss -tnp state time-wait              # <4>
+ss -tnp state established            
+ss -tnp state time-wait              
 
-ss -tnp 'sport = :443'               # <5>
-ss -tnp 'dport = :80'                # <6>
-ss -tnp 'src 10.0.1.0/24'            # <7>
-ss -tnp 'dst 8.8.8.8'               # <8>
+ss -tnp 'sport = :443'               
+ss -tnp 'dport = :80'                
+ss -tnp 'src 10.0.1.0/24'            
+ss -tnp 'dst 8.8.8.8'               
 
-ss -s                                # <9>
-ss -ti                               # <10>
+ss -s                                
+ss -ti                               
 ```
 
 1. **ss -lntp** lista puertos en escucha con información de proceso. `-l` listen, `-n` numérico (sin resolución DNS), `-t` TCP, `-p` muestra el PID/nombre del proceso. Diagnóstico de servicios activos.
@@ -90,17 +90,17 @@ ss -ti                               # <10>
 ### 1.3 DNS — `resolvectl` (systemd-resolved) y `dig`/`drill`
 
 ```bash
-resolvectl status                   # <1>
-resolvectl query api.abacom.cl      # <2>
-resolvectl query -t SRV _ldap._tcp.abacom.cl  # <3>
+resolvectl status                   
+resolvectl query api.abacom.cl      
+resolvectl query -t SRV _ldap._tcp.abacom.cl  
 
-resolvectl flush-caches             # <4>
+resolvectl flush-caches             
 
-dig +short api.abacom.cl            # <5>
-dig @1.1.1.1 api.abacom.cl +dnssec # <6>
-dig axfr abacom.cl @ns1.abacom.cl  # <7>
+dig +short api.abacom.cl            
+dig \\@1.1.1.1 api.abacom.cl +dnssec 
+dig axfr abacom.cl @ns1.abacom.cl  
 
-drill api.abacom.cl                 # <8>
+drill api.abacom.cl                 
 ```
 
 1. **resolvectl status** muestra el estado de systemd-resolved: configuración por interfaz, servidores DNS activos, dominios de búsqueda, y nivel de caché. Diagnóstico completo del resolver.
@@ -108,19 +108,19 @@ drill api.abacom.cl                 # <8>
 3. **resolvectl query -t SRV** solicita registros SRV específicos. Los SRV indican host:puerto para servicios (LDAP, Kerberos, etc.). Esencial en entornos de dominio.
 4. **resolvectl flush-caches** borra la caché DNS del resolved. Forzar resolución fresca tras cambios de DNS o problemas de resolución.
 5. **dig +short** muestra solo la IP resultado sin cabeceras. Versión rápida para scripts y diagnóstico manual.
-6. **dig @1.1.1.1 +dnssec** consulta un DNS específico (Cloudflare) y verifica DNSSEC. Permite comparar resolución entre diferentes servidores DNS.
+6. **dig \\@`1.1.1.1` +dnssec** consulta un DNS específico (Cloudflare) y verifica DNSSEC. Permite comparar resolución entre diferentes servidores DNS.
 7. **dig axfr** intenta una transferencia de zona completa desde el nameserver. Solo funciona si el servidor lo permite (generalmente deshabilitado en producción).
 8. **drill** alternativa ligera a dig con sintaxis similar. Más rápido para consultas básicas y produce output más limpio.
 
 ::: {.callout-tip}
 ## ✅ Checklist diagnóstico red (orden)
 
-1. `ip -br link` → ¿Interfaz UP?
-2. `ip -br addr` → ¿Tiene IP?
-3. `ip route` → ¿Ruta default?
-4. `resolvectl query host` → ¿DNS resuelve?
-5. `ss -lntp` → ¿Puerto escuchando?
-6. `curl -I http://host:puerto` / `nc -zv host puerto` → ¿Conectividad real?
+9. `ip -br link` → ¿Interfaz UP?
+10. `ip -br addr` → ¿Tiene IP?
+11. `ip route` → ¿Ruta default?
+12. `resolvectl query host` → ¿DNS resuelve?
+13. `ss -lntp` → ¿Puerto escuchando?
+14. `curl -I http://host:puerto` / `nc -zv host puerto` → ¿Conectividad real?
 :::
 
 ---
@@ -130,7 +130,7 @@ drill api.abacom.cl                 # <8>
 ### 2.1 Estructura y archivos
 
 ```bash
-ls /etc/netplan/                    # <1>
+ls /etc/netplan/                    
 ```
 
 1. **ls /etc/netplan/** lista los archivos de configuración de Netplan. El orden lexicográfico determina la prioridad: el último archivo sobreescribe los anteriores. Patrón típico: `01-netcfg.yaml` (base), `50-cloud-init.yaml` (cloud), `99-custom.yaml` (override manual).
@@ -185,11 +185,11 @@ network:
 ```
 
 ```bash
-sudo netplan generate               # <1>
+sudo netplan generate               
 
-sudo netplan apply --debug          # <2>
+sudo netplan apply --debug          
 
-sudo netplan apply                  # <3>
+sudo netplan apply                  
 # Si no puedes acceder, espera 120s o reinicia
 ```
 
@@ -218,8 +218,8 @@ RouteMetric=100
 ```
 
 ```bash
-sudo systemctl enable --now systemd-networkd systemd-resolved  # <1>
-sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf  # <2>
+sudo systemctl enable --now systemd-networkd systemd-resolved  
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf  
 ```
 
 1. **systemctl enable --now** habilita e inicia ambos servicios en un solo comando. `systemd-networkd` gestiona la red, `systemd-resolved` gestiona la resolución DNS. Sin ellos, Netplan no funciona.
@@ -248,20 +248,20 @@ Volume Group (VG) ── vgcreate vg_data /dev/sdb
 ### 3.2 Operaciones diarias
 
 ```bash
-sudo pvcreate /dev/nvme1n1          # <1>
-sudo pvs /dev/nvme1n1               # <2>
+sudo pvcreate /dev/nvme1n1          
+sudo pvs /dev/nvme1n1               
 
-sudo vgcreate vg_data /dev/nvme1n1  # <3>
-sudo vgs vg_data                    # <4>
+sudo vgcreate vg_data /dev/nvme1n1  
+sudo vgs vg_data                    
 
-sudo lvcreate -n lv_app -L 100G vg_data   # <5>
-sudo lvcreate -n lv_logs -L 50G vg_data   # <6>
-sudo lvcreate -n lv_db -L 200G vg_data    # <7>
-sudo lvs vg_data                    # <8>
+sudo lvcreate -n lv_app -L 100G vg_data   
+sudo lvcreate -n lv_logs -L 50G vg_data   
+sudo lvcreate -n lv_db -L 200G vg_data    
+sudo lvs vg_data                    
 
-sudo mkfs.ext4 /dev/vg_data/lv_app  # <9>
-sudo mkdir -p /srv/app              # <10>
-sudo mount /dev/vg_data/lv_app /srv/app   # <11>
+sudo mkfs.ext4 /dev/vg_data/lv_app  
+sudo mkdir -p /srv/app              
+sudo mount /dev/vg_data/lv_app /srv/app   
 ```
 
 1. **pvcreate** inicializa un disco o partición como Physical Volume de LVM. Marca el disco con metadatos LVM y lo prepara para ser agregado a un Volume Group.
@@ -279,15 +279,15 @@ sudo mount /dev/vg_data/lv_app /srv/app   # <11>
 ### 3.3 Redimensionar (Online — ext4/XFS)
 
 ```bash
-sudo lvextend -L +50G /dev/vg_data/lv_app   # <1>
-sudo resize2fs /dev/vg_data/lv_app           # <2>
-# sudo xfs_growfs /srv/app                   # <3>
+sudo lvextend -L +50G /dev/vg_data/lv_app   
+sudo resize2fs /dev/vg_data/lv_app           
+# sudo xfs_growfs /srv/app                   
 
-sudo umount /srv/app                          # <4>
-sudo e2fsck -f /dev/vg_data/lv_app           # <5>
-sudo resize2fs /dev/vg_data/lv_app 80G       # <6>
-sudo lvreduce -L 80G /dev/vg_data/lv_app     # <7>
-sudo mount /dev/vg_data/lv_app /srv/app      # <8>
+sudo umount /srv/app                          
+sudo e2fsck -f /dev/vg_data/lv_app           
+sudo resize2fs /dev/vg_data/lv_app 80G       
+sudo lvreduce -L 80G /dev/vg_data/lv_app     
+sudo mount /dev/vg_data/lv_app /srv/app      
 ```
 
 1. **lvextend -L +50G** extiende el LV en 50GB. El `+` indica incremento desde el tamaño actual. Sin `+` sería tamaño absoluto.
@@ -302,14 +302,14 @@ sudo mount /dev/vg_data/lv_app /srv/app      # <8>
 ### 3.4 Snapshots (Backup consistente)
 
 ```bash
-sudo lvcreate -L 10G -s -n lv_app_snap_$(date +%F) /dev/vg_data/lv_app  # <1>
+sudo lvcreate -L 10G -s -n lv_app_snap_$(date +%F) /dev/vg_data/lv_app  
 
-sudo mkdir -p /mnt/snap             # <2>
-sudo mount /dev/vg_data/lv_app_snap_2026-07-20 /mnt/snap  # <3>
+sudo mkdir -p /mnt/snap             
+sudo mount /dev/vg_data/lv_app_snap_2026-07-20 /mnt/snap  
 # rsync /mnt/snap/ /mnt/backup/app/
-sudo umount /mnt/snap               # <4>
+sudo umount /mnt/snap               
 
-sudo lvremove vg_data/lv_app_snap_2026-07-20  # <5>
+sudo lvremove vg_data/lv_app_snap_2026-07-20  
 ```
 
 1. **lvcreate -s -n** crea un snapshot COW (Copy on Write). `-s` marca como snapshot, `-L 10G` es el espacio COW reservado (no el tamaño total del LV original). El `$(date +%F)` genera un nombre con la fecha.
@@ -321,9 +321,9 @@ sudo lvremove vg_data/lv_app_snap_2026-07-20  # <5>
 ### 3.5 Thin Provisioning (Over-provisioning controlado)
 
 ```bash
-sudo lvcreate -L 1T -T vg_data/thinpool        # <1>
-sudo lvcreate -V 500G -T vg_data/thinpool -n lv_thin_app  # <2>
-sudo lvs -o +data_percent,vg_data/thinpool      # <3>
+sudo lvcreate -L 1T -T vg_data/thinpool        
+sudo lvcreate -V 500G -T vg_data/thinpool -n lv_thin_app  
+sudo lvs -o +data_percent,vg_data/thinpool      
 ```
 
 1. **lvcreate -L -T** crea un pool thin de 1TB. El pool es el espacio físico real reservado. Los LVs thin extraen espacio de este pool de forma dinámica.
@@ -371,13 +371,13 @@ tmpfs                   /run/user/1000 tmpfs defaults,noatime,nosuid,nodev,uid=1
 ### 4.3 Validar y probar
 
 ```bash
-sudo findmnt --verify --verbose     # <1>
+sudo findmnt --verify --verbose     
 
-sudo mount -a                       # <2>
+sudo mount -a                       
 
-sudo mount /srv/app                 # <3>
-sudo systemctl daemon-reload        # <4>
-sudo systemctl restart local-fs.target  # <5>
+sudo mount /srv/app                 
+sudo systemctl daemon-reload        
+sudo systemctl restart local-fs.target  
 ```
 
 1. **findmnt --verify --verbose** verifica la sintaxis de `/etc/fstab` sin montar. Detecta errores de UUID, opciones inválidas o dispositivos inexistentes antes de causar problemas al reiniciar.
@@ -393,21 +393,21 @@ sudo systemctl restart local-fs.target  # <5>
 ### 5.1 `ufw` (Uncomplicated Firewall) — Frontend iptables/nftables
 
 ```bash
-sudo apt install -y ufw             # <1>
-sudo ufw default deny incoming      # <2>
-sudo ufw default allow outgoing     # <3>
-sudo ufw default deny routed        # <4>
+sudo apt install -y ufw             
+sudo ufw default deny incoming      
+sudo ufw default allow outgoing     
+sudo ufw default deny routed        
 
-sudo ufw allow 22/tcp comment 'SSH' # <5>
-sudo ufw allow 80,443/tcp comment 'HTTP/HTTPS'  # <6>
-sudo ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL solo red interna'  # <7>
-sudo ufw allow from 10.0.1.0/24 to any port 22 comment 'SSH solo mgmt'  # <8>
+sudo ufw allow 22/tcp comment 'SSH' 
+sudo ufw allow 80,443/tcp comment 'HTTP/HTTPS'  
+sudo ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL solo red interna'  
+sudo ufw allow from 10.0.1.0/24 to any port 22 comment 'SSH solo mgmt'  
 
-sudo ufw enable                     # <9>
+sudo ufw enable                     
 
-sudo ufw status numbered            # <10>
+sudo ufw status numbered            
 
-sudo ufw delete 3                   # <11>
+sudo ufw delete 3                   
 ```
 
 1. **apt install ufw** instala Uncomplicated Firewall. Frontend simplificado para iptables/nftables en Ubuntu.
@@ -449,8 +449,8 @@ table inet filter {
 ```
 
 ```bash
-sudo nft -c /etc/nftables.conf     # <1>
-sudo systemctl enable --now nftables  # <2>
+sudo nft -c /etc/nftables.conf     
+sudo systemctl enable --now nftables  
 ```
 
 1. **nft -c** verifica la sintaxis del archivo de configuración sin aplicar. `-c` check mode: parsea y reporta errores sin modificar las reglas activas.
@@ -459,12 +459,12 @@ sudo systemctl enable --now nftables  # <2>
 ### 5.3 Auditoría de puertos y servicios
 
 ```bash
-sudo ss -lntp | head -20           # <1>
+sudo ss -lntp | head -20           
 
-nmap -sS -p- 10.0.1.50             # <2>
-nmap -sU --top-ports 100 10.0.1.50  # <3>
+nmap -sS -p- 10.0.1.50             
+nmap -sU --top-ports 100 10.0.1.50  
 
-sudo lsof -i -P -n | grep LISTEN    # <4>
+sudo lsof -i -P -n | grep LISTEN    
 ```
 
 1. **ss -lntp | head -20** muestra los 20 puertos en escucha con su proceso. Vista rápida de qué servicios están expuestos.
@@ -481,7 +481,7 @@ sudo lsof -i -P -n | grep LISTEN    # <4>
 
 ### Checklist
 
-- [ ] Configurar IP estática en `eth0` via Netplan (`10.0.1.50/24`, gw `10.0.1.1`, DNS `1.1.1.1`)
+- [ ] Configurar IP estática en `eth0` via Netplan (`10.0.1.50/24`, gw `10.0.1.1`, DNS ``1.1.1.1``)
 - [ ] `netplan apply` y validar `ip -br addr`, `resolvectl status`
 - [ ] Añadir disco virtual 20G (`/dev/sdb`), crear PV, VG `vg_data`, LVs: `lv_app(8G)`, `lv_logs(4G)`, `lv_db(8G)`
 - [ ] Formatear ext4/XFS, montar en `/srv/app`, `/var/log/app`, `/var/lib/mysql`
@@ -495,15 +495,15 @@ sudo lsof -i -P -n | grep LISTEN    # <4>
 
 ```bash
 {
-  echo "=== Netplan ===" && cat /etc/netplan/99-abacom.yaml   # <1>
-  echo -e "\n=== IP/Route ===" && ip -br addr && ip route     # <2>
-  echo -e "\n=== DNS ===" && resolvectl status                # <3>
-  echo -e "\n=== LVM ===" && pvs && vgs && lvs               # <4>
-  echo -e "\n=== fstab ===" && grep -v '^#' /etc/fstab | grep -v '^$'  # <5>
-  echo -e "\n=== Mounts ===" && findmnt -T /srv/app -T /var/log/app -T /var/lib/mysql  # <6>
-  echo -e "\n=== UFW ===" && sudo ufw status numbered         # <7>
-  echo -e "\n=== Puertos ===" && sudo ss -lntp                 # <8>
-  echo -e "\n=== Snapshot test ===" && sudo lvs vg_data/lv_app_snap_* 2>/dev/null || echo "No snapshots"  # <9>
+  echo "=== Netplan ===" && cat /etc/netplan/99-abacom.yaml   
+  echo -e "\n=== IP/Route ===" && ip -br addr && ip route     
+  echo -e "\n=== DNS ===" && resolvectl status                
+  echo -e "\n=== LVM ===" && pvs && vgs && lvs               
+  echo -e "\n=== fstab ===" && grep -v '^#' /etc/fstab | grep -v '^$'  
+  echo -e "\n=== Mounts ===" && findmnt -T /srv/app -T /var/log/app -T /var/lib/mysql  
+  echo -e "\n=== UFW ===" && sudo ufw status numbered         
+  echo -e "\n=== Puertos ===" && sudo ss -lntp                 
+  echo -e "\n=== Snapshot test ===" && sudo lvs vg_data/lv_app_snap_* 2>/dev/null || echo "No snapshots"  
 } > ~/lab06-evidencia.txt
 ```
 
@@ -525,11 +525,11 @@ sudo lsof -i -P -n | grep LISTEN    # <4>
 ::: {.callout-tip}
 ## ✅ Lo esencial de la Unidad VI
 
-1. **Diagnóstico**: `ip -br link/addr/route`, `ss -lntp`, `resolvectl query`, `dig`.
-2. **Netplan**: YAML en `/etc/netplan/`, `netplan generate && netplan apply --debug`.
-3. **LVM**: PV → VG → LV. `lvextend + resize2fs/xfs_growfs` online. Snapshots COW para backup.
-4. **fstab**: UUID, `noatime`, `nosuid/noexec/nodev`, `x-systemd.automount`, `nofail` para discos opcionales.
-5. **Firewall**: `ufw` por defecto deny, reglas explícitas, `ufw status numbered`.
+10. **Diagnóstico**: `ip -br link/addr/route`, `ss -lntp`, `resolvectl query`, `dig`.
+11. **Netplan**: YAML en `/etc/netplan/`, `netplan generate && netplan apply --debug`.
+12. **LVM**: PV → VG → LV. `lvextend + resize2fs/xfs_growfs` online. Snapshots COW para backup.
+13. **fstab**: UUID, `noatime`, `nosuid/noexec/nodev`, `x-systemd.automount`, `nofail` para discos opcionales.
+14. **Firewall**: `ufw` por defecto deny, reglas explícitas, `ufw status numbered`.
 :::
 
 ### 📋 Checklist de competencias Unidad VI
@@ -547,8 +547,8 @@ sudo lsof -i -P -n | grep LISTEN    # <4>
 
 - **iproute2**: <https://man7.org/linux/man-pages/man8/ip.8.html>
 - **ss**: <https://man7.org/linux/man-pages/man8/ss.8.html>
-- **Netplan**: <https://netplan.io/docs/>
-- **LVM**: <https://man7.org/linux/man-pages/man8/lvm.8.html>, <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_logical_volumes/>
+- **Netplan**: <https://ubuntu.com/server/docs/netplan>
+- **LVM**: <https://man7.org/linux/man-pages/man8/lvm.8.html>, <https://web.archive.org/web/2024/https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_logical_volumes/>
 - **systemd.mount/fstab**: <https://www.freedesktop.org/software/systemd/man/systemd.mount.html>
 - **ufw**: <https://manpages.ubuntu.com/manpages/noble/man8/ufw.8.html>
 - **nftables**: <https://wiki.nftables.org/>

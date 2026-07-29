@@ -23,15 +23,15 @@ date-format: medium
 ## Rutas: leer y explicar lo que ves
 
 ```bash
-$ ip route  # <1>
+$ ip route  
 default via 192.168.56.1 dev enp0s3
 192.168.56.0/24 dev enp0s3 proto kernel scope link src 192.168.56.10
-# <1>
 
-$ ip -6 route  # <2>
+
+$ ip -6 route  
 fe80::/64 dev enp0s3 proto kernel metric 256
 default via fe80::1 dev enp0s3 metric 100
-# <2>
+
 ```
 
 
@@ -44,9 +44,9 @@ default via fe80::1 dev enp0s3 metric 100
 ## Vecinos (ARP/NDP): "a quien le hablo en L2"
 
 ```bash
-$ ip neigh  # <1>
+$ ip neigh  
 192.168.56.1 dev enp0s3 lladdr 0a:00:27:aa:bb:cc REACHABLE
-# <1>
+
 ```
 
 
@@ -58,11 +58,11 @@ $ ip neigh  # <1>
 ## Ver sockets y puertos
 
 ```bash
-$ sudo ss -lntup  # <1>
+$ sudo ss -lntup  
 Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process
 tcp   LISTEN 0      4096   0.0.0.0:22        0.0.0.0:*       users:("sshd",pid=812,fd=3)
 udp   UNCONN 0      0      127.0.0.53%lo:53  0.0.0.0:*       users:("systemd-resolved",pid=610,fd=13)
-# <1>
+
 ```
 
 
@@ -79,10 +79,10 @@ udp   UNCONN 0      0      127.0.0.53%lo:53  0.0.0.0:*       users:("systemd-res
 
 #### Linux
 ```bash
-$ ip route  # <1>
+$ ip route  
 default via 192.168.1.1 dev eth0
 192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10
-# <1>
+
 ```
 
 
@@ -91,14 +91,14 @@ default via 192.168.1.1 dev eth0
 
 #### macOS
 ```bash
-$ netstat -rn | head -n 10  # <1>
+$ netstat -rn | head -n 10  
 Routing tables
 
 Internet:
 Destination        Gateway            Flags        Netif Expire
 default            192.168.1.1        UGSc           en0
 192.168.1.0/24     link#4             UCS            en0
-# <1>
+
 ```
 
 
@@ -107,13 +107,13 @@ default            192.168.1.1        UGSc           en0
 
 #### Windows
 ```powershell
-PS> route print  # <1>
+PS> route print  
 IPv4 Route Table
 ===========================================================================
 Active Routes:
 Network Destination        Netmask          Gateway       Interface
           0.0.0.0          0.0.0.0      192.168.1.1     192.168.1.30
-# <1>
+
 ```
 
 

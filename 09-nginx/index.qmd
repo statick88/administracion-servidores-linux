@@ -85,24 +85,24 @@ Ambos enfoques se documentan a continuación. El estado de `systemd` en WSL2 req
 ### 2.1 Opción A — `apt` en Ubuntu 24.04 LTS (WSL2)
 
 ```bash
-$ sudo apt update  # <1>
+$ sudo apt update  
 Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
 Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
 Reading package lists... Done
-# <1>
 
-$ sudo apt install -y nginx  # <2>
+
+$ sudo apt install -y nginx  
 Reading package lists... Done
 Building dependency tree... Done
 The following NEW packages will be installed:
   nginx nginx-common nginx-core
 ...
 Setting up nginx (1.24.0-2ubuntu7) ...
-# <2>
 
-$ nginx -v  # <3>
+
+$ nginx -v  
 nginx version: nginx/1.24.0 (Ubuntu)
-# <3>
+
 ```
 
 1. **apt update** actualiza el índice de paquetes del sistema.
@@ -118,24 +118,24 @@ WSL2 usa `systemd` solo si está habilitado en `/etc/wsl.conf` (`[boot] systemd=
 ### 2.2 Opción B — Docker (imagen oficial)
 
 ```bash
-$ docker run --rm --name nginx-lab -p 8080:80 -d nginx:stable  # <1>
+$ docker run --rm --name nginx-lab -p 8080:80 -d nginx:stable  
 Unable to find image 'nginx:stable' locally
 stable: Pulling from library/nginx
 ...
 Status: Downloaded newer image for nginx:stable
 c3f9b1e7d8a2... (container id)
-# <1>
 
-$ docker ps --filter name=nginx-lab  # <2>
+
+$ docker ps --filter name=nginx-lab  
 CONTAINER ID   IMAGE         COMMAND                  STATUS         PORTS
 c3f9b1e7d8a2   nginx:stable  "/docker-entrypoint.…"   Up 3 seconds   0.0.0.0:8080->80/tcp
-# <2>
 
-$ curl -sI http://localhost:8080  # <3>
+
+$ curl -sI http://localhost:8080  
 HTTP/1.1 200 OK
 Server: nginx/1.26.2
 Content-Type: text/html
-# <3>
+
 ```
 
 1. **docker run** levanta un contenedor efímero (`--rm`) en segundo plano (`-d`), mapeando el puerto 8080 del host al 80 del contenedor.
@@ -186,19 +186,19 @@ Es decir: **todo lo que esté en `sites-enabled/` y `conf.d/*.conf` se incluye d
 ### 3.1 Validar y recargar
 
 ```bash
-$ sudo nginx -t  # <1>
+$ sudo nginx -t  
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-# <1>
 
-$ sudo systemctl reload nginx  # <2>
-# <2>
 
-$ sudo systemctl status nginx --no-pager  # <3>
+$ sudo systemctl reload nginx  
+
+
+$ sudo systemctl status nginx --no-pager  
 ● nginx.service - A high performance web server and a reverse proxy server
      Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
      Active: active (running)
-# <3>
+
 ```
 
 1. **nginx -t** valida la sintaxis de toda la configuración antes de aplicar cambios (¡siempre correrlo!).
@@ -216,10 +216,10 @@ $ sudo systemctl status nginx --no-pager  # <3>
 - Un `server_name` duplicado o mal escrito enruta tráfico al bloque equivocado.
 
 **Cómo prevenirlo:**
-1. Edita el archivo y guarda.
-2. Ejecuta `sudo nginx -t` y confirma `test is successful`.
-3. Solo entonces `sudo systemctl reload nginx`.
-4. Verifica con `curl -I http://localhost` tras cada cambio.
+4. Edita el archivo y guarda.
+5. Ejecuta `sudo nginx -t` y confirma `test is successful`.
+6. Solo entonces `sudo systemctl reload nginx`.
+7. Verifica con `curl -I http://localhost` tras cada cambio.
 :::
 
 ---
@@ -231,13 +231,13 @@ Un servidor estático entrega archivos del disco según la ruta solicitada. El b
 ### 4.1 Crear el sitio estático
 
 ```bash
-$ sudo mkdir -p /var/www/mi-sitio  # <1>
-# <1>
+$ sudo mkdir -p /var/www/mi-sitio  
 
-$ echo '<h1>Hola desde Nginx en WSL2</h1>' | sudo tee /var/www/mi-sitio/index.html >/dev/null  # <2>
-# <2>
 
-$ sudo tee /etc/nginx/sites-available/mi-sitio.conf >/dev/null <<'EOF'  # <3>
+$ echo '<h1>Hola desde Nginx en WSL2</h1>' | sudo tee /var/www/mi-sitio/index.html >/dev/null  
+
+
+$ sudo tee /etc/nginx/sites-available/mi-sitio.conf >/dev/null <<'EOF'  
 server {
     listen 80;
     server_name mi-sitio.local;
@@ -250,15 +250,15 @@ server {
     }
 }
 EOF
-# <3>
 
-$ sudo ln -sf /etc/nginx/sites-available/mi-sitio.conf /etc/nginx/sites-enabled/mi-sitio.conf  # <4>
-# <4>
 
-$ sudo nginx -t && sudo systemctl reload nginx  # <5>
+$ sudo ln -sf /etc/nginx/sites-available/mi-sitio.conf /etc/nginx/sites-enabled/mi-sitio.conf  
+
+
+$ sudo nginx -t && sudo systemctl reload nginx  
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-# <5>
+
 ```
 
 1. **mkdir -p** crea el directorio raíz del sitio (si no existe).
@@ -309,7 +309,7 @@ Un **server block** es el equivalente de Apache a un "virtual host": permite ser
 ### 5.1 Múltiples `server_name` en un bloque
 
 ```bash
-$ sudo tee /etc/nginx/sites-available/vhosts.conf >/dev/null <<'EOF'  # <1>
+$ sudo tee /etc/nginx/sites-available/vhosts.conf >/dev/null <<'EOF'  
 server {
     listen 80;
     server_name sitio1.local www.sitio1.local;   # Múltiples alias en un bloque
@@ -334,15 +334,15 @@ server {
     }
 }
 EOF
-# <1>
 
-$ sudo ln -sf /etc/nginx/sites-available/vhosts.conf /etc/nginx/sites-enabled/vhosts.conf  # <2>
-# <2>
 
-$ sudo nginx -t && sudo systemctl reload nginx  # <3>
+$ sudo ln -sf /etc/nginx/sites-available/vhosts.conf /etc/nginx/sites-enabled/vhosts.conf  
+
+
+$ sudo nginx -t && sudo systemctl reload nginx  
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-# <3>
+
 ```
 
 1. **tee + heredoc** define dos bloques `server` para dos dominios distintos.
@@ -365,7 +365,7 @@ El **reverse proxy** recibe el tráfico externo y lo reenvía a una aplicación 
 ### 6.1 Bloque reverse proxy completo
 
 ```bash
-$ sudo tee /etc/nginx/sites-available/app.conf >/dev/null <<'EOF'  # <1>
+$ sudo tee /etc/nginx/sites-available/app.conf >/dev/null <<'EOF'  
 server {
     listen 80;
     server_name app.local;
@@ -379,18 +379,18 @@ server {
     }
 }
 EOF
-# <1>
 
-$ sudo ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/app.conf  # <2>
-# <2>
 
-$ sudo nginx -t  # <3>
+$ sudo ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/app.conf  
+
+
+$ sudo nginx -t  
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-# <3>
 
-$ sudo systemctl reload nginx  # <4>
-# <4>
+
+$ sudo systemctl reload nginx  
+
 ```
 
 1. **tee + heredoc** crea el server block que proxyea todo (`location /`) al backend local.
@@ -417,10 +417,10 @@ location / {
 ### 6.3 Probar el enrutamiento
 
 ```bash
-$ curl -i -H 'Host: app.local' http://127.0.0.1/  # <1>
+$ curl -i -H 'Host: app.local' http://127.0.0.1/  
 HTTP/1.1 502 Bad Gateway
 Server: nginx/1.24.0 (Ubuntu)
-# <1>
+
 ```
 
 1. **curl -H Host** prueba el server block; si el backend no está corriendo verás `502 Bad Gateway` — evidencia de que Nginx está enrutando correctamente. Levanta el backend y repetirás hasta ver `200 OK`.
@@ -521,17 +521,17 @@ Así Nginx decide `upgrade` o `close` según si el cliente envió el header `Upg
 ### 7.1 Ciclo de vida del servicio
 
 ```bash
-$ sudo systemctl start nginx  # <1>
-# <1>
+$ sudo systemctl start nginx  
 
-$ sudo systemctl stop nginx  # <2>
-# <2>
 
-$ sudo systemctl reload nginx  # <3>
-# <3>
+$ sudo systemctl stop nginx  
 
-$ sudo systemctl restart nginx  # <4>
-# <4>
+
+$ sudo systemctl reload nginx  
+
+
+$ sudo systemctl restart nginx  
+
 ```
 
 1. **systemctl start** arranca Nginx (carga la config actual).
@@ -542,20 +542,20 @@ $ sudo systemctl restart nginx  # <4>
 ### 7.2 Validación y diagnóstico
 
 ```bash
-$ sudo nginx -t  # <1>
+$ sudo nginx -t  
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-# <1>
 
-$ sudo ss -lntp | grep -E ':(80|443)\b'  # <2>
+
+$ sudo ss -lntp | grep -E ':(80|443)\b'  
 LISTEN 0 511 0.0.0.0:80  0.0.0.0:*  users:("nginx",pid=2345,fd=6)
-# <2>
 
-$ curl -I http://localhost  # <3>
+
+$ curl -I http://localhost  
 HTTP/1.1 200 OK
 Server: nginx/1.24.0 (Ubuntu)
 Content-Type: text/html
-# <3>
+
 ```
 
 1. **nginx -t** valida sintaxis y configuración completa.
@@ -565,12 +565,12 @@ Content-Type: text/html
 ### 7.3 Logs
 
 ```bash
-$ sudo tail -f /var/log/nginx/access.log  # <1>
+$ sudo tail -f /var/log/nginx/access.log  
 127.0.0.1 - - [20/Jul/2026:10:00:00 -0400] "GET / HTTP/1.1" 200 615 "-" "curl/8.2.1"
-# <1>
 
-$ sudo tail -f /var/log/nginx/error.log  # <2>
-# <2>
+
+$ sudo tail -f /var/log/nginx/error.log  
+
 ```
 
 1. **access.log** registra cada petición (IP, método, ruta, código, tamaño, user-agent).
@@ -591,7 +591,7 @@ El nivel de log se controla con `error_log /var/log/nginx/error.log warn;` (nive
 ### 8.1 Ocultar la versión y limitar métodos
 
 ```bash
-$ sudo tee /etc/nginx/conf.d/hardening.conf >/dev/null <<'EOF'  # <1>
+$ sudo tee /etc/nginx/conf.d/hardening.conf >/dev/null <<'EOF'  
 server_tokens off;                 # No revela "nginx/1.24.0" en headers ni errores
 
 server {
@@ -608,12 +608,12 @@ server {
     }
 }
 EOF
-# <1>
 
-$ sudo nginx -t && sudo systemctl reload nginx  # <2>
+
+$ sudo nginx -t && sudo systemctl reload nginx  
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-# <2>
+
 ```
 
 1. **tee + heredoc** crea reglas globales: oculta la versión y rechaza métodos distintos de GET/HEAD/POST.
@@ -631,11 +631,11 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 - Servir la unidad IX sin TLS (HTTP plano) expone credenciales y cookies en claro — se corrige en UNIDAD X.
 
 **Cómo prevenirlo:**
-1. Configura `server_tokens off;` en todas las instalaciones.
-2. Restringe métodos HTTP con una lista blanca (`GET|HEAD|POST`).
-3. Expón solo Nginx; mantén backends en `127.0.0.1`.
-4. Nunca publiques el bloque `server` sin primero validar con `nginx -t`.
-5. Programa la implementación de TLS (UNIDAD X) antes de cualquier entorno real.
+3. Configura `server_tokens off;` en todas las instalaciones.
+4. Restringe métodos HTTP con una lista blanca (`GET|HEAD|POST`).
+5. Expón solo Nginx; mantén backends en `127.0.0.1`.
+6. Nunca publiques el bloque `server` sin primero validar con `nginx -t`.
+7. Programa la implementación de TLS (UNIDAD X) antes de cualquier entorno real.
 :::
 
 ::: {.callout-tip}
@@ -659,13 +659,13 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ::: {.callout-tip}
 ## ✅ Lo esencial de la UNIDAD IX
 
-1. **Nginx** es servidor web, reverse proxy y load balancer de alto rendimiento (arquitectura event-loop).
-2. **Instalación**: `apt install nginx` en WSL2 Ubuntu 24.04, o imagen oficial `nginx:stable` en Docker.
-3. **Configuración**: `nginx.conf` + `sites-available/`/`sites-enabled/` + `conf.d/` vía `include`.
-4. **Estáticos y virtual hosts**: `root`, `index`, `server_name` y `try_files`.
-5. **Reverse proxy**: `proxy_pass` + headers `X-Real-IP`/`X-Forwarded-*`; WebSockets con `Upgrade`/`Connection`.
-6. **Gestión**: siempre `nginx -t` antes de `reload`; revisa `/var/log/nginx/`.
-7. **Hardening**: `server_tokens off`, métodos restringidos — el TLS llega en UNIDAD X.
+8. **Nginx** es servidor web, reverse proxy y load balancer de alto rendimiento (arquitectura event-loop).
+9. **Instalación**: `apt install nginx` en WSL2 Ubuntu 24.04, o imagen oficial `nginx:stable` en Docker.
+10. **Configuración**: `nginx.conf` + `sites-available/`/`sites-enabled/` + `conf.d/` vía `include`.
+11. **Estáticos y virtual hosts**: `root`, `index`, `server_name` y `try_files`.
+12. **Reverse proxy**: `proxy_pass` + headers `X-Real-IP`/`X-Forwarded-*`; WebSockets con `Upgrade`/`Connection`.
+13. **Gestión**: siempre `nginx -t` antes de `reload`; revisa `/var/log/nginx/`.
+14. **Hardening**: `server_tokens off`, métodos restringidos — el TLS llega en UNIDAD X.
 :::
 
 ### 📋 Checklist de competencias Unidad IX
@@ -687,7 +687,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 - **Beginner's Guide (Nginx)**: <https://nginx.org/en/docs/beginners_guide.html>
 - **Alphabetical directive index**: <https://nginx.org/en/docs/dirindex.html>
 - **Docker Hub nginx**: <https://hub.docker.com/_/nginx>
-- **Ubuntu 24.04 Release Notes**: <https://discourse.ubuntu.com/t/noble-numbat-release-notes/30831>
+- **Ubuntu 24.04 Release Notes**: <https://discourse.ubuntu.com/t/noble-numbat-release-notes/38451>
 - **WSL Documentation**: <https://learn.microsoft.com/windows/wsl/>
 - **Docker Desktop Docs**: <https://docs.docker.com/desktop/>
 

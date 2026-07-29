@@ -131,12 +131,12 @@ Si te quedas bloqueado en un nivel, estas son las alternativas recomendadas por 
 ### 1) Manual (man pages)
 
 ```bash
-$ man ls  # <1>
-$ man ssh  # <2>
-$ man 5 crontab  # <3>
-# <1>
-# <2>
-# <3>
+$ man ls  
+$ man ssh  
+$ man 5 crontab  
+
+
+
 ```
 
 
@@ -148,10 +148,10 @@ $ man 5 crontab  # <3>
 ### 2) Help para built-ins del shell
 
 ```bash
-$ help cd  # <1>
-$ help export  # <2>
-# <1>
-# <2>
+$ help cd  
+$ help export  
+
+
 ```
 
 
@@ -185,20 +185,20 @@ Modificar configuracion SSH en un servidor real puede cortar conexiones.
 - Dejar SSH con configuracion invalida o no deseada.
 
 **Como prevenirlo:**
-1. Aplica esto solo en tu VM de laboratorio.
-2. Mantiene una sesion abierta mientras pruebas.
-3. Si no funciona, cambia el adaptador a modo **Bridged**.
+3. Aplica esto solo en tu VM de laboratorio.
+4. Mantiene una sesion abierta mientras pruebas.
+5. Si no funciona, cambia el adaptador a modo **Bridged**.
 :::
 
 Ejemplo (VM Ubuntu Server LTS):
 
 ```bash
-$ sudo cp /etc/ssh/ssh_config /etc/ssh/ssh_config.bak  # <1>
-$ printf "\nHost *\n  IPQoS throughput\n" | sudo tee -a /etc/ssh/ssh_config >/dev/null  # <2>
-$ grep -n "IPQoS" /etc/ssh/ssh_config  # <3>
-# <1>
-# <2>
-# <3>
+$ sudo cp /etc/ssh/ssh_config /etc/ssh/ssh_config.bak  
+$ printf "\nHost *\n  IPQoS throughput\n" | sudo tee -a /etc/ssh/ssh_config >/dev/null  
+$ grep -n "IPQoS" /etc/ssh/ssh_config  
+
+
+
 ```
 
 
@@ -242,8 +242,8 @@ En este salto (Nivel 0 -> Nivel 1) normalmente basta con:
 - Compartes credenciales que cambian o que otros estan usando.
 
 **Como prevenirlo:**
-1. Escribe tus notas en tu maquina local.
-2. En documentacion publica, usa placeholders como `**PASSWORD_NIVEL_1**`.
+4. Escribe tus notas en tu maquina local.
+5. En documentacion publica, usa placeholders como `**PASSWORD_NIVEL_1**`.
 :::
 
 ## Reto: Bandit Nivel 0 -> Nivel 1
@@ -275,9 +275,9 @@ Un error tipico es escribir `host:puerto` (esto no define el puerto, se interpre
 ### Linux
 
 ```bash
-$ ssh bandit0@bandit.labs.overthewire.org:2220  # <1>
+$ ssh bandit0@bandit.labs.overthewire.org:2220  
 ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: Name or service not known
-# <1>
+
 ```
 
 
@@ -287,9 +287,9 @@ ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: Name or servic
 ### macOS
 
 ```bash
-$ ssh bandit0@bandit.labs.overthewire.org:2220  # <1>
+$ ssh bandit0@bandit.labs.overthewire.org:2220  
 ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: nodename nor servname provided, or not known
-# <1>
+
 ```
 
 
@@ -299,9 +299,9 @@ ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: nodename nor s
 ### Windows
 
 ```powershell
-PS> ssh bandit0@bandit.labs.overthewire.org:2220  # <1>
+PS> ssh bandit0@bandit.labs.overthewire.org:2220  
 ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: No such host is known.
-# <1>
+
 ```
 
 
@@ -317,12 +317,12 @@ ssh: Could not resolve hostname bandit.labs.overthewire.org:2220: No such host i
 ### Linux
 
 ```bash
-$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  
 The authenticity of host '[bandit.labs.overthewire.org]:2220 (51.21.210.216)' can't be established.
 ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 bandit0@bandit.labs.overthewire.org's password:
-# <1>
+
 ```
 
 
@@ -332,12 +332,12 @@ bandit0@bandit.labs.overthewire.org's password:
 ### macOS
 
 ```bash
-$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  
 The authenticity of host '[bandit.labs.overthewire.org]:2220 ([51.21.210.216]:2220)' can't be established.
 ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 bandit0@bandit.labs.overthewire.org's password:
-# <1>
+
 ```
 
 
@@ -347,12 +347,12 @@ bandit0@bandit.labs.overthewire.org's password:
 ### Windows
 
 ```powershell
-PS> ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+PS> ssh -p 2220 bandit0@bandit.labs.overthewire.org  
 The authenticity of host '[bandit.labs.overthewire.org]:2220 (51.21.210.216)' can't be established.
 ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 bandit0@bandit.labs.overthewire.org's password:
-# <1>
+
 ```
 
 
@@ -372,8 +372,8 @@ bandit0@bandit.labs.overthewire.org's password:
 - Ataque de tipo Man-in-the-Middle.
 
 **Como prevenirlo:**
-1. Verifica la huella publicada por el proveedor/infra.
-2. Si cambia inesperadamente, detente y valida con el administrador.
+2. Verifica la huella publicada por el proveedor/infra.
+3. Si cambia inesperadamente, detente y valida con el administrador.
 :::
 
 ## Dentro del servidor: encontrar el password del Nivel 1
@@ -381,9 +381,9 @@ bandit0@bandit.labs.overthewire.org's password:
 Una vez dentro como `bandit0`, tu objetivo es leer el archivo `readme` en el home.
 
 ```bash
-bandit0@bandit:~$ ls  # <1>
+bandit0@bandit:~$ ls  
 readme
-# <1>
+
 ```
 
 
@@ -391,9 +391,9 @@ readme
 1. **ls** lista el contenido del directorio actual; aqui ves el archivo `readme`.
 
 ```bash
-bandit0@bandit:~$ file readme  # <1>
+bandit0@bandit:~$ file readme  
 readme: ASCII text
-# <1>
+
 ```
 
 
@@ -401,9 +401,9 @@ readme: ASCII text
 1. **file** identifica el tipo de archivo; en este caso es texto plano.
 
 ```bash
-bandit0@bandit:~$ du -h readme  # <1>
+bandit0@bandit:~$ du -h readme  
 4.0K\treadme
-# <1>
+
 ```
 
 
@@ -411,9 +411,9 @@ bandit0@bandit:~$ du -h readme  # <1>
 1. **du -h** muestra el tamano del archivo de forma legible.
 
 ```bash
-bandit0@bandit:~$ find ~ -maxdepth 1 -type f -name readme  # <1>
+bandit0@bandit:~$ find ~ -maxdepth 1 -type f -name readme  
 /home/bandit0/readme
-# <1>
+
 ```
 
 
@@ -421,9 +421,9 @@ bandit0@bandit:~$ find ~ -maxdepth 1 -type f -name readme  # <1>
 1. **find** sirve para ubicar archivos por nombre; aqui busca `readme` en tu home.
 
 ```bash
- bandit0@bandit:~$ cat readme  # <1>
+ bandit0@bandit:~$ cat readme  
  **PASSWORD_NIVEL_1**
- # <1>
+ 
 ```
 
 
@@ -435,10 +435,10 @@ bandit0@bandit:~$ find ~ -maxdepth 1 -type f -name readme  # <1>
 Cuando ya tengas el password, sales y te conectas como `bandit1`.
 
 ```bash
-bandit0@bandit:~$ exit  # <1>
+bandit0@bandit:~$ exit  
 logout
 Connection to bandit.labs.overthewire.org closed.
-# <1>
+
 ```
 
 
@@ -446,9 +446,9 @@ Connection to bandit.labs.overthewire.org closed.
 1. **exit** cierra tu sesion SSH actual.
 
 ```bash
-$ ssh -p 2220 bandit1@bandit.labs.overthewire.org  # <1>
+$ ssh -p 2220 bandit1@bandit.labs.overthewire.org  
 bandit1@bandit.labs.overthewire.org's password:
-# <1>
+
 ```
 
 
@@ -460,10 +460,10 @@ bandit1@bandit.labs.overthewire.org's password:
 Si escribes mal el password, SSH te lo dira.
 
 ```bash
-$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  
 bandit0@bandit.labs.overthewire.org's password:
 Permission denied, please try again.
-# <1>
+
 ```
 
 
@@ -476,9 +476,9 @@ Permission denied, please try again.
 Objetivo: leer `~/readme` y usar ese valor como password para `bandit1`.
 
 ```bash
-$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  # <1>
+$ ssh -p 2220 bandit0@bandit.labs.overthewire.org  
 bandit0@bandit.labs.overthewire.org's password:
-# <1>
+
 ```
 
 
@@ -486,9 +486,9 @@ bandit0@bandit.labs.overthewire.org's password:
 1. **ssh -p** conecta al puerto `2220` con el usuario `bandit0`.
 
 ```bash
-bandit0@bandit:~$ cat ~/readme  # <1>
+bandit0@bandit:~$ cat ~/readme  
 **PASSWORD_NIVEL_1**
-# <1>
+
 ```
 
 
@@ -496,10 +496,10 @@ bandit0@bandit:~$ cat ~/readme  # <1>
 1. **cat** imprime el contenido del archivo `readme` del home; ese es el password del siguiente nivel.
 
 ```bash
-bandit0@bandit:~$ exit  # <1>
+bandit0@bandit:~$ exit  
 logout
 Connection to bandit.labs.overthewire.org closed.
-# <1>
+
 ```
 
 
@@ -507,9 +507,9 @@ Connection to bandit.labs.overthewire.org closed.
 1. **exit** cierra la sesion actual para reconectarte como `bandit1`.
 
 ```bash
-$ ssh -p 2220 bandit1@bandit.labs.overthewire.org  # <1>
+$ ssh -p 2220 bandit1@bandit.labs.overthewire.org  
 bandit1@bandit.labs.overthewire.org's password:
-# <1>
+
 ```
 
 
@@ -527,13 +527,13 @@ Una forma simple es guardar un archivo de texto en tu equipo.
 ### Linux
 
 ```bash
-$ mkdir -p "$HOME/notas"  # <1>
- $ printf "%s\n" "Bandit0->Bandit1: **PASSWORD_NIVEL_1**" >> "$HOME/notas/bandit.txt"  # <2>
-$ cat "$HOME/notas/bandit.txt"  # <3>
+$ mkdir -p "$HOME/notas"  
+ $ printf "%s\n" "Bandit0->Bandit1: **PASSWORD_NIVEL_1**" >> "$HOME/notas/bandit.txt"  
+$ cat "$HOME/notas/bandit.txt"  
  Bandit0->Bandit1: **PASSWORD_NIVEL_1**
-# <1>
-# <2>
-# <3>
+
+
+
 ```
 
 
@@ -545,13 +545,13 @@ $ cat "$HOME/notas/bandit.txt"  # <3>
 ### macOS
 
 ```bash
-$ mkdir -p "$HOME/notas"  # <1>
- $ printf "%s\n" "Bandit0->Bandit1: **PASSWORD_NIVEL_1**" >> "$HOME/notas/bandit.txt"  # <2>
-$ cat "$HOME/notas/bandit.txt"  # <3>
+$ mkdir -p "$HOME/notas"  
+ $ printf "%s\n" "Bandit0->Bandit1: **PASSWORD_NIVEL_1**" >> "$HOME/notas/bandit.txt"  
+$ cat "$HOME/notas/bandit.txt"  
  Bandit0->Bandit1: **PASSWORD_NIVEL_1**
-# <1>
-# <2>
-# <3>
+
+
+
 ```
 
 
@@ -563,13 +563,13 @@ $ cat "$HOME/notas/bandit.txt"  # <3>
 ### Windows
 
 ```powershell
-PS> New-Item -ItemType Directory -Force "$HOME\\notas"  # <1>
- PS> Add-Content -Path "$HOME\\notas\\bandit.txt" -Value "Bandit0->Bandit1: **PASSWORD_NIVEL_1**"  # <2>
-PS> Get-Content "$HOME\\notas\\bandit.txt"  # <3>
+PS> New-Item -ItemType Directory -Force "$HOME\\notas"  
+ PS> Add-Content -Path "$HOME\\notas\\bandit.txt" -Value "Bandit0->Bandit1: **PASSWORD_NIVEL_1**"  
+PS> Get-Content "$HOME\\notas\\bandit.txt"  
  Bandit0->Bandit1: **PASSWORD_NIVEL_1**
-# <1>
-# <2>
-# <3>
+
+
+
 ```
 
 
@@ -595,6 +595,6 @@ No publiques passwords ni writeups completos.
 - Compartir la solucion exacta elimina el aprendizaje.
 
 **Como prevenirlo:**
-1. Guarda el password de cada nivel en un archivo local.
-2. En tu documentacion, usa placeholders como `**PASSWORD_NIVEL_2**`.
+4. Guarda el password de cada nivel en un archivo local.
+5. En tu documentacion, usa placeholders como `**PASSWORD_NIVEL_2**`.
 :::

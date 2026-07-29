@@ -40,17 +40,17 @@ En servidores, la prioridad es evitar cortes de conectividad (especialmente si a
 ## Ver que renderer estas usando
 
 ```bash
-$ ls -1 /etc/netplan  # <1>
+$ ls -1 /etc/netplan  
 00-installer-config.yaml
-# <1>
 
-$ sudo netplan get  # <2>
+
+$ sudo netplan get  
 network:
   version: 2
   ethernets:
     enp0s3:
       dhcp4: true
-# <2>
+
 ```
 
 
@@ -63,12 +63,12 @@ network:
 ## Aplicar Netplan (forma segura)
 
 ```bash
-$ sudo netplan try  # <1>
+$ sudo netplan try  
 Do you want to keep these settings? Press ENTER before the timeout to accept.
-# <1>
 
-$ sudo netplan apply  # <2>
-# <2>
+
+$ sudo netplan apply  
+
 ```
 
 
@@ -81,15 +81,15 @@ $ sudo netplan apply  # <2>
 ## Inspeccion con nmcli (si esta instalado y activo)
 
 ```bash
-$ nmcli general status  # <1>
+$ nmcli general status  
 STATE      CONNECTIVITY  WIFI-HW  WIFI     WWAN-HW  WWAN
 connected  full          enabled  enabled  enabled  enabled
-# <1>
 
-$ nmcli device status  # <2>
+
+$ nmcli device status  
 DEVICE  TYPE      STATE      CONNECTION
 enp0s3  ethernet  connected  Wired connection 1
-# <2>
+
 ```
 
 
@@ -107,13 +107,13 @@ enp0s3  ethernet  connected  Wired connection 1
 
 #### Linux
 ```bash
-$ sudo netplan get  # <1>
+$ sudo netplan get  
 network:
   version: 2
   ethernets:
     enp0s3:
       dhcp4: true
-# <1>
+
 ```
 
 
@@ -122,11 +122,11 @@ network:
 
 #### macOS
 ```bash
-$ networksetup -listallnetworkservices  # <1>
+$ networksetup -listallnetworkservices  
 An asterisk (*) denotes that a network service is disabled.
 Wi-Fi
 USB 10/100/1000 LAN
-# <1>
+
 ```
 
 
@@ -135,13 +135,13 @@ USB 10/100/1000 LAN
 
 #### Windows
 ```powershell
-PS> Get-NetIPConfiguration  # <1>
+PS> Get-NetIPConfiguration  
 
 InterfaceAlias       : Ethernet
 IPv4Address          : 192.168.1.30
 IPv4DefaultGateway   : 192.168.1.1
 DnsServer            : 192.168.1.1
-# <1>
+
 ```
 
 

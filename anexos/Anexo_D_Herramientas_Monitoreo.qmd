@@ -188,7 +188,7 @@ PS> taskmgr  # GUI interactiva
 ### Ejecutar TOP
 
 ```bash
-top  # <1>
+top  
 ```
 
 1. **top** abre monitor interactivo de procesos
@@ -302,7 +302,7 @@ top
 
 ```bash
 # Ver procesos una sola vez (sin interactivo)
-top -b -n 1  # <1>
+top -b -n 1  
 ```
 
 1. **-b** (batch mode) no interactivo, **-n 1** una sola actualización
@@ -343,7 +343,7 @@ sudo pacman -S htop
 ### Ejecutar HTOP
 
 ```bash
-htop  # <1>
+htop  
 ```
 
 1. **htop** es reemplazo directo de top (mismos comandos)
@@ -392,7 +392,7 @@ q         → Salir
 ### Ver Memoria en Formato Humano
 
 ```bash
-free -h  # <1>
+free -h  
 ```
 
 1. **-h** (human-readable) muestra en GB/MB en vez de bytes
@@ -431,7 +431,7 @@ Avail = Libre + Cache  ← Lo que REALMENTE tienes disponible
 
 ```bash
 # Mostrar cada 2 segundos
-free -h -s 2  # <1>
+free -h -s 2  
 ```
 
 1. **-s 2** (seconds) actualiza cada 2 segundos
@@ -456,7 +456,7 @@ Presiona **Ctrl+C** para salir.
 ### Ver Espacio en Disco
 
 ```bash
-df -h  # <1>
+df -h  
 ```
 
 1. **-h** (human-readable) en GB/MB
@@ -475,7 +475,7 @@ tmpfs            15G     0   15G   0% /dev/shm
 
 ```bash
 # Mostrar en porcentaje de uso
-df -h | awk '{print $5, $6}' | sort -rn  # <1>
+df -h | awk '{print $5, $6}' | sort -rn  
 ```
 
 1. **awk** extrae columnas, **sort -rn** ordena descendente
@@ -496,7 +496,7 @@ df -h | awk '{print $5, $6}' | sort -rn  # <1>
 
 df -h | tail -n +2 | while read LINE
 do
-  USAR=$(echo $LINE | awk '{print $5}' | sed 's/%//')  # <1>
+  USAR=$(echo $LINE | awk '{print $5}' | sed 's/%//')  
   MOUNT=$(echo $LINE | awk '{print $6}')
   
   if [ "$USAR" -gt 80 ]
@@ -516,7 +516,7 @@ done
 
 ```bash
 # ¿Quién está ocupando espacio en /home?
-du -sh /home/*  # <1>
+du -sh /home/*  
 ```
 
 1. **-s** (summarize) solo total, **-h** (human) en GB/MB
@@ -533,7 +533,7 @@ du -sh /home/*  # <1>
 ### Encontrar Top 10 Carpetas Más Grandes
 
 ```bash
-du -sh /* | sort -rh | head -10  # <1>
+du -sh /* | sort -rh | head -10  
 ```
 
 1. **sort -rh** ordena numérico inverso
@@ -566,7 +566,7 @@ du -sh /var/log/* | sort -rh | head -5
 **Encontrar carpeta problemática:**
 
 ```bash
-du -sh /var/log/* | grep "G$"  # <1>
+du -sh /var/log/* | grep "G$"  
 ```
 
 1. **grep "G$"** solo líneas con G (gigabytes)
@@ -591,7 +591,7 @@ sudo pacman -S sysstat
 ### Ver Actividad de Disco
 
 ```bash
-iostat -x 1  # <1>
+iostat -x 1  
 ```
 
 1. **-x** (extended) más detalles, **1** actualiza cada 1 segundo
@@ -636,10 +636,10 @@ w_await  ← Latencia de escritura (ms)
 
 ```bash
 # Método moderno (recomendado)
-ss -tulpn  # <1>
+ss -tulpn  
 
 # Método antiguo (aún funciona)
-netstat -tulpn  # <2>
+netstat -tulpn  
 ```
 
 1. **ss** (socket statistics) es reemplazo moderno de netstat
@@ -666,7 +666,7 @@ ESTAB       0      0  192.168.1.100:22 192.168.1.50:45678 ESTAB   9876/sshd
 ### Ver Solo Conexiones TCP Establecidas
 
 ```bash
-ss -tn | grep ESTAB | wc -l  # <1>
+ss -tn | grep ESTAB | wc -l  
 ```
 
 1. **grep ESTAB** filtra conexiones establecidas, **wc -l** cuenta
@@ -682,7 +682,7 @@ Hay 247 conexiones TCP activas.
 
 ```bash
 # ¿Quién está usando puerto 8080?
-ss -tulpn | grep :8080  # <1>
+ss -tulpn | grep :8080  
 ```
 
 1. **grep :8080** busca puerto 8080

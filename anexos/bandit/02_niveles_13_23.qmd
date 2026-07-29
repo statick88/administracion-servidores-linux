@@ -11,11 +11,11 @@ subtitle: "SSH con llaves, netcat, TLS, cron jobs y scripts"
 - **Solucion detallada:**
 
 ```bash
-bandit13@bandit:~$ ls  # <1>
+bandit13@bandit:~$ ls  
 sshkey.private
-bandit13@bandit:~$ chmod 600 sshkey.private  # <2>
-bandit13@bandit:~$ ssh -i sshkey.private -p 2220 bandit14@bandit.labs.overthewire.org  # <3>
-bandit14@bandit:~$ cat /etc/bandit_pass/bandit14  # <4>
+bandit13@bandit:~$ chmod 600 sshkey.private  
+bandit13@bandit:~$ ssh -i sshkey.private -p 2220 bandit14@bandit.labs.overthewire.org  
+bandit14@bandit:~$ cat /etc/bandit_pass/bandit14  
 **PASSWORD_NIVEL_14**
 ```
 
@@ -34,10 +34,10 @@ bandit14@bandit:~$ cat /etc/bandit_pass/bandit14  # <4>
 - **Solucion detallada:**
 
 ```bash
-bandit14@bandit:~$ echo '**PASSWORD_NIVEL_14**' | nc localhost 30000  # <1>
+bandit14@bandit:~$ echo '**PASSWORD_NIVEL_14**' | nc localhost 30000  
 Correct!
 **PASSWORD_NIVEL_15**
-# <1>
+
 ```
 
 1. **echo 'password' | nc localhost 30000** conecta via netcat al puerto 30000 en localhost y envia el password actual. El servidor responde con el siguiente password.
@@ -52,7 +52,7 @@ Correct!
 - **Solucion detallada:**
 
 ```bash
-bandit15@bandit:~$ openssl s_client -connect localhost:30001 -quiet <<< '**PASSWORD_NIVEL_15**'  # <1>
+bandit15@bandit:~$ openssl s_client -connect localhost:30001 -quiet <<< '**PASSWORD_NIVEL_15**'  
 Correct!
 **PASSWORD_NIVEL_16**
 ```
@@ -69,7 +69,7 @@ Correct!
 - **Solucion detallada:**
 
 ```bash
-bandit16@bandit:~$ nmap -p 31000-32000 localhost  # <1>
+bandit16@bandit:~$ nmap -p 31000-32000 localhost  
 Starting Nmap 7.80 ( https://nmap.org ) at ...
 PORT      STATE SERVICE
 31046/tcp open  unknown
@@ -82,7 +82,7 @@ PORT      STATE SERVICE
 1. **nmap -p 31000-32000 localhost** escanea puertos en ese rango. 5 puertos abiertos.
 
 ```bash
-bandit16@bandit:~$ for port in 31046 31518 31691 31790 31960; do  # <1>
+bandit16@bandit:~$ for port in 31046 31518 31691 31790 31960; do  
   echo "Testing port $port"
   openssl s_client -connect localhost:$port -quiet <<< '**PASSWORD_NIVEL_16**'
 done
@@ -92,14 +92,14 @@ done
 1. Bucle prueba cada puerto con `openssl s_client -quiet` enviando el password actual. El puerto **31790** devuelve una llave SSH privada (no repite el password).
 
 ```bash
-bandit16@bandit:~$ cat > /tmp/bandit17.key << 'EOF'  # <1>
+bandit16@bandit:~$ cat > /tmp/bandit17.key << 'EOF'  
 -----BEGIN RSA PRIVATE KEY-----
 ...
 -----END RSA PRIVATE KEY-----
 EOF
-bandit16@bandit:~$ chmod 600 /tmp/bandit17.key  # <2>
-bandit16@bandit:~$ ssh -i /tmp/bandit17.key -p 2220 bandit17@bandit.labs.overthewire.org  # <3>
-bandit17@bandit:~$ cat /etc/bandit_pass/bandit17  # <4>
+bandit16@bandit:~$ chmod 600 /tmp/bandit17.key  
+bandit16@bandit:~$ ssh -i /tmp/bandit17.key -p 2220 bandit17@bandit.labs.overthewire.org  
+bandit17@bandit:~$ cat /etc/bandit_pass/bandit17  
 **PASSWORD_NIVEL_17**
 ```
 
@@ -118,12 +118,12 @@ bandit17@bandit:~$ cat /etc/bandit_pass/bandit17  # <4>
 - **Solucion detallada:**
 
 ```bash
-bandit17@bandit:~$ diff passwords.old passwords.new  # <1>
+bandit17@bandit:~$ diff passwords.old passwords.new  
 42c42
 < **PASSWORD_NIVEL_16**
 ---
 > **PASSWORD_NIVEL_17**
-# <1>
+
 ```
 
 1. **diff passwords.old passwords.new** compara linea a linea. `42c42` significa linea 42 cambio (c = change). `<` linea antigua, `>` linea nueva. La linea nueva en `passwords.new` es el password: ****PASSWORD_NIVEL_17****.
@@ -142,7 +142,7 @@ bandit17@bandit:~$ diff passwords.old passwords.new  # <1>
 El problema es que el `.bashrc` del usuario bandit18 cierra la conexion inmediatamente. La solucion es ejecutar el comando directamente en la linea de SSH, antes de que el shell interactivo se cierre:
 
 ```bash
-$ ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme  # <1>
+$ ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme  
 ```
 
 <output esperado: el password del siguiente nivel>
@@ -160,10 +160,10 @@ $ ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme  # <1>
 
 #### Resolucion paso a paso
 
-1. Explora el home y encuentra el binario `bandit20-do`:
+2. Explora el home y encuentra el binario `bandit20-do`:
 
 ```bash
-$ ls -la  # <1>
+$ ls -la  
 -rwsr-x--- 1 bandit20 bandit19 14872 ... bandit20-do
 ```
 
@@ -172,7 +172,7 @@ $ ls -la  # <1>
 2. Usa el binario para ejecutar `cat` sobre el password de bandit20:
 
 ```bash
-$ ./bandit20-do cat /etc/bandit_pass/bandit20  # <1>
+$ ./bandit20-do cat /etc/bandit_pass/bandit20  
 ```
 
 <output esperado: password de bandit20>
@@ -194,10 +194,10 @@ Los binarios setuid son un concepto fundamental de seguridad en Linux. Siempre r
 
 #### Resolucion paso a paso
 
-1. Analiza el binario `bandit21-do`:
+2. Analiza el binario `bandit21-do`:
 
 ```bash
-$ ls -la  # <1>
+$ ls -la  
 -rwsr-x--- 1 bandit21 bandit20 14872 ... bandit21-do
 ```
 
@@ -206,20 +206,20 @@ $ ls -la  # <1>
 2. Necesitas dos terminales. En la primera, escucha en un puerto local:
 
 ```bash
-$ nc -lnp 5555  # <1>
+$ nc -lnp 5555  
 ```
 
 1. **nc -lnp 5555** abre un servidor en el puerto 5555 escuchando conexiones entrantes. La bandera `-l` (listen) pone a `nc` en modo servidor, `-n` evita resolucion DNS, y `-p 5555` especifica el puerto.
 
-3. En la segunda terminal, ejecuta el binario apuntando al puerto que escuchas:
+2. En la segunda terminal, ejecuta el binario apuntando al puerto que escuchas:
 
 ```bash
-$ ./bandit21-do nc localhost 5555  # <1>
+$ ./bandit21-do nc localhost 5555  
 ```
 
 1. **bandit21-do** ejecuta `nc localhost 5555` con privilegios de `bandit21`. Se conecta a tu servidor `nc` y envia el password como una linea de texto.
 
-4. Deberias ver el password en la primera terminal donde escuchabas.
+2. Deberias ver el password en la primera terminal donde escuchabas.
 
 :::{.callout-tip}
 ## 💡 TRUCO: USAR tmux PARA MULTIPLES TERMINALES
@@ -227,9 +227,9 @@ $ ./bandit21-do nc localhost 5555  # <1>
 Si no tienes `tmux` o `screen` configurados, puedes usar **job control** de bash:
 
 ```bash
-$ nc -lnp 5555 &  # <1>
+$ nc -lnp 5555 &  
 [1] 12345
-$ ./bandit21-do nc localhost 5555  # <2>
+$ ./bandit21-do nc localhost 5555  
 ```
 
 1. **nc -lnp 5555 &** ejecuta el servidor en background
@@ -247,10 +247,10 @@ $ ./bandit21-do nc localhost 5555  # <2>
 
 #### Resolucion paso a paso
 
-1. Explora el directorio de cron:
+3. Explora el directorio de cron:
 
 ```bash
-$ ls /etc/cron.d/  # <1>
+$ ls /etc/cron.d/  
 cronjob_bandit22_root
 ```
 
@@ -259,27 +259,27 @@ cronjob_bandit22_root
 2. Lee el contenido del archivo de cron:
 
 ```bash
-$ cat /etc/cron.d/cronjob_bandit22_root  # <1>
+$ cat /etc/cron.d/cronjob_bandit22_root  
 @reboot bandit22 /usr/bin/cronjob_bandit22.sh &> /dev/null
 * * * * * bandit22 /usr/bin/cronjob_bandit22.sh &> /dev/null
 ```
 
 1. **cat** revela que el sistema ejecuta `/usr/bin/cronjob_bandit22.sh` cada minuto como usuario `bandit22`.
 
-3. Examina el script que se ejecuta:
+2. Examina el script que se ejecuta:
 
 ```bash
-$ cat /usr/bin/cronjob_bandit22.sh  # <1>
+$ cat /usr/bin/cronjob_bandit22.sh  
 #!/bin/sh
 chmod 644 /tmp/t7EU6bYQhpmRHfBtPr6gMXI1l2FifmNC
 ```
 
 1. **cat** muestra que el script cambia los permisos de un archivo en `/tmp`. El password esta contenido en ese archivo.
 
-4. Lee el archivo:
+2. Lee el archivo:
 
 ```bash
-$ cat /tmp/t7EU6bYQhpmRHfBtPr6gMXI1l2FifmNC  # <1>
+$ cat /tmp/t7EU6bYQhpmRHfBtPr6gMXI1l2FifmNC  
 ```
 
 <output esperado: password de bandit22>
@@ -301,10 +301,10 @@ Los cron jobs en `/etc/cron.d/` se ejecutan con formato: `minuto hora dia_mes me
 
 #### Resolucion paso a paso
 
-1. Revisa los archivos de cron:
+2. Revisa los archivos de cron:
 
 ```bash
-$ ls /etc/cron.d/  # <1>
+$ ls /etc/cron.d/  
 cronjob_bandit23_root
 ```
 
@@ -313,16 +313,16 @@ cronjob_bandit23_root
 2. Lee el cron job:
 
 ```bash
-$ cat /etc/cron.d/cronjob_bandit23_root  # <1>
+$ cat /etc/cron.d/cronjob_bandit23_root  
 * * * * * bandit23 /usr/bin/cronjob_bandit23.sh 2>&1
 ```
 
 1. **cat** revela que se ejecuta un script cada minuto como usuario `bandit23`. La redireccion `2>&1` captura tanto stdout como stderr.
 
-3. Analiza el script:
+2. Analiza el script:
 
 ```bash
-$ cat /usr/bin/cronjob_bandit23.sh  # <1>
+$ cat /usr/bin/cronjob_bandit23.sh  
 #!/bin/sh
 myname=$(whoami)
 mytarget=$(echo I am user $myname | md5sum | cut -d ' ' -f 1)
@@ -335,20 +335,20 @@ echo "Using passwordless private key $mytarget as the new password" > /tmp/$myta
    - Crea un archivo en `/tmp` con ese hash como nombre
    - El password es el hash MD5 generado
 
-4. Ejecuta el script manualmente o calcula el hash:
+2. Ejecuta el script manualmente o calcula el hash:
 
 ```bash
-$ echo I am user bandit23 | md5sum | cut -d ' ' -f 1  # <1>
+$ echo I am user bandit23 | md5sum | cut -d ' ' -f 1  
 ```
 
 <output esperado: hash MD5>
 
 1. **md5sum** genera el hash MD5 de la cadena. `cut` extrae solo el hash (sin el asterisco).
 
-5. Usa el hash para leer el password:
+2. Usa el hash para leer el password:
 
 ```bash
-$ cat /tmp/<hash_md5>  # <1>
+$ cat /tmp/<hash_md5>  
 ```
 
 <output esperado: password de bandit23>
@@ -370,10 +370,10 @@ Cuando un script genera archivos, puedes ejecutarlo directamente para generar el
 
 #### Resolucion paso a paso
 
-1. Examina el cron job:
+2. Examina el cron job:
 
 ```bash
-$ cat /etc/cron.d/cronjob_bandit24_root  # <1>
+$ cat /etc/cron.d/cronjob_bandit24_root  
 * * * * * root /usr/bin/cronjob_bandit24.sh &> /dev/null
 ```
 
@@ -382,7 +382,7 @@ $ cat /etc/cron.d/cronjob_bandit24_root  # <1>
 2. Analiza el script:
 
 ```bash
-$ cat /usr/bin/cronjob_bandit24.sh  # <1>
+$ cat /usr/bin/cronjob_bandit24.sh  
 #!/bin/sh
 for i in /var/spool/mail/*; do
   su $(basename $i) <<< "password de $i"
@@ -391,20 +391,20 @@ done
 
 1. **cat** muestra que el script itera sobre archivos en `/var/spool/mail/` y ejecuta `su` para cada usuario.
 
-3. Crea un script que se ejecute cuando el cron corra como tu usuario:
+2. Crea un script que se ejecute cuando el cron corra como tu usuario:
 
 ```bash
-$ echo 'cat /etc/bandit_pass/bandit24 > /tmp/bandit24_password' > /tmp/cripto_script.sh  # <1>
-$ chmod 777 /tmp/cripto_script.sh  # <2>
+$ echo 'cat /etc/bandit_pass/bandit24 > /tmp/bandit24_password' > /tmp/cripto_script.sh  
+$ chmod 777 /tmp/cripto_script.sh  
 ```
 
 1. **echo** crea un script que lee el password de bandit24
 2. **chmod 777** da permisos de ejecucion a todos (necesario para que el cron pueda ejecutarlo)
 
-4. Espera a que el cron corra (hasta 1 minuto) y luego lee el resultado:
+3. Espera a que el cron corra (hasta 1 minuto) y luego lee el resultado:
 
 ```bash
-$ cat /tmp/bandit24_password  # <1>
+$ cat /tmp/bandit24_password  
 ```
 
 <output esperado: password de bandit24>
@@ -419,7 +419,7 @@ $ cat /tmp/bandit24_password  # <1>
 Los scripts ejecutados por cron como root son peligrosos si tienen permisos de escritura para otros usuarios. Si un script en `/usr/bin/` es modificable por usuarios normales, un atacante podria inyectar codigo malicioso que se ejecutaria como root.
 
 **Como prevenirlo:**
-1. Los scripts de cron siempre deben ser propiedad de root
-2. Permisos recomendados: `chmod 700` (solo root ejecuta)
-3. Usa `ls -la` para verificar antes de modificar
+2. Los scripts de cron siempre deben ser propiedad de root
+3. Permisos recomendados: `chmod 700` (solo root ejecuta)
+4. Usa `ls -la` para verificar antes de modificar
 :::

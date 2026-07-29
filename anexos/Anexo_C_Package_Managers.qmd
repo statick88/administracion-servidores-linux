@@ -90,7 +90,7 @@ Cuando haces **apt install nginx**, el gestor:
 
 ```bash
 # Descargar lista de paquetes disponibles
-sudo apt update  # <1>
+sudo apt update  
 ```
 
 1. **apt update** lee repositorios y descarga lista de paquetes disponibles (no instala nada)
@@ -112,7 +112,7 @@ Reading package lists... Done
 
 ```bash
 # Instalar un paquete
-sudo apt install nginx  # <1>
+sudo apt install nginx  
 ```
 
 1. **apt install** descarga e instala nginx + dependencias automáticamente
@@ -120,7 +120,7 @@ sudo apt install nginx  # <1>
 **Con confirmación automática:**
 
 ```bash
-sudo apt install -y nginx  # <1>
+sudo apt install -y nginx  
 ```
 
 1. **-y** (yes) responde "sí" automáticamente a confirmaciones
@@ -138,8 +138,8 @@ sudo apt install -y nginx postgresql git vim htop
 #!/bin/bash
 # Script para configurar servidor web
 
-sudo apt update  # <1>
-sudo apt install -y \  # <2>
+sudo apt update  
+sudo apt install -y \  
   nginx \
   postgresql \
   python3-pip \
@@ -155,7 +155,7 @@ sudo apt install -y \  # <2>
 
 ```bash
 # Ver actualizaciones disponibles
-apt list --upgradable  # <1>
+apt list --upgradable  
 ```
 
 1. **apt list** muestra información de paquetes
@@ -163,7 +163,7 @@ apt list --upgradable  # <1>
 **Actualizar todos los paquetes:**
 
 ```bash
-sudo apt upgrade  # <1>
+sudo apt upgrade  
 ```
 
 1. **apt upgrade** actualiza paquetes a nuevas versiones
@@ -177,7 +177,7 @@ sudo apt upgrade  # <1>
 
 ```bash
 # Desinstalar pero mantener archivos de config
-sudo apt remove nginx  # <1>
+sudo apt remove nginx  
 ```
 
 1. **apt remove** desinstala paquete pero conserva ~/.config
@@ -185,7 +185,7 @@ sudo apt remove nginx  # <1>
 **Desinstalar completamente (purgar):**
 
 ```bash
-sudo apt purge nginx  # <1>
+sudo apt purge nginx  
 ```
 
 1. **apt purge** desinstala y elimina todos los archivos incluyendo configuración
@@ -194,10 +194,10 @@ sudo apt purge nginx  # <1>
 
 ```bash
 # Eliminar paquetes sin usar
-sudo apt autoremove  # <1>
+sudo apt autoremove  
 
 # Limpiar caché de descargas
-sudo apt autoclean  # <2>
+sudo apt autoclean  
 ```
 
 1. **autoremove** elimina dependencias huérfanas
@@ -208,10 +208,10 @@ sudo apt autoclean  # <2>
 
 ```bash
 # Buscar paquetes que contengan "nginx"
-apt search nginx  # <1>
+apt search nginx  
 
 # Ver detalles de un paquete
-apt show nginx  # <2>
+apt show nginx  
 ```
 
 1. **apt search** busca descripción de paquetes
@@ -224,9 +224,9 @@ A veces necesitas software no en repositorios oficiales. Usa **PPA** (Personal P
 
 ```bash
 # Agregar PPA (ej: para Node.js LTS)
-sudo add-apt-repository ppa:chris-lea/node.js-lts  # <1>
-sudo apt update  # <2>
-sudo apt install nodejs  # <3>
+sudo add-apt-repository ppa:chris-lea/node.js-lts  
+sudo apt update  
+sudo apt install nodejs  
 ```
 
 1. **add-apt-repository** agrega nuevo repositorio
@@ -255,10 +255,10 @@ sudo apt install nodejs  # <3>
 
 ```bash
 # En CentOS con yum
-sudo yum check-update  # <1>
+sudo yum check-update  
 
 # En CentOS con dnf (recomendado)
-sudo dnf check-update  # <2>
+sudo dnf check-update  
 ```
 
 1. **yum check-update** verifica actualizaciones disponibles
@@ -269,7 +269,7 @@ sudo dnf check-update  # <2>
 
 ```bash
 # Instalar nginx
-sudo dnf install -y nginx  # <1>
+sudo dnf install -y nginx  
 
 # Antiguo (yum)
 sudo yum install -y nginx
@@ -288,10 +288,10 @@ sudo dnf install -y nginx postgresql python3-pip curl wget
 
 ```bash
 # Actualizar un paquete específico
-sudo dnf upgrade nginx  # <1>
+sudo dnf upgrade nginx  
 
 # Actualizar TODO el sistema
-sudo dnf upgrade  # <2>
+sudo dnf upgrade  
 ```
 
 1. **dnf upgrade nginx** actualiza solo nginx
@@ -302,7 +302,7 @@ sudo dnf upgrade  # <2>
 
 ```bash
 # Desinstalar
-sudo dnf remove nginx  # <1>
+sudo dnf remove nginx  
 ```
 
 1. **dnf remove** desinstala pero mantiene archivos config
@@ -311,10 +311,10 @@ sudo dnf remove nginx  # <1>
 
 ```bash
 # Eliminar cache
-sudo dnf clean all  # <1>
+sudo dnf clean all  
 
 # Ver estadísticas
-sudo dnf clean packages  # <2>
+sudo dnf clean packages  
 ```
 
 1. **dnf clean all** borra caché completo
@@ -325,10 +325,10 @@ sudo dnf clean packages  # <2>
 
 ```bash
 # Buscar paquete
-sudo dnf search nginx  # <1>
+sudo dnf search nginx  
 
 # Ver detalles
-sudo dnf info nginx  # <2>
+sudo dnf info nginx  
 ```
 
 1. **dnf search** busca descripción
@@ -339,13 +339,13 @@ sudo dnf info nginx  # <2>
 
 ```bash
 # Ver repositorios habilitados
-sudo dnf repolist  # <1>
+sudo dnf repolist  
 
 # Ver todos incluyendo deshabilitados
-sudo dnf repolist all  # <2>
+sudo dnf repolist all  
 
 # Habilitar repositorio
-sudo dnf config-manager --set-enabled powertools  # <3>
+sudo dnf config-manager --set-enabled powertools  
 
 # Agregar repositorio externo
 sudo dnf install -y https://repo-url/package.rpm
@@ -374,7 +374,7 @@ Arch tiene filosofía diferente:
 
 ```bash
 # Actualizar TODOS los paquetes (¡importante en Arch!)
-sudo pacman -Syu  # <1>
+sudo pacman -Syu  
 ```
 
 1. **-S** = sincronizar (descargar), **-y** = actualizar base, **-u** = actualizar paquetes
@@ -385,7 +385,7 @@ sudo pacman -Syu  # <1>
 
 ```bash
 # Instalar nginx
-sudo pacman -S nginx  # <1>
+sudo pacman -S nginx  
 
 # Instalar múltiples
 sudo pacman -S nginx postgresql git vim htop
@@ -397,13 +397,13 @@ sudo pacman -S nginx postgresql git vim htop
 
 ```bash
 # Desinstalar pero mantener config
-sudo pacman -R nginx  # <1>
+sudo pacman -R nginx  
 
 # Desinstalar y remover dependencias huérfanas
-sudo pacman -Rs nginx  # <2>
+sudo pacman -Rs nginx  
 
 # Desinstalar todo incluyendo config
-sudo pacman -Rn nginx  # <3>
+sudo pacman -Rn nginx  
 ```
 
 1. **-R** (Remove) desinstala paquete
@@ -416,10 +416,10 @@ sudo pacman -Rn nginx  # <3>
 
 ```bash
 # Eliminar paquetes descargados
-sudo pacman -Sc  # <1>
+sudo pacman -Sc  
 
 # Eliminar TODO incluyendo instalados (¡cuidado!)
-sudo pacman -Scc  # <2>
+sudo pacman -Scc  
 ```
 
 1. **-Sc** borra cache de instalados (seguro)
@@ -430,13 +430,13 @@ sudo pacman -Scc  # <2>
 
 ```bash
 # Buscar en repositorios
-sudo pacman -Ss nginx  # <1>
+sudo pacman -Ss nginx  
 
 # Ver info detallada
-sudo pacman -Si nginx  # <2>
+sudo pacman -Si nginx  
 
 # Listar archivos en paquete instalado
-sudo pacman -Ql nginx  # <3>
+sudo pacman -Ql nginx  
 ```
 
 1. **-Ss** (Search Sync) busca descripción
@@ -449,10 +449,10 @@ sudo pacman -Ql nginx  # <3>
 
 ```bash
 # Listar paquetes instalados
-sudo pacman -Q  # <1>
+sudo pacman -Q  
 
 # Ver espacio usado por paquete
-sudo pacman -Qi nginx  # <2>
+sudo pacman -Qi nginx  
 ```
 
 1. **-Q** (Query) lista paquetes instalados
@@ -669,27 +669,27 @@ PS> Start-Service -Name postgresql
 # Script que detecta el SO y actualiza automáticamente
 
 if command -v apt &> /dev/null; then
-  # Sistema Debian/Ubuntu  # <1>
+  # Sistema Debian/Ubuntu  
   sudo apt update && sudo apt upgrade -y
   echo "✓ Actualización Debian completada"
   
 elif command -v dnf &> /dev/null; then
   # Sistema CentOS/RHEL 8+
-  sudo dnf upgrade -y  # <2>
+  sudo dnf upgrade -y  
   echo "✓ Actualización CentOS completada"
   
 elif command -v yum &> /dev/null; then
   # Sistema CentOS/RHEL 7
-  sudo yum update -y  # <3>
+  sudo yum update -y  
   echo "✓ Actualización CentOS 7 completada"
   
 elif command -v pacman &> /dev/null; then
-  # Sistema Arch  # <4>
+  # Sistema Arch  
   sudo pacman -Syu
   echo "✓ Actualización Arch completada"
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS  # <5>
+  # macOS  
   brew update && brew upgrade
   echo "✓ Actualización macOS completada"
   
@@ -721,22 +721,22 @@ fi
 
 if command -v apt &> /dev/null; then
   # Sistema Debian/Ubuntu
-  sudo apt update && sudo apt upgrade -y  # <1>
+  sudo apt update && sudo apt upgrade -y  
   echo "✓ Actualización Debian completada"
   
 elif command -v dnf &> /dev/null; then
   # Sistema CentOS/RHEL 8+
-  sudo dnf upgrade -y  # <2>
+  sudo dnf upgrade -y  
   echo "✓ Actualización CentOS completada"
   
 elif command -v yum &> /dev/null; then
   # Sistema CentOS/RHEL 7
-  sudo yum update -y  # <3>
+  sudo yum update -y  
   echo "✓ Actualización CentOS 7 completada"
   
 elif command -v pacman &> /dev/null; then
   # Sistema Arch
-  sudo pacman -Syu --noconfirm  # <4>
+  sudo pacman -Syu --noconfirm  
   echo "✓ Actualización Arch completada"
 fi
 ```

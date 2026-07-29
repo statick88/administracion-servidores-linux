@@ -41,7 +41,7 @@ Loaded Modules:
  http_module (static)
  mpm_prefork_module (shared)
  authz_core_module (shared)
-# <1>
+
 
 # Buscar módulos específicos
 $ sudo apache2ctl -M | grep -E "ssl|php|headers|proxy|rewrite"
@@ -51,7 +51,7 @@ $ sudo apache2ctl -M | grep -E "ssl|php|headers|proxy|rewrite"
  rewrite_module (shared)
  proxy_module (shared)
  proxy_http_module (shared)
-# <2>
+
 ```
 
 1. **apache2ctl -M**: Lista todos los módulos cargados
@@ -69,13 +69,13 @@ $ sudo a2enmod proxy_http       # HTTP proxy
 $ sudo a2enmod expires          # Cache headers
 $ sudo a2enmod deflate          # Compression
 $ sudo a2enmod alias            # Aliases
-# <1>
+
 
 # Ver módulos habilitados
 $ ls -la /etc/apache2/mods-enabled/
 lrwxrwxrwx 1 root root ... headers.conf -> ../mods-available/headers.conf
 lrwxrwxrwx 1 root root ... ssl.conf -> ../mods-available/ssl.conf
-# <2>
+
 ```
 
 1. **a2enmod**: Habilita módulos creando symlinks
@@ -86,7 +86,7 @@ lrwxrwxrwx 1 root root ... ssl.conf -> ../mods-available/ssl.conf
 ```bash
 # Deshabilitar CGI (si no se usa)
 $ sudo a2dismod cgi
-# <1>
+
 
 # Verificar que no esté cargado
 $ sudo apache2ctl -M | grep cgi
@@ -113,13 +113,13 @@ $ diff <(ls /etc/apache2/mods-available/ | sort) <(ls /etc/apache2/mods-enabled/
 # Validar sin reiniciar
 $ sudo apachectl configtest
 Syntax OK
-# <1>
+
 
 # Si hay errores, los muestra
 $ sudo apachectl configtest
 AH00526: Syntax error on line 42 of /etc/apache2/sites-available/site.conf:
 Invalid command 'RewriteOptions', perhaps misspelled or defined by a module not included in the server configuration
-# <2>
+
 ```
 
 1. **Syntax OK**: Configuración válida
@@ -130,11 +130,11 @@ Invalid command 'RewriteOptions', perhaps misspelled or defined by a module not 
 ```bash
 # Recargar: mantiene conexiones actuales, carga nueva config
 $ sudo systemctl reload apache2
-# <1>
+
 
 # Reiniciar: corta todas las conexiones, reinicia servicio
 $ sudo systemctl restart apache2
-# <2>
+
 
 # Estado actual
 $ sudo systemctl status apache2 --no-pager
@@ -164,7 +164,7 @@ $ sudo systemctl status apache2 --no-pager
 $ sudo tail -n 20 /var/log/apache2/error.log
 [Tue Mar 31 10:15:00.123456 2026] [core:notice] [pid 1234] AH00094: Command line: '/usr/sbin/apache2'
 [Tue Mar 31 10:20:00.123456 2026] [mpm_prefork:notice] [pid 1234] AH00163: Apache/2.4.58 configured -- resuming normal operations
-# <1>
+
 
 # Buscar errores específicos
 $ sudo grep -i "error\|warn\|critical" /var/log/apache2/error.log | tail -10
@@ -182,7 +182,7 @@ $ sudo grep "site1.local" /var/log/apache2/error.log
 $ sudo tail -n 10 /var/log/apache2/access.log
 127.0.0.1 - - [31/Mar/2026:10:15:00 +0000] "GET / HTTP/1.1" 200 123 "-" "curl/8.1.0"
 127.0.0.1 - - [31/Mar/2026:10:15:01 +0000] "GET /style.css HTTP/1.1" 200 456 "-" "curl/8.1.0"
-# <1>
+
 
 # Formato access log:
 # %h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"
@@ -199,7 +199,7 @@ $ sudo awk '{print $9}' /var/log/apache2/access.log | sort | uniq -c | sort -rn
     100 404
      50 500
      20 301
-# <1>
+
 
 # Requests por IP
 $ sudo awk '{print $1}' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head -10
@@ -232,7 +232,7 @@ $ cat /etc/logrotate.d/apache2
         fi
     endscript
 }
-# <1>
+
 ```
 
 1. **logrotate**: Gestiona automáticamente la rotación de logs
@@ -245,13 +245,13 @@ $ cat /etc/logrotate.d/apache2
 # Ver configuración actual
 $ cat /etc/apache2/ports.conf
 Listen 80
-# <1>
+
 
 # Para HTTPS
 $ cat /etc/apache2/ports.conf
 Listen 80
 Listen 443
-# <2>
+
 ```
 
 1. **Listen 80**: Puerto HTTP por defecto
@@ -288,7 +288,7 @@ $ sudo systemctl status apache2 --no-pager
       Tasks: 11 (limit: 4915)
      Memory: 8.5M
         CPU: 0.123s
-# <1>
+
 ```
 
 1. **Status**: Muestra estado, PID, memoria, CPU
@@ -312,7 +312,7 @@ $ sudo systemctl reload apache2
 
 # Ver status
 $ curl http://localhost/server-status
-# <1>
+
 ```
 
 1. **server-status**: Muestra información en tiempo real
@@ -338,7 +338,7 @@ $ ps aux | grep apache2 | awk '{print $1}' | sort | uniq -c
 ```bash
 $ sudo systemctl restart apache2
 Job for apache2.service failed because the control process exited with error code.
-# <1>
+
 ```
 
 **Diagnóstico**:
@@ -349,7 +349,7 @@ $ sudo journalctl -u apache2 --no-pager -n 50
 # O usar configtest
 $ sudo apachectl configtest
 AH00526: Syntax error on line 42 of /etc/apache2/sites-available/mysite.conf
-# <2>
+
 ```
 
 1. **Error al reiniciar**: El servicio falló
@@ -374,7 +374,7 @@ $ curl http://localhost/server-status
 <!DOCTYPE html>
 <html>
 <head><title>404 Not Found</title></head>
-# <1>
+
 ```
 
 **Diagnóstico**:
@@ -410,7 +410,7 @@ $ sudo systemctl reload apache2
 $ df -h /
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sda1       20G   20G   0   100% /
-# <1>
+
 ```
 
 **Diagnóstico**:

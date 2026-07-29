@@ -28,7 +28,7 @@ Empezamos por el código de nuestra aplicación:
 Para ello creamos un nuevo proyecto nodejs con el siguiente comando:
 
 ```bash
-$ npm init -y  # <1>
+$ npm init -y  
 ```
 
 1. **npm init** inicializa un proyecto Node.js creando `package.json` con valores por defecto (`-y` acepta todos los prompts).
@@ -36,7 +36,7 @@ $ npm init -y  # <1>
 Instalamos el paquete express con el siguiente comando:
 
 ```bash
-$ npm install express  # <1>
+$ npm install express  
 ```
 
 1. **npm install** descarga y instala Express en `node_modules/` y lo agrega como dependencia en `package.json`.
@@ -73,25 +73,25 @@ app.listen(port, () => {  // <5>
 
 ```dockerfile
 # Use the official Node.js 14 image
-FROM node:14  # <1>
+FROM node:14  
 
 # Set the working directory in the container
-WORKDIR /app  # <2>
+WORKDIR /app  
 
 # Copy the dependencies file to the working directory
-COPY package.json .  # <3>
+COPY package.json .  
 
 # Install dependencies
-RUN npm install  # <4>
+RUN npm install  
 
 # Copy the app code to the working directory
-COPY . .  # <5>
+COPY . .  
 
 # Expose the port the app runs on
-EXPOSE 3000  # <6>
+EXPOSE 3000  
 
 # Serve the app
-CMD ["node", "server.js"]  # <7>
+CMD ["node", "server.js"]  
 ```
 
 1. **FROM** establece la imagen base oficial de Node.js 14.
@@ -105,15 +105,15 @@ CMD ["node", "server.js"]  # <7>
 ### docker-compose.yml
 
 ```yaml
-services:  # <1>
-  myapp:  # <2>
-    build:  # <3>
-      context: .  # <4>
-      dockerfile: Dockerfile  # <5>
-    ports:  # <6>
-      - "3000:3000"  # <7>
-    volumes:  # <8>
-      - .:/app  # <9>
+services:  
+  myapp:  
+    build:  
+      context: .  
+      dockerfile: Dockerfile  
+    ports:  
+      - "3000:3000"  
+    volumes:  
+      - .:/app  
 ```
 
 1. **services** define el bloque principal de contenedores de la aplicación.
@@ -135,7 +135,7 @@ El puerto del lado izquierdo de los 2 puntos en el archivo docker-compose.yml es
 Para probar nuestro ejemplo, ejecutamos el siguiente comando:
 
 ```bash
-$ docker-compose up -d  # <1>
+$ docker-compose up -d  
 ```
 
 1. **docker-compose up** construye las imágenes (si es necesario) e inicia los contenedores definidos en `docker-compose.yml`. La bandera `-d` ejecuta en modo detached (segundo plano).
@@ -145,7 +145,7 @@ Podemos acceder a la aplicación en `http://localhost:3000`.
 Para verificar que el contenedor está en ejecución, ejecutamos el siguiente comando:
 
 ```bash
-$ docker ps  # <1>
+$ docker ps  
 ```
 
 1. **docker ps** muestra los contenedores en ejecución con su ID, nombre, puerto asignado y estado.
@@ -155,7 +155,7 @@ Podemos utilizar una aplicación como Thunder Client o Postman para enviar una s
 Para detener y eliminar el contenedor, ejecutamos el siguiente comando:
 
 ```bash
-$ docker-compose down  # <1>
+$ docker-compose down  
 ```
 
 1. **docker-compose down** detiene y elimina los contenedores, redes y volúmenes creados por `up`.
@@ -164,7 +164,7 @@ $ docker-compose down  # <1>
 Recuerda: La imagen que se crea a partir del Dockerfile se almacena en el caché local de Docker. Si realizas cambios en el Dockerfile y deseas reconstruir la imagen, puedes usar el comando 
 
 ```bash
-$ docker-compose up --build  # <1>
+$ docker-compose up --build  
 ```
 
 1. **--build** fuerza la reconstrucción de la imagen antes de iniciar los contenedores, aplicando cambios en el Dockerfile.
@@ -182,7 +182,7 @@ Ejemplo de aplicación Python simple:
 
 ```python
 # app.py
-print("Hello, World!")  # <1>
+print("Hello, World!")  
 ```
 
 1. **print** es el punto de entrada de la aplicación; imprime un saludo por consola.
@@ -190,10 +190,10 @@ print("Hello, World!")  # <1>
 Ejemplo de Dockerfile:
 
 ```dockerfile
-FROM python:3.12  # <1>
-WORKDIR /app  # <2>
-COPY . .  # <3>
-CMD ["python", "app.py"]  # <4>
+FROM python:3.12  
+WORKDIR /app  
+COPY . .  
+CMD ["python", "app.py"]  
 ```
 
 1. **FROM** establece la imagen base oficial de Python 3.12.
@@ -203,12 +203,12 @@ CMD ["python", "app.py"]  # <4>
 Ejemplo de docker-compose.yml:
 
 ```yaml
-services:  # <1>
-  myapp:  # <2>
-    build:  # <3>
+services:  
+  myapp:  
+    build:  
       context: .
       dockerfile: Dockerfile.python
-    image: my-python-app  # <4>
+    image: my-python-app  
 ```
 
 1. **services** define el bloque de contenedores de la aplicación.

@@ -24,15 +24,15 @@ Grafana puede auto-descubrir datasources al iniciar. Crea el archivo `/opt/monit
 
 ```yaml
 # provisioning/datasources/prometheus.yml
-apiVersion: 1  # <1>
+apiVersion: 1  
 
 datasources:
-  - name: Prometheus  # <2>
+  - name: Prometheus  
     type: prometheus
-    access: proxy  # <3>
-    url: http://prometheus:9090  # <4>
-    isDefault: true  # <5>
-    editable: true  # <6>
+    access: proxy  
+    url: http://prometheus:9090  
+    isDefault: true  
+    editable: true  
 ```
 1. **apiVersion: 1**: Versión del formato de provisioning de Grafana.
 2. **name Prometheus**: Nombre que aparecerá en la UI de Grafana como datasource.
@@ -47,17 +47,17 @@ Crea el archivo `/opt/monitoring/grafana/provisioning/dashboards/dashboard.yml`:
 
 ```yaml
 # provisioning/dashboards/dashboard.yml
-apiVersion: 1  # <1>
+apiVersion: 1  
 
 providers:
-  - name: 'default'  # <2>
+  - name: 'default'  
     orgId: 1
-    folder: ''  # <3>
-    type: file  # <4>
+    folder: ''  
+    type: file  
     disableDeletion: false
     editable: true
     options:
-      path: /var/lib/grafana/dashboards  # <5>
+      path: /var/lib/grafana/dashboards  
       foldersFromFilesStructure: false
 ```
 1. **apiVersion: 1**: Versión del formato de provisioning.
@@ -78,13 +78,13 @@ En lugar de crear un dashboard desde cero, vamos a importar uno community. Grafa
 
 #### Paso a Paso para Importar
 
-1. Abre Grafana en `http://localhost:3000`
-2. Inicia sesión con `admin` / `changeme_production`
-3. Navega a **Dashboards → Import**
-4. Escribe el ID `1860` en el campo "Import via grafana.com"
-5. Haz clic en **Load**
-6. Selecciona el datasource **Prometheus**
-7. Haz clic en **Import**
+6. Abre Grafana en `http://localhost:3000`
+7. Inicia sesión con `admin` / `changeme_production`
+8. Navega a **Dashboards → Import**
+9. Escribe el ID `1860` en el campo "Import via grafana.com"
+10. Haz clic en **Load**
+11. Selecciona el datasource **Prometheus**
+12. Haz clic en **Import**
 
 ::: {.callout-tip}
 ## 💡 RECOMENDACIÓN
@@ -152,13 +152,13 @@ Si prefieres crear tu propio dashboard, aquí tienes un JSON básico para empeza
 
 ```promql
 # Uso de CPU porcentaje (promedio de todos los cores)
-100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)  # <1>
+100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)  
 
 # Uso de CPU por modo
-rate(node_cpu_seconds_total{mode="user"}[5m]) * 100  # <2>
+rate(node_cpu_seconds_total{mode="user"}[5m]) * 100  
 
 # CPU por núcleo
-avg by (cpu) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100  # <3>
+avg by (cpu) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100  
 ```
 1. **CPU total**: Resta el tiempo idle del 100% para obtener el uso real.
 2. **CPU por modo**: Muestra cuánto tiempo se usa en modo usuario, sistema, etc.
@@ -168,13 +168,13 @@ avg by (cpu) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100  # <3>
 
 ```promql
 # Porcentaje de memoria usada
-(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100  # <1>
+(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100  
 
 # Memoria libre en GB
-node_memory_MemAvailable_bytes / 1024 / 1024 / 1024  # <2>
+node_memory_MemAvailable_bytes / 1024 / 1024 / 1024  
 
 # Memoria usada por tipo
-node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes  # <3>
+node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes  
 ```
 1. **Memoria usada %**: Usa `MemAvailable` (incluye buffers y cache reutilizable).
 2. **Memoria libre GB**: Convierte bytes a gigabytes para facilitar la lectura.
@@ -184,13 +184,13 @@ node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes  # <3>
 
 ```promql
 # Porcentaje de espacio usado en /
-(1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100  # <1>
+(1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100  
 
 # Espacio libre en GB
-node_filesystem_avail_bytes{mountpoint="/"} / 1024 / 1024 / 1024  # <2>
+node_filesystem_avail_bytes{mountpoint="/"} / 1024 / 1024 / 1024  
 
 # I/O de disco (lecturas por segundo)
-rate(node_disk_reads_completed_total[5m])  # <3>
+rate(node_disk_reads_completed_total[5m])  
 ```
 1. **Disco usado %**: Porcentaje de espacioUsed en la partición raíz.
 2. **Disco libre GB**: Espacio disponible en gigabytes.
@@ -200,13 +200,13 @@ rate(node_disk_reads_completed_total[5m])  # <3>
 
 ```promql
 # Tráfico de red recibido (bytes/s)
-rate(node_network_receive_bytes_total{device!="lo"}[5m])  # <1>
+rate(node_network_receive_bytes_total{device!="lo"}[5m])  
 
 # Tráfico de red enviado (bytes/s)
-rate(node_network_transmit_bytes_total{device!="lo"}[5m])  # <2>
+rate(node_network_transmit_bytes_total{device!="lo"}[5m])  
 
 # Errores de red
-rate(node_network_receive_errs_total[5m])  # <3>
+rate(node_network_receive_errs_total[5m])  
 ```
 1. **Red recibida**: Tasa de bytes recibidos por segundo, excluyendo la interfaz loopback.
 2. **Red enviada**: Tasa de bytes transmitidos por segundo.
@@ -223,18 +223,18 @@ Crea `/opt/monitoring/prometheus/alert_rules.yml`:
 ```yaml
 # alert_rules.yml - Reglas de alerta para Prometheus
 groups:
-  - name: host_alerts  # <1>
+  - name: host_alerts  
     rules:
-      - alert: HighCPU  # <2>
-        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80  # <3>
-        for: 5m  # <4>
+      - alert: HighCPU  
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80  
+        for: 5m  
         labels:
           severity: warning
         annotations:
           summary: "CPU alta en {{ $labels.instance }}"
           description: "CPU está al {{ $value | printf \"%.1f\" }}% por más de 5 minutos."
 
-      - alert: HighMemory  # <5>
+      - alert: HighMemory  
         expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 85
         for: 5m
         labels:
@@ -243,7 +243,7 @@ groups:
           summary: "Memoria alta en {{ $labels.instance }}"
           description: "Memoria está al {{ $value | printf \"%.1f\" }}% por más de 5 minutos."
 
-      - alert: DiskSpaceLow  # <6>
+      - alert: DiskSpaceLow  
         expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 85
         for: 10m
         labels:
@@ -269,7 +269,7 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
-rule_files:  # <1>
+rule_files:  
   - "alert_rules.yml"
 
 scrape_configs:
@@ -281,10 +281,10 @@ scrape_configs:
 
 ```bash
 # Recargar configuración sin reiniciar
-$ curl -X POST http://localhost:9090/-/reload  # <1>
+$ curl -X POST http://localhost:9090/-/reload  
 
 # Verificar que las reglas se cargaron
-$ curl -s http://localhost:9090/api/v1/rules | python3 -m json.tool | head -20  # <2>
+$ curl -s http://localhost:9090/api/v1/rules | python3 -m json.tool | head -20  
 ```
 1. **reload**: Prometheus recarga la configuración. Requiere `--web.enable-lifecycle` en el comando de inicio.
 2. **api/v1/rules**: Endpoint que muestra todas las reglas cargadas y su estado.
@@ -313,8 +313,8 @@ Edita `/etc/docker/daemon.json`:
 #### Reiniciar Docker
 
 ```bash
-$ sudo systemctl restart docker  # <1>
-$ sudo docker compose up -d  # <2>
+$ sudo systemctl restart docker  
+$ sudo docker compose up -d  
 ```
 1. **restart docker**: Aplica los cambios de configuración del daemon.
 2. **up -d**: Levanta nuevamente la pila de monitoreo.
@@ -325,16 +325,16 @@ Una vez habilitado, Prometheus puede scrapear:
 
 ```promql
 # Contenedores activos
-count(container_last_seen)  # <1>
+count(container_last_seen)  
 
 # Uso de CPU por contenedor
-rate(container_cpu_usage_seconds_total[5m]) * 100  # <2>
+rate(container_cpu_usage_seconds_total[5m]) * 100  
 
 # Uso de memoria por contenedor
-container_memory_usage_bytes / 1024 / 1024  # <3>
+container_memory_usage_bytes / 1024 / 1024  
 
 # Tráfico de red por contenedor
-rate(container_network_receive_bytes_total[5m])  # <4>
+rate(container_network_receive_bytes_total[5m])  
 ```
 1. **Contenedores activos**: Cuenta cuántos contenedores están corriendo.
 2. **CPU por contenedor**: Porcentaje de CPU usado por cada contenedor.

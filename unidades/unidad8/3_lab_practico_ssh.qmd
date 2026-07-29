@@ -33,7 +33,7 @@ Al completar este laboratorio podrás:
 ```bash
 # Generar clave Ed25519 con comentario descriptivo
 $ ssh-keygen -t ed25519 -C "lab-ssh-$(date +%Y%m%d)"
-# <1>
+
 
 # Verificar que se generó
 $ ls -la ~/.ssh/id_ed25519*
@@ -46,7 +46,7 @@ $ ls -la ~/.ssh/id_ed25519*
 ```bash
 # Solo para sistemas que no soporten Ed25519
 $ ssh-keygen -t rsa -b 4096 -C "legacy-lab-$(date +%Y%m%d)"
-# <1>
+
 
 # Comparar fingerprints
 $ ssh-keygen -lf ~/.ssh/id_ed25519
@@ -63,7 +63,7 @@ $ ssh-keygen -lf ~/.ssh/id_ed25519
 
 # Ver en formato legacy (MD5) - útil para comparación visual
 $ ssh-keygen -E md5 -lf ~/.ssh/id_ed25519
-# <1>
+
 
 # Comparar con la clave pública
 $ ssh-keygen -lf ~/.ssh/id_ed25519.pub
@@ -80,14 +80,14 @@ $ ssh-keygen -lf ~/.ssh/id_ed25519.pub
 ```bash
 # Crear red Docker para simular red interna
 $ docker network create lab-ssh-net
-# <1>
+
 
 # Iniciar contenedor SSH (servidor objetivo)
 $ docker run -d --name ssh-server \
     --network lab-ssh-net \
     -e PASSWORD=lab123 \
     lscr.io/linuxserver/openssh-server:latest
-# <2>
+
 ```
 
 1. **network**: Permite comunicación entre contenedores
@@ -101,7 +101,7 @@ $ docker ps
 
 # Ver IP del servidor
 $ docker inspect ssh-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
-# <1>
+
 
 # Probar conectividad SSH
 $ docker exec ssh-server cat /etc/passwd | grep ssh
@@ -138,11 +138,11 @@ $ docker exec ssh-server sed -i \
     -e 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' \
     -e 's/^#*PubkeyAuthentication.*/PubkeyAuthentication yes/' \
     /etc/ssh/sshd_config
-# <1>
+
 
 # Verificar configuración
 $ docker exec ssh-server sshd -t
-# <2>
+
 ```
 
 1. **sed**: Modificar configuración directamente en el contenedor
@@ -158,7 +158,7 @@ $ SERVER_IP=$(docker inspect ssh-server -f '{{range .NetworkSettings.Networks}}{
 $ ssh -i ~/.ssh/id_ed25519_lab -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
     root@$SERVER_IP "hostname && whoami"
-# <1>
+
 ```
 
 1. **-o StrictHostKeyChecking=no**: Para labs, evita preguntar por host key
@@ -213,7 +213,7 @@ $ docker run -d --name ssh-bastion \
     --network lab-ssh-net \
     -e PASSWORD=lab123 \
     lscr.io/linuxserver/openssh-server:latest
-# <1>
+
 
 # Obtener IPs
 $ BASTION_IP=$(docker inspect ssh-bastion -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
@@ -229,10 +229,10 @@ $ ssh-copy-id -i ~/.ssh/id_ed25519_lab.pub root@$SERVER_IP
 
 # Probar acceso directo al servidor a través del bastion
 $ ssh -J root@$BASTION_IP root@$SERVER_IP "hostname"
-# <2>
+
 ```
 
-2. **-J**: ProxyJump - accede a través del bastion
+1. **-J**: ProxyJump - accede a través del bastion
 
 ---
 
@@ -247,7 +247,7 @@ VPS_USER="tu-usuario"
 
 # Probar conexión básica
 $ ssh -o ConnectTimeout=10 $VPS_USER@$VPS_HOST "hostname && uptime"
-# <1>
+
 ```
 
 1. **ConnectTimeout**: Timeout de 10 segundos para pruebas
@@ -257,7 +257,7 @@ $ ssh -o ConnectTimeout=10 $VPS_USER@$VPS_HOST "hostname && uptime"
 ```bash
 # Copiar clave pública
 $ ssh-copy-id -i ~/.ssh/id_ed25519.pub $VPS_USER@$VPS_HOST
-# <1>
+
 
 # Probar login sin password
 $ ssh $VPS_USER@$VPS_HOST "echo 'Login exitoso!'"
@@ -285,7 +285,7 @@ $ sudo sed -i \
 
 # Verificar y reiniciar
 $ sudo sshd -t && sudo systemctl restart sshd
-# <2>
+
 ```
 
 1. **sed**: Aplica todas las reglas de hardenización
@@ -328,7 +328,7 @@ $ docker exec ssh-server tail -f /var/log/auth.log
 $ ssh -vvv -i ~/.ssh/id_ed25519_lab \
     -o StrictHostKeyChecking=no \
     root@$SERVER_IP "echo test"
-# <1>
+
 ```
 
 1. **-vvv**: Modo debug máximo - muestra cada paso de la conexión
@@ -339,7 +339,7 @@ $ ssh -vvv -i ~/.ssh/id_ed25519_lab \
 # En el servidor: permisos correctos son críticos
 $ docker exec ssh-server ls -la ~/.ssh/
 $ docker exec ssh-server stat -c "%a %n" ~/.ssh/authorized_keys
-# <1>
+
 ```
 
 1. **Permisos correctos**: ~/.ssh=700, authorized_keys=600

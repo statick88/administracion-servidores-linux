@@ -50,8 +50,8 @@ Un contenedor aisla la aplicacion de su entorno, lo que garantiza que la aplicac
 Docker Hub es el registro por defecto donde se almacenan imagenes publicas y privadas. Puedes buscar imagenes con:
 
 ```bash
-$ docker search nginx  # <1>
-# <1>
+$ docker search nginx  
+
 ```
 
 1. **docker search** busca imagenes disponibles en Docker Hub por nombre.
@@ -59,8 +59,8 @@ $ docker search nginx  # <1>
 Para utilizar una imagen de un registro privado, debes iniciar sesion:
 
 ```bash
-$ docker login  # <1>
-# <1>
+$ docker login  
+
 ```
 
 1. **docker login** solicita credenciales para autenticarse en un registro de imagenes.
@@ -68,30 +68,30 @@ $ docker login  # <1>
 ## Comandos basicos de Docker
 
 ```bash
-$ docker pull IMAGE_NAME:TAG  # <1>
-$ docker images  # <2>
-$ docker ps  # <3>
-$ docker ps -a  # <4>
-$ docker run -d -p HOST_PORT:CONTAINER_PORT IMAGE_NAME:TAG  # <5>
-$ docker stop CONTAINER_ID  # <6>
-$ docker start CONTAINER_ID  # <7>
-$ docker rm CONTAINER_ID  # <8>
-$ docker rmi IMAGE_NAME:TAG  # <9>
-$ docker inspect CONTAINER_ID  # <10>
-$ docker logs CONTAINER_ID  # <11>
-$ docker compose up -d  # <12>
-# <1>
-# <2>
-# <3>
-# <4>
-# <5>
-# <6>
-# <7>
-# <8>
-# <9>
-# <10>
-# <11>
-# <12>
+$ docker pull IMAGE_NAME:TAG  
+$ docker images  
+$ docker ps  
+$ docker ps -a  
+$ docker run -d -p HOST_PORT:CONTAINER_PORT IMAGE_NAME:TAG  
+$ docker stop CONTAINER_ID  
+$ docker start CONTAINER_ID  
+$ docker rm CONTAINER_ID  
+$ docker rmi IMAGE_NAME:TAG  
+$ docker inspect CONTAINER_ID  
+$ docker logs CONTAINER_ID  
+$ docker compose up -d  
+
+
+
+
+
+
+
+
+
+
+
+
 ```
 
 1. **docker pull** descarga una imagen desde un registro (por defecto, Docker Hub).
@@ -116,19 +116,19 @@ Si tu entorno aun usa el binario antiguo, el equivalente es `docker-compose up -
 Los volumenes permiten **persistir datos** mas alla del ciclo de vida de un contenedor. Sin volumenes, todos los datos se pierden cuando el contenedor se elimina.
 
 ```bash
-$ docker run -d -p 8080:80 -v mi_volumen:/usr/share/nginx/html nginx  # <1>
-# <1>
+$ docker run -d -p 8080:80 -v mi_volumen:/usr/share/nginx/html nginx  
+
 ```
 
 1. **-v mi_volumen:/usr/share/nginx/html** monta un volumen nombrado llamado `mi_volumen` en la ruta especificada dentro del contenedor.
 
 ```bash
-$ docker volume ls  # <1>
-$ docker volume inspect mi_volumen  # <2>
-$ docker volume rm mi_volumen  # <3>
-# <1>
-# <2>
-# <3>
+$ docker volume ls  
+$ docker volume inspect mi_volumen  
+$ docker volume rm mi_volumen  
+
+
+
 ```
 
 1. **docker volume ls** lista todos los volumenes creados.
@@ -144,14 +144,14 @@ Utiliza volumenes nombrados en lugar de bind mounts para desarrollo en produccio
 Docker crea automaticamente una red puente (bridge) para comunicar contenedores. Puedes crear redes personalizadas para aislar grupos de servicios:
 
 ```bash
-$ docker network create mi_red  # <1>
-$ docker network ls  # <2>
-$ docker run -d --network mi_red --name web nginx  # <3>
-$ docker run -d --network mi_red --name app node  # <4>
-# <1>
-# <2>
-# <3>
-# <4>
+$ docker network create mi_red  
+$ docker network ls  
+$ docker run -d --network mi_red --name web nginx  
+$ docker run -d --network mi_red --name app node  
+
+
+
+
 ```
 
 1. **docker network create** crea una red personalizada para comunicar contenedores.
@@ -162,8 +162,8 @@ $ docker run -d --network mi_red --name app node  # <4>
 Dentro de la misma red, los contenedores pueden comunicarse usando su nombre como hostname:
 
 ```bash
-$ docker exec app ping web  # <1>
-# <1>
+$ docker exec app ping web  
+
 ```
 
 1. **docker exec** ejecuta un comando dentro de un contenedor en ejecucion. En este caso, hace ping desde `app` hacia `web` usando el DNS interno de Docker.
@@ -188,8 +188,8 @@ Abre tu terminal y ejecuta los siguientes pasos.
 **Paso 1: Descarga la imagen de Nginx**
 
 ```bash
-$ docker pull nginx  # <1>
-# <1>
+$ docker pull nginx  
+
 ```
 
 1. **docker pull nginx** descarga la imagen oficial de Nginx desde Docker Hub.
@@ -197,8 +197,8 @@ $ docker pull nginx  # <1>
 **Paso 2: Crea y ejecuta el contenedor (puerto 8080)**
 
 ```bash
-$ docker run -d -p 8080:80 nginx  # <1>
-# <1>
+$ docker run -d -p 8080:80 nginx  
+
 ```
 
 1. **docker run -d -p 8080:80** ejecuta el contenedor en segundo plano y publica el puerto 80 del contenedor en el 8080 del host.
@@ -206,8 +206,8 @@ $ docker run -d -p 8080:80 nginx  # <1>
 **Paso 3: Verifica que el contenedor este en ejecucion**
 
 ```bash
-$ docker ps  # <1>
-# <1>
+$ docker ps  
+
 ```
 
 1. **docker ps** lista contenedores en ejecucion y muestra el mapeo de puertos.
@@ -215,8 +215,8 @@ $ docker ps  # <1>
 **Paso 4: Detiene el contenedor**
 
 ```bash
-$ docker stop CONTAINER_ID  # <1>
-# <1>
+$ docker stop CONTAINER_ID  
+
 ```
 
 1. **docker stop** detiene el contenedor por ID.
@@ -224,8 +224,8 @@ $ docker stop CONTAINER_ID  # <1>
 **Paso 5: Elimina el contenedor**
 
 ```bash
-$ docker rm CONTAINER_ID  # <1>
-# <1>
+$ docker rm CONTAINER_ID  
+
 ```
 
 1. **docker rm** elimina el contenedor (debe estar detenido).
@@ -233,10 +233,10 @@ $ docker rm CONTAINER_ID  # <1>
 **Paso 6: Crea un volumen y montalo**
 
 ```bash
-$ docker volume create mi_web  # <1>
-$ docker run -d -p 8080:80 -v mi_web:/usr/share/nginx/html nginx  # <2>
-# <1>
-# <2>
+$ docker volume create mi_web  
+$ docker run -d -p 8080:80 -v mi_web:/usr/share/nginx/html nginx  
+
+
 ```
 
 1. **docker volume create** crea un volumen nombrado para persistir datos.

@@ -18,10 +18,10 @@ Hardening de Nginx significa: ocultar información del servidor, agregar headers
 
 ```nginx
 # En http block de nginx.conf
-server_tokens off;  # <1>
+server_tokens off;  
 
 # En server block
-more_clear_headers Server;  # <2>
+more_clear_headers Server;  
 ```
 
 1. **server_tokens off**: Hides the nginx version from response headers — only shows "nginx" instead of "nginx/1.24.0".
@@ -37,7 +37,7 @@ Server: nginx/1.24.0 (Ubuntu)
 # Después
 $ curl -I http://localhost | grep Server
 Server: nginx
-# <1>
+
 ```
 
 1. **curl -I**: Shows only response headers — confirms version is hidden after applying `server_tokens off`.
@@ -46,10 +46,10 @@ Server: nginx
 
 ```nginx
 # En nginx.conf - http block
-client_max_body_size 10M;        # <1>
-client_body_timeout 60s;          # <2>
-client_header_buffer_size 1k;    # <3>
-large_client_header_buffers 4 16k;  # <4>
+client_max_body_size 10M;        
+client_body_timeout 60s;          
+client_header_buffer_size 1k;    
+large_client_header_buffers 4 16k;  
 ```
 
 1. **client_max_body_size 10M**: Limits request body size to 10MB — returns 413 if exceeded.
@@ -62,14 +62,14 @@ large_client_header_buffers 4 16k;  # <4>
 ```nginx
 # Bloquear archivos sensibles
 location ~ /\. {
-    deny all;  # <1>
+    deny all;  
     access_log off;
     log_not_found off;
 }
 
 # Archivos específicos
 location ~* \.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$ {
-    deny all;  # <2>
+    deny all;  
 }
 ```
 
@@ -83,22 +83,22 @@ location ~* \.(htaccess|htpasswd|git|env|config|ini|xml|json|md|yml)$ {
 ```bash
 $ sudo tee /etc/nginx/snippets/security-headers.conf <<'EOF'
 # X-Content-Type-Options
-add_header X-Content-Type-Options "nosniff" always;  # <1>
+add_header X-Content-Type-Options "nosniff" always;  
 
 # X-Frame-Options
-add_header X-Frame-Options "SAMEORIGIN" always;  # <2>
+add_header X-Frame-Options "SAMEORIGIN" always;  
 
 # Referrer-Policy
-add_header Referrer-Policy "strict-origin-when-cross-origin" always;  # <3>
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;  
 
 # X-XSS-Protection
-add_header X-XSS-Protection "1; mode=block" always;  # <4>
+add_header X-XSS-Protection "1; mode=block" always;  
 
 # Permissions-Policy
-add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;  # <5>
+add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;  
 
 # Strict-Transport-Security (solo con SSL)
-add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;  # <6>
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;  
 EOF
 ```
 
@@ -117,7 +117,7 @@ server {
     server_name example.com;
     
     # Security headers (solo funciona con SSL para HSTS)
-    include /etc/nginx/snippets/security-headers.conf;  # <1>
+    include /etc/nginx/snippets/security-headers.conf;  
     
     # Resto de configuración...
 }
@@ -137,7 +137,7 @@ X-Frame-Options: SAMEORIGIN
 Referrer-Policy: strict-origin-when-cross-origin
 X-XSS-Protection: 1; mode=block
 Permissions-Policy: geolocation=(), microphone=(), camera=()
-# <1>
+
 ```
 
 1. **curl -I**: Shows all response headers — confirms all security headers are applied correctly.
@@ -152,7 +152,7 @@ add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsaf
 EOF
 
 # CSP más permisiva (para desarrollo)
-add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: *; connect-src 'self' https: wss:;" always;  # <1>
+add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: *; connect-src 'self' https: wss:;" always;  
 ```
 
 1. **unsafe-inline/unsafe-eval**: Permits inline scripts and eval — acceptable in dev, dangerous in production.
@@ -165,8 +165,8 @@ add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-e
 # En http block
 http {
     # Definir zone de rate limiting
-    limit_req_zone $binary_remote_addr zone=general:10M rate=10r/s;  # <1>
-    limit_req_zone $binary_remote_addr zone=api:10M rate=100r/s;  # <2>
+    limit_req_zone $binary_remote_addr zone=general:10M rate=10r/s;  
+    limit_req_zone $binary_remote_addr zone=api:10M rate=100r/s;  
 }
 ```
 
@@ -178,12 +178,12 @@ http {
 ```nginx
 # Rate limit general (10 req/segundo, burst de 20)
 location / {
-    limit_req zone=general burst=20 nodelay;  # <1>
+    limit_req zone=general burst=20 nodelay;  
 }
 
 # Rate limit para API (100 req/segundo)
 location /api/ {
-    limit_req zone=api burst=50 nodelay;  # <2>
+    limit_req zone=api burst=50 nodelay;  
 }
 ```
 
@@ -196,13 +196,13 @@ location /api/ {
 # Excluir IPs conocidas
 http {
     geo $limited {
-        default 1;  # <1>
-        10.0.0.0/8 0;  # <2>
+        default 1;  
+        10.0.0.0/8 0;  
         172.16.0.0/12 0;
         192.168.0.0/16 0;
     }
     
-    limit_req_zone $limited zone=general:10M rate=10r/s;  # <3>
+    limit_req_zone $limited zone=general:10M rate=10r/s;  
 }
 ```
 
@@ -215,12 +215,12 @@ http {
 ```bash
 # Test con curl rápido
 $ for i in {1..15}; do curl -s -o /dev/null -w "%{http_code}\n" http://localhost/api/; done
-# <1>
+
 
 # Ver logs de rate limit
 $ sudo tail /var/log/nginx/error.log
 2026/03/31 10:15:00 [warn] 1234#1234: *1001 limiting connections by zone "general"
-# <2>
+
 ```
 
 1. **for loop**: Sends 15 rapid requests — after burst is exhausted, returns 429.
@@ -232,11 +232,11 @@ $ sudo tail /var/log/nginx/error.log
 
 ```nginx
 # En http block
-keepalive_timeout 65;  # <1>
+keepalive_timeout 65;  
 keepalive_requests 100;
 
 # En server block
-keepalive_timeout 30s;  # <2>
+keepalive_timeout 30s;  
 keepalive_requests 50;
 ```
 
@@ -247,11 +247,11 @@ keepalive_requests 50;
 
 ```nginx
 # Limitar conexiones por IP
-limit_conn_zone $binary_remote_addr zone=addr:10M;  # <1>
+limit_conn_zone $binary_remote_addr zone=addr:10M;  
 
 server {
     location / {
-        limit_conn addr 10;  # <2>
+        limit_conn addr 10;  
     }
 }
 ```
@@ -267,12 +267,12 @@ server {
 # Autenticación básica al backend
 location / {
     proxy_pass http://127.0.0.1:3000;
-    proxy_set_header Authorization $http_authorization;  # <1>
+    proxy_set_header Authorization $http_authorization;  
     
-    allow 10.0.0.0/8;  # <2>
+    allow 10.0.0.0/8;  
     allow 172.16.0.0/12;
     allow 192.168.0.0/16;
-    deny all;  # <3>
+    deny all;  
 }
 ```
 
@@ -284,11 +284,11 @@ location / {
 
 ```nginx
 # Configuración de buffering
-proxy_buffering on;  # <1>
-proxy_buffer_size 4k;  # <2>
-proxy_buffers 8 4k;  # <3>
-proxy_busy_buffers_size 8k;  # <4>
-proxy_max_temp_file_size 1024m;  # <5>
+proxy_buffering on;  
+proxy_buffer_size 4k;  
+proxy_buffers 8 4k;  
+proxy_busy_buffers_size 8k;  
+proxy_max_temp_file_size 1024m;  
 ```
 
 1. **proxy_buffering on**: Enables response buffering — client receives data faster.
@@ -380,7 +380,7 @@ server {
     return 301 https://$server_name$request_uri;
 }
 EOF
-# <1>
+
 ```
 
 1. **Configuración producción**: Bloque HTTP con security headers + rate limiting + protección de archivos + cache estático. Bloque HTTPS agrega SSL + HSTS. Bloque de redirect fuerza HTTPS para todo el tráfico.
@@ -395,7 +395,7 @@ EOF
 $ sudo tail /var/log/nginx/access.log | awk '{print $1}' | sort | uniq -c | sort -nr | head
    5000 45.155.205.233
     500 10.0.0.50
-# <1>
+
 ```
 
 **Solución**:
@@ -408,7 +408,7 @@ $ sudo ufw insert 1 deny from 45.155.205.233
 
 # 3. Verificar
 $ sudo tail /var/log/nginx/error.log
-# <2>
+
 ```
 
 1. **sort -nr | head**: Sorts by count descending — quickly identifies the most aggressive IP.
@@ -419,7 +419,7 @@ $ sudo tail /var/log/nginx/error.log
 ```bash
 $ curl -I http://localhost | grep -i X-Frame
 # (sin output = headers no aplicados)
-# <1>
+
 ```
 
 **Diagnóstico**:
@@ -429,7 +429,7 @@ $ grep -r "security-headers" /etc/nginx/
 
 # Verificar sintaxis
 $ sudo nginx -t
-# <2>
+
 ```
 
 1. **Headers missing**: No se están aplicando
@@ -437,11 +437,11 @@ $ sudo nginx -t
 **Solución**:
 ```bash
 # Verificar que el archivo existe
-$ ls -la /etc/nginx/snippets/security-headers.conf  # <1>
+$ ls -la /etc/nginx/snippets/security-headers.conf  
 
 # Agregar manualmente al server block
 location / {
-    add_header X-Frame-Options "SAMEORIGIN" always;  # <2>
+    add_header X-Frame-Options "SAMEORIGIN" always;  
     # ...
 }
 ```
@@ -455,17 +455,17 @@ location / {
 ```bash
 $ curl -X POST -F "file=@large.zip" https://example.com/upload
 413 Request Entity Too Large
-# <1>
+
 ```
 
 **Solución**:
 ```nginx
 # Aumentar límite
-client_max_body_size 100M;  # <1>
-proxy_buffering off;  # <2>
+client_max_body_size 100M;  
+proxy_buffering off;  
 
 location /upload {
-    client_max_body_size 100M;  # <3>
+    client_max_body_size 100M;  
 }
 ```
 
@@ -473,7 +473,7 @@ location /upload {
 2. **proxy_buffering off**: Disables buffering for proxied responses — streams data directly to client.
 3. **location override**: Per-path limit — only `/upload` accepts 100MB, rest stays at default.
 
-1. **413**: Body muy grande
+4. **413**: Body muy grande
 
 ## Checklist de Seguridad Nginx
 

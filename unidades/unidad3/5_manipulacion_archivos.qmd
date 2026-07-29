@@ -50,7 +50,7 @@ mkdir [opciones] [directorio(s)]
 $ mkdir Documentos
 $ ls -d Documentos
 Documentos
-# <1>
+
 ```
 1. Crea un directorio en la ubicación actual
 
@@ -59,7 +59,7 @@ Documentos
 $ mkdir Documents
 $ ls -d Documents
 Documents
-# <1>
+
 ```
 1. Funciona igual que Linux
 
@@ -71,7 +71,7 @@ PS> Get-Item Documents
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 d-----         29/1/2024     10:30                Documents
-# <1>
+
 ```
 1. `mkdir` es un alias de `New-Item -ItemType Directory`
 
@@ -89,14 +89,14 @@ Proyectos/
 └── Python/
     └── web-app/
         └── src/
-# <1>
+
 ```
 1. `-p` crea todos los directorios intermedios
 
 #### macOS
 ```bash
 $ mkdir -p ~/Projects/Python/web-app/src
-# <1>
+
 ```
 1. Funciona igual
 
@@ -104,7 +104,7 @@ $ mkdir -p ~/Projects/Python/web-app/src
 ```powershell
 PS> mkdir -Path C:\Users\usuario\Projects\Python\web-app\src -Force
 # El -Force es equivalente a -p
-# <1>
+
 ```
 1. PowerShell requiere `-Force` para crear padres
 
@@ -119,14 +119,14 @@ PS> mkdir -Path C:\Users\usuario\Projects\Python\web-app\src -Force
 $ mkdir -m 700 privado
 $ ls -ld privado
 drwx------ 1 usuario usuario 4096 Jan 29 10:30 privado
-# <1>
+
 ```
 1. `-m 700` establece permisos solo-propietario
 
 #### macOS
 ```bash
 $ mkdir -m 700 privado
-# <1>
+
 ```
 1. Funciona igual
 
@@ -135,7 +135,7 @@ $ mkdir -m 700 privado
 # Windows no soporta -m, pero puedes hacerlo después:
 PS> mkdir privado
 PS> # No hay equivalente directo en PowerShell
-# <1>
+
 ```
 1. Los permisos de Windows funciona diferente (NTFS ACLs)
 
@@ -163,7 +163,7 @@ touch [opciones] [archivo(s)]
 $ touch README.md
 $ ls -l README.md
 -rw-r--r-- 1 usuario grupo 0 Jan 29 10:30 README.md
-# <1>
+
 ```
 1. Crea un archivo vacío de 0 bytes
 
@@ -172,7 +172,7 @@ $ ls -l README.md
 $ touch README.md
 $ ls -l README.md
 -rw-r--r-- 1 usuario staff 0 Jan 29 10:30 README.md
-# <1>
+
 ```
 1. Funciona igual
 
@@ -182,7 +182,7 @@ $ ls -l README.md
 PS> New-Item -Path C:\Users\usuario -Name README.md -ItemType File
 # o en WSL:
 PS> wsl touch README.md
-# <1>
+
 ```
 1. PowerShell usa `New-Item`
 
@@ -200,21 +200,21 @@ $ ls -l archivo.txt
 $ touch archivo.txt
 $ ls -l archivo.txt
 -rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 archivo.txt
-# <1>
+
 ```
 1. Actualiza el timestamp sin modificar contenido
 
 #### macOS
 ```bash
 $ touch archivo.txt
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> (Get-Item archivo.txt).LastWriteTime = Get-Date
-# <1>
+
 ```
 1. PowerShell actualiza la fecha manualmente
 
@@ -250,14 +250,14 @@ $ cp archivo.txt archivo-copia.txt
 $ ls -l archivo*
 -rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 archivo-copia.txt
 -rw-r--r-- 1 usuario grupo 1024 Jan 25 10:00 archivo.txt
-# <1>
+
 ```
 1. Crea una copia exacta del archivo
 
 #### macOS
 ```bash
 $ cp archivo.txt archivo-copia.txt
-# <1>
+
 ```
 1. Funciona igual
 
@@ -266,7 +266,7 @@ $ cp archivo.txt archivo-copia.txt
 PS> Copy-Item archivo.txt archivo-copia.txt
 # o
 PS> cp archivo.txt archivo-copia.txt
-# <1>
+
 ```
 1. `cp` es un alias de `Copy-Item`
 
@@ -281,21 +281,21 @@ PS> cp archivo.txt archivo-copia.txt
 $ cp archivo.txt ~/Documentos/
 $ ls ~/Documentos/archivo.txt
 /home/usuario/Documentos/archivo.txt
-# <1>
+
 ```
 1. Si el destino es un directorio, copia el archivo dentro
 
 #### macOS
 ```bash
 $ cp archivo.txt ~/Documents/
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Copy-Item archivo.txt C:\Users\usuario\Documents\
-# <1>
+
 ```
 1. Igual funcionalidad
 
@@ -311,21 +311,21 @@ $ cp -r Proyectos Proyectos-copia
 $ ls -ld Proyectos*
 drwxr-xr-x 5 usuario grupo 4096 Jan 29 10:30 Proyectos
 drwxr-xr-x 5 usuario grupo 4096 Jan 29 10:30 Proyectos-copia
-# <1>
+
 ```
 1. `-r` copia recursivamente todo el directorio
 
 #### macOS
 ```bash
 $ cp -r Proyectos Proyectos-copia
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Copy-Item -Path Proyectos -Destination Proyectos-copia -Recurse
-# <1>
+
 ```
 1. `-Recurse` es el equivalente a `-r`
 
@@ -341,8 +341,8 @@ $ cp -ip archivo.txt archivo-copia.txt
 cp: overwrite 'archivo-copia.txt'? y
 $ ls -l archivo-copia.txt
 -rw-r--r-- 1 usuario grupo 1024 Jan 25 10:00 archivo-copia.txt
-# <1>
-# <2>
+
+
 ```
 1. `-i` pregunta antes de sobrescribir
 
@@ -351,14 +351,14 @@ $ ls -l archivo-copia.txt
 #### macOS
 ```bash
 $ cp -ip archivo.txt archivo-copia.txt
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Copy-Item archivo.txt archivo-copia.txt -Confirm
-# <1>
+
 ```
 1. PowerShell no preserva permisos igual (usa NTFS ACLs)
 
@@ -386,14 +386,14 @@ mv [opciones] [origen] [destino]
 $ mv archivo-viejo.txt archivo-nuevo.txt
 $ ls archivo*
 archivo-nuevo.txt
-# <1>
+
 ```
 1. Renombra el archivo (mismo directorio)
 
 #### macOS
 ```bash
 $ mv archivo-viejo.txt archivo-nuevo.txt
-# <1>
+
 ```
 1. Funciona igual
 
@@ -402,7 +402,7 @@ $ mv archivo-viejo.txt archivo-nuevo.txt
 PS> Rename-Item archivo-viejo.txt archivo-nuevo.txt
 # o
 PS> mv archivo-viejo.txt archivo-nuevo.txt
-# <1>
+
 ```
 1. `mv` es un alias de `Move-Item`
 
@@ -417,21 +417,21 @@ PS> mv archivo-viejo.txt archivo-nuevo.txt
 $ mv archivo.txt ~/Documentos/
 $ ls ~/Documentos/archivo.txt
 /home/usuario/Documentos/archivo.txt
-# <1>
+
 ```
 1. Mueve el archivo, no copia
 
 #### macOS
 ```bash
 $ mv archivo.txt ~/Documents/
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Move-Item archivo.txt C:\Users\usuario\Documents\
-# <1>
+
 ```
 1. Funciona igual
 
@@ -444,21 +444,21 @@ PS> Move-Item archivo.txt C:\Users\usuario\Documents\
 #### Linux
 ```bash
 $ mv archivo.txt ~/Documentos/archivo-nuevo.txt
-# <1>
+
 ```
 1. Mueve y renombra en una operación
 
 #### macOS
 ```bash
 $ mv archivo.txt ~/Documents/archivo-nuevo.txt
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Move-Item archivo.txt C:\Users\usuario\Documents\archivo-nuevo.txt
-# <1>
+
 ```
 1. Mismo comportamiento
 
@@ -492,8 +492,8 @@ rm [opciones] [archivo(s)]
 ```bash
 $ rm -i archivo.txt
 remove archivo.txt? y
-# <1>
-# <2>
+
+
 ```
 1. `-i` pregunta antes de eliminar
 
@@ -503,14 +503,14 @@ remove archivo.txt? y
 ```bash
 $ rm -i archivo.txt
 remove archivo.txt? y
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Remove-Item archivo.txt -Confirm
-# <1>
+
 ```
 1. `-Confirm` pregunta antes de eliminar
 
@@ -524,21 +524,21 @@ PS> Remove-Item archivo.txt -Confirm
 ```bash
 $ rm archivo.txt
 # Sin confirmación, archivo eliminado para siempre
-# <1>
+
 ```
 1. **PELIGRO: No hay forma de recuperar**
 
 #### macOS
 ```bash
 $ rm archivo.txt
-# <1>
+
 ```
 1. Funcionamiento idéntico
 
 #### Windows
 ```powershell
 PS> Remove-Item archivo.txt -Force
-# <1>
+
 ```
 1. `-Force` elimina sin preguntar
 
@@ -554,8 +554,8 @@ $ rm -ri directorio
 remove directorio? y
 remove directorio/archivo1.txt? y
 remove directorio/archivo2.txt? y
-# <1>
-# <2>
+
+
 ```
 1. `-r` elimina recursivamente
 
@@ -564,14 +564,14 @@ remove directorio/archivo2.txt? y
 #### macOS
 ```bash
 $ rm -ri directorio
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Remove-Item -Path directorio -Recurse -Confirm
-# <1>
+
 ```
 1. `-Recurse` elimina directorios y contenido
 
@@ -599,21 +599,21 @@ rmdir [directorio]
 $ rmdir directorio-vacio
 $ ls directorio-vacio
 ls: cannot access 'directorio-vacio': No such file or directory
-# <1>
+
 ```
 1. Solo funciona si está completamente vacío
 
 #### macOS
 ```bash
 $ rmdir directorio-vacio
-# <1>
+
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Remove-Item -Path directorio-vacio -Confirm
-# <1>
+
 ```
 1. Funciona igual
 
@@ -648,8 +648,8 @@ El comando `ln` (link) crea enlaces entre archivos. Existen dos tipos:
 $ ln -s archivo.txt enlace.txt
 $ ls -l enlace.txt
 lrwxrwxrwx 1 usuario grupo 10 Jan 29 10:30 enlace.txt -> archivo.txt
-# <1>
-# <2>
+
+
 ```
 1. `-s` crea enlace simbólico
 
@@ -658,7 +658,7 @@ lrwxrwxrwx 1 usuario grupo 10 Jan 29 10:30 enlace.txt -> archivo.txt
 #### macOS
 ```bash
 $ ln -s archivo.txt enlace.txt
-# <1>
+
 ```
 1. Funciona igual
 
@@ -669,7 +669,7 @@ PS> wsl ln -s archivo.txt enlace.txt
 
 # En PowerShell (Windows 10+):
 PS> New-Item -ItemType SymbolicLink -Path enlace.txt -Target archivo.txt
-# <1>
+
 ```
 1. PowerShell requiere permisos de administrador
 
@@ -685,8 +685,8 @@ $ ln archivo.txt enlace-duro.txt
 $ ls -i archivo.txt enlace-duro.txt
 123456 archivo.txt
 123456 enlace-duro.txt
-# <1>
-# <2>
+
+
 ```
 1. Sin `-s`, crea enlace duro
 
@@ -695,7 +695,7 @@ $ ls -i archivo.txt enlace-duro.txt
 #### macOS
 ```bash
 $ ln archivo.txt enlace-duro.txt
-# <1>
+
 ```
 1. Funciona igual
 
@@ -704,7 +704,7 @@ $ ln archivo.txt enlace-duro.txt
 # No soporta hard links igual que Unix
 # En WSL:
 PS> wsl ln archivo.txt enlace-duro.txt
-# <1>
+
 ```
 1. NTFS tiene junctions que son similares
 
@@ -731,29 +731,29 @@ PS> wsl ln archivo.txt enlace-duro.txt
 
 ## Mejores Prácticas de Seguridad
 
-1. **Siempre usa `-i` con `rm` hasta que tengas experiencia**
+2. **Siempre usa `-i` con `rm` hasta que tengas experiencia**
    ```bash
    rm -i archivo.txt  # Pregunta antes de eliminar
    ```
 
-2. **Haz copias antes de operaciones peligrosas**
+3. **Haz copias antes de operaciones peligrosas**
    ```bash
    cp archivo.txt archivo.txt.backup
    # ... hacer cambios ...
    ```
 
-3. **Usa `rsync` para copias importantes**
+4. **Usa `rsync` para copias importantes**
    ```bash
    rsync -av origen/ destino/
    ```
 
-4. **Verifica antes de eliminar recursivamente**
+5. **Verifica antes de eliminar recursivamente**
    ```bash
    ls -lR directorio/  # Ver contenido primero
    rm -ri directorio   # Luego eliminar
    ```
 
-5. **Usa control de versiones para código**
+6. **Usa control de versiones para código**
    ```bash
    git commit -m "Backup antes de cambios"
    # ... hacer cambios ...
@@ -763,19 +763,19 @@ PS> wsl ln archivo.txt enlace-duro.txt
 
 ## 🎯 Ejercicios Prácticos
 
-1. Crea estructura: `Proyecto/src/main` usando `mkdir -p`
+7. Crea estructura: `Proyecto/src/main` usando `mkdir -p`
 
-2. Crea 3 archivos vacíos con `touch`
+8. Crea 3 archivos vacíos con `touch`
 
-3. Copia un archivo con `cp` y verifica con `ls`
+9. Copia un archivo con `cp` y verifica con `ls`
 
-4. Renombra archivo con `mv`
+10. Renombra archivo con `mv`
 
-5. Crea enlace simbólico con `ln -s`
+11. Crea enlace simbólico con `ln -s`
 
-6. Elimina archivos con `rm -i` (seguro)
+12. Elimina archivos con `rm -i` (seguro)
 
-7. Elimina directorio vacío con `rmdir`
+13. Elimina directorio vacío con `rmdir`
 
 ---
 

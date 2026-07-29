@@ -24,7 +24,7 @@ $ mariadb -e "SHOW VARIABLES LIKE 'bind_address';"
 +---------------+-------------+
 | bind_address  | 127.0.0.1  |
 +---------------+-------------+
-# <1>
+
 
 # Solo localhost (default seguro)
 ```
@@ -45,7 +45,7 @@ $ sudo systemctl restart mariadb
 # Verificar
 $ ss -lntp | grep 3306
 LISTEN 0 80 0.0.0.0:3306 0.0.0.0:* users:(("mariadbd",pid=1234,fd=20))
-# <1>
+
 ```
 
 1. **0.0.0.0**: Todas las interfaces
@@ -60,7 +60,7 @@ $ sudo ufw status
 
 # Abrir solo desde IP específica (servidor de aplicaciones)
 $ sudo ufw allow from 10.0.1.20 to any port 3306
-# <1>
+
 
 # Abrir desde red privada
 $ sudo ufw allow from 10.0.1.0/24 to any port 3306
@@ -82,7 +82,7 @@ $ sudo iptables -A INPUT -p tcp --dport 3306 -j DROP
 
 # Ver reglas
 $ sudo iptables -L -n -v --line-numbers
-# <1>
+
 ```
 
 1. **iptables**: Control granular
@@ -103,7 +103,7 @@ FLUSH PRIVILEGES;
 CREATE USER 'appuser'@'10.0.1.20' IDENTIFIED BY 'SecureAppPass123!';
 GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'10.0.1.20';
 FLUSH PRIVILEGES;
-# <1>
+
 ```
 
 1. **Acceso remoto**: Desde cualquier host o IP específica
@@ -116,7 +116,7 @@ $ mariadb -h 10.0.1.5 -u appuser -p appdb
 
 # Verificar conexión
 $ mariadb -h 10.0.1.5 -u appuser -p appdb -e "SELECT VERSION();"
-# <1>
+
 ```
 
 1. **Conexión remota**: Funcionando
@@ -131,7 +131,7 @@ $ sudo openssl req -new -x509 -nodes -days 365 \
     -keyout /etc/mysql/ssl/mariadb-key.pem \
     -out /etc/mysql/ssl/mariadb-cert.pem \
     -subj "/C=US/ST=State/L=City/O=Org/CN=mariadb-server"
-# <1>
+
 
 # Permisos
 $ sudo chmod 600 /etc/mysql/ssl/mariadb-key.pem
@@ -161,7 +161,7 @@ $ sudo systemctl restart mariadb
 
 # Verificar SSL
 $ mariadb -e "SHOW VARIABLES LIKE '%ssl%';"
-# <1>
+
 ```
 
 1. **SSL habilitado**: Conexiones cifradas
@@ -174,7 +174,7 @@ $ sudo mariadb
 
 ALTER USER 'appuser'@'%' REQUIRE SSL;
 FLUSH PRIVILEGES;
-# <1>
+
 ```
 
 1. **REQUIRE SSL**: Solo conexiones cifradas
@@ -196,7 +196,7 @@ $ mariadb -e "SHOW VARIABLES LIKE 'bind_address';"
 # Ver firewall
 $ sudo ufw status
 $ sudo iptables -L -n | grep 3306
-# <1>
+
 ```
 
 1. **Múltiples causas**: Verificar cada capa
@@ -223,7 +223,7 @@ $ mariadb -e "SELECT User, Host FROM mysql.user WHERE User='appuser';"
 $ sudo ufw allow from 10.0.10.0/24 to any port 3306  # Oficina 1
 $ sudo ufw allow from 10.0.20.0/24 to any port 3306  # Oficina 2
 $ sudo ufw allow from 10.0.30.0/24 to any port 3306  # Oficina 3
-# <1>
+
 ```
 
 1. **Múltiples redes**: Una regla por red

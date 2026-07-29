@@ -16,12 +16,12 @@ Cada servidor se ejecuta de forma aislada. Puedes combinar multiples servicios e
 ### Dockerfile
 
 ```dockerfile
-FROM mysql:8.0  # <1>
-ENV MYSQL_ROOT_PASSWORD=root123  # <2>
-ENV MYSQL_DATABASE=miapp  # <3>
-ENV MYSQL_USER=admin  # <4>
-ENV MYSQL_PASSWORD=admin123  # <5>
-EXPOSE 3306  # <6>
+FROM mysql:8.0  
+ENV MYSQL_ROOT_PASSWORD=root123  
+ENV MYSQL_DATABASE=miapp  
+ENV MYSQL_USER=admin  
+ENV MYSQL_PASSWORD=admin123  
+EXPOSE 3306  
 ```
 
 1. **FROM** establece la imagen oficial de MySQL 8.0.
@@ -34,18 +34,18 @@ EXPOSE 3306  # <6>
 ### docker-compose.yml
 
 ```yaml
-services:  # <1>
-  mysql:  # <2>
-    image: mysql:8.0  # <3>
-    environment:  # <4>
-      MYSQL_ROOT_PASSWORD: root123  # <5>
-      MYSQL_DATABASE: miapp  # <6>
-      MYSQL_USER: admin  # <7>
-      MYSQL_PASSWORD: admin123  # <8>
-    ports:  # <9>
-      - "3306:3306"  # <10>
-    volumes:  # <11>
-      - mysql_data:/var/lib/mysql  # <12>
+services:  
+  mysql:  
+    image: mysql:8.0  
+    environment:  
+      MYSQL_ROOT_PASSWORD: root123  
+      MYSQL_DATABASE: miapp  
+      MYSQL_USER: admin  
+      MYSQL_PASSWORD: admin123  
+    ports:  
+      - "3306:3306"  
+    volumes:  
+      - mysql_data:/var/lib/mysql  
 ```
 
 1. **services** define los contenedores del stack.
@@ -62,8 +62,8 @@ services:  # <1>
 12. **mysql_data:/var/lib/mysql** monta el volumen en la ruta de datos de MySQL.
 
 ```bash
-$ docker-compose up -d  # <1>
-# <1>
+$ docker-compose up -d  
+
 ```
 
 1. **docker-compose up -d** inicia MySQL en segundo plano y crea la base de datos y usuario automaticamente.
@@ -77,11 +77,11 @@ Nunca uses contrasenas debiles en entornos de produccion. Utiliza secretos de Do
 ### Dockerfile
 
 ```dockerfile
-FROM postgres:15  # <1>
-ENV POSTGRES_USER=admin  # <2>
-ENV POSTGRES_PASSWORD=admin123  # <3>
-ENV POSTGRES_DB=miapp  # <4>
-EXPOSE 5432  # <5>
+FROM postgres:15  
+ENV POSTGRES_USER=admin  
+ENV POSTGRES_PASSWORD=admin123  
+ENV POSTGRES_DB=miapp  
+EXPOSE 5432  
 ```
 
 1. **FROM** establece la imagen oficial de PostgreSQL 15.
@@ -93,17 +93,17 @@ EXPOSE 5432  # <5>
 ### docker-compose.yml
 
 ```yaml
-services:  # <1>
-  postgres:  # <2>
-    image: postgres:15  # <3>
-    environment:  # <4>
-      POSTGRES_USER: admin  # <5>
-      POSTGRES_PASSWORD: admin123  # <6>
-      POSTGRES_DB: miapp  # <7>
-    ports:  # <8>
-      - "5432:5432"  # <9>
-    volumes:  # <10>
-      - pg_data:/var/lib/postgresql/data  # <11>
+services:  
+  postgres:  
+    image: postgres:15  
+    environment:  
+      POSTGRES_USER: admin  
+      POSTGRES_PASSWORD: admin123  
+      POSTGRES_DB: miapp  
+    ports:  
+      - "5432:5432"  
+    volumes:  
+      - pg_data:/var/lib/postgresql/data  
 ```
 
 1. **services** define los contenedores del stack.
@@ -119,8 +119,8 @@ services:  # <1>
 11. **pg_data:/var/lib/postgresql/data** monta el volumen en la ruta de datos de PostgreSQL.
 
 ```bash
-$ docker-compose up -d  # <1>
-# <1>
+$ docker-compose up -d  
+
 ```
 
 1. **docker-compose up -d** inicia PostgreSQL en segundo plano con la base de datos y usuario configurados.
@@ -130,8 +130,8 @@ $ docker-compose up -d  # <1>
 ### Dockerfile
 
 ```dockerfile
-FROM mongo:6  # <1>
-EXPOSE 27017  # <2>
+FROM mongo:6  
+EXPOSE 27017  
 ```
 
 1. **FROM** establece la imagen oficial de MongoDB 6.
@@ -140,16 +140,16 @@ EXPOSE 27017  # <2>
 ### docker-compose.yml
 
 ```yaml
-services:  # <1>
-  mongo:  # <2>
-    image: mongo:6  # <3>
-    ports:  # <4>
-      - "27017:27017"  # <5>
-    volumes:  # <6>
-      - mongo_data:/data/db  # <7>
-    environment:  # <8>
-      MONGO_INITDB_ROOT_USERNAME: admin  # <9>
-      MONGO_INITDB_ROOT_PASSWORD: admin123  # <10>
+services:  
+  mongo:  
+    image: mongo:6  
+    ports:  
+      - "27017:27017"  
+    volumes:  
+      - mongo_data:/data/db  
+    environment:  
+      MONGO_INITDB_ROOT_USERNAME: admin  
+      MONGO_INITDB_ROOT_PASSWORD: admin123  
 ```
 
 1. **services** define los contenedores del stack.
@@ -164,8 +164,8 @@ services:  # <1>
 10. **MONGO_INITDB_ROOT_PASSWORD** contrasena del usuario administrador.
 
 ```bash
-$ docker-compose up -d  # <1>
-# <1>
+$ docker-compose up -d  
+
 ```
 
 1. **docker-compose up -d** inicia MongoDB en segundo plano con autenticacion habilitada.
@@ -175,9 +175,9 @@ $ docker-compose up -d  # <1>
 ### Dockerfile
 
 ```dockerfile
-FROM httpd:2.4  # <1>
-COPY ./html /usr/local/apache2/htdocs/  # <2>
-EXPOSE 80  # <3>
+FROM httpd:2.4  
+COPY ./html /usr/local/apache2/htdocs/  
+EXPOSE 80  
 ```
 
 1. **FROM** establece la imagen oficial de Apache HTTP Server 2.4.
@@ -187,13 +187,13 @@ EXPOSE 80  # <3>
 ### docker-compose.yml
 
 ```yaml
-services:  # <1>
-  apache:  # <2>
-    build: .  # <3>
-    ports:  # <4>
-      - "8080:80"  # <5>
-    volumes:  # <6>
-      - ./html:/usr/local/apache2/htdocs/  # <7>
+services:  
+  apache:  
+    build: .  
+    ports:  
+      - "8080:80"  
+    volumes:  
+      - ./html:/usr/local/apache2/htdocs/  
 ```
 
 1. **services** define los contenedores del stack.
@@ -205,8 +205,8 @@ services:  # <1>
 7. **./html:/usr/local/apache2/htdocs/** monta el directorio HTML local en el directorio de contenido de Apache.
 
 ```bash
-$ docker-compose up -d  # <1>
-# <1>
+$ docker-compose up -d  
+
 ```
 
 1. **docker-compose up -d** inicia Apache en segundo plano. Accede a la aplicacion en `http://localhost:8080`.
@@ -216,10 +216,10 @@ $ docker-compose up -d  # <1>
 ### Dockerfile
 
 ```dockerfile
-FROM nginx:alpine  # <1>
-COPY ./html /usr/share/nginx/html/  # <2>
-COPY ./nginx.conf /etc/nginx/nginx.conf  # <3>
-EXPOSE 80  # <4>
+FROM nginx:alpine  
+COPY ./html /usr/share/nginx/html/  
+COPY ./nginx.conf /etc/nginx/nginx.conf  
+EXPOSE 80  
 ```
 
 1. **FROM** establece la imagen oficial de Nginx en variante Alpine (ligera).
@@ -230,14 +230,14 @@ EXPOSE 80  # <4>
 ### docker-compose.yml
 
 ```yaml
-services:  # <1>
-  nginx:  # <2>
-    build: .  # <3>
-    ports:  # <4>
-      - "8080:80"  # <5>
-    volumes:  # <6>
-      - ./html:/usr/share/nginx/html/  # <7>
-      - ./nginx.conf:/etc/nginx/nginx.conf  # <8>
+services:  
+  nginx:  
+    build: .  
+    ports:  
+      - "8080:80"  
+    volumes:  
+      - ./html:/usr/share/nginx/html/  
+      - ./nginx.conf:/etc/nginx/nginx.conf  
 ```
 
 1. **services** define los contenedores del stack.
@@ -250,8 +250,8 @@ services:  # <1>
 8. **./nginx.conf:/etc/nginx/nginx.conf** monta la configuracion personalizada de Nginx.
 
 ```bash
-$ docker-compose up -d  # <1>
-# <1>
+$ docker-compose up -d  
+
 ```
 
 1. **docker-compose up -d** inicia Nginx en segundo plano. Accede a la aplicacion en `http://localhost:8080`.
@@ -265,13 +265,13 @@ Nginx es significativamente mas ligero que Apache gracias a su arquitectura basa
 ### Dockerfile
 
 ```dockerfile
-FROM node:18-alpine  # <1>
-WORKDIR /app  # <2>
-COPY package*.json .  # <3>
-RUN npm install  # <4>
-COPY . .  # <5>
-EXPOSE 3000  # <6>
-CMD ["node", "server.js"]  # <7>
+FROM node:18-alpine  
+WORKDIR /app  
+COPY package*.json .  
+RUN npm install  
+COPY . .  
+EXPOSE 3000  
+CMD ["node", "server.js"]  
 ```
 
 1. **FROM** establece la imagen oficial de Node.js 18 en variante Alpine.
@@ -285,14 +285,14 @@ CMD ["node", "server.js"]  # <7>
 ### docker-compose.yml
 
 ```yaml
-services:  # <1>
-  node:  # <2>
-    build: .  # <3>
-    ports:  # <4>
-      - "3000:3000"  # <5>
-    volumes:  # <6>
-      - .:/app  # <7>
-      - /app/node_modules  # <8>
+services:  
+  node:  
+    build: .  
+    ports:  
+      - "3000:3000"  
+    volumes:  
+      - .:/app  
+      - /app/node_modules  
 ```
 
 1. **services** define los contenedores del stack.
@@ -305,8 +305,8 @@ services:  # <1>
 8. **/app/node_modules** excluye `node_modules` del bind mount para evitar sobreescribir las dependencias instaladas en la imagen.
 
 ```bash
-$ docker-compose up -d  # <1>
-# <1>
+$ docker-compose up -d  
+
 ```
 
 1. **docker-compose up -d** inicia Node.js en segundo plano. Accede a la aplicacion en `http://localhost:3000`.
@@ -326,35 +326,35 @@ En produccion, no uses bind mounts para el codigo fuente. La imagen debe contene
 **docker-compose.yml**
 
 ```yaml
-services:  # <1>
-  app:  # <2>
-    build: .  # <3>
-    ports:  # <4>
-      - "3000:3000"  # <5>
-    depends_on:  # <6>
-      - mysql  # <7>
-    environment:  # <8>
-      DB_HOST: mysql  # <9>
-      DB_USER: admin  # <10>
-      DB_PASSWORD: admin123  # <11>
-      DB_NAME: miapp  # <12>
+services:  
+  app:  
+    build: .  
+    ports:  
+      - "3000:3000"  
+    depends_on:  
+      - mysql  
+    environment:  
+      DB_HOST: mysql  
+      DB_USER: admin  
+      DB_PASSWORD: admin123  
+      DB_NAME: miapp  
     networks:
       - app_red
-  mysql:  # <13>
-    image: mysql:8.0  # <14>
-    environment:  # <15>
-      MYSQL_ROOT_PASSWORD: root123  # <16>
-      MYSQL_DATABASE: miapp  # <17>
-      MYSQL_USER: admin  # <18>
-      MYSQL_PASSWORD: admin123  # <19>
-    ports:  # <20>
-      - "3306:3306"  # <21>
-    volumes:  # <22>
-      - mysql_data:/var/lib/mysql  # <23>
+  mysql:  
+    image: mysql:8.0  
+    environment:  
+      MYSQL_ROOT_PASSWORD: root123  
+      MYSQL_DATABASE: miapp  
+      MYSQL_USER: admin  
+      MYSQL_PASSWORD: admin123  
+    ports:  
+      - "3306:3306"  
+    volumes:  
+      - mysql_data:/var/lib/mysql  
     networks:
       - app_red
-volumes:  # <24>
-  mysql_data:  # <25>
+volumes:  
+  mysql_data:  
 networks:
   app_red:
 ```

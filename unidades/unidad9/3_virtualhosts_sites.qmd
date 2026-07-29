@@ -59,7 +59,7 @@ $ sudo mkdir -p /var/www/clients/{site1,site2,site3}/{public,logs,private,backup
 $ sudo chown -R www-data:www-data /var/www/clients
 $ sudo chmod -R 755 /var/www
 $ sudo chmod -R 750 /var/www/clients/*/private  # Solo owner puede ver
-# <1>
+
 ```
 
 1. **Permisos**: www-data para web, private inaccesible desde fuera
@@ -91,7 +91,7 @@ $ sudo tee /etc/apache2/sites-available/site1.local.conf <<'EOF'
     </Directory>
 </VirtualHost>
 EOF
-# <1>
+
 ```
 
 1. **VirtualHost**: Define comportamiento para site1.local
@@ -101,7 +101,7 @@ EOF
 ```bash
 # Habilitar sitio
 $ sudo a2ensite site1.local.conf
-# <1>
+
 
 # Validar configuración
 $ sudo apachectl configtest
@@ -114,7 +114,7 @@ $ sudo systemctl reload apache2
 $ ls -la /etc/apache2/sites-enabled/
 site1.local.conf -> ../sites-available/site1.local.conf
 000-default.conf
-# <2>
+
 ```
 
 1. **a2ensite**: Crea symlink en sites-enabled/
@@ -126,7 +126,7 @@ site1.local.conf -> ../sites-available/site1.local.conf
 # Con Host header
 $ curl -H 'Host: site1.local' http://127.0.0.1
 <!DOCTYPE html><h1>Site 1</h1>
-# <1>
+
 
 # Ver logs
 $ sudo tail /var/www/clients/site1/logs/access.log
@@ -193,7 +193,7 @@ $ sudo tee /etc/apache2/sites-available/example.com.conf <<'EOF'
     </IfModule>
 </VirtualHost>
 EOF
-# <1>
+
 ```
 
 1. **VirtualHost completo**: rewrite, compression, cache, seguridad
@@ -260,7 +260,7 @@ $ sudo tee /etc/apache2/sites-available/admin.example.com.conf <<'EOF'
     </Directory>
 </VirtualHost>
 EOF
-# <1>
+
 ```
 
 1. **Tres sitios**: Blog público, API REST, Admin protegido
@@ -327,7 +327,7 @@ $ sudo apachectl configtest && sudo systemctl reload apache2
 # Probar
 $ curl -H 'Host: app.example.com' http://127.0.0.1
 {"status": "ok", "message": "Flask API running"}
-# <1>
+
 ```
 
 1. **Proxy**: Apache forwardea requests al backend
@@ -352,7 +352,7 @@ $ cat /etc/apache2/sites-available/000-default.conf
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
-# <1>
+
 ```
 
 1. **Default**: El sitio que responde cuando no hay match de ServerName
@@ -366,7 +366,7 @@ $ cat /etc/apache2/sites-available/000-default.conf
 $ curl -H 'Host: newdomain.com' http://127.0.0.1
 <!DOCTYPE html>
 <html><body><h1>It works!</h1></body></html>
-# <1>
+
 ```
 
 **Diagnóstico**:
@@ -378,7 +378,7 @@ $ ls /etc/apache2/sites-enabled/ | grep newdomain
 # Ver si existe el archivo
 $ ls /etc/apache2/sites-available/ | grep newdomain
 newdomain.com.conf
-# <2>
+
 ```
 
 1. **Responde default**: Porque el VirtualHost no está habilitado
@@ -402,7 +402,7 @@ $ curl -H 'Host: newdomain.com' http://127.0.0.1
 ```bash
 $ sudo a2ensite another-site.conf
 ERROR: Site another-site already enabled
-# <1>
+
 ```
 
 **Diagnóstico**:
@@ -414,7 +414,7 @@ VirtualHost configuration:
          port 80 namevhost site1.local
          port 80 namevhost site2.local
          port 80 namevhost another-site (/etc/apache2/sites-enabled/another-site.conf)
-# <2>
+
 ```
 
 1. **Error**: El sitio ya está habilitado
@@ -428,7 +428,7 @@ VirtualHost configuration:
 # Ver número de vhosts
 $ ls /etc/apache2/sites-enabled/ | wc -l
 52
-# <1>
+
 
 # Revisar configuración de logs
 $ grep CustomLog /etc/apache2/sites-enabled/*

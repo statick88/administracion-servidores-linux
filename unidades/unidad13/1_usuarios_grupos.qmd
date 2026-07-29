@@ -2,7 +2,7 @@
 title: "Usuarios y Grupos"
 author: "Diego Saavedra"
 date: "2026-07-21"
-bibliography: references.bib
+bibliography: ../../references.bib
 biblio-style: apalike
 ---
 
@@ -54,15 +54,16 @@ x = ejecución (exec)  = 1
 
 ::: {.panel-tabset}
 
+
 ### Ver todos los usuarios del sistema
 
 #### Linux
 ```bash
-$ cat /etc/passwd  # <1>
+$ cat /etc/passwd  
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 diego:x:1000:1000:Diego Saavedra:/home/diego:/bin/bash
-# <2>
+
 ```
 1. **cat /etc/passwd** muestra base de datos de usuarios del sistema
 
@@ -74,7 +75,7 @@ $ dscl . -list /Users | head -5
 daemon
 nobody
 root
-# <1>
+
 $ id
 uid=501(diego) gid=20(staff) groups=20(staff),501(com.apple.sharepoint.group.1)
 ```
@@ -87,7 +88,7 @@ Name        Enabled
 ----        -------
 Administrator   True
 Diego           True
-# <1>
+
 ```
 1. Windows usa `Get-LocalUser` para listar usuarios locales
 
@@ -97,10 +98,10 @@ Diego           True
 
 #### Linux
 ```bash
-$ getent passwd | awk -F: '$3 >= 1000 {print $1}'  # <1>
+$ getent passwd | awk -F: '$3 >= 1000 {print $1}'  
 diego
 carlos
-# <2>
+
 ```
 1. **getent passwd** obtiene usuarios con UID >= 1000 (usuarios humanos, no del sistema)
 
@@ -108,9 +109,9 @@ carlos
 
 #### macOS
 ```bash
-$ dscl . -list /Users UniqueID | awk '$2 >= 500 {print $1}'  # <1>
+$ dscl . -list /Users UniqueID | awk '$2 >= 500 {print $1}'  
 diego
-# <2>
+
 ```
 1. macOS usa UID >= 500 para usuarios humanos
 
@@ -119,7 +120,7 @@ diego
 #### Windows (PowerShell)
 ```powershell
 PS> Get-LocalUser | Where-Object {$_.Enabled -eq $True} | Select-Object Name
-# <1>
+
 ```
 1. Filtra solo usuarios habilitados
 
@@ -129,9 +130,9 @@ PS> Get-LocalUser | Where-Object {$_.Enabled -eq $True} | Select-Object Name
 
 #### Linux
 ```bash
-$ groups diego  # <1>
+$ groups diego  
 diego : diego adm cdrom sudo
-# <2>
+
 ```
 1. **groups** lista todos los grupos a los que pertenece un usuario
 
@@ -139,7 +140,7 @@ diego : diego adm cdrom sudo
 
 #### macOS
 ```bash
-$ groups diego  # <1>
+$ groups diego  
 diego staff com.apple.sharepoint.group.1
 ```
 1. Funciona igual que en Linux
@@ -147,7 +148,7 @@ diego staff com.apple.sharepoint.group.1
 #### Windows (PowerShell)
 ```powershell
 PS> Get-LocalGroup | Where-Object {$_.Name -like "*Diego*"} | Select-Object Name
-# <1>
+
 ```
 1. Lista los grupos que contiene al usuario
 
@@ -157,14 +158,14 @@ PS> Get-LocalGroup | Where-Object {$_.Name -like "*Diego*"} | Select-Object Name
 
 #### Linux
 ```bash
-$ id  # <1>
+$ id  
 uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom),27(sudo)
 ```
 1. **id** muestra identidad del usuario actual (UID, GID y grupos)
 
 #### macOS
 ```bash
-$ id  # <1>
+$ id  
 uid=501(diego) gid=20(staff) groups=20(staff),501(com.apple.sharepoint.group.1)
 ```
 1. Muestra la misma información que en Linux
@@ -172,7 +173,7 @@ uid=501(diego) gid=20(staff) groups=20(staff),501(com.apple.sharepoint.group.1)
 #### Windows (PowerShell)
 ```powershell
 PS> [System.Security.Principal.WindowsIdentity]::GetCurrent() | Select-Object Name, Groups
-# <1>
+
 ```
 1. Usa .NET para obtener información del usuario actual
 
@@ -186,15 +187,16 @@ PS> [System.Security.Principal.WindowsIdentity]::GetCurrent() | Select-Object Na
 
 ::: {.panel-tabset}
 
+
 ### Crear usuario básico
 
 #### Linux
 ```bash
 # Crear usuario 'carlos' con home en /home/carlos
-$ sudo useradd -m -s /bin/bash carlos  # <1>
+$ sudo useradd -m -s /bin/bash carlos  
 
 # Asignar contraseña
-$ sudo passwd carlos  # <2>
+$ sudo passwd carlos  
 Enter new UNIX password: ********
 Retype new UNIX password: ********
 passwd: password updated successfully
@@ -206,18 +208,18 @@ passwd: password updated successfully
 #### macOS
 ```bash
 # Crear usuario desde macOS
-$ sudo sysadminctl -addUser carlos -password ******** -home /Users/carlos  # <1>
+$ sudo sysadminctl -addUser carlos -password ******** -home /Users/carlos  
 ```
 1. macOS usa `sysadminctl` para crear usuarios
 
 #### Windows (PowerShell)
 ```powershell
 # Crear usuario en Windows
-PS> net user carlos "Password123!" /add  # <1>
+PS> net user carlos "Password123!" /add  
 
 # Verificar creación
 PS> Get-LocalUser -Name carlos
-# <2>
+
 ```
 1. **net user** es el comando clásico para gestión de usuarios
 
@@ -235,21 +237,21 @@ $ sudo useradd -m -s /bin/bash -c "Carlos López - Administrador" carlos
 # Ver el comentario
 $ grep carlos /etc/passwd
 carlos:x:1001:1001:Carlos López - Administrador:/home/carlos:/bin/bash
-# <1>
+
 ```
 1. El campo `-c` agrega comentario descriptivo en /etc/passwd
 
 #### macOS
 ```bash
 # Crear usuario con información completa
-$ sudo sysadminctl -addUser carlos -password ******** -home /Users/carlos -fullName "Carlos López"  # <1>
+$ sudo sysadminctl -addUser carlos -password ******** -home /Users/carlos -fullName "Carlos López"  
 ```
 1. Usa `-fullName` para especificar el nombre completo
 
 #### Windows (PowerShell)
 ```powershell
 # Crear usuario con comentario
-PS> net user carlos "Password123!" /add /comment:"Carlos López - Administrador"  # <1>
+PS> net user carlos "Password123!" /add /comment:"Carlos López - Administrador"  
 ```
 1. El parámetro `/comment` agrega descripción al usuario
 
@@ -260,7 +262,7 @@ PS> net user carlos "Password123!" /add /comment:"Carlos López - Administrador"
 #### Linux
 ```bash
 # Crear usuario de servicio
-$ sudo useradd -r -s /sbin/nologin nginx_backup  # <1>
+$ sudo useradd -r -s /sbin/nologin nginx_backup  
 
 # -r: usuario del sistema (UID < 1000)
 # -s /sbin/nologin: sin shell, no puede loguearse
@@ -270,14 +272,14 @@ $ sudo useradd -r -s /sbin/nologin nginx_backup  # <1>
 #### macOS
 ```bash
 # Crear usuario de servicio sin shell
-$ sudo sysadminctl -addUser nginx_backup -password '*' -shell /usr/sbin/nologin  # <1>
+$ sudo sysadminctl -addUser nginx_backup -password '*' -shell /usr/sbin/nologin  
 ```
 1. Usa `/usr/sbin/nologin` para evitar login interactivo
 
 #### Windows (PowerShell)
 ```powershell
 # Crear cuenta de servicio
-PS> net user nginx_backup /add /active:no  # <1>
+PS> net user nginx_backup /add /active:no  
 ```
 1. La cuenta queda deshabilitada por seguridad
 
@@ -291,6 +293,7 @@ PS> net user nginx_backup /add /active:no  # <1>
 
 ::: {.panel-tabset}
 
+
 ### Cambiar información de usuario
 
 #### Linux
@@ -302,14 +305,14 @@ $ sudo usermod -c "Carlos Manuel López" carlos
 $ sudo usermod -s /bin/zsh carlos
 
 # Agregar usuario a grupo existente
-$ sudo usermod -aG adm carlos  # <1>
+$ sudo usermod -aG adm carlos  
 # -a: append (agregar SIN remover otros grupos)
 # -G: grupo suplementario
 
 # Verificar cambios
 $ id carlos
 uid=1001(carlos) gid=1001(carlos) groups=1001(carlos),4(adm)
-# <2>
+
 ```
 1. **-aG** agrega a un grupo SIN remover de los existentes (importante: sin -a reemplaza grupos)
 
@@ -318,18 +321,18 @@ uid=1001(carlos) gid=1001(carlos) groups=1001(carlos),4(adm)
 #### macOS
 ```bash
 # Agregar usuario a grupo
-$ sudo dseditgroup -o edit -a carlos -t user staff  # <1>
+$ sudo dseditgroup -o edit -a carlos -t user staff  
 ```
 1. macOS usa `dseditgroup` para modificar membresía de grupos
 
 #### Windows (PowerShell)
 ```powershell
 # Agregar usuario a grupo
-PS> Add-LocalGroupMember -Group "Administrators" -Member "carlos"  # <1>
+PS> Add-LocalGroupMember -Group "Administrators" -Member "carlos"  
 
 # Verificar membresía
 PS> Get-LocalGroupMember -Group "Administrators"
-# <2>
+
 ```
 1. **Add-LocalGroupMember** agrega usuario a un grupo local
 
@@ -342,14 +345,14 @@ PS> Get-LocalGroupMember -Group "Administrators"
 #### Linux
 ```bash
 # Bloquear usuario (deshabilitar temporalmente)
-$ sudo usermod -L carlos  # <1>
+$ sudo usermod -L carlos  
 
 # Verificar bloqueo
 $ sudo passwd -S carlos
 carlos L 07/21/2026 0 99999 7 -1
 
 # Desbloquear usuario
-$ sudo usermod -U carlos  # <2>
+$ sudo usermod -U carlos  
 ```
 1. **-L** bloquea el usuario cambiando la contraseña en /etc/shadow
 
@@ -358,17 +361,17 @@ $ sudo usermod -U carlos  # <2>
 #### macOS
 ```bash
 # Bloquear usuario
-$ sudo dscl . -create /Users/carlos AuthenticationHint "Account locked"  # <1>
+$ sudo dscl . -create /Users/carlos AuthenticationHint "Account locked"  
 ```
 1. macOS usa `dscl` para gestionar cuentas bloqueadas
 
 #### Windows (PowerShell)
 ```powershell
 # Deshabilitar usuario
-PS> Disable-LocalUser -Name "carlos"  # <1>
+PS> Disable-LocalUser -Name "carlos"  
 
 # Habilitar usuario
-PS> Enable-LocalUser -Name "carlos"  # <2>
+PS> Enable-LocalUser -Name "carlos"  
 ```
 1. **Disable-LocalUser** deshabilita la cuenta
 
@@ -384,12 +387,13 @@ PS> Enable-LocalUser -Name "carlos"  # <2>
 
 ::: {.panel-tabset}
 
+
 ### Crear grupo y agregar usuarios
 
 #### Linux
 ```bash
 # Crear grupo de administradores locales
-$ sudo groupadd administradores  # <1>
+$ sudo groupadd administradores  
 
 # Agregar usuarios al grupo
 $ sudo usermod -aG administradores diego
@@ -398,10 +402,10 @@ $ sudo usermod -aG administradores carlos
 # Verificar miembros del grupo
 $ getent group administradores
 administradores:x:1002:diego,carlos
-# <2>
+
 
 # Cambiar grupo primario de usuario
-$ sudo usermod -g administradores diego  # <3>
+$ sudo usermod -g administradores diego  
 # Cuidado: esto cambia el grupo por defecto para archivos nuevos
 ```
 1. **groupadd** crea un nuevo grupo en el sistema
@@ -413,10 +417,10 @@ $ sudo usermod -g administradores diego  # <3>
 #### macOS
 ```bash
 # Crear grupo
-$ sudo dseditgroup -o create administradores  # <1>
+$ sudo dseditgroup -o create administradores  
 
 # Agregar usuario al grupo
-$ sudo dseditgroup -o edit -a diego -t user administradores  # <2>
+$ sudo dseditgroup -o edit -a diego -t user administradores  
 ```
 1. **dseditgroup -o create** crea un nuevo grupo
 
@@ -425,10 +429,10 @@ $ sudo dseditgroup -o edit -a diego -t user administradores  # <2>
 #### Windows (PowerShell)
 ```powershell
 # Crear grupo
-PS> New-LocalGroup -Name "Administradores" -Description "Grupo de administradores"  # <1>
+PS> New-LocalGroup -Name "Administradores" -Description "Grupo de administradores"  
 
 # Agregar usuario al grupo
-PS> Add-LocalGroupMember -Group "Administradores" -Member "diego"  # <2>
+PS> Add-LocalGroupMember -Group "Administradores" -Member "diego"  
 ```
 1. **New-LocalGroup** crea un nuevo grupo local
 
@@ -441,11 +445,11 @@ PS> Add-LocalGroupMember -Group "Administradores" -Member "diego"  # <2>
 #### Linux
 ```bash
 # Eliminar grupo vacío
-$ sudo groupdel administradores  # <1>
+$ sudo groupdel administradores  
 
 # Si el grupo tiene archivos, primero cambiar propietario
 $ sudo chown -R :nuevogrupo /ruta/con/archivos
-$ sudo groupdel viejogrupo  # <2>
+$ sudo groupdel viejogrupo  
 ```
 1. **groupdel** elimina un grupo del sistema
 
@@ -454,14 +458,14 @@ $ sudo groupdel viejogrupo  # <2>
 #### macOS
 ```bash
 # Eliminar grupo
-$ sudo dseditgroup -o delete administradores  # <1>
+$ sudo dseditgroup -o delete administradores  
 ```
 1. Usa `dseditgroup -o delete` para eliminar un grupo
 
 #### Windows (PowerShell)
 ```powershell
 # Eliminar grupo
-PS> Remove-LocalGroup -Name "Administradores"  # <1>
+PS> Remove-LocalGroup -Name "Administradores"  
 ```
 1. **Remove-LocalGroup** elimina un grupo local
 
@@ -475,15 +479,16 @@ PS> Remove-LocalGroup -Name "Administradores"  # <1>
 
 ::: {.panel-tabset}
 
+
 ### Eliminar usuario con opciones
 
 #### Linux
 ```bash
 # Eliminar usuario PERO conservar su home
-$ sudo userdel carlos  # <1>
+$ sudo userdel carlos  
 
 # Eliminar usuario Y su home
-$ sudo userdel -r carlos  # <2>
+$ sudo userdel -r carlos  
 # CUIDADO: Esto elimina /home/carlos y todos sus archivos
 
 # Crear script para backupear antes de eliminar
@@ -497,17 +502,17 @@ $ sudo userdel -r carlos
 #### macOS
 ```bash
 # Eliminar usuario
-$ sudo sysadminctl -deleteUser carlos  # <1>
+$ sudo sysadminctl -deleteUser carlos  
 ```
 1. macOS usa `sysadminctl -deleteUser` para eliminar usuarios
 
 #### Windows (PowerShell)
 ```powershell
 # Eliminar usuario
-PS> Remove-LocalUser -Name "carlos"  # <1>
+PS> Remove-LocalUser -Name "carlos"  
 
 # Verificar eliminación
-PS> Get-LocalUser -Name "carlos"  # <2>
+PS> Get-LocalUser -Name "carlos"  
 ```
 1. **Remove-LocalUser** elimina el usuario del sistema
 
@@ -534,19 +539,19 @@ PS> Get-LocalUser -Name "carlos"  # <2>
 
 ## 🎯 Ejercicios Prácticos
 
-1. Crea un usuario llamado `testuser` con home directory y shell bash
+3. Crea un usuario llamado `testuser` con home directory y shell bash
 
-2. Agrega `testuser` al grupo `sudo`
+4. Agrega `testuser` al grupo `sudo`
 
-3. Crea un grupo llamado `developers`
+5. Crea un grupo llamado `developers`
 
-4. Agrega `testuser` al grupo `developers`
+6. Agrega `testuser` al grupo `developers`
 
-5. Verifica la información del usuario con `id`
+7. Verifica la información del usuario con `id`
 
-6. Bloquea y luego desbloquea al usuario
+8. Bloquea y luego desbloquea al usuario
 
-7. Elimina el usuario conservando su home directory
+9. Elimina el usuario conservando su home directory
 
 ---
 

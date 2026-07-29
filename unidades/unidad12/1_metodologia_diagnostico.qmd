@@ -57,32 +57,32 @@ Static hostname: prod-web-01
    Operating System: Ubuntu 24.04.1 LTS
              Kernel: Linux 6.8.0-49-generic
        Architecture: x86-64
-# <1>
+
 
 # Uptime y carga
 $ uptime
  14:30:00 up 45 days,  3:22,  2 users,  load average: 0.52, 0.58, 0.61
-# <2>
+
 
 # Estado de memoria
 $ free -h
                total        used        free      shared  buff/cache   available
 Mem:           15Gi       4.2Gi       8.2Gi       412Mi       3.1Gi      10Gi
 Swap:         2.0Gi          0B       2.0Gi
-# <3>
+
 
 # Estado de discos
 $ df -h
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sda1       100G   45G   55G  45% /
 /dev/sda2       500G  200G  300G  40% /data
-# <4>
+
 
 # Interfaces de red
 $ ip -br addr
 lo               UNKNOWN  127.0.0.1/8 ::1/128
 eth0            UP      192.168.1.100/24 2001:db8::1/64
-# <5>
+
 ```
 
 1. **hostnamectl**: Identificar el servidor
@@ -97,108 +97,108 @@ eth0            UP      192.168.1.100/24 2001:db8::1/64
 
 ```bash
 # Procesos y recursos
-$ top                    # Monitor interactivo  # <6>
-$ htop                  # top mejorado (más visual)  # <7>
-$ atop                  # top con historial  # <8>
-$ ps aux | head -20   # Procesos activos  # <9>
+$ top                    # Monitor interactivo  
+$ htop                  # top mejorado (más visual)  
+$ atop                  # top con historial  
+$ ps aux | head -20   # Procesos activos  
 
 # Red
-$ ss -tuln             # Puertos en escucha  # <10>
-$ ss -s               # Resumen de conexiones  # <11>
-$ ip -s link          # Estadísticas de interfaz  # <12>
-$ ip route            # Tabla de rutas  # <13>
-$ dig example.com      # Consulta DNS  # <14>
-$ ping -c 4 8.8.8.8  # Conectividad básica  # <15>
+$ ss -tuln             # Puertos en escucha  
+$ ss -s               # Resumen de conexiones  
+$ ip -s link          # Estadísticas de interfaz  
+$ ip route            # Tabla de rutas  
+$ dig example.com      # Consulta DNS  
+$ ping -c 4 8.8.8.8  # Conectividad básica  
 
 # Sistema de archivos
-$ iostat -x 1 5      # I/O stats  # <16>
-$ iotop               # Procesos usando I/O  # <17>
-$ lsof                # Archivos abiertos  # <18>
+$ iostat -x 1 5      # I/O stats  
+$ iotop               # Procesos usando I/O  
+$ lsof                # Archivos abiertos  
 
 # Memoria
-$ vmstat 1           # Estadísticas de memoria virtual  # <19>
-$ slabtop             # Slab allocator info  # <20>
+$ vmstat 1           # Estadísticas de memoria virtual  
+$ slabtop             # Slab allocator info  
 ```
 
-6. **top** muestra procesos en tiempo real; identifica qué consume CPU/memoria
-7. **htop** versión mejorada de top; más legible y con interactividad
-8. **atop** preserva historial; análisis retroactivo de picos de uso
-9. **ps aux** lista todos los procesos; `head -20` limita la salida inicial
-10. **ss -tuln** muestra puertos TCP/UDP en escucha; verifica qué servicios están activos
-11. **ss -s** resumen de conexiones; detecta cantidades anómalas
-12. **ip -s link** estadísticas de errores en interfaz; detecta drops o collisiones
-13. **ip route** tabla de rutas; diagnóstico de problemas de enrutamiento
-14. **dig** consulta DNS detallada; verifica resolución de nombres
-15. **ping -c 4** prueba conectividad básica con 4 paquetes
-16. **iostat -x 1 5** muestra I/O cada segundo 5 veces; detecta cuellos de botella de disco
-17. **iotop** procesos que más I/O usan; identifica el proceso que bloquea el disco
-18. **lsof** archivos abiertos por proceso; detecta archivos retenidos o bloqueados
-19. **vmstat 1** estadísticas de memoria cada segundo; detecta presión de swap
-20. **slabtop** uso del kernel slab; diagnóstico de memoria kernel
+1. **top** muestra procesos en tiempo real; identifica qué consume CPU/memoria
+2. **htop** versión mejorada de top; más legible y con interactividad
+3. **atop** preserva historial; análisis retroactivo de picos de uso
+4. **ps aux** lista todos los procesos; `head -20` limita la salida inicial
+5. **ss -tuln** muestra puertos TCP/UDP en escucha; verifica qué servicios están activos
+6. **ss -s** resumen de conexiones; detecta cantidades anómalas
+7. **ip -s link** estadísticas de errores en interfaz; detecta drops o collisiones
+8. **ip route** tabla de rutas; diagnóstico de problemas de enrutamiento
+9. **dig** consulta DNS detallada; verifica resolución de nombres
+10. **ping -c 4** prueba conectividad básica con 4 paquetes
+11. **iostat -x 1 5** muestra I/O cada segundo 5 veces; detecta cuellos de botella de disco
+12. **iotop** procesos que más I/O usan; identifica el proceso que bloquea el disco
+13. **lsof** archivos abiertos por proceso; detecta archivos retenidos o bloqueados
+14. **vmstat 1** estadísticas de memoria cada segundo; detecta presión de swap
+15. **slabtop** uso del kernel slab; diagnóstico de memoria kernel
 
 ### Diagnóstico de Problemas Comunes
 
 ```bash
 # SERVER NO RESPONDE
 # 1. Verificar si está alive
-$ ping -c 4 192.168.1.100  # <21>
+$ ping -c 4 192.168.1.100  
 
 # 2. Ver si responde a SSH
-$ ssh -o ConnectTimeout=5 user@192.168.1.100 "echo ok"  # <22>
+$ ssh -o ConnectTimeout=5 user@192.168.1.100 "echo ok"  
 
 # 3. Verificar desde consola/IPMI/iLO
-$ ipmitool -I lanplus -H 192.168.1.100 -U admin status  # <23>
+$ ipmitool -I lanplus -H 192.168.1.100 -U admin status  
 
 # 4. Si es VM, verificar desde hypervisor
-$ virsh list  # <24>
-$ virsh console vm-name  # <25>
+$ virsh list  
+$ virsh console vm-name  
 ```
 
-21. **ping -c 4** verifica si el servidor responde a nivel de red; primer paso obligatorio
-22. **ssh -o ConnectTimeout=5** prueba SSH con timeout corto; detecta si el servicio SSH está caído
-23. **ipmitool** accede a la consola física/IPMI; acceso último recurso cuando la red no responde
-24. **virsh list** desde hypervisor; verifica el estado de la VM
-25. **virsh console** abre consola directa a la VM; diagnóstico cuandoSSH no responde
+1. **ping -c 4** verifica si el servidor responde a nivel de red; primer paso obligatorio
+2. **ssh -o ConnectTimeout=5** prueba SSH con timeout corto; detecta si el servicio SSH está caído
+3. **ipmitool** accede a la consola física/IPMI; acceso último recurso cuando la red no responde
+4. **virsh list** desde hypervisor; verifica el estado de la VM
+5. **virsh console** abre consola directa a la VM; diagnóstico cuandoSSH no responde
 
 ```bash
 # SERVICIO NO INICIA
 # 1. Ver estado
-$ sudo systemctl status nginx --no-pager  # <26>
+$ sudo systemctl status nginx --no-pager  
 
 # 2. Ver logs recientes
-$ sudo journalctl -u nginx -n 50 --no-pager  # <27>
+$ sudo journalctl -u nginx -n 50 --no-pager  
 
 # 3. Ver configuración
-$ sudo nginx -t  # <28>
+$ sudo nginx -t  
 
 # 4. Ver si hay otro proceso en el puerto
-$ sudo ss -tlnp | grep :80  # <29>
+$ sudo ss -tlnp | grep :80  
 ```
 
-26. **systemctl status** muestra el estado actual del servicio; el primer paso al diagnosticar un servicio caído
-27. **journalctl -u** muestra logs recientes del servicio; identifica errores específicos
-28. **nginx -t** valida la configuración; errores de sintaxis impiden el inicio
-29. **ss -tlnp | grep :80** detecta si otro proceso usa el puerto; conflicto de puertos es causa común
+1. **systemctl status** muestra el estado actual del servicio; el primer paso al diagnosticar un servicio caído
+2. **journalctl -u** muestra logs recientes del servicio; identifica errores específicos
+3. **nginx -t** valida la configuración; errores de sintaxis impiden el inicio
+4. **ss -tlnp | grep :80** detecta si otro proceso usa el puerto; conflicto de puertos es causa común
 
 ```bash
 # BASE DE DATOS LENTA
 # 1. Ver conexiones
-$ mariadb -e "SHOW PROCESSLIST;"  # <30>
+$ mariadb -e "SHOW PROCESSLIST;"  
 
 # 2. Ver variables
-$ mariadb -e "SHOW VARIABLES LIKE 'max_connections';"  # <31>
+$ mariadb -e "SHOW VARIABLES LIKE 'max_connections';"  
 
 # 3. Ver estado de tablas
-$ mariadb -e "SHOW TABLE STATUS FROM appdb;"  # <32>
+$ mariadb -e "SHOW TABLE STATUS FROM appdb;"  
 
 # 4. Queries lentos
-$ mariadb -e "SHOW GLOBAL STATUS LIKE 'Slow_queries';"  # <33>
+$ mariadb -e "SHOW GLOBAL STATUS LIKE 'Slow_queries';"  
 ```
 
-30. **SHOW PROCESSLIST** muestra queries activas; identifica queries bloqueadas o lentas
-31. **SHOW VARIABLES** verifica configuración; max_connections agotado causa lentitud
-32. **SHOW TABLE STATUS** muestra estado de tablas; tablas sin optimizar causan lentitud
-33. **Slow_queries** contador de queries lentas; métrica de severidad del problema
+1. **SHOW PROCESSLIST** muestra queries activas; identifica queries bloqueadas o lentas
+2. **SHOW VARIABLES** verifica configuración; max_connections agotado causa lentitud
+3. **SHOW TABLE STATUS** muestra estado de tablas; tablas sin optimizar causan lentitud
+4. **Slow_queries** contador de queries lentas; métrica de severidad del problema
 
 ## Diagnóstico por Área
 
@@ -206,99 +206,99 @@ $ mariadb -e "SHOW GLOBAL STATUS LIKE 'Slow_queries';"  # <33>
 
 ```bash
 # Ver carga
-$ uptime  # <34>
+$ uptime  
 14:30:00 up 45 days, load average: 8.52, 2.58, 0.61
 
 # Procesos que más CPU consumen
-$ ps aux --sort=-%cpu | head -10  # <35>
+$ ps aux --sort=-%cpu | head -10  
 
 # Detalle por core
-$ mpstat -P ALL 1 5  # <36>
+$ mpstat -P ALL 1 5  
 
 # Ver si es spike o sostenido
-$ sar -q 1 10  # <37>
+$ sar -q 1 10  
 ```
 
-34. **uptime** muestra carga del sistema; load average > número de cores indica sobrecarga
-35. **ps aux --sort=-%cpu** ordena por consumo CPU; identifica el proceso problemático
-36. **mpstat -P ALL** muestra uso por core; detecta si un solo core está al 100%
-37. **sar -q** historia de carga cada segundo; distingue pico momentáneo de problema sostenido
+1. **uptime** muestra carga del sistema; load average > número de cores indica sobrecarga
+2. **ps aux --sort=-%cpu** ordena por consumo CPU; identifica el proceso problemático
+3. **mpstat -P ALL** muestra uso por core; detecta si un solo core está al 100%
+4. **sar -q** historia de carga cada segundo; distingue pico momentáneo de problema sostenido
 
 ### 2. Problemas de Memoria
 
 ```bash
 # Estado de memoria
-$ free -h  # <38>
+$ free -h  
 
 # Ver uso por proceso
-$ ps aux --sort=-%mem | head -10  # <39>
+$ ps aux --sort=-%mem | head -10  
 
 # Ver OOM kills recientes
-$ dmesg | grep -i "out of memory"  # <40>
-$ journalctl -k | grep -i "out of memory"  # <41>
+$ dmesg | grep -i "out of memory"  
+$ journalctl -k | grep -i "out of memory"  
 
 # Ver swap activity
-$ vmstat 1  # <42>
+$ vmstat 1  
 # Si si y so están altos constantemente = problemas de memoria
 ```
 
-38. **free -h** muestra memoria total/usada/disponible; Available < 10% = problema
-39. **ps aux --sort=-%mem** ordena por consumo de memoria; identifica proceso que agota RAM
-40. **dmesg | grep "out of memory"** busca OOM kills en kernel; evidencia de memoria insuficiente
-41. **journalctl -k | grep "out of memory"** misma búsqueda en journal; más confiable en sistemas modernos
-42. **vmstat 1** muestra swap activity; si/so altos = presión de memoria constante
+1. **free -h** muestra memoria total/usada/disponible; Available < 10% = problema
+2. **ps aux --sort=-%mem** ordena por consumo de memoria; identifica proceso que agota RAM
+3. **dmesg | grep "out of memory"** busca OOM kills en kernel; evidencia de memoria insuficiente
+4. **journalctl -k | grep "out of memory"** misma búsqueda en journal; más confiable en sistemas modernos
+5. **vmstat 1** muestra swap activity; si/so altos = presión de memoria constante
 
 ### 3. Problemas de Disco
 
 ```bash
 # Espacio disponible
-$ df -h  # <43>
+$ df -h  
 
 # I/O wait
-$ iostat -x 1 5  # <44>
+$ iostat -x 1 5  
 
 # Procesos escribiendo/leyendo
-$ iotop -o  # <45>
+$ iotop -o  
 
 # Ver inode usage
-$ df -i  # <46>
+$ df -i  
 
 # Ver mayores consumidores de disco
-$ du -sh /* 2>/dev/null | sort -rh | head -10  # <47>
+$ du -sh /* 2>/dev/null | sort -rh | head -10  
 ```
 
-43. **df -h** muestra espacio en disco; Usage > 85% requiere acción urgente
-44. **iostat -x 1 5** muestra I/O por dispositivo; %util > 80% = disco saturado
-45. **iotop -o** muestra procesos escribiendo/leyendo; identifica quién satura el disco
-46. **df -i** muestra uso de inodes; inodes agotados impiden crear archivos aunque haya espacio
-47. **du -sh + sort** ordena directorios por tamaño; identifica qué consume más espacio
+1. **df -h** muestra espacio en disco; Usage > 85% requiere acción urgente
+2. **iostat -x 1 5** muestra I/O por dispositivo; %util > 80% = disco saturado
+3. **iotop -o** muestra procesos escribiendo/leyendo; identifica quién satura el disco
+4. **df -i** muestra uso de inodes; inodes agotados impiden crear archivos aunque haya espacio
+5. **du -sh + sort** ordena directorios por tamaño; identifica qué consume más espacio
 
 ### 4. Problemas de Red
 
 ```bash
 # Ver conexiones establecidas
-$ ss -tunapl | grep ESTAB  # <48>
+$ ss -tunapl | grep ESTAB  
 
 # Ver errores en interfaces
-$ ip -s link  # <49>
+$ ip -s link  
 
 # Ver tabla de rutas
-$ ip route  # <50>
+$ ip route  
 
 # Ver resolución DNS
-$ getent hosts example.com  # <51>
+$ getent hosts example.com  
 
 # Test de conectividad
-$ nc -zv host 22  # <52>
-$ curl -I https://example.com  # <53>
+$ nc -zv host 22  
+$ curl -I https://example.com  
 ```
 
-48. **ss -tunapl | grep ESTAB** muestra conexiones establecidas; identifica conexiones anómalas o sospechosas
-49. **ip -s link** estadísticas de interfaz; errores/drops indican problema físico o de configuración
-50. **ip route** tabla de rutas; verifica enrutamiento correcto
-51. **getent hosts** resolución DNS; verifica que el DNS funcione correctamente
-52. **nc -zv** test de conectividad a puerto específico; verifica si un servicio está accesible
-53. **curl -I** headers HTTP; verifica conectividad web y respuesta del servidor
+1. **ss -tunapl | grep ESTAB** muestra conexiones establecidas; identifica conexiones anómalas o sospechosas
+2. **ip -s link** estadísticas de interfaz; errores/drops indican problema físico o de configuración
+3. **ip route** tabla de rutas; verifica enrutamiento correcto
+4. **getent hosts** resolución DNS; verifica que el DNS funcione correctamente
+5. **nc -zv** test de conectividad a puerto específico; verifica si un servicio está accesible
+6. **curl -I** headers HTTP; verifica conectividad web y respuesta del servidor
 
 ## Logs: El Diagnóstico
 
@@ -306,70 +306,70 @@ $ curl -I https://example.com  # <53>
 
 ```bash
 # Ver todo el sistema (último boot)
-$ sudo journalctl -b --no-pager  # <54>
+$ sudo journalctl -b --no-pager  
 
 # Ver servicio específico
-$ sudo journalctl -u nginx --no-pager  # <55>
+$ sudo journalctl -u nginx --no-pager  
 
 # Ver desde tiempo específico
-$ sudo journalctl --since "2026-03-31 10:00:00" --until "2026-03-31 10:30:00"  # <56>
+$ sudo journalctl --since "2026-03-31 10:00:00" --until "2026-03-31 10:30:00"  
 
 # Ver por nivel de error
-$ sudo journalctl -p err --no-pager  # <57>
+$ sudo journalctl -p err --no-pager  
 
 # Seguir en tiempo real
-$ sudo journalctl -f  # <58>
+$ sudo journalctl -f  
 
 # Ver kernel messages
-$ sudo journalctl -k --no-pager  # <59>
+$ sudo journalctl -k --no-pager  
 ```
 
-54. **journalctl -b** muestra logs del último boot; primer paso para revisar eventos recientes
-55. **journalctl -u nginx** logs de un servicio específico; aísla problemas de un solo servicio
-56. **journalctl --since/--until** filtro por rango temporal; esencial para investigar incidentes en hora específica
-57. **journalctl -p err** solo errores; rápido para detectar problemas críticos
-58. **journalctl -f** sigue logs en tiempo real; monitoreo durante cambios o pruebas
-59. **journalctl -k** solo kernel; problemas de hardware, drivers o kernel
+1. **journalctl -b** muestra logs del último boot; primer paso para revisar eventos recientes
+2. **journalctl -u nginx** logs de un servicio específico; aísla problemas de un solo servicio
+3. **journalctl --since/--until** filtro por rango temporal; esencial para investigar incidentes en hora específica
+4. **journalctl -p err** solo errores; rápido para detectar problemas críticos
+5. **journalctl -f** sigue logs en tiempo real; monitoreo durante cambios o pruebas
+6. **journalctl -k** solo kernel; problemas de hardware, drivers o kernel
 
 ### Logs de Aplicaciones
 
 ```bash
 # Apache/Nginx
-$ sudo tail -f /var/log/apache2/error.log  # <60>
-$ sudo tail -f /var/log/nginx/error.log  # <61>
+$ sudo tail -f /var/log/apache2/error.log  
+$ sudo tail -f /var/log/nginx/error.log  
 
 # MariaDB
-$ sudo tail -f /var/log/mysql/error.log  # <62>
+$ sudo tail -f /var/log/mysql/error.log  
 
 # Application logs
-$ sudo tail -f /var/www/myapp/storage/logs/laravel.log  # <63>
+$ sudo tail -f /var/www/myapp/storage/logs/laravel.log  
 ```
 
-60. **tail -f apache2/error.log** sigue errores de Apache en tiempo real; monitoreo durante cambios
-61. **tail -f nginx/error.log** sigue errores de Nginx; detecta problemas de configuración
-62. **tail -f mysql/error.log** sigue errores de MariaDB; diagnóstico de base de datos
-63. **tail -f laravel.log** sigue errores de la aplicación; detecta errores de código
+1. **tail -f apache2/error.log** sigue errores de Apache en tiempo real; monitoreo durante cambios
+2. **tail -f nginx/error.log** sigue errores de Nginx; detecta problemas de configuración
+3. **tail -f mysql/error.log** sigue errores de MariaDB; diagnóstico de base de datos
+4. **tail -f laravel.log** sigue errores de la aplicación; detecta errores de código
 
 ### Analizar Logs Eficientemente
 
 ```bash
 # Buscar errores
-$ sudo grep -i "error\|critical\|alert" /var/log/syslog  # <64>
+$ sudo grep -i "error\|critical\|alert" /var/log/syslog  
 
 # Ver último error
-$ sudo tail -100 /var/log/syslog | grep -i error  # <65>
+$ sudo tail -100 /var/log/syslog | grep -i error  
 
 # Contar errores por tipo
-$ sudo awk '/error/ {print $5}' /var/log/syslog | sort | uniq -c | sort -rn  # <66>
+$ sudo awk '/error/ {print $5}' /var/log/syslog | sort | uniq -c | sort -rn  
 
 # Buscar en todos los logs
-$ sudo grep -r "error" /var/log/* 2>/dev/null | head -20  # <67>
+$ sudo grep -r "error" /var/log/* 2>/dev/null | head -20  
 ```
 
-64. **grep -i "error|critical|alert"** busca errores críticos; filtro rápido para eventos importantes
-65. **tail -100 | grep error** últimos 100 líneas filtradas; revisión rápida de errores recientes
-66. **awk + sort + uniq** cuenta errores por tipo; identifica el error más frecuente
-67. **grep -r "error" /var/log/*** busca en todos los logs;encuentra errores en logs inesperados
+1. **grep -i "error|critical|alert"** busca errores críticos; filtro rápido para eventos importantes
+2. **tail -100 | grep error** últimos 100 líneas filtradas; revisión rápida de errores recientes
+3. **awk + sort + uniq** cuenta errores por tipo; identifica el error más frecuente
+4. **grep -r "error" /var/log/*** busca en todos los logs;encuentra errores en logs inesperados
 
 ## Casos de Estudio
 
@@ -377,180 +377,180 @@ $ sudo grep -r "error" /var/log/* 2>/dev/null | head -20  # <67>
 
 **Síntomas**:
 ```bash
-$ uptime  # <68>
+$ uptime  
  14:30:00 up 45 days,  load average: 25.52, 18.58, 12.61
 
-$ top  # <69>
+$ top  
 # 16 procesos de "php-fpm" usando 100% CPU cada uno
 ```
 
-68. **uptime** carga altísima (25.52); confirma que el problema es CPU
-69. **top** muestra procesos en tiempo real; identifica qué consume CPU
+1. **uptime** carga altísima (25.52); confirma que el problema es CPU
+2. **top** muestra procesos en tiempo real; identifica qué consume CPU
 
 **Diagnóstico**:
 ```bash
 # 1. Ver qué proceso consume más
-$ ps aux --sort=-%cpu | head -10  # <70>
+$ ps aux --sort=-%cpu | head -10  
 
 # 2. Ver conexiones de red
-$ ss -tunapl | grep ESTAB | wc -l  # <71>
+$ ss -tunapl | grep ESTAB | wc -l  
 # 5000 conexiones establecidas - ataque?
 
 # 3. Ver logs de aplicación
-$ tail /var/log/nginx/error.log  # <72>
+$ tail /var/log/nginx/error.log  
 # lots of "upstream timed out" errors
 ```
 
-70. **ps aux --sort=-%cpu** ordena por CPU; confirma qué proceso está consumiendo recursos
-71. **ss + wc -l** cuenta conexiones; 5000 conexiones indica posible ataque o problema de configuración
-72. **tail nginx/error.log** errores de upstream; PHP-FPM no responde a tiempo
+1. **ps aux --sort=-%cpu** ordena por CPU; confirma qué proceso está consumiendo recursos
+2. **ss + wc -l** cuenta conexiones; 5000 conexiones indica posible ataque o problema de configuración
+3. **tail nginx/error.log** errores de upstream; PHP-FPM no responde a tiempo
 
 **Solución**:
 ```bash
 # Identificar: PHP-FPM con loops infinitos
 # 1. Aumentar workers
-$ sudo sed -i 's/pm.max_children = 5/pm.max_children = 50/' /etc/php/8.1/fpm/pool.d/www.conf  # <73>
+$ sudo sed -i 's/pm.max_children = 5/pm.max_children = 50/' /etc/php/8.1/fpm/pool.d/www.conf  
 
 # 2. Recargar
-$ sudo systemctl reload php8.1-fpm  # <74>
+$ sudo systemctl reload php8.1-fpm  
 
 # 3. Monitorear
-$ watch -n 1 'ps aux | grep php-fpm | wc -l'  # <75>
+$ watch -n 1 'ps aux | grep php-fpm | wc -l'  
 ```
 
-73. **sed -i** modifica configuración directamente; aumenta workers de PHP-FPM
-74. **systemctl reload** recarga sin reiniciar mantiene conexiones activas
-75. **watch -n 1** ejecuta comando cada segundo; monitoreo continuo de procesos
+1. **sed -i** modifica configuración directamente; aumenta workers de PHP-FPM
+2. **systemctl reload** recarga sin reiniciar mantiene conexiones activas
+3. **watch -n 1** ejecuta comando cada segundo; monitoreo continuo de procesos
 
 ### Caso 2: No Puedo Conectar a MySQL
 
 **Síntomas**:
 ```bash
-$ mariadb -u appuser -p  # <76>
+$ mariadb -u appuser -p  
 ERROR 2003 (HY000): Can't connect to MySQL server on 'localhost' (111)
 ```
 
-76. **mariadb -u appuser -p** intenta conectar; error 2003 = no se puede conectar al servidor
+1. **mariadb -u appuser -p** intenta conectar; error 2003 = no se puede conectar al servidor
 
 **Diagnóstico**:
 ```bash
 # 1. Ver si el servicio está corriendo
-$ systemctl status mariadb  # <77>
+$ systemctl status mariadb  
 
 # 2. Ver si está escuchando
-$ ss -tlnp | grep 3306  # <78>
+$ ss -tlnp | grep 3306  
 
 # 3. Ver logs
-$ journalctl -u mariadb -n 50  # <79>
+$ journalctl -u mariadb -n 50  
 ```
 
-77. **systemctl status mariadb** verifica estado del servicio; primer paso diagnóstico
-78. **ss -tlnp | grep 3306** verifica si MariaDB escucha en el puerto; servicio puede estar corriendo pero no escuchando
-79. **journalctl -u mariadb** logs recientes; identifica causa de fallo
+1. **systemctl status mariadb** verifica estado del servicio; primer paso diagnóstico
+2. **ss -tlnp | grep 3306** verifica si MariaDB escucha en el puerto; servicio puede estar corriendo pero no escuchando
+3. **journalctl -u mariadb** logs recientes; identifica causa de fallo
 
 **Solución**:
 ```bash
 # Si no está corriendo:
-$ sudo systemctl start mariadb  # <80>
-$ sudo systemctl enable mariadb  # <81>
+$ sudo systemctl start mariadb  
+$ sudo systemctl enable mariadb  
 
 # Si está corriendo pero no en red:
-$ sudo sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf  # <82>
-$ sudo systemctl restart mariadb  # <83>
+$ sudo sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf  
+$ sudo systemctl restart mariadb  
 ```
 
-80. **systemctl start mariadb** inicia el servicio; soluciona si no estaba corriendo
-81. **systemctl enable mariadb** habilita auto-inicio; evita que el problema vuelva tras reinicio
-82. **sed -i bind-address** cambia escucha de localhost a todas las interfaces; permite conexiones remotas
-83. **systemctl restart mariadb** reinicia para aplicar cambios de configuración
+1. **systemctl start mariadb** inicia el servicio; soluciona si no estaba corriendo
+2. **systemctl enable mariadb** habilita auto-inicio; evita que el problema vuelva tras reinicio
+3. **sed -i bind-address** cambia escucha de localhost a todas las interfaces; permite conexiones remotas
+4. **systemctl restart mariadb** reinicia para aplicar cambios de configuración
 
 ### Caso 3: Disco Lleno
 
 **Síntomas**:
 ```bash
-$ df -h  # <84>
+$ df -h  
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sda1       100G  100G     0 100% /
 ```
 
-84. **df -h** muestra espacio al 100%; disco lleno = errores en servicios y escrituras fallidas
+1. **df -h** muestra espacio al 100%; disco lleno = errores en servicios y escrituras fallidas
 
 **Diagnóstico**:
 ```bash
 # 1. Ver mayores consumidores
-$ sudo du -sh /* 2>/dev/null | sort -rh | head -10  # <85>
+$ sudo du -sh /* 2>/dev/null | sort -rh | head -10  
 
 # 2. Ver logs grandes
-$ sudo find /var/log -type f -size +100M -exec ls -lh {} \;  # <86>
+$ sudo find /var/log -type f -size +100M -exec ls -lh {} \;  
 
 # 3. Ver temporales
-$ sudo du -sh /tmp  # <87>
+$ sudo du -sh /tmp  
 ```
 
-85. **du -sh + sort** ordena directorios por tamaño; identifica qué consume más espacio
-86. **find -size +100M** busca archivos mayores a 100MB en logs; los logs crecen sin control
-87. **du -sh /tmp** verifica tamaño de temporales; archivos temporales pueden acumularse
+1. **du -sh + sort** ordena directorios por tamaño; identifica qué consume más espacio
+2. **find -size +100M** busca archivos mayores a 100MB en logs; los logs crecen sin control
+3. **du -sh /tmp** verifica tamaño de temporales; archivos temporales pueden acumularse
 
 **Solución**:
 ```bash
 # 1. Limpiar logs antiguos
-$ sudo journalctl --vacuum-time=7d  # <88>
+$ sudo journalctl --vacuum-time=7d  
 
 # 2. Eliminar paquetes antiguos
-$ sudo apt autoremove  # <89>
+$ sudo apt autoremove  
 
 # 3. Limpiar /tmp
-$ sudo rm -rf /tmp/*  # <90>
+$ sudo rm -rf /tmp/*  
 
 # 4. Verificar espacio
-$ df -h  # <91>
+$ df -h  
 ```
 
-88. **journalctl --vacuum-time=7d** elimina logs mayores a 7 días; libera espacio rápido
-89. **apt autoremove** elimina paquetes huérfanos; libera espacio de dependencias no usadas
-90. **rm -rf /tmp/*** limpia archivos temporales; precaución: no usar en producción si hay procesos activos
-91. **df -h** verifica espacio liberado; confirma que la solución funcionó
+1. **journalctl --vacuum-time=7d** elimina logs mayores a 7 días; libera espacio rápido
+2. **apt autoremove** elimina paquetes huérfanos; libera espacio de dependencias no usadas
+3. **rm -rf /tmp/*** limpia archivos temporales; precaución: no usar en producción si hay procesos activos
+4. **df -h** verifica espacio liberado; confirma que la solución funcionó
 
 ### Caso 4: DNS No Resuelve
 
 **Síntomas**:
 ```bash
-$ ping google.com  # <92>
+$ ping google.com  
 ping: google.com: Name or service not known
 ```
 
-92. **ping google.com** falla resolución DNS; el sistema no puede resolver nombres de dominio
+1. **ping google.com** falla resolución DNS; el sistema no puede resolver nombres de dominio
 
 **Diagnóstico**:
 ```bash
 # 1. Ver configuración DNS
-$ cat /etc/resolv.conf  # <93>
+$ cat /etc/resolv.conf  
 
 # 2. Probar DNS específico
-$ nslookup google.com 8.8.8.8  # <94>
+$ nslookup google.com 8.8.8.8  
 
 # 3. Ver si es problema de red
-$ ping -c 2 8.8.8.8  # <95>
+$ ping -c 2 8.8.8.8  
 ```
 
-93. **cat /etc/resolv.conf** muestra servidores DNS configurados; verifica configuración
-94. **nslookup google.com 8.8.8.8** prueba con DNS de Google; aísla si es problema del DNS local
-95. **ping 8.8.8.8** prueba conectividad IP; si funciona = problema DNS, si falla = problema red
+1. **cat /etc/resolv.conf** muestra servidores DNS configurados; verifica configuración
+2. **nslookup google.com 8.8.8.8** prueba con DNS de Google; aísla si es problema del DNS local
+3. **ping 8.8.8.8** prueba conectividad IP; si funciona = problema DNS, si falla = problema red
 
 **Solución**:
 ```bash
 # Agregar DNS temporal
-$ echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf  # <96>
+$ echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf  
 
 # O editar resolv.conf
-$ sudo nano /etc/resolv.conf  # <97>
+$ sudo nano /etc/resolv.conf  
 # Agregar:
 # nameserver 8.8.8.8
 # nameserver 8.8.4.4
 ```
 
-96. **echo | tee** escribe DNS temporal; soluciona mientras se investiga causa raíz
-97. **nano /etc/resolv.conf** edición manual; configurar DNS permanentemente
+1. **echo | tee** escribe DNS temporal; soluciona mientras se investiga causa raíz
+2. **nano /etc/resolv.conf** edición manual; configurar DNS permanentemente
 
 ## Herramientas Avanzadas
 
@@ -558,52 +558,52 @@ $ sudo nano /etc/resolv.conf  # <97>
 
 ```bash
 # Ver qué hace un proceso
-$ sudo strace -p 1234 -f -e trace=network  # <98>
+$ sudo strace -p 1234 -f -e trace=network  
 
 # Ver qué archivos abre
-$ sudo strace -p 1234 -e trace=open,close  # <99>
+$ sudo strace -p 1234 -e trace=open,close  
 ```
 
-98. **strace -p -e trace=network** sigue llamadas de red de un proceso; diagnóstico de problemas de conexión
-99. **strace -e trace=open,close** sigue aperturas de archivos; identifica archivos que un proceso necesita
+1. **strace -p -e trace=network** sigue llamadas de red de un proceso; diagnóstico de problemas de conexión
+2. **strace -e trace=open,close** sigue aperturas de archivos; identifica archivos que un proceso necesita
 
 ### lsof: Archivos Abiertos
 
 ```bash
 # Ver qué tiene abierto un proceso
-$ sudo lsof -p 1234  # <100>
+$ sudo lsof -p 1234  
 
 # Ver quién usa un archivo
-$ sudo lsof /var/log/syslog  # <101>
+$ sudo lsof /var/log/syslog  
 
 # Ver conexiones de red
-$ sudo lsof -i :80  # <102>
+$ sudo lsof -i :80  
 ```
 
-100. **lsof -p** archivos abiertos por un proceso; identifica recursos que consume
-101. **lsof /path** quién usa un archivo específico; útil para "archivo en uso"
-102. **lsof -i :80** conexiones en puerto 80; identifica procesos escuchando en un puerto
+1. **lsof -p** archivos abiertos por un proceso; identifica recursos que consume
+2. **lsof /path** quién usa un archivo específico; útil para "archivo en uso"
+3. **lsof -i :80** conexiones en puerto 80; identifica procesos escuchando en un puerto
 
 ### netstat/ss: Estadísticas de Red
 
 ```bash
 # Ver conexiones
-$ ss -tunapl  # <103>
+$ ss -tunapl  
 
 # Ver estadísticas
-$ ss -s  # <104>
+$ ss -s  
 
 # Ver tabla de rutas
-$ ip route  # <105>
+$ ip route  
 
 # Ver neighbor table
-$ ip neigh  # <106>
+$ ip neigh  
 ```
 
-103. **ss -tunapl** todas las conexiones TCP/UDP/unix con procesos; reemplaza netstat
-104. **ss -s** resumen de conexiones totales; útil para ver volumen de tráfico
-105. **ip route** tabla de rutas; verifica routing para diagnosticar problemas de red
-106. **ip neigh** tabla ARP; verifica resolución de direcciones MAC en red local
+1. **ss -tunapl** todas las conexiones TCP/UDP/unix con procesos; reemplaza netstat
+2. **ss -s** resumen de conexiones totales; útil para ver volumen de tráfico
+3. **ip route** tabla de rutas; verifica routing para diagnosticar problemas de red
+4. **ip neigh** tabla ARP; verifica resolución de direcciones MAC en red local
 
 ## Resumen
 

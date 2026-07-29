@@ -1,0 +1,2575 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Diego Saavedra - Instructor Principal">
+<meta name="dcterms.date" content="2026-07-20">
+<meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
+
+<title>UNIDAD XI: Bases de Datos en Contenedores y Despliegue – Administración de Servidores Linux</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../unidades/unidad12/1_metodologia_diagnostico.html" rel="next">
+<link href="../10-ssl/index.html" rel="prev">
+<link href="../logo.jpeg" rel="icon" type="image/jpeg">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-23bbe8b5e4efc1e257f6d59dce478b08.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-abfa4615eba2ed0d4bb7fb949ed9c296.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e2c78d758adb40864c429e99cf005747.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdown-init.js"></script>
+<link href="../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+<script src="../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
+<link href="../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../11-bases-datos/index.html">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</a></li><li class="breadcrumb-item"><a href="../11-bases-datos/index.html"><span class="chapter-title">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../logo.jpeg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../logo.jpeg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Administración de Servidores Linux</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/statick88/administracion-servidores-linux" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Administración de Servidores Linux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introducción al Curso</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acerca del Instructor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../license.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licencia</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SETUP.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Guía de Configuración del Entorno</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../glosario.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Glosario del Curso</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD I: Fundamentos de Linux y Virtualización Ligera</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../01-fundamentos/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD I: Fundamentos de Linux y Virtualización Ligera</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD II: Gestión de Paquetes y Entornos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../02-paquetes/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD II: Gestión de Paquetes y Entornos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD III: Scripting y Automatización con Bash</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../03-scripting/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD III: Scripting y Automatización con Bash</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD IV: Administración y Seguridad de Usuarios</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../04-usuarios/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD IV: Administración y Seguridad de Usuarios</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD V: Gestión de Procesos y Logs</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../05-procesos/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD V: Gestión de Procesos y Logs</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD VI: Redes y Almacenamiento Local</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../06-redes/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD VI: Redes y Almacenamiento Local</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD VII: Seguridad Práctica - Hardening</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../07-seguridad/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD VII: Seguridad Práctica — Hardening</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD VIII: Introducción a Docker</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../08-docker/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD VIII: Introducción a Docker</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD IX: Nginx como Servidor Web y Proxy</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../09-nginx/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD IX: Nginx como Servidor Web y Proxy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD X: Certificados SSL y HTTPS</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../10-ssl/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD X: Certificados SSL y HTTPS</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true">
+ <span class="menu-text">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../11-bases-datos/index.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 12: Diagnostico y Troubleshooting</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/2_logs_journalctl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.2: Logs y journalctl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/3_red_puertos_dns.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.3: Red, puertos y DNS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 13: Usuarios y Permisos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/1_usuarios_grupos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Usuarios y Grupos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/2_permisos_chmod.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Permisos y chmod</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/3_sudo_administracion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sudo y Administración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/4_lab_practico_usuarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio Práctico: Usuarios y Permisos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Recursos y Referencias</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 14: Monitoreo e Inventario con Docker</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/1_introduccion_pila_observabilidad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Monitoreo, Inventario y Observabilidad con Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/2_docker_compose_deploy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Despliegue con Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/3_configuracion_prometheus_grafana.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración de Prometheus y Grafana</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/4_netbox_configuracion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración de NetBox</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/5_lab_practico_monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio Práctico: Monitoreo e Inventario</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 15: Docker Básico</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/1_introduccion_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduccion a Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/2_dockerfile_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dockerfile y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/3_servidores_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Servidores en Docker</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false">
+ <span class="menu-text">Laboratorios Prácticos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-17" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorios Prácticos - Administración de Servidores Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab0_fundamentos_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 0: Diagnostico Basico del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab1_fundamentos_wsl2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 1: Fundamentos WSL2 y Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab4_usuarios_permisos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2: Gestión de Usuarios y Permisos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab5_procesos_servicios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 3: Administración de Procesos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab5b_troubleshooting_integrado.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab6_redes_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4: Redes y SSH</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab6b_almacenamiento_montajes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab7_hardening_ufw_fail2ban.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2B: Hardening Basico Post-Instalacion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab8_docker_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4B: Docker y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9_http_diagnostico_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 6: HTTP Basico y Diagnostico Web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9_nginx_virtualhost.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 9: Nginx - Sitio y Virtual Host</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9b_nginx_reverseproxy_tls.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 8: Nginx - Reverse Proxy + TLS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab11_bd_mariadb_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Bases de Datos en Contenedores — MariaDB</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false">
+ <span class="menu-text">Laboratorios Avanzados</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-18" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab13_openclaw_telegram_tailscale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab14_opencode_ssh_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: OpenCode + SSH - Administración Remota de Servidores</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">Prácticas por Unidad</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 1: Fundamentos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 2: Instalacion y Primer Hardening</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 3: Terminal y Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 4: Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad12.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 12: Troubleshooting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 6: Almacenamiento</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 7: Redes basicas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 8: HTTP Basico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 9: Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 10: Nginx y SSL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad11.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 11: MariaDB</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false">
+ <span class="menu-text">Retos GNU/Linux (Wargames)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-20" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retos GNU/Linux (Bandit)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/01_niveles_1_12.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 1→2 hasta 12→13</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/02_niveles_13_23.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 13→14 hasta 23→24</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/03_niveles_24_34.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 24→25 hasta 33→34</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-21" role="navigation" aria-expanded="false">
+ <span class="menu-text">Presentaciones (Reveal.js)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-21" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-21" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../presentaciones.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Presentaciones (Reveal.js)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-22" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 1: Fundamentos)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-22" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-22" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_B_Editores_Vi_Nvim.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo B: Editores Vi y Nvim - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_L_SSH_GitHub_Minicurso.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Minicurso: Configuración de SSH para GitHub</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_H_SSH_SCP_Keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo H: SSH, SCP y Llaves - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_D_Herramientas_Monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_F_Ranger_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Ranger: Gestor de Archivos Terminal para Servidores</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 2: Intermedio)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-23" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-24" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 3: Avanzado)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-24" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-24" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_G_OpenCode_Gestion_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo G: OpenCode - Mini-Curso para Gestión de Servidores</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_I_Openclaw_Telegram_Abacombot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/rsync-nginx-course.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Rsync y Nginx - Guía de Laboratorio</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-25" role="navigation" aria-expanded="false">
+ <span class="menu-text">Evaluación: Quizzes Interactivos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-25" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-25" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluación: Quizzes Interactivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 1: Fundamentos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 2: Instalación y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 3: Comandos Básicos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 4: Docker y Containerización</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 5: Procesos y Servicios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 6: Almacenamiento y Sistemas de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 7: Redes Básicas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 8: Introducción a Servidores Web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 9: Apache (Servidor Web)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 10: Nginx y SSL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad11.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 11: MariaDB/MySQL</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false">
+ <span class="menu-text">Evaluación: Quizzes Avanzados (Bonus)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-26" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/README_avanzado.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quizzes Avanzados (Bonus)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Docker en Producción</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Nginx y SSL en Producción</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Troubleshooting en Linux</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#unidad-xi-bases-de-datos-en-contenedores-y-despliegue" id="toc-unidad-xi-bases-de-datos-en-contenedores-y-despliegue" class="nav-link active" data-scroll-target="#unidad-xi-bases-de-datos-en-contenedores-y-despliegue">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</a>
+  <ul class="collapse">
+  <li><a href="#objetivos-de-la-unidad" id="toc-objetivos-de-la-unidad" class="nav-link" data-scroll-target="#objetivos-de-la-unidad">Objetivos de la Unidad</a></li>
+  <li><a href="#por-qué-ejecutar-bases-de-datos-en-contenedores" id="toc-por-qué-ejecutar-bases-de-datos-en-contenedores" class="nav-link" data-scroll-target="#por-qué-ejecutar-bases-de-datos-en-contenedores">1. ¿Por qué ejecutar bases de datos en contenedores?</a></li>
+  <li><a href="#mysql-mariadb-en-contenedor" id="toc-mysql-mariadb-en-contenedor" class="nav-link" data-scroll-target="#mysql-mariadb-en-contenedor">2. MySQL / MariaDB en contenedor</a>
+  <ul class="collapse">
+  <li><a href="#despliegue-con-docker-run" id="toc-despliegue-con-docker-run" class="nav-link" data-scroll-target="#despliegue-con-docker-run">2.1 Despliegue con <code>docker run</code></a></li>
+  <li><a href="#verificar-el-contenedor-y-conectar" id="toc-verificar-el-contenedor-y-conectar" class="nav-link" data-scroll-target="#verificar-el-contenedor-y-conectar">2.2 Verificar el contenedor y conectar</a></li>
+  </ul></li>
+  <li><a href="#postgresql-en-contenedor" id="toc-postgresql-en-contenedor" class="nav-link" data-scroll-target="#postgresql-en-contenedor">3. PostgreSQL en contenedor</a>
+  <ul class="collapse">
+  <li><a href="#despliegue-con-docker-run-1" id="toc-despliegue-con-docker-run-1" class="nav-link" data-scroll-target="#despliegue-con-docker-run-1">3.1 Despliegue con <code>docker run</code></a></li>
+  <li><a href="#verificar-y-conectar" id="toc-verificar-y-conectar" class="nav-link" data-scroll-target="#verificar-y-conectar">3.2 Verificar y conectar</a></li>
+  </ul></li>
+  <li><a href="#usuarios-y-privilegios-principio-de-mínimo-privilegio" id="toc-usuarios-y-privilegios-principio-de-mínimo-privilegio" class="nav-link" data-scroll-target="#usuarios-y-privilegios-principio-de-mínimo-privilegio">4. Usuarios y privilegios (principio de mínimo privilegio)</a>
+  <ul class="collapse">
+  <li><a href="#mysql-mariadb" id="toc-mysql-mariadb" class="nav-link" data-scroll-target="#mysql-mariadb">4.1 MySQL / MariaDB</a></li>
+  <li><a href="#postgresql" id="toc-postgresql" class="nav-link" data-scroll-target="#postgresql">4.2 PostgreSQL</a></li>
+  </ul></li>
+  <li><a href="#backup-y-restore-verificables" id="toc-backup-y-restore-verificables" class="nav-link" data-scroll-target="#backup-y-restore-verificables">5. Backup y Restore verificables</a>
+  <ul class="collapse">
+  <li><a href="#backup-mysql-mariadb" id="toc-backup-mysql-mariadb" class="nav-link" data-scroll-target="#backup-mysql-mariadb">5.1 Backup MySQL / MariaDB</a></li>
+  <li><a href="#restore-mysql-mariadb" id="toc-restore-mysql-mariadb" class="nav-link" data-scroll-target="#restore-mysql-mariadb">5.2 Restore MySQL / MariaDB</a></li>
+  <li><a href="#backup-y-restore-postgresql" id="toc-backup-y-restore-postgresql" class="nav-link" data-scroll-target="#backup-y-restore-postgresql">5.3 Backup y Restore PostgreSQL</a></li>
+  <li><a href="#script-de-backup-automatizado" id="toc-script-de-backup-automatizado" class="nav-link" data-scroll-target="#script-de-backup-automatizado">5.4 Script de backup automatizado</a></li>
+  </ul></li>
+  <li><a href="#docker-compose-pila-completa-app-db" id="toc-docker-compose-pila-completa-app-db" class="nav-link" data-scroll-target="#docker-compose-pila-completa-app-db">6. Docker Compose: pila completa App + DB</a>
+  <ul class="collapse">
+  <li><a href="#compose.yaml-completo-mysql-app-node" id="toc-compose.yaml-completo-mysql-app-node" class="nav-link" data-scroll-target="#compose.yaml-completo-mysql-app-node">6.1 <code>compose.yaml</code> completo (MySQL + app Node)</a></li>
+  <li><a href="#equivalente-con-postgresql" id="toc-equivalente-con-postgresql" class="nav-link" data-scroll-target="#equivalente-con-postgresql">6.2 Equivalente con PostgreSQL</a></li>
+  <li><a href="#desplegar-y-verificar-la-pila" id="toc-desplegar-y-verificar-la-pila" class="nav-link" data-scroll-target="#desplegar-y-verificar-la-pila">6.3 Desplegar y verificar la pila</a></li>
+  </ul></li>
+  <li><a href="#conexión-remota-segura-regla-crítica" id="toc-conexión-remota-segura-regla-crítica" class="nav-link" data-scroll-target="#conexión-remota-segura-regla-crítica">7. Conexión remota segura (regla crítica)</a>
+  <ul class="collapse">
+  <li><a href="#túnel-ssh-para-administración-remota" id="toc-túnel-ssh-para-administración-remota" class="nav-link" data-scroll-target="#túnel-ssh-para-administración-remota">7.1 Túnel SSH para administración remota</a></li>
+  </ul></li>
+  <li><a href="#buenas-prácticas-de-operación" id="toc-buenas-prácticas-de-operación" class="nav-link" data-scroll-target="#buenas-prácticas-de-operación">8. Buenas prácticas de operación</a>
+  <ul class="collapse">
+  <li><a href="#respaldos-automatizados-y-verificados" id="toc-respaldos-automatizados-y-verificados" class="nav-link" data-scroll-target="#respaldos-automatizados-y-verificados">8.1 Respaldos automatizados y verificados</a></li>
+  <li><a href="#cifrado-en-reposo-y-en-tránsito" id="toc-cifrado-en-reposo-y-en-tránsito" class="nav-link" data-scroll-target="#cifrado-en-reposo-y-en-tránsito">8.2 Cifrado en reposo y en tránsito</a></li>
+  <li><a href="#actualizaciones-y-mantenimiento" id="toc-actualizaciones-y-mantenimiento" class="nav-link" data-scroll-target="#actualizaciones-y-mantenimiento">8.3 Actualizaciones y mantenimiento</a></li>
+  </ul></li>
+  <li><a href="#laboratorio-práctico-pila-app-db-en-compose" id="toc-laboratorio-práctico-pila-app-db-en-compose" class="nav-link" data-scroll-target="#laboratorio-práctico-pila-app-db-en-compose">9. Laboratorio Práctico: Pila App + DB en Compose</a></li>
+  <li><a href="#resumen-y-próximos-pasos" id="toc-resumen-y-próximos-pasos" class="nav-link" data-scroll-target="#resumen-y-próximos-pasos">10. Resumen y Próximos Pasos</a>
+  <ul class="collapse">
+  <li><a href="#checklist-de-competencias-unidad-xi" id="toc-checklist-de-competencias-unidad-xi" class="nav-link" data-scroll-target="#checklist-de-competencias-unidad-xi">📋 Checklist de competencias Unidad XI</a></li>
+  </ul></li>
+  <li><a href="#recursos-y-referencias" id="toc-recursos-y-referencias" class="nav-link" data-scroll-target="#recursos-y-referencias">11. Recursos y Referencias</a></li>
+  <li><a href="#quiz-interactivo-quizdown" id="toc-quiz-interactivo-quizdown" class="nav-link" data-scroll-target="#quiz-interactivo-quizdown">12. Quiz Interactivo (quizdown)</a></li>
+  </ul></li>
+  <li>Code Appendix</li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/11-bases-datos/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../11-bases-datos/index.html">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</a></li><li class="breadcrumb-item"><a href="../11-bases-datos/index.html"><span class="chapter-title">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></h1>
+<p class="subtitle lead">MySQL/MariaDB y PostgreSQL en Docker, Docker Compose (App + DB) — Enfoque Práctico Abacom™</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra - Instructor Principal </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 20, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="unidad-xi-bases-de-datos-en-contenedores-y-despliegue" class="level1">
+<h1>UNIDAD XI: Bases de Datos en Contenedores y Despliegue</h1>
+<section id="objetivos-de-la-unidad" class="level2">
+<h2 class="anchored" data-anchor-id="objetivos-de-la-unidad">Objetivos de la Unidad</h2>
+<p>Al finalizar esta unidad, serás capaz de:</p>
+<ul>
+<li>Ejecutar <strong>MySQL/MariaDB</strong> y <strong>PostgreSQL</strong> en contenedores Docker con <strong>persistencia real</strong> usando volúmenes nombrados.</li>
+<li>Gestionar <strong>usuarios y privilegios</strong> con el principio de mínimo privilegio (la aplicación nunca usa <code>root</code>).</li>
+<li>Realizar <strong>backup y restore</strong> verificables con <code>mysqldump</code>/<code>pg_dump</code> y automatizarlos con <code>cron</code>.</li>
+<li>Orquestar una pila <strong>App + DB</strong> completa con <strong>Docker Compose</strong> (red interna, <code>healthcheck</code>, <code>depends_on</code>).</li>
+<li>Proteger el acceso de red a la base de datos (sin exponer 3306/5432 a <code>0.0.0.0</code>).</li>
+</ul>
+<blockquote class="blockquote">
+<p><strong>Regla de oro Abacom</strong>: <em>No instalamos ISOs en VirtualBox/VMware</em>. Todo el entorno corre en <strong>WSL2 (Ubuntu 24.04 LTS)</strong> + <strong>Docker Desktop / Docker Compose</strong>.</p>
+</blockquote>
+<hr>
+</section>
+<section id="por-qué-ejecutar-bases-de-datos-en-contenedores" class="level2">
+<h2 class="anchored" data-anchor-id="por-qué-ejecutar-bases-de-datos-en-contenedores">1. ¿Por qué ejecutar bases de datos en contenedores?</h2>
+<p>Tradicionalmente, una base de datos se instalaba directamente sobre el sistema operativo del servidor. Con la adopción de contenedores, mover la BD a Docker aporta ventajas claras para desarrollo y producción:</p>
+<ul>
+<li><strong>Aislamiento</strong>: Cada motor de BD vive en su propio contenedor, con su filesystem, red y procesos aislados. No contamina el host.</li>
+<li><strong>Reproducibilidad</strong>: La misma imagen (<code>mysql:8.0</code>, <code>postgres:16</code>) se comporta idéntica en tu laptop, en WSL2 y en el servidor. “Funciona en mi máquina” deja de existir.</li>
+<li><strong>Versionado simple</strong>: Cambiar de versión es cambiar un tag de imagen, no una migración de paquetes del SO.</li>
+<li><strong>Rollback rápido</strong>: Si una actualización falla, vuelves a la imagen anterior en segundos.</li>
+<li><strong>Despliegue declarativo</strong>: Con Docker Compose defines BD + app en un solo archivo YAML versionado en Git.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>El filesystem del contenedor es efímero
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Un contenedor Docker escribe sus datos en una capa de escritura <strong>efímera</strong>. Si el contenedor se elimina (<code>docker rm</code>), <strong>todos los datos se pierden</strong>. Por eso existe la regla de oro de esta unidad:</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ REGLA DE ORO: La persistencia es obligatoria
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Los datos de la base de datos NUNCA deben vivir en el filesystem efímero del contenedor.</strong></p>
+<p><strong>Lo que podría salir mal:</strong> - Eliminas el contenedor para actualizar y pierdes toda la base de datos. - El contenedor se reinicia por un crash y la BD queda vacía. - Crecimiento del almacenamiento del contenedor sin control, saturando el disco del host.</p>
+<p><strong>Cómo prevenirlo:</strong> 1. Monta siempre un <strong>volumen nombrado</strong> (<code>-v nombre_volumen:/ruta/de/datos</code>) o un bind mount a un directorio del host. 2. Apunta el volumen a la ruta donde el motor guarda sus datos (<code>/var/lib/mysql</code> para MySQL/MariaDB, <code>/var/lib/postgresql/data</code> para PostgreSQL). 3. Incluye el volumen en tu <code>compose.yaml</code> bajo la clave <code>volumes:</code>.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="mysql-mariadb-en-contenedor" class="level2">
+<h2 class="anchored" data-anchor-id="mysql-mariadb-en-contenedor">2. MySQL / MariaDB en contenedor</h2>
+<p>MySQL y su fork MariaDB son motores relacionales compatibles. Para este curso usamos la imagen oficial <code>mysql:8.0</code> (el procedimiento es idéntico para <code>mariadb:11</code>).</p>
+<section id="despliegue-con-docker-run" class="level3">
+<h3 class="anchored" data-anchor-id="despliegue-con-docker-run">2.1 Despliegue con <code>docker run</code></h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker run <span class="at">-d</span> <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--name</span> mysql <span class="dt">\</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> MYSQL_ROOT_PASSWORD=<span class="st">'CambiaEstePasswordFuerte'</span> <span class="dt">\</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> MYSQL_DATABASE=appdb <span class="dt">\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> MYSQL_USER=appuser <span class="dt">\</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> MYSQL_PASSWORD=<span class="st">'PasswordAppFuerte'</span> <span class="dt">\</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">-v</span> mysql_data:/var/lib/mysql <span class="dt">\</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">-p</span> 3306:3306 <span class="dt">\</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">--restart</span> unless-stopped <span class="dt">\</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    mysql:8.0  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker run -d --name mysql</code></strong> crea y arranca en segundo plano (<code>-d</code>) un contenedor llamado <code>mysql</code>. Sin <code>--name</code>, Docker asigna uno aleatorio; nombrarlo facilita <code>docker exec</code>/<code>docker logs</code>.</li>
+</ol>
+<p>Analicemos cada flag del comando anterior con detalle:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker run <span class="at">-d</span> <span class="dt">\</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--name</span> mysql <span class="dt">\</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> MYSQL_ROOT_PASSWORD=<span class="st">'CambiaEstePasswordFuerte'</span> <span class="dt">\ </span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-e</span> MYSQL_DATABASE=appdb <span class="dt">\ </span>                           </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-e</span> MYSQL_USER=appuser <span class="dt">\ </span>                             </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-e</span> MYSQL_PASSWORD=<span class="st">'PasswordAppFuerte'</span> <span class="dt">\ </span>             </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-v</span> mysql_data:/var/lib/mysql <span class="dt">\ </span>                      </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-p</span> 3306:3306 <span class="dt">\ </span>                                     </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--restart</span> unless-stopped <span class="dt">\ </span>                          </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">mysql:8.0</span>                                            </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>-e MYSQL_ROOT_PASSWORD</code></strong> define la contraseña del usuario administrador <code>root</code>. Es <strong>obligatoria</strong>; sin ella el contenedor no arranca. Usa una contraseña fuerte.</li>
+<li><strong><code>-e MYSQL_DATABASE</code></strong> crea automáticamente una base de datos inicial (<code>appdb</code>) al primer arranque.</li>
+<li><strong><code>-e MYSQL_USER</code></strong> crea un usuario no-root (<code>appuser</code>) asociado a esa base.</li>
+<li><strong><code>-e MYSQL_PASSWORD</code></strong> define la contraseña del usuario <code>appuser</code> (no uses root en la app).</li>
+<li><strong><code>-v mysql_data:/var/lib/mysql</code></strong> monta el <strong>volumen nombrado</strong> <code>mysql_data</code> en la ruta de datos de MySQL. Aquí vive la BD de forma persistente.</li>
+<li><strong><code>-p 3306:3306</code></strong> publica el puerto 3306 del contenedor en el 3306 del host (solo para desarrollo local; ver sección de red segura).</li>
+<li><strong><code>--restart unless-stopped</code></strong> reinicia el contenedor automáticamente si el Docker daemon se reinicia, salvo que lo detengas explícitamente.</li>
+<li><strong><code>mysql:8.0</code></strong> es la imagen y versión a utilizar (pinnear versión es buena práctica en producción).</li>
+</ol>
+</section>
+<section id="verificar-el-contenedor-y-conectar" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-el-contenedor-y-conectar">2.2 Verificar el contenedor y conectar</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker ps <span class="at">--filter</span> name=mysql  </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">CONTAINER</span> ID   IMAGE       COMMAND                  STATUS         PORTS                                       NAMES</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">a1b2c3d4e5f6</span>   mysql:8.0   <span class="st">"docker-entrypoint.s…"</span>   Up 30 seconds  0.0.0.0:3306-<span class="op">&gt;</span>3306/tcp, :::3306-<span class="op">&gt;</span>3306/tcp   mysql</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker ps --filter name=mysql</code></strong> lista solo el contenedor <code>mysql</code> y confirma que está <code>Up</code> y con el puerto mapeado.</li>
+</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker logs mysql <span class="at">--tail</span> 20  </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">2026-07-20T12:00:01.234567Z</span> 0 <span class="pp">[</span><span class="ss">System</span><span class="pp">]</span> <span class="pp">[</span><span class="ss">MY</span><span class="pp">-</span><span class="ss">010931</span><span class="pp">]</span> ... X Plugin ready for connections.</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">2026-07-20T12:00:01.234567Z</span> 0 <span class="pp">[</span><span class="ss">System</span><span class="pp">]</span> <span class="pp">[</span><span class="ss">MY</span><span class="pp">-</span><span class="ss">011323</span><span class="pp">]</span> ... MySQL 8.0.x started<span class="kw">;</span> <span class="ex">log</span> sequence number ...</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker logs mysql --tail 20</code></strong> muestra las últimas 20 líneas del log; busca “ready for connections” para confirmar arranque correcto.</li>
+</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec <span class="at">-it</span> mysql mysql <span class="at">-u</span> appuser <span class="at">-p</span> appdb  </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Enter</span> password:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span><span class="op">&gt;</span> SELECT VERSION<span class="er">(</span><span class="kw">);</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">+-----------+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="fu">VERSION()</span> <span class="kw">|</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">+-----------+</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">|</span> <span class="ex">8.0.x</span>     <span class="kw">|</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">+-----------+</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span><span class="op">&gt;</span> EXIT<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker exec -it mysql mysql -u appuser -p appdb</code></strong> abre la consola SQL <strong>dentro</strong> del contenedor conectando a <code>appdb</code> como <code>appuser</code>. <code>-it</code> habilita modo interactivo.</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Recomendación de versión
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Para producción, fija siempre la versión (por ejemplo <code>mysql:8.0.39</code> o <code>mariadb:11.4</code>). Usar <code>mysql:latest</code> rompe la reproducibilidad: una actualización silenciosa del tag puede cambiar el comportamiento de tu BD.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="postgresql-en-contenedor" class="level2">
+<h2 class="anchored" data-anchor-id="postgresql-en-contenedor">3. PostgreSQL en contenedor</h2>
+<p>PostgreSQL es un motor relacional avanzado (ACID, JSON, extensiones). Su despliegue en Docker es análogo, con variables y rutas distintas.</p>
+<section id="despliegue-con-docker-run-1" class="level3">
+<h3 class="anchored" data-anchor-id="despliegue-con-docker-run-1">3.1 Despliegue con <code>docker run</code></h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker run <span class="at">-d</span> <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--name</span> pg <span class="dt">\</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> POSTGRES_PASSWORD=<span class="st">'CambiaEstePasswordFuerte'</span> <span class="dt">\</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> POSTGRES_DB=appdb <span class="dt">\</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> POSTGRES_USER=appuser <span class="dt">\</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">-v</span> pg_data:/var/lib/postgresql/data <span class="dt">\</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">-p</span> 5432:5432 <span class="dt">\</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">--restart</span> unless-stopped <span class="dt">\</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    postgres:16  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker run -d --name pg ... postgres:16</code></strong> arranca PostgreSQL 16 en segundo plano; las variables <code>POSTGRES_*</code> inicializan usuario, base y contraseña al primer arranque.</li>
+</ol>
+<p>Al igual que con MySQL, desglosamos los flags clave:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker run <span class="at">-d</span> <span class="dt">\</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--name</span> pg <span class="dt">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">-e</span> POSTGRES_PASSWORD=<span class="st">'CambiaEstePasswordFuerte'</span> <span class="dt">\ </span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-e</span> POSTGRES_DB=appdb <span class="dt">\ </span>                            </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-e</span> POSTGRES_USER=appuser <span class="dt">\ </span>                        </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-v</span> pg_data:/var/lib/postgresql/data <span class="dt">\ </span>             </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-p</span> 5432:5432 <span class="dt">\ </span>                                   </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">postgres:16</span>                                        </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>-e POSTGRES_PASSWORD</code></strong> contraseña del superusuario (o del usuario definido en <code>POSTGRES_USER</code>). Obligatoria.</li>
+<li><strong><code>-e POSTGRES_DB</code></strong> crea la base inicial <code>appdb</code>.</li>
+<li><strong><code>-e POSTGRES_USER</code></strong> define un usuario (si se omite, el superusuario es <code>postgres</code>).</li>
+<li><strong><code>-v pg_data:/var/lib/postgresql/data</code></strong> monta el volumen persistente en la ruta de datos de PostgreSQL.</li>
+<li><strong><code>-p 5432:5432</code></strong> publica el puerto por defecto de PostgreSQL (desarrollo local).</li>
+<li><strong><code>postgres:16</code></strong> imagen y versión mayor fijada.</li>
+</ol>
+</section>
+<section id="verificar-y-conectar" class="level3">
+<h3 class="anchored" data-anchor-id="verificar-y-conectar">3.2 Verificar y conectar</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec <span class="at">-it</span> pg psql <span class="at">-U</span> appuser <span class="at">-d</span> appdb  </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">psql</span> <span class="er">(</span><span class="ex">16.x</span><span class="kw">)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="va">appdb</span><span class="op">=&gt;</span> SELECT <span class="fu">version()</span><span class="kw">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                                                 <span class="ex">version</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">----------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a> <span class="ex">PostgreSQL</span> 16.x on x86_64-pc-linux-musl, compiled by ...</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="va">appdb</span><span class="op">=&gt;</span> <span class="dt">\q</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker exec -it pg psql -U appuser -d appdb</code></strong> abre <code>psql</code> (consola PostgreSQL) dentro del contenedor conectando como <code>appuser</code> a <code>appdb</code>. <code>\q</code> sale.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="usuarios-y-privilegios-principio-de-mínimo-privilegio" class="level2">
+<h2 class="anchored" data-anchor-id="usuarios-y-privilegios-principio-de-mínimo-privilegio">4. Usuarios y privilegios (principio de mínimo privilegio)</h2>
+<p>Tanto en MySQL como en PostgreSQL, la regla de seguridad fundamental es: <strong>la aplicación NUNCA se conecta como administrador</strong>. Cada aplicación tiene su usuario propio, con solo los privilegios que necesita.</p>
+<section id="mysql-mariadb" class="level3">
+<h3 class="anchored" data-anchor-id="mysql-mariadb">4.1 MySQL / MariaDB</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec <span class="at">-it</span> mysql mysql <span class="at">-u</span> root <span class="at">-p</span>  </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Enter</span> password:</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span><span class="op">&gt;</span> CREATE USER <span class="st">'appuser'</span>@<span class="st">'%'</span> IDENTIFIED BY <span class="st">'NuevaPasswordFuerte'</span><span class="kw">;</span>  </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span><span class="op">&gt;</span> CREATE DATABASE IF NOT EXISTS appdb<span class="kw">;</span>                            </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span><span class="op">&gt;</span> GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.<span class="pp">*</span> TO <span class="st">'appuser'</span>@<span class="st">'%'</span><span class="kw">;</span>  </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span><span class="op">&gt;</span> FLUSH PRIVILEGES<span class="kw">;</span>                                               </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span><span class="op">&gt;</span> EXIT<span class="kw">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker exec -it mysql mysql -u root -p</code></strong> abre la consola SQL como <code>root</code> dentro del contenedor.</li>
+<li><strong><code>CREATE USER 'appuser'@'%'</code></strong> crea el usuario de aplicación; <code>'%'</code> permite conexión desde cualquier host (en Compose usaremos el nombre del servicio; en host local usa <code>'localhost'</code>).</li>
+<li><strong><code>CREATE DATABASE IF NOT EXISTS appdb</code></strong> asegura la existencia de la base.</li>
+<li><strong><code>GRANT SELECT, INSERT, UPDATE, DELETE</code></strong> otorga <strong>solo</strong> permisos de lectura/escritura sobre <code>appdb</code>, nada de <code>DROP</code>, <code>GRANT</code> ni administración.</li>
+<li><strong><code>FLUSH PRIVILEGES</code></strong> recarga la tabla de privilegios para aplicar los cambios.</li>
+</ol>
+</section>
+<section id="postgresql" class="level3">
+<h3 class="anchored" data-anchor-id="postgresql">4.2 PostgreSQL</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec <span class="at">-it</span> pg psql <span class="at">-U</span> postgres  </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">psql</span> <span class="er">(</span><span class="ex">16.x</span><span class="kw">)</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="va">postgres</span><span class="op">=</span># <span class="ex">CREATE</span> USER appuser WITH PASSWORD <span class="st">'NuevaPasswordFuerte'</span><span class="kw">;</span>  </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="va">postgres</span><span class="op">=</span># <span class="ex">CREATE</span> DATABASE appdb OWNER appuser<span class="kw">;</span>                     </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="va">postgres</span><span class="op">=</span># <span class="ex">GRANT</span> CONNECT ON DATABASE appdb TO appuser<span class="kw">;</span>              </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="va">postgres</span><span class="op">=</span># <span class="ex">\c</span> appdb                                                 </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="va">appdb</span><span class="op">=</span># <span class="ex">GRANT</span> SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO appuser<span class="kw">;</span>  </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="va">appdb</span><span class="op">=</span># <span class="ex">\q</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker exec -it pg psql -U postgres</code></strong> abre la consola como superusuario.</li>
+<li><strong><code>CREATE USER appuser WITH PASSWORD</code></strong> crea el usuario de aplicación (en PostgreSQL, <code>USER</code> y <code>ROLE</code> son sinónimos).</li>
+<li><strong><code>CREATE DATABASE appdb OWNER appuser</code></strong> crea la base y la asigna a <code>appuser</code> como dueño.</li>
+<li><strong><code>GRANT CONNECT ON DATABASE</code></strong> permite la conexión a la base.</li>
+<li><strong><code>\c appdb</code></strong> cambia el contexto a la base <code>appdb</code> para asignar privilegios de tabla.</li>
+<li><strong><code>GRANT ... ON ALL TABLES IN SCHEMA public</code></strong> otorga solo operaciones CRUD sobre las tablas existentes.</li>
+</ol>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ NUNCA uses el usuario administrador en la aplicación
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Lo que podría salir mal:</strong> - Una vulnerabilidad en la app permite <code>DROP DATABASE</code>, <code>DROP USER</code> o <code>GRANT</code> malicioso. - Un bug de la aplicación borra tablas del sistema o crea usuarios arbitrarios. - Imposibilidad de auditar: no distingues acciones de admin vs.&nbsp;de app.</p>
+<p><strong>Cómo prevenirlo:</strong> 7. Crea un usuario dedicado por aplicación/entorno (<code>appuser_dev</code>, <code>appuser_prod</code>). 8. Aplica <strong>mínimo privilegio</strong>: solo <code>SELECT/INSERT/UPDATE/DELETE</code> (y quizá <code>EXECUTE</code> para funciones). 9. Usa <strong>contraseñas fuertes</strong> (16+ caracteres) almacenadas en un gestor de secretos o variables de entorno, nunca en el repositorio. 10. Rota credenciales periódicamente.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Recomendación: separa usuarios por entorno
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Usa <code>appuser_dev</code> / <code>appuser_prod</code> con bases distintas. Así un error en desarrollo nunca impacta producción, y los permisos se revisan de forma aislada.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="backup-y-restore-verificables" class="level2">
+<h2 class="anchored" data-anchor-id="backup-y-restore-verificables">5. Backup y Restore verificables</h2>
+<p>Un servidor sin backups verificables <strong>no está en producción</strong>. Docker facilita el backup: ejecutas la herramienta de dump <em>dentro</em> del contenedor y rediriges la salida al host.</p>
+<section id="backup-mysql-mariadb" class="level3">
+<h3 class="anchored" data-anchor-id="backup-mysql-mariadb">5.1 Backup MySQL / MariaDB</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec mysql mysqldump <span class="at">-u</span> root <span class="at">-p</span> appdb <span class="op">&gt;</span> backup_appdb_<span class="va">$(</span><span class="fu">date</span> +%F<span class="va">)</span>.sql  </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Enter</span> password:</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ls <span class="at">-lh</span> backup_appdb_<span class="pp">*</span>.sql  </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 user user 24K Jul 20 12:30 backup_appdb_2026-07-20.sql</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker exec mysql mysqldump -u root -p appdb &gt; backup.sql</code></strong> ejecuta <code>mysqldump</code> dentro del contenedor y vuelca la base <code>appdb</code> a un archivo en el host. El <code>$(date +%F)</code> nombra el archivo con la fecha.</li>
+<li><strong><code>ls -lh</code></strong> valida que el backup existe y su tamaño (debe ser &gt; 0).</li>
+</ol>
+</section>
+<section id="restore-mysql-mariadb" class="level3">
+<h3 class="anchored" data-anchor-id="restore-mysql-mariadb">5.2 Restore MySQL / MariaDB</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat backup_appdb_2026-07-20.sql <span class="kw">|</span> <span class="ex">docker</span> exec <span class="at">-i</span> mysql mysql <span class="at">-u</span> root <span class="at">-p</span> appdb  </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Enter</span> password:</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec <span class="at">-it</span> mysql mysql <span class="at">-u</span> root <span class="at">-p</span> <span class="at">-e</span> <span class="st">'SHOW TABLES IN appdb;'</span>  </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Enter</span> password:</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Tables_in_appdb</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="ex">usuarios</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="ex">productos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>cat backup.sql | docker exec -i mysql mysql -u root -p appdb</code></strong> envía el dump por stdin (<code>-i</code>) al cliente <code>mysql</code> dentro del contenedor, restaurando la base.</li>
+<li><strong><code>SHOW TABLES IN appdb</code></strong> valida que las tablas fueron restauradas correctamente.</li>
+</ol>
+</section>
+<section id="backup-y-restore-postgresql" class="level3">
+<h3 class="anchored" data-anchor-id="backup-y-restore-postgresql">5.3 Backup y Restore PostgreSQL</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec pg pg_dump <span class="at">-U</span> postgres appdb <span class="op">&gt;</span> backup_appdb_<span class="va">$(</span><span class="fu">date</span> +%F<span class="va">)</span>.sql  </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat backup_appdb_2026-07-20.sql <span class="kw">|</span> <span class="ex">docker</span> exec <span class="at">-i</span> pg psql <span class="at">-U</span> postgres <span class="at">-d</span> appdb  </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec <span class="at">-it</span> pg psql <span class="at">-U</span> postgres <span class="at">-d</span> appdb <span class="at">-c</span> <span class="st">'\dt'</span>  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>pg_dump -U postgres appdb</code></strong> genera el dump SQL de la base <code>appdb</code> dentro del contenedor, redirigido al host.</li>
+<li><strong><code>psql -U postgres -d appdb</code></strong> con stdin/restaura el dump en PostgreSQL.</li>
+<li><strong><code>\dt</code></strong> lista las tablas restauradas para validar.</li>
+</ol>
+</section>
+<section id="script-de-backup-automatizado" class="level3">
+<h3 class="anchored" data-anchor-id="script-de-backup-automatizado">5.4 Script de backup automatizado</h3>
+<p>El siguiente script bash realiza backup de MySQL con rotación básica. Obsérvese el uso de <code>#!/bin/bash</code> y los comentarios ``.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># backup_mysql.sh - Backup automatizado de MySQL en contenedor  </span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-euo</span> pipefail  </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="va">CONTENEDOR</span><span class="op">=</span><span class="st">"mysql"</span>          <span class="co"># Nombre del contenedor</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="va">BASE</span><span class="op">=</span><span class="st">"appdb"</span>                <span class="co"># Base a respaldar</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="va">USUARIO</span><span class="op">=</span><span class="st">"root"</span>              <span class="co"># Usuario con permiso de dump</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="va">DESTINO</span><span class="op">=</span><span class="st">"/backups"</span>          <span class="co"># Carpeta de destino en el host</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="va">FECHA</span><span class="op">=</span><span class="va">$(</span><span class="fu">date</span> +%F<span class="va">)</span>           <span class="co"># Fecha actual YYYY-MM-DD</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="va">ARCHIVO</span><span class="op">=</span><span class="st">"</span><span class="va">$DESTINO</span><span class="st">/</span><span class="va">${BASE}</span><span class="st">_</span><span class="va">${FECHA}</span><span class="st">.sql"</span>  </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="st">"</span><span class="va">$DESTINO</span><span class="st">"</span>  </span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"[+] Generando backup: </span><span class="va">$ARCHIVO</span><span class="st">"</span>  </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> exec <span class="st">"</span><span class="va">$CONTENEDOR</span><span class="st">"</span> mysqldump <span class="at">-u</span> <span class="st">"</span><span class="va">$USUARIO</span><span class="st">"</span> <span class="at">-p</span><span class="st">"</span><span class="va">$MYSQL_ROOT_PASSWORD</span><span class="st">"</span> <span class="st">"</span><span class="va">$BASE</span><span class="st">"</span> <span class="op">&gt;</span> <span class="st">"</span><span class="va">$ARCHIVO</span><span class="st">"</span>  </span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"[+] Comprimiendo..."</span>  </span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="fu">gzip</span> <span class="st">"</span><span class="va">$ARCHIVO</span><span class="st">"</span>  </span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Conservar solo los últimos 7 backups (rotación)  </span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-1t</span> <span class="st">"</span><span class="va">$DESTINO</span><span class="st">"</span>/<span class="va">${BASE}</span>_<span class="pp">*</span>.sql.gz <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n</span> +8 <span class="kw">|</span> <span class="fu">xargs</span> <span class="at">-r</span> rm <span class="at">-f</span>  </span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"[+] Backup completado: </span><span class="va">${ARCHIVO}</span><span class="st">.gz"</span>  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>Shebang + encabezado</strong> declara el intérprete bash y documenta el propósito del script.</li>
+<li><strong><code>set -euo pipefail</code></strong> hace el script robusto: aborta ante error (<code>-e</code>), variable no definida (<code>-u</code>) o fallo en pipe (<code>-o pipefail</code>).</li>
+<li><strong>Variables de configuración</strong> centralizan contenedor, base, usuario y ruta; fáciles de parametrizar.</li>
+<li><strong><code>mkdir -p "$DESTINO"</code></strong> crea la carpeta de destino si no existe (sin error si ya existe).</li>
+<li><strong><code>echo "[+] ..."</code></strong> registra progreso visible al ejecutar el script.</li>
+<li><strong><code>docker exec ... mysqldump ... &gt; "$ARCHIVO"</code></strong> genera el dump dentro del contenedor y lo guarda en el host (la contraseña se pasa vía variable de entorno, no hardcodeada).</li>
+<li><strong><code>echo "[+] Comprimiendo..."</code></strong> marca el paso de compresión.</li>
+<li><strong><code>gzip "$ARCHIVO"</code></strong> comprime el SQL para ahorrar espacio (los dumps textuales comprimen muy bien).</li>
+<li><strong>Comentario de rotación</strong> documenta la política de retención.</li>
+<li><strong><code>ls -1t ... | tail -n +8 | xargs -r rm -f</code></strong> mantiene solo los 7 backups más recientes, borrando los antiguos.</li>
+<li><strong><code>echo "[+] Backup completado..."</code></strong> confirma el fin exitoso del proceso.</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Programar con cron
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Para automatizar, añade al crontab (<code>crontab -e</code>) una línea como:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">0</span> 2 <span class="pp">*</span> <span class="pp">*</span> <span class="pp">*</span> /ruta/backup_mysql.sh <span class="op">&gt;&gt;</span> /var/log/backup_mysql.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Esto ejecuta el backup <strong>todos los días a las 02:00</strong>. Verifica periódicamente que el log no muestre errores y que los archivos crezcan.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="docker-compose-pila-completa-app-db" class="level2">
+<h2 class="anchored" data-anchor-id="docker-compose-pila-completa-app-db">6. Docker Compose: pila completa App + DB</h2>
+<p>Hasta ahora usamos <code>docker run</code>. Para una aplicación real necesitamos <strong>dos servicios</strong> (app y base de datos) que se comunican por una <strong>red interna</strong>, con <strong>volúmenes persistentes</strong>, orden de arranque y comprobación de salud. Docker Compose define todo esto en un único archivo declarativo.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Conceptos clave de Compose
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong><code>services</code></strong>: cada contenedor (aquí <code>db</code> y <code>app</code>).</li>
+<li><strong><code>networks</code></strong>: red interna privada donde los servicios se ven por nombre.</li>
+<li><strong><code>volumes</code></strong>: almacenamiento persistente nombrado (la regla de oro).</li>
+<li><strong><code>depends_on</code></strong>: orden de arranque.</li>
+<li><strong><code>healthcheck</code></strong>: Compose espera a que la BD esté sana antes de iniciar la app.</li>
+<li><strong><code>environment</code></strong>: variables de entorno (credenciales, configuración).</li>
+</ul>
+</div>
+</div>
+<section id="compose.yaml-completo-mysql-app-node" class="level3">
+<h3 class="anchored" data-anchor-id="compose.yaml-completo-mysql-app-node">6.1 <code>compose.yaml</code> completo (MySQL + app Node)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>YAML</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-code-line-numbers=""><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compose.yaml - Pila App + MySQL con persistencia y healthcheck  </span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">db</span><span class="kw">:</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> mysql:8.0</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">container_name</span><span class="kw">:</span><span class="at"> app_db</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> unless-stopped</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">MYSQL_ROOT_PASSWORD</span><span class="kw">:</span><span class="at"> ${MYSQL_ROOT_PASSWORD}   </span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">MYSQL_DATABASE</span><span class="kw">:</span><span class="at"> appdb</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">MYSQL_USER</span><span class="kw">:</span><span class="at"> appuser</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">MYSQL_PASSWORD</span><span class="kw">:</span><span class="at"> ${MYSQL_PASSWORD}</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> mysql_data:/var/lib/mysql                   </span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> backend                                     </span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">healthcheck</span><span class="kw">:</span><span class="at">                                    </span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">test</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"CMD"</span><span class="kw">,</span><span class="at"> </span><span class="st">"mysqladmin"</span><span class="kw">,</span><span class="at"> </span><span class="st">"ping"</span><span class="kw">,</span><span class="at"> </span><span class="st">"-h"</span><span class="kw">,</span><span class="at"> </span><span class="st">"localhost"</span><span class="kw">,</span><span class="at"> </span><span class="st">"-p${MYSQL_ROOT_PASSWORD}"</span><span class="kw">]</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">interval</span><span class="kw">:</span><span class="at"> 10s</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">timeout</span><span class="kw">:</span><span class="at"> 5s</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">retries</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">start_period</span><span class="kw">:</span><span class="at"> 30s</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="co">    # NO exponemos 3306 a 0.0.0.0: solo red interna (comentado a propósito)</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="co">    # ports:</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="co">    #   - "3306:3306"</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">build</span><span class="kw">:</span><span class="at"> .</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">container_name</span><span class="kw">:</span><span class="at"> app_web</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> unless-stopped</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">depends_on</span><span class="kw">:</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">db</span><span class="kw">:</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> service_healthy                 </span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_HOST</span><span class="kw">:</span><span class="at"> db                                   </span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_PORT</span><span class="kw">:</span><span class="at"> </span><span class="st">"3306"</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_NAME</span><span class="kw">:</span><span class="at"> appdb</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_USER</span><span class="kw">:</span><span class="at"> appuser</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_PASSWORD</span><span class="kw">:</span><span class="at"> ${MYSQL_PASSWORD}</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">"3000:3000"</span><span class="at">                                 </span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> backend</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mysql_data</span><span class="kw">:</span><span class="at">                                       </span></span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">backend</span><span class="kw">:</span></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver</span><span class="kw">:</span><span class="at"> bridge                                  </span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>Encabezado del archivo</strong> documenta que es una pila App + MySQL con persistencia y healthcheck.</li>
+<li><strong><code>environment</code> con <code>${VAR}</code></strong> inyecta credenciales desde un archivo <code>.env</code> (no hardcodeadas en el YAML).</li>
+<li><strong><code>mysql_data:/var/lib/mysql</code></strong> monta el volumen nombrado persistente en la ruta de datos de MySQL (regla de oro).</li>
+<li><strong><code>networks: - backend</code></strong> conecta <code>db</code> a la red interna privada <code>backend</code>.</li>
+<li><strong><code>healthcheck</code></strong> usa <code>mysqladmin ping</code> para comprobar que MySQL acepta conexiones; <code>start_period</code> da margen al arranque inicial.</li>
+<li><strong><code>depends_on ... condition: service_healthy</code></strong> asegura que <code>app</code> solo arranca cuando <code>db</code> está sano (evita fallos por “BD no lista”).</li>
+<li><strong><code>DB_HOST: db</code></strong> la app se conecta usando el <strong>nombre del servicio</strong> (<code>db</code>) dentro de la red de Compose, no <code>localhost</code>.</li>
+<li><strong><code>ports: - "3000:3000"</code></strong> expone solo la app al host; la BD queda en la red interna.</li>
+<li><strong><code>volumes: mysql_data:</code></strong> declara el volumen nombrado (Docker lo gestiona).</li>
+<li><strong><code>networks: backend: driver: bridge</code></strong> define la red aislada donde ambos servicios se comunican.</li>
+</ol>
+</section>
+<section id="equivalente-con-postgresql" class="level3">
+<h3 class="anchored" data-anchor-id="equivalente-con-postgresql">6.2 Equivalente con PostgreSQL</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>YAML</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-code-line-numbers=""><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compose.yaml - Pila App + PostgreSQL</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">db</span><span class="kw">:</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> postgres:16</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">container_name</span><span class="kw">:</span><span class="at"> app_db</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> unless-stopped</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">POSTGRES_PASSWORD</span><span class="kw">:</span><span class="at"> ${POSTGRES_PASSWORD}</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">POSTGRES_DB</span><span class="kw">:</span><span class="at"> appdb</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">POSTGRES_USER</span><span class="kw">:</span><span class="at"> appuser</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> pg_data:/var/lib/postgresql/data</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> backend</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">healthcheck</span><span class="kw">:</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">test</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"CMD-SHELL"</span><span class="kw">,</span><span class="at"> </span><span class="st">"pg_isready -U appuser -d appdb"</span><span class="kw">]</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">interval</span><span class="kw">:</span><span class="at"> 10s</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">timeout</span><span class="kw">:</span><span class="at"> 5s</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">retries</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">start_period</span><span class="kw">:</span><span class="at"> 30s</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">build</span><span class="kw">:</span><span class="at"> .</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">container_name</span><span class="kw">:</span><span class="at"> app_web</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> unless-stopped</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">depends_on</span><span class="kw">:</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">db</span><span class="kw">:</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> service_healthy</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_HOST</span><span class="kw">:</span><span class="at"> db</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_PORT</span><span class="kw">:</span><span class="at"> </span><span class="st">"5432"</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_NAME</span><span class="kw">:</span><span class="at"> appdb</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_USER</span><span class="kw">:</span><span class="at"> appuser</span></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">DB_PASSWORD</span><span class="kw">:</span><span class="at"> ${POSTGRES_PASSWORD}</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">"3000:3000"</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> backend</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">pg_data</span><span class="kw">:</span></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">backend</span><span class="kw">:</span></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver</span><span class="kw">:</span><span class="at"> bridge</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="desplegar-y-verificar-la-pila" class="level3">
+<h3 class="anchored" data-anchor-id="desplegar-y-verificar-la-pila">6.3 Desplegar y verificar la pila</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose up <span class="at">-d</span> <span class="at">--build</span>  </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">[+]</span> Running 3/3</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a> <span class="ex">✔</span> Network x_backend      Created</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a> <span class="ex">✔</span> Volume  x_mysql_data   Created</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">✔</span> Container app_db       Started</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a> <span class="ex">✔</span> Container app_web      Started</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker compose up -d --build</code></strong> construye la imagen de la app (<code>build: .</code>), crea red/volumen y arranca ambos servicios en segundo plano.</li>
+</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose ps  </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">NAME</span>        IMAGE       STATUS                    PORTS</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="ex">app_db</span>      mysql:8.0   Up 40 seconds <span class="er">(</span><span class="ex">healthy</span><span class="kw">)</span>  <span class="ex">3306/tcp</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="ex">app_web</span>     app_web     Up 15 seconds            0.0.0.0:3000-<span class="op">&gt;</span>3000/tcp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker compose ps</code></strong> lista los servicios; <code>app_db</code> debe mostrar <code>(healthy)</code> antes de que <code>app_web</code> arranque gracias a <code>depends_on</code>.</li>
+</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose logs <span class="at">-f</span> app  </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">app_web</span>  <span class="kw">|</span> <span class="ex">Server</span> running at http://localhost:3000</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker compose logs -f app</code></strong> sigue los logs del servicio <code>app</code> en tiempo real para confirmar arranque.</li>
+</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose down  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker compose down</code></strong> detiene y elimina los contenedores. <strong>Los datos persisten</strong> en el volumen <code>mysql_data</code> (no se borran a menos que uses <code>docker compose down -v</code>).</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>El archivo <code>.env</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No incluyas contraseñas en el <code>compose.yaml</code> commiteado. Usa un <code>.env</code> junto al compose:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="va">MYSQL_ROOT_PASSWORD</span><span class="op">=</span>CambiaEstePasswordFuerte</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="va">MYSQL_PASSWORD</span><span class="op">=</span>PasswordAppFuerte</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="va">POSTGRES_PASSWORD</span><span class="op">=</span>CambiaEstePasswordFuerte</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Y añade <code>.env</code> a tu <code>.gitignore</code>. Docker Compose lee <code>.env</code> automáticamente.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="conexión-remota-segura-regla-crítica" class="level2">
+<h2 class="anchored" data-anchor-id="conexión-remota-segura-regla-crítica">7. Conexión remota segura (regla crítica)</h2>
+<p>La base de datos <strong>nunca</strong> debe quedar expuesta directamente a internet. Un puerto 3306 o 5432 abierto a <code>0.0.0.0</code> es un objetivo constante de ataques automatizados (fuerza bruta, explotación de CVEs).</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ NUNCA expongas 3306/5432 a 0.0.0.0 en producción
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Lo que podría salir mal:</strong> - Ataques de fuerza bruta contra <code>root</code>/<code>postgres</code> desde cualquier IP del planeta. - Explotación de vulnerabilidades conocidas del motor expuestas públicamente. - Fuga total de datos si la contraseña es débil o reutilizada.</p>
+<p><strong>Cómo prevenirlo:</strong> 1. <strong>No publiques el puerto</strong> de la BD en el host (quita <code>ports: - "3306:3306"</code> del servicio <code>db</code> en Compose). La app se conecta vía red interna de Compose usando el nombre del servicio. 2. <strong><code>bind-address</code></strong>: En MySQL/MariaDB, asegura <code>bind-address = 127.0.0.1</code> o la IP de la red interna. En contenedores, la red de Compose ya aísla por defecto si no publicas el puerto. 3. <strong>Firewall (UFW)</strong>: Si necesitas acceso remoto legitimo, limita por origen: <code>bash    sudo ufw allow from 192.168.56.0/24 to any port 3306 proto tcp</code> 4. <strong>Túnel SSH o VPN</strong>: Para administración remota, conéctate mediante un túnel SSH (<code>ssh -L 3306:localhost:3306 usuario@servidor</code>) o una VPN privada. Nunca abras el puerto directamente. 5. <strong>No uses root/postgres</strong> para conexiones remotas; usa el usuario de aplicación con mínimo privilegio.</p>
+</div>
+</div>
+<section id="túnel-ssh-para-administración-remota" class="level3">
+<h3 class="anchored" data-anchor-id="túnel-ssh-para-administración-remota">7.1 Túnel SSH para administración remota</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-N</span> <span class="at">-L</span> 3306:localhost:3306 deploy@servidor-produccion  </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (No muestra salida; mantiene el túnel abierto en primer plano)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>ssh -N -L 3306:localhost:3306 deploy@servidor</code></strong> crea un túnel: tu puerto local <code>3306</code> se reenvía cifradamente al <code>localhost:3306</code> del servidor. Entonces te conectas desde tu laptop a <code>127.0.0.1:3306</code> como si la BD estuviera local, sin exponerla.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="buenas-prácticas-de-operación" class="level2">
+<h2 class="anchored" data-anchor-id="buenas-prácticas-de-operación">8. Buenas prácticas de operación</h2>
+<section id="respaldos-automatizados-y-verificados" class="level3">
+<h3 class="anchored" data-anchor-id="respaldos-automatizados-y-verificados">8.1 Respaldos automatizados y verificados</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> crontab <span class="at">-l</span> <span class="kw">|</span> <span class="fu">grep</span> backup  </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">0</span> 2 <span class="pp">*</span> <span class="pp">*</span> <span class="pp">*</span> /opt/scripts/backup_mysql.sh <span class="op">&gt;&gt;</span> /var/log/backup_mysql.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>crontab -l | grep backup</code></strong> lista las tareas programadas de backup; verifica que exista y a qué hora corre. Un backup que no se verifica es solo una esperanza.</li>
+</ol>
+<p>Además de programarlos: - <strong>Prueba el restore periódicamente</strong> en un entorno aislado. Un backup nunca restaurado es un backup inútil. - <strong>Copia los backups fuera del host</strong> (almacenamiento de objetos, otro servidor) para sobrevivir a fallos de disco. - <strong>Cifra los backups</strong> en reposo si contienen datos sensibles.</p>
+</section>
+<section id="cifrado-en-reposo-y-en-tránsito" class="level3">
+<h3 class="anchored" data-anchor-id="cifrado-en-reposo-y-en-tránsito">8.2 Cifrado en reposo y en tránsito</h3>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Recomendación: cifrado
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>En reposo</strong>: usa volúmenes sobre discos cifrados (LUKS en el host, o cifrado gestionado del proveedor cloud). PostgreSQL también soporta cifrado de tablas con extensiones como <code>pgcrypto</code>.</li>
+<li><strong>En tránsito</strong>: habilita TLS/SSL para las conexiones cliente-servidor (MySQL: <code>require_secure_transport=ON</code>; PostgreSQL: <code>ssl=on</code> en <code>postgresql.conf</code>). La app y la BD dentro de Compose ya viajan por red privada, pero el cifrado extra protege frente a escalamiento lateral.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="actualizaciones-y-mantenimiento" class="level3">
+<h3 class="anchored" data-anchor-id="actualizaciones-y-mantenimiento">8.3 Actualizaciones y mantenimiento</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose pull  </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker compose up <span class="at">-d</span>  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong><code>docker compose pull</code></strong> descarga las nuevas versiones de las imágenes definidas en el compose.</li>
+<li><strong><code>docker compose up -d</code></strong> recrea los contenedores con las imágenes actualizadas (combínalo con <code>depends_on</code>/healthcheck para un rollout ordenado).</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Checklist de buenas prácticas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">Volumen persistente montado en la ruta de datos del motor.</label></li>
+<li><label><input type="checkbox">Usuario de app dedicado con mínimo privilegio (no root/postgres).</label></li>
+<li><label><input type="checkbox">Contraseñas fuertes en <code>.env</code> (no en el repo).</label></li>
+<li><label><input type="checkbox">Puertos de BD <strong>no</strong> expuestos a <code>0.0.0.0</code>; acceso por red interna/túnel SSH/VPN.</label></li>
+<li><label><input type="checkbox">Backup automatizado con cron + rotación + verificación de restore.</label></li>
+<li><label><input type="checkbox">Backups fuera del host y cifrados en reposo.</label></li>
+<li><label><input type="checkbox">TLS habilitado para conexiones.</label></li>
+<li><label><input type="checkbox">Imágenes con versión fijada y política de actualización.</label></li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="laboratorio-práctico-pila-app-db-en-compose" class="level2">
+<h2 class="anchored" data-anchor-id="laboratorio-práctico-pila-app-db-en-compose">9. Laboratorio Práctico: Pila App + DB en Compose</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>🎯 Lab 11 — Despliegue de BD en contenedor (60-90 min)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Objetivo</strong>: Desplegar una pila MySQL + app en Docker Compose con volumen persistente, healthcheck y backup automatizado.</p>
+<section id="checklist-de-verificación" class="level3">
+<h3 class="anchored" data-anchor-id="checklist-de-verificación">Checklist de verificación</h3>
+<ul class="task-list">
+<li><label><input type="checkbox"><code>docker compose up -d --build</code> levanta ambos servicios sin errores.</label></li>
+<li><label><input type="checkbox"><code>docker compose ps</code> muestra <code>db</code> como <code>(healthy)</code> antes de <code>app</code>.</label></li>
+<li><label><input type="checkbox">La app responde en <code>http://localhost:3000</code>.</label></li>
+<li><label><input type="checkbox">Tras <code>docker compose down</code> y nuevo <code>up</code>, los datos de <code>appdb</code> <strong>persisten</strong> (volumen).</label></li>
+<li><label><input type="checkbox"><code>docker exec mysql mysql -u appuser -p -e 'SHOW TABLES;'</code> lista tablas.</label></li>
+<li><label><input type="checkbox"><code>backup_mysql.sh</code> genera <code>appdb_YYYY-MM-DD.sql.gz</code> &gt; 0 bytes.</label></li>
+<li><label><input type="checkbox">Restore del backup en un contenedor de prueba valida integridad.</label></li>
+</ul>
+</section>
+<section id="evidencia-a-entregar-texto" class="level3">
+<h3 class="anchored" data-anchor-id="evidencia-a-entregar-texto">Evidencia a entregar (texto)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">"=== Compose ==="</span> <span class="kw">&amp;&amp;</span> <span class="ex">docker</span> compose ps</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Volumen ==="</span> <span class="kw">&amp;&amp;</span> <span class="ex">docker</span> volume ls <span class="kw">|</span> <span class="fu">grep</span> mysql_data</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Health ==="</span> <span class="kw">&amp;&amp;</span> <span class="ex">docker</span> inspect <span class="at">-f</span> <span class="st">'{{.State.Health.Status}}'</span> app_db</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Backup ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">ls</span> <span class="at">-lh</span> /backups/</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;</span> ~/lab11-evidencia.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</div>
+</div>
+<hr>
+</section>
+<section id="resumen-y-próximos-pasos" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-y-próximos-pasos">10. Resumen y Próximos Pasos</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>✅ Lo esencial de la Unidad XI
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>Contenedores = aislamiento + reproducibilidad</strong>. La misma imagen corre en WSL2, dev y producción.</li>
+<li><strong>Regla de oro</strong>: los datos viven en un <strong>volumen nombrado</strong>, nunca en el filesystem efímero del contenedor.</li>
+<li><strong>MySQL/MariaDB</strong> (<code>mysql:8.0</code>) y <strong>PostgreSQL</strong> (<code>postgres:16</code>) se despliegan con <code>-v</code> al directorio de datos y variables de entorno.</li>
+<li><strong>Mínimo privilegio</strong>: la app usa su propio usuario, nunca <code>root</code>/<code>postgres</code>.</li>
+<li><strong>Backup/restore verificables</strong> con <code>mysqldump</code>/<code>pg_dump</code>; autolmatizados con <code>cron</code> y rotación.</li>
+<li><strong>Docker Compose</strong> orquesta App + DB con red interna, <code>healthcheck</code>, <code>depends_on</code> y volúmenes.</li>
+<li><strong>NUNCA expongas 3306/5432 a 0.0.0.0</strong>: red interna + firewall por origen + túnel SSH/VPN.</li>
+</ol>
+</div>
+</div>
+<section id="checklist-de-competencias-unidad-xi" class="level3">
+<h3 class="anchored" data-anchor-id="checklist-de-competencias-unidad-xi">📋 Checklist de competencias Unidad XI</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">Explicar por qué ejecutar BD en contenedores y la regla de oro de persistencia.</label></li>
+<li><label><input type="checkbox">Desplegar MySQL/MariaDB y PostgreSQL con volúmenes persistentes.</label></li>
+<li><label><input type="checkbox">Crear usuarios y aplicar <code>GRANT</code> de mínimo privilegio.</label></li>
+<li><label><input type="checkbox">Realizar backup (<code>mysqldump</code>/<code>pg_dump</code>) y restore verificables.</label></li>
+<li><label><input type="checkbox">Escribir un <code>compose.yaml</code> con App + DB, red, volumen y healthcheck.</label></li>
+<li><label><input type="checkbox">Proteger el acceso de red (sin exposición pública, túnel SSH).</label></li>
+<li><label><input type="checkbox">Automatizar respaldos con cron y aplicar buenas prácticas.</label></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="recursos-y-referencias" class="level2">
+<h2 class="anchored" data-anchor-id="recursos-y-referencias">11. Recursos y Referencias</h2>
+<ul>
+<li><strong>Docker Hub — MySQL</strong>: <a href="https://hub.docker.com/_/mysql" class="uri">https://hub.docker.com/_/mysql</a></li>
+<li><strong>Docker Hub — PostgreSQL</strong>: <a href="https://hub.docker.com/_/postgres" class="uri">https://hub.docker.com/_/postgres</a></li>
+<li><strong>Docker Volumes (docs)</strong>: <a href="https://docs.docker.com/storage/volumes/" class="uri">https://docs.docker.com/storage/volumes/</a></li>
+<li><strong>Docker Compose spec</strong>: <a href="https://docs.docker.com/compose/compose-file/" class="uri">https://docs.docker.com/compose/compose-file/</a></li>
+<li><strong>MySQL <code>mysqldump</code></strong>: <a href="https://web.archive.org/web/2024/https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html" class="uri">https://web.archive.org/web/2024/https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html</a></li>
+<li><strong>PostgreSQL <code>pg_dump</code></strong>: <a href="https://www.postgresql.org/docs/current/app-pgdump.html" class="uri">https://www.postgresql.org/docs/current/app-pgdump.html</a></li>
+<li><strong>MySQL <code>GRANT</code></strong>: <a href="https://web.archive.org/web/2024/https://dev.mysql.com/doc/refman/8.0/en/grant.html" class="uri">https://web.archive.org/web/2024/https://dev.mysql.com/doc/refman/8.0/en/grant.html</a></li>
+<li><strong>PostgreSQL <code>GRANT</code></strong>: <a href="https://www.postgresql.org/docs/current/sql-grant.html" class="uri">https://www.postgresql.org/docs/current/sql-grant.html</a></li>
+<li><strong>UFW — Uncomplicated Firewall</strong>: <a href="https://help.ubuntu.com/community/UFW" class="uri">https://help.ubuntu.com/community/UFW</a></li>
+<li><strong>Cron (ArchWiki)</strong>: <a href="https://wiki.archlinux.org/title/Cron" class="uri">https://wiki.archlinux.org/title/Cron</a></li>
+</ul>
+<hr>
+</section>
+<section id="quiz-interactivo-quizdown" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-interactivo-quizdown">12. Quiz Interactivo (quizdown)</h2>
+<div class="quizdown">
+---
+shuffleAnswers: true
+---
+
+## ¿Dónde deben vivir los datos de una base de datos en contenedor?
+
+- [ ] En la capa de escritura efímera del contenedor
+- [x] En un volumen nombrado montado en la ruta de datos del motor
+- [ ] En la imagen Docker base
+- [ ] En la memoria RAM del host
+
+## Al desplegar MySQL en Docker, ¿qué variable es OBLIGATORIA?
+
+- [ ] MYSQL_DATABASE
+- [ ] MYSQL_USER
+- [x] MYSQL_ROOT_PASSWORD
+- [ ] MYSQL_PORT
+
+## ¿Cuál es la ruta de datos persistente de PostgreSQL?
+
+- [ ] /var/lib/mysql
+- [ ] /var/lib/data
+- [x] /var/lib/postgresql/data
+- [ ] /opt/postgres
+
+## ¿Por qué la app NO debe usar el usuario root/postgres?
+
+- [x] Por mínimo privilegio: limita el daño de una vulnerabilidad en la app
+- [ ] Porque root no puede conectarse
+- [ ] Porque consume más memoria
+- [ ] Porque la app no soporta ese usuario
+
+## En Docker Compose, ¿qué asegura depends_on con condition: service_healthy?
+
+- [ ] Que db se reinicie si app falla
+- [x] Que app arranque solo cuando db está sano (listo para conexiones)
+- [ ] Que ambos servicios compartan el mismo contenedor
+- [ ] Que el volumen se cifre
+
+## ¿Cómo acceder a una BD remota de forma segura?
+
+- [ ] Exponiendo 3306 a 0.0.0.0 con contraseña fuerte
+- [ ] Usando root desde cualquier IP
+- [x] Vía túnel SSH o VPN, sin exponer el puerto públicamente
+- [ ] Deshabilitando el firewall
+</div>
+
+
+</section>
+</section>
+<section class="level1">
+<h1>Code Appendix</h1>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../10-ssl/index.html" class="pagination-link" aria-label="UNIDAD X: Certificados SSL y HTTPS">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">UNIDAD X: Certificados SSL y HTTPS</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../unidades/unidad12/1_metodologia_diagnostico.html" class="pagination-link" aria-label="Unidad 12: Troubleshooting y Metodología de Resolución">
+        <span class="nav-page-text"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link active" href="../about.html" aria-current="page">
+<p>Sobre el Curso</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../license.html">
+<p>Licencia</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://statick88.github.io">
+<p>Instructor: statick88.github.io</p>
+</a>
+  </li>  
+</ul>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/11-bases-datos/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

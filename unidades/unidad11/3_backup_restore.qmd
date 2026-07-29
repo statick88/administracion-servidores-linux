@@ -33,7 +33,7 @@ Los backups son tu red de seguridad. Sin backups, cualquier error puede ser cata
 # Verificar que está instalado
 $ which mysqldump
 /usr/bin/mysqldump
-# <1>
+
 
 # Instalar si no existe
 $ sudo apt install -y mariadb-client
@@ -46,7 +46,7 @@ $ sudo apt install -y mariadb-client
 ```bash
 # Backup básico de una DB
 $ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql
-# <1>
+
 
 # Ver archivo
 $ ls -lh /backup/appdb-20260331.sql
@@ -60,11 +60,11 @@ $ ls -lh /backup/appdb-20260331.sql
 ```bash
 # Backup completo
 $ sudo mysqldump -u root -p --all-databases > /backup/all-databases-$(date +%Y%m%d).sql
-# <1>
+
 
 # Comprimido (ahorra ~80% espacio)
 $ sudo mysqldump -u root -p --all-databases | gzip > /backup/all-databases-$(date +%Y%m%d).sql.gz
-# <2>
+
 ```
 
 1. **--all-databases**: Todas las bases de datos
@@ -85,7 +85,7 @@ $ sudo mysqldump \
     --extended-insert \
     --lock-tables=read \
     appdb > /backup/appdb-full-$(date +%Y%m%d).sql
-# <1>
+
 ```
 
 1. **Opciones de producción**: Backup completo y consistente
@@ -95,7 +95,7 @@ $ sudo mysqldump \
 ```bash
 # Solo schema (sin datos)
 $ sudo mysqldump -u root -p --no-data appdb > /backup/appdb-schema-$(date +%Y%m%d).sql
-# <1>
+
 ```
 
 1. **--no-data**: Solo estructura, sin datos
@@ -110,7 +110,7 @@ $ sudo mariadb -u root -p -e "CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLAT
 
 # Restaurar
 $ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
-# <1>
+
 ```
 
 1. **Restaurar**: Pipe del SQL a mariadb
@@ -120,11 +120,11 @@ $ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
 ```bash
 # Restaurar todas las DB
 $ sudo mariadb -u root -p < /backup/all-databases-20260331.sql
-# <1>
+
 
 # Desde archivo comprimido
 $ zcat /backup/all-databases-20260331.sql.gz | sudo mariadb -u root -p
-# <2>
+
 ```
 
 ## mariabackup: Backup Físico
@@ -141,7 +141,7 @@ $ sudo mariabackup \
     --target-dir=/backup/full-$(date +%Y%m%d) \
     --user=root \
     --password='RootPassword123!'
-# <1>
+
 ```
 
 1. **mariabackup**: Backup físico completo
@@ -167,7 +167,7 @@ $ sudo chown -R mysql:mysql /var/lib/mysql
 
 # 5. Iniciar MariaDB
 $ sudo systemctl start mariadb
-# <1>
+
 ```
 
 ## Automatización de Backups
@@ -207,7 +207,7 @@ ls -lh $BACKUP_DIR/
 EOF
 
 $ sudo chmod +x /usr/local/bin/mariadb-backup.sh
-# <1>
+
 ```
 
 ### Programar con Cron
@@ -217,7 +217,7 @@ $ sudo chmod +x /usr/local/bin/mariadb-backup.sh
 $ sudo crontab -e
 # Agregar:
 # 0 3 * * * /usr/local/bin/mariadb-backup.sh
-# <1>
+
 ```
 
 ## Verificación de Backups
@@ -231,7 +231,7 @@ $ gzip -t /backup/appdb-20260331.sql.gz
 
 # Ver primeras líneas
 $ zcat /backup/appdb-20260331.sql.gz | head -20
-# <1>
+
 ```
 
 ## Resumen

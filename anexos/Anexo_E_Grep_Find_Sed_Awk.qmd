@@ -163,7 +163,7 @@ PS> wsl find / -name "*.log"
 
 ```bash
 # Buscar "error" en archivo
-grep "error" /var/log/syslog  # <1>
+grep "error" /var/log/syslog  
 ```
 
 1. **grep "patrón" archivo** busca todas las líneas que contienen "error"
@@ -179,7 +179,7 @@ Jan 29 17:34:56 server php: [error] Undefined variable in script.php
 
 ```bash
 # Buscar "ERROR", "Error", "error" todo junto
-grep -i "error" /var/log/syslog  # <1>
+grep -i "error" /var/log/syslog  
 ```
 
 1. **-i** (ignore case) ignora mayúsculas/minúsculas
@@ -188,7 +188,7 @@ grep -i "error" /var/log/syslog  # <1>
 
 ```bash
 # ¿Cuántas veces aparece "error"?
-grep -c "error" /var/log/syslog  # <1>
+grep -c "error" /var/log/syslog  
 ```
 
 1. **-c** (count) cuenta líneas coincidentes
@@ -204,7 +204,7 @@ Hay 47 líneas con "error".
 
 ```bash
 # Buscar "error" en TODOS los .log
-grep "error" /var/log/*.log  # <1>
+grep "error" /var/log/*.log  
 ```
 
 1. **\*.log** wildcard que expande a todos los .log
@@ -220,10 +220,10 @@ grep "error" /var/log/*.log  # <1>
 
 ```bash
 # Mostrar 3 líneas antes y después de "error"
-grep -C 3 "error" /var/log/syslog  # <1>
+grep -C 3 "error" /var/log/syslog  
 
 # O por separado:
-grep -B 2 -A 2 "error" /var/log/syslog  # <2>
+grep -B 2 -A 2 "error" /var/log/syslog  
 ```
 
 1. **-C 3** (context) 3 líneas antes y después
@@ -234,13 +234,13 @@ grep -B 2 -A 2 "error" /var/log/syslog  # <2>
 
 ```bash
 # Buscar líneas que empiezen con "ERROR"
-grep "^ERROR" /var/log/syslog  # <1>
+grep "^ERROR" /var/log/syslog  
 
 # Buscar líneas que terminen con "failed"
-grep "failed$" /var/log/syslog  # <2>
+grep "failed$" /var/log/syslog  
 
 # Buscar patrón flexible (error, warning, critical)
-grep -E "error|warning|critical" /var/log/syslog  # <3>
+grep -E "error|warning|critical" /var/log/syslog  
 ```
 
 1. **^** = inicio de línea
@@ -253,10 +253,10 @@ grep -E "error|warning|critical" /var/log/syslog  # <3>
 
 ```bash
 # Buscar "TODO" en todos los .py en carpeta proyecto
-grep -r "TODO" /home/diego/proyecto/  # <1>
+grep -r "TODO" /home/diego/proyecto/  
 
 # Con número de línea
-grep -rn "TODO" /home/diego/proyecto/  # <2>
+grep -rn "TODO" /home/diego/proyecto/  
 ```
 
 1. **-r** (recursive) busca en subcarpetas
@@ -273,7 +273,7 @@ grep -rn "TODO" /home/diego/proyecto/  # <2>
 
 ```bash
 # Mostrar líneas SIN "error"
-grep -v "error" /var/log/syslog  # <1>
+grep -v "error" /var/log/syslog  
 ```
 
 1. **-v** (invert) muestra líneas que NO coinciden
@@ -286,10 +286,10 @@ grep -v "error" /var/log/syslog  # <1>
 
 ```bash
 # Encontrar todos los archivos .log en /var/log
-find /var/log -name "*.log"  # <1>
+find /var/log -name "*.log"  
 
 # Buscar archivos exactamente "nginx.conf"
-find / -name "nginx.conf"  # <2>
+find / -name "nginx.conf"  
 ```
 
 1. **-name "patrón"** busca por nombre
@@ -300,10 +300,10 @@ find / -name "nginx.conf"  # <2>
 
 ```bash
 # Solo archivos (no directorios)
-find /home -type f -name "*.txt"  # <1>
+find /home -type f -name "*.txt"  
 
 # Solo directorios
-find /home -type d -name "backup*"  # <2>
+find /home -type d -name "backup*"  
 ```
 
 1. **-type f** = archivos
@@ -314,13 +314,13 @@ find /home -type d -name "backup*"  # <2>
 
 ```bash
 # Encontrar archivos mayores a 100 MB
-find /home -type f -size +100M  # <1>
+find /home -type f -size +100M  
 
 # Encontrar archivos menores a 1 KB
-find /tmp -type f -size -1K  # <2>
+find /tmp -type f -size -1K  
 
 # Exactamente 5 GB
-find / -type f -size 5G  # <3>
+find / -type f -size 5G  
 ```
 
 1. **+100M** = mayor que 100 MB
@@ -333,13 +333,13 @@ find / -type f -size 5G  # <3>
 
 ```bash
 # Archivos modificados en últimos 7 días
-find /home -type f -mtime -7  # <1>
+find /home -type f -mtime -7  
 
 # Archivos modificados más de 30 días atrás
-find /var/log -type f -mtime +30  # <2>
+find /var/log -type f -mtime +30  
 
 # Accedidos hoy
-find / -type f -atime 0  # <3>
+find / -type f -atime 0  
 ```
 
 1. **-mtime -7** = últimos 7 días
@@ -352,13 +352,13 @@ find / -type f -atime 0  # <3>
 
 ```bash
 # Eliminar todos los .log del 2023
-find /var/log -name "*.log.*" -mtime +365 -delete  # <1>
+find /var/log -name "*.log.*" -mtime +365 -delete  
 
 # Contar líneas en todos los .py
-find /home -name "*.py" -exec wc -l {} \;  # <2>
+find /home -name "*.py" -exec wc -l {} \;  
 
 # Cambiar permisos en lote
-find /home -type d -exec chmod 755 {} \;  # <3>
+find /home -type d -exec chmod 755 {} \;  
 ```
 
 1. **-delete** elimina archivos encontrados
@@ -371,10 +371,10 @@ find /home -type d -exec chmod 755 {} \;  # <3>
 
 ```bash
 # Encontrar archivos vacíos
-find /tmp -type f -empty  # <1>
+find /tmp -type f -empty  
 
 # Encontrar directorios vacíos
-find /var -type d -empty  # <2>
+find /var -type d -empty  
 ```
 
 1. **-empty** archivos de 0 bytes
@@ -389,13 +389,13 @@ find /var -type d -empty  # <2>
 
 ```bash
 # Reemplazar "apache2" por "nginx" (primera ocurrencia por línea)
-sed 's/apache2/nginx/' /etc/hosts  # <1>
+sed 's/apache2/nginx/' /etc/hosts  
 
 # Reemplazar TODAS las ocurrencias (global)
-sed 's/apache2/nginx/g' /etc/hosts  # <2>
+sed 's/apache2/nginx/g' /etc/hosts  
 
 # Case-insensitive
-sed 's/apache2/nginx/gi' /etc/hosts  # <3>
+sed 's/apache2/nginx/gi' /etc/hosts  
 ```
 
 1. **s/viejo/nuevo/** reemplaza (primera por línea)
@@ -408,10 +408,10 @@ sed 's/apache2/nginx/gi' /etc/hosts  # <3>
 
 ```bash
 # Útil cuando hay "/" en patrón
-sed 's|/var/log/|/backup/|g' /etc/fstab  # <1>
+sed 's|/var/log/|/backup/|g' /etc/fstab  
 
 # O con #
-sed 's#/var/log/#/backup/#g' /etc/fstab  # <2>
+sed 's#/var/log/#/backup/#g' /etc/fstab  
 ```
 
 1. **|** como delimitador
@@ -422,16 +422,16 @@ sed 's#/var/log/#/backup/#g' /etc/fstab  # <2>
 
 ```bash
 # Eliminar línea 5
-sed '5d' /etc/config.txt  # <1>
+sed '5d' /etc/config.txt  
 
 # Eliminar líneas 5-10
-sed '5,10d' /etc/config.txt  # <2>
+sed '5,10d' /etc/config.txt  
 
 # Eliminar líneas que contengan "error"
-sed '/error/d' /var/log/syslog  # <3>
+sed '/error/d' /var/log/syslog  
 
 # Eliminar líneas vacías
-sed '/^$/d' /etc/config.txt  # <4>
+sed '/^$/d' /etc/config.txt  
 ```
 
 1. **5d** = delete línea 5
@@ -452,10 +452,10 @@ sed 's/viejo/nuevo/g' archivo.txt
 sed 's/viejo/nuevo/g' archivo.txt > archivo_nuevo.txt
 
 # Modificar archivo en lugar (in-place)
-sed -i 's/viejo/nuevo/g' archivo.txt  # <1>
+sed -i 's/viejo/nuevo/g' archivo.txt  
 
 # Backup antes de modificar
-sed -i.bak 's/viejo/nuevo/g' archivo.txt  # <2>
+sed -i.bak 's/viejo/nuevo/g' archivo.txt  
 ```
 
 1. **-i** modifica el archivo original
@@ -466,13 +466,13 @@ sed -i.bak 's/viejo/nuevo/g' archivo.txt  # <2>
 
 ```bash
 # Agregar línea antes de línea 5
-sed '5i\NUEVA LÍNEA' archivo.txt  # <1>
+sed '5i\NUEVA LÍNEA' archivo.txt  
 
 # Agregar línea después de línea 5
-sed '5a\NUEVA LÍNEA' archivo.txt  # <2>
+sed '5a\NUEVA LÍNEA' archivo.txt  
 
 # Agregar al final del archivo
-sed '$a\ÚLTIMA LÍNEA' archivo.txt  # <3>
+sed '$a\ÚLTIMA LÍNEA' archivo.txt  
 ```
 
 1. **5i** = insert antes (before)
@@ -494,13 +494,13 @@ sed '$a\ÚLTIMA LÍNEA' archivo.txt  # <3>
 # ana    32  java   engineer
 
 # Imprimir columna 1 (nombre)
-awk '{print $1}' usuarios.txt  # <1>
+awk '{print $1}' usuarios.txt  
 
 # Imprimir columnas 1 y 3
-awk '{print $1, $3}' usuarios.txt  # <2>
+awk '{print $1, $3}' usuarios.txt  
 
 # Imprimir en orden inverso
-awk '{print $4, $1}' usuarios.txt  # <3>
+awk '{print $4, $1}' usuarios.txt  
 ```
 
 1. **$1** = primera columna
@@ -531,10 +531,10 @@ engineer ana
 # root:x:0:0:root:/root:/bin/bash
 
 # Ver solo nombres de usuario (-F = Field separator)
-awk -F: '{print $1}' /etc/passwd  # <1>
+awk -F: '{print $1}' /etc/passwd  
 
 # Ver UID y nombre
-awk -F: '{print $3, $1}' /etc/passwd  # <2>
+awk -F: '{print $3, $1}' /etc/passwd  
 ```
 
 1. **-F:** usa : como delimitador
@@ -545,13 +545,13 @@ awk -F: '{print $3, $1}' /etc/passwd  # <2>
 
 ```bash
 # Mostrar solo usuarios con edad > 30
-awk '$2 > 30 {print $1}' usuarios.txt  # <1>
+awk '$2 > 30 {print $1}' usuarios.txt  
 
 # Mostrar líneas que contengan "admin"
-awk '/admin/ {print $0}' usuarios.txt  # <2>
+awk '/admin/ {print $0}' usuarios.txt  
 
 # Mostrar línea 2 solamente
-awk 'NR==2' usuarios.txt  # <3>
+awk 'NR==2' usuarios.txt  
 ```
 
 1. **$2 > 30** = columna 2 mayor que 30
@@ -570,10 +570,10 @@ awk 'NR==2' usuarios.txt  # <3>
 # monitor  300   10
 
 # Calcular total por producto
-awk '{print $1, $2 * $3}' precios.txt  # <1>
+awk '{print $1, $2 * $3}' precios.txt  
 
 # Suma total de todo
-awk '{suma += $2 * $3} END {print "Total: " suma}' precios.txt  # <2>
+awk '{suma += $2 * $3} END {print "Total: " suma}' precios.txt  
 ```
 
 1. **$2 * $3** = precio × cantidad
@@ -584,10 +584,10 @@ awk '{suma += $2 * $3} END {print "Total: " suma}' precios.txt  # <2>
 
 ```bash
 # Añadir texto personalizado
-awk '{print "Usuario: " $1 " edad: " $2}' usuarios.txt  # <1>
+awk '{print "Usuario: " $1 " edad: " $2}' usuarios.txt  
 
 # Usar variables
-awk -v nombre="Diego" '{print nombre ": " $1}' usuarios.txt  # <2>
+awk -v nombre="Diego" '{print nombre ": " $1}' usuarios.txt  
 ```
 
 1. Concatenar strings con espacios

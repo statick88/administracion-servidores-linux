@@ -48,47 +48,47 @@ Usa `vipw`, `vigr` o las herramientas `useradd/usermod/userdel`, `groupadd/group
 ```bash
 # Crear usuario con home, shell, grupo primario, grupos secundarios, comentario
 sudo useradd -m -s /bin/bash -c "Juan Perez - DevOps" -G docker,sudo -u 2001 juanp
-# <1>
+
 
 # Establecer contraseña (interactivo o script)
 echo "juanp:ClaveSegura123!" | sudo chpasswd
-# <2>
+
 
 # O forzar cambio en primer login
 sudo chage -d 0 juanp
-# <3>
+
 
 # Modificar: shell, home, grupos, UID, expiración
 sudo usermod -s /bin/zsh juanp
-# <4>
+
 sudo usermod -d /home/nuevo-home -m juanp
-# <5>
+
 sudo usermod -aG lxd juanp          # -aG = append a grupos secundarios
-# <6>
+
 sudo usermod -u 3001 juanp          # CUIDADO: cambiar UID rompe ownership de archivos
-# <7>
+
 
 # Bloquear/desbloquear cuenta (prefijo ! en shadow)
 sudo usermod -L juanp               # Lock
-# <8>
+
 sudo usermod -U juanp               # Unlock
-# <9>
+
 
 # Expiración de cuenta (fecha YYYY-MM-DD)
 sudo chage -E 2026-12-31 juanp
-# <10>
+
 
 # Eliminar usuario y su home
 sudo userdel -r juanp
-# <11>
+
 
 # Grupos
 sudo groupadd -g 2000 deployers
-# <12>
+
 sudo groupmod -n ci-cd deployers
-# <13>
+
 sudo groupdel ci-cd
-# <14>
+
 ```
 
 1. **useradd**: `-m` crea home, `-s` define shell, `-c` comentario, `-G` grupos secundarios, `-u` UID específico. Si falta `-m`, no se crea directorio home.
@@ -111,7 +111,7 @@ sudo groupdel ci-cd
 ```bash
 # Ver configuración actual
 grep -E '^(PASS_MAX_DAYS|PASS_MIN_DAYS|PASS_WARN_AGE|UID_MIN|GID_MIN|CREATE_HOME|ENCRYPT_METHOD)' /etc/login.defs
-# <1>
+
 
 # Valores recomendados (editar con vipw/vigr o sed cuidadoso)
 PASS_MAX_DAYS   90      # Cambio obligatorio cada 90 días
@@ -121,7 +121,7 @@ UID_MIN         1000    # UIDs de usuarios normales
 GID_MIN         1000
 CREATE_HOME     yes
 ENCRYPT_METHOD  YESCRYPT  # O SHA512 si YESCRYPT no soportado
-# <2>
+
 ```
 
 1. **grep login.defs**: Extrae las directivas de política de contraseñas y UIDs. `PASS_MAX_DAYS` controla la expiración, `ENCRYPT_METHOD` define el algoritmo de hash por defecto para nuevas contraseñas.
@@ -132,13 +132,13 @@ ENCRYPT_METHOD  YESCRYPT  # O SHA512 si YESCRYPT no soportado
 ```bash
 # Personalizar skeleton
 sudo mkdir -p /etc/skel/.ssh
-# <1>
+
 sudo chmod 700 /etc/skel/.ssh
-# <2>
+
 sudo touch /etc/skel/.ssh/authorized_keys
-# <3>
+
 sudo chmod 600 /etc/skel/.ssh/authorized_keys
-# <4>
+
 
 # Archivos de config por defecto
 cat <<'EOF' | sudo tee /etc/skel/.bashrc.d/abacom.sh
@@ -147,7 +147,7 @@ export EDITOR=nvim
 alias ll='ls -lh --color=auto'
 alias grep='grep --color=auto'
 EOF
-# <5>
+
 ```
 
 1. **mkdir -p**: Crea la estructura `.ssh/` en el skeleton. `-p` evita error si ya existe. Cada usuario nuevo recibirá esta carpeta.
@@ -180,15 +180,15 @@ juanp:$y$j9T$...hash...:20100:0:90:14:7:20135:
 ```bash
 # Ver algoritmo de hash actual
 sudo grep -E '^\$[0-9a-z]\$' /etc/shadow | head -1 | cut -d'$' -f2
-# <1>
+
 
 # Identificar cuentas sin contraseña o bloqueadas
 sudo awk -F: '($2 == "" || $2 ~ /^!/ || $2 ~ /^\*/) {print $1 " -> " $2}' /etc/shadow
-# <2>
+
 
 # Cuentas con contraseña expirada
 sudo awk -F: '($8 != "" && $8 < 20100) {print $1 " expirada: " $8}' /etc/shadow
-# <3>
+
 ```
 
 1. **grep hash**: Extrae el prefijo del hash (campo 2 de shadow). `6` = SHA-512, `y` = Yescrypt (recomendado por resistencia a ataques de fuerza bruta con GPU). Si ves `1` (MD5) o `5` (SHA-256), la contraseña es vulnerable.
@@ -204,13 +204,13 @@ sudo awk -F: '($8 != "" && $8 < 20100) {print $1 " expirada: " $8}' /etc/shadow
 ```bash
 # Configuración por servicio en /etc/pam.d/
 ls /etc/pam.d/ | head -10
-# <1>
+
 # common-auth, common-account, common-password, common-session, sshd, sudo, login, su
 
 # Sintaxis: tipo control modulo [argumentos]
 # Tipos: auth, account, password, session
 # Control: required, requisite, sufficient, optional, include
-# <2>
+
 ```
 
 1. **ls /etc/pam.d/**: Cada servicio tiene su propio archivo de configuración PAM. Los archivos `common-*` se incluyen desde otros servicios para mantener consistencia. No edites `/etc/pam.conf` — usa `/etc/pam.d/`.
@@ -222,27 +222,27 @@ ls /etc/pam.d/ | head -10
 # 1. Calidad de contraseñas — /etc/pam.d/common-password
 # Añadir ANTES de pam_unix.so
 password requisite pam_pwquality.so retry=3 minlen=14 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 enforce_for_root
-# <1>
+
 
 # 2. Bloqueo por intentos fallidos — /etc/pam.d/common-auth
 auth required pam_faillock.so preauth silent deny=5 unlock_time=900 fail_interval=60
-# <2>
+
 auth [success=1 default=ignore] pam_unix.so
-# <3>
+
 auth [default=die] pam_faillock.so authfail deny=5 unlock_time=900 fail_interval=60
-# <4>
+
 auth sufficient pam_faillock.so authsucc deny=5 unlock_time=900 fail_interval=60
-# <5>
+
 
 # 3. Límites de recursos — /etc/pam.d/common-session
 session required pam_limits.so
-# <6>
+
 
 # Ver límites aplicados
 ulimit -a
-# <7>
+
 cat /etc/security/limits.conf
-# <8>
+
 ```
 
 1. **pam_pwquality**: `minlen=14` (mínimo 14 caracteres), `ucredit=-1` (al menos 1 mayúscula), `lcredit=-1` (1 minúscula), `dcredit=-1` (1 dígito), `ocredit=-1` (1 carácter especial). `enforce_for_root` aplica a root. `retry=3` da 3 intentos antes de fallar.
@@ -259,13 +259,13 @@ cat /etc/security/limits.conf
 ```bash
 # Testear configuración sin aplicar (dry-run)
 pamtester sshd authenticate 2>&1 | head -20
-# <1>
+
 
 # Ver logs de autenticación
 sudo journalctl -u ssh -f | grep -i pam
-# <2>
+
 sudo grep pam /var/log/auth.log | tail -20
-# <3>
+
 ```
 
 1. **pamtester**: Prueba la cadena PAM de un servicio específico sin iniciar una sesión real. Muestra qué módulos se cargan y en qué orden. Útil para verificar que `pam_faillock` y `pam_pwquality` están correctamente configurados.
@@ -281,10 +281,10 @@ sudo grep pam /var/log/auth.log | tail -20
 ```bash
 # Editar SIEMPRE con visudo (valida sintaxis)
 sudo visudo
-# <1>
+
 
 # Estructura: usuario host=(runas) comandos
-# <2>
+
 ```
 
 1. **visudo**: SIEMPRE edita `/etc/sudoers` con `visudo`. Valida la sintaxis antes de guardar. Un error en sudoers puede bloquear a TODOS los usuarios de usar sudo. Alternativa: `visudo -f /etc/sudoers.d/mi-archivo`.
@@ -300,38 +300,38 @@ Cmnd_Alias      PKG_MGMT = /usr/bin/apt, /usr/bin/dnf, /usr/bin/snap
 Cmnd_Alias      SVC_MGMT = /bin/systemctl, /bin/journalctl
 Cmnd_Alias      DEPLOY_CMDS = /opt/scripts/deploy.sh, /usr/bin/docker compose
 Cmnd_Alias      READ_LOGS = /bin/cat /var/log/*, /usr/bin/tail -f /var/log/*
-# <1>
+
 
 # Reglas
 ADMINS          ALL = (ALL:ALL) ALL
 deploy          SERVERS = (www-data:www-data) DEPLOY_CMDS, NOPASSWD: READ_LOGS
-# <2>
+
 %sudo           ALL = (ALL:ALL) ALL
-# <3>
+
 
 # Defaults de seguridad
 Defaults        env_reset
-# <4>
+
 Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-# <5>
+
 Defaults        timestamp_timeout=15
-# <6>
+
 Defaults        log_input, log_output
-# <7>
+
 Defaults        requiretty
-# <8>
+
 Defaults        passwd_tries=3
-# <9>
+
 Defaults        badpass_message="Acceso denegado. Contacta a seguridad@abacom.cl"
-# <10>
+
 Defaults        mailto="seguridad@abacom.cl"
-# <11>
+
 Defaults        mail_always
-# <12>
+
 Defaults        mail_badpass
-# <13>
+
 Defaults        mail_no_user
-# <14>
+
 ```
 
 1. **Aliases**: `User_Alias` agrupa usuarios, `Host_Alias` agrupa hosts, `Cmnd_Alias` agrupa comandos. Usa nombres descriptivos (PKG_MGMT, SVC_MGMT) para que el sudoers sea legible y mantenible.
@@ -354,15 +354,15 @@ Defaults        mail_no_user
 ```bash
 # Sintaxis
 sudo visudo -c
-# <1>
+
 
 # Qué puede hacer un usuario
 sudo -l -U deploy
-# <2>
+
 
 # Probar comando específico
 sudo -u www-data /opt/scripts/deploy.sh --dry-run
-# <3>
+
 ```
 
 1. **visudo -c**: Valida la sintaxis de todos los archivos sudoers. Ejecuta después de cada cambio. Si falla, NO cerrres la sesión — podrías quedar bloqueado.
@@ -378,12 +378,12 @@ sudo -u www-data /opt/scripts/deploy.sh --dry-run
 ```bash
 # Generar (ejecutar como el usuario, NO root)
 ssh-keygen -t ed25519 -C "juanp@abacom-$(date +%Y%m%d)" -f ~/.ssh/id_ed25519_abacom
-# <1>
+
 # Passphrase: OBLIGATORIA para claves privadas
 
 # Ver clave pública
 cat ~/.ssh/id_ed25519_abacom.pub
-# <2>
+
 # ssh-ed25519 AAAAC3... juanp@abacom-20260720
 ```
 
@@ -395,16 +395,16 @@ cat ~/.ssh/id_ed25519_abacom.pub
 ```bash
 # Método 1: ssh-copy-id (requiere password una vez)
 ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub juanp@srv01.abacom.cl
-# <1>
+
 
 # Método 2: Manual (para automatización)
 cat ~/.ssh/id_ed25519_abacom.pub | ssh juanp@srv01 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
-# <2>
+
 
 # Método 3: Ansible / script para muchos hosts
 for host in srv01 srv02 srv03; do
   ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub juanp@$host
-# <3>
+
 done
 ```
 
@@ -417,53 +417,53 @@ done
 ```bash
 # /etc/ssh/sshd_config.d/99-abacom-hardening.conf
 Port 22
-# <1>
+
 Protocol 2
-# <2>
+
 
 # Autenticación
 PermitRootLogin prohibit-password
-# <3>
+
 PubkeyAuthentication yes
-# <4>
+
 PasswordAuthentication no
-# <5>
+
 PermitEmptyPasswords no
-# <6>
+
 AuthenticationMethods publickey
-# <7>
+
 PubkeyAcceptedAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
-# <8>
+
 
 # Seguridad
 MaxAuthTries 3
-# <9>
+
 MaxSessions 2
-# <10>
+
 LoginGraceTime 30
-# <11>
+
 ClientAliveInterval 300
-# <12>
+
 ClientAliveCountMax 2
-# <13>
+
 X11Forwarding no
-# <14>
+
 AllowAgentForwarding no
-# <15>
+
 AllowTcpForwarding no
-# <16>
+
 PermitTunnel no
-# <17>
+
 
 # Logging
 SyslogFacility AUTH
-# <18>
+
 LogLevel VERBOSE
-# <19>
+
 
 # Usuarios/grupos permitidos
 AllowGroups sshusers admins
-# <20>
+
 # DenyUsers *
 # DenyGroups *
 ```
@@ -492,9 +492,9 @@ AllowGroups sshusers admins
 ```bash
 # Validar y recargar
 sudo sshd -t
-# <1>
+
 sudo systemctl reload ssh
-# <2>
+
 ```
 
 1. **sshd -t**: Valida la configuración de `sshd_config` SIN recargar. Ejecuta SIEMPRE antes de `systemctl reload`. Un error puede bloquear todas las conexiones SSH.
@@ -505,22 +505,22 @@ sudo systemctl reload ssh
 ```bash
 # Iniciar agent y añadir clave
 eval "$(ssh-agent -s)"
-# <1>
+
 ssh-add ~/.ssh/id_ed25519_abacom
-# <2>
+
 # Enter passphrase once
 
 # Ver claves cargadas
 ssh-add -l
-# <3>
+
 # 256 SHA256:... juanp@abacom-20260720 (ED25519)
 
 # Reenvío de agente (SOLO a hosts de confianza)
 ssh -A juanp@bastion.abacom.cl
-# <4>
+
 # Desde bastion, puedes autenticar a srv01 sin clave en bastion
 ssh srv01
-# <5>
+
 ```
 
 1. **eval ssh-agent**: Inicia el agente SSH en background y configura las variables de entorno (`SSH_AUTH_SOCK`, `SSH_AGENT_PID`). Sin `eval`, las variables no se propagan a la shell actual.
@@ -561,23 +561,23 @@ OLD_KEY="$HOME/.ssh/id_ed25519_abacom"
 
 # 1. Generar nueva
 ssh-keygen -t ed25519 -C "$(whoami)@abacom-$(date +%Y%m%d)" -f "$NEW_KEY"
-# <1>
+
 
 # 2. Desplegar a hosts conocidos (desde ~/.ssh/known_hosts o inventario)
 for host in srv01 srv02 srv03; do
   ssh-copy-id -i "${NEW_KEY}.pub" "juanp@${host}.abacom.cl"
-# <2>
+
 done
 
 # 3. Actualizar ssh-agent
 ssh-add -d "$OLD_KEY"
-# <3>
+
 ssh-add "$NEW_KEY"
-# <4>
+
 
 # 4. Renombrar (opcional, tras validar)
 mv "$NEW_KEY" "$OLD_KEY"
-# <5>
+
 mv "${NEW_KEY}.pub" "${OLD_KEY}.pub"
 
 echo "Rotación completada. Valida acceso a todos los hosts."
@@ -648,8 +648,8 @@ echo "Rotación completada. Valida acceso a todos los hosts."
 ## 8. Recursos y Referencias
 
 - **man pages**: `useradd(8)`, `passwd(5)`, `shadow(5)`, `pam(7)`, `pam.conf(5)`, `sudoers(5)`, `sshd_config(5)`
-- **PAM Linux-PAM Guide**: <https://linux-pam.org/Linux-PAM-html/>
-- **sudoers Manual**: <https://www.sudo.ws/docs/man/1.9.15/sudoers.man.html>
+- **PAM Linux-PAM Guide**: <https://man7.org/linux/man-pages/man8/pam.8.html>
+- **sudoers Manual**: <https://man7.org/linux/man-pages/man5/sudoers.5.html>
 - **OpenSSH Guidelines**: <https://infosec.mozilla.org/guidelines/openssh>
 - **CIS Ubuntu 24.04 Benchmark**: Sección "Access, Authentication and Authorization"
 

@@ -44,12 +44,12 @@ Este mini-curso está diseñado para que puedas trabajar con servidores de forma
 ### Linux
 
 ```bash
-$ ssh alumno@192.168.56.10  # <1>
+$ ssh alumno@192.168.56.10  
 The authenticity of host '192.168.56.10 (192.168.56.10)' can't be established.
 ED25519 key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 alumno@192.168.56.10's password:
-# <1>
+
 ```
 
 
@@ -59,9 +59,9 @@ alumno@192.168.56.10's password:
 ### macOS
 
 ```bash
-$ ssh alumno@192.168.56.10  # <1>
+$ ssh alumno@192.168.56.10  
 alumno@192.168.56.10's password:
-# <1>
+
 ```
 
 
@@ -71,9 +71,9 @@ alumno@192.168.56.10's password:
 ### Windows
 
 ```powershell
-PS> ssh alumno@192.168.56.10  # <1>
+PS> ssh alumno@192.168.56.10  
 alumno@192.168.56.10's password:
-# <1>
+
 ```
 
 
@@ -91,18 +91,18 @@ alumno@192.168.56.10's password:
 ### Linux
 
 ```bash
-$ ssh-keygen -t ed25519 -C "alumno@abacom"  # <1>
+$ ssh-keygen -t ed25519 -C "alumno@abacom"  
 Generating public/private ed25519 key pair.
 Enter file in which to save the key (/home/alumno/.ssh/id_ed25519):
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
 
-$ ssh-copy-id -i ~/.ssh/id_ed25519.pub alumno@192.168.56.10  # <2>
+$ ssh-copy-id -i ~/.ssh/id_ed25519.pub alumno@192.168.56.10  
 Number of key(s) added: 1
 
-$ ssh alumno@192.168.56.10  # <3>
+$ ssh alumno@192.168.56.10  
 Welcome to Ubuntu Server LTS
-# <3>
+
 ```
 
 
@@ -114,12 +114,12 @@ Welcome to Ubuntu Server LTS
 ### macOS
 
 ```bash
-$ ssh-keygen -t ed25519 -C "alumno@abacom"  # <1>
+$ ssh-keygen -t ed25519 -C "alumno@abacom"  
 
-$ cat ~/.ssh/id_ed25519.pub | ssh alumno@192.168.56.10 'mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys'  # <2>
+$ cat ~/.ssh/id_ed25519.pub | ssh alumno@192.168.56.10 'mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys'  
 
-$ ssh alumno@192.168.56.10  # <3>
-# <3>
+$ ssh alumno@192.168.56.10  
+
 ```
 
 
@@ -131,12 +131,12 @@ $ ssh alumno@192.168.56.10  # <3>
 ### Windows
 
 ```powershell
-PS> ssh-keygen -t ed25519 -C "alumno@abacom"  # <1>
+PS> ssh-keygen -t ed25519 -C "alumno@abacom"  
 
-PS> type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh alumno@192.168.56.10 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"  # <2>
+PS> type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh alumno@192.168.56.10 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"  
 
-PS> ssh alumno@192.168.56.10  # <3>
-# <3>
+PS> ssh alumno@192.168.56.10  
+
 ```
 
 
@@ -152,12 +152,12 @@ PS> ssh alumno@192.168.56.10  # <3>
 ## Ejemplo 3: Copiar archivos con scp y rsync
 
 ```bash
-$ scp ./backup.tar.gz alumno@192.168.56.10:/tmp/  # <1>
+$ scp ./backup.tar.gz alumno@192.168.56.10:/tmp/  
 
-$ scp alumno@192.168.56.10:/var/log/syslog ./syslog.txt  # <2>
+$ scp alumno@192.168.56.10:/var/log/syslog ./syslog.txt  
 
-$ rsync -avz ./site/ alumno@192.168.56.10:/var/www/html/site/  # <3>
-# <3>
+$ rsync -avz ./site/ alumno@192.168.56.10:/var/www/html/site/  
+
 ```
 
 
@@ -180,20 +180,20 @@ Cambiar `sshd_config` sin validación puede dejarte sin acceso remoto.
 - Deshabilitas el método de autenticación que estabas usando.
 
 **Cómo prevenirlo:**
-1. Mantén una sesión SSH abierta mientras pruebas.
-2. Valida configuración antes de reiniciar el servicio.
-3. Aplica cambios de a uno y verifica.
+4. Mantén una sesión SSH abierta mientras pruebas.
+5. Valida configuración antes de reiniciar el servicio.
+6. Aplica cambios de a uno y verifica.
 :::
 
 ```bash
-$ sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak  # <1>
+$ sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak  
 
-$ sudo sshd -t  # <2>
+$ sudo sshd -t  
 
-$ sudo systemctl reload ssh  # <3>
+$ sudo systemctl reload ssh  
 
-$ sudo ss -tlnp | grep ':22'  # <4>
-# <4>
+$ sudo ss -tlnp | grep ':22'  
+
 ```
 
 
@@ -208,12 +208,12 @@ $ sudo ss -tlnp | grep ':22'  # <4>
 ## Troubleshooting rápido
 
 ```bash
-$ ssh -vvv alumno@192.168.56.10  # <1>
+$ ssh -vvv alumno@192.168.56.10  
 
-$ nc -vz 192.168.56.10 22  # <2>
+$ nc -vz 192.168.56.10 22  
 
-$ ping -c 3 192.168.56.10  # <3>
-# <3>
+$ ping -c 3 192.168.56.10  
+
 ```
 
 

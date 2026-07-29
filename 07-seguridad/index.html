@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Diego Saavedra - Instructor Principal">
+<meta name="dcterms.date" content="2026-07-20">
+<meta name="description" content="Curso Completo de Administración de Servidores Linux para Profesionales de TI - Dictado para Abacom">
+
+<title>UNIDAD VII: Seguridad Práctica — Hardening – Administración de Servidores Linux</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../08-docker/index.html" rel="next">
+<link href="../06-redes/index.html" rel="prev">
+<link href="../logo.jpeg" rel="icon" type="image/jpeg">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-23bbe8b5e4efc1e257f6d59dce478b08.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-abfa4615eba2ed0d4bb7fb949ed9c296.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e2c78d758adb40864c429e99cf005747.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdown.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdownKatex.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdownHighlight.js"></script>
+<script src="../site_libs/quarto-contrib/quizdown-0.6.0/quizdown-init.js"></script>
+<link href="../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+<script src="../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
+<link href="../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../07-seguridad/index.html">UNIDAD VII: Seguridad Práctica - Hardening</a></li><li class="breadcrumb-item"><a href="../07-seguridad/index.html"><span class="chapter-title">UNIDAD VII: Seguridad Práctica — Hardening</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../logo.jpeg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../logo.jpeg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Administración de Servidores Linux</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/statick88/administracion-servidores-linux" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Administración de Servidores Linux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introducción al Curso</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acerca del Instructor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../license.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licencia</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SETUP.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Guía de Configuración del Entorno</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../glosario.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Glosario del Curso</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD I: Fundamentos de Linux y Virtualización Ligera</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../01-fundamentos/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD I: Fundamentos de Linux y Virtualización Ligera</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD II: Gestión de Paquetes y Entornos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../02-paquetes/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD II: Gestión de Paquetes y Entornos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD III: Scripting y Automatización con Bash</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../03-scripting/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD III: Scripting y Automatización con Bash</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD IV: Administración y Seguridad de Usuarios</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../04-usuarios/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD IV: Administración y Seguridad de Usuarios</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD V: Gestión de Procesos y Logs</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../05-procesos/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD V: Gestión de Procesos y Logs</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD VI: Redes y Almacenamiento Local</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../06-redes/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD VI: Redes y Almacenamiento Local</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">UNIDAD VII: Seguridad Práctica - Hardening</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../07-seguridad/index.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">UNIDAD VII: Seguridad Práctica — Hardening</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD VIII: Introducción a Docker</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../08-docker/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD VIII: Introducción a Docker</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD IX: Nginx como Servidor Web y Proxy</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../09-nginx/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD IX: Nginx como Servidor Web y Proxy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD X: Certificados SSL y HTTPS</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../10-ssl/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD X: Certificados SSL y HTTPS</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../11-bases-datos/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">UNIDAD XI: Bases de Datos en Contenedores y Despliegue</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 12: Diagnostico y Troubleshooting</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/1_metodologia_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Troubleshooting y Metodología de Resolución</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/2_logs_journalctl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.2: Logs y journalctl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/3_red_puertos_dns.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.3: Red, puertos y DNS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/4_recursos_sistema_storage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12.4: CPU, memoria y storage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/5_lab_practico_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: Troubleshooting Integrado</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad12/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Unidad 12: Recursos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 13: Usuarios y Permisos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/1_usuarios_grupos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Usuarios y Grupos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/2_permisos_chmod.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Permisos y chmod</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/3_sudo_administracion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sudo y Administración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/4_lab_practico_usuarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio Práctico: Usuarios y Permisos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad13/99_recursos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Recursos y Referencias</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 14: Monitoreo e Inventario con Docker</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/1_introduccion_pila_observabilidad.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Monitoreo, Inventario y Observabilidad con Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/2_docker_compose_deploy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Despliegue con Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/3_configuracion_prometheus_grafana.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración de Prometheus y Grafana</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/4_netbox_configuracion.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Configuración de NetBox</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad14/5_lab_practico_monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio Práctico: Monitoreo e Inventario</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">Unidad 15: Docker Básico</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/1_introduccion_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduccion a Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/2_dockerfile_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dockerfile y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unidades/unidad15-docker-basico/3_servidores_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Servidores en Docker</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false">
+ <span class="menu-text">Laboratorios Prácticos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-17" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorios Prácticos - Administración de Servidores Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab0_fundamentos_diagnostico.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 0: Diagnostico Basico del Sistema</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab1_fundamentos_wsl2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 1: Fundamentos WSL2 y Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab4_usuarios_permisos.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2: Gestión de Usuarios y Permisos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab5_procesos_servicios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 3: Administración de Procesos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab5b_troubleshooting_integrado.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 10: Troubleshooting Integrado (Checklist + Evidencias)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab6_redes_ssh.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4: Redes y SSH</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab6b_almacenamiento_montajes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 5: Almacenamiento (Particiones y Montajes)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab7_hardening_ufw_fail2ban.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 2B: Hardening Basico Post-Instalacion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab8_docker_compose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 4B: Docker y Docker Compose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9_http_diagnostico_web.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 6: HTTP Basico y Diagnostico Web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9_nginx_virtualhost.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 9: Nginx - Sitio y Virtual Host</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab9b_nginx_reverseproxy_tls.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 8: Nginx - Reverse Proxy + TLS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab11_bd_mariadb_backup_restore.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Bases de Datos en Contenedores — MariaDB</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false">
+ <span class="menu-text">Laboratorios Avanzados</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-18" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab13_openclaw_telegram_tailscale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 11: Clawdbot (OpenClaw) + Telegram + Tailscale (Seguridad)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lab-practicos/lab14_opencode_ssh_remoto.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Laboratorio 12: OpenCode + SSH - Administración Remota de Servidores</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">Prácticas por Unidad</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 1: Fundamentos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 2: Instalacion y Primer Hardening</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 3: Terminal y Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 4: Docker</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad12.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 12: Troubleshooting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 6: Almacenamiento</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 7: Redes basicas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 8: HTTP Basico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 9: Apache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 10: Nginx y SSL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../practicas/unidad11.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Practica Unidad 11: MariaDB</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false">
+ <span class="menu-text">Retos GNU/Linux (Wargames)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-20" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retos GNU/Linux (Bandit)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/01_niveles_1_12.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 1→2 hasta 12→13</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/02_niveles_13_23.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 13→14 hasta 23→24</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/bandit/03_niveles_24_34.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Niveles 24→25 hasta 33→34</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-21" role="navigation" aria-expanded="false">
+ <span class="menu-text">Presentaciones (Reveal.js)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-21" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-21" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../presentaciones.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Presentaciones (Reveal.js)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-22" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 1: Fundamentos)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-22" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-22" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_B_Editores_Vi_Nvim.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo B: Editores Vi y Nvim - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_L_SSH_GitHub_Minicurso.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Minicurso: Configuración de SSH para GitHub</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_H_SSH_SCP_Keys.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo H: SSH, SCP y Llaves - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_C_Package_Managers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo C: Gestores de Paquetes - Debian, CentOS, Arch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_D_Herramientas_Monitoreo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo D: Herramientas de Monitoreo del Sistema - top, htop, etc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_F_Ranger_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Ranger: Gestor de Archivos Terminal para Servidores</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 2: Intermedio)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-23" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_E_Grep_Find_Sed_Awk.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo E: Búsqueda y Procesamiento de Texto - grep, find, sed, awk</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_A_Bash_Scripting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo A: Bash Scripting - Mini-Curso Práctico</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-24" role="navigation" aria-expanded="false">
+ <span class="menu-text">Anexos: Mini-Cursos (Nivel 3: Avanzado)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-24" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-24" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_G_OpenCode_Gestion_Servidores.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo G: OpenCode - Mini-Curso para Gestión de Servidores</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/Anexo_I_Openclaw_Telegram_Abacombot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Anexo I: OpenClaw + Telegram (Abacombot) - De 0 a Avanzado</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../anexos/rsync-nginx-course.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Rsync y Nginx - Guía de Laboratorio</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-25" role="navigation" aria-expanded="false">
+ <span class="menu-text">Evaluación: Quizzes Interactivos</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-25" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-25" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/README.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluación: Quizzes Interactivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 1: Fundamentos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 2: Instalación y Configuración</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 3: Comandos Básicos de Linux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 4: Docker y Containerización</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 5: Procesos y Servicios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 6: Almacenamiento y Sistemas de Archivos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 7: Redes Básicas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 8: Introducción a Servidores Web</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 9: Apache (Servidor Web)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 10: Nginx y SSL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_unidad11.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Unidad 11: MariaDB/MySQL</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false">
+ <span class="menu-text">Evaluación: Quizzes Avanzados (Bonus)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-26" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/README_avanzado.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quizzes Avanzados (Bonus)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_docker.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Docker en Producción</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_nginx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Nginx y SSL en Producción</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../quizzes/quiz_avanzado_troubleshooting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quiz Avanzado: Troubleshooting en Linux</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#unidad-vii-seguridad-práctica-hardening" id="toc-unidad-vii-seguridad-práctica-hardening" class="nav-link active" data-scroll-target="#unidad-vii-seguridad-práctica-hardening">UNIDAD VII: Seguridad Práctica — Hardening</a>
+  <ul class="collapse">
+  <li><a href="#objetivos-de-la-unidad" id="toc-objetivos-de-la-unidad" class="nav-link" data-scroll-target="#objetivos-de-la-unidad">Objetivos de la Unidad</a></li>
+  <li><a href="#ufw-firewall-host-basado" id="toc-ufw-firewall-host-basado" class="nav-link" data-scroll-target="#ufw-firewall-host-basado">1. ufw — Firewall Host-Basado</a>
+  <ul class="collapse">
+  <li><a href="#conceptos-y-política-por-defecto" id="toc-conceptos-y-política-por-defecto" class="nav-link" data-scroll-target="#conceptos-y-política-por-defecto">1.1 Conceptos y política por defecto</a></li>
+  <li><a href="#reglas-típicas-de-servidor" id="toc-reglas-típicas-de-servidor" class="nav-link" data-scroll-target="#reglas-típicas-de-servidor">1.2 Reglas típicas de servidor</a></li>
+  <li><a href="#logging-y-auditoría" id="toc-logging-y-auditoría" class="nav-link" data-scroll-target="#logging-y-auditoría">1.3 Logging y auditoría</a></li>
+  <li><a href="#gestión-de-reglas-numeradas" id="toc-gestión-de-reglas-numeradas" class="nav-link" data-scroll-target="#gestión-de-reglas-numeradas">1.4 Gestión de reglas numeradas</a></li>
+  <li><a href="#perfiles-de-aplicaciones" id="toc-perfiles-de-aplicaciones" class="nav-link" data-scroll-target="#perfiles-de-aplicaciones">1.5 Perfiles de aplicaciones</a></li>
+  </ul></li>
+  <li><a href="#fail2ban-protección-contra-fuerza-bruta" id="toc-fail2ban-protección-contra-fuerza-bruta" class="nav-link" data-scroll-target="#fail2ban-protección-contra-fuerza-bruta">2. fail2ban — Protección contra Fuerza Bruta</a>
+  <ul class="collapse">
+  <li><a href="#instalación-y-estructura" id="toc-instalación-y-estructura" class="nav-link" data-scroll-target="#instalación-y-estructura">2.1 Instalación y estructura</a></li>
+  <li><a href="#configuración-base-etcfail2banjail.local" id="toc-configuración-base-etcfail2banjail.local" class="nav-link" data-scroll-target="#configuración-base-etcfail2banjail.local">2.2 Configuración base <code>/etc/fail2ban/jail.local</code></a></li>
+  <li><a href="#filtros-personalizados-etcfail2banfilter.d" id="toc-filtros-personalizados-etcfail2banfilter.d" class="nav-link" data-scroll-target="#filtros-personalizados-etcfail2banfilter.d">2.3 Filtros personalizados <code>/etc/fail2ban/filter.d/</code></a></li>
+  <li><a href="#comandos-operativos" id="toc-comandos-operativos" class="nav-link" data-scroll-target="#comandos-operativos">2.4 Comandos operativos</a></li>
+  </ul></li>
+  <li><a href="#ssh-hardening-avanzado" id="toc-ssh-hardening-avanzado" class="nav-link" data-scroll-target="#ssh-hardening-avanzado">3. SSH Hardening Avanzado</a>
+  <ul class="collapse">
+  <li><a href="#etcsshsshd_config.d99-abacom-hardening.conf" id="toc-etcsshsshd_config.d99-abacom-hardening.conf" class="nav-link" data-scroll-target="#etcsshsshd_config.d99-abacom-hardening.conf">3.1 <code>/etc/ssh/sshd_config.d/99-abacom-hardening.conf</code></a></li>
+  </ul></li>
+  <li><a href="#kernel-hardening-sysctl" id="toc-kernel-hardening-sysctl" class="nav-link" data-scroll-target="#kernel-hardening-sysctl">4. Kernel Hardening — sysctl</a>
+  <ul class="collapse">
+  <li><a href="#etcsysctl.d99-abacom-hardening.conf" id="toc-etcsysctl.d99-abacom-hardening.conf" class="nav-link" data-scroll-target="#etcsysctl.d99-abacom-hardening.conf">4.1 <code>/etc/sysctl.d/99-abacom-hardening.conf</code></a></li>
+  </ul></li>
+  <li><a href="#auditd-auditoría-de-eventos-críticos" id="toc-auditd-auditoría-de-eventos-críticos" class="nav-link" data-scroll-target="#auditd-auditoría-de-eventos-críticos">5. auditd — Auditoría de Eventos Críticos</a>
+  <ul class="collapse">
+  <li><a href="#instalación-y-reglas-base" id="toc-instalación-y-reglas-base" class="nav-link" data-scroll-target="#instalación-y-reglas-base">5.1 Instalación y reglas base</a></li>
+  <li><a href="#etcauditrules.dabacom.rules" id="toc-etcauditrules.dabacom.rules" class="nav-link" data-scroll-target="#etcauditrules.dabacom.rules">5.2 <code>/etc/audit/rules.d/abacom.rules</code></a></li>
+  <li><a href="#consultas-útiles" id="toc-consultas-útiles" class="nav-link" data-scroll-target="#consultas-útiles">5.3 Consultas útiles</a></li>
+  </ul></li>
+  <li><a href="#lynis-auditoría-automatizada" id="toc-lynis-auditoría-automatizada" class="nav-link" data-scroll-target="#lynis-auditoría-automatizada">6. Lynis — Auditoría Automatizada</a>
+  <ul class="collapse">
+  <li><a href="#instalación-y-ejecución" id="toc-instalación-y-ejecución" class="nav-link" data-scroll-target="#instalación-y-ejecución">6.1 Instalación y ejecución</a></li>
+  <li><a href="#integración-cicd-github-actions-ejemplo" id="toc-integración-cicd-github-actions-ejemplo" class="nav-link" data-scroll-target="#integración-cicd-github-actions-ejemplo">6.2 Integración CI/CD (GitHub Actions ejemplo)</a></li>
+  </ul></li>
+  <li><a href="#docker-consideraciones-de-seguridad" id="toc-docker-consideraciones-de-seguridad" class="nav-link" data-scroll-target="#docker-consideraciones-de-seguridad">7. Docker — Consideraciones de Seguridad</a>
+  <ul class="collapse">
+  <li><a href="#hardening-contenedores-resumen" id="toc-hardening-contenedores-resumen" class="nav-link" data-scroll-target="#hardening-contenedores-resumen">7.2 Hardening contenedores (resumen)</a></li>
+  </ul></li>
+  <li><a href="#laboratorio-práctico-hardening-end-to-end" id="toc-laboratorio-práctico-hardening-end-to-end" class="nav-link" data-scroll-target="#laboratorio-práctico-hardening-end-to-end">8. Laboratorio Práctico: Hardening End-to-End</a></li>
+  <li><a href="#resumen-y-próximos-pasos" id="toc-resumen-y-próximos-pasos" class="nav-link" data-scroll-target="#resumen-y-próximos-pasos">9. Resumen y Próximos Pasos</a>
+  <ul class="collapse">
+  <li><a href="#checklist-de-competencias-unidad-vii" id="toc-checklist-de-competencias-unidad-vii" class="nav-link" data-scroll-target="#checklist-de-competencias-unidad-vii">📋 Checklist de competencias Unidad VII</a></li>
+  </ul></li>
+  <li><a href="#recursos-y-referencias" id="toc-recursos-y-referencias" class="nav-link" data-scroll-target="#recursos-y-referencias">10. Recursos y Referencias</a></li>
+  <li><a href="#quiz-interactivo-quizdown" id="toc-quiz-interactivo-quizdown" class="nav-link" data-scroll-target="#quiz-interactivo-quizdown">11. Quiz Interactivo (quizdown)</a></li>
+  </ul></li>
+  <li>Code Appendix</li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/07-seguridad/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../07-seguridad/index.html">UNIDAD VII: Seguridad Práctica - Hardening</a></li><li class="breadcrumb-item"><a href="../07-seguridad/index.html"><span class="chapter-title">UNIDAD VII: Seguridad Práctica — Hardening</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">UNIDAD VII: Seguridad Práctica — Hardening</span></h1>
+<p class="subtitle lead">ufw, fail2ban, auditoría, SSH, kernel — Enfoque Práctico Abacom™</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Diego Saavedra - Instructor Principal </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 20, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="unidad-vii-seguridad-práctica-hardening" class="level1">
+<h1>UNIDAD VII: Seguridad Práctica — Hardening</h1>
+<section id="objetivos-de-la-unidad" class="level2">
+<h2 class="anchored" data-anchor-id="objetivos-de-la-unidad">Objetivos de la Unidad</h2>
+<p>Al finalizar esta unidad, serás capaz de:</p>
+<ul>
+<li>Configurar <strong>ufw</strong> (Uncomplicated Firewall) con política <em>deny-by-default</em>, reglas explícitas y logging.</li>
+<li>Desplegar y ajustar <strong>fail2ban</strong> para proteger SSH, servicios web y APIs contra fuerza bruta.</li>
+<li>Endurecer <strong>SSH</strong> (claves ed25519, sin password, puertos no estándar, límites de conexión).</li>
+<li>Aplicar <strong>parámetros de kernel</strong> (sysctl) para mitigación de red y memoria.</li>
+<li>Configurar <strong>auditd</strong> para trazabilidad de eventos críticos.</li>
+<li>Ejecutar <strong>Lynis</strong> como baseline de auditoría automatizada.</li>
+</ul>
+<hr>
+</section>
+<section id="ufw-firewall-host-basado" class="level2">
+<h2 class="anchored" data-anchor-id="ufw-firewall-host-basado">1. ufw — Firewall Host-Basado</h2>
+<section id="conceptos-y-política-por-defecto" class="level3">
+<h3 class="anchored" data-anchor-id="conceptos-y-política-por-defecto">1.1 Conceptos y política por defecto</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status verbose          </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status numbered         </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>ufw status verbose</strong> muestra estado completo: política por defecto, número de reglas, logging activo, y modo de ejecución (activo/pausado). La primera vez que ejecutas este comando indica si ufw está activo o inactivo.</li>
+<li><strong>ufw status numbered</strong> muestra las reglas con números de índice. Los números son críticos para insertar o eliminar reglas en posiciones específicas.</li>
+</ol>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw default deny incoming   </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw default allow outgoing  </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw default deny routed     </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>ufw default deny incoming</strong> bloquea todo tráfico entrante no explícitamente permitido. Política de seguridad mínima para servidores: solo abrir lo que se necesita.</li>
+<li><strong>ufw default allow outgoing</strong> permite todo tráfico saliente. Los servidores necesitan salir para actualizaciones, DNS, dependencias y notificaciones.</li>
+<li><strong>ufw default deny routed</strong> bloquea tráfico que cruza el servidor (forwarding). Impide que el servidor actúe como router no autorizado entre redes.</li>
+</ol>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ Antes de activar ufw
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Asegura acceso SSH</strong> o te quedarás fuera:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 22/tcp comment <span class="st">'SSH'</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># O si cambiaste puerto:</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 2222/tcp comment <span class="st">'SSH custom'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="reglas-típicas-de-servidor" class="level3">
+<h3 class="anchored" data-anchor-id="reglas-típicas-de-servidor">1.2 Reglas típicas de servidor</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 80/tcp comment <span class="st">'HTTP'</span>     </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow 443/tcp comment <span class="st">'HTTPS'</span>   </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow from 10.0.0.0/8 to any port 5432 comment <span class="st">'PostgreSQL internal'</span>  </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow from 10.0.0.0/8 to any port 3306 comment <span class="st">'MySQL internal'</span>        </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw limit 22/tcp comment <span class="st">'SSH rate limit'</span>  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>ufw allow 80/tcp</strong> abre el puerto HTTP. Comentando cada regla facilita auditorías y<code>ufw status numbered</code> para identificar rápidamente cada regla.</li>
+<li><strong>ufw allow 443/tcp</strong> abre HTTPS. En producción, 80 suele redirigir a 443, pero ambos deben estar abiertos para la transición.</li>
+<li><strong>ufw allow from…port 5432</strong> permite PostgreSQL solo desde la red interna. Regla Segmentación: la base de datos no expuesta al exterior.</li>
+<li><strong>ufw allow from…port 3306</strong> permite MySQL solo desde la red interna. Misma lógica que PostgreSQL: acceso restringido por origen.</li>
+<li><strong>ufw limit 22/tcp</strong> aplica rate-limiting a SSH: máximo 6 conexiones en 30 segundos desde la misma IP. Si excede, la IP se bloquea temporalmente. Más seguro que solo <code>allow</code>.</li>
+</ol>
+</section>
+<section id="logging-y-auditoría" class="level3">
+<h3 class="anchored" data-anchor-id="logging-y-auditoría">1.3 Logging y auditoría</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw logging medium          </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> journalctl <span class="at">-u</span> ufw <span class="at">-f</span>        </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>ufw logging medium</strong> habilita logging de packets bloqueados y permitidos con nivel medio. Niveles: off, low (solo blocked), medium (+ allowed), high (+ rate-limited), full (todo). Medium es el balance ideal para producción.</li>
+<li><strong>journalctl -u ufw -f</strong> sigue en tiempo real los logs de ufw. <code>+f</code> = follow: muestra nuevos eventos conforme ocurren. Los logs aparecen también en<code>/var/log/ufw.log</code> si rsyslog está configurado.</li>
+</ol>
+</section>
+<section id="gestión-de-reglas-numeradas" class="level3">
+<h3 class="anchored" data-anchor-id="gestión-de-reglas-numeradas">1.4 Gestión de reglas numeradas</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw insert 1 allow from 203.0.113.0/24 to any port 22 comment <span class="st">'Admin VPN'</span>  </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw delete 3                    </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw <span class="at">--force</span> reset               </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>ufw insert 1</strong> inserta la regla en la posición 1 (tope de la lista). Las reglas se evalúan en orden: la primera que coincide gana. Insertar arriba garantiza prioridad.</li>
+<li><strong>ufw delete 3</strong> elimina la regla número 3. Siempre verificar con<code>ufw status numbered</code> antes de borrar para no eliminar la regla equivocada.</li>
+<li><strong>ufw –force reset</strong> elimina TODAS las reglas y restablece políticas por defecto. Peligroso: si estás por SSH, perderás acceso si no tienes regla SSH antes de reactivar.</li>
+</ol>
+</section>
+<section id="perfiles-de-aplicaciones" class="level3">
+<h3 class="anchored" data-anchor-id="perfiles-de-aplicaciones">1.5 Perfiles de aplicaciones</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw app list                   </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw app info <span class="st">'Nginx Full'</span>     </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw allow <span class="st">'Nginx Full'</span>        </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>ufw app list</strong> muestra todos los perfiles de aplicaciones disponibles. Cada perfil define puertos y protocolos para un servicio conocido (Nginx, OpenSSH, Apache, etc.).</li>
+<li><strong>ufw app info ‘Nginx Full’</strong> muestra los detalles del perfil: puertos que abre (80/tcp + 443/tcp), descripción y reglas que aplicaría. Verificar antes de habilitar.</li>
+<li><strong>ufw allow ‘Nginx Full’</strong> habilita todas las reglas del perfil Nginx (HTTP + HTTPS). Más fácil que escribir dos reglas separadas. El perfil se actualiza si el paquete Nginx cambia puertos.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="fail2ban-protección-contra-fuerza-bruta" class="level2">
+<h2 class="anchored" data-anchor-id="fail2ban-protección-contra-fuerza-bruta">2. fail2ban — Protección contra Fuerza Bruta</h2>
+<section id="instalación-y-estructura" class="level3">
+<h3 class="anchored" data-anchor-id="instalación-y-estructura">2.1 Instalación y estructura</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> fail2ban           </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>apt install fail2ban</strong> instala el daemon de protección contra fuerza bruta. Lee logs del sistema y bloquea IPs que exceden intentos fallidos. Configuración principal en<code>/etc/fail2ban/jail.conf</code> (solo lectura).</li>
+</ol>
+</section>
+<section id="configuración-base-etcfail2banjail.local" class="level3">
+<h3 class="anchored" data-anchor-id="configuración-base-etcfail2banjail.local">2.2 Configuración base <code>/etc/fail2ban/jail.local</code></h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>INI</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode ini code-with-copy"><code class="sourceCode ini"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[DEFAULT]</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Ban 1 hora, encontrar 5 fallos en 10 min</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">bantime </span><span class="ot">=</span><span class="st"> 1h</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="dt">findtime </span><span class="ot">=</span><span class="st"> 10m</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="dt">maxretry </span><span class="ot">=</span><span class="st"> </span><span class="dv">5</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Backend systemd (lee journal)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="dt">backend </span><span class="ot">=</span><span class="st"> systemd</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Acción por defecto: ufw + email</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="dt">action </span><span class="ot">=</span><span class="st"> %(action_ufw)s</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># action = %(action_ufw)s%(action_mwl)s  # + email con whois</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Destinatario alertas</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="dt">destemail </span><span class="ot">=</span><span class="st"> seguridad@abacom.cl</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="dt">sender </span><span class="ot">=</span><span class="st"> fail2ban@$(hostname -f)</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="dt">sendername </span><span class="ot">=</span><span class="st"> Fail2Ban-$(hostname -s)</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Ignorar IPs propias (CIDR)</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="dt">ignoreip </span><span class="ot">=</span><span class="st"> 127.0.0.1/8 ::1 10.0.0.0/8 192.168.0.0/16</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Habilitar jails</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="kw">[sshd]</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="dt">enabled </span><span class="ot">=</span><span class="st"> </span><span class="kw">true</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="dt">port </span><span class="ot">=</span><span class="st"> ssh</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="dt">filter </span><span class="ot">=</span><span class="st"> sshd</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="dt">logpath </span><span class="ot">=</span><span class="st"> %(sshd_log)s</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="dt">maxretry </span><span class="ot">=</span><span class="st"> </span><span class="dv">3</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="dt">bantime </span><span class="ot">=</span><span class="st"> 2h</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="kw">[nginx-http-auth]</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="dt">enabled </span><span class="ot">=</span><span class="st"> </span><span class="kw">true</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="dt">filter </span><span class="ot">=</span><span class="st"> nginx-http-auth</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="dt">logpath </span><span class="ot">=</span><span class="st"> /var/log/nginx/error.log</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="kw">[nginx-limit-req]</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="dt">enabled </span><span class="ot">=</span><span class="st"> </span><span class="kw">true</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="dt">filter </span><span class="ot">=</span><span class="st"> nginx-limit-req</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="dt">logpath </span><span class="ot">=</span><span class="st"> /var/log/nginx/error.log</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="dt">maxretry </span><span class="ot">=</span><span class="st"> </span><span class="dv">10</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="kw">[nginx-botsearch]</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="dt">enabled </span><span class="ot">=</span><span class="st"> </span><span class="kw">true</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="dt">filter </span><span class="ot">=</span><span class="st"> nginx-botsearch</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="dt">logpath </span><span class="ot">=</span><span class="st"> /var/log/nginx/access.log</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="dt">maxretry </span><span class="ot">=</span><span class="st"> </span><span class="dv">2</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a><span class="kw">[nginx-bad-request]</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="dt">enabled </span><span class="ot">=</span><span class="st"> </span><span class="kw">true</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a><span class="dt">filter </span><span class="ot">=</span><span class="st"> nginx-bad-request</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="dt">logpath </span><span class="ot">=</span><span class="st"> /var/log/nginx/access.log</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a><span class="dt">maxretry </span><span class="ot">=</span><span class="st"> </span><span class="dv">5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="filtros-personalizados-etcfail2banfilter.d" class="level3">
+<h3 class="anchored" data-anchor-id="filtros-personalizados-etcfail2banfilter.d">2.3 Filtros personalizados <code>/etc/fail2ban/filter.d/</code></h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejemplo: API login fallido (JSON log)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># /etc/fail2ban/filter.d/api-auth.conf</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[Definition]</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ex">failregex</span> = ^.<span class="pp">*</span><span class="st">"message"</span>:<span class="st">"Invalid credentials"</span>.<span class="pp">*</span><span class="st">"ip"</span>:<span class="st">"&lt;HOST&gt;"</span>.<span class="pp">*</span>$</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">ignoreregex</span> =</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="comandos-operativos" class="level3">
+<h3 class="anchored" data-anchor-id="comandos-operativos">2.4 Comandos operativos</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> fail2ban-client status           </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> fail2ban-client status sshd      </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> fail2ban-client get sshd banip   </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> fail2ban-client set sshd unbanip 192.0.2.100  </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> fail2ban-client reload           </span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> journalctl <span class="at">-u</span> fail2ban <span class="at">-f</span>        </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>fail2ban-client status</strong> muestra todos los jails activos y el número de IPs baneadas en cada uno. Vista general del estado del servicio.</li>
+<li><strong>fail2ban-client status sshd</strong> muestra detail del jail SSH: IPs baneadas actualmente, total de bans, y configuración activa.</li>
+<li><strong>fail2ban-client get sshd banip</strong> retorna la lista de IPs baneadas en el jail sshd. Útil para scripts de monitoreo o para verificar si una IP legítima fue bloqueada.</li>
+<li><strong>fail2ban-client set sshd unbanip</strong> desbanea una IP específica del jail sshd. Usar cuando una IP legítima es bloqueada por exceder maxretry.</li>
+<li><strong>fail2ban-client reload</strong> recarga la configuración sin reiniciar el daemon. Aplica cambios en jail.local sin perder bans activos.</li>
+<li><strong>journalctl -u fail2ban -f</strong> sigue en tiempo real los logs de fail2ban: bans, unbans, y errores de filtro.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="ssh-hardening-avanzado" class="level2">
+<h2 class="anchored" data-anchor-id="ssh-hardening-avanzado">3. SSH Hardening Avanzado</h2>
+<section id="etcsshsshd_config.d99-abacom-hardening.conf" class="level3">
+<h3 class="anchored" data-anchor-id="etcsshsshd_config.d99-abacom-hardening.conf">3.1 <code>/etc/ssh/sshd_config.d/99-abacom-hardening.conf</code></h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>SSH</strong></pre>
+</div>
+<pre class="ssh" data-code-line-numbers=""><code># Puerto no estándar (reduce ruido)
+Port 2222
+
+# Solo protocolo 2
+Protocol 2
+
+# Autenticación
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+AuthenticationMethods publickey
+PubkeyAcceptedAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
+
+# Límites de conexión
+MaxAuthTries 3
+MaxSessions 2
+MaxStartups 10:30:60
+LoginGraceTime 30
+
+# Timeouts
+ClientAliveInterval 300
+ClientAliveCountMax 2
+
+# Reenvío y túneles
+AllowAgentForwarding no
+AllowTcpForwarding no
+GatewayPorts no
+PermitTunnel no
+X11Forwarding no
+
+# Logging
+SyslogFacility AUTH
+LogLevel VERBOSE
+
+# Usuarios/grupos permitidos
+AllowGroups sshusers admins
+
+# Criptografía (Mozilla Modern)
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
+HostKeyAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256</code></pre>
+</div>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> sshd <span class="at">-t</span>                     </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl reload ssh        </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>sshd -t</strong> verifica la sintaxis del archivo de configuración sshd_config sin aplicar. Si hay errores, sshd no arrancaría. Ejecutar siempre ANTES de recargar.</li>
+<li><strong>systemctl reload ssh</strong> aplica la nueva configuración sin reiniciar el daemon. A diferencia de restart, no cierra sesiones activas. Solo funciona si la config pasó la verificación con -t.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="kernel-hardening-sysctl" class="level2">
+<h2 class="anchored" data-anchor-id="kernel-hardening-sysctl">4. Kernel Hardening — sysctl</h2>
+<section id="etcsysctl.d99-abacom-hardening.conf" class="level3">
+<h3 class="anchored" data-anchor-id="etcsysctl.d99-abacom-hardening.conf">4.1 <code>/etc/sysctl.d/99-abacom-hardening.conf</code></h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>INI</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="sourceCode ini code-with-copy"><code class="sourceCode ini"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Network — RFC compliance y mitigación</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.tcp_syncookies </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.tcp_synack_retries </span><span class="ot">=</span><span class="st"> </span><span class="dv">2</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.tcp_syn_retries </span><span class="ot">=</span><span class="st"> </span><span class="dv">3</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.tcp_max_syn_backlog </span><span class="ot">=</span><span class="st"> </span><span class="dv">4096</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.tcp_rfc1337 </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.all.rp_filter </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.default.rp_filter </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.all.accept_redirects </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.default.accept_redirects </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.all.secure_redirects </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.default.secure_redirects </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.all.send_redirects </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.all.accept_source_route </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.conf.default.accept_source_route </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.icmp_echo_ignore_broadcasts </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv4.icmp_ignore_bogus_error_responses </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv6.conf.all.accept_redirects </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv6.conf.default.accept_redirects </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv6.conf.all.accept_source_route </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="dt">net.ipv6.conf.default.accept_source_route </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Memory — protección OOM</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="dt">vm.overcommit_memory </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="dt">vm.overcommit_ratio </span><span class="ot">=</span><span class="st"> </span><span class="dv">90</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="dt">vm.panic_on_oom </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Kernel — hardening</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="dt">kernel.dmesg_restrict </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a><span class="dt">kernel.kptr_restrict </span><span class="ot">=</span><span class="st"> </span><span class="dv">2</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="dt">kernel.yama.ptrace_scope </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="dt">kernel.unprivileged_bpf_disabled </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="dt">kernel.modules_disabled </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Filesystem</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="dt">fs.protected_hardlinks </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="dt">fs.protected_symlinks </span><span class="ot">=</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="dt">fs.suid_dumpable </span><span class="ot">=</span><span class="st"> </span><span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> sysctl <span class="at">--system</span>              </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sysctl</span> <span class="at">-a</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'(syncookies|rp_filter|ptrace|dmesg)'</span>  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>sysctl –system</strong> carga y aplica todos los archivos de configuración sysctl del sistema (incluye /etc/sysctl.d/ y /etc/sysctl.conf). Ejecutar después de modificar archivos .conf para que los parámetros tomen efecto.</li>
+<li><strong>sysctl -a | grep</strong> verifica que los parámetros específicos fueron aplicados. synthcookies, rp_filter, ptrace_scope y dmesg_restrict son los más críticos de hardening.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="auditd-auditoría-de-eventos-críticos" class="level2">
+<h2 class="anchored" data-anchor-id="auditd-auditoría-de-eventos-críticos">5. auditd — Auditoría de Eventos Críticos</h2>
+<section id="instalación-y-reglas-base" class="level3">
+<h3 class="anchored" data-anchor-id="instalación-y-reglas-base">5.1 Instalación y reglas base</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> auditd audispd-plugins  </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable <span class="at">--now</span> auditd          </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>apt install auditd audispd-plugins</strong> instala el daemon de auditoría del sistema y los plugins de procesamiento de eventos. auditd registra eventos de seguridad: accesos a archivos, cambios de identidad, comandos privilegiados.</li>
+<li><strong>systemctl enable –now auditd</strong> habilita e inicia auditd al arrancar. Las reglas se cargan automáticamente desde /etc/audit/rules.d/.</li>
+</ol>
+</section>
+<section id="etcauditrules.dabacom.rules" class="level3">
+<h3 class="anchored" data-anchor-id="etcauditrules.dabacom.rules">5.2 <code>/etc/audit/rules.d/abacom.rules</code></h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminar reglas previas</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">-D</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Buffer</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">-b</span> 8192</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Fallos de acceso a archivos</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="ex">-a</span> always,exit <span class="at">-F</span> arch=b64 <span class="at">-S</span> open,openat,creat,truncate,ftruncate <span class="at">-F</span> exit=-EACCES <span class="at">-F</span> auid<span class="op">&gt;</span>=1000 <span class="at">-F</span> auid!=4294967295 <span class="at">-k</span> access-denied</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="ex">-a</span> always,exit <span class="at">-F</span> arch=b64 <span class="at">-S</span> open,openat,creat,truncate,ftruncate <span class="at">-F</span> exit=-EPERM <span class="at">-F</span> auid<span class="op">&gt;</span>=1000 <span class="at">-F</span> auid!=4294967295 <span class="at">-k</span> access-denied</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Cambios de identidad (sudo, su, passwd)</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /etc/passwd <span class="at">-p</span> wa <span class="at">-k</span> identity</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /etc/group <span class="at">-p</span> wa <span class="at">-k</span> identity</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /etc/shadow <span class="at">-p</span> wa <span class="at">-k</span> identity</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /etc/sudoers <span class="at">-p</span> wa <span class="at">-k</span> identity</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /etc/sudoers.d/ <span class="at">-p</span> wa <span class="at">-k</span> identity</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Ejecución de comandos privilegiados</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="ex">-a</span> always,exit <span class="at">-F</span> arch=b64 <span class="at">-S</span> execve <span class="at">-F</span> uid=0 <span class="at">-F</span> auid<span class="op">&gt;</span>=1000 <span class="at">-F</span> auid!=4294967295 <span class="at">-k</span> privileged-cmd</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Montajes</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="ex">-a</span> always,exit <span class="at">-F</span> arch=b64 <span class="at">-S</span> mount,umount2 <span class="at">-F</span> auid<span class="op">&gt;</span>=1000 <span class="at">-F</span> auid!=4294967295 <span class="at">-k</span> mounts</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Cambios de red</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /etc/network/ <span class="at">-p</span> wa <span class="at">-k</span> network</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /etc/netplan/ <span class="at">-p</span> wa <span class="at">-k</span> network</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Docker (si aplica)</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /etc/docker/ <span class="at">-p</span> wa <span class="at">-k</span> docker</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /var/lib/docker/ <span class="at">-p</span> wa <span class="at">-k</span> docker</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Fallos de login</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /var/log/faillog <span class="at">-p</span> wa <span class="at">-k</span> logins</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /var/log/lastlog <span class="at">-p</span> wa <span class="at">-k</span> logins</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a><span class="ex">-w</span> /var/log/tallylog <span class="at">-p</span> wa <span class="at">-k</span> logins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> augenrules <span class="at">--load</span>           </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart auditd    </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> auditctl <span class="at">-l</span>                 </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>augenrules –load</strong> compila y carga las reglas de auditoría desde /etc/audit/rules.d/. Combina todas las reglas en un archivo temporal y las envía al kernel.</li>
+<li><strong>systemctl restart auditd</strong> reinicia el daemon después de cargar nuevas reglas. Asegura que las reglas se apliquen completamente.</li>
+<li><strong>auditctl -l</strong> lista todas las reglas de auditoría activas en el kernel. Verificar que las reglas de abacom.rules aparecen en la lista.</li>
+</ol>
+</section>
+<section id="consultas-útiles" class="level3">
+<h3 class="anchored" data-anchor-id="consultas-útiles">5.3 Consultas útiles</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ausearch <span class="at">-k</span> access-denied <span class="at">--raw</span> <span class="kw">|</span> <span class="ex">aureport</span> <span class="at">-f</span> <span class="at">-i</span>  </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> aureport <span class="at">-k</span> privileged-cmd <span class="at">-i</span>                     </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ausearch <span class="at">-ts</span> recent <span class="at">-l</span> 100 <span class="at">--raw</span> <span class="kw">|</span> <span class="ex">aureport</span> <span class="at">-f</span> <span class="at">-i</span> </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>ausearch -k access-denied</strong> busca eventos por clave (key) y los pasa a aureport para generar un reporte legible. <code>--raw</code> salida sin procesar; <code>-f -i</code> formatea archivos e IPs legibles.</li>
+<li><strong>aureport -k privileged-cmd</strong> genera un reporte de todos los comandos ejecutados como root por usuarios no root. Detecta uso indebido de sudo o comandos privilegiados.</li>
+<li><strong>ausearch -ts recent</strong> busca los eventos más recientes (últimas 100 entradas). Útil para auditorías en tiempo real o después de un incidente.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="lynis-auditoría-automatizada" class="level2">
+<h2 class="anchored" data-anchor-id="lynis-auditoría-automatizada">6. Lynis — Auditoría Automatizada</h2>
+<section id="instalación-y-ejecución" class="level3">
+<h3 class="anchored" data-anchor-id="instalación-y-ejecución">6.1 Instalación y ejecución</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://packages.cisofy.com/keys/cisofy-software-public.key <span class="kw">|</span> <span class="fu">sudo</span> gpg <span class="at">--dearmor</span> <span class="at">-o</span> /etc/apt/keyrings/cisofy.gpg  </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"deb [signed-by=/etc/apt/keyrings/cisofy.gpg] https://packages.cisofy.com/community/lynis/deb/ stable main"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/apt/sources.list.d/lynis.list  </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt install <span class="at">-y</span> lynis  </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> lynis audit system <span class="at">--quick</span> <span class="at">--no-colors</span>  </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> lynis audit system <span class="at">--tests-category</span><span class="op">=</span>authentication,file-system,networking  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>curl…gpg –dearmor</strong> descarga la clave pública del repositorio CISOfy y la convierte al formato apt. Firma digital que permite a apt verificar la autenticidad del paquete Lynis.</li>
+<li><strong>echo…tee</strong> agrega el repositorio oficial de Lynis a las fuentes de apt. <code>signed-by</code> vincula el repo con la clave descargada en el paso 1.</li>
+<li><strong>apt update &amp;&amp; apt install -y lynis</strong> actualiza índices e instala Lynis. Herramienta de auditoría de seguridad que verifica configuración del sistema contra benchmarks.</li>
+<li><strong>lynis audit system –quick</strong> ejecuta una auditoría completa pero rápido. <code>--no-colors</code> produce salida limpia para logs y reportes. El hardening index al final indica la postura de seguridad (0-100).</li>
+<li><strong>lynis audit system –tests-category</strong> ejecuta solo categorías específicas. Útil para auditar solo áreas de interés sin recorrer todo el sistema.</li>
+</ol>
+</section>
+<section id="integración-cicd-github-actions-ejemplo" class="level3">
+<h3 class="anchored" data-anchor-id="integración-cicd-github-actions-ejemplo">6.2 Integración CI/CD (GitHub Actions ejemplo)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>YAML</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21" data-code-line-numbers=""><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .github/workflows/lynis.yml</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Lynis Security Audit</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">schedule</span><span class="kw">:</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">cron</span><span class="kw">:</span><span class="at"> </span><span class="st">'0 6 * * 1'</span><span class="co">  # Cada lunes 6 AM</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">push</span><span class="kw">:</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">main</span><span class="kw">]</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">lynis</span><span class="kw">:</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v4</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Run Lynis</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>          curl -fsSL https://packages.cisofy.com/keys/cisofy-software-public.key | gpg --dearmor -o /tmp/cisofy.gpg</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>          echo "deb [signed-by=/tmp/cisofy.gpg] https://packages.cisofy.com/community/lynis/deb/ stable main" | sudo tee /etc/apt/sources.list.d/lynis.list</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>          sudo apt update &amp;&amp; sudo apt install -y lynis</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>          sudo lynis audit system --no-colors --quick --pentest ssh &gt; lynis-report.txt</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Upload report</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/upload-artifact@v4</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">name</span><span class="kw">:</span><span class="at"> lynis-report</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">path</span><span class="kw">:</span><span class="at"> lynis-report.txt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="docker-consideraciones-de-seguridad" class="level2">
+<h2 class="anchored" data-anchor-id="docker-consideraciones-de-seguridad">7. Docker — Consideraciones de Seguridad</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>ufw + Docker
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Docker manipula iptables/nftables directamente y <strong>ignora ufw</strong> para puertos publicados (<code>-p 80:80</code>).</p>
+<p><strong>Opciones:</strong></p>
+<ol type="1">
+<li><strong>No publicar puertos</strong> en host; usar reverse proxy (Nginx/Traefik) en host → container network.</li>
+<li><strong>Docker rootless</strong> (usuario no root, sin manipulación iptables host).</li>
+<li><strong>Configurar Docker</strong> con <code>"iptables": false</code> en <code>/etc/docker/daemon.json</code> (pierdes networking automático).</li>
+<li><strong>Usar <code>ufw-docker</code></strong> script: <code>wget -O /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker &amp;&amp; chmod +x /usr/local/bin/ufw-docker &amp;&amp; ufw-docker install</code></li>
+</ol>
+</div>
+</div>
+<section id="hardening-contenedores-resumen" class="level3">
+<h3 class="anchored" data-anchor-id="hardening-contenedores-resumen">7.2 Hardening contenedores (resumen)</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>DOCKERFILE</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-code-line-numbers=""><pre class="sourceCode dockerfile code-with-copy"><code class="sourceCode dockerfile"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dockerfile seguro</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> ubuntu:24.04</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Usuario no root</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">groupadd</span> <span class="at">-r</span> appuser <span class="kw">&amp;&amp;</span> <span class="ex">useradd</span> <span class="at">-r</span> <span class="at">-g</span> appuser appuser</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="kw">USER</span> appuser</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Solo capacidades necesarias</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># docker run --cap-drop=ALL --cap-add=CAP_NET_BIND_SERVICE ...</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Read-only rootfs</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># docker run --read-only --tmpfs /run --tmpfs /tmp ...</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Sin new privileges</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co"># docker run --security-opt no-new-privileges:true ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="laboratorio-práctico-hardening-end-to-end" class="level2">
+<h2 class="anchored" data-anchor-id="laboratorio-práctico-hardening-end-to-end">8. Laboratorio Práctico: Hardening End-to-End</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>🎯 Lab 07 — Hardening Completo (90-120 min)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<section id="checklist" class="level3">
+<h3 class="anchored" data-anchor-id="checklist">Checklist</h3>
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>ufw</strong>: Política deny incoming/allow outgoing, reglas SSH (puerto custom), HTTP/HTTPS, rate-limit SSH, logging medium.</label></li>
+<li><label><input type="checkbox"><strong>fail2ban</strong>: <code>jail.local</code> con sshd (maxretry=3, bantime=2h), nginx jails, backend systemd, action ufw.</label></li>
+<li><label><input type="checkbox"><strong>SSH</strong>: Puerto 2222, solo ed25519, PasswordAuthentication no, AllowGroups sshusers, ClientAliveInterval 300.</label></li>
+<li><label><input type="checkbox"><strong>sysctl</strong>: Aplicar <code>/etc/sysctl.d/99-abacom-hardening.conf</code>, verificar <code>sysctl -p</code>.</label></li>
+<li><label><input type="checkbox"><strong>auditd</strong>: Reglas <code>abacom.rules</code> cargadas, probar <code>sudo ausearch -k identity</code>.</label></li>
+<li><label><input type="checkbox"><strong>Lynis</strong>: Ejecutar <code>sudo lynis audit system --quick</code>, punteado &gt; 70, sin hallazgos críticos.</label></li>
+<li><label><input type="checkbox"><strong>Evidencia</strong>: Captura <code>ufw status numbered</code>, <code>fail2ban-client status sshd</code>, <code>sshd -T | grep -E 'port|password|pubkey'</code>, <code>sysctl net.ipv4.tcp_syncookies</code>, <code>auditctl -l</code>, Lynis hardening index.</label></li>
+</ul>
+</section>
+<section id="evidencia" class="level3">
+<h3 class="anchored" data-anchor-id="evidencia">Evidencia</h3>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>BASH</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23" data-code-line-numbers=""><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">"=== UFW ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> ufw status numbered  </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Fail2Ban SSH ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> fail2ban-client status sshd  </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== SSH Config ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> sshd <span class="at">-T</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'^port|^passwordauthentication|^pubkeyauthentication|^permitrootlogin|^allowgroups|^clientalive'</span>  </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Sysctl Sample ==="</span> <span class="kw">&amp;&amp;</span> <span class="ex">sysctl</span> net.ipv4.tcp_syncookies net.ipv4.conf.all.rp_filter kernel.yama.ptrace_scope  </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Audit Rules ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> auditctl <span class="at">-l</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span>  </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="at">-e</span> <span class="st">"\n=== Lynis ==="</span> <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> lynis audit system <span class="at">--quick</span> <span class="at">--no-colors</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-30</span>  </span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;</span> ~/lab07-evidencia.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol type="1">
+<li><strong>ufw status numbered</strong> muestra el firewall configurado con reglas numeradas. Evidencia de que las reglas SSH, HTTP/HTTPS y rate-limiting están aplicadas.</li>
+<li><strong>fail2ban-client status sshd</strong> muestra el estado del jail SSH: IPs baneadas, configuración activa (maxretry, bantime). Verifica que fail2ban está protegiendo SSH.</li>
+<li><strong>sshd -T | grep</strong> extrae la configuración efectiva de sshd: puerto, autenticación, grupos permitidos, timeouts. Confirmación de que el hardening SSH está aplicado.</li>
+<li><strong>sysctl</strong> muestra valores críticos de hardening: tcp_syncookies (SYN flood), rp_filter (spoofing), ptrace_scope (debugging).</li>
+<li><strong>auditctl -l | head -20</strong> muestra las primeras 20 reglas de auditoría cargadas. Evidencia de que auditd está configurado con reglas de identidad, privilegios y accesos denegados.</li>
+<li><strong>lynis audit system…tail -30</strong> muestra las últimas 30 líneas de la auditoría Lynis, incluyendo el hardening index. Meta: puntaje &gt; 70 sin hallazgos críticos.</li>
+</ol>
+</section>
+</div>
+</div>
+<hr>
+</section>
+<section id="resumen-y-próximos-pasos" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-y-próximos-pasos">9. Resumen y Próximos Pasos</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>✅ Lo esencial de la Unidad VII
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol start="7" type="1">
+<li><strong>ufw</strong>: deny-by-default, reglas explícitas con comentario, logging, rate-limit.</li>
+<li><strong>fail2ban</strong>: <code>jail.local</code> con backend systemd, acción ufw, jails sshd/nginx, ignoreip.</li>
+<li><strong>SSH</strong>: Puerto no estándar, solo ed25519, sin password, grupos permitidos, timeouts.</li>
+<li><strong>sysctl</strong>: tcp_syncookies, rp_filter, kernel hardening (ptrace, kptr, dmesg, bpf).</li>
+<li><strong>auditd</strong>: Reglas para identidad, privilegios, montajes, red, accesos denegados.</li>
+<li><strong>Lynis</strong>: Baseline automatizado, integración CI/CD, hardening index &gt; 70.</li>
+</ol>
+</div>
+</div>
+<section id="checklist-de-competencias-unidad-vii" class="level3">
+<h3 class="anchored" data-anchor-id="checklist-de-competencias-unidad-vii">📋 Checklist de competencias Unidad VII</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">Configurar ufw con política deny-by-default y reglas documentadas.</label></li>
+<li><label><input type="checkbox">Desplegar fail2ban con jails sshd y nginx, backend systemd, acción ufw.</label></li>
+<li><label><input type="checkbox">Hardening SSH: puerto, claves, sin password, grupos, timeouts.</label></li>
+<li><label><input type="checkbox">Aplicar sysctl de red, memoria y kernel; validar con <code>sysctl -a</code>.</label></li>
+<li><label><input type="checkbox">Configurar auditd con reglas de identidad, comandos privilegiados, acceso denegado.</label></li>
+<li><label><input type="checkbox">Ejecutar Lynis e interpretar reporte; corregir hallazgos altos/críticos.</label></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="recursos-y-referencias" class="level2">
+<h2 class="anchored" data-anchor-id="recursos-y-referencias">10. Recursos y Referencias</h2>
+<ul>
+<li><strong>ufw</strong>: <code>man ufw</code>, <a href="https://help.ubuntu.com/community/UFW" class="uri">https://help.ubuntu.com/community/UFW</a></li>
+<li><strong>fail2ban</strong>: <a href="https://github.com/fail2ban/fail2ban/wiki" class="uri">https://github.com/fail2ban/fail2ban/wiki</a></li>
+<li><strong>SSH Hardening</strong>: <a href="https://infosec.mozilla.org/guidelines/openssh" class="uri">https://infosec.mozilla.org/guidelines/openssh</a>, <a href="https://stribika.github.io/2015/01/04/secure-secure-shell.html" class="uri">https://stribika.github.io/2015/01/04/secure-secure-shell.html</a></li>
+<li><strong>Kernel sysctl</strong>: <a href="https://www.kernel.org/doc/Documentation/sysctl/" class="uri">https://www.kernel.org/doc/Documentation/sysctl/</a>, <a href="https://sysctl-explorer.net/" class="uri">https://sysctl-explorer.net/</a></li>
+<li><strong>auditd</strong>: <code>man auditctl</code>, <code>man ausearch</code>, <code>man aureport</code>, <a href="https://linux.die.net/man/8/auditd" class="uri">https://linux.die.net/man/8/auditd</a></li>
+<li><strong>Lynis</strong>: <a href="https://cisofy.com/lynis/" class="uri">https://cisofy.com/lynis/</a>, <a href="https://packages.cisofy.com/" class="uri">https://packages.cisofy.com/</a></li>
+<li><strong>CIS Benchmarks</strong>: <a href="https://www.cisecurity.org/cis-benchmarks/" class="uri">https://www.cisecurity.org/cis-benchmarks/</a></li>
+</ul>
+<hr>
+</section>
+<section id="quiz-interactivo-quizdown" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-interactivo-quizdown">11. Quiz Interactivo (quizdown)</h2>
+<div class="quizdown">
+---
+shuffleAnswers: true
+---
+
+## ¿Cuál es la política por defecto recomendada en ufw para servidores?
+
+- [ ] allow incoming, deny outgoing
+- [x] deny incoming, allow outgoing
+- [ ] allow incoming, allow outgoing
+- [ ] deny incoming, deny outgoing
+
+## En fail2ban, ¿qué parámetro define cuánto tiempo permanece baneada una IP?
+
+- [ ] findtime
+- [ ] maxretry
+- [x] bantime
+- [ ] ignoreip
+
+## Para que SSH acepte SOLO claves ed25519 y deshabilite contraseñas:
+
+- [ ] PubkeyAuthentication yes + PasswordAuthentication yes
+- [x] PubkeyAuthentication yes + PasswordAuthentication no + PubkeyAcceptedAlgorithms ssh-ed25519
+- [ ] PermitRootLogin yes + PasswordAuthentication no
+- [ ] ChallengeResponseAuthentication no
+
+## ¿Qué sysctl habilita protección contra SYN flood?
+
+- [ ] net.ipv4.tcp_rfc1337
+- [x] net.ipv4.tcp_syncookies
+- [ ] net.ipv4.tcp_max_syn_backlog
+- [ ] net.ipv4.tcp_synack_retries
+
+## En auditd, la regla `-w /etc/passwd -p wa -k identity` audita:
+
+- [ ] Lecturas de /etc/passwd
+- [x] Escrituras y cambios de atributos (write + attribute)
+- [ ] Ejecución de /etc/passwd
+- [ ] Solo cambios de owner
+</div>
+
+
+</section>
+</section>
+<section class="level1">
+<h1>Code Appendix</h1>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../06-redes/index.html" class="pagination-link" aria-label="UNIDAD VI: Redes y Almacenamiento Local">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">UNIDAD VI: Redes y Almacenamiento Local</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../08-docker/index.html" class="pagination-link" aria-label="UNIDAD VIII: Introducción a Docker">
+        <span class="nav-page-text"><span class="chapter-title">UNIDAD VIII: Introducción a Docker</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link active" href="../about.html" aria-current="page">
+<p>Sobre el Curso</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../license.html">
+<p>Licencia</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://statick88.github.io">
+<p>Instructor: statick88.github.io</p>
+</a>
+  </li>  
+</ul>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/statick88/administracion-servidores-linux/edit/main/07-seguridad/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/statick88/administracion-servidores-linux/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

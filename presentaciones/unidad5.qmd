@@ -18,11 +18,11 @@ Concepto -> Demo -> Laboratorio guiado -> Practica independiente
 ## Demo: Top 3 procesos por CPU
 
 ```bash
-$ ps aux --sort=-%cpu | head -n 6  # <1>
+$ ps aux --sort=-%cpu | head -n 6  
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 root      1821 15.2  1.8  933612 293020 ?      Ssl  08:10  18:22 /usr/bin/dockerd -H fd://
 mysql     1330  6.4  7.9 1928300 1301200 ?     Ssl  07:55  24:10 /usr/sbin/mysqld
-# <1>
+
 ```
 
 
@@ -36,11 +36,11 @@ mysql     1330  6.4  7.9 1928300 1301200 ?     Ssl  07:55  24:10 /usr/sbin/mysql
 ## Demo: Encontrar PID y terminar ordenado
 
 ```bash
-$ pgrep -a nginx  # <1>
+$ pgrep -a nginx  
 2458 nginx: master process /usr/sbin/nginx
 
-$ sudo kill -TERM 2458  # <2>
-# <1>
+$ sudo kill -TERM 2458  
+
 ```
 
 
@@ -55,14 +55,14 @@ $ sudo kill -TERM 2458  # <2>
 ## Demo: Estado de servicio y logs
 
 ```bash
-$ systemctl status nginx --no-pager  # <1>
+$ systemctl status nginx --no-pager  
 * nginx.service - A high performance web server and a reverse proxy server
      Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
      Active: active (running) since Sun 2026-02-01 09:12:14 UTC; 2h 10min ago
 
-$ journalctl -u nginx --since "30 min ago" --no-pager  # <2>
+$ journalctl -u nginx --since "30 min ago" --no-pager  
 Feb 01 11:20:03 server nginx[2458]: 2026/02/01 11:20:03 [notice] 2458#2458: signal process started
-# <1>
+
 ```
 
 
@@ -77,9 +77,9 @@ Feb 01 11:20:03 server nginx[2458]: 2026/02/01 11:20:03 [notice] 2458#2458: sign
 ## Demo: Programar un backup diario
 
 ```bash
-$ crontab -l  # <1>
+$ crontab -l  
 30 2 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1
-# <1>
+
 ```
 
 

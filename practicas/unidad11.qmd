@@ -16,21 +16,21 @@ Instalar MariaDB, crear una base y un usuario con privilegios minimos, y generar
 ## Parte 1: Instalacion y validacion
 
 ```bash
-$ sudo apt update  # <1>
-# <1>
+$ sudo apt update  
 
-$ sudo apt install -y mariadb-server  # <2>
-# <2>
 
-$ systemctl status mariadb --no-pager  # <3>
+$ sudo apt install -y mariadb-server  
+
+
+$ systemctl status mariadb --no-pager  
 ● mariadb.service - MariaDB database server
      Active: active (running)
-# <3>
 
-$ sudo mariadb -e 'SELECT VERSION();'  # <4>
+
+$ sudo mariadb -e 'SELECT VERSION();'  
 VERSION()
 10.11.6-MariaDB
-# <4>
+
 ```
 
 
@@ -45,13 +45,13 @@ VERSION()
 ## Parte 2: DB y usuario
 
 ```bash
-$ sudo mariadb  # <1>
+$ sudo mariadb  
 MariaDB [(none)]> CREATE DATABASE appdb;
 MariaDB [(none)]> CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass-ChangeMe';
 MariaDB [(none)]> GRANT SELECT,INSERT,UPDATE,DELETE ON appdb.* TO 'appuser'@'localhost';
 MariaDB [(none)]> FLUSH PRIVILEGES;
 MariaDB [(none)]> EXIT;
-# <1>
+
 ```
 
 
@@ -63,12 +63,12 @@ MariaDB [(none)]> EXIT;
 ## Parte 3: Backup
 
 ```bash
-$ sudo mysqldump --databases appdb > /tmp/appdb.sql  # <1>
-# <1>
+$ sudo mysqldump --databases appdb > /tmp/appdb.sql  
 
-$ ls -lh /tmp/appdb.sql  # <2>
+
+$ ls -lh /tmp/appdb.sql  
 -rw-r--r-- 1 root root 12K Feb  2 12:45 /tmp/appdb.sql
-# <2>
+
 ```
 
 

@@ -2,7 +2,7 @@
 title: "Sudo y Administración"
 author: "Diego Saavedra"
 date: "2026-07-21"
-bibliography: references.bib
+bibliography: ../../references.bib
 biblio-style: apalike
 ---
 
@@ -54,7 +54,7 @@ $ sudo rm -rf /           # ¡ACCIDENTAL! TECLEA ESTO EN VEZ
 
 ```bash
 # Abrir editor de sudoers de forma segura
-$ sudo visudo  # <1>
+$ sudo visudo  
 # NUNCA editar /etc/sudoers directamente con nano/vim
 # visudo verifica la sintaxis antes de guardar
 ```
@@ -88,13 +88,13 @@ diego ALL=(ALL) ALL, !/usr/bin/rm
 
 ```bash
 # Ver qué sudoers tienes
-$ sudo -l  # <1>
+$ sudo -l  
 User diego may run the following commands on linux-server:
     (ALL) ALL
 
 # Verificar usuario actual
 $ sudo whoami
-root  # <2>
+root  
 ```
 1. **sudo -l** muestra los comandos que el usuario actual puede ejecutar con sudo
 
@@ -108,19 +108,20 @@ root  # <2>
 
 ::: {.panel-tabset}
 
+
 ### Ejecutar comandos con sudo
 
 #### Linux
 ```bash
 # Ejecutar comando individual
-$ sudo systemctl restart nginx  # <1>
+$ sudo systemctl restart nginx  
 [sudo] password for diego: ********
 
 # Ver historial de sudo
 $ sudo cat /var/log/auth.log | grep sudo
 Jan 29 10:30:45 servidor sudo: diego : TTY=pts/0 ;
 PWD=/home/diego ; USER=root ; COMMAND=/usr/bin/systemctl
-# <2>
+
 ```
 1. **systemctl** requiere sudo para reiniciar servicios
 
@@ -129,10 +130,10 @@ PWD=/home/diego ; USER=root ; COMMAND=/usr/bin/systemctl
 #### macOS
 ```bash
 # Ejecutar comando con sudo
-$ sudo launchctl stop com.nginx.nginx  # <1>
+$ sudo launchctl stop com.nginx.nginx  
 
 # Ver historial
-$ log show --predicate 'process == "sudo"' --last 1h  # <2>
+$ log show --predicate 'process == "sudo"' --last 1h  
 ```
 1. macOS usa `launchctl` para gestionar servicios
 
@@ -141,10 +142,10 @@ $ log show --predicate 'process == "sudo"' --last 1h  # <2>
 #### Windows (PowerShell)
 ```powershell
 # Ejecutar como administrador
-PS> Start-Process powershell -Verb RunAs  # <1>
+PS> Start-Process powershell -Verb RunAs  
 
 # O ejecutar comando específico con elevated privileges
-PS> Start-Process -FilePath "net" -ArgumentList "stop nginx" -Verb RunAs  # <2>
+PS> Start-Process -FilePath "net" -ArgumentList "stop nginx" -Verb RunAs  
 ```
 1. Abre PowerShell elevado para comandos administrativos
 
@@ -157,14 +158,14 @@ PS> Start-Process -FilePath "net" -ArgumentList "stop nginx" -Verb RunAs  # <2>
 #### Linux
 ```bash
 # Ejecutar como usuario 'www-data' (usuario web)
-$ sudo -u www-data whoami  # <1>
+$ sudo -u www-data whoami  
 www-data
 
 # Útil para testear permisos
 $ sudo -u www-data ls -la /var/www/
 
 # Ejecutar como usuario específico
-$ sudo -u mysql mysql -u root -p  # <2>
+$ sudo -u mysql mysql -u root -p  
 ```
 1. **-u** especifica el usuario con el que quieres ejecutar el comando
 
@@ -173,7 +174,7 @@ $ sudo -u mysql mysql -u root -p  # <2>
 #### macOS
 ```bash
 # Ejecutar como usuario específico
-$ sudo -u _www whoami  # <1>
+$ sudo -u _www whoami  
 _www
 
 # Verificar permisos
@@ -184,10 +185,10 @@ $ sudo -u _www ls -la /Library/WebServer/Documents/
 #### Windows (PowerShell)
 ```powershell
 # Ejecutar como otro usuario
-PS> Start-Process -FilePath "cmd.exe" -Credential (Get-Credential)  # <1>
+PS> Start-Process -FilePath "cmd.exe" -Credential (Get-Credential)  
 
 # O usar runas
-PS> runas /user:carlos "cmd.exe"  # <2>
+PS> runas /user:carlos "cmd.exe"  
 ```
 1. Usa `-Credential` para ejecutar como otro usuario
 
@@ -203,18 +204,19 @@ PS> runas /user:carlos "cmd.exe"  # <2>
 
 ::: {.panel-tabset}
 
+
 ### Ver historial de sudo
 
 #### Linux
 ```bash
 # Ver historial de sudo en Ubuntu/Debian
-$ sudo grep sudo /var/log/auth.log  # <1>
+$ sudo grep sudo /var/log/auth.log  
 
 # Ver intentos fallidos
-$ sudo grep "FAILED" /var/log/auth.log  # <2>
+$ sudo grep "FAILED" /var/log/auth.log  
 
 # Ver historial reciente
-$ sudo journalctl -u sudo  # <3>
+$ sudo journalctl -u sudo  
 ```
 1. **/var/log/auth.log** contiene todos los intentos de autenticación
 
@@ -225,10 +227,10 @@ $ sudo journalctl -u sudo  # <3>
 #### macOS
 ```bash
 # Ver historial de sudo
-$ log show --predicate 'process == "sudo"' --last 1h  # <1>
+$ log show --predicate 'process == "sudo"' --last 1h  
 
 # Ver intentos fallidos
-$ log show --predicate 'eventMessage contains "FAILED"' --last 1d  # <2>
+$ log show --predicate 'eventMessage contains "FAILED"' --last 1d  
 ```
 1. macOS usa `log show` con filtros para ver historial de sudo
 
@@ -237,10 +239,10 @@ $ log show --predicate 'eventMessage contains "FAILED"' --last 1d  # <2>
 #### Windows (PowerShell)
 ```powershell
 # Ver eventos de seguridad (intentos de elevación)
-PS> Get-EventLog -LogName Security -EntryType FailureAudit | Where-Object {$_.EventID -eq 4673}  # <1>
+PS> Get-EventLog -LogName Security -EntryType FailureAudit | Where-Object {$_.EventID -eq 4673}  
 
 # Ver historial de comandos elevados
-PS> Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672} -MaxEvents 10  # <2>
+PS> Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672} -MaxEvents 10  
 ```
 1. Evento 4673 indica intentos de privilegios elevados
 
@@ -253,7 +255,7 @@ PS> Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672} -MaxEvents 10  
 #### Linux
 ```bash
 # Habilitar logging de sudo
-$ sudo visudo  # <1>
+$ sudo visudo  
 
 # Agregar al final:
 Defaults logfile="/var/log/sudo.log"
@@ -265,7 +267,7 @@ Defaults iolog_dir="/var/log/sudo-io/%{user}"
 #### macOS
 ```bash
 # Habilitar logging de sudo
-$ sudo visudo  # <1>
+$ sudo visudo  
 
 # Agregar al final:
 Defaults logfile="/var/log/sudo.log"
@@ -276,10 +278,10 @@ Defaults log_input, log_output
 #### Windows (PowerShell)
 ```powershell
 # Habilitar auditoría de comandos elevados
-PS> auditpol /set /subcategory:"Sistema de seguridad" /success:enable /failure:enable  # <1>
+PS> auditpol /set /subcategory:"Sistema de seguridad" /success:enable /failure:enable  
 
 # Ver eventos de auditoría
-PS> Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672}  # <2>
+PS> Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672}  
 ```
 1. Habilita auditoría de seguridad para comandos elevados
 
@@ -295,13 +297,13 @@ PS> Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672}  # <2>
 
 ```bash
 # Tiempo de espera entre contraseñas (minutos)
-Defaults timestamp_timeout=5  # <1>
+Defaults timestamp_timeout=5  
 
 # Número de intentos fallidos antes de bloquear
-Defaults passwd_tries=3  # <2>
+Defaults passwd_tries=3  
 
 # Mensaje personalizado
-Defaults badpass_message="Contraseña incorrecta. Intenta de nuevo."  # <3>
+Defaults badpass_message="Contraseña incorrecta. Intenta de nuevo."  
 
 # Shell por defecto para sudo
 Defaults env_reset

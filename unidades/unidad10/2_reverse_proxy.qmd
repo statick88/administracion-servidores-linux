@@ -37,28 +37,28 @@ Un reverse proxy es la puerta de entrada estándar en arquitecturas modernas. Ng
 ### Proxy Básico
 
 ```bash
-$ sudo tee /etc/nginx/sites-available/backend-proxy.conf <<'EOF'  # <1>
+$ sudo tee /etc/nginx/sites-available/backend-proxy.conf <<'EOF'  
 server {
-    listen 80;  # <2>
-    server_name api.example.com;  # <3>
+    listen 80;  
+    server_name api.example.com;  
 
     location / {
-        proxy_pass http://127.0.0.1:3000;  # <4>
+        proxy_pass http://127.0.0.1:3000;  
 
-        proxy_set_header Host $host;  # <5>
+        proxy_set_header Host $host;  
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        proxy_connect_timeout 60s;  # <6>
+        proxy_connect_timeout 60s;  
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
     }
 }
 EOF
 
-$ sudo ln -sf /etc/nginx/sites-available/backend-proxy.conf /etc/nginx/sites-enabled/  # <7>
-$ sudo nginx -t && sudo systemctl reload nginx  # <8>
+$ sudo ln -sf /etc/nginx/sites-available/backend-proxy.conf /etc/nginx/sites-enabled/  
+$ sudo nginx -t && sudo systemctl reload nginx  
 ```
 
 1. **tee**: Writes config file to sites-available in one atomic command.
@@ -73,13 +73,13 @@ $ sudo nginx -t && sudo systemctl reload nginx  # <8>
 ### Verificar Funcionamiento
 
 ```bash
-$ curl http://127.0.0.1:3000  # <1>
+$ curl http://127.0.0.1:3000  
 {"status": "ok", "version": "1.0.0"}
 
-$ curl -H 'Host: api.example.com' http://127.0.0.1  # <2>
+$ curl -H 'Host: api.example.com' http://127.0.0.1  
 {"status": "ok", "version": "1.0.0"}
 
-$ curl -I -H 'Host: api.example.com' http://127.0.0.1 | grep -i proxy  # <3>
+$ curl -I -H 'Host: api.example.com' http://127.0.0.1 | grep -i proxy  
 X-Real-IP: 127.0.0.1
 X-Forwarded-For: 127.0.0.1
 ```
@@ -103,9 +103,9 @@ X-Forwarded-For: 127.0.0.1
 ### Upstream Basic
 
 ```bash
-$ sudo tee /etc/nginx/sites-available/loadbalancer.conf <<'EOF'  # <1>
+$ sudo tee /etc/nginx/sites-available/loadbalancer.conf <<'EOF'  
 upstream api_backend {
-    server 10.0.1.11:3000;  # <2>
+    server 10.0.1.11:3000;  
     server 10.0.1.12:3000;
     server 10.0.1.13:3000;
 }
@@ -115,7 +115,7 @@ server {
     server_name api.example.com;
 
     location / {
-        proxy_pass http://api_backend;  # <3>
+        proxy_pass http://api_backend;  
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -134,21 +134,21 @@ EOF
 
 ```bash
 upstream api_backend {
-    ip_hash;  # <1>
+    ip_hash;  
     server 10.0.1.11:3000;
     server 10.0.1.12:3000;
     server 10.0.1.13:3000;
 }
 
 upstream api_backend {
-    least_conn;  # <2>
+    least_conn;  
     server 10.0.1.11:3000;
     server 10.0.1.12:3000;
     server 10.0.1.13:3000;
 }
 
 upstream api_backend {
-    server 10.0.1.11:3000 weight=5;  # <3>
+    server 10.0.1.11:3000 weight=5;  
     server 10.0.1.12:3000 weight=3;
     server 10.0.1.13:3000 weight=2;
 }
@@ -162,10 +162,10 @@ upstream api_backend {
 
 ```bash
 upstream api_backend {
-    server 10.0.1.11:3000 max_fails=3 fail_timeout=30s;  # <1>
+    server 10.0.1.11:3000 max_fails=3 fail_timeout=30s;  
     server 10.0.1.12:3000 max_fails=3 fail_timeout=30s;
-    server 10.0.1.13:3000 backup;  # <2>
-    server 10.0.1.14:3000 down;   # <3>
+    server 10.0.1.13:3000 backup;  
+    server 10.0.1.14:3000 down;   
 }
 ```
 
@@ -179,11 +179,11 @@ upstream api_backend {
 
 ```bash
 location / {
-    proxy_pass http://127.0.0.1:3000;  # <1>
-    proxy_http_version 1.1;  # <2>
-    proxy_set_header Upgrade $http_upgrade;  # <3>
+    proxy_pass http://127.0.0.1:3000;  
+    proxy_http_version 1.1;  
+    proxy_set_header Upgrade $http_upgrade;  
     proxy_set_header Connection "upgrade";
-    proxy_set_header Host $host;  # <4>
+    proxy_set_header Host $host;  
 }
 ```
 
@@ -194,9 +194,9 @@ location / {
 
 ```bash
 location ~ \.php$ {
-    include snippets/fastcgi-php.conf;  # <1>
-    fastcgi_pass unix:/run/php/php8.1-fpm.sock;  # <2>
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;  # <3>
+    include snippets/fastcgi-php.conf;  
+    fastcgi_pass unix:/run/php/php8.1-fpm.sock;  
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;  
 }
 ```
 
@@ -208,14 +208,14 @@ location ~ \.php$ {
 
 ```bash
 location / {
-    proxy_pass http://127.0.0.1:8000;  # <1>
-    proxy_set_header Host $host;  # <2>
-    proxy_set_header X-Real-IP $remote_addr;  # <3>
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # <4>
+    proxy_pass http://127.0.0.1:8000;  
+    proxy_set_header Host $host;  
+    proxy_set_header X-Real-IP $remote_addr;  
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  
     proxy_set_header X-Forwarded-Proto $scheme;
     
     # WebSocket support
-    proxy_http_version 1.1;  # <5>
+    proxy_http_version 1.1;  
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
 }
@@ -231,8 +231,8 @@ location / {
 
 ```bash
 location / {
-    proxy_pass http://172.17.0.2:8080;  # <1>
-    proxy_set_header Host $host;  # <2>
+    proxy_pass http://172.17.0.2:8080;  
+    proxy_set_header Host $host;  
     proxy_set_header X-Real-IP $remote_addr;
 }
 ```
@@ -246,19 +246,19 @@ location / {
 
 ```bash
 location /ws/ {
-    proxy_pass http://127.0.0.1:3000;  # <1>
+    proxy_pass http://127.0.0.1:3000;  
     
     # WebSocket headers
-    proxy_http_version 1.1;  # <2>
+    proxy_http_version 1.1;  
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     
     # Timeouts extendidos para long-lived connections
-    proxy_read_timeout 3600s;  # <3>
+    proxy_read_timeout 3600s;  
     proxy_send_timeout 3600s;
     
     # Buffers
-    proxy_buffering off;  # <4>
+    proxy_buffering off;  
     proxy_request_buffering off;
 }
 ```
@@ -277,7 +277,7 @@ $ curl -i -N \
     -H "Upgrade: websocket" \
     -H "Sec-WebSocket-Version: 13" \
     -H "Sec-WebSocket-Key: test123==" \
-    http://localhost/ws/  # <1>
+    http://localhost/ws/  
 ```
 
 1. **curl -i -N**: Tests WebSocket handshake — `-i` shows response headers, `-N` disables buffering for real-time output.
@@ -288,21 +288,21 @@ $ curl -i -N \
 
 ```bash
 # En http block
-proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=api_cache:10M max_size=100M inactive=60m;  # <1>
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=api_cache:10M max_size=100M inactive=60m;  
 
 server {
     location /api/ {
         proxy_pass http://127.0.0.1:3000;
-        proxy_cache api_cache;  # <2>
+        proxy_cache api_cache;  
         
         # Cache respuestas 200 por 60 min
-        proxy_cache_valid 200 60m;  # <3>
+        proxy_cache_valid 200 60m;  
         
         # Keys diferentes por Host
-        proxy_cache_key $scheme$host$request_uri;  # <4>
+        proxy_cache_key $scheme$host$request_uri;  
         
         # Agregar header de cache status
-        add_header X-Cache-Status $upstream_cache_status;  # <5>
+        add_header X-Cache-Status $upstream_cache_status;  
     }
 }
 ```
@@ -318,8 +318,8 @@ server {
 ```bash
 # Location para purgar cache
 location ~ /purge(/.*) {
-    proxy_cache_purge api_cache $scheme$host$1;  # <1>
-    access_log off;  # <2>
+    proxy_cache_purge api_cache $scheme$host$1;  
+    access_log off;  
 }
 
 # Usar: curl -X PURGE https://example.com/purge/api/data
@@ -334,20 +334,20 @@ location ~ /purge(/.*) {
 
 ```bash
 server {
-    listen 443 ssl http2;  # <1>
+    listen 443 ssl http2;  
     server_name api.example.com;
     
     # SSL certs
-    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;  # <2>
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;  
     ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;  # <3>
+    include /etc/letsencrypt/options-ssl-nginx.conf;  
     
     # Proxy a backend HTTP
     location / {
-        proxy_pass http://127.0.0.1:3000;  # <4>
+        proxy_pass http://127.0.0.1:3000;  
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-Proto https;  # <5>
+        proxy_set_header X-Forwarded-Proto https;  
     }
 }
 ```
@@ -367,11 +367,11 @@ server {
 ```bash
 # API v1
 server {
-    listen 80;  # <1>
+    listen 80;  
     server_name api.example.com;
     
     location / {
-        proxy_pass http://127.0.0.1:3000;  # <2>
+        proxy_pass http://127.0.0.1:3000;  
         proxy_set_header Host $host;
     }
 }
@@ -379,7 +379,7 @@ server {
 # API v2 (nueva)
 server {
     listen 80;
-    server_name api-v2.example.com;  # <3>
+    server_name api-v2.example.com;  
     
     location / {
         proxy_pass http://127.0.0.1:4000;
@@ -403,19 +403,19 @@ server {
     
     # Frontend estático
     location / {
-        proxy_pass http://127.0.0.1:8080;  # <1>
+        proxy_pass http://127.0.0.1:8080;  
     }
     
     # API
     location /api/ {
-        proxy_pass http://127.0.0.1:3000;  # <2>
+        proxy_pass http://127.0.0.1:3000;  
     }
     
     # Admin panel
     location /admin/ {
-        proxy_pass http://127.0.0.1:5000;  # <3>
+        proxy_pass http://127.0.0.1:5000;  
         # Solo desde red local
-        allow 10.0.0.0/8;  # <4>
+        allow 10.0.0.0/8;  
         deny all;
     }
 }
@@ -433,7 +433,7 @@ server {
 ```bash
 # Blue (versión actual)
 upstream blue {
-    server 10.0.1.10:3000;  # <1>
+    server 10.0.1.10:3000;  
 }
 
 # Green (nueva versión)
@@ -447,7 +447,7 @@ server {
     server_name example.com;
     
     location / {
-        proxy_pass http://blue;  # <2>
+        proxy_pass http://blue;  
         proxy_set_header Host $host;
     }
 }

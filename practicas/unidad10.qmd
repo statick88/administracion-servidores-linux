@@ -16,21 +16,21 @@ Instalar Nginx, configurar un sitio (server block) y entregar evidencias. (Certb
 ## Parte 1: Instalacion y validacion
 
 ```bash
-$ sudo apt update  # <1>
-# <1>
+$ sudo apt update  
 
-$ sudo apt install -y nginx  # <2>
-# <2>
 
-$ systemctl status nginx --no-pager  # <3>
+$ sudo apt install -y nginx  
+
+
+$ systemctl status nginx --no-pager  
 ● nginx.service - A high performance web server and a reverse proxy server
      Active: active (running)
-# <3>
 
-$ curl -I http://localhost  # <4>
+
+$ curl -I http://localhost  
 HTTP/1.1 200 OK
 Server: nginx/1.24.0 (Ubuntu)
-# <4>
+
 ```
 
 
@@ -45,32 +45,32 @@ Server: nginx/1.24.0 (Ubuntu)
 ## Parte 2: Server block
 
 ```bash
-$ sudo tee /etc/nginx/sites-available/app.conf >/dev/null <<'EOF'  # <1>
+$ sudo tee /etc/nginx/sites-available/app.conf >/dev/null <<'EOF'  
 server {
   listen 80;
   server_name app.local;
   location / { return 200 "app ok\n"; }
 }
 EOF
-# <1>
 
-$ sudo ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/app.conf  # <2>
-# <2>
 
-$ sudo nginx -t  # <3>
+$ sudo ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/app.conf  
+
+
+$ sudo nginx -t  
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-# <3>
 
-$ sudo systemctl reload nginx  # <4>
-# <4>
 
-$ curl -i -H 'Host: app.local' http://127.0.0.1/  # <5>
+$ sudo systemctl reload nginx  
+
+
+$ curl -i -H 'Host: app.local' http://127.0.0.1/  
 HTTP/1.1 200 OK
 Server: nginx
 
 app ok
-# <5>
+
 ```
 
 
@@ -86,14 +86,14 @@ app ok
 ## Parte 3 (opcional): Certbot
 
 ```bash
-$ sudo apt install -y certbot python3-certbot-nginx  # <1>
-# <1>
+$ sudo apt install -y certbot python3-certbot-nginx  
 
-$ sudo certbot --nginx -d tu-dominio.com  # <2>
-# <2>
 
-$ sudo certbot renew --dry-run  # <3>
-# <3>
+$ sudo certbot --nginx -d tu-dominio.com  
+
+
+$ sudo certbot renew --dry-run  
+
 ```
 
 

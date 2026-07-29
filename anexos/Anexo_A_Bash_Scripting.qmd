@@ -47,7 +47,7 @@ systemctl start nginx
 Con Bash, lo automatizas:
 
 ```bash
-#!/bin/bash  # <1>
+#!/bin/bash  
 # Instalar y configurar nginx en un script
 
 apt update && apt upgrade -y
@@ -239,7 +239,7 @@ async function setupServer(server) {
 ### Declarar Variables
 
 ```bash
-NOMBRE="Diego"  # <1>
+NOMBRE="Diego"  
 EDAD=35
 SERVIDOR="web-prod-01"
 ```
@@ -256,7 +256,7 @@ SERVIDOR="web-prod-01"
 ### Usar Variables
 
 ```bash
-echo "Hola, $NOMBRE"  # <1>
+echo "Hola, $NOMBRE"  
 ```
 
 1. **echo** imprime texto. `$NOMBRE` reemplaza con valor almacenado
@@ -271,7 +271,7 @@ Hola, Diego
 ```bash
 #!/bin/bash
 echo "¿Cuál es tu nombre?"
-read NOMBRE  # <1>
+read NOMBRE  
 echo "Bienvenido, $NOMBRE"
 ```
 
@@ -288,11 +288,11 @@ Bienvenido, Diego
 ### Variables Especiales
 
 ```bash
-echo $0      # <1>
-echo $1      # <2>
-echo $@      # <3>
-echo $?      # <4>
-echo $$      # <5>
+echo $0      
+echo $1      
+echo $@      
+echo $?      
+echo $$      
 ```
 
 1. **$0** = nombre del script
@@ -332,7 +332,7 @@ Todos los args: diego 35 linux
 #!/bin/bash
 EDAD=35
 
-if [ $EDAD -gt 18 ]  # <1>
+if [ $EDAD -gt 18 ]  
 then
   echo "Eres adulto"
 fi
@@ -355,7 +355,7 @@ fi
 #!/bin/bash
 SISTEMA="Linux"
 
-if [ "$SISTEMA" = "Linux" ]  # <1>
+if [ "$SISTEMA" = "Linux" ]  
 then
   echo "Sistema: Linux"
 else
@@ -376,7 +376,7 @@ fi
 
 ```bash
 #!/bin/bash
-DISTRO=$1  # <1>
+DISTRO=$1  
 
 if [ "$DISTRO" = "ubuntu" ]
 then
@@ -400,7 +400,7 @@ fi
 #!/bin/bash
 CONFIG_FILE="/etc/nginx/nginx.conf"
 
-if [ -f "$CONFIG_FILE" ]  # <1>
+if [ -f "$CONFIG_FILE" ]  
 then
   echo "Archivo existe"
 else
@@ -428,9 +428,9 @@ Cuando tienes muchas opciones (distro, entorno, modo de ejecución), `case` suel
 ```bash
 #!/bin/bash
 
-DISTRO="${1:-}"  # <1>
+DISTRO="${1:-}"  
 
-case "$DISTRO" in  # <2>
+case "$DISTRO" in  
   ubuntu|debian)
     echo "Package manager: apt"
     ;;
@@ -466,13 +466,13 @@ esac
 ```bash
 #!/bin/bash
 
-set -euo pipefail  # <1>
+set -euo pipefail  
 
-USUARIO=""  # <2>
-GRUPO=""  # <3>
-SHELL="/bin/bash"  # <4>
+USUARIO=""  
+GRUPO=""  
+SHELL="/bin/bash"  
 
-while getopts ":u:g:s:h" opt; do  # <5>
+while getopts ":u:g:s:h" opt; do  
   case "$opt" in
     u) USUARIO="$OPTARG" ;;
     g) GRUPO="$OPTARG" ;;
@@ -492,13 +492,13 @@ while getopts ":u:g:s:h" opt; do  # <5>
   esac
 done
 
-if [ -z "$USUARIO" ] || [ -z "$GRUPO" ]  # <6>
+if [ -z "$USUARIO" ] || [ -z "$GRUPO" ]  
 then
   echo "Uso: $0 -u <usuario> -g <grupo> [-s <shell>]" >&2
   exit 2
 fi
 
-echo "OK: usuario='$USUARIO' grupo='$GRUPO' shell='$SHELL'"  # <7>
+echo "OK: usuario='$USUARIO' grupo='$GRUPO' shell='$SHELL'"  
 ```
 
 
@@ -521,7 +521,7 @@ echo "OK: usuario='$USUARIO' grupo='$GRUPO' shell='$SHELL'"  # <7>
 #!/bin/bash
 SERVIDORES="web-1 web-2 web-3"
 
-for SERVIDOR in $SERVIDORES  # <1>
+for SERVIDOR in $SERVIDORES  
 do
   echo "Reinsticiando $SERVIDOR"
 done
@@ -541,7 +541,7 @@ Reiniciando web-3
 ```bash
 #!/bin/bash
 
-for i in {1..5}  # <1>
+for i in {1..5}  
 do
   echo "Número: $i"
 done
@@ -552,7 +552,7 @@ done
 **Alternativa (sintaxis C):**
 
 ```bash
-for ((i=1; i<=5; i++))  # <1>
+for ((i=1; i<=5; i++))  
 do
   echo "Número: $i"
 done
@@ -566,10 +566,10 @@ done
 #!/bin/bash
 CONTADOR=1
 
-while [ $CONTADOR -le 3 ]  # <1>
+while [ $CONTADOR -le 3 ]  
 do
   echo "Iteración $CONTADOR"
-  CONTADOR=$((CONTADOR + 1))  # <2>
+  CONTADOR=$((CONTADOR + 1))  
 done
 ```
 
@@ -589,7 +589,7 @@ Iteración 3
 ```bash
 #!/bin/bash
 
-for ARCHIVO in /var/log/*.log  # <1>
+for ARCHIVO in /var/log/*.log  
 do
   echo "Procesando: $ARCHIVO"
 done
@@ -606,11 +606,11 @@ done
 ```bash
 #!/bin/bash
 
-mostrar_fecha() {  # <1>
-  echo "Fecha actual: $(date '+%Y-%m-%d')"  # <2>
+mostrar_fecha() {  
+  echo "Fecha actual: $(date '+%Y-%m-%d')"  
 }
 
-mostrar_fecha  # <3>
+mostrar_fecha  
 ```
 
 1. **mostrar_fecha()** define una función sin parámetros
@@ -629,14 +629,14 @@ Fecha actual: 2026-02-08
 ```bash
 #!/bin/bash
 
-sumar() {  # <1>
-  local NUM1=$1  # <2>
+sumar() {  
+  local NUM1=$1  
   local NUM2=$2
   local SUMA=$((NUM1 + NUM2))
   echo $SUMA
 }
 
-RESULTADO=$(sumar 10 20)  # <3>
+RESULTADO=$(sumar 10 20)  
 echo "10 + 20 = $RESULTADO"
 ```
 
@@ -658,11 +658,11 @@ echo "10 + 20 = $RESULTADO"
 
 verificar_usuario() {
   local USUARIO=$1
-  if id "$USUARIO" &>/dev/null  # <1>
+  if id "$USUARIO" &>/dev/null  
   then
-    return 0  # <2>
+    return 0  
   else
-    return 1  # <3>
+    return 1  
   fi
 }
 
@@ -689,8 +689,8 @@ fi
 ```bash
 #!/bin/bash
 
-echo "Salida a archivo" > output.txt  # <1>
-echo "Agregar línea" >> output.txt    # <2>
+echo "Salida a archivo" > output.txt  
+echo "Agregar línea" >> output.txt    
 ```
 
 1. **>** redirecciona salida a archivo (sobrescribe si existe)
@@ -702,7 +702,7 @@ echo "Agregar línea" >> output.txt    # <2>
 ```bash
 #!/bin/bash
 
-ls /directorio/inexistente 2> error.log  # <1>
+ls /directorio/inexistente 2> error.log  
 ```
 
 1. **2>** redirecciona stderr (error standard) a archivo
@@ -719,7 +719,7 @@ ls /directorio/inexistente 2> error.log  # <1>
 ```bash
 #!/bin/bash
 
-ps aux | grep nginx  # <1>
+ps aux | grep nginx  
 ```
 
 1. **|** (pipe) envía salida del primer comando como entrada al segundo
@@ -727,7 +727,7 @@ ps aux | grep nginx  # <1>
 **Ejemplo práctico:**
 
 ```bash
-cat /var/log/syslog | grep "error" | wc -l  # <1>
+cat /var/log/syslog | grep "error" | wc -l  
 ```
 
 1. **cat** muestra archivo → **grep** filtra líneas con "error" → **wc -l** cuenta líneas
@@ -743,15 +743,15 @@ En producción, un buen script hace dos cosas bien: (1) falla de forma clara y (
 ```bash
 #!/bin/bash
 
-set -euo pipefail  # <1>
+set -euo pipefail  
 
-tmp_file="$(mktemp)"  # <2>
+tmp_file="$(mktemp)"  
 
-cleanup() {  # <3>
+cleanup() {  
   rm -f "$tmp_file"
 }
 
-trap cleanup EXIT  # <4>
+trap cleanup EXIT  
 
 echo "Archivo temporal: $tmp_file"
 echo "hola" > "$tmp_file"
@@ -768,10 +768,10 @@ cat "$tmp_file"
 ### Debug rapido (ver lo que ejecuta)
 
 ```bash
-$ bash -x script.sh  # <1>
+$ bash -x script.sh  
 + mktemp
 + echo "Archivo temporal: ..."
-# <1>
+
 ```
 
 
@@ -788,13 +788,13 @@ $ bash -x script.sh  # <1>
 #!/bin/bash
 # Script para alertar si disco está casi lleno
 
-UMBRAL=80  # <1>
+UMBRAL=80  
 
-for PARTICION in $(df | tail -n +2 | awk '{print $6}')  # <2>
+for PARTICION in $(df | tail -n +2 | awk '{print $6}')  
 do
-  USO=$(df "$PARTICION" | tail -1 | awk '{print $(NF-1)}' | sed 's/%//')  # <3>
+  USO=$(df "$PARTICION" | tail -1 | awk '{print $(NF-1)}' | sed 's/%//')  
   
-  if [ "$USO" -gt "$UMBRAL" ]  # <4>
+  if [ "$USO" -gt "$UMBRAL" ]  
   then
     echo "ALERTA: $PARTICION está al ${USO}% lleno"
   fi
@@ -826,19 +826,19 @@ bash check_disk.sh
 #!/bin/bash
 # Script para respaldar carpeta con timestamp
 
-CARPETA_ORIGEN=$1  # <1>
+CARPETA_ORIGEN=$1  
 CARPETA_BACKUP="/backup"
-FECHA=$(date '+%Y%m%d_%H%M%S')  # <2>
+FECHA=$(date '+%Y%m%d_%H%M%S')  
 
-if [ -z "$CARPETA_ORIGEN" ]  # <3>
+if [ -z "$CARPETA_ORIGEN" ]  
 then
   echo "Uso: $0 /ruta/a/respaldar"
   exit 1
 fi
 
-NOMBRE_BACKUP="${CARPETA_BACKUP}/backup_$(basename $CARPETA_ORIGEN)_${FECHA}.tar.gz"  # <4>
+NOMBRE_BACKUP="${CARPETA_BACKUP}/backup_$(basename $CARPETA_ORIGEN)_${FECHA}.tar.gz"  
 
-tar -czf "$NOMBRE_BACKUP" "$CARPETA_ORIGEN"  # <5>
+tar -czf "$NOMBRE_BACKUP" "$CARPETA_ORIGEN"  
 
 echo "Respaldo completado: $NOMBRE_BACKUP"
 ```
@@ -871,15 +871,15 @@ bash respaldar.sh /home/diego
 echo "=== Iniciando actualización del sistema ==="
 
 # Actualizar lista de paquetes
-apt update  # <1>
-if [ $? -ne 0 ]  # <2>
+apt update  
+if [ $? -ne 0 ]  
 then
   echo "Error al actualizar repositorios"
   exit 1
 fi
 
 # Actualizar paquetes
-apt upgrade -y  # <3>
+apt upgrade -y  
 if [ $? -ne 0 ]
 then
   echo "Error durante apt upgrade"
@@ -887,7 +887,7 @@ then
 fi
 
 # Eliminar paquetes sin usar
-apt autoremove -y  # <4>
+apt autoremove -y  
 
 echo "=== Actualización completada ==="
 
@@ -916,20 +916,20 @@ USUARIOS="diego carlos ana benjamin"
 GRUPO="developers"
 
 # Crear grupo si no existe
-if ! getent group "$GRUPO" > /dev/null 2>&1  # <1>
+if ! getent group "$GRUPO" > /dev/null 2>&1  
 then
   groupadd "$GRUPO"
   echo "Grupo $GRUPO creado"
 fi
 
 # Crear cada usuario
-for USUARIO in $USUARIOS  # <2>
+for USUARIO in $USUARIOS  
 do
   if id "$USUARIO" &>/dev/null
   then
     echo "Usuario $USUARIO ya existe"
   else
-    useradd -m -s /bin/bash -G "$GRUPO" "$USUARIO"  # <3>
+    useradd -m -s /bin/bash -G "$GRUPO" "$USUARIO"  
     echo "Usuario $USUARIO creado"
   fi
 done
@@ -960,17 +960,17 @@ getent group "$GRUPO"
 # Versión: 1.0
 #
 
-set -euo pipefail  # <1>
+set -euo pipefail  
 
 # ============ CONSTANTES ============
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # <2>
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  
 readonly LOG_FILE="/var/log/backup.log"
 readonly BACKUP_DIR="/backup"
-readonly CARPETAS=("/home" "/etc" "/var/www")  # <3>
+readonly CARPETAS=("/home" "/etc" "/var/www")  
 
 # ============ FUNCIONES ============
 
-log() {  # <4>
+log() {  
   local NIVEL=$1
   shift
   local MENSAJE="$@"
@@ -979,7 +979,7 @@ log() {  # <4>
   echo "[$TIMESTAMP] [$NIVEL] $MENSAJE" | tee -a "$LOG_FILE"
 }
 
-verificar_permisos() {  # <5>
+verificar_permisos() {  
   if [ "$EUID" -ne 0 ]
   then
     log "ERROR" "Este script debe ejecutarse como root"
@@ -1016,7 +1016,7 @@ main() {
   mkdir -p "$BACKUP_DIR"
   
   # Respaldar cada carpeta
-  for CARPETA in "${CARPETAS[@]}"  # <6>
+  for CARPETA in "${CARPETAS[@]}"  
   do
     if [ -d "$CARPETA" ]
     then

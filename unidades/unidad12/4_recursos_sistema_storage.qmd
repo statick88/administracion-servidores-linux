@@ -26,13 +26,13 @@ Las caídas de servicios en producción casi siempre son por una de estas razone
 ### Load average y uptime
 
 ```bash
-$ uptime  # <1>
+$ uptime  
  14:30:00 up 45 days,  3:22,  2 users,  load average: 2.45, 1.89, 1.56
-# <1>
 
-$ cat /proc/cpuinfo | grep processor | wc -l  # <2>
+
+$ cat /proc/cpuinfo | grep processor | wc -l  
 4
-# <2>
+
 ```
 
 1. **uptime** muestra load average a 1, 5 y 15 minutos. Con 4 cores, load de 2.45 = ~60% utilización.
@@ -41,7 +41,7 @@ $ cat /proc/cpuinfo | grep processor | wc -l  # <2>
 ### Procesos por CPU
 
 ```bash
-$ top  # <1>
+$ top  
 top - 14:35:00 up 45 days,  3:22,  2 users,  load average: 2.45, 1.89, 1.56
 Tasks: 145 total,   1 running, 144 sleeping,   0 stopped,   0 zombie
 %Cpu(s): 62.5 us,  7.5 sy,  0.0 ni, 30.0 idle,  0.0 wa, 0.0 hi, 0.0 si, 0.0 st
@@ -52,10 +52,10 @@ MiB Swap:   2048.0 total,      0.0 free,   2048.0 used,   4500.0 avail Mem
  12345 www-data  20   0  512340  89000  34000 S  45.2  1.11   2:30.45 nginx
  12346 www-data  20   0  512340  89000  34000 S  42.1  1.11   2:28.12 nginx
   2345 mysql     20   0 1234560 456000  32000 S  25.3  5.67  12:45.23 mariadbd
-# <1>
 
-$ htop  # <2>
-# <2>
+
+$ htop  
+
 ```
 
 1. **top** muestra uso de CPU y memoria por proceso. Presiona **P** para ordenar por CPU, **M** para memoria.
@@ -64,23 +64,23 @@ $ htop  # <2>
 ### Identificar procesos específicos
 
 ```bash
-$ ps aux --sort=-%cpu | head -n 10  # <1>
+$ ps aux --sort=-%cpu | head -n 10  
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 www-data 12345 45.2  1.11 512340 89000 ?       S    14:00   2:30 nginx worker
 mysql    2345 25.3  5.67 1234560 456000 ?       S    10:00  12:45 mariadbd
 root     5678 12.5  0.89 234567 45678 ?        S    08:00   1:23 python3 app.py
-# <1>
 
-$ pgrep -af "python"  # <2>
+
+$ pgrep -af "python"  
 5678 python3 app.py
 7890 python3 worker.py
 12340 python3 -m flask run
-# <2>
 
-$ ps -p 12345 -o pid,ppid,cmd,%cpu,%mem  # <3>
+
+$ ps -p 12345 -o pid,ppid,cmd,%cpu,%mem  
   PID  PPID CMD                         %CPU %MEM
 12345     1 /usr/sbin/nginx -g daemon   45.2 1.11
-# <3>
+
 ```
 
 1. **ps aux --sort=-%cpu** lista top 10 procesos por CPU. Similar a top pero estático.
@@ -90,16 +90,16 @@ $ ps -p 12345 -o pid,ppid,cmd,%cpu,%mem  # <3>
 ### Matar procesos problemáticos
 
 ```bash
-$ sudo kill -15 12345  # <1>
+$ sudo kill -15 12345  
 # SIGTERM -优雅停止, permite cleanup
 
-$ sudo kill -9 12345  # <2>
+$ sudo kill -9 12345  
 # SIGKILL - forzar muerte inmediata
-# <2>
 
-$ sudo pkill -f "python.*worker"  # <3>
+
+$ sudo pkill -f "python.*worker"  
 # Mata todos los procesos que coinciden con el patrón
-# <3>
+
 ```
 
 1. **kill -15** (SIGTERM) es el método correcto. Permite al proceso terminar limpiamente.
@@ -113,13 +113,13 @@ $ sudo pkill -f "python.*worker"  # <3>
 ### Estado de memoria
 
 ```bash
-$ free -h  # <1>
+$ free -h  
                total        used        free      shared  buff/cache   available
 Mem:           7.6Gi       4.5Gi       1.2Gi       450Mi       1.9Gi       2.8Gi
 Swap:          2.0Gi       1.0Gi       1.0Gi
-# <1>
 
-$ cat /proc/meminfo | grep -E "^(MemTotal|MemFree|MemAvailable|Buffers|Cached|SwapFree|SwapTotal):"  # <2>
+
+$ cat /proc/meminfo | grep -E "^(MemTotal|MemFree|MemAvailable|Buffers|Cached|SwapFree|SwapTotal):"  
 MemTotal:        8019232 kB
 MemFree:         1258291 kB
 MemAvailable:    2934021 kB
@@ -127,7 +127,7 @@ Buffers:          102400 kB
 Cached:          1956789 kB
 SwapFree:        1048576 kB
 SwapTotal:       2097152 kB
-# <2>
+
 ```
 
 1. **free -h** muestra memoria en formato legible. "available" = memoria realmente usable.
@@ -136,19 +136,19 @@ SwapTotal:       2097152 kB
 ### Memoria por proceso
 
 ```bash
-$ ps aux --sort=-%mem | head -n 10  # <1>
+$ ps aux --sort=-%mem | head -n 10  
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 mysql     2345 25.3  5.67 1234560 456000 ?       S    10:00  12:45 mariadbd
 redis     3456  1.2  3.45 234567 267890 ?       S    09:00   5:23 redis-server
 python3   5678  2.5  2.89 456789 223456 ?       S    08:00   3:45 python3 app.py
-# <1>
 
-$ pmap -x 12345  # <2>
+
+$ pmap -x 12345  
 12345:   nginx: worker process
 Address           Kbytes     RSS   Dirty Mode  Mapping
 0000562345678000   51234     45000   45000 rw---  [ anon ]
 00005623456ab000    8192     8192    8192 r----  library.so
-# <2>
+
 ```
 
 1. **ps aux --sort=-%mem** top 10 procesos por memoria.
@@ -157,20 +157,20 @@ Address           Kbytes     RSS   Dirty Mode  Mapping
 ### Swap y OOM
 
 ```bash
-$ vmstat 1 5  # <1>
+$ vmstat 1 5  
 procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
  r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
  2  0 1048576 1258291 102400 1956789  100   50   200   150  500 1000 45 10 45  0  0
-# <1>
 
-$ dmesg | grep -i "out of memory"  # <2>
+
+$ dmesg | grep -i "out of memory"  
 [12345.678901] Out of memory: Killed process 12345 (python3) total-vm:123456kB, anon-rss:89000kB, file-rss:12000kB, shmem-rss:0kB, UID:1000 pgtables:256kB oom_score_adj:0
-# <2>
 
-$ dmesg | grep -i "oom" | tail -n 5  # <3>
+
+$ dmesg | grep -i "oom" | tail -n 5  
 [12345.678901] Out of memory: Killed process 12345
 [12345.678902] Out of memory: Killed process 12346
-# <3>
+
 ```
 
 1. **vmstat 1 5** muestra estadísticas de memoria, swap, I/O, CPU cada 1 segundo por 5 veces.
@@ -180,19 +180,19 @@ $ dmesg | grep -i "oom" | tail -n 5  # <3>
 ### Configuración de swap
 
 ```bash
-$ swapon --show  # <1>
+$ swapon --show  
 NAME      TYPE       SIZE USED PRIO
 /dev/sda5 partition  2G   1G    -2
-# <1>
 
-$ sudo swapoff -a && sudo swapon -a  # <2>
-# <2>
 
-$ sudo fallocate -l 2G /swapfile  # <3>
+$ sudo swapoff -a && sudo swapon -a  
+
+
+$ sudo fallocate -l 2G /swapfile  
 $ sudo chmod 600 /swapfile
 $ sudo mkswap /swapfile
 $ sudo swapon /swapfile
-# <3>
+
 ```
 
 1. **swapon --show** muestra dispositivos de swap activos.
@@ -206,18 +206,18 @@ $ sudo swapon /swapfile
 ### Espacio disponible
 
 ```bash
-$ df -h  # <1>
+$ df -h  
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sda1        49G   45G  4.0G  92% /
 /dev/sda2       100G   15G   85G  15% /var
 tmpfs           7.6G   12M  7.6G   1% /dev/shm
 /dev/sdb1      500G   200G  300G  40% /mnt/backup
-# <1>
 
-$ df -i  # <2>
+
+$ df -i  
 Filesystem      Inodes  IUsed  IFree IUse% Mounted on
 /dev/sda1      3276800 245000 3031800    8% /
-# <2>
+
 ```
 
 1. **df -h** muestra espacio por filesystem. 92% en / = crítico, necesita atención inmediata.
@@ -226,25 +226,25 @@ Filesystem      Inodes  IUsed  IFree IUse% Mounted on
 ### Encontrar directorios grandes
 
 ```bash
-$ sudo du -sh /var/* 2>/dev/null | sort -h | tail -n 10  # <1>
+$ sudo du -sh /var/* 2>/dev/null | sort -h | tail -n 10  
 4.5G  /var/lib
 2.3G  /var/log
 1.2G  /var/cache
 500M  /var/backups
 100M  /var/spool
-# <1>
 
-$ sudo du -sh /var/lib/docker 2>/dev/null  # <2>
+
+$ sudo du -sh /var/lib/docker 2>/dev/null  
 15G   /var/lib/docker
-# <2>
 
-$ sudo du -shx / --max-depth=1 2>/dev/null  # <3>
+
+$ sudo du -shx / --max-depth=1 2>/dev/null  
 45G   /
 24G   /var
 12G   /opt
  8G   /home
  5G   /usr
-# <3>
+
 ```
 
 1. **du -sh /var/*** tamaño de cada subdirectorio en /var. Ordenado por tamaño.
@@ -254,14 +254,14 @@ $ sudo du -shx / --max-depth=1 2>/dev/null  # <3>
 ### Encontrar archivos grandes
 
 ```bash
-$ sudo find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -h  # <1>
+$ sudo find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -h  
 -rw-r--r-- 1 root root 450M Apr  1  2024 /var/lib/docker/overlay2/abc123/diff/usr/lib/mysql/mariadbmariadb
 -rw-r--r-- 1 root root 234M Apr  2  2024 /var/log/apache2/access.log
 -rw-r--r-- 1 root root 123M Apr  2  2024 /var/log/syslog
-# <1>
 
-$ sudo find / -type f -atime +30 -delete 2>/dev/null  # <2>
-# <2>
+
+$ sudo find / -type f -atime +30 -delete 2>/dev/null  
+
 ```
 
 1. **find -size +100M** encuentra archivos mayores a 100MB. Útil para encontrar logs gigantes o archivos huérfanos.
@@ -270,21 +270,21 @@ $ sudo find / -type f -atime +30 -delete 2>/dev/null  # <2>
 ### Archivos específicos
 
 ```bash
-$ sudo find /var/log -type f -name "*.log" -size +100M  # <1>
+$ sudo find /var/log -type f -name "*.log" -size +100M  
 /var/log/apache2/access.log
 /var/log/nginx/access.log
 /var/log/syslog
-# <1>
 
-$ sudo journalctl --disk-usage  # <2>
+
+$ sudo journalctl --disk-usage  
 Archived journals on disk:
   7.3M /var/log/journal/a1b2c3d4/user-1000.journal
   15.2M /var/log/journal/a1b2c3d4/system.journal
-# <2>
 
-$ sudo du -sh /var/lib/postgresql  # <3>
+
+$ sudo du -sh /var/lib/postgresql  
 45G /var/lib/postgresql
-# <3>
+
 ```
 
 1. **find** con -name "*.log" para logs específicos.
@@ -298,17 +298,17 @@ $ sudo du -sh /var/lib/postgresql  # <3>
 ### Escenario 1: Servidor lento, alta carga de CPU
 
 ```bash
-$ uptime  # <1>
+$ uptime  
  14:30:00 up 45 days,  3:22,  load average: 8.45, 6.23, 4.56
 
-$ ps aux --sort=-%cpu | head -n 5  # <2>
+$ ps aux --sort=-%cpu | head -n 5  
 USER       PID %CPU %MEM    VSZ   RSS COMMAND
 www-data 12345 1952  2.0 512340 89000 python3 app.py
 mysql    2345   25  5.6 1234560 456000 mariadbd
-# <1>
 
-$ kill -15 12345  # <3>
-# <3>
+
+$ kill -15 12345  
+
 ```
 
 1. Load average de 8.45 con 4 cores = 200%+ (sobrecarga).
@@ -318,19 +318,19 @@ $ kill -15 12345  # <3>
 ### Escenario 2: OOM Killer actuando
 
 ```bash
-$ free -h  # <1>
+$ free -h  
                total        used        free      shared  buff/cache   available
 Mem:           7.6Gi       7.5Gi       100Mi       450Mi       2.0Gi        50Mi
 Swap:          2.0Gi          0B       2.0Gi
 
-$ dmesg | grep -i "out of memory" | tail -n 1  # <2>
+$ dmesg | grep -i "out of memory" | tail -n 1  
 [12345.678901] Out of memory: Killed process 5678 (python3) total-vm:2345678kB, anon-rss:1890000kB
-# <2>
 
-$ sudo nano /etc/sysctl.conf  # <3>
+
+$ sudo nano /etc/sysctl.conf  
 vm.swappiness=10  # Reducir uso de swap
 vm.overcommit_memory=1  # Permitir overcommit
-# <3>
+
 
 $ sudo sysctl -p
 ```
@@ -342,17 +342,17 @@ $ sudo sysctl -p
 ### Escenario 3: Disco lleno, servicios fallen
 
 ```bash
-$ df -h  # <1>
+$ df -h  
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sda1        49G   49G     0   100% /
 
-$ sudo du -sh /var/log/* | sort -h | tail -n 5  # <2>
+$ sudo du -sh /var/log/* | sort -h | tail -n 5  
 4.5G  /var/log/apache2
 2.3G  /var/log/nginx
 1.2G  /var/log/syslog
 
-$ sudo truncate -s 0 /var/log/apache2/access.log  # <3>
-# <3>
+$ sudo truncate -s 0 /var/log/apache2/access.log  
+
 
 $ sudo truncate -s 0 /var/log/nginx/access.log
 
@@ -366,15 +366,15 @@ $ sudo systemctl restart apache2 nginx
 ### Escenario 4: Logs rotativos
 
 ```bash
-$ sudo logrotate -fv /etc/logrotate.d/apache2  # <1>
+$ sudo logrotate -fv /etc/logrotate.d/apache2  
 reading config file apache2
 creating new lock file
 rotating pattern: /var/log/apache2/*.log  weekly
 considering: /var/log/apache2/access.log
   rotating: yes, old logs deleted
-# <1>
 
-$ sudo cat /etc/logrotate.d/nginx  # <2>
+
+$ sudo cat /etc/logrotate.d/nginx  
 /var/log/nginx/*.log {
     daily
     missingok
@@ -390,7 +390,7 @@ $ sudo cat /etc/logrotate.d/nginx  # <2>
         fi
     endscript
 }
-# <2>
+
 ```
 
 1. **logrotate -fv** fuerza rotación verbose. "-f" fuerza, "-v" verbose. Para probar configuración.
@@ -403,14 +403,14 @@ $ sudo cat /etc/logrotate.d/nginx  # <2>
 ### atop - el top avanzado
 
 ```bash
-$ sudo atop  # <1>
+$ sudo atop  
 ATOP - server01     2026/04/02  14:30:00     --------------     10s elapsed
 PRC |  sys    2.45s  |  user   3.12s  |  #proc    145 |  #tslpi   234
 CPU |  sys    35%  |  user    45%  |  idle     20%  |  #crt  4
 MEM |  tot    7.6G  |  cache  2.1G  |  buff   100M  |  free  1.2G  |  virt  8.5G
 DSK |  sda1   45G  |  read   234/s  |  write   150/s  |  MBr  12/s  |  MBw  8/s
 NET |  eth0   0.45G  |  #pkt  5000/s
-# <1>
+
 
 $ sudo apt install atop
 ```
@@ -450,10 +450,10 @@ fi
 ### Cron para monitoreo
 
 ```bash
-$ sudo crontab -e  # <1>
+$ sudo crontab -e  
 # Check cada 5 minutos
 */5 * * * * /usr/local/bin/monitor-resources.sh > /dev/null 2>&1
-# <1>
+
 ```
 
 ---
@@ -463,8 +463,8 @@ $ sudo crontab -e  # <1>
 ### Limpiar memoria cache
 
 ```bash
-$ sync && echo 3 | sudo tee /proc/sys/vm/drop_caches  # <1>
-# <1>
+$ sync && echo 3 | sudo tee /proc/sys/vm/drop_caches  
+
 
 $ sudo sysctl -w vm.drop_caches=3
 ```
@@ -475,11 +475,11 @@ $ sudo sysctl -w vm.drop_caches=3
 ### Limitar memoria de proceso
 
 ```bash
-$ ulimit -v 1048576  # <1>
+$ ulimit -v 1048576  
 # Limitar a 1GB de memoria virtual
 
-$ systemd-run --scope -p MemoryMax=1G /path/to/process  # <2>
-# <2>
+$ systemd-run --scope -p MemoryMax=1G /path/to/process  
+
 ```
 
 1. **ulimit** limita recursos por shell/sesión.

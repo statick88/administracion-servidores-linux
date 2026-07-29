@@ -23,7 +23,7 @@ Muchos problemas "de red" en realidad son problemas de DNS: tienes IP y ruta, pe
 ## Ver estado de systemd-resolved (Ubuntu)
 
 ```bash
-$ resolvectl status  # <1>
+$ resolvectl status  
 Global
        Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
 resolv.conf mode: stub
@@ -33,7 +33,7 @@ Link 2 (enp0s3)
          Protocols: +DefaultRoute
 Current DNS Server: 192.168.56.1
        DNS Servers: 192.168.56.1
-# <1>
+
 ```
 
 
@@ -45,22 +45,22 @@ Current DNS Server: 192.168.56.1
 ## Probar resolucion
 
 ```bash
-$ getent hosts example.com  # <1>
+$ getent hosts example.com  
 93.184.216.34   example.com
-# <1>
 
-$ dig +short example.com  # <2>
+
+$ dig +short example.com  
 93.184.216.34
-# <2>
 
-$ nslookup example.com  # <3>
+
+$ nslookup example.com  
 Server:         192.168.56.1
 Address:        192.168.56.1#53
 
 Non-authoritative answer:
 Name:   example.com
 Address: 93.184.216.34
-# <3>
+
 ```
 
 
@@ -74,9 +74,9 @@ Address: 93.184.216.34
 ## Revisar resolv.conf
 
 ```bash
-$ ls -l /etc/resolv.conf  # <1>
+$ ls -l /etc/resolv.conf  
 lrwxrwxrwx 1 root root 39 Feb  2 10:10 /etc/resolv.conf -> ../run/systemd/resolve/stub-resolv.conf
-# <1>
+
 ```
 
 
@@ -93,9 +93,9 @@ lrwxrwxrwx 1 root root 39 Feb  2 10:10 /etc/resolv.conf -> ../run/systemd/resolv
 
 #### Linux
 ```bash
-$ getent hosts example.com  # <1>
+$ getent hosts example.com  
 93.184.216.34 example.com
-# <1>
+
 ```
 
 
@@ -104,14 +104,14 @@ $ getent hosts example.com  # <1>
 
 #### macOS
 ```bash
-$ scutil --dns | head -n 18  # <1>
+$ scutil --dns | head -n 18  
 DNS configuration
 
 resolver #1
   nameserver[0] : 192.168.1.1
   if_index : 4 (en0)
   flags    : Request A records
-# <1>
+
 ```
 
 
@@ -120,12 +120,12 @@ resolver #1
 
 #### Windows
 ```powershell
-PS> Resolve-DnsName example.com  # <1>
+PS> Resolve-DnsName example.com  
 
 Name                           Type   TTL   Section    IPAddress
 ----                           ----   ---   -------    ---------
 example.com                    A      900   Answer     93.184.216.34
-# <1>
+
 ```
 
 

@@ -55,38 +55,38 @@ Como prevenirlo:
 ## Laboratorio: RAID1 con mdadm usando discos loop
 
 ```bash
-$ sudo apt update  # <1>
-# <1>
+$ sudo apt update  
 
-$ sudo apt install -y mdadm  # <2>
-# <2>
 
-$ sudo fallocate -l 200M /tmp/u6-raid-a.img  # <3>
-# <3>
+$ sudo apt install -y mdadm  
 
-$ sudo fallocate -l 200M /tmp/u6-raid-b.img  # <4>
-# <4>
 
-$ sudo losetup -fP /tmp/u6-raid-a.img  # <5>
-# <5>
+$ sudo fallocate -l 200M /tmp/u6-raid-a.img  
 
-$ sudo losetup -fP /tmp/u6-raid-b.img  # <6>
-# <6>
 
-$ sudo losetup -a | grep u6-raid  # <7>
+$ sudo fallocate -l 200M /tmp/u6-raid-b.img  
+
+
+$ sudo losetup -fP /tmp/u6-raid-a.img  
+
+
+$ sudo losetup -fP /tmp/u6-raid-b.img  
+
+
+$ sudo losetup -a | grep u6-raid  
 /dev/loop3: [2065]:22222 (/tmp/u6-raid-a.img)
 /dev/loop4: [2065]:33333 (/tmp/u6-raid-b.img)
-# <7>
 
-$ sudo mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/loop3 /dev/loop4  # <8>
+
+$ sudo mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/loop3 /dev/loop4  
 mdadm: array /dev/md0 started.
-# <8>
 
-$ cat /proc/mdstat  # <9>
+
+$ cat /proc/mdstat  
 Personalities : [raid1]
 md0 : active raid1 loop4[1] loop3[0]
       204800 blocks super 1.2 [2/2] [UU]
-# <9>
+
 ```
 
 
@@ -106,43 +106,43 @@ md0 : active raid1 loop4[1] loop3[0]
 ## LVM: PV, VG, LV y snapshot (concepto + demo)
 
 ```bash
-$ sudo apt install -y lvm2  # <1>
-# <1>
+$ sudo apt install -y lvm2  
 
-$ sudo fallocate -l 300M /tmp/u6-lvm.img  # <2>
-# <2>
 
-$ sudo losetup -fP /tmp/u6-lvm.img  # <3>
-# <3>
+$ sudo fallocate -l 300M /tmp/u6-lvm.img  
 
-$ sudo losetup -a | grep u6-lvm.img  # <4>
+
+$ sudo losetup -fP /tmp/u6-lvm.img  
+
+
+$ sudo losetup -a | grep u6-lvm.img  
 /dev/loop5: [2065]:44444 (/tmp/u6-lvm.img)
-# <4>
 
-$ sudo pvcreate /dev/loop5  # <5>
+
+$ sudo pvcreate /dev/loop5  
 Physical volume "/dev/loop5" successfully created.
-# <5>
 
-$ sudo vgcreate vg_data /dev/loop5  # <6>
+
+$ sudo vgcreate vg_data /dev/loop5  
 Volume group "vg_data" successfully created
-# <6>
 
-$ sudo lvcreate -n lv_app -L 200M vg_data  # <7>
+
+$ sudo lvcreate -n lv_app -L 200M vg_data  
 Logical volume "lv_app" created.
-# <7>
 
-$ sudo mkfs.ext4 -F /dev/vg_data/lv_app  # <8>
-# <8>
 
-$ sudo mkdir -p /mnt/vg_data  # <9>
-# <9>
+$ sudo mkfs.ext4 -F /dev/vg_data/lv_app  
 
-$ sudo mount /dev/vg_data/lv_app /mnt/vg_data  # <10>
-# <10>
 
-$ sudo lvcreate -s -n lv_app_snap -L 50M /dev/vg_data/lv_app  # <11>
+$ sudo mkdir -p /mnt/vg_data  
+
+
+$ sudo mount /dev/vg_data/lv_app /mnt/vg_data  
+
+
+$ sudo lvcreate -s -n lv_app_snap -L 50M /dev/vg_data/lv_app  
 Logical volume "lv_app_snap" created.
-# <11>
+
 ```
 
 

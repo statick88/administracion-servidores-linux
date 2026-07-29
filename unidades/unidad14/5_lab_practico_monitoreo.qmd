@@ -30,12 +30,12 @@ En este laboratorio vas a levantar la pila completa de observabilidad (Prometheu
 
 ```bash
 # Crear directorio raíz del proyecto
-$ sudo mkdir -p /opt/monitoring  # <1>
+$ sudo mkdir -p /opt/monitoring  
 $ sudo chown -R $USER:$USER /opt/monitoring
 $ cd /opt/monitoring
 
 # Crear subdirectorios
-$ mkdir -p prometheus grafana/provisioning/datasources  # <2>
+$ mkdir -p prometheus grafana/provisioning/datasources  
 $ mkdir -p grafana/provisioning/dashboards grafana/dashboards
 $ mkdir -p netbox data/prometheus data/grafana data/netbox
 ```
@@ -45,7 +45,7 @@ $ mkdir -p netbox data/prometheus data/grafana data/netbox
 ### Crear docker-compose.yml
 
 ```bash
-$ cat > /opt/monitoring/docker-compose.yml << 'DOCKEREOF'  # <1>
+$ cat > /opt/monitoring/docker-compose.yml << 'DOCKEREOF'  
 version: '3.8'
 
 services:
@@ -162,7 +162,7 @@ DOCKEREOF
 ### Crear prometheus.yml
 
 ```bash
-$ cat > /opt/monitoring/prometheus/prometheus.yml << 'PROMEOF'  # <1>
+$ cat > /opt/monitoring/prometheus/prometheus.yml << 'PROMEOF'  
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
@@ -184,7 +184,7 @@ PROMEOF
 ### Crear Datasource de Grafana
 
 ```bash
-$ cat > /opt/monitoring/grafana/provisioning/datasources/prometheus.yml << 'GFEOF'  # <1>
+$ cat > /opt/monitoring/grafana/provisioning/datasources/prometheus.yml << 'GFEOF'  
 apiVersion: 1
 
 datasources:
@@ -201,7 +201,7 @@ GFEOF
 ### Crear Config de Dashboards
 
 ```bash
-$ cat > /opt/monitoring/grafana/provisioning/dashboards/dashboard.yml << 'DASH'  # <1>
+$ cat > /opt/monitoring/grafana/provisioning/dashboards/dashboard.yml << 'DASH'  
 apiVersion: 1
 
 providers:
@@ -224,8 +224,8 @@ DASH
 ### Iniciar Todos los Servicios
 
 ```bash
-$ cd /opt/monitoring  # <1>
-$ docker compose up -d  # <2>
+$ cd /opt/monitoring  
+$ docker compose up -d  
 [+] Running 6/6
  ✔ Network monitoring_monitoring   Created
  ✔ Container netbox-redis          Started
@@ -241,7 +241,7 @@ $ docker compose up -d  # <2>
 ### Verificar Contenedores
 
 ```bash
-$ docker compose ps  # <1>
+$ docker compose ps  
 NAME                IMAGE                       STATUS          PORTS
 grafana             grafana/grafana:latest      Up 30 seconds   0.0.0.0:3000->3000/tcp
 netbox              netboxcommunity/netbox:latest Up 30 seconds  0.0.0.0:8080->8080/tcp
@@ -256,21 +256,21 @@ node-exporter       prom/node-exporter:latest   Up 30 seconds   0.0.0.0:9100->91
 
 ```bash
 # Prometheus
-$ curl -s http://localhost:9090/-/healthy  # <1>
+$ curl -s http://localhost:9090/-/healthy  
 Prometheus Server is Healthy.
 
 # Grafana
-$ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health  # <2>
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health  
 200
 
 # Node Exporter
-$ curl -s http://localhost:9100/metrics | head -3  # <3>
+$ curl -s http://localhost:9100/metrics | head -3  
 # HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
 # TYPE node_cpu_seconds_total counter
 node_cpu_seconds_total{cpu="0",mode="idle"} 12345.67
 
 # NetBox
-$ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  # <4>
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  
 200
 ```
 1. **Prometheus**: Endpoint de salud. Devuelve texto plano si está OK.
@@ -284,7 +284,7 @@ $ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080  # <4>
 Si NetBox tarda mucho en estar listo (más de 2 minutos), revisa los logs:
 
 ```bash
-$ docker compose logs netbox --tail=30  # <1>
+$ docker compose logs netbox --tail=30  
 ```
 
 1. **logs --tail=30**: Muestra las últimas 30 líneas de logs de NetBox para diagnosticar problemas.
@@ -296,9 +296,9 @@ $ docker compose logs netbox --tail=30  # <1>
 
 ### Acceder a la UI
 
-1. Abre `http://localhost:9090` en tu navegador
-2. Navega a **Status → Targets**
-3. Verifica que ambos targets estén en estado **UP**:
+2. Abre `http://localhost:9090` en tu navegador
+3. Navega a **Status → Targets**
+4. Verifica que ambos targets estén en estado **UP**:
 
 | Job | Target | Estado |
 |-----|--------|--------|
@@ -311,19 +311,19 @@ Ve a la pestaña **Graph** y ejecuta estas consultas:
 
 ```promql
 # 1. Uso de CPU total (porcentaje)
-100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)  # <1>
+100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)  
 
 # 2. Memoria total en GB
-node_memory_MemTotal_bytes / 1024 / 1024 / 1024  # <2>
+node_memory_MemTotal_bytes / 1024 / 1024 / 1024  
 
 # 3. Memoria disponible en GB
-node_memory_MemAvailable_bytes / 1024 / 1024 / 1024  # <3>
+node_memory_MemAvailable_bytes / 1024 / 1024 / 1024  
 
 # 4. Espacio en disco (/) en GB
-node_filesystem_avail_bytes{mountpoint="/"} / 1024 / 1024 / 1024  # <4>
+node_filesystem_avail_bytes{mountpoint="/"} / 1024 / 1024 / 1024  
 
 # 5. Tráfico de red recibido (bytes/s)
-rate(node_network_receive_bytes_total{device!="lo"}[5m])  # <5>
+rate(node_network_receive_bytes_total{device!="lo"}[5m])  
 ```
 1. **CPU %**: Calcula el porcentaje de CPU no-idle.
 2. **Memoria total**: Muestra cuánta memoria física tiene el sistema.
@@ -338,7 +338,7 @@ rate(node_network_receive_bytes_total{device!="lo"}[5m])  # <5>
 $ curl -s http://localhost:9090/api/v1/targets | python3 -c " \
   import sys, json; \
   data = json.load(sys.stdin); \
-  [print(f'{t[\"labels\"][\"job\"]}: {t[\"health\"]}') for t in data['data']['activeTargets']]"  # <1>
+  [print(f'{t[\"labels\"][\"job\"]}: {t[\"health\"]}') for t in data['data']['activeTargets']]"  
 
 prometheus: up
 node-exporter: up
@@ -351,46 +351,46 @@ node-exporter: up
 
 ### Acceder a Grafana
 
-1. Abre `http://localhost:3000` en tu navegador
-2. Inicia sesión con:
+2. Abre `http://localhost:3000` en tu navegador
+3. Inicia sesión con:
    - **Usuario:** `admin`
    - **Contraseña:** `changeme_production`
 
 ### Verificar Datasource
 
-1. Ve a **Configuration → Data Sources**
-2. Verifica que **Prometheus** esté configurado como datasource por defecto
-3. Haz clic en **Save & Test** para verificar la conexión
+4. Ve a **Configuration → Data Sources**
+5. Verifica que **Prometheus** esté configurado como datasource por defecto
+6. Haz clic en **Save & Test** para verificar la conexión
 
 ### Importar Dashboard
 
-1. Ve a **Dashboards → Import**
-2. Escribe el ID `1860` en el campo "Import via grafana.com"
-3. Haz clic en **Load**
-4. Selecciona el datasource **Prometheus**
-5. Haz clic en **Import**
+7. Ve a **Dashboards → Import**
+8. Escribe el ID `1860` en el campo "Import via grafana.com"
+9. Haz clic en **Load**
+10. Selecciona el datasource **Prometheus**
+11. Haz clic en **Import**
 
 ### Crear Dashboard Personalizado
 
 Si prefieres crear tu propio dashboard:
 
-1. Ve a **Dashboards → New Dashboard**
-2. Haz clic en **Add new panel**
-3. En **Query**, escribe:
+12. Ve a **Dashboards → New Dashboard**
+13. Haz clic en **Add new panel**
+14. En **Query**, escribe:
 
 ```promql
 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
 ```
 
-4. En **Panel title**, escribe "CPU Usage %"
-5. Haz clic en **Apply**
-6. Repite para memoria:
+1. En **Panel title**, escribe "CPU Usage %"
+2. Haz clic en **Apply**
+3. Repite para memoria:
 
 ```promql
 (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
 ```
 
-7. Guarda el dashboard con el nombre "Servidor Linux Básico"
+1. Guarda el dashboard con el nombre "Servidor Linux Básico"
 
 ---
 
@@ -398,16 +398,16 @@ Si prefieres crear tu propio dashboard:
 
 ### Acceder a NetBox
 
-1. Abre `http://localhost:8080` en tu navegador
-2. Inicia sesión con:
+2. Abre `http://localhost:8080` en tu navegador
+3. Inicia sesión con:
    - **Usuario:** `admin`
    - **Contraseña:** `changeme_netbox`
-3. **CAMBIA LA CONTRASEÑA** inmediatamente
+4. **CAMBIA LA CONTRASEÑA** inmediatamente
 
 ### Crear un Sitio
 
-1. Ve a **Organization → Sites → + Add**
-2. Completa:
+5. Ve a **Organization → Sites → + Add**
+6. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -415,12 +415,12 @@ Si prefieres crear tu propio dashboard:
 | Slug | `dc-principal` |
 | Status | Active |
 
-3. Haz clic en **Create**
+7. Haz clic en **Create**
 
 ### Crear Tipo de Dispositivo
 
-1. Ve a **Devices → Device Types → + Add**
-2. Completa:
+8. Ve a **Devices → Device Types → + Add**
+9. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -429,12 +429,12 @@ Si prefieres crear tu propio dashboard:
 | Slug | `poweredge-r740` |
 | U Height | `1` |
 
-3. Haz clic en **Create**
+10. Haz clic en **Create**
 
 ### Crear Rol de Dispositivo
 
-1. Ve a **Devices → Device Roles → + Add**
-2. Completa:
+11. Ve a **Devices → Device Roles → + Add**
+12. Completa:
 
 | Campo | Valor |
 |-------|-------|
@@ -442,7 +442,7 @@ Si prefieres crear tu propio dashboard:
 | Slug | `web-server` |
 | Color | `#00ff00` |
 
-3. Haz clic en **Create**
+13. Haz clic en **Create**
 
 ### Registrar 3 Servidores
 
@@ -456,25 +456,25 @@ Repite para cada servidor:
 
 Para cada servidor:
 
-1. Ve a **Devices → Devices → + Add**
-2. Completa Name, Device type, Role, Site
-3. Haz clic en **Create**
-4. Abre el dispositivo → pestaña **Interfaces** → **+ Add**
-5. Agrega interfaz `eth0` tipo `1000BASE-T (1GE)`
-6. Ve a **IPAM → IP Addresses → + Add**
-7. Agrega la IP y asígnala a la interfaz `eth0`
+14. Ve a **Devices → Devices → + Add**
+15. Completa Name, Device type, Role, Site
+16. Haz clic en **Create**
+17. Abre el dispositivo → pestaña **Interfaces** → **+ Add**
+18. Agrega interfaz `eth0` tipo `1000BASE-T (1GE)`
+19. Ve a **IPAM → IP Addresses → + Add**
+20. Agrega la IP y asígnala a la interfaz `eth0`
 
 ### Generar Token de API
 
-1. Ve a **Admin → Tokens → + Add**
-2. Completa:
+21. Ve a **Admin → Tokens → + Add**
+22. Completa:
 
 | Campo | Valor |
 |-------|-------|
 | Write enabled | True |
 
-3. Haz clic en **Create**
-4. **Copia la clave** (solo se muestra una vez)
+23. Haz clic en **Create**
+24. **Copia la clave** (solo se muestra una vez)
 
 ---
 
@@ -484,17 +484,17 @@ Para cada servidor:
 
 ```bash
 # Reemplaza TU_TOKEN con el token generado
-$ NETBOX_TOKEN="TU_TOKEN_AQUI"  # <1>
+$ NETBOX_TOKEN="TU_TOKEN_AQUI"  
 
 # Listar dispositivos
 $ curl -s -H "Authorization: Token $NETBOX_TOKEN" \
-  http://localhost:8080/api/dcim/devices/ | python3 -m json.tool  # <2>
+  http://localhost:8080/api/dcim/devices/ | python3 -m json.tool  
 
 # Obtener IPs de un dispositivo específico
 $ curl -s -H "Authorization: Token $NETBOX_TOKEN" \
   "http://localhost:8080/api/ipam/ip-addresses/?device=srv-web-01" \
   | python3 -c "import sys,json; d=json.load(sys.stdin); \
-    print(d['results'][0]['address'])"  # <3>
+    print(d['results'][0]['address'])"  
 ```
 1. **NETBOX_TOKEN**: Token de API generado en NetBox.
 2. **API dispositivos**: Devuelve todos los dispositivos registrados.
@@ -506,7 +506,7 @@ $ curl -s -H "Authorization: Token $NETBOX_TOKEN" \
 # Obtener métricas de un servidor específico
 $ curl -s "http://localhost:9090/api/v1/query?query=\
   node_cpu_seconds_total{instance=~\"192.168.1.*:9100\"}" \
-  | python3 -m json.tool  # <1>
+  | python3 -m json.tool  
 ```
 1. **query por IP**: Usa regex para filtrar métricas por rango de IPs.
 
@@ -521,7 +521,7 @@ Ejecuta este script para generar un reporte consolidado:
 # Script de evidencia - Laboratorio de Monitoreo e Inventario
 # Ejecutar como: bash evidencia.sh > ~/lab14-evidencia.txt 2>&1
 
-echo "=============================================="  # <1>
+echo "=============================================="  
 echo "  EVIDENCIA LABORATORIO MONITOREO E INVENTARIO"
 echo "=============================================="
 echo "Fecha: $(date)"
@@ -593,9 +593,9 @@ echo "=============================================="
 ### Ejecutar el Script
 
 ```bash
-$ chmod +x evidencia.sh  # <1>
-$ bash evidencia.sh > ~/lab14-evidencia.txt 2>&1  # <2>
-$ cat ~/lab14-evidencia.txt  # <3>
+$ chmod +x evidencia.sh  
+$ bash evidencia.sh > ~/lab14-evidencia.txt 2>&1  
+$ cat ~/lab14-evidencia.txt  
 ```
 1. **chmod +x**: Hace el script ejecutable.
 2. **bash evidencia.sh**: Ejecuta el script y guarda la salida en un archivo.
@@ -627,15 +627,15 @@ Verifica que puedes marcar **TODOS** estos puntos:
 ### Detener Servicios (Conservar Datos)
 
 ```bash
-$ docker compose -f /opt/monitoring/docker-compose.yml stop  # <1>
+$ docker compose -f /opt/monitoring/docker-compose.yml stop  
 ```
 1. **stop**: Detiene todos los contenedores pero conserva los datos en volumes.
 
 ### Eliminar Todo (Peligroso)
 
 ```bash
-$ docker compose -f /opt/monitoring/docker-compose.yml down -v  # <1>
-$ sudo rm -rf /opt/monitoring/data/*  # <2>
+$ docker compose -f /opt/monitoring/docker-compose.yml down -v  
+$ sudo rm -rf /opt/monitoring/data/*  
 ```
 1. **down -v**: Elimina contenedores, redes Y volumes. Pierdes todos los datos.
 2. **rm data**: Limpia los directorios de datos residuales.
@@ -658,11 +658,11 @@ $ sudo rm -rf /opt/monitoring/data/*  # <2>
 
 En este laboratorio:
 
-1. **Levantaste** la pila completa con un solo comando
-2. **Verificaste** que cada servicio funciona correctamente
-3. **Exploraste** Prometheus con consultas PromQL
-4. **Configuraste** Grafana con dashboards en tiempo real
-5. **Registraste** dispositivos en NetBox
-6. **Generaste** evidencia documentada del laboratorio
+3. **Levantaste** la pila completa con un solo comando
+4. **Verificaste** que cada servicio funciona correctamente
+5. **Exploraste** Prometheus con consultas PromQL
+6. **Configuraste** Grafana con dashboards en tiempo real
+7. **Registraste** dispositivos en NetBox
+8. **Generaste** evidencia documentada del laboratorio
 
 Esta pila es la base para cualquier entorno de producción. En la siguiente sección, encontrarás recursos adicionales para profundizar.

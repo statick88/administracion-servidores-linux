@@ -101,22 +101,22 @@ WantedBy=multi-user.target
 ### 1.3 Comandos de gestión
 
 ```bash
-sudo systemctl daemon-reload           # <1>
+sudo systemctl daemon-reload           
 
-sudo systemctl start mi-app            # <2>
-sudo systemctl stop mi-app             # <3>
-sudo systemctl restart mi-app          # <4>
-sudo systemctl reload mi-app           # <5>
-sudo systemctl enable --now mi-app     # <6>
-sudo systemctl disable --now mi-app    # <7>
+sudo systemctl start mi-app            
+sudo systemctl stop mi-app             
+sudo systemctl restart mi-app          
+sudo systemctl reload mi-app           
+sudo systemctl enable --now mi-app     
+sudo systemctl disable --now mi-app    
 
-systemctl status mi-app --no-pager -l  # <8>
-systemctl is-active mi-app             # <9>
-systemctl is-enabled mi-app            # <10>
-systemctl list-dependencies mi-app --reverse  # <11>
+systemctl status mi-app --no-pager -l  
+systemctl is-active mi-app             
+systemctl is-enabled mi-app            
+systemctl list-dependencies mi-app --reverse  
 
-systemctl cat mi-app                   # <12>
-systemctl show mi-app --property=ExecStart,Restart,User,MemoryLimit  # <13>
+systemctl cat mi-app                   
+systemctl show mi-app --property=ExecStart,Restart,User,MemoryLimit  
 ```
 
 1. **daemon-reload** recarga la configuración de systemd después de editar unit files. Sin esto, systemd usa la versión cacheada en memoria.
@@ -136,7 +136,7 @@ systemctl show mi-app --property=ExecStart,Restart,User,MemoryLimit  # <13>
 ### 1.4 Overrides (drop-ins) — No edites el unit original
 
 ```bash
-sudo systemctl edit mi-app             # <1>
+sudo systemctl edit mi-app             
 
 # Ejemplo override.conf (se escribe en el editor):
 # [Service]
@@ -144,7 +144,7 @@ sudo systemctl edit mi-app             # <1>
 # CPUQuota=50%
 # Environment=DEBUG=1
 
-systemctl cat mi-app                   # <2>
+systemctl cat mi-app                   
 ```
 
 1. **systemctl edit** abre el editor del sistema (nano/vim según $EDITOR) y crea automáticamente el directorio `/etc/systemd/system/mi-app.service.d/override.conf`. El archivo se fusiona con el unit original al cargar.
@@ -157,21 +157,21 @@ systemctl cat mi-app                   # <2>
 ### 2.1 Filtros esenciales
 
 ```bash
-journalctl -n 1000 --no-pager           # <1>
+journalctl -n 1000 --no-pager           
 
-journalctl -u mi-app -f                 # <2>
-journalctl -u mi-app --since "1 hour ago"  # <3>
-journalctl -u mi-app --since "2026-07-20 10:00" --until "2026-07-20 11:00"  # <4>
-journalctl -u mi-app -p err..crit       # <5>
-journalctl -u mi-app -p 3               # <6>
+journalctl -u mi-app -f                 
+journalctl -u mi-app --since "1 hour ago"  
+journalctl -u mi-app --since "2026-07-20 10:00" --until "2026-07-20 11:00"  
+journalctl -u mi-app -p err..crit       
+journalctl -u mi-app -p 3               
 
-journalctl -b -1                        # <7>
-journalctl -b 0 -u ssh                  # <8>
+journalctl -b -1                        
+journalctl -b 0 -u ssh                  
 
-journalctl -u mi-app -o json-pretty | jq '.MESSAGE'  # <9>
-journalctl -u mi-app -o short-iso       # <10>
+journalctl -u mi-app -o json-pretty | jq '.MESSAGE'  
+journalctl -u mi-app -o short-iso       
 
-journalctl -u nginx -u mi-app --since "30 min ago" -o short-iso -p warning..emerg  # <11>
+journalctl -u nginx -u mi-app --since "30 min ago" -o short-iso -p warning..emerg  
 ```
 
 1. **-n 1000** muestra las últimas 1000 líneas del journal global. `--no-pager` evita less, útil para pipes o scripts.
@@ -189,7 +189,7 @@ journalctl -u nginx -u mi-app --since "30 min ago" -o short-iso -p warning..emer
 ### 2.2 Campos útiles para correlación
 
 ```bash
-journalctl -u mi-app -o verbose | head -50  # <1>
+journalctl -u mi-app -o verbose | head -50  
 
 # Campos clave:
 # _SYSTEMD_UNIT, _PID, _UID, _GID, _COMM, _EXE, _CMDLINE
@@ -197,9 +197,9 @@ journalctl -u mi-app -o verbose | head -50  # <1>
 # PRIORITY (0=emerg..7=debug), MESSAGE, MESSAGE_ID
 # _BOOT_ID, _MACHINE_ID
 
-journalctl _PID=12345                   # <2>
+journalctl _PID=12345                   
 
-journalctl _SYSTEMD_SLICE=mi-app.slice  # <3>
+journalctl _SYSTEMD_SLICE=mi-app.slice  
 ```
 
 1. **-o verbose** muestra todos los campos de cada entrada del journal, incluyendo metadatos del kernel y systemd. `head -50` limita a 50 líneas para inspección rápida.
@@ -209,10 +209,10 @@ journalctl _SYSTEMD_SLICE=mi-app.slice  # <3>
 ### 2.3 Limpieza y persistencia
 
 ```bash
-journalctl --disk-usage                 # <1>
+journalctl --disk-usage                 
 
-sudo journalctl --vacuum-size=500M      # <2>
-sudo journalctl --vacuum-time=2weeks    # <3>
+sudo journalctl --vacuum-size=500M      
+sudo journalctl --vacuum-time=2weeks    
 
 # Persistencia (en /etc/systemd/journald.conf):
 # Storage=persistent
@@ -233,7 +233,7 @@ sudo journalctl --vacuum-time=2weeks    # <3>
 ### 3.1 htop — Interactivo (recomendado)
 
 ```bash
-sudo apt install -y htop                # <1>
+sudo apt install -y htop                
 
 # Atajos clave en htop:
 # F2  Setup (columnas, colores, tree view)
@@ -253,18 +253,18 @@ sudo apt install -y htop                # <1>
 ### 3.2 ps / pidstat — Para scripts y evidencia
 
 ```bash
-ps aux --sort=-%cpu | head -20          # <1>
-ps aux --sort=-%mem | head -20          # <2>
+ps aux --sort=-%cpu | head -20          
+ps aux --sort=-%mem | head -20          
 
-ps -eo pid,ppid,user,group,%cpu,%mem,vsz,rss,stat,start,time,cmd --sort=-%cpu | head -30  # <3>
+ps -eo pid,ppid,user,group,%cpu,%mem,vsz,rss,stat,start,time,cmd --sort=-%cpu | head -30  
 
-systemd-cgls                           # <4>
-systemd-cgtop                          # <5>
+systemd-cgls                           
+systemd-cgtop                          
 
-pidstat -u -p ALL 1 5                  # <6>
-pidstat -r -p ALL 1 5                  # <7>
-pidstat -d -p ALL 1 5                  # <8>
-pidstat -w -p ALL 1 5                  # <9>
+pidstat -u -p ALL 1 5                  
+pidstat -r -p ALL 1 5                  
+pidstat -d -p ALL 1 5                  
+pidstat -w -p ALL 1 5                  
 ```
 
 1. **ps aux --sort=-%cpu** lista todos los procesos ordenados por uso de CPU (mayor a menor). `a` muestra todos los usuarios, `u` formato user-oriented, `x` incluye procesos sin terminal.
@@ -280,15 +280,15 @@ pidstat -w -p ALL 1 5                  # <9>
 ### 3.3 /proc — Inspección profunda
 
 ```bash
-cat /proc/12345/limits                 # <1>
+cat /proc/12345/limits                 
 
-cat /proc/12345/cgroup                 # <2>
+cat /proc/12345/cgroup                 
 
-ls -la /proc/12345/fd/                 # <3>
+ls -la /proc/12345/fd/                 
 
-cat /proc/12345/environ | tr '\0' '\n' # <4>
+cat /proc/12345/environ | tr '\0' '\n' 
 
-cat /proc/12345/maps | head -20        # <5>
+cat /proc/12345/maps | head -20        
 ```
 
 1. **/proc/PID/limits** muestra los límites de recursos del proceso (memoria máxima, file descriptors, CPU time, nice priority). Útil para verificar que cgroups y overrides de systemd tomaron efecto.
@@ -322,11 +322,11 @@ WantedBy=timers.target
 ```
 
 ```bash
-sudo systemctl daemon-reload            # <1>
-sudo systemctl enable --now backup-app.timer  # <2>
+sudo systemctl daemon-reload            
+sudo systemctl enable --now backup-app.timer  
 
-systemctl list-timers --all             # <3>
-systemctl list-timers --all | grep backup  # <4>
+systemctl list-timers --all             
+systemctl list-timers --all | grep backup  
 ```
 
 1. **daemon-reload** recarga la configuración de systemd después de crear el timer. Sin esto, systemd no detecta el nuevo unit file.
@@ -384,7 +384,7 @@ START_HOURS_RANGE=3-22
 ### 5.1 Jerarquía y slices
 
 ```bash
-systemd-cgls                           # <1>
+systemd-cgls                           
 
 # /etc/systemd/system/mi-app.slice (unit file, no se ejecuta directamente):
 # [Slice]
@@ -402,7 +402,7 @@ systemd-cgls                           # <1>
 # Slice=mi-app.slice
 
 # O vía override:
-sudo systemctl edit mi-app             # <1>
+sudo systemctl edit mi-app             
 # Agregar: [Service] Slice=mi-app.slice
 ```
 
@@ -411,12 +411,12 @@ sudo systemctl edit mi-app             # <1>
 ### 5.2 Verificar límites aplicados
 
 ```bash
-systemctl show mi-app --property=MemoryLimit,CPUQuota,MemoryCurrent,CPUUsageNSec  # <1>
+systemctl show mi-app --property=MemoryLimit,CPUQuota,MemoryCurrent,CPUUsageNSec  
 
-systemd-cgtop                          # <2>
+systemd-cgtop                          
 
-cat /sys/fs/cgroup/mi-app.slice/memory.current  # <3>
-cat /sys/fs/cgroup/mi-app.slice/cpu.stat        # <4>
+cat /sys/fs/cgroup/mi-app.slice/memory.current  
+cat /sys/fs/cgroup/mi-app.slice/cpu.stat        
 ```
 
 1. **systemctl show** extrae los valores actuales de límites y uso real de recursos del servicio. `MemoryLimit` es el límite configurado, `MemoryCurrent` es el consumo actual. Comparar ambos indica cuánto margen queda.
@@ -447,14 +447,14 @@ cat /sys/fs/cgroup/mi-app.slice/cpu.stat        # <4>
 
 ```bash
 {
-  echo "=== Units ===" && systemctl list-units --type=service --state=running | grep -E 'mi-app|backup'  # <1>
-  echo -e "\n=== Timers ===" && systemctl list-timers --all | grep backup  # <2>
-  echo -e "\n=== Slice limits ===" && systemctl show mi-app --property=MemoryLimit,CPUQuota,Slice  # <3>
-  echo -e "\n=== cgtop ===" && systemd-cgtop -b -n 1 | head -20  # <4>
-  echo -e "\n=== Journal mi-app (last 20) ===" && journalctl -u mi-app -n 20 --no-pager  # <5>
-  echo -e "\n=== Journal backup (last run) ===" && journalctl -u backup-app -n 30 --no-pager  # <6>
-  echo -e "\n=== Process snapshot ===" && ps aux --sort=-%cpu | head -15  # <7>
-} > ~/lab05-evidencia.txt               # <8>
+  echo "=== Units ===" && systemctl list-units --type=service --state=running | grep -E 'mi-app|backup'  
+  echo -e "\n=== Timers ===" && systemctl list-timers --all | grep backup  
+  echo -e "\n=== Slice limits ===" && systemctl show mi-app --property=MemoryLimit,CPUQuota,Slice  
+  echo -e "\n=== cgtop ===" && systemd-cgtop -b -n 1 | head -20  
+  echo -e "\n=== Journal mi-app (last 20) ===" && journalctl -u mi-app -n 20 --no-pager  
+  echo -e "\n=== Journal backup (last run) ===" && journalctl -u backup-app -n 30 --no-pager  
+  echo -e "\n=== Process snapshot ===" && ps aux --sort=-%cpu | head -15  
+} > ~/lab05-evidencia.txt               
 ```
 
 1. **list-units --type=service --state=running** muestra solo servicios activos. `grep` filtra los relevantes al lab para confirmar que mi-app y backup están corriendo.
@@ -474,11 +474,11 @@ cat /sys/fs/cgroup/mi-app.slice/cpu.stat        # <4>
 ::: {.callout-tip}
 ## ✅ Lo esencial de la Unidad V
 
-1. **Systemd units**: Service (Type=notify), Timer (Persistent, RandomizedDelaySec), Slice (límites). Overrides con `systemctl edit`.
-2. **journalctl**: Filtros por unidad (`-u`), tiempo (`--since`), prioridad (`-p`), formato (`-o json`), boot (`-b`).
-3. **Procesos**: `htop` (interactivo), `ps/pidstat` (evidencia), `/proc` (deep dive), `systemd-cgtop` (cgroups).
-4. **Timers > Cron > Anacron**: Systemd timers para servidores; cron para contenedores; anacron para laptops.
-5. **cgroups v2**: Slices para límites MemoryLimit, CPUQuota, IOBandwidth; verificar con `systemd-cgtop` y `/sys/fs/cgroup`.
+9. **Systemd units**: Service (Type=notify), Timer (Persistent, RandomizedDelaySec), Slice (límites). Overrides con `systemctl edit`.
+10. **journalctl**: Filtros por unidad (`-u`), tiempo (`--since`), prioridad (`-p`), formato (`-o json`), boot (`-b`).
+11. **Procesos**: `htop` (interactivo), `ps/pidstat` (evidencia), `/proc` (deep dive), `systemd-cgtop` (cgroups).
+12. **Timers > Cron > Anacron**: Systemd timers para servidores; cron para contenedores; anacron para laptops.
+13. **cgroups v2**: Slices para límites MemoryLimit, CPUQuota, IOBandwidth; verificar con `systemd-cgtop` y `/sys/fs/cgroup`.
 :::
 
 ### 📋 Checklist de competencias Unidad V

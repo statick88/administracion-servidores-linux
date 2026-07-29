@@ -19,14 +19,14 @@ En esta sección vamos a crear el archivo `docker-compose.yml` que levanta **tod
 
 ```bash
 # Crear directorio raíz del proyecto
-$ sudo mkdir -p /opt/monitoring  # <1>
-$ sudo chown -R $USER:$USER /opt/monitoring  # <2>
+$ sudo mkdir -p /opt/monitoring  
+$ sudo chown -R $USER:$USER /opt/monitoring  
 $ cd /opt/monitoring
 
 # Crear subdirectorios para configuración y datos
-$ mkdir -p prometheus grafana/provisioning/datasources  # <3>
-$ mkdir -p grafana/provisioning/dashboards grafana/dashboards  # <4>
-$ mkdir -p netbox data/prometheus data/grafana data/netbox  # <5>
+$ mkdir -p prometheus grafana/provisioning/datasources  
+$ mkdir -p grafana/provisioning/dashboards grafana/dashboards  
+$ mkdir -p netbox data/prometheus data/grafana data/netbox  
 ```
 1. **mkdir -p /opt/monitoring**: Crea el directorio raíz donde vivirá toda la pila.
 2. **chown**: Cambia el propietario a tu usuario actual para evitar problemas de permisos.
@@ -37,7 +37,7 @@ $ mkdir -p netbox data/prometheus data/grafana data/netbox  # <5>
 ### Verificar Estructura
 
 ```bash
-$ tree /opt/monitoring/ -L 3  # <1>
+$ tree /opt/monitoring/ -L 3  
 /opt/monitoring/
 ├── data
 │   ├── grafana
@@ -71,13 +71,13 @@ services:
   # NODE EXPORTER - Métricas del sistema
   # ──────────────────────────────────────────────────────────────
   node-exporter:
-    image: prom/node-exporter:latest  # <1>
+    image: prom/node-exporter:latest  
     container_name: node-exporter
     restart: unless-stopped
     ports:
       - "9100:9100"
     volumes:
-      - /proc:/host/proc:ro  # <2>
+      - /proc:/host/proc:ro  
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
@@ -92,18 +92,18 @@ services:
   # PROMETHEUS - Motor de métricas y alertas
   # ──────────────────────────────────────────────────────────────
   prometheus:
-    image: prom/prometheus:latest  # <3>
+    image: prom/prometheus:latest  
     container_name: prometheus
     restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro  # <4>
-      - data/prometheus:/prometheus  # <5>
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro  
+      - data/prometheus:/prometheus  
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=30d'  # <6>
+      - '--storage.tsdb.retention.time=30d'  
       - '--web.enable-lifecycle'
     depends_on:
       - node-exporter
@@ -114,18 +114,18 @@ services:
   # GRAFANA - Visualización y dashboards
   # ──────────────────────────────────────────────────────────────
   grafana:
-    image: grafana/grafana:latest  # <7>
+    image: grafana/grafana:latest  
     container_name: grafana
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin  # <8>
-      - GF_SECURITY_ADMIN_PASSWORD=changeme_production  # <9>
-      - GF_USERS_ALLOW_SIGN_UP=false  # <10>
+      - GF_SECURITY_ADMIN_USER=admin  
+      - GF_SECURITY_ADMIN_PASSWORD=changeme_production  
+      - GF_USERS_ALLOW_SIGN_UP=false  
     volumes:
       - data/grafana:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro  # <11>
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro  
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
@@ -136,15 +136,15 @@ services:
   # POSTGRESQL - Base de datos para NetBox
   # ──────────────────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine  # <12>
+    image: postgres:16-alpine  
     container_name: netbox-postgres
     restart: unless-stopped
     environment:
       - POSTGRES_DB=netbox
       - POSTGRES_USER=netbox
-      - POSTGRES_PASSWORD=changeme_netbox  # <13>
+      - POSTGRES_PASSWORD=changeme_netbox  
     volumes:
-      - data/netbox:/var/lib/postgresql/data  # <14>
+      - data/netbox:/var/lib/postgresql/data  
     networks:
       - monitoring
 
@@ -152,7 +152,7 @@ services:
   # REDIS - Caché para NetBox
   # ──────────────────────────────────────────────────────────────
   redis:
-    image: redis:7-alpine  # <15>
+    image: redis:7-alpine  
     container_name: netbox-redis
     restart: unless-stopped
     networks:
@@ -162,7 +162,7 @@ services:
   # NETBOX - Inventario de infraestructura (SSoT)
   # ──────────────────────────────────────────────────────────────
   netbox:
-    image: netboxcommunity/netbox:latest  # <16>
+    image: netboxcommunity/netbox:latest  
     container_name: netbox
     restart: unless-stopped
     ports:
@@ -173,7 +173,7 @@ services:
     environment:
       - SUPERUSER_NAME=admin
       - SUPERUSER_EMAIL=admin@ejemplo.com
-      - SUPERUSER_PASSWORD=changeme_netbox  # <17>
+      - SUPERUSER_PASSWORD=changeme_netbox  
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
       - DATABASE_NAME=netbox
@@ -181,7 +181,7 @@ services:
       - DATABASE_PASSWORD=changeme_netbox
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - SECRET_KEY=REEMPLAZA_CON_CLAVE_ALEATORIA  # Genera con: openssl rand -hex 32  # <18>
+      - SECRET_KEY=REEMPLAZA_CON_CLAVE_ALEATORIA  # Genera con: openssl rand -hex 32  
     networks:
       - monitoring
 
@@ -189,11 +189,11 @@ services:
 # RED DEFINIDA
 # ──────────────────────────────────────────────────────────────
 networks:
-  monitoring:  # <19>
+  monitoring:  
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/24  # <20>
+        - subnet: 172.20.0.0/24  
 ```
 1. **prom/node-exporter:latest**: Imagen oficial de Prometheus para Node Exporter. Expone métricas del sistema en el puerto 9100.
 2. **/proc:/host/proc:ro**: Monta el sistema de archivos del host en modo solo lectura para recolectar métricas reales.
@@ -221,9 +221,9 @@ networks:
 
 **Los valores `changeme_*` son CONTRASEÑAS POR DEFECTO.** En producción, debes:
 
-1. Generar contraseñas fuertes: `openssl rand -base64 32`
-2. Usar un gestor de secretos (Docker Secrets, HashiCorp Vault)
-3. **NUNCA** subir el `docker-compose.yml` con contraseñas reales a repositorios públicos
+21. Generar contraseñas fuertes: `openssl rand -base64 32`
+22. Usar un gestor de secretos (Docker Secrets, HashiCorp Vault)
+23. **NUNCA** subir el `docker-compose.yml` con contraseñas reales a repositorios públicos
 
 **Lo que podría salir mal:**
 - Un atacante accede a tu NetBox y modifica el inventario
@@ -242,31 +242,31 @@ Crea `/opt/monitoring/prometheus/prometheus.yml`:
 ```yaml
 # prometheus.yml - Configuración de Prometheus
 global:
-  scrape_interval: 15s  # <1>
-  evaluation_interval: 15s  # <2>
+  scrape_interval: 15s  
+  evaluation_interval: 15s  
 
 scrape_configs:
   # ──────────────────────────────────────────────────────────────
   # Scrape de Prometheus a sí mismo
   # ──────────────────────────────────────────────────────────────
-  - job_name: 'prometheus'  # <3>
+  - job_name: 'prometheus'  
     static_configs:
       - targets: ['localhost:9090']
 
   # ──────────────────────────────────────────────────────────────
   # Scrape de Node Exporter (métricas del sistema)
   # ──────────────────────────────────────────────────────────────
-  - job_name: 'node-exporter'  # <4>
+  - job_name: 'node-exporter'  
     static_configs:
       - targets: ['node-exporter:9100']
         labels:
-          environment: 'production'  # <5>
+          environment: 'production'  
           instance: 'servidor-principal'
 
   # ──────────────────────────────────────────────────────────────
   # Scrape de contenedores Docker (opcional)
   # ──────────────────────────────────────────────────────────────
-  - job_name: 'docker'  # <6>
+  - job_name: 'docker'  
     static_configs:
       - targets: ['host.docker.internal:9323']
 ```
@@ -285,10 +285,10 @@ scrape_configs:
 
 ```bash
 # Navegar al directorio del proyecto
-$ cd /opt/monitoring  # <1>
+$ cd /opt/monitoring  
 
 # Levantar todos los servicios en segundo plano
-$ docker compose up -d  # <2>
+$ docker compose up -d  
 [+] Running 6/6
  ✔ Network monitoring_monitoring   Created
  ✔ Container netbox-redis          Started
@@ -305,7 +305,7 @@ $ docker compose up -d  # <2>
 
 ```bash
 # Ver todos los contenedores corriendo
-$ docker compose ps  # <1>
+$ docker compose ps  
 NAME                IMAGE                       STATUS          PORTS
 grafana             grafana/grafana:latest      Up 2 minutes    0.0.0.0:3000->3000/tcp
 netbox              netboxcommunity/netbox:latest Up 2 minutes  0.0.0.0:8080->8080/tcp
@@ -315,7 +315,7 @@ prometheus          prom/prometheus:latest      Up 2 minutes    0.0.0.0:9090->90
 node-exporter       prom/node-exporter:latest   Up 2 minutes    0.0.0.0:9100->9100/tcp
 
 # Ver logs de un servicio específico
-$ docker compose logs prometheus --tail=20  # <2>
+$ docker compose logs prometheus --tail=20  
 ```
 1. **docker compose ps**: Lista todos los contenedores del proyecto, su estado y puertos expuestos.
 2. **logs --tail=20**: Muestra las últimas 20 líneas de logs de Prometheus. Útil para verificar que no hay errores.
@@ -324,15 +324,15 @@ $ docker compose logs prometheus --tail=20  # <2>
 
 ```bash
 # Verificar Prometheus
-$ curl -s http://localhost:9090/-/healthy  # <1>
+$ curl -s http://localhost:9090/-/healthy  
 Prometheus Server is Healthy.
 
 # Verificar Grafana
-$ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health  # <2>
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health  
 200
 
 # Verificar Node Exporter
-$ curl -s http://localhost:9100/metrics | head -5  # <3>
+$ curl -s http://localhost:9100/metrics | head -5  
 # HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
 # TYPE node_cpu_seconds_total counter
 node_cpu_seconds_total{cpu="0",mode="idle"} 12345.67
@@ -349,23 +349,23 @@ node_cpu_seconds_total{cpu="0",mode="idle"} 12345.67
 
 ```bash
 # Detener todos los servicios (sin eliminar volumes)
-$ docker compose stop  # <1>
+$ docker compose stop  
 
 # Iniciar servicios detenidos
-$ docker compose start  # <2>
+$ docker compose start  
 
 # Reiniciar un servicio específico
-$ docker compose restart grafana  # <3>
+$ docker compose restart grafana  
 
 # Ver logs en tiempo real
-$ docker compose logs -f prometheus  # <4>
+$ docker compose logs -f prometheus  
 
 # Detener y eliminar TODO (contenedores, redes, volumes)
-$ docker compose down -v  # <5>
+$ docker compose down -v  
 
 # Actualizar imágenes
-$ docker compose pull  # <6>
-$ docker compose up -d  # <7>
+$ docker compose pull  
+$ docker compose up -d  
 ```
 1. **docker compose stop**: Detiene todos los contenedores sin eliminarlos. Los datos en volumes se conservan.
 2. **docker compose start**: Inicia contenedores que estaban detenidos.

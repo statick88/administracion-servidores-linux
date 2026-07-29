@@ -81,7 +81,7 @@ Apache HTTP Server es el servidor web más desplegado en internet. En esta unida
 ```bash
 # Actualizar índice de paquetes
 $ sudo apt update && sudo apt upgrade -y
-# <1>
+
 
 # Instalar Apache + módulos esenciales para producción
 $ sudo apt install -y apache2 \
@@ -91,7 +91,7 @@ $ sudo apt install -y apache2 \
     libapache2-mod-security2 \
     libapache2-mod-php8.1 \
     php8.1-fpm
-# <2>
+
 ```
 
 1. **apt update**: Actualiza lista de paquetes disponibles
@@ -105,12 +105,12 @@ $ sudo systemctl status apache2 --no-pager
 ● apache2.service - The Apache HTTP Server
      Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
      Active: active (running) since Tue 2026-03-31 10:00:00 UTC
-# <1>
+
 
 # Puerto en escucha
 $ sudo ss -lntp | grep ':80'
 LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:(("apache2",pid=1234,fd=4))
-# <2>
+
 ```
 
 1. **systemctl status**: Confirma que el servicio está corriendo
@@ -124,7 +124,7 @@ $ curl -I http://localhost
 HTTP/1.1 200 OK
 Server: Apache/2.4.58 (Ubuntu)
 Content-Type: text/html
-# <1>
+
 
 # HTML completo
 $ curl -s http://localhost | head -20
@@ -133,7 +133,7 @@ $ curl -s http://localhost | head -20
 <head>
     <title>Welcome to Ubuntu</title>
 ...
-# <2>
+
 ```
 
 1. **curl -I**: Muestra headers de respuesta
@@ -175,7 +175,7 @@ $ sudo apache2ctl -M 2>/dev/null | grep -E "ssl|php|headers|proxy"
  headers_module (shared)
  proxy_module (shared)
  proxy_http_module (shared)
-# <1>
+
 ```
 
 1. **apache2ctl -M**: Lista módulos compilados y compartidos
@@ -191,7 +191,7 @@ $ sudo a2enmod proxy            # Proxy forwarding
 $ sudo a2enmod proxy_http       # HTTP proxy
 $ sudo a2enmod expires          # Cache headers
 $ sudo a2enmod deflate          # Compression
-# <1>
+
 
 # Verificar y reiniciar
 $ sudo apachectl configtest
@@ -205,7 +205,7 @@ $ sudo systemctl restart apache2
 ```bash
 # Si no necesitas CGI
 $ sudo a2dismod cgi
-# <1>
+
 
 # Verificar
 $ sudo apachectl configtest
@@ -228,7 +228,7 @@ $ sudo mkdir -p /var/www/clients/{site1,site2}/private
 $ sudo chown -R www-data:www-data /var/www/clients
 $ sudo chmod -R 755 /var/www
 $ sudo chmod -R 750 /var/www/clients/*/private
-# <1>
+
 ```
 
 1. **Permisos**: www-data para web, private no accessible desde web
@@ -284,7 +284,7 @@ $ sudo tee /etc/apache2/sites-available/site1.conf >/dev/null <<'EOF'
     </IfModule>
 </VirtualHost>
 EOF
-# <1>
+
 ```
 
 1. **VirtualHost completo**: Con seguridad, logs, cache y rewrite
@@ -294,7 +294,7 @@ EOF
 ```bash
 # Habilitar sitio
 $ sudo a2ensite site1.conf
-# <1>
+
 
 # Deshabilitar default
 $ sudo a2dissite 000-default.conf
@@ -309,7 +309,7 @@ $ sudo systemctl reload apache2
 # Ver sitios activos
 $ ls -la /etc/apache2/sites-enabled/
 site1.conf -> ../sites-available/site1.conf
-# <2>
+
 ```
 
 1. **a2ensite**: Crea symlink en sites-enabled/
@@ -349,7 +349,7 @@ EOF
 
 $ sudo a2enconf security-hardening
 $ sudo apachectl configtest && sudo systemctl reload apache2
-# <1>
+
 ```
 
 1. **ServerTokens Prod**: Solo muestra "Apache" sin versión
@@ -383,7 +383,7 @@ EOF
 
 $ sudo a2enconf security-headers
 $ sudo apachectl configtest && sudo systemctl reload apache2
-# <1>
+
 ```
 
 1. **Headers esenciales**: Los 4 que todo servidor debe tener
@@ -398,12 +398,12 @@ X-Content-Type-Options: nosniff
 X-Frame-Options: SAMEORIGIN
 Referrer-Policy: strict-origin-when-cross-origin
 X-Powered-By: Production
-# <1>
+
 
 # Ver que ServerTokens funciona
 $ curl -I http://localhost | grep Server
 Server: Apache
-# <2>
+
 ```
 
 1. **Headers de seguridad**: Todos presentes
@@ -430,7 +430,7 @@ EOF
 
 $ sudo a2enconf rate-limit
 $ sudo apachectl configtest && sudo systemctl reload apache2
-# <1>
+
 ```
 
 1. **Rate limiting**: Protege contra ataques DoS básicos
@@ -455,7 +455,7 @@ Server load: 8.45 6.23 5.01
 Requests/sec: 150
 Busy workers: 150
 Idle workers: 0
-# <1>
+
 
 # Ver configuración de MPM
 $ apache2ctl -V | grep MPM
@@ -477,7 +477,7 @@ $ sudo systemctl restart apache2
 # Ver nueva config
 $ apache2ctl -V | grep MPM
 Server MPM: event
-# <2>
+
 ```
 
 1. **mpm_event**: Multiplexing de conexiones = mayor concurrencia
@@ -580,11 +580,11 @@ $ sudo awk '{print $1}' /var/log/apache2/access.log | sort | uniq -c | sort -nr 
 ```bash
 # Test de carga básico
 $ ab -n 1000 -c 10 http://localhost/
-# <1>
+
 
 # Test con keep-alive
 $ ab -n 1000 -c 10 -k http://localhost/
-# <2>
+
 ```
 
 1. **ab**: Apache Bench - 1000 requests, 10 concurrentes

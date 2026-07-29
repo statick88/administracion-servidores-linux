@@ -482,7 +482,7 @@ Ingresa:
 ### Terminal: Verificar Versión
 
 ```bash
-lsb_release -a  # <1>
+lsb_release -a  
 ```
 
 1. **lsb_release -a** muestra información de la distribución instalada
@@ -499,7 +499,7 @@ Description:    Ubuntu 22.04.4 LTS
 ### Verificar Kernel
 
 ```bash
-uname -r  # <1>
+uname -r  
 ```
 
 1. **uname -r** muestra versión del kernel Linux
@@ -514,7 +514,7 @@ Versión 5.15+ es correcta para Ubuntu Server LTS.
 ### Verificar Particiones
 
 ```bash
-lsblk  # <1>
+lsblk  
 ```
 
 1. **lsblk** lista el particionamiento realizado
@@ -531,7 +531,7 @@ sda      8:0    0  500G  0 disk
 ### Verificar Espacio Disponible
 
 ```bash
-df -h  # <1>
+df -h  
 ```
 
 1. **df -h** muestra espacio usado/disponible en particiones
@@ -547,7 +547,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 ### Verificar Conexión a Internet
 
 ```bash
-ping -c 3 8.8.8.8  # <1>
+ping -c 3 8.8.8.8  
 ```
 
 1. **ping -c 3** envía 3 paquetes de prueba a Google DNS (8.8.8.8)
@@ -595,10 +595,10 @@ Si ves 3 respuestas exitosas = Internet funciona ✓
 
 ```bash
 # Verificar instalación en primer servidor:
-$ ssh admin@abacom-server-01  # <1>
-$ cat /etc/hostname  # <2>
+$ ssh admin@abacom-server-01  
+$ cat /etc/hostname  
 abacom-server-01
-$ df -h  # <3>
+$ df -h  
 Filesystem     Size  Used Avail Use% Mounted on
 /dev/sda1       50G  2.5G   47G   5% /
 /dev/sda2       50G   10G   40G  20% /var
@@ -620,7 +620,7 @@ Filesystem     Size  Used Avail Use% Mounted on
 PS> # Abre Disk Management (diskmgmt.msc)
 PS> # Right-click Disco C: → Shrink Volume
 PS> # Liberar 100 GB
-Get-Volume | Select-Object DriveLetter, Size, SizeRemaining  # <1>
+Get-Volume | Select-Object DriveLetter, Size, SizeRemaining  
 ```
 
 1. **Get-Volume** muestra el espacio disponible en cada volumen antes de reducir la partición C:
@@ -629,7 +629,7 @@ Get-Volume | Select-Object DriveLetter, Size, SizeRemaining  # <1>
 ```powershell
 # Paso 2: Descargar ISO (en Windows)
 PS> Invoke-WebRequest -Uri "https://releases.ubuntu.com/22.04/ubuntu-22.04.4-live-server-amd64.iso" `
-    -OutFile "C:\Users\usuario\Downloads\ubuntu-22.04.4-live-server-amd64.iso"  # <1>
+    -OutFile "C:\Users\usuario\Downloads\ubuntu-22.04.4-live-server-amd64.iso"  
 
 # Paso 3: Flash ISO a USB (usar Balena Etcher)
 # - Descargar Balena Etcher desde https://www.balena.io/etcher/
@@ -675,7 +675,7 @@ ubuntu@abacom-dev:~$ uname -a
 Linux abacom-dev 5.15.0-1234-generic #1234-Ubuntu SMP x86_64
 
 # Desde macOS, copiar archivos a VM:
-$ multipass transfer archivo.txt abacom-dev:/home/ubuntu/  # <1>
+$ multipass transfer archivo.txt abacom-dev:/home/ubuntu/  
 ```
 
 
@@ -685,10 +685,10 @@ $ multipass transfer archivo.txt abacom-dev:/home/ubuntu/  # <1>
 **OPCIÓN B: Docker Desktop (Ligero)**
 ```bash
 # En macOS, usar Docker para contenedor Linux
-$ docker run -it ubuntu:22.04 /bin/bash  # <1>
+$ docker run -it ubuntu:22.04 /bin/bash  
 
-root@container# apt update  # <2>
-root@container# apt install -y build-essential  # <3>
+root@container# apt update  
+root@container# apt install -y build-essential  
 # Tienes Ubuntu dentro de Docker en tu Mac
 ```
 
@@ -708,7 +708,7 @@ root@container# apt install -y build-essential  # <3>
 ```bash
 # Boot desde USB Ubuntu live
 $ # Presiona Ctrl+Alt+T para terminal
-$ sudo fdisk -l  # <1>
+$ sudo fdisk -l  
 
 Disk /dev/sda: 238.47 GiB, 256060514304 bytes
 ...
@@ -719,16 +719,16 @@ Disk /dev/sda: 238.47 GiB, 256060514304 bytes
 #### Windows (Verificación desde PowerShell)
 ```powershell
 # En Windows, antes de encoger C:
-PS> Get-Disk | Select-Object DiskNumber, TotalSize, FreeSpace  # <1>
+PS> Get-Disk | Select-Object DiskNumber, TotalSize, FreeSpace  
 
 DiskNumber TotalSize     FreeSpace
 ---------- ---------     ---------
          0 238GB         50GB
 
 # Encoger disco C: (liberar 100 GB):
-PS> $disk = Get-Disk -Number 0  # <2>
-PS> $partition = $disk | Get-Partition | Where-Object {$_.DriveLetter -eq 'C'}  # <3>
-PS> $partition | Resize-Partition -Size ($partition.Size - 100GB)  # <4>
+PS> $disk = Get-Disk -Number 0  
+PS> $partition = $disk | Get-Partition | Where-Object {$_.DriveLetter -eq 'C'}  
+PS> $partition | Resize-Partition -Size ($partition.Size - 100GB)  
 ```
 
 1. **Get-Disk** muestra todos los discos物理icos — verifica el número de disco y espacio libre antes de modificar
@@ -739,7 +739,7 @@ PS> $partition | Resize-Partition -Size ($partition.Size - 100GB)  # <4>
 #### macOS (Verificación desde Terminal)
 ```bash
 # En macOS, ver discos disponibles
-$ diskutil list  # <1>
+$ diskutil list  
 
 /dev/disk0 (internal, physical):
    #:                       TYPE NAME                    SIZE       IDENTIFIER
@@ -749,7 +749,7 @@ $ diskutil list  # <1>
 
 # Para crear espacio para Linux, usar Disk Utility.app
 # O via terminal: 
-$ diskutil secureErase freespace 0 /Volumes/FreeSapce  # <2>
+$ diskutil secureErase freespace 0 /Volumes/FreeSapce  
 ```
 
 1. **diskutil list** muestra todas las particiones en macOS — verifica que Linux y macOS coexisten correctamente en el mismo disco
@@ -786,25 +786,25 @@ HDD #1-4 (/dev/sd{c-f}) - RAID-10:
 
 **Después de instalación (configurar RAID):**
 ```bash
-$ ssh admin@server  # <1>
-$ sudo apt install mdadm  # herramienta RAID  # <2>
+$ ssh admin@server  
+$ sudo apt install mdadm  # herramienta RAID  
 
 # Ver discos disponibles:
-$ sudo fdisk -l | grep "Disk /dev/sd"  # <3>
+$ sudo fdisk -l | grep "Disk /dev/sd"  
 Disk /dev/sdc: 2 TiB
 Disk /dev/sdd: 2 TiB
 Disk /dev/sde: 2 TiB
 Disk /dev/sdf: 2 TiB
 
 # Crear RAID-10:
-$ sudo mdadm --create /dev/md0 --level=10 --raid-devices=4 /dev/sdc /dev/sdd /dev/sde /dev/sdf  # <4>
+$ sudo mdadm --create /dev/md0 --level=10 --raid-devices=4 /dev/sdc /dev/sdd /dev/sde /dev/sdf  
 
 # Montar RAID:
-$ sudo mkdir -p /mnt/database  # <5>
-$ sudo mount /dev/md0 /mnt/database  # <6>
+$ sudo mkdir -p /mnt/database  
+$ sudo mount /dev/md0 /mnt/database  
 
 # Verificar:
-$ df -h | grep /mnt/database  # <7>
+$ df -h | grep /mnt/database  
 /dev/md0       7.8T    100G  7.7T   2% /mnt/database
 ```
 
@@ -821,7 +821,7 @@ $ df -h | grep /mnt/database  # <7>
 **Configuración equivalente en Windows Server:**
 ```powershell
 # En Windows Server, usar Storage Spaces (equivalente a RAID)
-PS> Get-PhysicalDisk  # <1>
+PS> Get-PhysicalDisk  
 
 FriendlyName    HealthStatus OperationalStatus Size       Usage
 -----------     ------------ ------------ ----   ---
@@ -831,12 +831,12 @@ Seagate IronWolf Healthy     OK           2 TB   Auto-provisioned
 Seagate IronWolf Healthy     OK           2 TB   Auto-provisioned
 
 # Crear storage pool:
-PS> New-StoragePool -FriendlyName "Database-RAID" `  # <2>
+PS> New-StoragePool -FriendlyName "Database-RAID" `  
      -StorageSubsystemFriendlyName "Storage Spaces Direct" `
      -PhysicalDisks (Get-PhysicalDisk)
 
 # Crear virtual disk (equivalente a RAID-10):
-PS> New-VirtualDisk -StoragePoolFriendlyName "Database-RAID" `  # <3>
+PS> New-VirtualDisk -StoragePoolFriendlyName "Database-RAID" `  
      -FriendlyName "database-volume" `
      -ResiliencySettingName "Mirror" `
      -Size 8TB
@@ -851,7 +851,7 @@ PS> New-VirtualDisk -StoragePoolFriendlyName "Database-RAID" `  # <3>
 **En macOS (usando RAID via Disk Utility o terminal):**
 ```bash
 # macOS soporta RAID pero NO es recomendado para producción
-$ diskutil secureErase freespace 0 /Volumes/Free  # <1>
+$ diskutil secureErase freespace 0 /Volumes/Free  
 
 # Mejor: Usar Linux o Windows Server
 # macOS está hecho para desarrollo, no para servidores críticos
@@ -878,7 +878,7 @@ $ diskutil secureErase freespace 0 /Volumes/Free  # <1>
 
 ```bash
 # Configuración de GRUB está en:
-cat /etc/default/grub  # <1>
+cat /etc/default/grub  
 ```
 
 1. **cat** muestra el contenido del archivo de configuración de GRUB
@@ -892,7 +892,7 @@ GRUB_CMDLINE_LINUX=""    # Parámetros para el kernel
 
 Si editas GRUB, debes actualizar:
 ```bash
-sudo update-grub  # <1>
+sudo update-grub  
 ```
 
 1. **update-grub** reconstruye la configuración de GRUB desde /etc/default/grub
@@ -920,7 +920,7 @@ sudo update-grub  # <1>
 
 ```bash
 # Ver swap disponible
-swapon --show  # <1>
+swapon --show  
 ```
 
 1. **swapon --show** muestra estado de swap activo
@@ -959,17 +959,17 @@ swapon --show  # <1>
 
 ## 📊 Mejores Prácticas
 
-1. **Siempre valida discos** - Usa **fdisk -l** para verificar disco correcto antes de "Erase"
+2. **Siempre valida discos** - Usa **fdisk -l** para verificar disco correcto antes de "Erase"
 
-2. **Deja espacio en / para crecer** - Mínimo 20 GB, preferible 50+ GB
+3. **Deja espacio en / para crecer** - Mínimo 20 GB, preferible 50+ GB
 
-3. **Separa /home de /** - Facilita actualizaciones sin perder datos
+4. **Separa /home de /** - Facilita actualizaciones sin perder datos
 
-4. **Usa swap físico, no archivo** - Mejor performance que swapfile
+5. **Usa swap físico, no archivo** - Mejor performance que swapfile
 
-5. **Documenta particiones** - Escribe en papel qué va en qué disco
+6. **Documenta particiones** - Escribe en papel qué va en qué disco
 
-6. **Practica en VirtualBox** - Antes de instalar en máquina real
+7. **Practica en VirtualBox** - Antes de instalar en máquina real
 
 ---
 
@@ -1032,15 +1032,15 @@ swapon --show  # <1>
 
 **Objetivos:**
 
-1. Arrancar desde USB
+8. Arrancar desde USB
 
-2. Navegar el instalador de Ubuntu
+9. Navegar el instalador de Ubuntu
 
-3. Crear particiones
+10. Crear particiones
 
-4. Instalar el sistema
+11. Instalar el sistema
 
-5. Verificar instalación
+12. Verificar instalación
 
 **Tiempo estimado:** 45 minutos
 

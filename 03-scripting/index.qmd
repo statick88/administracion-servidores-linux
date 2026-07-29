@@ -33,17 +33,17 @@ Al finalizar esta unidad, serás capaz de:
 Todo script profesional debe tener esta estructura base:
 
 ```bash
-#!/usr/bin/env bash                                                      # <1>
-# -*- coding: utf-8 -*-                                                 # <2>
+#!/usr/bin/env bash                                                      
+# -*- coding: utf-8 -*-                                                 
 # Script: backup-app.sh
 # Descripción: Backup rotativo de /var/www/app a /mnt/backups/app
 # Autor: Tu Nombre <tu@email.com>
 
-set -euo pipefail                                                        # <3>
-IFS=$'\n\t'                                                              # <4>
+set -euo pipefail                                                        
+IFS=$'\n\t'                                                              
 
 # --- Variables globales ---
-readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"                   # <5>
+readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"                   
 readonly BACKUP_SRC="/var/www/app"
 readonly BACKUP_DST="/mnt/backups/app"
 
@@ -55,11 +55,11 @@ log() {
     echo "[$timestamp] [$level] $*"
 }
 
-die() { log "ERROR" "$*"; exit 1; }                                      # <6>
+die() { log "ERROR" "$*"; exit 1; }                                      
 
 # --- Validación ---
-[[ -d "$BACKUP_SRC" ]] || die "Origen no existe: $BACKUP_SRC"           # <7>
-command -v tar >/dev/null || die "tar no instalado"                      # <8>
+[[ -d "$BACKUP_SRC" ]] || die "Origen no existe: $BACKUP_SRC"           
+command -v tar >/dev/null || die "tar no instalado"                      
 
 # --- Lógica principal ---
 main() {
@@ -69,11 +69,11 @@ main() {
 
     info "Iniciando backup..."
     tar --create --zstd -f "$archive" -C "$(dirname "$BACKUP_SRC")" "$(basename "$BACKUP_SRC")" \
-        || die "Falló tar"                                               # <9>
+        || die "Falló tar"                                               
     info "Backup completado: $archive"
 }
 
-main "$@"                                                                # <10>
+main "$@"                                                                
 ```
 
 1. **`#!/usr/bin/env bash`**: Shebang portable — busca `bash` en `$PATH`
@@ -102,16 +102,16 @@ main "$@"                                                                # <10>
 
 ```bash
 # Arrays (índice 0)
-declare -a SERVICES=(nginx postgresql redis)                             # <1>
-declare -A PORTS=( [nginx]=80 [postgresql]=5432 [redis]=6379 )           # <2>
+declare -a SERVICES=(nginx postgresql redis)                             
+declare -A PORTS=( [nginx]=80 [postgresql]=5432 [redis]=6379 )           
 
 # Iterar array
-for svc in "${SERVICES[@]}"; do                                          # <3>
+for svc in "${SERVICES[@]}"; do                                          
     systemctl is-active --quiet "$svc" || echo "$svc no activo"
 done
 
 # Default con expansión de parámetros
-: "${BACKUP_DST:=/mnt/backups}"                                          # <4>
+: "${BACKUP_DST:=/mnt/backups}"                                          
 ```
 
 1. **`declare -a`**: Declara array indexado (numérico)
@@ -123,14 +123,14 @@ done
 
 ```bash
 cleanup() {
-    local exit_code=$?                                                   # <1>
-    [[ -n "${TMPDIR:-}" && -d "$TMPDIR" ]] && rm -rf "$TMPDIR"          # <2>
-    exit $exit_code                                                      # <3>
+    local exit_code=$?                                                   
+    [[ -n "${TMPDIR:-}" && -d "$TMPDIR" ]] && rm -rf "$TMPDIR"          
+    exit $exit_code                                                      
 }
-trap cleanup EXIT INT TERM                                              # <4>
+trap cleanup EXIT INT TERM                                              
 
 # Crear temp dir seguro
-TMPDIR="$(mktemp -d)"                                                    # <5>
+TMPDIR="$(mktemp -d)"                                                    
 [[ -d "$TMPDIR" ]] || die "No se pudo crear directorio temporal"
 ```
 
@@ -148,13 +148,13 @@ TMPDIR="$(mktemp -d)"                                                    # <5>
 
 ```bash
 # Ver estructura FHS
-tree -L 1 /                                                             # <1>
+tree -L 1 /                                                             
 
 # Directorios más importantes para administradores
-ls -la /etc      # Configuración del sistema                              # <2>
-ls -la /var      # Logs, caché, datos en ejecución                        # <3>
-ls -la /opt      # Software de terceros                                   # <4>
-ls -la /home     # Directorios de usuarios                                # <5>
+ls -la /etc      # Configuración del sistema                              
+ls -la /var      # Logs, caché, datos en ejecución                        
+ls -la /opt      # Software de terceros                                   
+ls -la /home     # Directorios de usuarios                                
 ```
 
 1. **`tree -L 1 /`**: Muestra la estructura de directorios hasta nivel 1
@@ -184,22 +184,22 @@ El sistema de archivos jerárquico (FHS) define dónde debe ir cada tipo de arch
 
 ```bash
 # Verificar permisos
-ls -la /etc/shadow                                                        # <1>
+ls -la /etc/shadow                                                        
 
 # Cambiar propietario y grupo
-sudo chown root:adm /var/log/app                                         # <2>
+sudo chown root:adm /var/log/app                                         
 
 # Permisos para directorio de logs
-sudo chmod 750 /var/log/app                                              # <3>
+sudo chmod 750 /var/log/app                                              
 
 # Verificar ACLs
-getfacl /var/log/app                                                     # <4>
+getfacl /var/log/app                                                     
 
 # Agregar ACL para usuario específico
-sudo setfacl -m u:deploy:rwx /var/log/app                               # <5>
+sudo setfacl -m u:deploy:rwx /var/log/app                               
 
 # Agregar ACL por defecto para nuevos archivos
-sudo setfacl -d -m g:adm:r /var/log/app                                 # <6>
+sudo setfacl -d -m g:adm:r /var/log/app                                 
 ```
 
 1. **`ls -la`**: Muestra permisos, propietario, grupo y fecha
@@ -248,14 +248,14 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] Iniciando backup..."
 mkdir -p "$BACKUP_DST"
 
 tar --create --zstd -f "$ARCHIVE" \
-    -C "$(dirname "$BACKUP_SRC")" "$(basename "$BACKUP_SRC")"           # <1>
+    -C "$(dirname "$BACKUP_SRC")" "$(basename "$BACKUP_SRC")"           
 
 # --- Verificar ---
-[[ -s "$ARCHIVE" ]] || { echo "ERROR: Backup vacío o no creado"; exit 1; }  # <2>
+[[ -s "$ARCHIVE" ]] || { echo "ERROR: Backup vacío o no creado"; exit 1; }  
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup completado: $ARCHIVE"
 
 # --- Limpiar viejos ---
-find "$BACKUP_DST" -name 'app-*.tar.zst' -type f -mtime +"$RETENTION_DAYS" -delete  # <3>
+find "$BACKUP_DST" -name 'app-*.tar.zst' -type f -mtime +"$RETENTION_DAYS" -delete  
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Retención: borrados backups > ${RETENTION_DAYS} días"
 ```
 
@@ -277,13 +277,13 @@ tar --create --zstd -f /dev/null -C /var/www app --dry-run
 
 ```bash
 # Verificar que se puede extraer
-tar --test -f "$ARCHIVE"                                                 # <1>
+tar --test -f "$ARCHIVE"                                                 
 
 # Listar contenido del backup
-tar --list -f "$ARCHIVE"                                                 # <2>
+tar --list -f "$ARCHIVE"                                                 
 
 # Extraer solo un archivo específico
-tar --extract -f "$ARCHIVE" --to-stdout app/config.yaml                 # <3>
+tar --extract -f "$ARCHIVE" --to-stdout app/config.yaml                 
 ```
 
 1. **`--test`**: Verifica que el archivo está intacto
@@ -298,16 +298,16 @@ tar --extract -f "$ARCHIVE" --to-stdout app/config.yaml                 # <3>
 
 ```bash
 # Syslog (tradicional)
-tail -f /var/log/syslog                                                  # <1>
+tail -f /var/log/syslog                                                  
 
 # Journald (systemd)
-journalctl -f                                                            # <2>
+journalctl -f                                                            
 
 # Ver logs de un servicio específico
-journalctl -u nginx --since "1 hour ago"                                 # <3>
+journalctl -u nginx --since "1 hour ago"                                 
 
 # Exportar logs a archivo
-journalctl -u nginx --since today > /tmp/nginx-logs.txt                  # <4>
+journalctl -u nginx --since today > /tmp/nginx-logs.txt                  
 ```
 
 1. **`tail -f`**: Sigue los nuevos eventos en tiempo real
@@ -323,7 +323,7 @@ log() {
     local level="$1"; shift
     local timestamp
     timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
-    echo "[$timestamp] [$level] $*" >> /var/log/myscript.log              # <1>
+    echo "[$timestamp] [$level] $*" >> /var/log/myscript.log              
 }
 
 # Uso
@@ -337,23 +337,23 @@ log "ERROR" "Falló la conexión"
 
 ```bash
 # Configurar rotación para /var/log/myscript.log
-cat > /etc/logrotate.d/myscript << 'EOF'                                  # <1>
+cat > /etc/logrotate.d/myscript << 'EOF'                                  
 /var/log/myscript.log {
-    daily                    # Rotar diariamente                          # <2>
-    missingok                # No error si no existe                      # <3>
-    rotate 7                 # Mantener 7 rotaciones                      # <4>
-    compress                 # Comprimir con gzip                         # <5>
-    delaycompress            # No comprimir la rotación más reciente      # <6>
-    notifempty               # No rotar si está vacío                     # <7>
-    create 0640 root adm     # Permisos del nuevo archivo                 # <8>
+    daily                    # Rotar diariamente                          
+    missingok                # No error si no existe                      
+    rotate 7                 # Mantener 7 rotaciones                      
+    compress                 # Comprimir con gzip                         
+    delaycompress            # No comprimir la rotación más reciente      
+    notifempty               # No rotar si está vacío                     
+    create 0640 root adm     # Permisos del nuevo archivo                 
 }
 EOF
 
 # Probar la configuración
-logrotate -d /etc/logrotate.d/myscript                                    # <9>
+logrotate -d /etc/logrotate.d/myscript                                    
 
 # Forzar rotación manual
-logrotate -f /etc/logrotate.d/myscript                                    # <10>
+logrotate -f /etc/logrotate.d/myscript                                    
 ```
 
 1. **`/etc/logrotate.d/`**: Directorio para configuraciones personalizadas
@@ -375,36 +375,36 @@ logrotate -f /etc/logrotate.d/myscript                                    # <10>
 
 ```bash
 # Crear servicio
-cat > /etc/systemd/system/backup.service << 'EOF'                         # <1>
+cat > /etc/systemd/system/backup.service << 'EOF'                         
 [Unit]
 Description=Backup rotativo de /var/www/app
 After=network.target
 
 [Service]
-Type=oneshot                                                              # <2>
-ExecStart=/usr/local/sbin/backup.sh                                      # <3>
+Type=oneshot                                                              
+ExecStart=/usr/local/sbin/backup.sh                                      
 User=root
 StandardOutput=journal
 StandardError=journal
 EOF
 
 # Crear timer
-cat > /etc/systemd/system/backup.timer << 'EOF'                          # <4>
+cat > /etc/systemd/system/backup.timer << 'EOF'                          
 [Unit]
 Description=Ejecutar backup diariamente
 
 [Timer]
-OnCalendar=*-*-* 02:00:00                                               # <5>
-Persistent=true                                                           # <6>
+OnCalendar=*-*-* 02:00:00                                               
+Persistent=true                                                           
 
 [Install]
 WantedBy=timers.target
 EOF
 
 # Habilitar y activar
-sudo systemctl daemon-reload                                              # <7>
-sudo systemctl enable --now backup.timer                                 # <8>
-sudo systemctl list-timers | grep backup                                 # <9>
+sudo systemctl daemon-reload                                              
+sudo systemctl enable --now backup.timer                                 
+sudo systemctl list-timers | grep backup                                 
 ```
 
 1. **`Type=oneshot`**: Ejecución única (no servicio persistente)
@@ -434,15 +434,15 @@ sudo systemctl list-timers | grep backup                                 # <9>
 
 ```bash
 # Editar crontab del usuario actual
-crontab -e                                                                # <1>
+crontab -e                                                                
 
 # Ver crontab actual
-crontab -l                                                                # <2>
+crontab -l                                                                
 
 # Ejemplos de programación
-0 2 * * * /usr/local/sbin/backup.sh                                      # <3>
-*/5 * * * * /usr/local/sbin/check-services.sh                            # <4>
-0 0 * * 0 /usr/local/sbin/weekly-cleanup.sh                              # <5>
+0 2 * * * /usr/local/sbin/backup.sh                                      
+*/5 * * * * /usr/local/sbin/check-services.sh                            
+0 0 * * 0 /usr/local/sbin/weekly-cleanup.sh                              
 ```
 
 1. **`crontab -e`**: Edita el crontab del usuario actual
@@ -478,14 +478,14 @@ readonly LOG_FILE="/var/log/service-check.log
 log() {
     local timestamp
     timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
-    echo "[$timestamp] $*" | tee -a "$LOG_FILE"                          # <1>
+    echo "[$timestamp] $*" | tee -a "$LOG_FILE"                          
 }
 
 for svc in "${SERVICES[@]}"; do
-    if systemctl is-active --quiet "$svc"; then                           # <2>
+    if systemctl is-active --quiet "$svc"; then                           
         log "OK: $svc activo"
     else
-        log "ALERTA: $svc no activo — reiniciando..."                    # <3>
+        log "ALERTA: $svc no activo — reiniciando..."                    
         sudo systemctl restart "$svc"
     fi
 done
@@ -508,11 +508,11 @@ Aplica lo aprendido en esta unidad con el laboratorio interactivo:
 
 ### Instrucciones:
 
-1. Clona el repositorio del laboratorio
-2. Levanta el contenedor Docker
-3. Ejecuta los 5 retos de navegación y manejo de archivos
-4. Completa el script de backup con tu configuración
-5. Configura un systemd timer o cron job para ejecutar tu script
+4. Clona el repositorio del laboratorio
+5. Levanta el contenedor Docker
+6. Ejecuta los 5 retos de navegación y manejo de archivos
+7. Completa el script de backup con tu configuración
+8. Configura un systemd timer o cron job para ejecutar tu script
 
 ### Retos del laboratorio:
 - Reto 1: Navegación entre directorios
@@ -544,18 +544,18 @@ Aplica lo aprendido en esta unidad con el laboratorio interactivo:
 
 ### Buenas prácticas:
 
-1. **Siempre usa `set -euo pipefail`** en scripts
-2. **Documenta tu código** con funciones y comentarios
-3. **Valida antes de operar** (existence checks, command checks)
-4. **Usa logging** para rastrear qué hace tu script
-5. **Prueba primero** con dry-run antes de ejecutar en producción
-6. **Prioriza systemd timers** sobre cron en sistemas modernos
+9. **Siempre usa `set -euo pipefail`** en scripts
+10. **Documenta tu código** con funciones y comentarios
+11. **Valida antes de operar** (existence checks, command checks)
+12. **Usa logging** para rastrear qué hace tu script
+13. **Prueba primero** con dry-run antes de ejecutar en producción
+14. **Prioriza systemd timers** sobre cron en sistemas modernos
 
 ---
 
 ## Referencias
 
-- [GNU Bash Manual](https://www.gnu.org/software/bash/manual/)
+- [GNU Bash Manual](https://www.gnu.org/software/bash/manual/bash.html)
 - [Linux man pages](https://man7.org/linux/man-pages/)
 - [systemd timers documentation](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)
 - [logrotate documentation](https://man7.org/linux/man-pages/man8/logrotate.8.html)

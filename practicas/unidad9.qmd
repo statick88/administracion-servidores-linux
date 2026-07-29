@@ -21,25 +21,25 @@ Instalar Apache, levantar un sitio simple con VirtualHost, y entregar evidencias
 ## Parte 1: Instalacion y validacion
 
 ```bash
-$ sudo apt update  # <1>
-# <1>
+$ sudo apt update  
 
-$ sudo apt install -y apache2  # <2>
-# <2>
 
-$ systemctl status apache2 --no-pager  # <3>
+$ sudo apt install -y apache2  
+
+
+$ systemctl status apache2 --no-pager  
 ● apache2.service - The Apache HTTP Server
      Active: active (running)
-# <3>
 
-$ sudo ss -lntp | grep ':80'  # <4>
+
+$ sudo ss -lntp | grep ':80'  
 LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:("apache2",pid=1234,fd=4)
-# <4>
 
-$ curl -I http://localhost  # <5>
+
+$ curl -I http://localhost  
 HTTP/1.1 200 OK
 Server: Apache/2.4.58 (Ubuntu)
-# <5>
+
 ```
 
 
@@ -55,13 +55,13 @@ Server: Apache/2.4.58 (Ubuntu)
 ## Parte 2: Crear VirtualHost
 
 ```bash
-$ sudo mkdir -p /var/www/site1/public  # <1>
-# <1>
+$ sudo mkdir -p /var/www/site1/public  
 
-$ echo '<h1>Site1 OK</h1>' | sudo tee /var/www/site1/public/index.html >/dev/null  # <2>
-# <2>
 
-$ sudo tee /etc/apache2/sites-available/site1.conf >/dev/null <<'EOF'  # <3>
+$ echo '<h1>Site1 OK</h1>' | sudo tee /var/www/site1/public/index.html >/dev/null  
+
+
+$ sudo tee /etc/apache2/sites-available/site1.conf >/dev/null <<'EOF'  
 <VirtualHost *:80>
   ServerName site1.local
   DocumentRoot /var/www/site1/public
@@ -69,21 +69,21 @@ $ sudo tee /etc/apache2/sites-available/site1.conf >/dev/null <<'EOF'  # <3>
   CustomLog ${APACHE_LOG_DIR}/site1-access.log combined
 </VirtualHost>
 EOF
-# <3>
 
-$ sudo a2ensite site1.conf  # <4>
-# <4>
 
-$ sudo apachectl configtest  # <5>
+$ sudo a2ensite site1.conf  
+
+
+$ sudo apachectl configtest  
 Syntax OK
-# <5>
 
-$ sudo systemctl reload apache2  # <6>
-# <6>
 
-$ curl -H 'Host: site1.local' http://127.0.0.1  # <7>
+$ sudo systemctl reload apache2  
+
+
+$ curl -H 'Host: site1.local' http://127.0.0.1  
 <h1>Site1 OK</h1>
-# <7>
+
 ```
 
 
@@ -101,9 +101,9 @@ $ curl -H 'Host: site1.local' http://127.0.0.1  # <7>
 ## Parte 3: Evidencias de logs
 
 ```bash
-$ sudo tail -n 5 /var/log/apache2/site1-access.log  # <1>
+$ sudo tail -n 5 /var/log/apache2/site1-access.log  
 127.0.0.1 - - [02/Feb/2026:12:10:11 +0000] "GET / HTTP/1.1" 200 15 "-" "curl/8.1.0"
-# <1>
+
 ```
 
 

@@ -27,11 +27,11 @@ Al final, podras:
 ## df: cuanto espacio queda (por FS)
 
 ```bash
-$ df -hT  # <1>
+$ df -hT  
 Filesystem     Type  Size  Used Avail Use% Mounted on
 /dev/sda1      ext4   49G  5.4G   41G  12% /
 tmpfs          tmpfs  1.9G  1.2M  1.9G   1% /run
-# <1>
+
 ```
 
 
@@ -43,11 +43,11 @@ tmpfs          tmpfs  1.9G  1.2M  1.9G   1% /run
 ## du: donde se esta yendo el espacio
 
 ```bash
-$ sudo du -xh --max-depth=1 /var | sort -hr | head -n 10  # <1>
+$ sudo du -xh --max-depth=1 /var | sort -hr | head -n 10  
 3.2G    /var/lib
 1.1G    /var/log
 240M    /var/cache
-# <1>
+
 ```
 
 
@@ -71,13 +71,13 @@ Cuando aplicar:
 ## Logs del systemd journal (comun en Ubuntu Server)
 
 ```bash
-$ journalctl --disk-usage  # <1>
+$ journalctl --disk-usage  
 Archived and active journals take up 512.0M in the file system.
-# <1>
 
-$ sudo journalctl --vacuum-time=7d  # <2>
+
+$ sudo journalctl --vacuum-time=7d  
 Vacuuming done, freed 256.0M of archived journals from /var/log/journal.
-# <2>
+
 ```
 
 
@@ -94,9 +94,9 @@ Lo que podria salir mal:
 - Pierdes evidencia para auditoria/incidentes.
 
 Como prevenirlo:
-1. Define retencion (por dias o tamano) y documentala.
-2. Valida con el equipo (seguridad/operaciones) antes de acortar retencion.
-3. Si borras, deja evidencia (ticket/cambio).
+3. Define retencion (por dias o tamano) y documentala.
+4. Valida con el equipo (seguridad/operaciones) antes de acortar retencion.
+5. Si borras, deja evidencia (ticket/cambio).
 :::
 
 ---
@@ -108,11 +108,11 @@ Las quotas limitan cuanto puede consumir un usuario o grupo en un filesystem (mu
 Ejemplo de flujo (alto nivel):
 
 ```bash
-$ sudo apt update  # <1>
-# <1>
+$ sudo apt update  
 
-$ sudo apt install -y quota  # <2>
-# <2>
+
+$ sudo apt install -y quota  
+
 ```
 
 
@@ -130,10 +130,10 @@ $ sudo apt install -y quota  # <2>
 
 #### Linux
 ```bash
-$ df -h  # <1>
+$ df -h  
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sda1        49G  5.4G   41G  12% /
-# <1>
+
 ```
 
 
@@ -142,10 +142,10 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 #### macOS
 ```bash
-$ df -h  # <1>
+$ df -h  
 Filesystem      Size   Used  Avail Capacity iused ifree %iused  Mounted on
 /dev/disk3s1s1  466Gi  14Gi  218Gi     6%  488k  2.1G    0%   /
-# <1>
+
 ```
 
 
@@ -154,12 +154,12 @@ Filesystem      Size   Used  Avail Capacity iused ifree %iused  Mounted on
 
 #### Windows
 ```powershell
-PS> Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free  # <1>
+PS> Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free  
 
 Name Used         Free
 ---- ----         ----
 C    135791468544 120345678901
-# <1>
+
 ```
 
 
