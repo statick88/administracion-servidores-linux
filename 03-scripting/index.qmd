@@ -41,13 +41,18 @@ Todo script profesional debe tener esta estructura base:
 
 set -euo pipefail                                                        
 IFS=$'\n\t'                                                              
+```
 
-# --- Variables globales ---
+1. **`#!/usr/bin/env bash`**: Shebang portable — busca `bash` en `$PATH`
+2. **`# -*- coding: utf-8 -*-`**: Declara codificación del archivo
+3. **`set -euo pipefail`**: `-e` sale en error, `-u` variable no seteada, `-o pipefail` falla en pipe
+4. **`IFS=$'\n\t'`**: Evita bugs con word splitting
+
+### 1.2 Funciones de logging
+
+```bash
 readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"                   
-readonly BACKUP_SRC="/var/www/app"
-readonly BACKUP_DST="/mnt/backups/app"
 
-# --- Funciones ---
 log() {
     local level="$1"; shift
     local timestamp
@@ -56,36 +61,43 @@ log() {
 }
 
 die() { log "ERROR" "$*"; exit 1; }                                      
+```
 
-# --- Validación ---
+1. **`SCRIPT_NAME`**: Nombre del archivo sin path
+2. **`log()`**: Función con timestamp y nivel (INFO, WARN, ERROR)
+3. **`die()`**: Función de error que loguea y sale con código 1
+
+### 1.3 Validación antes de operar
+
+```bash
 [[ -d "$BACKUP_SRC" ]] || die "Origen no existe: $BACKUP_SRC"           
 command -v tar >/dev/null || die "tar no instalado"                      
+```
 
-# --- Lógica principal ---
+1. **`[[ -d ]]`**: Valida que el directorio existe
+2. **`command -v tar`**: Verifica que `tar` está instalado
+3. **`|| die`**: Si la validación falla, ejecuta `die`
+
+### 1.4 Patrón main
+
+```bash
 main() {
     local timestamp
     timestamp="$(date '+%Y%m%d-%H%M%S')"
     local archive="${BACKUP_DST}/app-${timestamp}.tar.zst"
 
-    info "Iniciando backup..."
+    log "INFO" "Iniciando backup..."
     tar --create --zstd -f "$archive" -C "$(dirname "$BACKUP_SRC")" "$(basename "$BACKUP_SRC")" \
         || die "Falló tar"                                               
-    info "Backup completado: $archive"
+    log "INFO" "Backup completado: $archive"
 }
 
 main "$@"                                                                
 ```
 
-1. **`#!/usr/bin/env bash`**: Shebang portable — busca `bash` en `$PATH`
-2. **`# -*- coding: utf-8 -*-`**: Declara codificación del archivo
-3. **`set -euo pipefail`**: `-e` sale en error, `-u` variable no seteada, `-o pipefail` falla en pipe
-4. **`IFS=$'\n\t'`**: Evita bugs con word splitting
-5. **`SCRIPT_NAME`**: Nombre del archivo sin path
-6. **`die()`**: Función de error que loguea y sale con código 1
-7. **`[[ -d ]]`**: Valida que el directorio existe
-8. **`command -v tar`**: Verifica que `tar` está instalado
-9. **`|| die "Falló tar"`**: Si `tar` falla, ejecuta `die`
-10. **`main "$@"`**: Patrón estándar — lógica en `main`
+1. **`main()`**: Toda la lógica va dentro de `main`
+2. **`|| die "Falló tar"`**: Si `tar` falla, ejecuta `die`
+3. **`main "$@"`**: Patrón estándar — ejecuta `main` con todos los argumentos
 
 ::: {.callout-tip}
 ## ✅ Checklist de script robusto (Abacom Standard)
@@ -232,31 +244,22 @@ Las ACLs son poderosas pero pueden crear confusión. Úsalas solo cuando `chmod`
 #!/usr/bin/env bash
 set -euo pipefail
 
-# --- Configuración ---
 readonly BACKUP_SRC="/var/www/app"
 readonly BACKUP_DST="/mnt/backups"
 readonly RETENTION_DAYS=7
-readonly TIMESTAMP="$(date '+%Y%m%d-%H%M%S')"
-readonly ARCHIVE="${BACKUP_DST}/app-${TIMESTAMP}.tar.zst"
+readonly ARCHIVE="${BACKUP_DST}/app-$(date '+%Y%m%d-%H%M%S').tar.zst"
 
-# --- Validaciones ---
 [[ -d "$BACKUP_SRC" ]] || { echo "ERROR: Origen no existe"; exit 1; }
 command -v tar >/dev/null || { echo "ERROR: tar no instalado"; exit 1; }
 
-# --- Crear backup ---
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] Iniciando backup..."
 mkdir -p "$BACKUP_DST"
-
 tar --create --zstd -f "$ARCHIVE" \
     -C "$(dirname "$BACKUP_SRC")" "$(basename "$BACKUP_SRC")"           
+[[ -s "$ARCHIVE" ]] || { echo "ERROR: Backup vacío o no creado"; exit 1; }
+echo "Backup completado: $ARCHIVE"
 
-# --- Verificar ---
-[[ -s "$ARCHIVE" ]] || { echo "ERROR: Backup vacío o no creado"; exit 1; }  
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup completado: $ARCHIVE"
-
-# --- Limpiar viejos ---
 find "$BACKUP_DST" -name 'app-*.tar.zst' -type f -mtime +"$RETENTION_DAYS" -delete  
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] Retención: borrados backups > ${RETENTION_DAYS} días"
+echo "Retención: borrados backups > ${RETENTION_DAYS} días"
 ```
 
 1. **`-C "$(dirname)"`**: Cambia al directorio padre antes de empaquetar
@@ -373,8 +376,9 @@ logrotate -f /etc/logrotate.d/myscript
 
 ### 5.1 Systemd Timers (recomendado en systemd)
 
+**Paso 1: Crear servicio**
+
 ```bash
-# Crear servicio
 cat > /etc/systemd/system/backup.service << 'EOF'                         
 [Unit]
 Description=Backup rotativo de /var/www/app
@@ -387,8 +391,11 @@ User=root
 StandardOutput=journal
 StandardError=journal
 EOF
+```
 
-# Crear timer
+**Paso 2: Crear timer**
+
+```bash
 cat > /etc/systemd/system/backup.timer << 'EOF'                          
 [Unit]
 Description=Ejecutar backup diariamente
@@ -400,8 +407,11 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 EOF
+```
 
-# Habilitar y activar
+**Paso 3: Activar**
+
+```bash
 sudo systemctl daemon-reload                                              
 sudo systemctl enable --now backup.timer                                 
 sudo systemctl list-timers | grep backup                                 
@@ -473,7 +483,7 @@ crontab -l
 set -euo pipefail
 
 readonly SERVICES=(nginx postgresql redis)
-readonly LOG_FILE="/var/log/service-check.log
+readonly LOG_FILE="/var/log/service-check.log"
 
 log() {
     local timestamp
