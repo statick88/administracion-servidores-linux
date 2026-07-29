@@ -347,42 +347,163 @@ git config --global alias.last "log -1 --stat"
 7. **`fetch.prune true`**: Limpia refs de ramas remotas eliminadas; mantiene el historial local limpio
 8. **`alias.st`**: Atajo para `status -sb`; formato compacto que muestra rama actual y archivos modificados
 
-### 4.2 Claves SSH (ed25519) — Ya generadas en Unidad I, pero repasemos
+### 4.2 Claves SSH — Autenticación sin contraseñas
+
+Las claves SSH permiten autenticarte en servidores remotos sin escribir contraseñas. Es el método estándar en producción.
+
+#### Paso 1: Generar la clave SSH
 
 ```bash
-# Generar (si no existe)
-ssh-keygen -t ed25519 -C "tu-email@abacom.cl" -f ~/.ssh/id_ed25519_abacom    
+# Generar par de claves ed25519 (recomendado: más seguro y rápido que RSA)
+ssh-keygen -t ed25519 -C "tu-email@abacom.cl" -f ~/.ssh/id_ed25519_abacom
 
-# Agente SSH
-eval "$(ssh-agent -s)"                                                        
-ssh-add ~/.ssh/id_ed25519_abacom                                              
+# Si necesitas compatibilidad con sistemas antiguos (SSH < 6.5), usa RSA 4096:
+# ssh-keygen -t rsa -b 4096 -C "tu-email@abacom.cl" -f ~/.ssh/id_rsa_abacom
+```
 
-# Config por host (~/.ssh/config)
-cat <<'EOF' >> ~/.ssh/config                                                  
+Salida esperada:
+
+```
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase): [ESCRIBIR PASSPHRASE SEGURA]
+Enter same passphrase again: [CONFIRMAR]
+Your identification has been saved in /home/user/.ssh/id_ed25519_abacom
+Your public key has been saved in /home/user/.ssh/id_ed25519_abacom.pub
+The key fingerprint is:
+SHA256:abc123... tu-email@abacom.cl
+```
+
+1. **`ssh-keygen -t ed25519`**: Genera par de claves ed25519 (curva elliptic curve, 256 bits); más seguro y rápido que RSA de 2048+
+2. **`-C "email"`**: Comentario para identificar la clave; usar email facilita saber a quién pertenece
+3. **`-f ~/.ssh/id_ed25519_abacom`**: Nombre específico del archivo; usar nombre descriptivo permite tener claves separadas por servidor
+4. **Passphrase**: Contraseña que protege la clave privada; usar passphrase fuerte es crítica si el archivo es comprometido
+
+::: {.callout-warning}
+## ⚠️ Nunca subir la clave privada
+
+- `id_ed25519_abacom` (sin `.pub`) es la clave **privada** — NUNCA compartirla
+- `id_ed25519_abacom.pub` es la clave **pública** — esta va al servidor
+- Si la clave privada se filtra, revocarla inmediatamente en todos los servidores
+:::
+
+#### Paso 2: Copiar la clave pública al servidor
+
+```bash
+# Método 1: ssh-copy-id (recomendado — automático y seguro)
+ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub usuario@192.168.1.100
+
+# Te pedirá la contraseña del servidor UNA última vez
+# Autoridad: usuario@192.168.1.100's password: [CONTRASEÑA]
+```
+
+```bash
+# Método 2: Si ssh-copy-id no está disponible (Windows, sistemas antiguos)
+cat ~/.ssh/id_ed25519_abacom.pub | ssh usuario@192.168.1.100 \
+  "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+```
+
+```bash
+# Método 3: Copiar manualmente (cuando no hay acceso SSH aún)
+# En el servidor, pegar el contenido de id_ed25519_abacom.pub en:
+#   ~/.ssh/authorized_keys
+# Luego verificar permisos:
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+1. **`ssh-copy-id -i`**: Copia clave pública al servidor de forma segura; agrega a `~/.ssh/authorized_keys` automáticamente
+2. **`-i ~/.ssh/id_ed25519_abacom.pub`**: Especifica qué clave pública copiar; sin `-i` usa `~/.ssh/id_rsa.pub` por defecto
+3. **Permisos 700 y 600**: SSH rechaza claves si los permisos son demasiado permisivos; directorio 700, archivo 600
+
+::: {.callout-tip}
+## Verificar permisos en el servidor
+
+```bash
+# Ejecutar en el servidor después de copiar la clave
+ls -la ~/.ssh/
+# Drwx------ 2 user user 4096 .         ← 700
+# -rw------- 1 user user  568 authorized_keys ← 600
+```
+:::
+
+#### Paso 3: Configurar `~/.ssh/config`
+
+```bash
+# Crear/editar archivo de configuración
+cat <<'EOF' >> ~/.ssh/config
+
+# Servidor de desarrollo - Abacom
+Host dev.abacom.cl
+  HostName 192.168.1.100
+  User admin
+  IdentityFile ~/.ssh/id_ed25519_abacom
+  IdentitiesOnly yes
+  Port 22
+
+# GitHub
 Host github.com
   HostName github.com
   User git
   IdentityFile ~/.ssh/id_ed25519_abacom
   IdentitiesOnly yes
 
+# GitLab
 Host gitlab.com
   HostName gitlab.com
   User git
   IdentityFile ~/.ssh/id_ed25519_abacom
   IdentitiesOnly yes
 EOF
-chmod 600 ~/.ssh/config                                                       
 
-# Probar
-ssh -T git@github.com                                                         
+# Establecer permisos correctos
+chmod 600 ~/.ssh/config
 ```
 
-1. **`ssh-keygen -t ed25519`**: Genera par de claves ed25519 (más seguro que RSA); `-C` comenta con email para identificación
-2. **`ssh-agent -s`**: Inicia agente SSH que mantiene claves en memoria; evita escribir passphrase en cada uso
-3. **`ssh-add`**: Registra la clave privada en el agente SSH; disponible para autenticación automática
-4. **`cat <<'EOF' >>`**: Añade configuración por host al archivo SSH; cada host usa su clave específica
-5. **`chmod 600`**: Permisos restrictivos para config SSH; sin esto SSH rechaza el archivo por seguridad
-6. **`ssh -T git@github.com`**: Test de autenticación SSH con GitHub; muestra "Hi username!" si la clave funciona
+```bash
+# Ahora puedes conectarte usando el alias
+ssh dev.abacom.cl    # En vez de: ssh admin@192.168.1.100
+```
+
+2. **`IdentitiesOnly yes`**: Fuerza usar SOLO la clave especificada; evita que SSH pruebe otras claves automáticamente
+3. **`chmod 600`**: Permisos restrictivos; SSH rechaza el archivo si otros usuarios pueden leerlo
+4. **Alias de host**: Después de configurar, `ssh dev.abacom.cl` reemplaza a `ssh admin@192.168.1.100`
+
+#### Paso 4: Conectar sin contraseña
+
+```bash
+# Probar conexión sin contraseña
+ssh usuario@192.168.1.100
+# Debe conectarse SIN pedir contraseña
+
+# Si configuraste passphrase, pedirá passphrase (no contraseña del servidor)
+# Para evitar escribir passphrase en cada uso, usar ssh-agent:
+
+eval "$(ssh-agent -s)"     # Iniciar agente SSH
+ssh-add ~/.ssh/id_ed25519_abacom    # Agregar clave al agente
+```
+
+1. **`eval "$(ssh-agent -s)"`**: Inicia el agente SSH en la sesión actual; mantiene la clave en memoria
+2. **`ssh-add`**: Registra la clave privada en el agente; a partir de ahora la conexión es completamente automática
+
+#### Troubleshooting SSH común
+
+| Problema | Causa | Solución |
+|----------|-------|----------|
+| `Permission denied (publickey)` | Clave no está en `authorized_keys` | Verificar con `ssh-copy-id` o pegar manualmente |
+| `Permissions too open` | Permisos incorrectos | `chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys ~/.ssh/config` |
+| `Warning: Identity file ... not accessible` | Archivo de clave no existe o permisos | Verificar ruta y permisos: `chmod 600 ~/.ssh/id_ed25519_abacom` |
+| `Host key verification failed` | Firma del servidor cambió | `ssh-keygen -R <hostname>` para eliminar registro antiguo |
+| `Connection refused` | SSH no está corriendo en el servidor | `sudo systemctl status sshd` y `sudo apt install openssh-server` |
+
+#### Resumen de archivos SSH
+
+| Archivo | Ubicación | Propósito | ¿Se sube a GitHub? |
+|---------|-----------|-----------|---------------------|
+| **Clave privada** | `~/.ssh/id_ed25519_abacom` | Autenticación del cliente | ❌ NUNCA |
+| **Clave pública** | `~/.ssh/id_ed25519_abacom.pub` | Autorización en servidor | ⚠️ Solo a servidores |
+| **Authorized keys** | `~/.ssh/authorized_keys` | Claves permitidas (servidor) | ❌ No |
+| **Config** | `~/.ssh/config` | Aliases y configuración | ⚠️ Sin claves privadas |
+| **Known hosts** | `~/.ssh/known_hosts` | Firma de servidores conocidos | ❌ No |
 
 ### 4.3 Firma de commits con GPG — **Requerido en Abacom**
 
