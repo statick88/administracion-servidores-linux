@@ -1223,6 +1223,85 @@ $ ssh mv-ubuntu   # <1>
 
 - **ssh** conecta al servidor usando la configuración definida en el archivo config
 
+### 11.7 Diagnóstico con `ssh -vvv` (modo verbose)
+
+Cuando una conexión SSH falla sin un mensaje claro, el modo verbose triple (`-vvv`) muestra cada paso del proceso de conexión. Esto permite identificar exactamente dónde falla.
+
+#### Ejemplo real: Conexión a VM que no responde
+
+```bash
+$ ssh -vvv -o ConnectTimeout=5 ubuntu   # <1>
+```
+
+- **ssh -vvv** activa el nivel máximo de verbosidad para diagnóstico
+- **-o ConnectTimeout=5** limita el tiempo de espera a 5 segundos
+
+**Salida del diagnóstico (truncada a las líneas clave):**
+
+```
+debug1: OpenSSH_10.2p1, LibreSSL 3.3.6
+debug1: Reading configuration data /Users/statick/.ssh/config
+debug3: /Users/statick/.ssh/config line 83: Applying options for ubuntu
+debug1: resolve_canonicalize: hostname 192.168.100.3 is address
+debug1: Connecting to 192.168.100.3 [192.168.100.3] port 22.
+debug1: connect to address 192.168.100.3 port 22: Operation timed out
+ssh: connect to host 192.168.100.3 port 22: Operation timed out
+```
+
+#### Cómo leer esta salida
+
+| Línea | Qué significa |
+|-------|---------------|
+| `Reading configuration data ~/.ssh/config` | SSH está leyendo tu archivo de configuración |
+| `Applying options for ubuntu` | Se aplican los parámetros del host `ubuntu` |
+| `Connecting to 192.168.100.3 port 22` | Intenta conectar al puerto 22 (SSH) |
+| `Operation timed out` | El servidor no respondió en el tiempo límite |
+
+#### Causas comunes de "Connection timed out"
+
+- **VM apagada o en pausa** — verificar estado en el hipervisor
+- **Firewall bloqueando puerto 22** — verificar reglas de iptables/ufw
+- **IP incorrecta** — la VM pudo haber cambiado de IP tras reinicio
+- **Red no configurada** — verificar que la VM tenga conectividad de red
+
+#### Verificar conectividad básica antes de SSH
+
+```bash
+# Probar si el host responde a ping
+$ ping -c 3 192.168.100.3   # <1>
+
+# Verificar si el puerto SSH está abierto
+$ nc -zv 192.168.100.3 22   # <2>
+```
+
+- **ping** verifica conectividad de red básica (ICMP)
+- **nc -zv** verifica si el puerto TCP 22 está aceptando conexiones
+
+#### Comparación: Salida exitosa vs fallida
+
+**Conexión exitosa (verbose):**
+```
+debug1: Connecting to 192.168.100.3 [192.168.100.3] port 22.
+debug1: Connection established.
+debug1: Authenticating to 192.168.100.3:22 as 'statick'
+debug1: Authentication succeeded (publickey).
+debug1: Entering interactive session.
+```
+
+**Conexión fallida (timeout):**
+```
+debug1: Connecting to 192.168.100.3 [192.168.100.3] port 22.
+debug1: connect to address 192.168.100.3 port 22: Operation timed out
+ssh: connect to host 192.168.100.3 port 22: Operation timed out
+```
+
+**Conexión fallida (puerto cerrado):**
+```
+debug1: Connecting to 192.168.100.3 [192.168.100.3] port 22.
+debug1: connect to address 192.168.100.3 port 22: Connection refused
+ssh: connect to host 192.168.100.3 port 22: Connection refused
+```
+
 ---
 
 ## 12. Mejores prácticas de seguridad
