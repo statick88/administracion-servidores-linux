@@ -224,7 +224,7 @@ The key's randomart image is:
 
 **Ejemplo de passphrase segura:**
 ```
-$ Tr3bol-2024!-Verde
+Tr3bol-2024!-Verde
 ```
 :::
 
@@ -356,16 +356,18 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 **Método 2: Copiar al portapapeles (macOS)**
 
 ```bash
-$ pbcopy < ~/.ssh/id_ed25519.pub  
-
+$ pbcopy < ~/.ssh/id_ed25519.pub   # <1>
 ```
+
+- **pbcopy** copia la clave pública al portapapeles de macOS
 
 **Método 3: Copiar al portapapeles (Linux con xclip)**
 
 ```bash
-$ xclip -selection clipboard < ~/.ssh/id_ed25519.pub  
-
+$ xclip -selection clipboard < ~/.ssh/id_ed25519.pub   # <1>
 ```
+
+- **xclip -selection clipboard** copia la clave pública al portapapeles de Linux
 
 :::{.callout-warning}
 ## ⚠️ ADVERTENCIA CRÍTICA
@@ -559,20 +561,17 @@ GitHub CLI (`gh`) permite agregar claves SSH directamente desde la terminal sin 
 
 **Linux (Ubuntu/Debian):**
 ```bash
-$ sudo apt install gh -y  
-
+$ sudo apt install gh -y   # <1>
 ```
 
 **macOS:**
 ```bash
-$ brew install gh  
-
+$ brew install gh   # <1>
 ```
 
 **Windows:**
 ```bash
-$ winget install GitHub.cli  
-
+$ winget install GitHub.cli   # <1>
 ```
 
 1. **gh** es la CLI oficial de GitHub para terminal
@@ -580,9 +579,10 @@ $ winget install GitHub.cli
 ### 7.2 Autenticarse con GitHub CLI
 
 ```bash
-$ gh auth login  
-
+$ gh auth login   # <1>
 ```
+
+- **gh auth login** inicia sesión en GitHub desde la terminal con autenticación interactiva
 
 **Opciones:**
 - `git.com` para GitHub.com
@@ -592,23 +592,26 @@ $ gh auth login
 ### 7.3 Agregar clave SSH con GitHub CLI
 
 ```bash
-$ gh ssh-key add ~/.ssh/id_ed25519.pub --type authentication  
-
+$ gh ssh-key add ~/.ssh/id_ed25519.pub --type authentication   # <1>
 ```
+
+- **gh ssh-key add --type authentication** agrega la clave para autenticación SSH
 
 **Agregar con título:**
 
 ```bash
-$ gh ssh-key add ~/.ssh/id_ed25519.pub --title "MacBook Pro 2024"  
-
+$ gh ssh-key add ~/.ssh/id_ed25519.pub --title "MacBook Pro 2024"   # <2>
 ```
+
+- **--title** asigna un nombre descriptivo para identificar la clave en GitHub
 
 **Para firma de commits:**
 
 ```bash
-$ gh ssh-key add ~/.ssh/id_ed25519.pub --type signing  
-
+$ gh ssh-key add ~/.ssh/id_ed25519.pub --type signing   # <3>
 ```
+
+- **--type signing** agrega la clave para firma de commits (funcionalidad separada)
 
 :::{.callout-note}
 ## 📝 NOTA
@@ -631,16 +634,18 @@ Necesitas:
 ### 8.2 Generar clave para hardware
 
 ```bash
-$ ssh-keygen -t ed25519-sk -C "tu-email@ejemplo.com"  
-
+$ ssh-keygen -t ed25519-sk -C "tu-email@ejemplo.com"   # <1>
 ```
+
+- **ssh-keygen -t ed25519-sk** genera una clave respaldada por hardware FIDO2
 
 **Si no funciona ed25519-sk, usar ecdsa-sk:**
 
 ```bash
-$ ssh-keygen -t ecdsa-sk -C "tu-email@ejemplo.com"  
-
+$ ssh-keygen -t ecdsa-sk -C "tu-email@ejemplo.com"   # <1>
 ```
+
+- **ssh-keygen -t ecdsa-sk** es una alternativa compatible con claves más antiguas
 
 **Salida esperada:**
 ```
@@ -653,18 +658,13 @@ Your identification has been saved in /home/usuario/.ssh/id_ed25519_sk
 Your public key has been saved in /home/usuario/.ssh/id_ed25519_sk.pub
 ```
 
-**Explicaciones:**
-- **-t ed25519-sk** genera una clave respaldada por hardware
-- **Presiona Enter** para aceptar ubicación predeterminada
-- **Sin frase de contraseña** (el hardware proporciona la seguridad)
-- Confirma sin frase de contraseña
-
 ### 8.3 Usar la clave de hardware
 
 ```bash
-$ ssh-add ~/.ssh/id_ed25519_sk  
-
+$ ssh-add ~/.ssh/id_ed25519_sk   # <1>
 ```
+
+- **ssh-add** agrega la clave de hardware al agente SSH para usarla en sesiones futuras
 
 ### 8.4 Verificar con GitHub
 
@@ -741,7 +741,7 @@ Host mi-vps
     AddKeysToAgent yes
 ```
 
-### 8.2 Opciones de configuración explicadas
+### 9.2 Opciones de configuración explicadas
 
 ```bash
 Host github.com                    # Nombre del host (alias)
@@ -1125,105 +1125,7 @@ $ chmod 644 ~/.ssh/id_ed25519.pub   # <4>
 | `Connection timed out` | Sin conexión a red | Verificar conectividad a internet |
 | `The remote server rejected the connection` | GitHub down | Verificar status.github.com |
 
-### 11.6 Generar llave SSH y copiarla a una máquina virtual
-
-Cuando la máquina virtual remota (`192.168.100.3`) no tiene registrada la clave pública de tu máquina local en su archivo `~/.ssh/authorized_keys`, o la llave local no existe / cambió, debes generar la llave y copiarla correctamente.
-
-#### Paso 1: Generar la nueva llave SSH (en tu máquina local)
-
-Abre la terminal en tu equipo local y genera una clave con el algoritmo `ed25519` (el estándar recomendado):
-
-```bash
-$ ssh-keygen -t ed25519 -C "diego@abacom.ec" -f ~/.ssh/id_ed25519_mv   # <1>
-```
-
-- **ssh-keygen** genera un par de claves Ed25519 con comentario y nombre de archivo personalizado
-
-*(Puedes presionar `Enter` en la contraseña para dejarla sin passphrase en entorno de pruebas, o asignar una passphrase segura).*
-
-#### Paso 2: Copiar la llave pública a la Máquina Virtual
-
-Para transferir tu clave pública automáticamente a la MV (`192.168.100.3`), usa el comando `ssh-copy-id`:
-
-```bash
-$ ssh-copy-id -i ~/.ssh/id_ed25519_mv.pub -p 22 statick@192.168.100.3   # <1>
-```
-
-- **ssh-copy-id** copia la clave pública al servidor remoto y configura permisos automáticamente
-
-Te pedirá la **contraseña del usuario `statick` en la MV** por última vez. Al ingresarla, `ssh-copy-id` creará el directorio `~/.ssh` en la MV y agregará tu clave a `authorized_keys` con los permisos correctos (`700` para `.ssh` y `600` para `authorized_keys`).
-
-#### Paso 3: Alternativa Manual (si `ssh-copy-id` falla)
-
-Si por alguna razón `ssh-copy-id` no está disponible o da error, copia la clave manualmente:
-
-1. En tu **máquina local**, muestra la llave pública y cópiala:
-
-```bash
-$ cat ~/.ssh/id_ed25519_mv.pub   # <1>
-```
-
-- **cat** muestra el contenido de la clave pública para copiarlo
-
-2. Conéctate por SSH a la MV con contraseña:
-
-```bash
-$ ssh statick@192.168.100.3 -p 22   # <1>
-```
-
-- **ssh** establece conexión al servidor remoto usando autenticación por contraseña
-
-3. Dentro de la MV, ejecuta este bloque en la terminal:
-
-```bash
-$ mkdir -p ~/.ssh && chmod 700 ~/.ssh   # <1>
-$ echo "PEGA_AQUÍ_EL_TEXTO_DE_TU_LLAVE_PÚBLICA" >> ~/.ssh/authorized_keys   # <2>
-$ chmod 600 ~/.ssh/authorized_keys   # <3>
-```
-
-- **mkdir -p** crea el directorio .ssh si no existe con permisos seguros
-- **echo** agrega tu clave pública al archivo authorized_keys
-- **chmod 600** protege el archivo authorized_keys solo para el usuario
-
-#### Paso 4: Probar el acceso directo sin contraseña
-
-Desde tu **máquina local**, prueba la conexión especificando la llave:
-
-```bash
-$ ssh -i ~/.ssh/id_ed25519_mv statick@192.168.100.3 -p 22   # <1>
-```
-
-- **ssh -i** conecta al servidor usando una clave específica sin necesidad de contraseña
-
-#### Tip Pro: Simplificar la conexión con `~/.ssh/config`
-
-Para no tener que escribir la IP, puerto e id de la llave cada vez, agrega este bloque en tu máquina local en el archivo `~/.ssh/config`:
-
-```bash
-$ cat << 'EOF' >> ~/.ssh/config   # <1>
-Host mv-ubuntu
-    HostName 192.168.100.3
-    User statick
-    Port 22
-    IdentityFile ~/.ssh/id_ed25519_mv
-    IdentitiesOnly yes
-EOF
-
-$ chmod 600 ~/.ssh/config   # <2>
-```
-
-- **cat** agrega la configuración del host al archivo config
-- **chmod** protege el archivo de configuración
-
-Ahora podrás conectarte directamente ejecutando:
-
-```bash
-$ ssh mv-ubuntu   # <1>
-```
-
-- **ssh** conecta al servidor usando la configuración definida en el archivo config
-
-### 11.7 Diagnóstico con `ssh -vvv` (modo verbose)
+### 11.6 Diagnóstico con `ssh -vvv` (modo verbose)
 
 Cuando una conexión SSH falla sin un mensaje claro, el modo verbose triple (`-vvv`) muestra cada paso del proceso de conexión. Esto permite identificar exactamente dónde falla.
 
@@ -1458,8 +1360,9 @@ $ ssh-add -d ~/.ssh/id_ed25519   # <6>
 
 **Verificación:**
 ```bash
-$ ssh -T git@github.com
-Hi USUARIO! You've successfully authenticated, but GitHub does not provide shell access.
+$ ssh -T git@github.com   # <1>
 ```
+
+- **ssh -T** verifica la conexión con GitHub usando la clave de hardware
 
 :::
