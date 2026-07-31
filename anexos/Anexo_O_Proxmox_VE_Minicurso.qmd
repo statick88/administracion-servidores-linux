@@ -1,0 +1,2086 @@
+---
+title: "Minicurso: Proxmox VE — Virtualización Tipo-1 para Servidores"
+subtitle: "De Zero a Producción con KVM, LXC y Clustering"
+author: "Diego Saavedra"
+date: "2026-07-30"
+date-format: medium
+lang: es
+---
+
+# Minicurso: Proxmox VE — Virtualización Tipo-1 para Servidores
+
+## 0. Introducción y Objetivos
+
+¿Alguna vez te imaginaste administrar un edificio completo donde cada departamento funciona de manera independiente pero comparte la misma infraestructura? Eso es exactamente lo que hace un hipervisor por tus servidores: divide el hardware físico en múltiples máquinas virtuales que coexisten sin pisarse.
+
+**Proxmox VE** es el arquitecto y maestro de obras de ese edificio. No solo divide el espacio (virtualización), sino que también gestiona las instalaciones (almacenamiento, red), la seguridad (firewall, usuarios) y la mantenibilidad (clustering, migraciones en vivo). Y lo mejor: es **open source**, sin licencias pagas.
+
+:::{.callout-note}
+## 📝 NOTA
+
+Este minicurso está diseñado como complemento a las Unidades 1, 2, 4 y 6 del curso de Administración de Servidores Linux. Si no tenés claros conceptos como usuarios/permisos, paquetes, redes o servicios, te recomiendo revisar esas unidades primero. No se construye un piso sin cimientos.
+:::
+
+### Objetivos de Aprendizaje
+
+Al finalizar este minicurso, serás capaz de:
+
+1. Explicar qué es un hipervisor Tipo-1 y por qué Proxmox VE es una alternativa sólida a soluciones comerciales
+2. Instalar Proxmox VE desde cero y realizar la configuración post-instalación
+3. Navegar la interfaz web de administración y entender la jerarquía Datacenter → Nodo → VM/CT
+4. Crear y gestionar máquinas virtuales (KVM) y contenedores (LXC)
+5. Configurar almacenamiento con ZFS, LVM-thin y Ceph
+6. Implementar un clúster de nodos con migración en vivo
+7. Automatizar tareas con la REST API y la CLI (`qm`, `pct`, `pvesh`)
+
+### Prerrequisitos
+
+- **Unidad 1:** Conceptos básicos de Linux, distribuciones y arquitectura
+- **Unidad 2:** Instalación de Ubuntu, configuración inicial y seguridad
+- **Unidad 4:** Gestión de paquetes con `apt`, repositorios y actualizaciones
+- **Unidad 6:** Servicios con `systemd`, puertos y gestión de red
+
+Ver guía completa de configuración en: [**SETUP.md**](../../SETUP.md)
+
+### Tabla de Contenidos
+
+1. [Arquitectura y Fundamentos de Proxmox VE](#1-arquitectura-y-fundamentos-de-proxmox-ve)
+2. [Instalación y Primer Arranque](#2-instalación-y-primer-arranque)
+3. [Administración Web (GUI)](#3-administración-web-gui)
+4. [Máquinas Virtuales con KVM/QEMU](#4-máquinas-virtuales-con-kvmqemu)
+5. [Contenedores LXC](#5-contenedores-lxc)
+6. [Almacenamiento: ZFS, LVM-thin y Ceph](#6-almacenamiento-zfs-lvm-thin-y-ceph)
+7. [Clustering y Migración en Vivo](#7-clustering-y-migración-en-vivo)
+8. [Automatización: REST API y CLI](#8-automatización-rest-api-y-cli)
+9. [Laboratorio Práctico Integrador](#9-laboratorio-práctico-integrador)
+
+---
+
+## 1. Arquitectura y Fundamentos de Proxmox VE
+
+### ¿Qué es un hipervisor Tipo-1?
+
+Antes de escribir un solo comando, necesito que entiendas el concepto. Si la virtualización fuera construir un complejo de apartamentos, el hipervisor sería el **plano arquitectónico** que define cómo dividir el terreno en unidades habitables.
+
+Un **hipervisor** es el software que crea y gestiona máquinas virtuales (VMs) sobre hardware físico. Existen dos tipos fundamentales:
+
+| Tipo | Analogía | Ejemplos | Uso típico |
+|------|----------|----------|------------|
+| **Tipo-2 (Hosted)** | Alquilar un apartamento en un edificio existente | VirtualBox, VMware Workstation, Parallels | Escritorio, desarrollo, aprendizaje |
+| **Tipo-1 (Bare-metal)** | Construir tu propio edificio desde los cimientos | Proxmox VE, VMware ESXi, Hyper-V, oVirt | Producción, servidores, data centers |
+
+La diferencia clave: un hipervisor Tipo-2 se instala *sobre* un sistema operativo (como una aplicación más), mientras que un Tipo-1 se instala *directamente* sobre el hardware. ¿Por qué importa esto? Porque el Tipo-1 elimina una capa intermedia de overhead.
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**¿Cuándo usar cada tipo?**
+
+- **Tipo-2 (VirtualBox):** Para aprender, probar distribuciones Linux, desarrollar en tu laptop. Es como practicar maquetas antes de construir el edificio real.
+- **Tipo-1 (Proxmox VE):** Para producción, servidores físicos, infraestructura que necesita rendimiento y disponibilidad. Aquí no hay cabecera de tiempo — el hipervisor TIENE que ser eficiente.
+
+**Regla simple:** Si el hardware es tuyo y lo usás en producción → Tipo-1. Si es tu laptop de desarrollo → Tipo-2 alcanza.
+:::
+
+### Arquitectura de Proxmox VE
+
+Proxmox VE no es solo un hipervisor — es una **plataforma completa de virtualización**. Pensemos en ella como el sistema integral de gestión de un complejo residencial:
+
+```
+┌─────────────────────────────────────────────────────┐
+│              Interfaz de Administración              │
+│         (Web GUI + REST API + CLI)                   │
+├─────────────────────────────────────────────────────┤
+│           Servicios de Alto Nivel                    │
+│  ┌───────────┐ ┌──────────┐ ┌────────────────────┐  │
+│  │ Firewall  │ │ Backup   │ │ High Availability  │  │
+│  │ integrado │ │ (vzdump) │ │ (Corosync + HA)    │  │
+│  └───────────┘ └──────────┘ └────────────────────┘  │
+├─────────────────────────────────────────────────────┤
+│         Capa de Virtualización                       │
+│  ┌──────────────────┐  ┌──────────────────────────┐ │
+│  │  KVM/QEMU        │  │  Contenedores LXC        │ │
+│  │  (VMs completas) │  │  (ligeros, sin kernel)   │ │
+│  └──────────────────┘  └──────────────────────────┘ │
+├─────────────────────────────────────────────────────┤
+│         Capa de Almacenamiento                      │
+│  ┌──────┐ ┌───────────┐ ┌──────┐ ┌──────────────┐  │
+│  │ ZFS  │ │ LVM-thin  │ │ Ceph │ │ NFS/GlusterFS│  │
+│  └──────┘ └───────────┘ └──────┘ └──────────────┘  │
+├─────────────────────────────────────────────────────┤
+│         Capa de Red                                 │
+│  ┌──────────┐ ┌──────────┐ ┌─────────────────────┐  │
+│  │ Linux    │ │ Bridge   │ │ VLANs               │  │
+│  │ Bridge   │ │ OVS      │ │ (802.1Q)            │  │
+│  └──────────┘ └──────────┘ └─────────────────────┘  │
+├─────────────────────────────────────────────────────┤
+│         Debian 12 (Bookworm) — Base del sistema     │
+├─────────────────────────────────────────────────────┤
+│         Hardware Físico (CPU, RAM, Disco, Red)       │
+└─────────────────────────────────────────────────────┘
+```
+
+Cada capa tiene un rol específico. ¿Ves cómo se parece a un edificio? El hardware es el terreno, Debian es los cimientos, KVM/LXC son los departamentos, y la GUI es la recepción donde todo se controla.
+
+### Componentes Clave
+
+| Componente | Función | Analogía |
+|-----------|---------|----------|
+| **Debian 12 (Bookworm)** | Base estable del sistema operativo | Los cimientos y estructura del edificio |
+| **KVM/QEMU** | Virtualización de hardware completo (CPU, RAM, disco, red) | Departamentos independientes con todo incluido |
+| **LXC** | Contenedores ligeros que comparten el kernel del host | Oficinas en un coworking — comparten estructura pero son independientes |
+| **ZFS** | Sistema de archivos con snapshots, deduplicación y reparación | El sistema de seguridad y respaldo del edificio |
+| **LVM-thin** | Almacenamiento thin-provisioned para VMs y CTs | Espacio flexible que se asigna bajo demanda |
+| **Ceph** | Almacenamiento distribuido para clústeres | Las tuberías compartidas entre edificios |
+| **Corosync** | Comunicación entre nodos del clúster | El sistema de intercomunicación del complejo |
+| **Web GUI + API** | Interfaz de administración | La recepción y panel de control central |
+
+### Comparativa: Proxmox VE vs Competencia
+
+| Característica | Proxmox VE 8.x | VMware ESXi 8.x | Hyper-V 2022 | oVirt 4.5 | Harvester 1.x |
+|---------------|-----------------|-----------------|--------------|-----------|---------------|
+| **Licencia** | Open Source (GNU AGPL) | Comercial ( Broadcom ) | Incluido en Windows Server | Open Source (Apache 2.0) | Open Source (Apache 2.0) |
+| **Costo** | Gratis (suscripción opcional) | $$$$ (suscripción requerida) | $$$ (Windows Server) | Gratis | Gratis |
+| **Base** | Debian 12 | Propietaria (VMkernel) | Windows Server | CentOS/RHEL | SUSE + Kubernetes |
+| **Tipo-1** | ✅ Bare-metal | ✅ Bare-metal | ✅ Bare-metal | ✅ Bare-metal | ✅ Bare-metal |
+| **KVM** | ✅ Nativo | ❌ (propio) | ⚠️ Limitado | ✅ Nativo | ✅ (vía KubeVirt) |
+| **LXC/Contenedores** | ✅ Nativo | ❌ | ⚠️ Solo Windows | ❌ | ✅ (Kubernetes) |
+| **ZFS** | ✅ Nativo | ❌ | ❌ | ❌ | ✅ (Longhorn) |
+| **Ceph** | ✅ Integrado | ❌ (vSAN pagado) | ❌ (Spaces) | ⚠️ Manual | ✅ (Longhorn) |
+| **Clustering** | ✅ Corosync | ✅ vCenter | ✅ Failover Cluster | ✅ Corosync | ✅ Kubernetes |
+| **Migración en vivo** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Web GUI** | ✅ Excelente | ✅ vSphere Client | ✅ Hyper-V Manager | ✅ | ✅ Rancher |
+| **REST API** | ✅ Completa | ✅ vSphere API | ⚠️ PowerShell | ✅ | ✅ Kubernetes API |
+| **Ideal para** | Educación, PYMEs, lab | Enterprise, corporativo | Entornos Windows | Data centers grandes | Cloud nativo, HCI |
+
+:::{.callout-note}
+## 📝 NOTA
+
+**¿Por qué Proxmox VE para educación?**
+
+1. **Sin costo de licencia:** Podés instalarlo en cualquier servidor viejo sin preocuparte por costos
+2. **Stack completo:** Virtualización (KVM), contenedores (LXC), almacenamiento (ZFS/Ceph) y clustering — todo en una sola plataforma
+3. **Open source:** Los estudiantes pueden leer el código, entender cómo funciona internamente
+4. **Comunidad activa:** Documentación extensa, foros, y actualizaciones frecuentes
+5. **Transferible:** Lo que aprendés con Proxmox aplica directamente a VMware, Hyper-V y entornos cloud
+:::
+
+---
+
+## 2. Instalación y Primer Arranque
+
+### Preparación del Medio de Instalación
+
+Lo primero que necesitamos es la imagen ISO de Proxmox VE. Vamos a descargarla y verificar su integridad — porque un medio corrupto es como un plano con errores: todo lo que construyas sobre él estará mal.
+
+::: {.panel-tabset}
+
+#### Linux
+
+```bash
+# Descargar la ISO de Proxmox VE
+wget https://download.proxmox.com/iso/proxmox-ve_8.4-1.iso  # <1>
+
+# Verificar el checksum SHA256
+sha256sum proxmox-ve_8.4-1.iso  # <2>
+
+# Verificar la firma GPG (autenticidad)
+gpg --verify proxmox-ve_8.4-1.iso.sig proxmox-ve_8.4-1.iso  # <3>
+```
+
+
+1. **wget** descarga la ISO directamente desde el servidor oficial de Proxmox
+2. **sha256sum** genera el hash SHA256 del archivo descargado — debe coincidir con el publicado en la página oficial
+3. **gpg --verify** confirma que la ISO fue firmada por Proxmox Server Solutions GmbH (no fue manipulada en tránsito)
+
+#### macOS
+
+```bash
+# Descargar con curl (macOS no incluye wget por defecto)
+curl -LO https://download.proxmox.com/iso/proxmox-ve_8.4-1.iso  # <1>
+
+# Verificar el checksum (macOS usa shasum en lugar de sha256sum)
+shasum -a 256 proxmox-ve_8.4-1.iso  # <2>
+
+# Verificar la firma GPG
+gpg --verify proxmox-ve_8.4-1.iso.sig proxmox-ve_8.4-1.iso  # <3>
+```
+
+
+1. **curl -LO** descarga el archivo y lo guarda con el mismo nombre que en el servidor
+2. **shasum -a 256** es el equivalente macOS de sha256sum — genera el hash para verificar integridad
+3. **gpg --verify** requiere que GPG esté instalado (`brew install gnupg`)
+
+#### Windows
+
+```powershell
+# Descargar con PowerShell
+PS> Invoke-WebRequest -Uri "https://download.proxmox.com/iso/proxmox-ve_8.4-1.iso" -OutFile "proxmox-ve_8.4-1.iso"  # <1>
+
+# Verificar el hash SHA256
+PS> Get-FileHash proxmox-ve_8.4-1.iso -Algorithm SHA256  # <2>
+
+# Para verificar firma GPG en Windows, instalar Gpg4win desde https://www.gpg4win.org/
+PS> gpg --verify proxmox-ve_8.4-1.iso.sig proxmox-ve_8.4-1.iso  # <3>
+```
+
+
+1. **Invoke-WebRequest** es el cmdlet PowerShell para descargar archivos desde URLs
+2. **Get-FileHash** calcula el hash SHA256 — el resultado debe coincidir con el hash oficial
+3. **GPG** no viene incluido en Windows; necesitás instalar Gpg4win para verificar firmas
+
+:::
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Grabar la ISO a USB**
+
+Una vez descargada y verificada, necesitás crear un medio booteable:
+
+- **Linux:** `dd if=proxmox-ve_8.4-1.iso of=/dev/sdX bs=4M status=progress`
+- **macOS:** Usar [ balenaEtcher](https://etcher.balena.io/) o `sudo dd if=proxmox-ve_8.4-1.iso of=/dev/rdiskN bs=4m`
+- **Windows:** Usar [Rufus](https://rufus.ie/) o balenaEtcher
+
+⚠️ **Cuidado:** `dd` y Rufus escriben DIRECTAMENTE al disco. Asegurate de seleccionar el dispositivo USB correcto — no tu disco principal.
+:::
+
+### Virtualización Anidada (Nested Virtualization)
+
+Si vas a instalar Proxmox VE dentro de una máquina virtual (para practicar), necesitás habilitar la **virtualización anidada**. Es como construir un mini-edificio dentro de otro edificio — el hardware del "edificio padre" tiene que soportar esa estructura.
+
+::: {.panel-tabset}
+
+#### Linux
+
+```bash
+# Verificar si el CPU soporta virtualización (VT-x/AMD-V)
+grep -E 'vmx|svm' /proc/cpuinfo  # <1>
+
+# Cargar módulo KVM si no está cargado
+sudo modprobe kvm_intel   # Para Intel  # <2>
+sudo modprobe kvm_amd     # Para AMD   # <2>
+
+# Verificar que el módulo esté activo
+lsmod | grep kvm  # <3>
+```
+
+
+1. **grep vmx|svm** busca las flags de virtualización en el CPU — si no hay salida, tu hardware no soporta virtualización
+2. **modprobe** carga el módulo del kernel KVM para Intel o AMD respectivamente
+3. **lsmod | grep kvm** confirma que los módulos KVM están cargados y listos
+
+#### macOS
+
+### Opciones de Hipervisor en macOS
+
+| Arquitectura | Opciones Disponibles |
+|---|---|
+| **Intel Mac** | VirtualBox (gratis), Parallels (pagado), VMware Fusion (pagado) |
+| **Apple Silicon (M1/M2/M3)** | UTM (gratis), Parallels (pagado), VMware Fusion (pagado) |
+
+**Recomendación:**
+- **Para principiantes:** VirtualBox (Intel) o UTM (Apple Silicon)
+- **Para profesionales:** Parallels o VMware Fusion (mejor rendimiento)
+
+```bash
+# VirtualBox — Habilitar virtualización anidada
+VBoxManage modifyvm "Proxmox-VM" --nested-hw-virt on  # <1>
+
+# UTM (Apple Silicon) — Habilitar en settings → System → Hardware → Virtualization
+# Parallels — Habilitar en Configuración → Hardware → CPU → "Anidamiento de virtualización"
+# VMware Fusion — Se habilita automáticamente en versiones recientes
+```
+
+
+1. **VBoxManage** es la CLI de VirtualBox para modificar configuración de VMs — la virtualización anidada se activa con esta bandera
+
+#### Windows
+
+```powershell
+# Habilitar Hyper-V (Windows 10/11 Pro o Enterprise)
+PS> Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All  # <1>
+
+# Habilitar virtualización anidada en Hyper-V
+PS> Set-VMProcessor -VMName "Proxmox-VM" -ExposeVirtualizationExtensions $true  # <2>
+
+# Verificar soporte de virtualización
+PS> systeminfo | Select-String "Hyper-V"  # <3>
+```
+
+
+1. **Enable-WindowsOptionalFeature** activa Hyper-V como rol de Windows — requiere reinicio
+2. **Set-VMProcessor** habilita la virtualización anidada para una VM específica en Hyper-V
+3. **systeminfo | Select-String** verifica si tu hardware y SO soportan Hyper-V
+
+:::
+
+### Proceso de Instalación
+
+Una vez que tengas el medio booteable listo, el proceso de instalación es directo. Piensa en esto como configurar los planos iniciales del edificio — cada decisión aquí afecta cómo se va a construir todo lo demás.
+
+**Pasos de la instalación:**
+
+1. **Boot desde USB/ISO** — Reinicia el servidor y selecciona el medio de instalación
+2. **Install Proxmox VE (Graphical)** — Selecciona la instalación gráfica (recomendada)
+3. **Target disk** — Selecciona el disco donde se instalará Proxmox (mínimo 32 GB)
+4. **Country and time zone** — Selecciona tu país y zona horaria
+5. **Keyboard layout** — Distribución del teclado
+6. **Password and email** — Contraseña del usuario root y email para notificaciones
+7. **Management interface** — Interfaz de red para acceder a la GUI de administración
+8. **Hostname and IP** — FQDN del servidor (ej: `proxmox.lab.local`) y dirección IP estática
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**La opción "Erase disk" destruye TODOS los datos del disco seleccionado**
+
+**Lo que podría salir mal:**
+- Si seleccionás el disco equivocado, perderás todos los datos de ese disco (incluyendo tu sistema operativo actual)
+- No hay confirmación adicional — una vez que se inicia el formateo, no hay vuelta atrás
+- Si tenés datos importantes en el disco destino, hacé un backup ANTES de continuar
+
+**Cómo prevenirlo:**
+1. Verificá el disco seleccionado MÍNIMO dos veces antes de continuar
+2. Si tenés múltiples discos, desconectá los que no querés formatear
+3. Usá `lsblk` (Linux) o Disk Management (Windows) para identificar discos antes de arrancar desde USB
+:::
+
+### Configuración Post-Instalación
+
+Después de la instalación, Proxmox VE arranca y muestra la IP de acceso a la GUI web. Abrí un navegador en cualquier computadora de la misma red y accedé a:
+
+```
+https://DIRECCION_IP_DEL_SERVIDOR:8006
+```
+
+:::{.callout-note}
+## 📝 NOTA
+
+**¿Por qué HTTPS y puerto 8006?**
+
+Proxmox VE usa HTTPS con un certificado auto-firmado por defecto. Tu navegador mostrará una advertencia de seguridad — es normal. Hacé clic en "Advanced" → "Proceed" para continuar. En producción, deberías configurar un certificado válido (Let's Encrypt).
+:::
+
+Ahora vamos a configurar los repositorios de software para evitar errores molestos. Por defecto, Proxmox incluye un repositorio de型企业 (enterprise) que requiere licencia de suscripción.
+
+::: {.panel-tabset}
+
+#### Linux
+
+```bash
+# Conectar por SSH al servidor Proxmox
+ssh root@192.168.1.100  # <1>
+
+# Eliminar el repositorio enterprise (requiere licencia)
+rm /etc/apt/sources.list.d/pve-enterprise.list  # <2>
+
+# Agregar el repositorio "no-subscription" (gratuito, para testing/lab)
+echo "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list  # <3>
+
+# Actualizar la lista de paquetes y sistema completo
+apt update && apt full-upgrade -y  # <4>
+```
+
+
+1. **ssh root@IP** conecta al servidor vía SSH — después de la instalación, root es el único usuario disponible
+2. **rm** elimina el archivo de configuración del repositorio enterprise que genera errores 401
+3. **echo > archivo** crea el archivo con el repositorio no-subscription — apt lo usará para descargar paquetes gratuitos
+4. **apt update && apt full-upgrade** actualiza la lista de paquetes y luego instala todas las actualizaciones disponibles
+
+#### macOS
+
+```bash
+# Conectar por SSH ( macOS incluye SSH nativo)
+ssh root@192.168.1.100  # <1>
+
+# Eliminar el repositorio enterprise
+rm /etc/apt/sources.list.d/pve-enterprise.list  # <2>
+
+# Agregar el repositorio no-subscription
+echo "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list  # <3>
+
+# Actualizar sistema
+apt update && apt full-upgrade -y  # <4>
+```
+
+
+1. **ssh** funciona igual en macOS que en Linux — ambos son sistemas Unix
+2. Los comandos de administración se ejecutan EN EL SERVIDOR Proxmox, no en tu Mac
+3. La estructura de repositorios es idéntica porque Proxmox se basa en Debian
+4. Podés cerrar la sesión SSH después de completar la configuración
+
+#### Windows
+
+```powershell
+# Conectar por SSH desde PowerShell
+PS> ssh root@192.168.1.100  # <1>
+
+# O usar PuTTY si no tenés SSH nativo (Windows 10+ incluye SSH)
+PS> Putty.exe -ssh root@192.168.1.100
+
+# Una vez conectado al servidor, los comandos son los mismos que en Linux:
+rm /etc/apt/sources.list.d/pve-enterprise.list  # <2>
+echo "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list  # <3>
+apt update && apt full-upgrade -y  # <4>
+```
+
+
+1. **ssh** está disponible nativamente en Windows 10/11 — para versiones anteriores usá PuTTY
+2. Una vez dentro del servidor, todos los comandos de administración son comandos Debian/Linux
+3. No hay diferencia en los comandos del servidor entre sistemas operativos del cliente
+
+:::
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Configurar IP estática después de la instalación**
+
+Por defecto, Proxmox VE usa DHCP. En un servidor de producción, siempre querés una IP estática. Podés configurarla desde:
+
+1. **GUI Web:** Node → Network → seleccionar interfaz → Edit → IPv4/CIDR
+2. **CLI:** Editar `/etc/network/interfaces` y configurar `address`, `gateway`, `dns-nameservers`
+
+Una IP cambiante en un servidor es como un edificio sin dirección fija — nadie lo encuentra.
+:::
+
+---
+
+## 3. Administración Web (GUI)
+
+### Inicio de Sesión
+
+Accedé a la GUI de administración desde cualquier navegador:
+
+```
+https://DIRECCION_IP:8006
+```
+
+En la pantalla de login:
+
+- **Usuario:** `root`
+- **Contraseña:** la que configuraste durante la instalación
+- **Realm:** `@pam` (autenticación PAM del sistema operativo)
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Habilitar autenticación de dos factores (2FA)**
+
+Para mayor seguridad, Proxmox VE soporta TOTP y YubiKey. Configuralo desde:
+
+1. Datacenter → Authentication → Add → TOTP
+2. Escaneá el código QR con Google Authenticator o Authy
+3. Guardá los códigos de respaldo en un lugar seguro
+
+Un servidor sin 2FA es como un edificio sin cerradura — técnicamente funciona, pero no querés probar suerte.
+:::
+
+### Panel de Control (Dashboard)
+
+Una vez dentro, el dashboard muestra una vista general del sistema. Piensa en esto como el tablero de control del edificio — todos los indicadores críticos en un solo lugar:
+
+- **CPU:** Uso por nodo (con gráfico histórico)
+- **Memory:** RAM total, usada y disponible
+- **Storage:** Estado de los pools de almacenamiento
+- **Network:** Tráfico de red por interfaz
+- **Status:** Estado general del nodo (verde = OK, amarillo = alerta, rojo = problema)
+
+### Estructura de Navegación
+
+La GUI organiza los recursos en un **árbol jerárquico** en el panel izquierdo. Cada nivel del árbol representa un nivel de gestión — como los pisos de un edificio:
+
+```
+Datacenter                    ← Nivel más alto: todo el complejo
+├── Node: proxmox-1           ← Nivel medio: un servidor físico
+│   ├── VM 100: web-server    ← Nivel bajo: una máquina virtual
+│   ├── VM 101: db-server     ← Nivel bajo: otra máquina virtual
+│   ├── CT 200: cache         ← Nivel bajo: un contenedor LXC
+│   ├── Storage: local-lvm    ← Almacenamiento del nodo
+│   ├── Network               ← Configuración de red del nodo
+│   └── Firewall              ← Firewall del nodo
+├── Node: proxmox-2           ← Otro servidor físico
+│   └── ...
+└── Storage: shared-nfs       ← Almacenamiento compartido
+```
+
+### Vistas Principales del Nodo
+
+Cuando seleccionás un nodo en el árbol, aparecen varias pestañas. Cada una gestiona un aspecto diferente — como los diferentes departamentos de administración del edificio:
+
+| Pestaña | Función | Analogía |
+|---------|---------|----------|
+| **Summary** | Vista general con gráficos de uso | Sala de monitoreo central |
+| **Console** | Consola virtual del nodo (noVNC) | Llave maestra de acceso directo |
+| **Hardware** | CPUs, RAM, discos, NICs del servidor | Planos estructurales del edificio |
+| **Options** | Configuración general del nodo | Reglamento interno del edificio |
+| **Task History** | Log de todas las operaciones realizadas | Libro de bitácora de mantenimiento |
+| **Backup** | Tareas de backup programadas | Sistema de respaldo y recuperación |
+| **Firewall** | Reglas de firewall del nodo | Sistema de seguridad y control de acceso |
+
+### Consola Virtual (noVNC / SPICE)
+
+La pestaña **Console** te da acceso directo a la pantalla de la VM o del nodo — como si estuvieras frente al monitor físico. Proxmox soporta dos protocolos:
+
+| Protocolo | Ventaja | Cuándo usarlo |
+|-----------|---------|---------------|
+| **noVNC** | Funciona en cualquier navegador, sin plugins | Uso general, acceso rápido |
+| **SPICE** | Mejor rendimiento, soporte de audio y clipboard | VMs de escritorio, experiencia completa |
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Atajos de teclado en la consola virtual**
+
+- **Ctrl+Alt+Del:** Enviar la combinación a la VM (desde el menú, no desde tu teclado)
+- **Ctrl+Alt+Esc:** Salir del modo de captura del mouse
+- **Full-screen:** Desde el menú de la consola para experiencia completa
+
+Si tu mouse "desaparece" dentro de la consola, es porque está capturado por la VM. Usá Ctrl+Alt+Esc para liberarlo.
+:::
+
+### Pestaña de Hardware
+
+Cuando seleccionás una VM, la pestaña **Hardware** muestra todos los dispositivos virtuales. Aquí es donde construyes la "infraestructura" de cada máquina virtual:
+
+| Dispositivo | Descripción | Recomendación |
+|------------|-------------|---------------|
+| **Processors** | Número de cores/sockets virtuales | Asignar según carga de trabajo |
+| **Memory** | RAM asignada | Mínimo 512 MB para Linux, 2 GB para Windows |
+| **Hard Disk** | Disco virtual (IDE, SCSI, VirtIO) | Usar SCSI + VirtIO para mejor rendimiento |
+| **Network Device** | Tarjeta de red virtual | VirtIO (paravirtualizada) es la más eficiente |
+| **CD/DVD** | Unidad óptima virtual | Para instalar SO desde ISO |
+| **USB** | Dispositivos USB passthrough | Para dongles, almacenamiento externo |
+| **Display** | Tarjeta gráfica virtual | Standard VGA o VirtIO-GPU |
+
+:::{.callout-note}
+## 📝 NOTA
+
+**¿Por qué VirtIO?**
+
+VirtIO es un estándar de paravirtualización que permite a la VM comunicarse directamente con el hipervisor de forma eficiente. Es como tener un intérprete que habla ambos idiomas en vez de dos personas que no se entienden.
+
+- **IDE:** Lento, compatible con todo (para legados)
+- **SCSI:** Rápido, requiere controladores (recomendado para discos)
+- **VirtIO:** El más rápido para red y almacenamiento (requiere soporte en el SO guest)
+
+Si tu SO soporta VirtIO (la mayoría de Linux modernos lo hacen), usalo siempre.
+:::
+
+### REST API y Automatización
+
+Todo lo que podés hacer desde la GUI, también podés hacerlo desde la API REST. Esto es fundamental para automatización — un edificio bien diseñado tiene sistemas automáticos que no dependen de que alguien esté apretando botones.
+
+```bash
+# Consultar el estado de todas las VMs vía API
+curl -k -s https://192.168.1.100:8006/api2/json/nodes/proxmox-1/qemu \  # <1>
+  -H "Authorization: PVEAPIToken=root@pam!tokenid=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"  # <2>
+
+# Respuesta JSON con lista de VMs y su estado
+```
+
+
+1. **curl -k** ignora la verificación del certificado auto-firmado (necesario para certificados self-signed)
+2. **PVEAPIToken** es el formato de autenticación de la API de Proxmox — se genera desde Datacenter → API Tokens
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Aprender la CLI de Proxmox**
+
+Además de la API REST, Proxmox VE ofrece comandos CLI que son muy útiles para scripting:
+
+| Comando | Función | Ejemplo |
+|---------|---------|---------|
+| `qm` | Gestión de VMs KVM | `qm list`, `qm start 100` |
+| `pct` | Gestión de contenedores LXC | `pct list`, `pct start 200` |
+| `pvesh` | Acceso genérico a la API | `pvesh get /nodes` |
+| `pveam` | Gestión de plantillas de contenedores | `pct list --all` |
+| `vzdump` | Backup de VMs y contenedores | `vzdump 100 --storage local` |
+
+Estos comandos son la base para scripts de automatización y monitoreo.
+:::
+
+
+## 4. Ciclo de Vida de VMs KVM/QEMU
+
+Crear una VM es como planificar una casa: cada decisión de hardware afecta el rendimiento final. Vamos a recorrer el wizard de creación y entender qué significa cada opción.
+
+### 4.1 Asistente de Creación de VM
+
+En la GUI de Proxmox VE, haz clic en **"Create VM"** (esquina superior derecha). El wizard tiene 6 pestañas:
+
+| Pestaña | Qué configura | Analogía |
+|---------|---------------|----------|
+| **General** | Nombre, ID, Grupo | Dirección de la casa |
+| **OS** | ISO, tipo de disco | Material de construcción |
+| **System** | BIOS, SCSI controller | Plano arquitectónico |
+| **Disks** | Tamaño, almacenamiento | Metros cuadrados |
+| **CPU** | Tipo, cores,sockets | Número de habitaciones |
+| **Memory** | RAM, swap | Almacenamiento interno |
+| **Network** | Bridge, VLAN, MAC | Conexión a servicios |
+| **Confirm** | Resumen final | Inspección antes de mudarte |
+
+### 4.2 Emulación de Hardware
+
+¿Qué le estás "prestando" a la VM? Proxmox emula hardware real:
+
+- **BIOS/UEFI**: SeaBIOS (legacy) u OVMF (UEFI moderno). Para VMs con Secure Boot, usa OVMF.
+- **CPU type**: `host` pasa las instrucciones del procesador físico (mejor rendimiento), `kvm64` es genérico y portable entre hosts.
+- **VirtIO drivers**: Paravirtualización — el OS "sabe" que está en una VM y se comunica directamente con el hypervisor. Mucho más rápido que emular hardware completo.
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Usa `host` como tipo de CPU** cuando todas las VMs corran en el mismo host físico. Si planeas migrar VMs entre hosts con CPUs diferentes, usa `kvm64` o `kvm32` para compatibilidad.
+
+**Casos de uso:**
+- Homelab con un solo servidor → `host`
+- Cluster con CPUs mixtos → `kvm64`
+- VM que necesita migrarse a otros hosts → `kvm64`
+:::
+
+### 4.3 Cloud-init: Automatización Inteligente
+
+**Cloud-init** es como darle instrucciones de mudanza a tu VM antes de que encienda por primera vez. Configura hostname, IPs, claves SSH y más automáticamente.
+
+**¿Por qué importa?** Sin cloud-init, cada VM nueva necesita configuración manual. Con cloud-init, una plantilla puede generar VMs ya configuradas.
+
+**Ejemplo de configuración cloud-init:**
+
+```yaml
+# cloud-init config para servidor web
+hostname: webserver-01
+manage_etc_hosts: true
+users:
+  - name: admin
+    ssh-authorized-keys:
+      - ssh-ed25519 AAAA...tu-clave-pública
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    shell: /bin/bash
+# <1>
+network-config: |
+  version: 2
+  ethernets:
+    ens18:
+      dhcp4: false
+      addresses: [192.168.1.100/24]
+      gateway4: 192.168.1.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+# <2>
+runcmd:
+  - apt update && apt upgrade -y
+  - apt install -y nginx ufw
+  - ufw allow OpenSSH
+  - ufw allow 80/tcp
+  - ufw enable
+# <3>
+```
+
+1. **users** define el usuario inicial con clave SSH y permisos sudo
+2. **network-config** configura IP estática sin DHCP
+3. **runcmd** ejecuta comandos post-instalación (instalación de software)
+
+### 4.4 Templates: La Fábrica de VMs
+
+Un template es una VM "congelada" que sirve como modelo para crear nuevas VMs rápidamente.
+
+**Paso 1: Prepara la VM base**
+
+```bash
+$ qm create 9000 --name ubuntu-template --memory 2048 --cores 2 \
+  --net0 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci \
+  --scsi0 local-lvm:size=32G --ide2 local:iso/ubuntu-22.04.iso,media=cdrom \
+  --boot order=scsi0;ide2
+# <1>
+
+$ qm template 9000
+# <2>
+```
+
+1. **qm create** genera la VM con ID 9000 con hardware virtualizado
+2. **qm template** convierte la VM en plantilla (no se puede iniciar, solo clonar)
+
+**Paso 2: Clona desde el template**
+
+```bash
+$ qm clone 9000 101 --name webserver-01 --full
+# <1>
+
+$ qm set 101 --ipconfig0 ip=192.168.1.101/24,gw=192.168.1.1
+# <2>
+
+$ qm cloudinit dump 101
+# <3>
+
+$ qm start 101
+# <4>
+```
+
+1. **qm clone** crea una copia completa (full clone) desde el template 9000
+2. **qm set** configura la IP específica de esta VM
+3. **qm cloudinit dump** regenera el drive de cloud-init con la nueva configuración
+4. **qm start** enciende la VM ya configurada
+
+### 4.5 Clonación: Full vs Linked
+
+| Aspecto | Full Clone | Linked Clone |
+|---------|-----------|--------------|
+| **Espacio en disco** | Completo (duplicado) | Solo cambios (diferencial) |
+| **Velocidad de creación** | Lenta | Rápida |
+| **Rendimiento** | Nativo | Overhead mínimo |
+| **Dependencia** | Independiente | Depende del base |
+| **Uso recomendado** | Producción | Desarrollo/Testing |
+| **Migración** | Fácil | Difícil (necesita base) |
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Linked clones dependen del base disk.** Si eliminas la VM base o template, TODOS los linked clones se rompen. Solo usa linked clones en entornos de testing o desarrollo, nunca en producción.
+
+**Lo que podría salir mal:**
+- Eliminas la VM base por error
+- El disco base se corrompe
+- Migras el linked clone sin el base
+
+**Cómo prevenirlo:**
+1. Usa full clones para VMs de producción
+2. Si usas linked clones, respalda siempre el template
+3. Documenta qué VMs dependen de qué template
+:::
+
+### 4.6 Snapshots: La Máquina del Tiempo
+
+Los snapshots guardan el estado exacto de una VM en un momento dado. Son útiles para probar cambios peligrosos.
+
+```bash
+$ qm snapshot 101 pre-upgrade-snapshot
+# <1>
+
+$ qm rollback 101 pre-upgrade-snapshot
+# <2>
+
+$ qm delsnapshot 101 pre-upgrade-snapshot
+# <3>
+
+$ qm listsnapshot 101
+# <4>
+```
+
+1. **qm snapshot** toma una foto del estado actual (disco + memoria)
+2. **qm rollback** restaura la VM al estado guardado en el snapshot
+3. **qm delsnapshot** elimina un snapshot específico (consolida cambios)
+4. **qm listsnapshot** muestra todos los snapshots disponibles
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Un snapshot NO es un backup.** No lo confundas:
+
+- Los snapshots dependen del disco base — si el disco se corrompe, el snapshot también
+- No se pueden almacenar en otro servidor
+- Acumulados degradan el rendimiento del disco
+- No protegen contra fallos de hardware
+
+**Los snapshots son para:**
+- Pruebas temporales (upgrade, cambio de config)
+- Rollback rápido después de un error
+- Punto de control antes de una operación riesgosa
+
+**Los backups son para:**
+- Recuperación ante desastres
+- Cumplimiento de normativas
+- Protección contra ransomware y fallos de hardware
+:::
+
+### 4.7 Migración Básica
+
+Proxmox permite mover VMs entre nodos del cluster:
+
+- **Migración en vivo (live migration)**: La VM sigue corriendo mientras se mueve. Requiere almacenamiento compartido (NFS, Ceph, iSCSI).
+- **Migración offline**: La VM se apaga, se copia el disco, y se enciende en el nuevo nodo. Funciona con almacenamiento local.
+
+```bash
+$ qm migrate 101 node2 --online
+# <1>
+
+$ qm migrate 101 node2
+# <2>
+```
+
+1. **--online** ejecuta migración en vivo (la VM no se apaga)
+2. Sin --online es migración offline (apaga → copia → enciende)
+
+### 4.8 Operaciones multi-SO
+
+::: {.panel-tabset}
+
+#### Linux (SSH al servidor Proxmox)
+
+```bash
+# Crear VM desde CLI
+$ qm create 201 --name test-vm --memory 1024 --cores 1 \
+  --net0 virtio,bridge=vmbr0 --scsi0 local-lvm:size=10G
+# <1>
+
+# Clonar VM existente
+$ qm clone 201 202 --name test-vm-clone --full
+# <2>
+
+# Tomar snapshot
+$ qm snapshot 201 before-test
+# <3>
+
+# Verificar estado de VMs
+$ qm status 201
+# <4>
+
+# Eliminar VM (detener primero)
+$ qm stop 201 && qm destroy 201
+# <5>
+```
+
+1. **qm create** genera una VM con 1GB RAM y 1 disco de 10GB
+2. **qm clone** duplica la VM 201 como 202 con nombre descriptivo
+3. **qm snapshot** guarda el estado antes de pruebas
+4. **qm status** muestra si la VM está corriendo o apagada
+5. **qm destroy** elimina permanentemente la VM (¡cuidado!)
+
+#### macOS (vía SSH)
+
+```bash
+# Conectar al servidor Proxmox por SSH
+$ ssh root@192.168.1.10
+# <1>
+
+# Crear VM (mismos comandos que Linux)
+$ qm create 201 --name test-vm --memory 1024 --cores 1 \
+  --net0 virtio,bridge=vmbr0 --scsi0 local-lvm:size=10G
+# <2>
+
+# Listar todas las VMs
+$ qm list
+# <3>
+```
+
+1. **ssh root@IP** establece conexión segura al host Proxmox
+2. Los comandos **qm** son idénticos — solo cambia el medio de acceso
+3. **qm list** muestra todas las VMs con su estado y uso de recursos
+
+#### Windows (PowerShell Remoting o GUI Web)
+
+```powershell
+# Conectar al servidor Proxmox vía SSH desde PowerShell
+PS> ssh root@192.168.1.10
+# <1>
+
+# O usar la GUI web: https://192.168.1.10:8006
+# Navegar a: Server View → Crear VM
+# <2>
+
+# Desde PowerShell con SSH, ejecutar comandos qm
+PS> ssh root@192.168.1.10 "qm list"
+# <3>
+```
+
+1. **ssh root@IP** funciona igual desde PowerShell que desde terminal
+2. La **GUI web** es la forma más cómoda en Windows para operaciones complejas
+3. **Ejecución remota** permite automatizar comandos qm desde Windows
+
+:::
+
+---
+
+## 5. Contenedores LXC
+
+### 5.1 ¿Qué es LXC?
+
+Imagina que KVM es construir un apartamento completo (paredes, techo, cocina propia), mientras que LXC es rentar una habitación en una casa compartida — usas la misma cocina y baño (el kernel del host), pero tienes tu propio espacio.
+
+| Aspecto | KVM/QEMU | LXC |
+|---------|----------|-----|
+| **Tipo** | Virtualización completa (hardware) | Virtualización a nivel de SO |
+| **Kernel** | Kernel propio por VM | Kernel compartido con el host |
+| **Overhead** | Mayor (emula hardware completo) | Mínimo (comparte kernel) |
+| **Arranque** | Lento (arranca OS completo) | Instantáneo (solo procesos) |
+| **Aislamiento** | Total (hardware dedicado) | Parcial (comparte kernel) |
+| **Uso de RAM** | Alto (cada VM carga su OS) | Bajo (solo procesos) |
+| **Casos de uso** | VMs heterogéneas, Windows, testing | Servicios Linux, alta densidad |
+
+**La pregunta que debes hacerte:** ¿Necesitas un kernel diferente o hardware emulado? Usa KVM. ¿Solo necesitas aislar procesos Linux? Usa LXC — es más rápido y eficiente.
+
+### 5.2 Contenedores Privilegiados vs No Privilegiados
+
+```bash
+# Verificar si el sistema soporta contenedores no privilegiados
+$ cat /proc/sys/kernel/unprivileged_userns_clone
+# <1>
+
+# Habilitar si no está activo
+$ echo 1 > /proc/sys/kernel/unprivileged_userns_clone
+# <2>
+```
+
+1. **unprivileged_userns_clone** debe valer `1` para permitir contenedores sin privilegios root
+2. **Habilitar** permite que usuarios normales ejecuten contenedores aislados
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Evita contenedores privilegiados** a menos que sea estrictamente necesario. Un contenedor privilegiado tiene acceso casi total al host — si un atacante escapa del contenedor, obtiene root en el host.
+
+**Lo que podría salir mal:**
+- Un contenedor comprometido accede al filesystem del host
+- Escalada de privilegios desde el contenedor al host
+- Pérdida de aislamiento entre contenedores
+
+**Cómo prevenirlo:**
+1. Usa contenedores **no privilegiados** por defecto
+2. Solo usa privilegiados para servicios que lo requieran (ej: Docker dentro de LXC)
+3. Aplica least-privilege: solo los permisos necesarios
+:::
+
+### 5.3 Límites de Recursos
+
+Controla cuántos recursos consume cada contenedor:
+
+```bash
+# Configurar límites de un contenedor
+$ pct set 100 --cpus 2 --memory 2048 --swap 1024
+# <1>
+
+# Configurar peso de disco I/O
+$ pct set 100 --disk0 size=20G,weight=1000
+# <2>
+
+# Ver configuración actual
+$ pct config 100
+# <3>
+```
+
+1. **--cpus 2** asigna 2 cores, **--memory 2048** da 2GB RAM, **--swap 1024** agrega 1GB swap
+2. **--disk0 weight=1000** prioriza este contenedor en operaciones de disco
+3. **pct config** muestra toda la configuración del contenedor
+
+### 5.4 Nesting: Contenedores dentro de Contenedores
+
+¿Necesitas Docker corriendo dentro de un contenedor LXC? Necesitas habilitar **nesting**:
+
+```bash
+# Habilitar nesting para un contenedor específico
+$ pct set 100 --nesting 1
+# <1>
+
+# Habilitar nesting globalmente (en el host)
+$ echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+# <2>
+
+$ sysctl -p
+# <3>
+```
+
+1. **--nesting 1** permite al contenedor crear sus propios namespaces (necesario para Docker)
+2. **ip_forward** habilita el reenvío de paquetes entre redes
+3. **sysctl -p** recarga la configuración sin reiniciar
+
+### 5.5 Gestión de Contenedores
+
+```bash
+# Crear contenedor desde template
+$ pct create 100 local:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.zst \
+  --hostname webserver --memory 2048 --cores 2 \
+  --net0 name=eth0,bridge=vmbr0,ip=dhcp
+# <1>
+
+# Iniciar contenedor
+$ pct start 100
+# <2>
+
+# Entrar al contenedor
+$ pct enter 100
+# <3>
+
+# Ejecutar comando remoto
+$ pct exec 100 -- apt update
+# <4>
+
+# Detener contenedor
+$ pct stop 100
+# <5>
+
+# Eliminar contenedor
+$ pct destroy 100
+# <6>
+```
+
+1. **pct create** genera un contenedor desde una plantilla oficial de LXC
+2. **pct start** arranca el contenedor
+3. **pct enter** abre una shell dentro del contenedor (como SSH local)
+4. **pct exec** ejecuta un comando específico sin entrar interactivamente
+5. **pct stop** detiene el contenedor
+6. **pct destroy** elimina permanentemente el contenedor
+
+### 5.6 Gestión multi-SO
+
+::: {.panel-tabset}
+
+#### Linux (SSH al servidor)
+
+```bash
+# Listar todos los contenedores
+$ pct list
+# <1>
+
+# Ver recursos en uso
+$ pct status 100
+# <2>
+
+# Mover contenedor a otro nodo (requiere cluster)
+$ pct migrate 100 node2
+# <3>
+
+# Clonar contenedor
+$ pct clone 100 101 --hostname webserver-backup
+# <4>
+```
+
+1. **pct list** muestra todos los contenedores con ID, estado y IP
+2. **pct status** indica si el contenedor está corriendo, detenido o congelado
+3. **pct migrate** mueve el contenedor a otro nodo del cluster
+4. **pct clone** duplica el contenedor con nuevo hostname
+
+#### macOS (vía SSH)
+
+```bash
+# Conectar al servidor
+$ ssh root@192.168.1.10
+# <1>
+
+# Listar contenedores (mismos comandos)
+$ pct list
+# <2>
+
+# Crear contenedor desde template
+$ pct create 100 local:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.zst \
+  --hostname app --memory 1024 --cores 1
+# <3>
+```
+
+1. La conexión SSH es el medio estándar de acceso remoto
+2. Los comandos **pct** son idénticos al acceso local
+3. Puedes automatizar la creación de contenedores con scripts
+
+#### Windows (PowerShell + SSH)
+
+```powershell
+# Conectar vía SSH
+PS> ssh root@192.168.1.10
+# <1>
+
+# Listar contenedores desde PowerShell
+PS> ssh root@192.168.1.10 "pct list"
+# <2>
+
+# Crear contenedor con configuración específica
+PS> ssh root@192.168.1.10 "pct create 100 local:vztmpl/ubuntu-22.04.tar.zst --hostname db --memory 4096 --cores 4"
+# <3>
+```
+
+1. **SSH desde PowerShell** funciona de la misma manera que en Linux/macOS
+2. **Ejecución remota** permite comandos puntuales sin sesión interactiva
+3. **Automatización** con scripts .ps1 para despliegues masivos
+
+:::
+
+### 5.7 Laboratorio Integrado: Crear y Gestionar Contenedores LXC
+
+**Objetivo:** Crear un contenedor LXC, configurarlo y verificar su funcionamiento.
+
+**Duración:** 30 minutos
+
+**Pasos:**
+
+1. Descarga un template oficial:
+
+```bash
+$ pveam update
+# <1>
+
+$ pveam available --section system | grep ubuntu
+# <2>
+
+$ pveam download local ubuntu-22.04-standard_22.04-1_amd64.tar.zst
+# <3>
+```
+
+1. **pveam update** actualiza la lista de plantillas disponibles
+2. **pveam available** lista las plantillas del sistema filtrando por nombre
+3. **pveam download** descarga la plantilla al almacenamiento local
+
+2. Crea el contenedor:
+
+```bash
+$ pct create 200 local:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.zst \
+  --hostname lab-container --memory 1024 --cores 1 \
+  --net0 name=eth0,bridge=vmbr0,ip=dhcp
+# <1>
+```
+
+1. **pct create** genera el contenedor 200 con 1GB RAM y 1 core
+
+3. Gestiona el contenedor:
+
+```bash
+$ pct start 200
+# <1>
+
+$ pct enter 200
+# <2>
+
+$ apt update && apt install -y nginx
+# <3>
+
+$ curl localhost
+# <4>
+
+$ exit
+# <5>
+
+$ pct stop 200
+# <6>
+```
+
+1. **pct start** arranca el contenedor
+2. **pct enter** abre una shell dentro del contenedor
+3. **apt install nginx** instala el servidor web dentro del contenedor
+4. **curl localhost** verifica que Nginx está respondiendo
+5. **exit** cierra la shell del contenedor
+6. **pct stop** detiene el contenedor
+
+---
+
+## 6. Almacenamiento
+
+### 6.1 Taxonomía de Tipos de Almacenamiento
+
+¿Dónde guardas los discos de tus VMs? Proxmox soporta múltiples backends:
+
+| Tipo | Tecnología | Rendimiento | Complejidad | Uso |
+|------|-----------|-------------|-------------|-----|
+| **Local** | Directorio, LVM-thin | Depende del disco físico | Baja | Homelab, servidores individuales |
+| **Network** | NFS, iSCSI, CIFS | Depende de la red | Media | Servidores múltiples |
+| **Distributed** | Ceph (RBD), GlusterFS | Alto (distribuido) | Alta | Clusters de producción |
+
+### 6.2 LVM-thin: Eficiencia en Espacio
+
+LVM-thin permite **thin provisioning** — asignar más espacio del que físicamente tienes, porque no todas las VMs usan su disco completo al mismo tiempo.
+
+```bash
+# Verificar volúmenes LVM existentes
+$ lvs
+# <1>
+
+# Verificar espacio thin pool
+$ lvs -a -o +data_percent,metadata_percent
+# <2>
+```
+
+1. **lvs** lista todos los volúmenes LVM incluyendo thin pools
+2. **data_percent** muestra qué porcentaje del pool está en uso
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Agotamiento de metadata LVM-thin:** Si el pool thin se llena al 100%, TODAS las VMs que usan ese pool se detienen inmediatamente (modo read-only). Es como si el suelo de tu casa desapareciera bajo tus pies.
+
+**Cómo prevenirlo:**
+1. Monitorea el uso con `lvs -a -o +data_percent`
+2. Configura alertas cuando supere el 80%
+3. Deja un 20% de espacio libre como margen de seguridad
+4. Usa `fstrim` regularmente para liberar bloques no usados
+:::
+
+### 6.3 ZFS: El Tanque de Batalla
+
+ZFS es un sistema de archivos que combina volumen, RAID, snapshots y compresión en uno solo. Es ideal para homelabs y entornos que necesitan integridad de datos.
+
+```bash
+# Crear pool ZFS con espejo (RAID 1)
+$ zpool create -o ashift=12 tank mirror /dev/sdb /dev/sdc
+# <1>
+
+# Ver estado del pool
+$ zpool status tank
+# <2>
+
+# Activar compresión
+$ zset compression=lz4 tank
+# <3>
+
+# Ver uso del pool
+$ zpool list tank
+# <4>
+
+# Tomar snapshot ZFS
+$ zfs snapshot tank/vm-100-disk-0@before-upgrade
+# <5>
+
+# Listar snapshots
+$ zfs list -t snapshot | grep tank
+# <6>
+```
+
+1. **zpool create** crea un pool con espejo (dos discos, datos replicados)
+2. **zpool status** muestra salud del pool y errores
+3. **compression=lz4** activa compresión transparente (mejora I/O y ahorra espacio)
+4. **zpool list** muestra espacio usado y disponible
+5. **zfs snapshot** toma un snapshot del volumen de la VM
+6. **zfs list -t snapshot** lista todos los snapshots disponibles
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**ZFS y memoria ECC:** ZFS usa la RAM como caché (ARC). Si la RAM tiene errores bit-flip, ZFS puede corromper datos. Para homelab, usa al menos 1GB de RAM por cada 1TB de almacenamiento ZFS.
+
+**Cuándo usar ZFS vs LVM-thin:**
+- **ZFS**: Homelab, servidores con 1-2 discos, integridad de datos crítica
+- **LVM-thin**: Producción con discos SSD, necesidad de thin provisioning
+- **Directorio**: Desarrollo rápido, VMs temporales
+:::
+
+### 6.4 Directorio: La Opción Más Simple
+
+Almacena VMs en una carpeta del filesystem local. Sin RAID, sin snapshots a nivel de storage — solo una carpeta con discos.
+
+```bash
+# Verificar directorio de almacenamiento
+$ ls /var/lib/vz/images/
+# <1>
+
+# Crear directorio personalizado
+$ mkdir -p /data/vms
+# <2>
+
+# Agregar directorio como storage en Proxmox
+$ pvesm add dir local-data --path /data/vms --content images,iso,rootdir
+# <3>
+```
+
+1. **/var/lib/vz/images/** es el directorio por defecto para VMs locales
+2. **mkdir** crea un directorio en un disco dedicado para VMs
+3. **pvesm add** registra el directorio como backend de almacenamiento
+
+### 6.5 Comparativa de Almacenamiento
+
+| Aspecto | Directorio | LVM-thin | ZFS | NFS | Ceph |
+|---------|-----------|----------|-----|-----|------|
+| **Snapshots** | No | Sí (rápidos) | Sí (rápidos) | No | Sí |
+| **Thin provisioning** | No | Sí | Sí | No | Sí |
+| **Compresión** | No | No | Sí (lz4/zstd) | No | No |
+| **RAID nativo** | No | Sí (vía LVM) | Sí (RAID-Z) | Depende | Sí (distribuido) |
+| **Migración live** | No | Sí | Sí | Sí | Sí |
+| **Complejidad** | Baja | Media | Media-Alta | Baja | Alta |
+| **Rendimiento** | Depende | Alto | Alto | Depende de red | Alto |
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Para homelab:** ZFS es la mejor opción — snapshots, compresión y integridad de datos sin hardware RAID dedicado.
+
+**Para clusters de producción:** Ceph (RBD) distribuye datos entre múltiples nodos, dando alta disponibilidad y escalabilidad horizontal.
+
+**Regla simple:** Si tienes 1 servidor, usa ZFS. Si tienes 3+, considera Ceph.
+:::
+
+### 6.6 Crear Almacenamiento
+
+```bash
+# Agregar almacenamiento NFS
+$ pvesm add nfs nfs-backup --server 192.168.1.200 \
+  --export /srv/nfs/proxmox --content images,backup
+# <1>
+
+# Agregar almacenamiento iSCSI
+$ pvesm add iscsi iscsi-san --target iqn.2024-01.com.example:storage
+# <2>
+
+# Listar todo el almacenamiento configurado
+$ pvesm status
+# <3>
+```
+
+1. **pvesm add nfs** conecta un recurso NFS del servidor de almacenamiento
+2. **pvesm add iscsi** vincula un target iSCSI de un SAN
+3. **pvesm status** muestra el estado y uso de todos los backends
+
+:::{.callout-note}
+## 📝 NOTA
+
+**El almacenamiento de backup debe estar separado del almacenamiento de datos.** Si el storage que contiene tus VMs se corrompe, no quieres que el backup esté en el mismo lugar. Usa un segundo servidor, un disco externo o una ubicación en la red.
+:::
+
+### 6.7 Migración de Almacenamiento
+
+```bash
+# Mover VM a otro storage
+$ qm move-disk 100 scsi0 local-data
+# <1>
+
+# Migrar contenedor LXC
+$ pct move-mt 100 rootfs local-data
+# <2>
+
+# Verificar después de la migración
+$ qm config 100 | grep scsi
+# <3>
+```
+
+1. **qm move-disk** mueve el disco de la VM al nuevo storage
+2. **pct move-mt** mueve el filesystem raíz del contenedor
+3. **qm config** verifica que el disco apunte al nuevo backend
+
+---
+
+## 7. Redes y Firewall
+
+### 7.1 Linux Bridge (vmbr0)
+
+El bridge por defecto `vmbr0` es como un switch virtual — conecta todas las VMs y las une a la red física del host.
+
+```bash
+# Ver configuración actual de bridges
+$ ip link show type bridge
+# <1>
+
+# Ver IPs de bridges
+$ ip addr show vmbr0
+# <2>
+
+# Crear bridge manualmente
+$ ip link add br100 type bridge
+# <3>
+
+$ ip link set br100 up
+# <4>
+```
+
+1. **ip link show type bridge** lista todos los bridges configurados
+2. **ip addr show vmbr0** muestra la IP y máscara del bridge por defecto
+3. **ip link add br100** crea un nuevo bridge virtual
+4. **ip link set br100** activa el bridge (up = activo)
+
+### 7.2 Bridges con VLAN
+
+802.1Q permite segmentar la red en dominios aislados usando etiquetas VLAN:
+
+```bash
+# Crear bridge VLAN-aware
+$ ip link add br100 type bridge vlan_filtering 1
+# <1>
+
+# Asignar VLAN IDs al bridge
+$ bridge vlan add dev br100 vid 100 self
+# <2>
+
+$ bridge vlan add dev br100 vid 200 self
+# <3>
+```
+
+1. **vlan_filtering=1** activa el filtrado de VLAN en el bridge
+2. **bridge vlan add vid 100** permite tráfico con etiqueta VLAN 100
+3. **bridge vlan add vid 200** permite tráfico con etiqueta VLAN 200
+
+### 7.3 Open vSwitch (OVS)
+
+OVS es un switch virtual más avanzado que el bridge Linux estándar. Útil para redes complejas:
+
+- **OVS Bridge**: Switch virtual con soporte OpenFlow
+- **OVS Port**: Puerto con tagging VLAN
+- **OVS Bond**: Agregación de enlaces (LACP)
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Empieza con el Linux bridge estándar.** Solo necesitas OVS si necesitas:
+- Migración en vivo con VLANs dinámicos
+- Integración con SDN controllers (OpenDaylight, ONOS)
+- Port mirroring para monitoreo de tráfico
+
+Para la mayoría de los homelabs y entornos pequeños, el bridge Linux es suficiente.
+:::
+
+### 7.4 SDN en Proxmox
+
+Proxmox VE 7+ incluye SDN (Software-Defined Networking) con tres zonas:
+
+| Zona | Descripción | Complejidad | Uso |
+|------|------------|-------------|-----|
+| **Simple** | L2 bridge con VNETs | Baja | Redes simples |
+| **VLAN** | 802.1Q tagging por VNET | Media | Segmentación básica |
+| **VxLAN** | Túnel overlay (L2 over L3) | Alta | Clusters multi-host |
+
+### 7.5 Firewall
+
+El firewall de Proxmox opera en dos niveles:
+
+**Nivel Datacenter:** Reglas globales para todos los nodos
+
+```bash
+# Ver reglas del datacenter firewall
+$ ha-manager status
+# <1>
+
+# El firewall se configura mejor vía GUI:
+# Datacenter → Firewall → Options → Enable: yes
+# Datacenter → Firewall → Rules → Add
+# <2>
+```
+
+1. **ha-manager status** muestra el estado general del clúster (incluye firewall)
+2. La configuración detallada se hace en la GUI para mayor seguridad
+
+**Nivel VM/CT:** Reglas específicas por contenedor o VM
+
+```bash
+# Habilitar firewall en una VM
+$ qm set 100 --firewall 1
+# <1>
+
+# Agregar regla de entrada (accept SSH)
+$ qm set 100 --ipfilter0 "accept,dport=22,ipversion=4"
+# <2>
+```
+
+1. **--firewall 1** activa el firewall para la VM 100
+2. **ipfilter0** crea una regla que permite tráfico SSH entrante
+
+### 7.6 Configuración de Red multi-SO
+
+::: {.panel-tabset}
+
+#### Linux (archivos de configuración)
+
+```bash
+# Editar configuración de red del host Proxmox
+$ nano /etc/network/interfaces
+# <1>
+
+# Configuración típica:
+# auto vmbr0
+# iface vmbr0 inet static
+#     address 192.168.1.10/24
+#     gateway 192.168.1.1
+#     bridge-ports eno1
+#     bridge-stp off
+#     bridge-fd 0
+# <2>
+
+# Aplicar cambios
+$ systemctl restart networking
+# <3>
+```
+
+1. **/etc/network/interfaces** es el archivo de configuración de red en Debian/Ubuntu
+2. **bridge-ports eno1** conecta el bridge al adaptador físico
+3. **systemctl restart networking** recarga la configuración de red
+
+#### macOS (SSH al servidor)
+
+```bash
+# Conectar al servidor
+$ ssh root@192.168.1.10
+# <1>
+
+# Editar configuración de red del servidor
+$ nano /etc/network/interfaces
+# <2>
+
+# Verificar bridges activos
+$ ip link show type bridge
+# <3>
+```
+
+1. **SSH** es el medio para administrar la red del servidor remotamente
+2. Los archivos de configuración son idénticos al acceso local
+3. **ip link** verifica que los bridges estén activos
+
+#### Windows (PowerShell)
+
+```powershell
+# Conectar vía SSH
+PS> ssh root@192.168.1.10
+# <1>
+
+# Ver configuración de red del servidor
+PS> ssh root@192.168.1.10 "ip addr show vmbr0"
+# <2>
+
+# Editar configuración (usar nano o vim vía SSH)
+PS> ssh -t root@192.168.1.10 "nano /etc/network/interfaces"
+# <3>
+```
+
+1. **SSH desde PowerShell** permite acceso completo a la configuración
+2. **Ejecución remota** con comandos específicos
+3. **-t** asigna un pseudo-TTY para editor interactivo
+
+:::
+
+### 7.7 NAT y Port Forwarding
+
+```bash
+# Habilitar NAT en el host
+$ iptables -t nat -A POSTROUTING -s 192.168.100.0/24 -o eno1 -j MASQUERADE
+# <1>
+
+# Port forwarding: redirigir puerto externo 8080 a VM interna
+$ iptables -t nat -A PREROUTING -i eno1 -p tcp --dport 8080 \
+  -j DNAT --to-destination 192.168.100.10:80
+# <2>
+
+# Permitir tráfico forward
+$ iptables -A FORWARD -i vmbr1 -j ACCEPT
+# <3>
+```
+
+1. **MASQUERADE** oculta las IPs internas detrás de la IP del host
+2. **DNAT** redirige tráfico entrante del puerto 8080 a la VM interna en puerto 80
+3. **FORWARD ACCEPT** permite el tráfico entre interfaces de red
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Una mala configuración de firewall puede bloquearte del servidor.** Si configuras una regla que rechaza SSH (puerto 22) en la interfaz management, pierdes acceso al servidor.
+
+**Cómo prevenirlo:**
+1. Siempre prueba reglas nuevas con una ventana SSH abierta
+2. Usa `iptables -L` para ver reglas antes de aplicar
+3. Ten acceso físico (consola IPMI/iLO) como respaldo
+4. Configura una regla de emergencia que permita SSH desde tu IP
+:::
+
+---
+
+## 8. Clustering y Alta Disponibilidad
+
+### 8.1 El Stack Corosync
+
+Un clúster de Proxmox usa **Corosync** para mantener sincronizados los nodos — es como un sistema de comunicación entre los servidores para saber quién está vivo y quién no.
+
+```bash
+# Ver estado del clúster
+$ pvecm status
+# <1>
+
+# Ver nodos conectados
+$ pvecm nodes
+# <2>
+```
+
+1. **pvecm status** muestra el estado completo del clúster (quorum, nodos, recursos)
+2. **pvecm nodes** lista todos los nodos con su estado y ID
+
+### 8.2 Quorum: La Regla de la Mayoría
+
+El quorum es como una votación — para que el clúster tome una decisión, necesita la mayoría de nodos disponibles.
+
+- **3 nodos** → necesita 2 para operar
+- **5 nodos** → necesita 3 para operar
+- **2 nodos** → necesita 2 (¡no hay tolerancia a fallos!)
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Split-brain (cerebro dividido):** Si la red se divide y los nodos no pueden comunicarse, cada grupo piensa que es el "vencedor" y puede tomar decisiones contradictorias. Es como si dos médicos dieran órdenes opuestas al mismo tiempo en una operación.
+
+**Cómo prevenirlo:**
+1. Usa al menos 3 nodos (impar para quorum)
+2. Configura un **tie-breaker** o quorum arbitrario
+3. Separa los corosync rings en redes físicas diferentes
+4. Usa IPMI/ILO para fencing hardware
+:::
+
+### 8.3 Crear un Clúster
+
+```bash
+# En el primer nodo (nodo maestro)
+$ pvecm create mycluster
+# <1>
+
+# En los nodos secundarios, unirse al clúster
+$ pvecm add 192.168.1.10
+# <2>
+
+# Verificar que todos los nodos están conectados
+$ pvecm nodes
+# <3>
+```
+
+1. **pvecm create** inicializa el clúster en el nodo 1
+2. **pvecm add** une un nodo existente al clúster
+3. **pvecm nodes** confirma que todos los nodos aparecen en la lista
+
+### 8.4 Grupos HA (Alta Disponibilidad)
+
+Define qué VMs se mueven automáticamente si un nodo falla:
+
+```bash
+# Crear grupo HA con 2 nodos
+$ ha-manager group add mygroup nodes=node1:1,node2:1
+# <1>
+
+# Asignar VM al grupo HA
+$ ha-manager add vm:101 group=mygroup
+# <2>
+
+# Ver estado HA
+$ ha-manager status
+# <3>
+```
+
+1. **ha-manager group add** crea un grupo con prioridades (node1 tiene prioridad 1)
+2. **ha-manager add** asocia la VM 101 al grupo HA
+3. **ha-manager status** muestra qué VMs están protegidas por HA
+
+### 8.5 Fencing: Cortar el Acceso al Nodo Muerto
+
+Fencing es como cortar la electricidad a un edificio en llamas — apaga el nodo que no responde para que no cause daño al clúster.
+
+**Tipos de fencing:**
+- **Watchdog**: Software que reinicia el nodo si no responde
+- **IPMI/iLO**: Hardware que apaga/enciende el servidor remotamente
+- **UPS-based**: Desconexión eléctrica del nodo fallido
+
+```bash
+# Configurar watchdog
+$ modprobe softdog
+# <1>
+
+$ echo "softdog" >> /etc/modules
+# <2>
+```
+
+1. **modprobe softdog** carga el módulo del watchdog de software
+2. **echo softdog** asegura que el módulo se cargue al reiniciar
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Para HA, el almacenamiento compartido es obligatorio.** NFS o Ceph permiten que ambos nodos accedan a los discos de la VM simultáneamente. Sin almacenamiento compartido, la migración automática falla.
+
+**Requisitos para HA:**
+- Al menos 3 nodos (quorum impar)
+- Almacenamiento compartido (NFS o Ceph)
+- Fencing configurado (watchdog o IPMI)
+- Red de cluster dedicada (recomendado)
+:::
+
+### 8.6 Migración: En Vivo vs Offline
+
+| Aspecto | Migración en vivo | Migración offline |
+|---------|-------------------|-------------------|
+| **VM se apaga** | No | Sí |
+| **Tiempo de inactividad** | Cero | Minutos-horas |
+| **Requisito** | Almacenamiento compartido | Ninguno |
+| **Red de cluster** | Necesaria | No necesaria |
+| **Uso recomendado** | Producción 24/7 | Mantenimiento programado |
+
+:::{.callout-note}
+## 📝 NOTA
+
+**Un solo nodo Proxmox es perfectamente válido para homelab.** No necesitas un clúster para tener un servidor que funcione bien. El clúster y HA son para entornos de producción donde el tiempo de actividad es crítico. No compliques tu setup si no lo necesitas.
+:::
+
+---
+
+## 9. Backup y Disaster Recovery
+
+### 9.1 ¿Por Qué Hacer Backup?
+
+Piensa en tus datos como el fundamento de una casa. Sin backup:
+- Un disco duro falla → pierdes todo
+- Un ransomware cifra tus VMs → pagas o pierdes
+- Un error humano borra una VM → no hay vuelta atrás
+
+**Las tres razones principales:**
+1. **Fallo de hardware** (disco, RAM, fuente de poder)
+2. **Error humano** (borrado accidental, mala configuración)
+3. **Ransomware** (cifrado de datos y exigencia de pago)
+
+### 9.2 Proxmox Backup Server (PBS)
+
+PBS es la solución de backup nativa para Proxmox — está diseñada específicamente para respaldar VMs y contenedores LXC.
+
+**Arquitectura PBS:**
+- **Server**: Corre como VM independiente o como ISO dedicado
+- **Client**: Se integra con Proxmox VE para programar backups
+- **Datastore**: Almacena los datos con deduplicación y compresión
+
+```bash
+# Instalar PBS como VM en Proxmox VE
+# Descargar ISO desde: https://www.proxmox.com/en/downloads
+# <1>
+
+# O instalar PBS en un servidor dedicado
+$ wget https://enterprise.proxmox.com/iso/proxmox-backup-server_3.1-1.iso
+# <2>
+```
+
+1. **Descargar ISO** desde la web oficial de Proxmox
+2. **wget** descarga la imagen ISO del servidor de backup
+
+### 9.3 Integrar PBS con Proxmox VE
+
+```bash
+# Agregar repositorio de PBS en Proxmox VE
+$ echo "deb https://enterprise.proxmox.com/debian/pbs bookworm pbs-enterprise" \
+  > /etc/apt/sources.list.d/pbs-enterprise.list
+# <1>
+
+# Agregar PBS como storage
+$ pvesm add pbs proxmox-backup --server 192.168.1.200 \
+  --datastore main --username backup@pbs --password-file /etc/pbs-pass
+# <2>
+
+# Verificar conexión
+$ pvesm status | grep pbs
+# <3>
+```
+
+1. **echo** agrega el repositorio oficial de PBS para actualizaciones
+2. **pvesm add pbs** registra el servidor de backup como almacenamiento
+3. **pvesm status** verifica que PBS esté conectado y accesible
+
+### 9.4 Tipos de Backup
+
+| Tipo | Descripción | Velocidad | Espacio | Uso |
+|------|------------|-----------|---------|-----|
+| **Full** | Copia completa de la VM | Lenta | Alto | Backup inicial, restore rápido |
+| **Incremental** | Solo cambios desde el último backup | Rápida | Bajo | Uso diario |
+| **Diferencial** | Cambios desde el último full | Media | Medio | Balance entre speed y espacio |
+
+### 9.5 Backup con vzdump
+
+`vzdump` es la herramienta CLI para crear backups:
+
+```bash
+# Backup completo de una VM
+$ vzdump 101 --mode snapshot --storage local-backup --compress zstd
+# <1>
+
+# Backup programado (cron)
+$ vzdump 101 --mode snapshot --storage local-backup \
+  --prune keep-daily=7,keep-weekly=4,keep-monthly=6
+# <2>
+
+# Verificar backups existentes
+$ list-backups /var/lib/vz/dump/
+# <3>
+```
+
+1. **vzdump** crea un backup completo con compresión zstd (mejor ratio)
+2. **--prune** configura la retención: 7 diarios, 4 semanales, 6 mensuales
+3. **list-backups** muestra todos los backups disponibles en el directorio
+
+### 9.6 Políticas de Retención
+
+La regla **3-2-1** es el estándar de oro:
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**La regla 3-2-1 para backups:**
+- **3** copias de tus datos (original + 2 backups)
+- **2** tipos de almacenamiento diferentes (SSD + HDD, local + red)
+- **1** copia fuera del sitio (offsite, cloud, otro edificio)
+
+**Ejemplo práctico:**
+1. Backup local en PBS (disco HDD interno)
+2. Backup en NAS NFS (disco en red)
+3. Backup offsite en cloud (Backblaze B2, S3, etc.)
+:::
+
+### 9.7 Restore: La Prueba Final
+
+Un backup sin restore probado es como un paracaídas que nunca has abierto — no sabes si funciona cuando lo necesitas.
+
+```bash
+# Restaurar VM desde backup
+$ qmrestore local-backup:backup/vzdump-qemu-101-2024_01_30-12_00_00.vma.zst 101
+# <1>
+
+# Verificar restore
+$ qm config 101
+# <2>
+
+# Iniciar VM restaurada
+$ qm start 101
+# <3>
+```
+
+1. **qmrestore** restaura la VM desde el archivo de backup específico
+2. **qm config** verifica que la configuración se restauró correctamente
+3. **qm start** enciende la VM restaurada para verificar funcionamiento
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**¡Prueba tus restores!** Un backup que no has verificado restaurando datos NO es un backup confiable. Podría estar corrupto, incompleto o con errores.
+
+**Protocolo de verificación:**
+1. Restaura una VM a un entorno aislado cada mes
+2. Verifica que la VM arranca correctamente
+3. Valida que los datos están intactos
+4. Documenta el tiempo de restore (para planificar RTO)
+:::
+
+### 9.8 Backup multi-SO
+
+::: {.panel-tabset}
+
+#### Linux (CLI completo)
+
+```bash
+# Crear backup con vzdump
+$ vzdump 101 --mode snapshot --storage local-backup \
+  --compress zstd --stdio 2>&1 | tee /var/log/vzdump-101.log
+# <1>
+
+# Verificar backup
+$ ls -lh /var/lib/vz/dump/vzdump-qemu-101-*.vma.zst
+# <2>
+
+# Restaurar backup
+$ qmrestore local-backup:backup/vzdump-qemu-101-2024_01_30.vma.zst 101
+# <3>
+
+# Programar backup diario con cron
+$ crontab -e
+# 0 2 * * * /usr/sbin/vzdump 101 --mode snapshot --storage local-backup --compress zstd
+# <4>
+```
+
+1. **vzdump con stdio y tee** crea backup y guarda el log simultáneamente
+2. **ls -lh** verifica que el archivo de backup existe y su tamaño
+3. **qmrestore** restaura la VM desde el backup
+4. **crontab -e** programa backups automáticos a las 2:00 AM
+
+#### macOS (vía SSH)
+
+```bash
+# Conectar al servidor
+$ ssh root@192.168.1.10
+# <1>
+
+# Ejecutar backup remotamente
+$ ssh root@192.168.1.10 "vzdump 101 --mode snapshot --storage local-backup"
+# <2>
+
+# Verificar backups en el servidor
+$ ssh root@192.168.1.10 "ls /var/lib/vz/dump/vzdump-qemu-101-*"
+# <3>
+```
+
+1. **SSH** establece conexión al servidor de backup
+2. **Ejecución remota** ejecuta vzdump sin sesión interactiva
+3. **ls remoto** verifica la existencia de backups en el servidor
+
+#### Windows (PowerShell)
+
+```powershell
+# Conectar vía SSH y ejecutar backup
+PS> ssh root@192.168.1.10 "vzdump 101 --mode snapshot --storage local-backup --compress zstd"
+# <1>
+
+# Descargar backup localmente (para offsite)
+PS> scp root@192.168.1.10:/var/lib/vz/dump/vzdump-qemu-101-*.vma.zst C:\backups\
+# <2>
+
+# Verificar descarga
+PS> dir C:\backups\vzdump-qemu-101-*
+# <3>
+```
+
+1. **SSH con comando** ejecuta el backup sin sesión interactiva
+2. **scp** descarga el archivo de backup a Windows para almacenamiento offsite
+3. **dir** verifica que la descarga se completó correctamente
+
+:::
+
+### 9.8 Laboratorio Integrado: Backup con PBS y Restauración
+
+**Objetivo:** Configurar PBS, crear un backup de una VM y restaurarlo.
+
+**Duración:** 45 minutos
+
+**Pasos:**
+
+1. Instala PBS (como VM o en servidor dedicado):
+
+```bash
+# Desde el ISO de PBS, seguir el asistente de instalación
+# Configurar IP: 192.168.1.200
+# Configurar datastore: main
+# <1>
+```
+
+1. **Instalación PBS** sigue un asistente similar a Proxmox VE
+
+2. Agrega PBS como storage en Proxmox VE:
+
+```bash
+$ pvesm add pbs proxmox-backup --server 192.168.1.200 \
+  --datastore main --username admin@pbs
+# <1>
+```
+
+1. **pvesm add pbs** conecta Proxmox VE con el servidor de backup
+
+3. Crea un backup de una VM:
+
+```bash
+$ vzdump 101 --mode snapshot --storage proxmox-backup --compress zstd
+# <1>
+```
+
+1. **vzdump** crea un backup incremental con compresión en PBS
+
+4. Restaura el backup:
+
+```bash
+# Obtener ID del backup
+$ proxmox-backup-client list
+# <1>
+
+# Restaurar
+$ qmrestore proxmox-backup:backup/vzdump-qemu-101-*.vma.zst 102
+# <2>
+
+# Verificar
+$ qm config 102
+# <3>
+
+$ qm start 102
+# <4>
+```
+
+1. **proxmox-backup-client list** muestra todos los backups disponibles
+2. **qmrestore** restaura la VM como nueva (ID 102)
+3. **qm config** verifica la configuración restaurada
+4. **qm start** enciende la VM para verificar integridad
+
+---
+
+## 10. Laboratorios Prácticos
+
+Los siguientes laboratorios están disponibles en la carpeta `lab-practicos/`:
+
+| Laboratorio | Archivo | Duración | Objetivos |
+|-------------|---------|----------|-----------|
+| **Lab 1** | `lab-proxmox-instalacion.md` | 90 min | Instalar Proxmox VE en nested virtualization |
+| **Lab 2** | `lab-proxmox-template-cloudinit.md` | 60 min | Crear template VM con cloud-init y clonar |
+| **Lab 3** | `lab-proxmox-lxc-redes.md` | 90 min | Crear contenedores LXC y configurar redes |
+| **Lab 4** | `lab-proxmox-backup-ha.md` | 120 min | Configurar PBS, backup y alta disponibilidad |
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Realiza los laboratorios en orden.** Cada uno construye sobre el anterior:
+- **Lab 1** prepara el entorno base
+- **Lab 2** crea las VMs que usarás después
+- **Lab 3** configura la red y contenedores
+- **Lab 4** protege todo con backups
+
+**Antes de empezar:** Verifica que tienes al menos 16GB RAM y 100GB de espacio libre en disco.
+:::
+
+---
+
+## 11. Resumen
+
+En esta sección cubrimos los pilares de la administración con Proxmox VE:
+
+| Sección | Qué aprendiste | Habilidad desarrollada |
+|---------|---------------|----------------------|
+| **VMs KVM/QEMU** | Crear, clonar, snapshot, migrar VMs | Gestión del ciclo de vida de VMs |
+| **Contenedores LXC** | Crear contenedores ligeros, nesting, recursos | Virtualización de alta densidad |
+| **Almacenamiento** | LVM-thin, ZFS, Directorio, NFS, Ceph | Arquitectura de storage |
+| **Redes** | Bridges, VLAN, OVS, SDN, Firewall | Segmentación y seguridad de red |
+| **Clustering** | Corosync, quorum, HA, fencing | Alta disponibilidad |
+| **Backup** | PBS, vzdump, retención, restore | Recuperación ante desastres |
+
+### Próximos pasos
+
+- **Unidad 8**: Docker corriendo dentro de contenedores LXC (nesting)
+- **Unidad 14**: Monitoreo con Prometheus + Grafana en Proxmox
+- **Práctica**: Construye tu propio homelab con al menos 2 VMs, 2 contenedores y backup configurado
+
+### Contribuir
+
+¿Encontraste un error o tienes sugerencias? Contribuye al proyecto:
+
+```bash
+$ git clone https://github.com/tu-usuario/administracion-servidores-linux.git
+# <1>
+
+$ cd administracion-servidores-linux
+# <2>
+
+# Crear rama para tu contribución
+$ git checkout -b fix/correccion-descripcion
+# <3>
+
+# Hacer cambios y commit
+$ git add . && git commit -m "fix: descripción del cambio"
+# <4>
+
+$ git push origin fix/correccion-descripcion
+# <5>
+```
+
+1. **git clone** descarga el repositorio a tu máquina local
+2. **cd** entra al directorio del proyecto
+3. **git checkout -b** crea una rama separada para tu cambio
+4. **git commit** guarda tus cambios con mensaje descriptivo
+5. **git push** sube la rama para crear un Pull Request
+
+---
+
+## 12. Referencias
+
+### Documentación Oficial
+
+- **Proxmox VE**: [https://pve.proxmox.com/pve-docs/](https://pve.proxmox.com/pve-docs/)
+- **Proxmox Wiki**: [https://pve.proxmox.com/wiki/](https://pve.proxmox.com/wiki/)
+- **Proxmox Backup Server**: [https://pbs.proxmox.com/docs/](https://pbs.proxmox.com/docs/)
+
+### Virtualización y Contenedores
+
+- **LXC Documentation**: [https://linuxcontainers.org/](https://linuxcontainers.org/)
+- **KVM/QEMU**: [https://www.qemu.org/](https://www.qemu.org/)
+- **libvirt**: [https://libvirt.org/](https://libvirt.org/)
+
+### Almacenamiento
+
+- **ZFS on Linux**: [https://openzfs.github.io/openzfs-docs/](https://openzfs.github.io/openzfs-docs/)
+- **Ceph Documentation**: [https://docs.ceph.com/](https://docs.ceph.com/)
+- **LVM Administration**: [https://tldp.org/HOWTO/LVM-HOWTO/](https://tldp.org/HOWTO/LVM-HOWTO/)
+
+### Redes
+
+- **Linux Bridge**: `man bridge`
+- **Open vSwitch**: [https://openvswitch.org/](https://openvswitch.org/)
+- **VXLAN (RFC 7348)**: [https://tools.ietf.org/html/rfc7348](https://tools.ietf.org/html/rfc7348)
+
+### Clustering
+
+- **Corosync**: [https://corosync.github.io/corosync/](https://corosync.github.io/corosync/)
+- **Pacemaker**: [https://clusterlabs.org/](https://clusterlabs.org/)
+
+### Comunidades
+
+- **Foro Proxmox**: [https://forum.proxmox.com/](https://forum.proxmox.com/)
+- **Reddit r/Proxmox**: [https://reddit.com/r/Proxmox](https://reddit.com/r/Proxmox)
+- **Proxmox VE on GitHub**: [https://github.com/proxmox](https://github.com/proxmox)
