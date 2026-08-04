@@ -503,3 +503,134 @@ $ sudo rm -rf /tmp/compartido
 - [@debian2024] - Debian Users and Groups Guide
 - [@ubuntu2024] - Ubuntu File Permissions Guide
 - [@linux2024] - Linux System Administration
+
+---
+
+### 🧪 Laboratorio: Validación con Docker
+
+¿Quieres practicar todo lo aprendido en un entorno seguro? Usa el laboratorio Docker que simula un servidor Linux real. No necesitas permisos root en tu máquina — todo corre dentro del contenedor.
+
+**Preparando el entorno:**
+
+```bash
+$ docker pull Ubuntu_Servidores  # <1>
+```
+
+1. **`docker pull`**: Descarga la imagen del laboratorio — contiene todas las herramientas que necesitas
+
+**Iniciando el laboratorio:**
+
+```bash
+$ docker run -it Ubuntu_Servidores  # <1>
+```
+
+1. **`-it`**: Modo interactivo — puedes escribir comandos directamente en el contenedor
+
+**Navegando por el menú:**
+
+Una vez dentro del contenedor, verás un menú principal:
+
+```bash
+============================================
+  MENÚ PRINCIPAL - Laboratorio Ubuntu
+============================================
+1. Gestión de Usuarios
+2. Permisos y Acceso
+3. Servicios del Sistema
+4. Seguridad y Validación  # <1>
+5. Monitoreo
+6. Salir
+============================================
+Selecciona una opción: 
+```
+
+1. **Opción 4**: Selecciona esta opción para acceder al módulo de validación de seguridad
+
+**Entrando en modo interactivo:**
+
+```bash
+Selecciona una opción: 4
+============================================
+  MÓDULO DE SEGURIDAD Y VALIDACIÓN
+============================================
+Escribe "jugar" para empezar a practicar
+Escribe "evaluar" para verificar tu progreso
+Escribe "salir" para volver al menú principal
+> jugar  # <1>
+```
+
+1. **`jugar`**: Activa el modo interactivo — el sistema te presentará desafíos basados en todo lo aprendido en la unidad
+
+**Resolviendo desafíos:**
+
+El sistema te planteará ejercicios prácticos. Por ejemplo:
+
+```bash
+> jugar
+DESAFÍO 1: Crea un usuario llamado "testuser" con shell bash
+Tu respuesta: useradd -m -s /bin/bash testuser  # <1>
+✅ ¡Correcto! El usuario fue creado correctamente.
+
+DESAFÍO 2: ¿Cuál es el contenido de /etc/passwd para testuser?
+Tu respuesta: cat /etc/passwd | grep testuser  # <2>
+✅ ¡Correcto! Encontraste la información del usuario.
+
+DESAFÍO 3: Configura pam_faillock para bloquear después de 3 intentos
+Tu respuesta: auth required pam_faillock.so preauth deny=3  # <3>
+✅ ¡Correcto! La configuración de bloqueo está activa.
+```
+
+1. **Primer desafío**: Creación de usuario — aplica lo aprendido en Paso 1
+2. **Segundo desafío**: Consulta de archivos del sistema — aplica anatomía de `/etc/passwd`
+3. **Tercer desafío**: Configuración PAM — aplica lo aprendido en Paso 3
+
+**Verificando tu progreso:**
+
+```bash
+> evaluar  # <1>
+============================================
+  REPORTE DE PROGRESO
+============================================
+Desafíos completados: 8/10
+Puntuación: 80%
+Áreas fuertes: Gestión de usuarios, Permisos
+Áreas de mejora: Configuración SSH, Sudoers
+============================================
+```
+
+1. **`evaluar`**: Genera un reporte de tu progreso — identifies tus fortalezas y áreas de mejora
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Consejos para sacar el máximo provecho al laboratorio:**
+
+1. **No te preocupes por errores**: El laboratorio es un entorno seguro — si algo sale mal, puedes reiniciar
+2. **Practica en orden**: Empieza por los desafíos fáciles y avanza progresivamente
+3. **Repite los desafíos fallidos**: Si fallas un desafío, revísalo hasta que lo entiendas completamente
+4. **Usa `evaluar` regularmente**: No esperes al final para verificar tu progreso
+
+**Cuándo aplicar:**
+- Después de completar toda la unidad
+- Cuando quieras reforzar conceptos específicos
+- Antes de un examen o evaluación
+:::
+
+**Saliendo del laboratorio:**
+
+```bash
+> salir  # <1>
+¿Estás seguro? (s/n): s
+Gracias por practicar. ¡Hasta luego!
+```
+
+1. **`salir`**: Cierra el modo interactivo y vuelve al menú principal
+
+**Resolución de problemas comunes:**
+
+| Problema | Solución |
+|----------|----------|
+| `docker: command not found` | Instala Docker: `curl -fsSL https://get.docker.com \| sh` |
+| `Permission denied` | Ejecuta con `sudo` o agrega tu usuario al grupo `docker` |
+| `No such image` | Verifica el nombre: `docker images \| grep Ubuntu` |
+| Contenedor no responde | Reinicia: `docker restart <nombre_contenedor>` |

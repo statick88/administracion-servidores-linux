@@ -328,6 +328,177 @@ Defaults env_keep += "LANG LANGUAGE BROWSER EDITOR"
 %monitoreo ALL=(ALL) NOPASSWD:/usr/bin/systemctl status *, /usr/bin/journalctl
 ```
 
+### Seguridad del Acceso: Bloqueo con pam_faillock
+
+¿Qué pasa si alguien intenta adivinar tu contraseña? Linux tiene un mecanismo para bloquear intentos fallidos. Veamos cómo funciona:
+
+```bash
+$ sudo nano /etc/pam.d/common-auth
+```
+
+Busca la línea que contiene `pam_faillock.so` y configúrala así:
+
+```bash
+auth    required    pam_faillock.so preauth deny=5 unlock_time=900  # <1>
+auth    required    pam_faillock.so authfail deny=5 unlock_time=900  # <2>
+```
+
+1. **`preauth`**: Se ejecuta antes de la autenticación — verifica si la cuenta está bloqueada
+2. **`authfail`**: Se ejecuta después de un fallo — incrementa el contador de intentos
+
+**Explicación de los parámetros:**
+
+| Parámetro | Valor | Significado |
+|-----------|-------|-------------|
+| **`deny`** | `5` | Número máximo de intentos fallidos antes de bloquear |
+| **`unlock_time`** | `900` | Tiempo de desbloqueo en segundos (15 minutos) |
+| **`preauth`** | — | Fase previa a la autenticación |
+| **`authfail`** | — | Fase posterior a fallo de autenticación |
+
+**Verificando el bloqueo:**
+
+```bash
+$ sudo pam_tally2 --user analopez
+# <1>
+Login           Failures  Latest failure     From
+analopez           3      01/15:11:45:32     192.168.1.50
+```
+
+1. **`pam_tally2`**: Muestra el contador de intentos fallidos por usuario — útil para diagnóstico
+
+**Reseteando el contador (si eres administrador):**
+
+```bash
+$ sudo pam_tally2 --user analopez --reset
+# <1>
+Login           Failures  Latest failure     From
+analopez           0                               # <2>
+```
+
+1. **`--reset`**: Resetea el contador de intentos fallidos
+2. **Contador en cero**: El usuario puede intentar nuevamente
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Configuración recomendada para producción:**
+
+- **`deny=5`**: Bloquea después de 5 intentos — suficiente para errores humanos, suficientemente restrictivo para fuerza bruta
+- **`unlock_time=900`**: 15 minutos — tiempo suficiente para que el atacante desista
+- **`fail_interval=600`**: Ventana de tiempo para contar fallos (10 minutos)
+
+**Cuándo aplicar:**
+- Servidores con acceso SSH habilitado
+- Sistemas con autenticación por contraseña activa
+- Entornos con requisitos de cumplimiento (PCI DSS, ISO 27001)
+:::
+
+**Configuración avanzada — bloqueo permanente:**
+
+Si quieres bloquear una cuenta hasta que un administrador la desbloquee manualmente:
+
+```bash
+auth    required    pam_faillock.so preauth deny=5 unlock_time=0  # <1>
+```
+
+1. **`unlock_time=0`**: Desbloqueo automático deshabilitado — solo un administrador puede desbloquear con `pam_tally2 --reset`
+
+### Sudoers Granular: Permisos Específicos por Comando
+
+En lugar de dar acceso completo a sudo, puedes permitir **comandos específicos**. Esto es fundamental en producción — el principio de mínimo privilegio.
+
+**Ejemplo: Permitir solo reiniciar servicios web**
+
+```bash
+$ sudo visudo -f /etc/sudoers.d/desarrolladores
+# <1>
+```
+
+1. **`visudo -f`**: Edita un archivo sudoers específico — **siempre usa `visudo`** para validar sintaxis antes de guardar
+
+```bash
+# Grupo de desarrolladores - permisos limitados
+%desarrolladores ALL=(root) /usr/bin/systemctl restart nginx, /usr/bin/systemctl restart php-fpm  # <1>
+%desarrolladores ALL=(root) /usr/bin/tail -f /var/log/nginx/error.log  # <2>
+%desarrolladores ALL=(root) /usr/bin/cat /var/log/nginx/access.log  # <3>
+```
+
+1. **`systemctl restart`**: Pueden reiniciar nginx y PHP-FPM — servicios que modifican
+2. **`tail -f`**: Pueden ver logs en tiempo real — diagnóstico sin riesgo
+3. **`cat`**: Pueden leer logs de acceso — análisis de tráfico
+
+**¿Por qué `visudo -f` y no solo `visudo`?**
+
+`visudo` edita `/etc/sudoers` directamente. Usar `-f` permite crear archivos separados en `/etc/sudoers.d/`, lo cual es más organizado y seguro:
+
+```bash
+$ ls -la /etc/sudoers.d/
+-rw------- 1 root root  145 Jan 15 10:30 desarrolladores  # <1>
+-rw------- 1 root root  112 Jan 15 10:00 www-data
+-rw------- 1 root root   89 Jan 15 09:30 monitores
+```
+
+1. **Archivos separados**: Cada grupo/rol tiene su propio archivo — más fácil de mantener y auditar
+
+**Validando la configuración:**
+
+```bash
+$ sudo visudo -c
+# <1>
+/etc/sudoers: parsed OK
+/etc/sudoers.d/desarrolladores: parsed OK
+/etc/sudoers.d/www-data: parsed OK
+```
+
+1. **`visudo -c`**: Valida la sintaxis de todos los archivos sudoers — **ejecuta esto después de cada cambio**
+
+**Verificando permisos de un usuario:**
+
+```bash
+$ sudo -l -U analopez
+# <1>
+User analopez may run the following commands on servidor:
+    (root) /usr/bin/systemctl restart nginx
+    (root) /usr/bin/systemctl restart php-fpm
+    (root) /usr/bin/tail -f /var/log/nginx/error.log
+    (root) /usr/bin/cat /var/log/nginx/access.log
+```
+
+1. **`-l -U`**: Lista los permisos sudo de un usuario específico — útil para verificar configuración
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Errores comunes con sudoers granular:**
+
+1. **No usar `visudo`**: Si editas `/etc/sudoers.d/desarrolladores` con `nano` directamente y hay un error de sintaxis, podrías quedarte sin acceso sudo
+2. **Olvidar `visudo -c`**: Siempre valida después de cada cambio
+3. **Rutas absolutas incorrectas**: Usa rutas absolutas (`/usr/bin/systemctl`, no `systemctl`)
+
+**Lo que podría salir mal:**
+- Perdida de acceso sudo si hay error de sintaxis
+- Permisos demasiado amplios si se usa `ALL=(ALL)` sin restricciones
+- Archivos con permisos incorrectos (deben ser `0440` o `0400`)
+
+**Cómo prevenirlo:**
+1. Siempre usa `visudo -f` para editar sudoers
+2. Valida con `visudo -c` después de cada cambio
+3. Verifica permisos: `ls -la /etc/sudoers.d/`
+:::
+
+**Ejemplo completo: Rol de monitoreo**
+
+```bash
+$ sudo visudo -f /etc/sudoers.d/monitores
+```
+
+```bash
+# Grupo monitores - solo lectura
+%monitores ALL=(root) NOPASSWD: /usr/bin/systemctl status *, /usr/bin/journalctl -u * --no-pager -n 100, /usr/bin/free -h, /usr/bin/df -h, /usr/bin/top -bn1  # <1>
+```
+
+1. **Permisos de solo lectura**: Pueden verificar estado de servicios y recursos, pero no modificar nada — sin contraseña (`NOPASSWD`) para facilitar el trabajo diario
+
 ---
 
 ## Resumen

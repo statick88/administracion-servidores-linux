@@ -22,6 +22,12 @@ biblio-style: apalike
 - [usermod(8)](https://man7.org/linux/man-pages/man8/usermod.8.html) - Manual de usermod
 - [sudo(8)](https://man7.org/linux/man-pages/man8/sudo.8.html) - Manual de sudo
 - [visudo(8)](https://man7.org/linux/man-pages/man8/visudo.8.html) - Manual de visudo
+- [ssh-keygen(1)](https://man7.org/linux/man-pages/man1/ssh-keygen.1.html) - Manual de ssh-keygen
+- [ssh(1)](https://man7.org/linux/man-pages/man1/ssh.1.html) - Manual de ssh
+- [sshd_config(5)](https://man7.org/linux/man-pages/man5/sshd_config.5.html) - Manual de configuración SSH
+- [pam(8)](https://man7.org/linux/man-pages/man8/pam.8.html) - Manual de PAM (Pluggable Authentication Modules)
+- [pam_faillock(8)](https://man7.org/linux/man-pages/man8/pam_faillock.8.html) - Manual de pam_faillock
+- [pam_tally2(8)](https://man7.org/linux/man-pages/man8/pam_tally2.8.html) - Manual de pam_tally2
 
 ### macOS
 - [macOS Security Overview](https://developer.apple.com/library/archive/documentation/Security/Conceptual/System_Integrity_Protection_Guide/Introduction/Introduction.html) - Visión general de seguridad en macOS
@@ -118,6 +124,12 @@ Sticky = +t (solo propietario puede eliminar)
 - [MobaXterm](https://mobaxterm.mobatek.net/) - Terminal SSH para Windows
 - [Termius](https://www.termius.com/) - SSH multiplataforma
 - [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/) - Cliente SSH clásico para Windows
+- [ssh-copy-id](https://man7.org/linux/man-pages/man1/ssh-copy-id.1.html) - Copiar claves SSH al servidor
+
+### Seguridad y Autenticación
+- [PAM Configuration](https://www.kernel.org/doc/html/latest/security/pam.html) - Documentación oficial de PAM en Linux
+- [SSH Best Practices](https://www.ssh.com/academy/ssh/best-practices) - Mejores prácticas de configuración SSH
+- [Linux PAM Guide](https://www.linux-pam.org/Linux-PAM-html/) - Guía completa de PAM
 
 ## 📊 Comandos Rápidos
 
@@ -167,6 +179,27 @@ sudo visudo
 
 # Ejecutar como otro usuario
 sudo -u usuario comando
+```
+
+### Seguridad y Autenticación
+```bash
+# Generar clave SSH
+ssh-keygen -t ed25519 -C "usuario@servidor"
+
+# Copiar clave al servidor
+ssh-copy-id -i ~/.ssh/id_ed25519.pub usuario@servidor
+
+# Verificar intentos fallidos
+sudo pam_tally2 --user usuario
+
+# Resetear contador de intentos
+sudo pam_tally2 --user usuario --reset
+
+# Verificar configuración SSH
+sudo sshd -t
+
+# Reiniciar servicio SSH
+sudo systemctl restart sshd
 ```
 
 ## 🎯 Buenas Prácticas
