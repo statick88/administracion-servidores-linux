@@ -71,12 +71,14 @@ Cierre o keep-alive
 ```bash
 # Actualizar índice
 $ sudo apt update && sudo apt upgrade -y
+# <1>
 
 
 # Instalar Nginx + utilidades
 $ sudo apt install -y nginx nginx-extras \
     certbot python3-certbot-nginx \
     openssl logrotate
+# <2>
 
 ```
 
@@ -91,12 +93,14 @@ $ sudo systemctl status nginx --no-pager
 ● nginx.service - A high performance web server and a reverse proxy server
      Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
      Active: active (running) since Tue 2026-03-31 10:00:00 UTC
+# <1>
 
 
 # Puertos en escucha
 $ sudo ss -lntp | grep nginx
 LISTEN 0 511 0.0.0.0:80  0.0.0.0:* users:("nginx",pid=1234,fd=6)
 LISTEN 0 511 0.0.0.0:443 0.0.0.0:* users:("nginx",pid=1234,fd=8)
+# <2>
 
 ```
 
@@ -111,6 +115,7 @@ $ curl -I http://localhost
 HTTP/1.1 200 OK
 Server: nginx/1.24.0 (Ubuntu)
 Content-Type: text/html
+# <1>
 
 
 # HTML completo
@@ -120,6 +125,7 @@ $ curl -s http://localhost | head -20
 <head>
 <title>Welcome to nginx!</title>
 ...
+# <2>
 
 ```
 
@@ -195,6 +201,7 @@ $ echo '<!DOCTYPE html><h1>My Site</h1>' | sudo tee /var/www/mysite/public/index
 
 # Permisos
 $ sudo chown -R www-data:www-data /var/www/mysite
+# <1>
 
 ```
 
@@ -240,6 +247,7 @@ server {
     }
 }
 EOF
+# <1>
 
 ```
 
@@ -250,6 +258,7 @@ EOF
 ```bash
 # Habilitar (crear symlink)
 $ sudo ln -sf /etc/nginx/sites-available/mysite.conf /etc/nginx/sites-enabled/mysite.conf
+# <1>
 
 
 # Deshabilitar default (opcional)
@@ -259,6 +268,7 @@ $ sudo rm -f /etc/nginx/sites-enabled/default
 $ sudo nginx -t
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
+# <2>
 
 
 # Recargar
@@ -274,6 +284,7 @@ $ sudo systemctl reload nginx
 # Con Host header
 $ curl -H 'Host: mysite.local' http://127.0.0.1
 <!DOCTYPE html><h1>My Site</h1>
+# <1>
 
 
 # Ver logs
@@ -337,6 +348,7 @@ EOF
 
 $ sudo ln -sf /etc/nginx/sites-available/api-proxy.conf /etc/nginx/sites-enabled/
 $ sudo nginx -t && sudo systemctl reload nginx
+# <1>
 
 ```
 
@@ -371,6 +383,7 @@ EOF
 
 $ sudo ln -sf /etc/nginx/sites-available/loadbalancer.conf /etc/nginx/sites-enabled/
 $ sudo nginx -t && sudo systemctl reload nginx
+# <1>
 
 ```
 
@@ -400,6 +413,7 @@ location /ws/ {
 ```bash
 # Instalar certbot y plugin nginx
 $ sudo apt update && sudo apt install -y certbot python3-certbot-nginx
+# <1>
 
 ```
 
@@ -410,6 +424,7 @@ $ sudo apt update && sudo apt install -y certbot python3-certbot-nginx
 ```bash
 # Obtener certificado (dominio debe apuntar al servidor)
 $ sudo certbot --nginx -d example.com -d www.example.com
+# <1>
 
 
 # Following prompts:
@@ -428,6 +443,7 @@ $ sudo certbot --nginx -d example.com -d www.example.com
 # Ver certificado
 $ sudo ls -la /etc/letsencrypt/live/example.com/
 fullchain.pem  privkey.pem  cert.pem  chain.pem
+# <1>
 
 # Ver configuración nginx
 $ cat /etc/nginx/sites-available/default-ssl.conf
@@ -468,12 +484,14 @@ EOF
 ```bash
 # Test de renovación
 $ sudo certbot renew --dry-run
+# <1>
 
 
 # Ver cronjob
 $ sudo cat /etc/cron.d/certbot
 # /etc/cron.d/certbot: certbot renewal cronjob
 0 */12 * * * root test -x /usr/bin/certbot -a \! -d /run/systemd/system && perl -e 'sleep int(rand(43200))' && certbot -q renew
+# <2>
 
 ```
 
@@ -511,6 +529,7 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 # CSP (ajustar según aplicación)
 # add_header Content-Security-Policy "default-src 'self';" always;
 EOF
+# <1>
 
 ```
 
@@ -607,6 +626,7 @@ server {
     }
 }
 EOF
+# <1>
 
 ```
 
@@ -658,6 +678,7 @@ $ sudo nginx -t && sudo systemctl reload nginx
 # Probar
 $ curl -k https://api.example.com
 {"status": "ok", "version": "1.0.0"}
+# <1>
 
 ```
 
@@ -719,6 +740,7 @@ proxy_cache_lock on;
 
 add_header X-Cache-Status $upstream_cache_status;
 EOF
+# <1>
 
 # Usar en location
 location /api/ {

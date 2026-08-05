@@ -70,6 +70,7 @@ SSH (Secure Shell) es el protocolo estándar para administración remota de serv
 ```bash
 # Generar clave Ed25519 con comentario descriptivo
 $ ssh-keygen -t ed25519 -C "usuario@servidor-prod-$(date +%Y%m%d)"
+# <1>
 
 Generating public/private ed25519 key pair.
 Enter file in which to save the key (/home/user/.ssh/id_ed25519): 
@@ -79,6 +80,7 @@ Your identification has been saved in /home/user/.ssh/id_ed25519.
 Your public key has been saved in /home/user/.ssh/id_ed25519.pub.
 
 $ ls -la ~/.ssh/id_ed25519*
+# <2>
 -rw------- 1 user user  464 Mar 31 10:30 id_ed25519      
 -rw-r--r-- 1 user user  104 Mar 31 10:30 id_ed25519.pub  
 ```
@@ -92,6 +94,7 @@ $ ls -la ~/.ssh/id_ed25519*
 ```bash
 # Solo si el servidor no soporta Ed25519
 $ ssh-keygen -t rsa -b 4096 -C "legacy-server-$(date +%Y%m%d)"
+# <1>
 
 ```
 
@@ -102,11 +105,13 @@ $ ssh-keygen -t rsa -b 4096 -C "legacy-server-$(date +%Y%m%d)"
 ```bash
 # Ver fingerprint de tu clave antes de copiar al servidor
 $ ssh-keygen -lf ~/.ssh/id_ed25519
+# <1>
 
 
 256 SHA256:abcd1234... usuario@servidor-prod-20240331 (ED25519)
 
 $ ssh-keygen -E md5 -lf ~/.ssh/id_ed25519
+# <2>
 
 256 MD5:abcd:1234:... (ED25519)
 ```
@@ -121,6 +126,7 @@ $ ssh-keygen -E md5 -lf ~/.ssh/id_ed25519
 ```bash
 # Copiar clave pública al servidor
 $ ssh-copy-id -i ~/.ssh/id_ed25519.pub usuario@192.168.1.100
+# <1>
 
 
 /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/user/.ssh/id_ed25519.pub"
@@ -191,6 +197,7 @@ $ ls -la /etc/ssh/sshd_config
 ```bash
 # Editar configuración del servidor SSH
 $ sudoedit /etc/ssh/sshd_config
+# <1>
 
 
 # === CONFIGURACIÓN BÁSICA ===
@@ -206,6 +213,7 @@ MaxSessions 10                           # Máx sesiones simultáneas
 
 # === AUTH CONFIG ===
 PasswordAuthentication no              # NO passwords, solo keys
+# <2>
 PubkeyAuthentication yes                # SI keys públicas
 AuthorizedKeysFile .ssh/authorized_keys # Ubicación de keys
 PermitEmptyPasswords no                 # NO passwords vacíos
@@ -215,8 +223,10 @@ GSSAPIAuthentication no                 # NO GSSAPI
 
 # === ENCRYPTION (Hardening) ===
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+# <2>
 
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512
+# <3>
 HostKeyAlgorithms ssh-ed25519,ssh-rsa-sha2-256,ssh-rsa-sha2-512
 
 
@@ -268,6 +278,7 @@ $ sudo chmod 644 /etc/ssh/banner
 ```bash
 # Verificar sintaxis antes de reiniciar
 $ sudo sshd -t
+# <1>
 
 
 # Si hay errores, los muestra. Si está OK, no hay output.
@@ -298,6 +309,7 @@ $ sudo systemctl status sshd
 **Síntomas**:
 ```bash
 $ lastb | head -20
+# <1>
 admin    ssh:notty   45.155.205.233   Tue Mar 31 09:15:45
 root     ssh:notty   45.155.205.233   Tue Mar 31 09:15:44
 test     ssh:notty   45.155.205.233   Tue Mar 31 09:15:43
@@ -431,6 +443,7 @@ EOF
 
 # Conexión directa (SSH hace el tunnel automáticamente)
 $ ssh db-privada
+# <1>
 
 ```
 

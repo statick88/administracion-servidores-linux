@@ -45,7 +45,7 @@ $ sudo apt install -y mariadb-client
 
 ```bash
 # Backup básico de una DB
-$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql
+$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql  # <1>
 
 
 # Ver archivo
@@ -59,11 +59,11 @@ $ ls -lh /backup/appdb-20260331.sql
 
 ```bash
 # Backup completo
-$ sudo mysqldump -u root -p --all-databases > /backup/all-databases-$(date +%Y%m%d).sql
+$ sudo mysqldump -u root -p --all-databases > /backup/all-databases-$(date +%Y%m%d).sql  # <1>
 
 
 # Comprimido (ahorra ~80% espacio)
-$ sudo mysqldump -u root -p --all-databases | gzip > /backup/all-databases-$(date +%Y%m%d).sql.gz
+$ sudo mysqldump -u root -p --all-databases | gzip > /backup/all-databases-$(date +%Y%m%d).sql.gz  # <2>
 
 ```
 
@@ -84,7 +84,7 @@ $ sudo mysqldump \
     --create-options \
     --extended-insert \
     --lock-tables=read \
-    appdb > /backup/appdb-full-$(date +%Y%m%d).sql
+    appdb > /backup/appdb-full-$(date +%Y%m%d).sql  # <1>
 
 ```
 
@@ -94,7 +94,7 @@ $ sudo mysqldump \
 
 ```bash
 # Solo schema (sin datos)
-$ sudo mysqldump -u root -p --no-data appdb > /backup/appdb-schema-$(date +%Y%m%d).sql
+$ sudo mysqldump -u root -p --no-data appdb > /backup/appdb-schema-$(date +%Y%m%d).sql  # <1>
 
 ```
 
@@ -106,7 +106,7 @@ $ sudo mysqldump -u root -p --no-data appdb > /backup/appdb-schema-$(date +%Y%m%
 
 ```bash
 # Crear DB si no existe
-$ sudo mariadb -u root -p -e "CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+$ sudo mariadb -u root -p -e "CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"  # <1>
 
 # Restaurar
 $ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
@@ -119,7 +119,7 @@ $ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
 
 ```bash
 # Restaurar todas las DB
-$ sudo mariadb -u root -p < /backup/all-databases-20260331.sql
+$ sudo mariadb -u root -p < /backup/all-databases-20260331.sql  # <1>
 
 
 # Desde archivo comprimido
@@ -140,7 +140,7 @@ $ sudo mariabackup \
     --backup \
     --target-dir=/backup/full-$(date +%Y%m%d) \
     --user=root \
-    --password='RootPassword123!'
+    --password='RootPassword123!'  # <1>
 
 ```
 
@@ -226,7 +226,7 @@ $ sudo crontab -e
 
 ```bash
 # Ver que el archivo no está corrupto
-$ gzip -t /backup/appdb-20260331.sql.gz
+$ gzip -t /backup/appdb-20260331.sql.gz  # <1>
 # Sin output = OK
 
 # Ver primeras líneas

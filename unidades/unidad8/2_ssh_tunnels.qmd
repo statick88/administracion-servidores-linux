@@ -31,10 +31,12 @@ Los tunnels SSH son una de las herramientas más poderosas para cualquier admini
 ```bash
 # Crear tunnel SSH para MySQL
 $ ssh -L 3306:localhost:3306 usuario@servidor-remoto
+# <1>
 
 
 # En otra terminal (mientras el tunnel está activo)
 $ mysql -h 127.0.0.1 -u root -p
+# <2>
 
 ```
 
@@ -46,10 +48,12 @@ $ mysql -h 127.0.0.1 -u root -p
 ```bash
 # Servidor tiene app en puerto 8080, acceder como si fuera 8888 local
 $ ssh -L 8888:localhost:8080 usuario@servidor-remoto
+# <1>
 
 
 # Ahora acceder a la app desde navegador
 $ firefox http://localhost:8888
+# <2>
 
 ```
 
@@ -81,10 +85,12 @@ $ firefox http://localhost:8888
 ```bash
 # En mi máquina de desarrollo: tengo una app en puerto 3000
 $ ssh -R 8080:localhost:3000 usuario@servidor-publico
+# <1>
 
 
 # Cliente accede desde cualquier lugar
 $ curl http://servidor-publico:8080
+# <2>
 
 ```
 
@@ -117,10 +123,12 @@ $ curl http://servidor-publico:8080
 ```bash
 # Crear proxy SOCKS en puerto 1080
 $ ssh -D 1080 usuario@servidor-seguro
+# <1>
 
 
 # Configurar navegador o curl para usar el proxy
 $ curl --socks5 localhost:1080 https://whatismyip.com
+# <2>
 
 ```
 
@@ -155,6 +163,7 @@ $ ssh usuario@servidor-privado
 
 # Con ProxyJump (1 comando)
 $ ssh -J bastion.empresa.com usuario@servidor-privado
+# <1>
 
 
 # O con SSH config
@@ -166,6 +175,7 @@ Host servidor-privado
 EOF
 
 $ ssh servidor-privado
+# <2>
 
 ```
 
@@ -182,6 +192,7 @@ $ ssh servidor-privado
 # -o: Opciones adicionales
 $ ssh -Nf -o "ServerAliveInterval=60" -o "ServerAliveCountMax=3" \
     -L 3306:localhost:3306 usuario@servidor
+# <1>
 
 ```
 
@@ -197,6 +208,7 @@ $ ssh -L 3306:localhost:3306 \
         -L 5432:localhost:5432 \
         -L 6379:localhost:6379 \
         usuario@servidor
+# <1>
 
 ```
 
@@ -207,6 +219,7 @@ $ ssh -L 3306:localhost:3306 \
 ```bash
 # Ver详细信息 de la conexión
 $ ssh -vvv -L 3306:localhost:3306 usuario@servidor
+# <1>
 
 ```
 
@@ -232,6 +245,7 @@ LISTEN  127.0.0.1:3306  ...
 
 # Ahora conectar MySQL normalmente
 $ mysql -h 127.0.0.1 -u app_user -p production_db
+# <1>
 
 ```
 
@@ -314,6 +328,7 @@ $ autossh -M 20000 -f -N -L 3306:10.0.5.100:3306 \
     -o "ServerAliveCountMax=3" \
     -o "StrictHostKeyChecking=no" \
     usuario@bastion.empresa.com
+# <1>
 
 ```
 

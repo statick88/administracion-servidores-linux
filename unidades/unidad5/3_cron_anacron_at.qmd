@@ -26,7 +26,7 @@ El brochure del curso incluye **cron/anacron y at** dentro de la Unidad 5. En ad
 Editar el crontab del usuario:
 
 ```bash
-$ crontab -e  
+$ crontab -e  # <1>
 
 ```
 
@@ -37,7 +37,7 @@ $ crontab -e
 Listar tareas del usuario:
 
 ```bash
-$ crontab -l  
+$ crontab -l  # <1>
 30 2 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1
 
 ```
@@ -51,7 +51,7 @@ $ crontab -l
 ## anacron: recuperar tareas si el equipo estuvo apagado
 
 ```bash
-$ cat /etc/anacrontab  
+$ cat /etc/anacrontab  # <1>
 # /etc/anacrontab: configuration file for anacron
 1   5   cron.daily   nice run-parts --report /etc/cron.daily
 7   10  cron.weekly  nice run-parts --report /etc/cron.weekly
@@ -68,14 +68,14 @@ $ cat /etc/anacrontab
 ## at: ejecutar una sola vez en el futuro
 
 ```bash
-$ echo "systemctl restart nginx" | at 03:00  
+$ echo "systemctl restart nginx" | at 03:00  # <1>
 warning: commands will be executed using /bin/sh
 job 12 at Sun Feb  1 03:00:00 2026
 
-$ atq  
+$ atq  # <2>
 12	Sun Feb  1 03:00:00 2026 a usuario
 
-$ atrm 12  
+$ atrm 12  # <3>
 
 ```
 
@@ -110,7 +110,7 @@ $ atrm 12
 
 #### Linux
 ```bash
-$ crontab -l  
+$ crontab -l  # <1>
 30 2 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1
 
 ```
@@ -121,7 +121,7 @@ $ crontab -l
 
 #### macOS
 ```bash
-$ ls -1 /Library/LaunchDaemons | head -n 5  
+$ ls -1 /Library/LaunchDaemons | head -n 5  # <1>
 com.apple.alf.agent.plist
 com.apple.atrun.plist
 com.apple.backupd-auto.plist
@@ -134,7 +134,7 @@ com.apple.backupd-auto.plist
 
 #### Windows
 ```powershell
-PS> Get-ScheduledTask | Select-Object -First 5 TaskName,State  
+PS> Get-ScheduledTask | Select-Object -First 5 TaskName,State  # <1>
 
 TaskName                         State
 --------                         -----

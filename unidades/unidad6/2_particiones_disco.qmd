@@ -54,13 +54,13 @@ Como prevenirlo:
 ## Identificar discos y particiones
 
 ```bash
-$ lsblk  
+$ lsblk  # <1>
 NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
 sda      8:0    0   50G  0 disk
 └─sda1   8:1    0   50G  0 part /
 
 
-$ sudo fdisk -l | sed -n '1,25p'  
+$ sudo fdisk -l | sed -n '1,25p'  # <2>
 Disk /dev/sda: 50 GiB, 53687091200 bytes, 104857600 sectors
 Disklabel type: gpt
 Device     Start       End   Sectors  Size Type
@@ -78,23 +78,23 @@ Device     Start       End   Sectors  Size Type
 ## Laboratorio: crear una particion GPT en un disco loop
 
 ```bash
-$ sudo fallocate -l 1G /tmp/u6-part.img  
+$ sudo fallocate -l 1G /tmp/u6-part.img  # <1>
 
 
-$ sudo losetup -fP /tmp/u6-part.img  
+$ sudo losetup -fP /tmp/u6-part.img  # <2>
 
 
-$ sudo losetup -a | grep u6-part.img  
+$ sudo losetup -a | grep u6-part.img  # <3>
 /dev/loop1: [2065]:54321 (/tmp/u6-part.img)
 
 
-$ sudo parted /dev/loop1 --script mklabel gpt  
+$ sudo parted /dev/loop1 --script mklabel gpt  # <4>
 
 
-$ sudo parted /dev/loop1 --script mkpart primary ext4 1MiB 100%  
+$ sudo parted /dev/loop1 --script mkpart primary ext4 1MiB 100%  # <5>
 
 
-$ lsblk /dev/loop1  
+$ lsblk /dev/loop1  # <6>
 NAME      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
 loop1       7:1    0    1G  0 loop
 └─loop1p1 259:0    0 1023M  0 part
@@ -120,7 +120,7 @@ loop1       7:1    0    1G  0 loop
 
 #### Linux
 ```bash
-$ sudo fdisk -l /dev/sda | grep -E "Disklabel type"  
+$ sudo fdisk -l /dev/sda | grep -E "Disklabel type"  # <1>
 Disklabel type: gpt
 
 ```
@@ -131,7 +131,7 @@ Disklabel type: gpt
 
 #### macOS
 ```bash
-$ diskutil list | head -n 8  
+$ diskutil list | head -n 8  # <1>
 /dev/disk0 (internal, physical):
    0: GUID_partition_scheme
    1: EFI EFI 314.6 MB
@@ -145,7 +145,7 @@ $ diskutil list | head -n 8
 
 #### Windows
 ```powershell
-PS> Get-Disk | Select-Object Number,PartitionStyle  
+PS> Get-Disk | Select-Object Number,PartitionStyle  # <1>
 
 Number PartitionStyle
 ------ --------------

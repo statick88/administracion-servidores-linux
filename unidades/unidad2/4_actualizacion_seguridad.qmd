@@ -39,6 +39,7 @@ Un servidor sin actualizar es un servidor comprometido. **0-day exploits** (vuln
 $ sudo apt update  
 Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [114 kB]
 Leyendo listas de paquetes... Hecho
+# <1>
 
 # Paso 2: Actualizar paquetes instalados
 $ sudo apt upgrade -y  
@@ -46,16 +47,19 @@ Se instalarán las siguientes actualizaciones:
   openssl ssh systemd vim curl wget
 0 paquetes recién instalados, 5 para actualizar
 ¿Deseas continuar? [S/n] S
+# <2>
 
 # Paso 3: Limpiar paquetes no usados
 $ sudo apt autoremove -y  
 Los siguientes paquetes serán ELIMINADOS:
   libpython3.8-minimal
 ¿Deseas continuar? [S/n] S
+# <3>
 
 # Verificar versión del kernel después
 $ uname -r  
 5.15.0-89-generic
+# <4>
 ```
 
 1. **apt update** descarga la lista de paquetes disponibles de repositorios remotos (sin instalar nada)
@@ -75,6 +79,7 @@ $ softwareupdate -l
 The following updates are available:
   macOS Sonoma 14.2.1 Update
   Security Update 2024-001
+# <1>
   
 # Instalar todas las actualizaciones
 $ sudo softwareupdate -ia
@@ -84,6 +89,7 @@ Installing macOS Sonoma 14.2.1 Update
 # Sistema B: Homebrew (package manager de terceros)
 $ brew update  
 Updated 2 taps and 215 formulae
+# <2>
 
 $ brew upgrade  
 Upgrading curl, openssl, wget
@@ -126,6 +132,7 @@ PS> [Environment]::OSVersion.Version
 ```bash
 # Ver historial de parchesaplicados
 $ sudo apt log  
+# <1>
 # O ver el archivo de log:
 $ sudo tail -f /var/log/apt/history.log
 
@@ -199,6 +206,7 @@ PS> (New-Object -ComObject Microsoft.Update.Session).CreateupdateSearcher().Sear
 # Paso 1: Habilitar firewall
 $ sudo ufw enable  
 Firewall is active and enabled on system startup
+# <1>
 
 # Paso 2: Ver estado
 $ sudo ufw status  
@@ -208,18 +216,22 @@ To                         Action      From
 22/tcp                     ALLOW       Anywhere
 80/tcp                     ALLOW       Anywhere
 443/tcp                    ALLOW       Anywhere
+# <2>
 
 # Paso 3: Permitir puertos específicos
 $ sudo ufw allow 22/tcp  
 $ sudo ufw allow 80/tcp  
 $ sudo ufw allow 443/tcp 
+# <3>
 
 # Paso 4: Denegar todo lo demás (default)
 $ sudo ufw default deny incoming  
 $ sudo ufw default allow outgoing 
+# <4>
 
 # Verificar firewall log
 $ sudo tail -f /var/log/ufw.log  
+# <5>
 ```
 
 1. **ufw enable** activa el firewall y configura inicio automático al bootear
@@ -306,6 +318,7 @@ apt autoremove → Eliminar dependencias no utilizadas
 ```bash
 # **Descargar listas de paquetes desde repositorios**
 sudo apt update  
+# <1>
 
 # **Salida esperada**:
 # Get:1 http://security.ubuntu.com/ubuntu focal-security InRelease [114 kB]
@@ -428,10 +441,12 @@ En producción, quieres actualizaciones automáticas sin esperar:
 ```bash
 # **Instalar herramienta de actualizaciones automáticas**
 sudo apt install unattended-upgrades  
+# <1>
 
 # **Habilitar servicio**
 sudo systemctl enable unattended-upgrades  
 sudo systemctl start unattended-upgrades  
+# <2>
 ```
 
 1. **unattended-upgrades** es el paquete que permite actualizaciones automáticas sin intervención
@@ -743,16 +758,20 @@ sudo systemctl enable apparmor
 ```bash
 # **Instalar Fail2Ban (bloquea IPs después de N intentos fallidos)**
 sudo apt install fail2ban  
+# <1>
 
 # **Habilitar**
 sudo systemctl enable fail2ban  
 sudo systemctl start fail2ban  
+# <2>
 
 # **Ver estado**
 sudo systemctl status fail2ban  
+# <3>
 
 # **Ver intentos fallidos en SSH**
 sudo fail2ban-client status sshd  
+# <4>
 
 # **Salida**:
 # Status for the jail sshd:

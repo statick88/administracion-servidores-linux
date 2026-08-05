@@ -41,18 +41,18 @@ Al final de esta leccion, podras:
 ## Ver que sistema de archivos estas usando
 
 ```bash
-$ lsblk -f  
+$ lsblk -f  # <1>
 NAME   FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
 sda
 └─sda1  ext4   1.0         5b4f5d4e-2f3e-4c17-9b3b-9d4c7d7b0c2a   38G    12% /
 
 
-$ df -hT  
+$ df -hT  # <2>
 Filesystem     Type  Size  Used Avail Use% Mounted on
 /dev/sda1      ext4   49G  5.4G   41G  12% /
 
 
-$ findmnt -n -o SOURCE,FSTYPE,TARGET /  
+$ findmnt -n -o SOURCE,FSTYPE,TARGET /  # <3>
 /dev/sda1 ext4 /
 
 ```
@@ -94,13 +94,13 @@ Cuando aplicar:
 Este laboratorio crea un "disco" dentro de un archivo, para que puedas practicar sin tocar discos reales.
 
 ```bash
-$ sudo fallocate -l 512M /tmp/u6-disk.img  
+$ sudo fallocate -l 512M /tmp/u6-disk.img  # <1>
 
 
-$ sudo losetup -fP /tmp/u6-disk.img  
+$ sudo losetup -fP /tmp/u6-disk.img  # <2>
 
 
-$ sudo losetup -a | grep u6-disk.img  
+$ sudo losetup -a | grep u6-disk.img  # <3>
 /dev/loop0: [2065]:12345 (/tmp/u6-disk.img)
 
 ```
@@ -123,7 +123,7 @@ Ahora (en la siguiente leccion) lo particionaremos y le crearemos un sistema de 
 
 #### Linux
 ```bash
-$ lsblk  
+$ lsblk  # <1>
 NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
 sda      8:0    0   50G  0 disk
 └─sda1   8:1    0   50G  0 part /
@@ -136,7 +136,7 @@ sda      8:0    0   50G  0 disk
 
 #### macOS
 ```bash
-$ diskutil list  
+$ diskutil list  # <1>
 /dev/disk0 (internal, physical):
   0: GUID_partition_scheme
   1: EFI EFI 314.6 MB
@@ -150,7 +150,7 @@ $ diskutil list
 
 #### Windows
 ```powershell
-PS> Get-Disk | Select-Object Number,FriendlyName,PartitionStyle,Size  
+PS> Get-Disk | Select-Object Number,FriendlyName,PartitionStyle,Size  # <1>
 
 Number FriendlyName      PartitionStyle Size
 ------ ------------      -------------- ----

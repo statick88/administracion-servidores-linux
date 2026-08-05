@@ -23,12 +23,12 @@ date-format: medium
 ## Rutas: leer y explicar lo que ves
 
 ```bash
-$ ip route  
+$ ip route  # <1>
 default via 192.168.56.1 dev enp0s3
 192.168.56.0/24 dev enp0s3 proto kernel scope link src 192.168.56.10
 
 
-$ ip -6 route  
+$ ip -6 route  # <2>
 fe80::/64 dev enp0s3 proto kernel metric 256
 default via fe80::1 dev enp0s3 metric 100
 
@@ -44,7 +44,7 @@ default via fe80::1 dev enp0s3 metric 100
 ## Vecinos (ARP/NDP): "a quien le hablo en L2"
 
 ```bash
-$ ip neigh  
+$ ip neigh  # <1>
 192.168.56.1 dev enp0s3 lladdr 0a:00:27:aa:bb:cc REACHABLE
 
 ```
@@ -58,7 +58,7 @@ $ ip neigh
 ## Ver sockets y puertos
 
 ```bash
-$ sudo ss -lntup  
+$ sudo ss -lntup  # <1>
 Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process
 tcp   LISTEN 0      4096   0.0.0.0:22        0.0.0.0:*       users:("sshd",pid=812,fd=3)
 udp   UNCONN 0      0      127.0.0.53%lo:53  0.0.0.0:*       users:("systemd-resolved",pid=610,fd=13)
@@ -79,7 +79,7 @@ udp   UNCONN 0      0      127.0.0.53%lo:53  0.0.0.0:*       users:("systemd-res
 
 #### Linux
 ```bash
-$ ip route  
+$ ip route  # <1>
 default via 192.168.1.1 dev eth0
 192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10
 
@@ -91,7 +91,7 @@ default via 192.168.1.1 dev eth0
 
 #### macOS
 ```bash
-$ netstat -rn | head -n 10  
+$ netstat -rn | head -n 10  # <1>
 Routing tables
 
 Internet:
@@ -107,7 +107,7 @@ default            192.168.1.1        UGSc           en0
 
 #### Windows
 ```powershell
-PS> route print  
+PS> route print  # <1>
 IPv4 Route Table
 ===========================================================================
 Active Routes:

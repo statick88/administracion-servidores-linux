@@ -46,11 +46,11 @@ La seguridad en bases de datos se basa en: usuarios por aplicación, privilegios
 $ sudo mariadb
 
 # Crear base de datos con charset utf8mb4
-CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  # <1>
 
 
 # Verificar
-SHOW CREATE DATABASE appdb;
+SHOW CREATE DATABASE appdb;  # <2>
 
 ```
 
@@ -79,12 +79,12 @@ CREATE TABLE users (
 
 ```bash
 # Crear usuario con password seguro
-CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass-ChangeMe-2026!';
+CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass-ChangeMe-2026!';  # <1>
 
 
 # Otorgar privilegios específicos
-GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';
-FLUSH PRIVILEGES;
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';  # <2>
+FLUSH PRIVILEGES;  # <2>
 
 ```
 
@@ -95,11 +95,11 @@ FLUSH PRIVILEGES;
 
 ```bash
 # Probar conexión como el nuevo usuario
-$ mariadb -u appuser -p appdb -e 'SHOW TABLES;'
+$ mariadb -u appuser -p appdb -e 'SHOW TABLES;'  # <1>
 
 
 # Ver qué puede hacer
-SHOW GRANTS FOR 'appuser'@'localhost';
+SHOW GRANTS FOR 'appuser'@'localhost';  # <2>
 
 ```
 
@@ -177,15 +177,15 @@ FLUSH PRIVILEGES;
 
 ```bash
 # Con openssl (32 bytes = ~43 caracteres en base64)
-$ openssl rand -base64 32
+$ openssl rand -base64 32  # <1>
 
 
 # Con pwgen (32 caracteres, segura)
-$ pwgen -s 32 1
+$ pwgen -s 32 1  # <2>
 
 
 # Con MariaDB (validate_password plugin)
-INSTALL PLUGIN validate_password SONAME 'validate_password.so';
+INSTALL PLUGIN validate_password SONAME 'validate_password.so';  # <3>
 SET GLOBAL validate_password_length = 16;
 SET GLOBAL validate_password_mixed_case_count = 1;
 SET GLOBAL validate_password_number_count = 1;
@@ -240,7 +240,7 @@ CREATE ROLE 'app_admin';
 GRANT ALL PRIVILEGES ON appdb.* TO 'app_admin';
 
 # Asignar rol a usuario
-GRANT 'app_readonly' TO 'developer'@'localhost';
+GRANT 'app_readonly' TO 'developer'@'localhost';  # <1>
 
 # Definir rol por defecto
 SET DEFAULT ROLE 'app_readonly' FOR 'developer'@'localhost';
@@ -274,7 +274,7 @@ SET ROLE NONE;
 
 ```bash
 # Listar todos los usuarios
-SELECT User, Host, plugin, password_lifetime FROM mysql.user ORDER BY User;
+SELECT User, Host, plugin, password_lifetime FROM mysql.user ORDER BY User;  # <1>
 
 
 # Ver privilegios de cada usuario
@@ -282,7 +282,7 @@ SELECT user, host, db, select_priv, insert_priv, update_priv, delete_priv
 FROM mysql.db ORDER BY user, db;
 
 # Ver usuarios sin password o expirados
-SELECT user, host FROM mysql.user WHERE password = '' OR password IS NULL;
+SELECT user, host FROM mysql.user WHERE password = '' OR password IS NULL;  # <2>
 
 ```
 
@@ -336,7 +336,7 @@ ERROR 1045 (28000): Access denied for user 'appuser'@'localhost' (using password
 **Diagnóstico**:
 ```bash
 # Verificar que el usuario existe
-SELECT User, Host, plugin FROM mysql.user WHERE User='appuser';
+SELECT User, Host, plugin FROM mysql.user WHERE User='appuser';  # <1>
 
 # Verificar privilegios
 SHOW GRANTS FOR 'appuser'@'localhost';

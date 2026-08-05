@@ -88,8 +88,8 @@ SHOW DATABASES;
 
 ```bash
 # Crear usuario
-CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass123!';  
-GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';  
+CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'AppPass123!';  # <1>
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';  # <2>
 FLUSH PRIVILEGES;
 
 # Verificar
@@ -119,10 +119,10 @@ $ mariadb -u appuser -p appdb -e "SHOW TABLES;"
 $ sudo mkdir -p /backup  
 
 # Backup
-$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql  
+$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql  # <1>
 
 # Comprimido
-$ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz  
+$ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz  # <2>
 
 # Ver
 $ ls -lh /backup/
@@ -136,7 +136,7 @@ $ ls -lh /backup/
 
 ```bash
 # Restaurar
-$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql  
+$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql  # <1>
 
 # Verificar
 $ mariadb -u appuser -p appdb -e "SHOW TABLES;"
@@ -161,7 +161,7 @@ $ docker run -d --name mariadb-server \
     -e MYSQL_DATABASE=appdb \
     -e MYSQL_USER=appuser \
     -e MYSQL_PASSWORD=AppPass123 \
-    mariadb:10.11
+    mariadb:10.11  # <1>
 
 # Ver
 $ docker ps | grep mariadb
@@ -173,7 +173,7 @@ $ docker ps | grep mariadb
 
 ```bash
 # IP del contenedor
-$ MARIADB_IP=$(docker inspect mariadb-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')  
+$ MARIADB_IP=$(docker inspect mariadb-server -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')  # <1>
 
 # Conectar
 $ mysql -h $MARIADB_IP -u appuser -p appdb
@@ -189,10 +189,10 @@ $ mysql -h $MARIADB_IP -u appuser -p appdb
 
 ```bash
 # Conectar al VPS
-$ ssh usuario@vps "sudo apt update && sudo apt install -y mariadb-server"  
+$ ssh usuario@vps "sudo apt update && sudo apt install -y mariadb-server"  # <1>
 
 # Configurar
-$ ssh usuario@vps "sudo mysql_secure_installation"
+$ ssh usuario@vps "sudo mysql_secure_installation"  # <2>
 ```
 
 1. **ssh usuario@vps "comando"** ejecuta el comando de forma remota sin abrir sesión interactiva; combina actualización de repositorios e instalación en una sola línea
@@ -201,13 +201,13 @@ $ ssh usuario@vps "sudo mysql_secure_installation"
 
 ```bash
 # En VPS: cambiar bind-address
-$ ssh usuario@vps "sudo sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf"  
+$ ssh usuario@vps "sudo sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf"  # <1>
 
 # Reiniciar
-$ ssh usuario@vps "sudo systemctl restart mariadb"  
+$ ssh usuario@vps "sudo systemctl restart mariadb"  # <2>
 
 # Crear usuario remoto
-$ ssh usuario@vps "sudo mariadb -e \"CREATE USER 'appuser'@'%' IDENTIFIED BY 'RemotePass123!'; GRANT ALL ON appdb.* TO 'appuser'@'%'; FLUSH PRIVILEGES;\""  
+$ ssh usuario@vps "sudo mariadb -e \"CREATE USER 'appuser'@'%' IDENTIFIED BY 'RemotePass123!'; GRANT ALL ON appdb.* TO 'appuser'@'%'; FLUSH PRIVILEGES;\""  # <3>
 
 # Probar desde host
 $ mariadb -h VPS_IP -u appuser -p appdb
@@ -236,11 +236,11 @@ $ mariadb -h VPS_IP -u appuser -p appdb
 
 ```bash
 # Docker
-$ docker stop mariadb-server && docker rm mariadb-server  
+$ docker stop mariadb-server && docker rm mariadb-server  # <1>
 $ docker network rm lab-mariadb-net
 
 # VPS
-$ ssh usuario@vps "sudo systemctl stop mariadb"
+$ ssh usuario@vps "sudo systemctl stop mariadb"  # <2>
 ```
 
 1. **docker stop + rm** primero detiene el contenedor y luego lo elimina; `docker network rm` elimina la red aislada creada para el laboratorio

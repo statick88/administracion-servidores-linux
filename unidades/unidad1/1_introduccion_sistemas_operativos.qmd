@@ -301,6 +301,7 @@ El kernel es la parte más importante. Gestiona:
 # Ver información del kernel en Linux
 $ uname -r  
 5.15.0-89-generic
+# <1>
 
 # Ver módulos del kernel cargados
 $ lsmod | head -10  
@@ -309,6 +310,7 @@ overlay                81920  0
 kvm_intel             323584  0
 kvm                  1019904  1 kvm_intel
 ...
+# <2>
 ```
 
 1. **uname -r** muestra la versión exacta del kernel de tu sistema
@@ -327,12 +329,12 @@ Los drivers (controladores) permiten que el SO hable con el hardware específico
 
 ```bash
 # Listar dispositivos reconocidos
-$ lspci | grep -E "(Network|VGA|Audio)"  
+$ lspci | grep -E "(Network|VGA|Audio)"  # <1>
 00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630
 00:1f.6 Ethernet controller: Intel Corporation Ethernet Connection
 
 # Ver drivers cargados
-$ lsmod | grep -i eth  
+$ lsmod | grep -i eth  # <2>
 ```
 
 1. **lspci** lista todos los dispositivos PCI conectados al sistema, filtramos solo Network, VGA y Audio
@@ -347,7 +349,7 @@ El shell es lo que **tú ves y usas**. Convierte tus comandos en órdenes que el
 
 ```bash
 # Usando shell bash
-$ ls -la /home  
+$ ls -la /home  # <1>
 total 28
 drwxr-xr-x  3 root root 4096 Jan 29 14:22 .
 drwxr-xr-x 23 root root 4096 Jan 29 14:22 ..
@@ -373,7 +375,7 @@ El SO decide **qué programa corre y cuándo**:
 
 ```bash
 # Ver procesos en tiempo real
-$ top -b -n 1 | head -20  
+$ top -b -n 1 | head -20  # <1>
 
 top - 14:40:15 up 247 days, 3:47,  2 users,  load average: 0.92, 0.91, 0.89
 Tasks: 156 total,   1 running, 155 sleeping,   0 stopped,   0 zombie  
@@ -402,7 +404,7 @@ El SO asigna RAM a cada proceso de forma segura:
 
 ```bash
 # Ver uso de memoria
-$ cat /proc/meminfo  
+$ cat /proc/meminfo  # <1>
 MemTotal:       16409912 kB    # RAM Total en el sistema  
 MemFree:         9654832 kB    # RAM Disponible sin usar  
 MemAvailable:   12506144 kB    # RAM que puede usar si es necesario  
@@ -430,7 +432,7 @@ El SO es el "policía" que controla acceso a hardware:
 
 ```bash
 # Ver dispositivos de almacenamiento
-$ lsblk  
+$ lsblk  # <1>
 NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT  
 sda      8:0    0  500G  0 disk  
 ├─sda1   8:1    0    1G  0 part /boot  
@@ -455,7 +457,7 @@ El SO organiza datos en carpetas y archivos:
 
 ```bash
 # Ver sistema de archivos
-$ df -h  
+$ df -h  # <1>
 Filesystem      Size  Used Avail Use% Mounted on  
 /dev/sda2       500G  120G  380G  24% /  
 /dev/sdb1         2T  1.5T  500G  75% /data  
@@ -492,12 +494,12 @@ java.lang.OutOfMemoryError: Java heap space
 **Solución comprobada:**
 ```bash
 # ❌ Forma INCORRECTA (buscar espacio en disco)
-$ df -h  
+$ df -h  # <1>
 Filesystem      Size  Used Avail
 /               500G  100G  400G  ← Aún hay espacio!
 
 # ✅ Forma CORRECTA (revisar RAM)
-$ free -h  
+$ free -h  # <2>
                total    used    free
 Mem:          15.6G   14.8G   0.8G  ← ¡RAM llena!
 ```
@@ -518,11 +520,11 @@ El error es de RAM, no de disco. **df** ve espacio en disco, pero **free** muest
 **Solución:**
 ```bash
 # Verificar carga de CPU
-$ uptime  
+$ uptime  # <1>
 load average: 12.5, 11.2, 10.1  ← Si es > núcleos CPU, está sobrecargado  
 
 # Verificar swap (disco usado como memoria)
-$ swapon -s  
+$ swapon -s  # <2>
 Filename  Size  Used Priority
 /dev/sda1 4000000 3900000 -1  ← Si Used es alto, es el problema  
 ```
@@ -660,15 +662,15 @@ Si **free** es muy pequeño o **used** es muy grande, la RAM está llena.
 **Instrucciones:**
 ```bash
 # Paso 1: Ver información del SO
-$ uname -a  
+$ uname -a  # <1>
 # Deberías ver: información del kernel, versión, arquitectura
 
 # Paso 2: Ver los primeros procesos del sistema
-$ ps aux | head -10  
+$ ps aux | head -10  # <2>
 # Deberías ver: procesos del sistema operativo en ejecución
 
 # Paso 3: Ver memoria disponible
-$ free -h  
+$ free -h  # <3>
 # Deberías ver: cuánta RAM tienes y cuánta está disponible
 ```
 

@@ -254,6 +254,7 @@ La **RAM mínima de 1 GB** es apenas funcional - con aplicaciones modernas, nece
 
 ```powershell
 systeminfo  
+# <1>
 ```
 
 1. **systeminfo** muestra detalles del sistema en Windows (procesador, RAM, BIOS)
@@ -268,6 +269,7 @@ Busca en la salida:
 
 ```bash
 system_profiler SPHardwareDataType  
+# <1>
 ```
 
 1. **system_profiler** muestra información completa de hardware en macOS
@@ -282,18 +284,21 @@ Busca:
 
 ```bash
 uname -m  
+# <1>
 ```
 
 1. **uname -m** muestra la arquitectura del procesador (x86_64 para 64-bit, armv7l para ARM 32-bit)
 
 ```bash
 free -h  
+# <1>
 ```
 
 1. **free -h** muestra RAM disponible en formato legible (human-readable)
 
 ```bash
 cat /proc/cpuinfo | grep "^processor" | wc -l  
+# <1>
 ```
 
 1. Este comando cuenta el número de núcleos disponibles (multiplicar por 2 si tiene hyper-threading)
@@ -302,18 +307,21 @@ cat /proc/cpuinfo | grep "^processor" | wc -l
 
 ```bash
 lsblk  
+# <1>
 ```
 
 1. **lsblk** (list block devices) muestra todos los discos y particiones de forma visual
 
 ```bash
 df -h  
+# <1>
 ```
 
 1. **df -h** (disk free) muestra espacio disponible en particiones existentes
 
 ```bash
 fdisk -l  
+# <1>
 ```
 
 1. **fdisk -l** (list) muestra particiones en formato detallado (requiere sudo)
@@ -338,12 +346,14 @@ Cada ISO oficial tiene un archivo **SHA256SUMS** que garantiza que la descarga n
 ```bash
 # En Linux o macOS
 sha256sum ubuntu-22.04.4-live-server-amd64.iso > descargado.sha256  
+# <1>
 ```
 
 1. **sha256sum** genera un hash criptográfico del archivo ISO descargado
 
 ```bash
 diff descargado.sha256 SHA256SUMS  
+# <1>
 ```
 
 1. **diff** compara el hash descargado con el oficial - si no hay salida, la descarga es válida
@@ -352,6 +362,7 @@ En **Windows**, usa:
 
 ```powershell
 (Get-FileHash ubuntu-22.04.4-live-server-amd64.iso -Algorithm SHA256).Hash  
+# <1>
 ```
 
 1. **Get-FileHash** es el equivalente de PowerShell para calcular checksums
@@ -392,24 +403,28 @@ Para crear un USB booteable, necesitas herramientas según tu SO:
 
 ```bash
 lsblk  
+# <1>
 ```
 
 1. **lsblk** lista los discos para identificar cuál es tu USB (ej: /dev/sdb)
 
 ```bash
 sudo umount /dev/sdX1  
+# <1>
 ```
 
 1. **umount** desmonta la partición antes de escribir (reemplaza X con tu letra)
 
 ```bash
 sudo dd if=ubuntu-22.04.4-live-server-amd64.iso of=/dev/sdX bs=4M status=progress  
+# <1>
 ```
 
 1. **dd** (disk dump) copia el ISO byte a byte. **bs=4M** define el tamaño de bloque. **status=progress** muestra avance
 
 ```bash
 sudo sync  
+# <1>
 ```
 
 1. **sync** asegura que todos los datos se escriben en el USB antes de continuar
@@ -518,6 +533,7 @@ Si ya tienes Linux, puedes reparticionar e instalar en partición nueva.
 
 ```bash
 sudo fdisk /dev/sda  
+# <1>
 ```
 
 1. **fdisk** abre el particionador interactivo (requiere sudo)

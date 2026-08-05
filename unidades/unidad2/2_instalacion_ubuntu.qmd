@@ -483,6 +483,7 @@ Ingresa:
 
 ```bash
 lsb_release -a  
+# <1>
 ```
 
 1. **lsb_release -a** muestra información de la distribución instalada
@@ -500,6 +501,7 @@ Description:    Ubuntu 22.04.4 LTS
 
 ```bash
 uname -r  
+# <1>
 ```
 
 1. **uname -r** muestra versión del kernel Linux
@@ -515,6 +517,7 @@ Versión 5.15+ es correcta para Ubuntu Server LTS.
 
 ```bash
 lsblk  
+# <1>
 ```
 
 1. **lsblk** lista el particionamiento realizado
@@ -532,6 +535,7 @@ sda      8:0    0  500G  0 disk
 
 ```bash
 df -h  
+# <1>
 ```
 
 1. **df -h** muestra espacio usado/disponible en particiones
@@ -548,6 +552,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 ```bash
 ping -c 3 8.8.8.8  
+# <1>
 ```
 
 1. **ping -c 3** envía 3 paquetes de prueba a Google DNS (8.8.8.8)
@@ -621,6 +626,7 @@ PS> # Abre Disk Management (diskmgmt.msc)
 PS> # Right-click Disco C: → Shrink Volume
 PS> # Liberar 100 GB
 Get-Volume | Select-Object DriveLetter, Size, SizeRemaining  
+# <1>
 ```
 
 1. **Get-Volume** muestra el espacio disponible en cada volumen antes de reducir la partición C:
@@ -630,6 +636,7 @@ Get-Volume | Select-Object DriveLetter, Size, SizeRemaining
 # Paso 2: Descargar ISO (en Windows)
 PS> Invoke-WebRequest -Uri "https://releases.ubuntu.com/22.04/ubuntu-22.04.4-live-server-amd64.iso" `
     -OutFile "C:\Users\usuario\Downloads\ubuntu-22.04.4-live-server-amd64.iso"  
+# <1>
 
 # Paso 3: Flash ISO a USB (usar Balena Etcher)
 # - Descargar Balena Etcher desde https://www.balena.io/etcher/
@@ -664,6 +671,7 @@ El menú GRUB permite elegir entre Ubuntu y Windows al iniciar. Si necesitas cam
 ```bash
 # En macOS, instalar Multipass (VM manager de Canonical)
 $ brew install multipass
+# <1>
 
 # Crear VM Ubuntu
 $ multipass launch --name abacom-dev ubuntu:22.04
@@ -676,16 +684,19 @@ Linux abacom-dev 5.15.0-1234-generic #1234-Ubuntu SMP x86_64
 
 # Desde macOS, copiar archivos a VM:
 $ multipass transfer archivo.txt abacom-dev:/home/ubuntu/  
+# <2>
 ```
 
 
 
-1. **multipass transfer** copia archivos del host a la VM (y viceversa) sin configurar SSH manualmente
+1. **brew install multipass** instala el gestor de máquinas virtuales de Canonical en macOS
+2. **multipass transfer** copia archivos del host a la VM (y viceversa) sin configurar SSH manualmente
 
 **OPCIÓN B: Docker Desktop (Ligero)**
 ```bash
 # En macOS, usar Docker para contenedor Linux
 $ docker run -it ubuntu:22.04 /bin/bash  
+# <1>
 
 root@container# apt update  
 root@container# apt install -y build-essential  
@@ -720,6 +731,7 @@ Disk /dev/sda: 238.47 GiB, 256060514304 bytes
 ```powershell
 # En Windows, antes de encoger C:
 PS> Get-Disk | Select-Object DiskNumber, TotalSize, FreeSpace  
+# <1>
 
 DiskNumber TotalSize     FreeSpace
 ---------- ---------     ---------
@@ -729,12 +741,11 @@ DiskNumber TotalSize     FreeSpace
 PS> $disk = Get-Disk -Number 0  
 PS> $partition = $disk | Get-Partition | Where-Object {$_.DriveLetter -eq 'C'}  
 PS> $partition | Resize-Partition -Size ($partition.Size - 100GB)  
+# <2>
 ```
 
-1. **Get-Disk** muestra todos los discos物理icos — verifica el número de disco y espacio libre antes de modificar
-2. **Get-Disk -Number 0** selecciona el disco principal (generalmente disco 0 en laptops)
-3. **Get-Partition | Where-Object** filtra solo la partición C: del disco seleccionado
-4. **Resize-Partition** reduce la partición C: liberando 100 GB para Ubuntu
+1. **Get-Disk** muestra todos los discos físicos — verifica el número de disco y espacio libre antes de modificar
+2. **Resize-Partition** reduce la partición C: liberando 100 GB para Ubuntu
 
 #### macOS (Verificación desde Terminal)
 ```bash
@@ -879,6 +890,7 @@ $ diskutil secureErase freespace 0 /Volumes/Free
 ```bash
 # Configuración de GRUB está en:
 cat /etc/default/grub  
+# <1>
 ```
 
 1. **cat** muestra el contenido del archivo de configuración de GRUB
@@ -893,6 +905,7 @@ GRUB_CMDLINE_LINUX=""    # Parámetros para el kernel
 Si editas GRUB, debes actualizar:
 ```bash
 sudo update-grub  
+# <1>
 ```
 
 1. **update-grub** reconstruye la configuración de GRUB desde /etc/default/grub
@@ -921,6 +934,7 @@ sudo update-grub
 ```bash
 # Ver swap disponible
 swapon --show  
+# <1>
 ```
 
 1. **swapon --show** muestra estado de swap activo

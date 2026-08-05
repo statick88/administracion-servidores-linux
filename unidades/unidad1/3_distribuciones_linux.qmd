@@ -74,15 +74,15 @@ El "package manager" es la herramienta que usa una distribución para **instalar
 
 ```bash
 # Debian/Ubuntu: apt (Advanced Package Tool)
-$ apt install nginx  
+$ apt install nginx  # <1>
 
 # Red Hat/CentOS/Fedora: yum o dnf
-$ yum install nginx  
+$ yum install nginx  # <2>
 # O en Fedora:
-$ dnf install nginx  
+$ dnf install nginx  # <3>
 
 # Arch: pacman
-$ pacman -S nginx  
+$ pacman -S nginx  # <4>
 
 # Son equivalentes - la sintaxis cambia pero el resultado es igual
 ```
@@ -112,14 +112,14 @@ $ pacman -S nginx
 #### Linux (Ubuntu)
 ```bash
 # En Ubuntu
-$ cat /etc/os-release  
+$ cat /etc/os-release  # <1>
 NAME="Ubuntu"
 VERSION="22.04.3 LTS"
 ID=ubuntu
-VERSION_CODENAME=jammy  
+VERSION_CODENAME=jammy  # <2>
 
 # También funciona:
-$ lsb_release -d  
+$ lsb_release -d  # <3>
 Description:	Ubuntu 22.04.3 LTS
 ```
 
@@ -132,16 +132,16 @@ Description:	Ubuntu 22.04.3 LTS
 #### macOS
 ```bash
 # En macOS (Darwin)
-$ cat /etc/os-release  
+$ cat /etc/os-release  # <1>
 # Nota: En macOS no existe /etc/os-release (es Linux)
 # En su lugar:
 
-$ sw_vers  
+$ sw_vers  # <2>
 ProductName:        macOS
 ProductVersion:     14.2
 BuildVersion:       23C64
 
-$ uname -a  
+$ uname -a  # <3>
 Darwin MacBook-Air 23.2.0 Darwin Kernel Version 23.2.0
 ```
 
@@ -154,14 +154,14 @@ Darwin MacBook-Air 23.2.0 Darwin Kernel Version 23.2.0
 #### Windows
 ```powershell
 # En Windows (PowerShell)
-PS> Get-ComputerInfo | Select-Object OsName, OsVersion  
+PS> Get-ComputerInfo | Select-Object OsName, OsVersion  # <1>
 
 OsName       OsVersion
 ------       ---------
 Microsoft Windows 11 Pro  22H2
 
 # También funciona:
-PS> systeminfo | findstr /B /C:"OS Name" /C:"OS Version"  
+PS> systeminfo | findstr /B /C:"OS Name" /C:"OS Version"  # <2>
 OS Name:                          Microsoft Windows 11 Pro
 OS Version:                       10.0.22621 Build 22621
 ```
@@ -182,11 +182,11 @@ OS Version:                       10.0.22621 Build 22621
 #### Linux (Ubuntu/Debian)
 ```bash
 # Ubuntu (apt)
-$ sudo apt update  
-$ sudo apt install curl  
+$ sudo apt update  # <1>
+$ sudo apt install curl  # <2>
 
 # Verificar instalación
-$ curl --version  
+$ curl --version  # <3>
 curl 7.81.0 (x86_64-pc-linux-gnu)
 ```
 
@@ -199,14 +199,14 @@ curl 7.81.0 (x86_64-pc-linux-gnu)
 #### Linux (CentOS/RHEL)
 ```bash
 # CentOS/RHEL (yum/dnf)
-$ sudo yum update  
-$ sudo yum install curl  
+$ sudo yum update  # <1>
+$ sudo yum install curl  # <2>
 
 # O en Fedora:
-$ sudo dnf install curl  
+$ sudo dnf install curl  # <3>
 
 # Verificar instalación
-$ curl --version  
+$ curl --version  # <4>
 curl 7.61.1 (x86_64-redhat-linux-gnu)
 ```
 
@@ -221,13 +221,13 @@ curl 7.61.1 (x86_64-redhat-linux-gnu)
 #### macOS
 ```bash
 # macOS (Homebrew - package manager)
-$ brew install curl  
+$ brew install curl  # <1>
 
 # Si Homebrew no está instalado, instalarlo primero:
-$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"  
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"  # <2>
 
 # Verificar instalación
-$ curl --version  
+$ curl --version  # <3>
 curl 8.1.2 (x86_64-apple-darwin23.2.0)
 ```
 
@@ -240,17 +240,17 @@ curl 8.1.2 (x86_64-apple-darwin23.2.0)
 #### Windows
 ```powershell
 # Windows (Chocolatey - package manager)
-PS> choco install curl  
+PS> choco install curl  # <1>
 
 # Si Chocolatey no está instalado:
-PS> Set-ExecutionPolicy Bypass -Scope Process -Force; `  
+PS> Set-ExecutionPolicy Bypass -Scope Process -Force; `  # <2>
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; `
     iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
 # Verificar instalación
-PS> curl --version  
+PS> curl --version  # <3>
 # O usar el comando nativo de Windows:
-PS> (Invoke-WebRequest -Uri "https://www.google.com").StatusCode  
+PS> (Invoke-WebRequest -Uri "https://www.google.com").StatusCode  # <4>
 200
 ```
 
@@ -277,25 +277,25 @@ PS> (Invoke-WebRequest -Uri "https://www.google.com").StatusCode
 #### Servidor Linux (Ubuntu)
 ```bash
 # En nuestros servidores Ubuntu de producción
-$ sudo apt update  
+$ sudo apt update  # <1>
 Reading package lists... Done
 Building dependency tree... Done
 Reading state information... Done
 
-$ sudo apt install vim-nox  
+$ sudo apt install vim-nox  # <2>
 Reading package lists... Done
 Building dependency tree... Done
 Setting up vim-nox (2:8.2.3455-1ubuntu1) ...
 
 # Instalar nginx (servidor web)
-$ sudo apt install nginx  
+$ sudo apt install nginx  # <3>
 Processing triggers for ufw...
 
 # Verificar
-$ nginx -v  
+$ nginx -v  # <4>
 nginx version: nginx/1.18.0 (Ubuntu)
 
-$ systemctl status nginx  
+$ systemctl status nginx  # <5>
 ● nginx.service - A high performance web server
      Loaded: loaded (/lib/systemd/unit/nginx.service; enabled)
      Active: active (running)
@@ -314,18 +314,18 @@ $ systemctl status nginx
 #### Estación de desarrollo macOS
 ```bash
 # En máquinas de desarrollo (macOS)
-$ brew install nginx vim curl  
+$ brew install nginx vim curl  # <1>
 
 # Verificar instalación
-$ nginx -v  
+$ nginx -v  # <2>
 nginx version: nginx/1.25.3
 
-$ vim --version | head -1  
+$ vim --version | head -1  # <3>
 VIM - Vi IMproved 9.0
 
 # En macOS, no usamos systemctl (es systemd de Linux)
 # En su lugar, usamos launchctl o brew services:
-$ brew services list  
+$ brew services list  # <4>
 Name  Status  User Plist
 nginx started root /Library/LaunchDaemons/homebrew.mxcl.nginx.plist
 ```
@@ -342,14 +342,14 @@ nginx started root /Library/LaunchDaemons/homebrew.mxcl.nginx.plist
 ```powershell
 # En Windows, administramos remotamente servidores Linux
 PS> # Usando SSH para conectar al servidor Ubuntu
-PS> ssh admin@production-server.com  
+PS> ssh admin@production-server.com  # <1>
 
 # Una vez conectado (en el servidor Linux):
-$ sudo apt install vim nginx curl  
-$ systemctl status nginx  
+$ sudo apt install vim nginx curl  # <2>
+$ systemctl status nginx  # <3>
 
 # Desde Windows, también podemos:
-PS> Invoke-WebRequest -Uri "http://production-server.com" | Select-Object StatusCode  
+PS> Invoke-WebRequest -Uri "http://production-server.com" | Select-Object StatusCode  # <4>
 StatusCode
 ----------
 200
@@ -386,7 +386,7 @@ La más grande, con comunidad enorme:
 # - Versión actual stable: 12 (Bookworm)
 # - Enfoque: Estabilidad pura
 
-$ lsb_release -d  
+$ lsb_release -d  # <1>
 Description:    Debian GNU/Linux 12 (bookworm)
 ```
 
@@ -410,7 +410,7 @@ Enfocado en empresas:
 # - Package manager: yum/dnf (Fedora uses dnf)
 # - Enfoque: Estabilidad + soporte comercial
 
-$ cat /etc/os-release | grep NAME  
+$ cat /etc/os-release | grep NAME  # <1>
 NAME="Red Hat Enterprise Linux"
 ```
 
@@ -435,7 +435,7 @@ Para usuarios avanzados:
 # - Filosofía: K.I.S.S (Keep It Simple, Stupid)
 # - Enfoque: Control total, minimalismo
 
-$ cat /etc/os-release  
+$ cat /etc/os-release  # <1>
 NAME="Arch Linux"
 ```
 
@@ -526,12 +526,12 @@ NAME="Arch Linux"
 # Corre igual en CentOS, Debian, etc.
 
 # Ejemplo: Script en Python
-$ cat script.py  
+$ cat script.py  # <1>
 #!/usr/bin/env python3
 print("Hello from any Linux!")
 
 # Corre igual en cualquier distro
-$ python3 script.py  
+$ python3 script.py  # <2>
 Hello from any Linux!
 ```
 
@@ -551,9 +551,9 @@ El código sigue estándares POSIX. La única diferencia es el package manager (
 **Solución:**
 ```bash
 # Agregar repositorio externo (PPA en Ubuntu)
-$ sudo add-apt-repository ppa:nginx/stable  
-$ sudo apt update  
-$ sudo apt install nginx  
+$ sudo add-apt-repository ppa:nginx/stable  # <1>
+$ sudo apt update  # <2>
+$ sudo apt install nginx  # <3>
 
 # O compilar desde source (más complicado)
 # Pero la idea: siempre hay solución

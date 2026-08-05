@@ -35,6 +35,7 @@ Operar Apache en producción significa saber leer logs, validar configuración a
 ```bash
 # Ver todos los módulos cargados
 $ sudo apache2ctl -M 2>/dev/null | head -20
+# <1>
 Loaded Modules:
  core_module (static)
  so_module (static)
@@ -45,6 +46,7 @@ Loaded Modules:
 
 # Buscar módulos específicos
 $ sudo apache2ctl -M | grep -E "ssl|php|headers|proxy|rewrite"
+# <2>
  ssl_module (shared)
  php8.1_module (shared)
  headers_module (shared)
@@ -62,6 +64,7 @@ $ sudo apache2ctl -M | grep -E "ssl|php|headers|proxy|rewrite"
 ```bash
 # Módulos de seguridad y funcionalidad
 $ sudo a2enmod headers          # Security headers
+# <1>
 $ sudo a2enmod ssl              # HTTPS
 $ sudo a2enmod rewrite          # URL rewriting
 $ sudo a2enmod proxy            # Proxy forwarding
@@ -73,6 +76,7 @@ $ sudo a2enmod alias            # Aliases
 
 # Ver módulos habilitados
 $ ls -la /etc/apache2/mods-enabled/
+# <2>
 lrwxrwxrwx 1 root root ... headers.conf -> ../mods-available/headers.conf
 lrwxrwxrwx 1 root root ... ssl.conf -> ../mods-available/ssl.conf
 
@@ -86,10 +90,12 @@ lrwxrwxrwx 1 root root ... ssl.conf -> ../mods-available/ssl.conf
 ```bash
 # Deshabilitar CGI (si no se usa)
 $ sudo a2dismod cgi
+# <1>
 
 
 # Verificar que no esté cargado
 $ sudo apache2ctl -M | grep cgi
+# <2>
 # (sin output = deshabilitado)
 ```
 
@@ -162,15 +168,18 @@ $ sudo systemctl status apache2 --no-pager
 ```bash
 # Ver últimos errores
 $ sudo tail -n 20 /var/log/apache2/error.log
+# <1>
 [Tue Mar 31 10:15:00.123456 2026] [core:notice] [pid 1234] AH00094: Command line: '/usr/sbin/apache2'
 [Tue Mar 31 10:20:00.123456 2026] [mpm_prefork:notice] [pid 1234] AH00163: Apache/2.4.58 configured -- resuming normal operations
 
 
 # Buscar errores específicos
 $ sudo grep -i "error\|warn\|critical" /var/log/apache2/error.log | tail -10
+# <2>
 
 # Ver errores de un VirtualHost específico
 $ sudo grep "site1.local" /var/log/apache2/error.log
+# <3>
 ```
 
 1. **tail**: Muestra los últimos 20 errores
@@ -180,6 +189,7 @@ $ sudo grep "site1.local" /var/log/apache2/error.log
 ```bash
 # Ver últimos requests
 $ sudo tail -n 10 /var/log/apache2/access.log
+# <1>
 127.0.0.1 - - [31/Mar/2026:10:15:00 +0000] "GET / HTTP/1.1" 200 123 "-" "curl/8.1.0"
 127.0.0.1 - - [31/Mar/2026:10:15:01 +0000] "GET /style.css HTTP/1.1" 200 456 "-" "curl/8.1.0"
 
@@ -195,6 +205,7 @@ $ sudo tail -n 10 /var/log/apache2/access.log
 ```bash
 # Requests por código de estado
 $ sudo awk '{print $9}' /var/log/apache2/access.log | sort | uniq -c | sort -rn
+# <1>
    1000 200
     100 404
      50 500
@@ -203,6 +214,7 @@ $ sudo awk '{print $9}' /var/log/apache2/access.log | sort | uniq -c | sort -rn
 
 # Requests por IP
 $ sudo awk '{print $1}' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head -10
+# <2>
 
 # Requests por URL
 $ sudo awk '{print $7}' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head -10
@@ -218,6 +230,7 @@ $ sudo awk -F'"' '{print $6}' /var/log/apache2/access.log | sort | uniq -c | sor
 ```bash
 # Configuración de rotación
 $ cat /etc/logrotate.d/apache2
+# <1>
 /var/log/apache2/*.log {
     daily                 # Rotar diariamente
     missingok             # OK si no existe
@@ -244,11 +257,13 @@ $ cat /etc/logrotate.d/apache2
 ```bash
 # Ver configuración actual
 $ cat /etc/apache2/ports.conf
+# <1>
 Listen 80
 
 
 # Para HTTPS
 $ cat /etc/apache2/ports.conf
+# <2>
 Listen 80
 Listen 443
 
@@ -281,6 +296,7 @@ LISTEN 0 511 0.0.0.0:8080 0.0.0.0:* users:(("apache2",pid=1234,fd=4))
 
 ```bash
 $ sudo systemctl status apache2 --no-pager
+# <1>
 ● apache2.service - The Apache HTTP Server
      Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
      Active: active (running) since Tue 2026-03-31 10:00:00 UTC
@@ -298,9 +314,11 @@ $ sudo systemctl status apache2 --no-pager
 ```bash
 # Requiere instalar libapache2-mod-status
 $ sudo a2enmod status
+# <1>
 
 # Crear configuración de status
 $ sudo tee /etc/apache2/conf-available/server-status.conf <<'EOF'
+# <2>
 <Location /server-status>
     SetHandler server-status
     Require local
@@ -312,6 +330,7 @@ $ sudo systemctl reload apache2
 
 # Ver status
 $ curl http://localhost/server-status
+# <3>
 
 ```
 
@@ -345,9 +364,11 @@ Job for apache2.service failed because the control process exited with error cod
 ```bash
 # Ver error específico
 $ sudo journalctl -u apache2 --no-pager -n 50
+# <1>
 
 # O usar configtest
 $ sudo apachectl configtest
+# <2>
 AH00526: Syntax error on line 42 of /etc/apache2/sites-available/mysite.conf
 
 ```
@@ -359,9 +380,11 @@ AH00526: Syntax error on line 42 of /etc/apache2/sites-available/mysite.conf
 ```bash
 # Ver línea 42 del archivo
 $ sudo sed -n '40,45p' /etc/apache2/sites-available/mysite.conf
+# <1>
 
 # Corregir y recargar
 $ sudo apachectl configtest
+# <2>
 Syntax OK
 $ sudo systemctl restart apache2
 ```
@@ -381,10 +404,12 @@ $ curl http://localhost/server-status
 ```bash
 # Verificar módulo cargado
 $ sudo apache2ctl -M | grep status
+# <1>
 # (sin output = no cargado)
 
 # Ver logs
 $ sudo tail /var/log/apache2/error.log
+# <2>
 [Tue Mar 31 10:00:00] [core:notice] [pid 1234] AH01506: server: Apache/2.4.58 configured
 ```
 
@@ -394,9 +419,11 @@ $ sudo tail /var/log/apache2/error.log
 ```bash
 # Habilitar módulo
 $ sudo a2enmod status
+# <1>
 
 # Verificar
 $ sudo apache2ctl -M | grep status
+# <2>
  status_module (shared)
 
 # Recargar
@@ -417,9 +444,11 @@ Filesystem      Size  Used Avail Use% Mounted on
 ```bash
 # Ver tamaño de logs
 $ sudo du -sh /var/log/apache2/
+# <1>
 
 # Ver logs más grandes
 $ sudo ls -lhS /var/log/apache2/*.log | head -10
+# <2>
 
 # Buscar requests anómalas
 $ sudo tail -10000 /var/log/apache2/access.log | awk '{print $1}' | sort | uniq -c | sort -nr | head -5
@@ -431,6 +460,7 @@ $ sudo tail -10000 /var/log/apache2/access.log | awk '{print $1}' | sort | uniq 
 ```bash
 # Rotar logs inmediatamente
 $ sudo logrotate -f /etc/logrotate.d/apache2
+# <1>
 
 # O truncar logs grandes (solo en emergencia)
 $ sudo truncate -s 0 /var/log/apache2/access.log

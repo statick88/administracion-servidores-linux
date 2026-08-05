@@ -81,7 +81,7 @@ Apache HTTP Server es el servidor web más desplegado en internet. En esta unida
 ```bash
 # Actualizar índice de paquetes
 $ sudo apt update && sudo apt upgrade -y
-
+# <1>
 
 # Instalar Apache + módulos esenciales para producción
 $ sudo apt install -y apache2 \
@@ -91,6 +91,7 @@ $ sudo apt install -y apache2 \
     libapache2-mod-security2 \
     libapache2-mod-php8.1 \
     php8.1-fpm
+# <2>
 
 ```
 
@@ -102,6 +103,7 @@ $ sudo apt install -y apache2 \
 ```bash
 # Estado del servicio
 $ sudo systemctl status apache2 --no-pager
+# <1>
 ● apache2.service - The Apache HTTP Server
      Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
      Active: active (running) since Tue 2026-03-31 10:00:00 UTC
@@ -109,6 +111,7 @@ $ sudo systemctl status apache2 --no-pager
 
 # Puerto en escucha
 $ sudo ss -lntp | grep ':80'
+# <2>
 LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:(("apache2",pid=1234,fd=4))
 
 ```
@@ -121,6 +124,7 @@ LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:(("apache2",pid=1234,fd=4))
 ```bash
 # Headers básicos
 $ curl -I http://localhost
+# <1>
 HTTP/1.1 200 OK
 Server: Apache/2.4.58 (Ubuntu)
 Content-Type: text/html
@@ -128,6 +132,7 @@ Content-Type: text/html
 
 # HTML completo
 $ curl -s http://localhost | head -20
+# <2>
 <!DOCTYPE html>
 <html>
 <head>
@@ -170,6 +175,7 @@ $ curl -s http://localhost | head -20
 ```bash
 # Ver todos los módulos cargados
 $ sudo apache2ctl -M 2>/dev/null | grep -E "ssl|php|headers|proxy"
+# <1>
  ssl_module (shared)
  php8.1_module (shared)
  headers_module (shared)
@@ -185,6 +191,7 @@ $ sudo apache2ctl -M 2>/dev/null | grep -E "ssl|php|headers|proxy"
 ```bash
 # Módulos de seguridad
 $ sudo a2enmod headers          # Security headers
+# <1>
 $ sudo a2enmod ssl              # HTTPS
 $ sudo a2enmod rewrite          # URL rewriting
 $ sudo a2enmod proxy            # Proxy forwarding
@@ -195,6 +202,7 @@ $ sudo a2enmod deflate          # Compression
 
 # Verificar y reiniciar
 $ sudo apachectl configtest
+# <2>
 $ sudo systemctl restart apache2
 ```
 
@@ -205,6 +213,7 @@ $ sudo systemctl restart apache2
 ```bash
 # Si no necesitas CGI
 $ sudo a2dismod cgi
+# <1>
 
 
 # Verificar
@@ -221,6 +230,7 @@ $ sudo systemctl reload apache2
 ```bash
 # Crear estructura de directorios
 $ sudo mkdir -p /var/www/clients/{site1,site2}/public
+# <1>
 $ sudo mkdir -p /var/www/clients/{site1,site2}/logs
 $ sudo mkdir -p /var/www/clients/{site1,site2}/private
 
@@ -237,6 +247,7 @@ $ sudo chmod -R 750 /var/www/clients/*/private
 
 ```bash
 $ sudo tee /etc/apache2/sites-available/site1.conf >/dev/null <<'EOF'
+# <1>
 <VirtualHost *:80>
     # Identificación
     ServerName site1.local
@@ -294,6 +305,7 @@ EOF
 ```bash
 # Habilitar sitio
 $ sudo a2ensite site1.conf
+# <1>
 
 
 # Deshabilitar default
@@ -301,6 +313,7 @@ $ sudo a2dissite 000-default.conf
 
 # Validar configuración
 $ sudo apachectl configtest
+# <2>
 Syntax OK
 
 # Recargar
@@ -308,6 +321,7 @@ $ sudo systemctl reload apache2
 
 # Ver sitios activos
 $ ls -la /etc/apache2/sites-enabled/
+# <3>
 site1.conf -> ../sites-available/site1.conf
 
 ```
@@ -320,10 +334,12 @@ site1.conf -> ../sites-available/site1.conf
 ```bash
 # Con Host header
 $ curl -H 'Host: site1.local' http://127.0.0.1
+# <1>
 <h1>Site1 OK</h1>
 
 # Ver logs
 $ sudo tail -f /var/www/clients/site1/logs/access.log
+# <2>
 127.0.0.1 - - [31/Mar/2026:10:15:00 +0000] "GET / HTTP/1.1" 200 123 "-" "curl/8.1.0"
 ```
 
@@ -333,6 +349,7 @@ $ sudo tail -f /var/www/clients/site1/logs/access.log
 
 ```bash
 $ sudo tee /etc/apache2/conf-available/security-hardening.conf >/dev/null <<'EOF'
+# <1>
 # Ocultar versión y OS
 ServerTokens Prod
 ServerSignature Off
@@ -358,8 +375,10 @@ $ sudo apachectl configtest && sudo systemctl reload apache2
 
 ```bash
 $ sudo a2enmod headers
+# <1>
 
 $ sudo tee /etc/apache2/conf-available/security-headers.conf >/dev/null <<'EOF'
+# <2>
 <IfModule mod_headers.c>
     # Prevenir MIME sniffing
     Header always set X-Content-Type-Options "nosniff"
@@ -393,6 +412,7 @@ $ sudo apachectl configtest && sudo systemctl reload apache2
 ```bash
 # Ver headers de respuesta
 $ curl -I http://localhost | grep -iE "server|x-|power"
+# <1>
 Server: Apache
 X-Content-Type-Options: nosniff
 X-Frame-Options: SAMEORIGIN
@@ -402,6 +422,7 @@ X-Powered-By: Production
 
 # Ver que ServerTokens funciona
 $ curl -I http://localhost | grep Server
+# <2>
 Server: Apache
 
 ```
@@ -414,6 +435,7 @@ Server: Apache
 ```bash
 # Habilitar módulo
 $ sudo a2enmod reqtimeout ratelimit
+# <1>
 
 $ sudo tee /etc/apache2/conf-available/rate-limit.conf >/dev/null <<'EOF'
 <IfModule mod_ratelimit.c>
@@ -442,6 +464,7 @@ $ sudo apachectl configtest && sudo systemctl reload apache2
 **Síntomas**:
 ```bash
 $ curl -w "Time: %{time_total}s\n" -s -o /dev/null http://localhost
+# <1>
 Time: 2.345s
 
 $ htop  # Ver Apache workers al 100%
@@ -451,6 +474,7 @@ $ htop  # Ver Apache workers al 100%
 ```bash
 # Ver estado de Apache
 $ sudo apache2ctl status
+# <1>
 Server load: 8.45 6.23 5.01
 Requests/sec: 150
 Busy workers: 150
@@ -459,6 +483,7 @@ Idle workers: 0
 
 # Ver configuración de MPM
 $ apache2ctl -V | grep MPM
+# <2>
 Server MPM: prefork
 ```
 
@@ -468,6 +493,7 @@ Server MPM: prefork
 ```bash
 # Cambiar a MPM event (más eficiente)
 $ sudo a2dismod php8.1
+# <1>
 $ sudo a2dismod mpm_prefork
 $ sudo a2enmod mpm_event
 $ sudo a2enmod proxy php8.1
@@ -476,6 +502,7 @@ $ sudo systemctl restart apache2
 
 # Ver nueva config
 $ apache2ctl -V | grep MPM
+# <2>
 Server MPM: event
 
 ```
@@ -494,6 +521,7 @@ Server MPM: event
 
 # Crear VirtualHost para cada dominio
 $ sudo tee /etc/apache2/sites-available/blog.example.com.conf <<'EOF'
+# <1>
 <VirtualHost *:80>
     ServerName blog.example.com
     DocumentRoot /var/www/blog.example.com/public
@@ -530,6 +558,7 @@ Internet → Apache (:80) → Flask (:5000)
 ```bash
 # Habilitar módulos de proxy
 $ sudo a2enmod proxy proxy_http rewrite
+# <1>
 
 # Crear VirtualHost con proxy
 $ sudo tee /etc/apache2/sites-available/api-proxy.conf <<'EOF'
@@ -564,6 +593,7 @@ $ curl -H 'Host: api.example.com' http://127.0.0.1
 ```bash
 # Ver errores en tiempo real
 $ sudo tail -f /var/log/apache2/error.log
+# <1>
 
 # Ver access log con formato readable
 $ sudo tail -f /var/log/apache2/access.log | awk '{print $1, $4, $7, $8}'
@@ -573,6 +603,7 @@ $ sudo grep " 500 " /var/log/apache2/access.log | tail -20
 
 # Ver requests por IP
 $ sudo awk '{print $1}' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head -10
+# <2>
 ```
 
 ### Monitoreo con Apache Bench
@@ -580,10 +611,12 @@ $ sudo awk '{print $1}' /var/log/apache2/access.log | sort | uniq -c | sort -nr 
 ```bash
 # Test de carga básico
 $ ab -n 1000 -c 10 http://localhost/
+# <1>
 
 
 # Test con keep-alive
 $ ab -n 1000 -c 10 -k http://localhost/
+# <2>
 
 ```
 
@@ -595,6 +628,7 @@ $ ab -n 1000 -c 10 -k http://localhost/
 ```bash
 # Estado rápido
 $ systemctl status apache2
+# <1>
 
 # Recursos consumidos
 $ systemctl show apache2 | grep -E "Memory|Tasks|CPU"

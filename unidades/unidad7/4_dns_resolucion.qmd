@@ -23,7 +23,7 @@ Muchos problemas "de red" en realidad son problemas de DNS: tienes IP y ruta, pe
 ## Ver estado de systemd-resolved (Ubuntu)
 
 ```bash
-$ resolvectl status  
+$ resolvectl status  # <1>
 Global
        Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
 resolv.conf mode: stub
@@ -45,15 +45,15 @@ Current DNS Server: 192.168.56.1
 ## Probar resolucion
 
 ```bash
-$ getent hosts example.com  
+$ getent hosts example.com  # <1>
 93.184.216.34   example.com
 
 
-$ dig +short example.com  
+$ dig +short example.com  # <2>
 93.184.216.34
 
 
-$ nslookup example.com  
+$ nslookup example.com  # <3>
 Server:         192.168.56.1
 Address:        192.168.56.1#53
 
@@ -74,7 +74,7 @@ Address: 93.184.216.34
 ## Revisar resolv.conf
 
 ```bash
-$ ls -l /etc/resolv.conf  
+$ ls -l /etc/resolv.conf  # <1>
 lrwxrwxrwx 1 root root 39 Feb  2 10:10 /etc/resolv.conf -> ../run/systemd/resolve/stub-resolv.conf
 
 ```
@@ -93,7 +93,7 @@ lrwxrwxrwx 1 root root 39 Feb  2 10:10 /etc/resolv.conf -> ../run/systemd/resolv
 
 #### Linux
 ```bash
-$ getent hosts example.com  
+$ getent hosts example.com  # <1>
 93.184.216.34 example.com
 
 ```
@@ -104,7 +104,7 @@ $ getent hosts example.com
 
 #### macOS
 ```bash
-$ scutil --dns | head -n 18  
+$ scutil --dns | head -n 18  # <1>
 DNS configuration
 
 resolver #1
@@ -120,7 +120,7 @@ resolver #1
 
 #### Windows
 ```powershell
-PS> Resolve-DnsName example.com  
+PS> Resolve-DnsName example.com  # <1>
 
 Name                           Type   TTL   Section    IPAddress
 ----                           ----   ---   -------    ---------

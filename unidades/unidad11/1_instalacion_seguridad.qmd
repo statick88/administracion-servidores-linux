@@ -55,11 +55,11 @@ MariaDB es el reemplazo directo de MySQL en la mayoría de distribuciones Linux.
 
 ```bash
 # Actualizar índice de paquetes
-$ sudo apt update && sudo apt upgrade -y
+$ sudo apt update && sudo apt upgrade -y  # <1>
 
 
 # Instalar MariaDB Server
-$ sudo apt install -y mariadb-server mariadb-client
+$ sudo apt install -y mariadb-server mariadb-client  # <2>
 
 ```
 
@@ -82,7 +82,7 @@ $ sudo apt update && sudo apt install -y mariadb-server
 
 ```bash
 # Estado del servicio
-$ sudo systemctl status mariadb --no-pager
+$ sudo systemctl status mariadb --no-pager  # <1>
 ● mariadb.service - MariaDB 10.11.6 database server
      Loaded: loaded (/lib/systemd/system/mariadb.service; enabled)
      Active: active (running) since Tue 2026-03-31 10:00:00 UTC
@@ -90,7 +90,7 @@ $ sudo systemctl status mariadb --no-pager
 
 
 # Versión de MariaDB
-$ mariadb --version
+$ mariadb --version  # <2>
 mariadb  Ver 15.1 Distrib 10.11.6-MariaDB, for debian-linux-gnu (x86_64) using readline 3.0
 
 ```
@@ -102,7 +102,7 @@ mariadb  Ver 15.1 Distrib 10.11.6-MariaDB, for debian-linux-gnu (x86_64) using r
 
 ```bash
 # Conexión local (socket)
-$ sudo mariadb -u root
+$ sudo mariadb -u root  # <1>
 Welcome to the MariaDB monitor.  Commands end with ; or \g.
 Your MariaDB connection id is 50
 Server version: 10.11.6-MariaDB-1ubuntu0.1 Ubuntu 24.04
@@ -243,7 +243,7 @@ SHOW VARIABLES LIKE 'innodb_buffer_pool_size';
 SHOW VARIABLES LIKE 'max_connections';
 SHOW VARIABLES LIKE 'character_set%';
 SHOW VARIABLES LIKE 'bind-address';
-"
+"  # <1>
 
 ```
 
@@ -257,17 +257,17 @@ SHOW VARIABLES LIKE 'bind-address';
 $ sudo mariadb
 
 # Crear base de datos
-CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  # <1>
 
 
 # Crear usuario con privilegios específicos
-CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'StrongAppPass-2026!';
-GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';
-FLUSH PRIVILEGES;
+CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'StrongAppPass-2026!';  # <2>
+GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'localhost';  # <2>
+FLUSH PRIVILEGES;  # <2>
 
 
 # Verificar privilegios
-SHOW GRANTS FOR 'appuser'@'localhost';
+SHOW GRANTS FOR 'appuser'@'localhost';  # <3>
 
 ```
 
@@ -321,12 +321,12 @@ FLUSH PRIVILEGES;
 
 ```bash
 # Generar contraseña segura
-$ openssl rand -base64 32
+$ openssl rand -base64 32  # <1>
 
 
 # O usar pwgen
 $ sudo apt install -y pwgen
-$ pwgen -s 32 1
+$ pwgen -s 32 1  # <2>
 
 ```
 
@@ -339,15 +339,15 @@ $ pwgen -s 32 1
 
 ```bash
 # Backup de base de datos específica
-$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql
+$ sudo mysqldump -u root -p appdb > /backup/appdb-$(date +%Y%m%d).sql  # <1>
 
 
 # Backup de todas las bases de datos
-$ sudo mysqldump -u root -p --all-databases > /backup/all-databases-$(date +%Y%m%d).sql
+$ sudo mysqldump -u root -p --all-databases > /backup/all-databases-$(date +%Y%m%d).sql  # <2>
 
 
 # Backup con gzip (comprimido)
-$ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz
+$ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz  # <3>
 
 ```
 
@@ -359,15 +359,15 @@ $ sudo mysqldump -u root -p appdb | gzip > /backup/appdb-$(date +%Y%m%d).sql.gz
 
 ```bash
 # Restaurar base de datos
-$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql
+$ sudo mariadb -u root -p appdb < /backup/appdb-20260331.sql  # <1>
 
 
 # Restaurar todas las DB
-$ sudo mariadb -u root -p < /backup/all-databases-20260331.sql
+$ sudo mariadb -u root -p < /backup/all-databases-20260331.sql  # <2>
 
 
 # Desde archivo comprimido
-$ zcat /backup/appdb-20260331.sql.gz | sudo mariadb -u root -p appdb
+$ zcat /backup/appdb-20260331.sql.gz | sudo mariadb -u root -p appdb  # <3>
 
 ```
 
@@ -481,7 +481,7 @@ SELECT User, Host FROM mysql.user WHERE User='appuser';
 
 ```bash
 # Abrir puerto solo para red específica
-$ sudo ufw allow from 10.0.1.0/24 to any port 3306
+$ sudo ufw allow from 10.0.1.0/24 to any port 3306  # <1>
 
 
 # O solo desde servidor web
@@ -504,11 +504,11 @@ $ mariadb -u appuser -p -e "SELECT * FROM orders WHERE date > '2026-01-01'"
 **Diagnóstico**:
 ```bash
 # Ver queries lentos
-$ sudo tail -50 /var/log/mysql/slow.log
+$ sudo tail -50 /var/log/mysql/slow.log  # <2>
 
 
 # Ver EXPLAIN
-EXPLAIN SELECT * FROM orders WHERE date > '2026-01-01';
+EXPLAIN SELECT * FROM orders WHERE date > '2026-01-01';  # <3>
 
 ```
 
@@ -538,7 +538,7 @@ ERROR 1040 (08004): Too many connections
 **Diagnóstico**:
 ```bash
 # Ver conexiones actuales
-$ mariadb -e "SHOW STATUS LIKE 'Threads_connected';"
+$ mariadb -e "SHOW STATUS LIKE 'Threads_connected';"  # <1>
 +---------------------+
 | Threads_connected   |
 +---------------------+
@@ -546,7 +546,7 @@ $ mariadb -e "SHOW STATUS LIKE 'Threads_connected';"
 +---------------------+
 
 # Ver max
-$ mariadb -e "SHOW VARIABLES LIKE 'max_connections';"
+$ mariadb -e "SHOW VARIABLES LIKE 'max_connections';"  # <2>
 +--------------------+
 | max_connections    |
 +--------------------+

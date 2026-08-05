@@ -55,18 +55,23 @@ x = ejecución (exec)  = 1
 ```bash
 # **Ver todos los usuarios del sistema**
 cat /etc/passwd  
+# <1>
 
 # **Ver solo usuarios humanos (UID >= 1000)**
 getent passwd | awk -F: '$3 >= 1000 {print $1}'  
+# <2>
 
 # **Ver grupos de un usuario**
 groups diego  
+# <3>
 
 # **Ver todos los grupos**
 cat /etc/group  
+# <4>
 
 # **Ver información detallada de usuario actual**
 id  
+# <5>
 
 # **Ejemplo de salida**
 uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom),27(sudo)
@@ -88,9 +93,11 @@ uid=1000(diego) gid=1000(diego) groups=1000(diego),4(adm),24(cdrom),27(sudo)
 ```bash
 # **Crear usuario 'carlos' con home en /home/carlos**
 sudo useradd -m -s /bin/bash carlos  
+# <1>
 
 # **Asignar contraseña**
 sudo passwd carlos  
+# <2>
 # Te pedirá que ingreses y confirmes la contraseña
 ```
 
@@ -331,15 +338,19 @@ ssh abacom-backup
 
 # **Copiar archivos con SCP también funciona**
 scp miarchivo.txt abacom-prod:~/  
+# <1>
 
 # Copiar un archivo usando una clave especifica
 scp -i ~/.ssh/diego_abacom miarchivo.txt diego@192.168.1.100:~/  
+# <2>
 
 # Copiar un directorio completo (recursivo)
 scp -r carpeta/ abacom-prod:~/  
+# <3>
 
 # Copiar desde el servidor hacia tu maquina local
 scp abacom-prod:/var/log/syslog ./syslog  
+# <4>
 ```
 
 
@@ -358,12 +369,15 @@ Para transferencias grandes o repetitivas, usa **rsync**: es mas rapido, reinten
 ```bash
 # Sincronizar un directorio al servidor (solo diferencias)
 rsync -avz --progress --partial -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  
+# <1>
 
 # Excluir archivos (ej: caches) durante la sincronizacion
 rsync -avz --progress --partial --exclude '.cache/' -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  
+# <2>
 
 # Traer logs desde el servidor a local
 rsync -avz --progress -e "ssh -i ~/.ssh/diego_abacom" diego@192.168.1.100:/var/log/ ./logs/  
+# <3>
 ```
 
 
@@ -789,6 +803,7 @@ carlos : carlos developers
 ```bash
 # En macOS, usuarios se almacenan en Directory Services
 $ dscl . -list /Users | grep -v "^_"  
+# <1>
 root
 diego
 carlos
@@ -796,10 +811,12 @@ admin
 
 # Ver información del usuario actual
 $ id
+# <2>
 uid=501(diego) gid=20(staff) groups=20(staff),12(everyone)
 
 # Ver grupos de un usuario
 $ groups carlos
+# <3>
 carlos staff developers
 
 # Nota: macOS NO usa /etc/passwd como Linux
@@ -866,6 +883,7 @@ $ sudo useradd -m -s /bin/bash -c "Carlos López - Dev" carlos
 # Pero se puede hacer vía dscl:
 
 $ sudo dscl . -create /Users/carlos  
+# <1>
 $ sudo dscl . -create /Users/carlos UserShell /bin/bash
 $ sudo dscl . -create /Users/carlos RealName "Carlos López"
 $ sudo dscl . -create /Users/carlos UniqueID 501
@@ -873,13 +891,16 @@ $ sudo dscl . -create /Users/carlos PrimaryGroupID 20
 
 # Crear home directory
 $ sudo mkdir -p /Users/carlos
+# <2>
 $ sudo chown carlos:staff /Users/carlos
 
 # Asignar contraseña:
 $ sudo dscl . -passwd /Users/carlos contraseña
+# <3>
 
 # Verificar:
 $ dscl . -read /Users/carlos
+# <4>
 ```
 
 1. **dscl** es la forma de crear usuarios en macOS sin GUI
