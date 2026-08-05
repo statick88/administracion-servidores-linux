@@ -48,6 +48,7 @@ mkdir [opciones] [directorio(s)]
 #### Linux
 ```bash
 $ mkdir Documentos
+# <1>
 $ ls -d Documentos
 Documentos
 
@@ -57,6 +58,7 @@ Documentos
 #### macOS
 ```bash
 $ mkdir Documents
+# <1>
 $ ls -d Documents
 Documents
 
@@ -66,6 +68,7 @@ Documents
 #### Windows
 ```powershell
 PS> mkdir Documents
+# <1>
 PS> Get-Item Documents
 
 Mode                 LastWriteTime         Length Name
@@ -84,6 +87,7 @@ d-----         29/1/2024     10:30                Documents
 #### Linux
 ```bash
 $ mkdir -p ~/Proyectos/Python/web-app/src
+# <1>
 $ tree ~/Proyectos
 Proyectos/
 └── Python/
@@ -96,6 +100,7 @@ Proyectos/
 #### macOS
 ```bash
 $ mkdir -p ~/Projects/Python/web-app/src
+# <1>
 
 ```
 1. Funciona igual
@@ -103,6 +108,7 @@ $ mkdir -p ~/Projects/Python/web-app/src
 #### Windows
 ```powershell
 PS> mkdir -Path C:\Users\usuario\Projects\Python\web-app\src -Force
+# <1>
 # El -Force es equivalente a -p
 
 ```
@@ -117,6 +123,7 @@ PS> mkdir -Path C:\Users\usuario\Projects\Python\web-app\src -Force
 #### Linux
 ```bash
 $ mkdir -m 700 privado
+# <1>
 $ ls -ld privado
 drwx------ 1 usuario usuario 4096 Jan 29 10:30 privado
 
@@ -126,6 +133,7 @@ drwx------ 1 usuario usuario 4096 Jan 29 10:30 privado
 #### macOS
 ```bash
 $ mkdir -m 700 privado
+# <1>
 
 ```
 1. Funciona igual
@@ -134,6 +142,7 @@ $ mkdir -m 700 privado
 ```powershell
 # Windows no soporta -m, pero puedes hacerlo después:
 PS> mkdir privado
+# <1>
 PS> # No hay equivalente directo en PowerShell
 
 ```
@@ -161,6 +170,7 @@ touch [opciones] [archivo(s)]
 #### Linux
 ```bash
 $ touch README.md
+# <1>
 $ ls -l README.md
 -rw-r--r-- 1 usuario grupo 0 Jan 29 10:30 README.md
 
@@ -170,6 +180,7 @@ $ ls -l README.md
 #### macOS
 ```bash
 $ touch README.md
+# <1>
 $ ls -l README.md
 -rw-r--r-- 1 usuario staff 0 Jan 29 10:30 README.md
 
@@ -180,6 +191,7 @@ $ ls -l README.md
 ```powershell
 # No existe touch, pero:
 PS> New-Item -Path C:\Users\usuario -Name README.md -ItemType File
+# <1>
 # o en WSL:
 PS> wsl touch README.md
 
@@ -198,6 +210,7 @@ $ ls -l archivo.txt
 -rw-r--r-- 1 usuario grupo 1024 Jan 25 10:00 archivo.txt
 
 $ touch archivo.txt
+# <1>
 $ ls -l archivo.txt
 -rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 archivo.txt
 
@@ -207,6 +220,7 @@ $ ls -l archivo.txt
 #### macOS
 ```bash
 $ touch archivo.txt
+# <1>
 
 ```
 1. Funciona igual
@@ -214,6 +228,7 @@ $ touch archivo.txt
 #### Windows
 ```powershell
 PS> (Get-Item archivo.txt).LastWriteTime = Get-Date
+# <1>
 
 ```
 1. PowerShell actualiza la fecha manualmente
@@ -247,6 +262,7 @@ cp [opciones] [origen] [destino]
 #### Linux
 ```bash
 $ cp archivo.txt archivo-copia.txt
+# <1>
 $ ls -l archivo*
 -rw-r--r-- 1 usuario grupo 1024 Jan 29 10:30 archivo-copia.txt
 -rw-r--r-- 1 usuario grupo 1024 Jan 25 10:00 archivo.txt
@@ -257,6 +273,7 @@ $ ls -l archivo*
 #### macOS
 ```bash
 $ cp archivo.txt archivo-copia.txt
+# <1>
 
 ```
 1. Funciona igual
@@ -264,6 +281,7 @@ $ cp archivo.txt archivo-copia.txt
 #### Windows
 ```powershell
 PS> Copy-Item archivo.txt archivo-copia.txt
+# <1>
 # o
 PS> cp archivo.txt archivo-copia.txt
 
@@ -279,6 +297,7 @@ PS> cp archivo.txt archivo-copia.txt
 #### Linux
 ```bash
 $ cp archivo.txt ~/Documentos/
+# <1>
 $ ls ~/Documentos/archivo.txt
 /home/usuario/Documentos/archivo.txt
 
@@ -288,6 +307,7 @@ $ ls ~/Documentos/archivo.txt
 #### macOS
 ```bash
 $ cp archivo.txt ~/Documents/
+# <1>
 
 ```
 1. Funciona igual
@@ -295,6 +315,7 @@ $ cp archivo.txt ~/Documents/
 #### Windows
 ```powershell
 PS> Copy-Item archivo.txt C:\Users\usuario\Documents\
+# <1>
 
 ```
 1. Igual funcionalidad
@@ -308,6 +329,7 @@ PS> Copy-Item archivo.txt C:\Users\usuario\Documents\
 #### Linux
 ```bash
 $ cp -r Proyectos Proyectos-copia
+# <1>
 $ ls -ld Proyectos*
 drwxr-xr-x 5 usuario grupo 4096 Jan 29 10:30 Proyectos
 drwxr-xr-x 5 usuario grupo 4096 Jan 29 10:30 Proyectos-copia
@@ -318,6 +340,7 @@ drwxr-xr-x 5 usuario grupo 4096 Jan 29 10:30 Proyectos-copia
 #### macOS
 ```bash
 $ cp -r Proyectos Proyectos-copia
+# <1>
 
 ```
 1. Funciona igual
@@ -325,6 +348,7 @@ $ cp -r Proyectos Proyectos-copia
 #### Windows
 ```powershell
 PS> Copy-Item -Path Proyectos -Destination Proyectos-copia -Recurse
+# <1>
 
 ```
 1. `-Recurse` es el equivalente a `-r`
@@ -338,7 +362,9 @@ PS> Copy-Item -Path Proyectos -Destination Proyectos-copia -Recurse
 #### Linux
 ```bash
 $ cp -ip archivo.txt archivo-copia.txt
+# <1>
 cp: overwrite 'archivo-copia.txt'? y
+# <2>
 $ ls -l archivo-copia.txt
 -rw-r--r-- 1 usuario grupo 1024 Jan 25 10:00 archivo-copia.txt
 
@@ -351,6 +377,7 @@ $ ls -l archivo-copia.txt
 #### macOS
 ```bash
 $ cp -ip archivo.txt archivo-copia.txt
+# <1>
 
 ```
 1. Funciona igual
@@ -358,6 +385,7 @@ $ cp -ip archivo.txt archivo-copia.txt
 #### Windows
 ```powershell
 PS> Copy-Item archivo.txt archivo-copia.txt -Confirm
+# <1>
 
 ```
 1. PowerShell no preserva permisos igual (usa NTFS ACLs)
@@ -384,6 +412,7 @@ mv [opciones] [origen] [destino]
 #### Linux
 ```bash
 $ mv archivo-viejo.txt archivo-nuevo.txt
+# <1>
 $ ls archivo*
 archivo-nuevo.txt
 
@@ -393,6 +422,7 @@ archivo-nuevo.txt
 #### macOS
 ```bash
 $ mv archivo-viejo.txt archivo-nuevo.txt
+# <1>
 
 ```
 1. Funciona igual
@@ -400,6 +430,7 @@ $ mv archivo-viejo.txt archivo-nuevo.txt
 #### Windows
 ```powershell
 PS> Rename-Item archivo-viejo.txt archivo-nuevo.txt
+# <1>
 # o
 PS> mv archivo-viejo.txt archivo-nuevo.txt
 
@@ -415,6 +446,7 @@ PS> mv archivo-viejo.txt archivo-nuevo.txt
 #### Linux
 ```bash
 $ mv archivo.txt ~/Documentos/
+# <1>
 $ ls ~/Documentos/archivo.txt
 /home/usuario/Documentos/archivo.txt
 
@@ -424,6 +456,7 @@ $ ls ~/Documentos/archivo.txt
 #### macOS
 ```bash
 $ mv archivo.txt ~/Documents/
+# <1>
 
 ```
 1. Funciona igual
@@ -431,6 +464,7 @@ $ mv archivo.txt ~/Documents/
 #### Windows
 ```powershell
 PS> Move-Item archivo.txt C:\Users\usuario\Documents\
+# <1>
 
 ```
 1. Funciona igual
@@ -444,6 +478,7 @@ PS> Move-Item archivo.txt C:\Users\usuario\Documents\
 #### Linux
 ```bash
 $ mv archivo.txt ~/Documentos/archivo-nuevo.txt
+# <1>
 
 ```
 1. Mueve y renombra en una operación
@@ -451,6 +486,7 @@ $ mv archivo.txt ~/Documentos/archivo-nuevo.txt
 #### macOS
 ```bash
 $ mv archivo.txt ~/Documents/archivo-nuevo.txt
+# <1>
 
 ```
 1. Funciona igual
@@ -458,6 +494,7 @@ $ mv archivo.txt ~/Documents/archivo-nuevo.txt
 #### Windows
 ```powershell
 PS> Move-Item archivo.txt C:\Users\usuario\Documents\archivo-nuevo.txt
+# <1>
 
 ```
 1. Mismo comportamiento
@@ -491,6 +528,7 @@ rm [opciones] [archivo(s)]
 #### Linux
 ```bash
 $ rm -i archivo.txt
+# <1>
 remove archivo.txt? y
 
 
@@ -502,6 +540,7 @@ remove archivo.txt? y
 #### macOS
 ```bash
 $ rm -i archivo.txt
+# <1>
 remove archivo.txt? y
 
 ```
@@ -510,6 +549,7 @@ remove archivo.txt? y
 #### Windows
 ```powershell
 PS> Remove-Item archivo.txt -Confirm
+# <1>
 
 ```
 1. `-Confirm` pregunta antes de eliminar
@@ -523,6 +563,7 @@ PS> Remove-Item archivo.txt -Confirm
 #### Linux
 ```bash
 $ rm archivo.txt
+# <1>
 # Sin confirmación, archivo eliminado para siempre
 
 ```
@@ -531,6 +572,7 @@ $ rm archivo.txt
 #### macOS
 ```bash
 $ rm archivo.txt
+# <1>
 
 ```
 1. Funcionamiento idéntico
@@ -538,6 +580,7 @@ $ rm archivo.txt
 #### Windows
 ```powershell
 PS> Remove-Item archivo.txt -Force
+# <1>
 
 ```
 1. `-Force` elimina sin preguntar
@@ -551,7 +594,9 @@ PS> Remove-Item archivo.txt -Force
 #### Linux
 ```bash
 $ rm -ri directorio
+# <1>
 remove directorio? y
+# <2>
 remove directorio/archivo1.txt? y
 remove directorio/archivo2.txt? y
 
@@ -564,6 +609,7 @@ remove directorio/archivo2.txt? y
 #### macOS
 ```bash
 $ rm -ri directorio
+# <1>
 
 ```
 1. Funciona igual
@@ -571,6 +617,7 @@ $ rm -ri directorio
 #### Windows
 ```powershell
 PS> Remove-Item -Path directorio -Recurse -Confirm
+# <1>
 
 ```
 1. `-Recurse` elimina directorios y contenido
@@ -597,6 +644,7 @@ rmdir [directorio]
 #### Linux
 ```bash
 $ rmdir directorio-vacio
+# <1>
 $ ls directorio-vacio
 ls: cannot access 'directorio-vacio': No such file or directory
 
@@ -606,6 +654,7 @@ ls: cannot access 'directorio-vacio': No such file or directory
 #### macOS
 ```bash
 $ rmdir directorio-vacio
+# <1>
 
 ```
 1. Funciona igual
@@ -613,6 +662,7 @@ $ rmdir directorio-vacio
 #### Windows
 ```powershell
 PS> Remove-Item -Path directorio-vacio -Confirm
+# <1>
 
 ```
 1. Funciona igual
@@ -646,6 +696,7 @@ El comando `ln` (link) crea enlaces entre archivos. Existen dos tipos:
 #### Linux
 ```bash
 $ ln -s archivo.txt enlace.txt
+# <1>
 $ ls -l enlace.txt
 lrwxrwxrwx 1 usuario grupo 10 Jan 29 10:30 enlace.txt -> archivo.txt
 
@@ -658,6 +709,7 @@ lrwxrwxrwx 1 usuario grupo 10 Jan 29 10:30 enlace.txt -> archivo.txt
 #### macOS
 ```bash
 $ ln -s archivo.txt enlace.txt
+# <1>
 
 ```
 1. Funciona igual
@@ -666,6 +718,7 @@ $ ln -s archivo.txt enlace.txt
 ```powershell
 # En WSL:
 PS> wsl ln -s archivo.txt enlace.txt
+# <1>
 
 # En PowerShell (Windows 10+):
 PS> New-Item -ItemType SymbolicLink -Path enlace.txt -Target archivo.txt
@@ -682,6 +735,7 @@ PS> New-Item -ItemType SymbolicLink -Path enlace.txt -Target archivo.txt
 #### Linux
 ```bash
 $ ln archivo.txt enlace-duro.txt
+# <1>
 $ ls -i archivo.txt enlace-duro.txt
 123456 archivo.txt
 123456 enlace-duro.txt
@@ -695,6 +749,7 @@ $ ls -i archivo.txt enlace-duro.txt
 #### macOS
 ```bash
 $ ln archivo.txt enlace-duro.txt
+# <1>
 
 ```
 1. Funciona igual
@@ -704,6 +759,7 @@ $ ln archivo.txt enlace-duro.txt
 # No soporta hard links igual que Unix
 # En WSL:
 PS> wsl ln archivo.txt enlace-duro.txt
+# <1>
 
 ```
 1. NTFS tiene junctions que son similares

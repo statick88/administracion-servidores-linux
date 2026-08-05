@@ -42,7 +42,7 @@ cat [opciones] [archivo(s)]
 ```bash
 $ cat /etc/hostname
 ubuntu-servidor
-
+# <1>
 ```
 1. Muestra el nombre del host del sistema
 
@@ -50,7 +50,7 @@ ubuntu-servidor
 ```bash
 $ cat /etc/hostname
 MacBook-Pro.local
-
+# <1>
 ```
 1. En macOS también existe /etc/hostname
 
@@ -60,7 +60,7 @@ PS> Get-Content C:\Users\usuario\archivo.txt
 # o para archivos del sistema
 PS> (Get-ComputerInfo).CsDNSHostName
 USUARIO-PC
-
+# <1>
 ```
 1. PowerShell usa `Get-Content` en lugar de `cat`
 
@@ -75,7 +75,7 @@ USUARIO-PC
 $ cat archivo1.txt archivo2.txt
 Contenido del archivo 1
 Contenido del archivo 2
-
+# <1>
 ```
 1. `cat` puede concatenar varios archivos
 
@@ -84,7 +84,7 @@ Contenido del archivo 2
 $ cat file1.txt file2.txt
 Content of file 1
 Content of file 2
-
+# <1>
 ```
 1. Funciona igual que Linux
 
@@ -93,7 +93,7 @@ Content of file 2
 PS> Get-Content archivo1.txt, archivo2.txt
 Content of file 1
 Content of file 2
-
+# <1>
 ```
 1. PowerShell puede leer múltiples archivos
 
@@ -108,7 +108,7 @@ Content of file 2
 $ cat -n /etc/resolv.conf
      1  nameserver 8.8.8.8
      2  nameserver 8.8.4.4
-
+# <1>
 ```
 1. `-n` agrega números de línea, útil para referencia
 
@@ -117,7 +117,7 @@ $ cat -n /etc/resolv.conf
 $ cat -n /etc/resolv.conf
      1  nameserver 1.1.1.1
      2  nameserver 1.0.0.1
-
+# <1>
 ```
 1. El contenido varía según la configuración DNS
 
@@ -130,7 +130,7 @@ PS> (Get-Content archivo.txt) | Select-Object -Property @{Name="Line"; Expressio
 PS> @(Get-Content archivo.txt) | ForEach-Object {"{0,4}: {1}" -f ++$line, $_}
    1: Primera línea
    2: Segunda línea
-
+# <1>
 ```
 1. PowerShell requiere un poco más de trabajo para numerar líneas
 
@@ -170,7 +170,7 @@ more [archivo]
 ```bash
 $ less /var/log/syslog
 # Navega con space, busca con /, sale con q
-
+# <1>
 ```
 1. `less` es más eficiente que `cat` para archivos > 1MB
 
@@ -178,7 +178,7 @@ $ less /var/log/syslog
 ```bash
 $ less /var/log/system.log
 # Mismo funcionamiento que Linux
-
+# <1>
 ```
 1. Los logs del sistema están en `/var/log/` en macOS
 
@@ -186,9 +186,10 @@ $ less /var/log/system.log
 ```powershell
 # PowerShell tiene 'more' pero es distinto
 PS> Get-Content archivo-grande.txt | more
+# <1>
 # Para mejor experiencia, usar:
 PS> Get-Content archivo-grande.txt -ReadCount 0 | Out-Host -Paging  
-
+# <2>
 ```
 1. Windows no tiene `less` por defecto
 
@@ -227,7 +228,7 @@ root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
 # ... (7 líneas más)
-
+# <1>
 ```
 1. Por defecto muestra 10 líneas
 
@@ -237,7 +238,7 @@ $ head /etc/passwd
 root:*:0:0:System Administrator:/var/root:/bin/bash
 daemon:*:1:1:System Services:/var/empty:/usr/sbin/nologin
 # ... (8 líneas más)
-
+# <1>
 ```
 1. Formato similar a Linux
 
@@ -246,7 +247,7 @@ daemon:*:1:1:System Services:/var/empty:/usr/sbin/nologin
 PS> Get-Content archivo.txt -Head 10
 # o
 PS> Get-Content archivo.txt -TotalCount 10
-
+# <1>
 ```
 1. PowerShell usa `-Head` o `-TotalCount`
 
@@ -263,7 +264,7 @@ Jan 29 10:45:32 ubuntu kernel: [1234.567] System log message 1
 Jan 29 10:46:00 ubuntu kernel: [1267.834] System log message 2
 Jan 29 10:46:15 ubuntu systemd[1]: Started Service X.
 # ... (2 líneas más)
-
+# <1>
 ```
 1. Útil para ver los eventos más recientes en logs
 
@@ -273,7 +274,7 @@ $ tail -n 5 /var/log/system.log
 Jan 29 10:45:32 MacBook kernel[0]: message 1
 Jan 29 10:46:00 MacBook systemd[1]: Started Service X.
 # ... (3 líneas más)
-
+# <1>
 ```
 1. El log system en macOS está estructurado igual
 
@@ -282,7 +283,7 @@ Jan 29 10:46:00 MacBook systemd[1]: Started Service X.
 PS> Get-Content archivo.txt -Tail 5
 # o más detallado:
 PS> Get-Content archivo.txt | Select-Object -Last 5
-
+# <1>
 ```
 1. PowerShell usa `-Tail` para ver las últimas líneas
 
@@ -299,7 +300,8 @@ $ tail -f /var/log/apache2/access.log
 192.168.1.101 - - [29/Jan/2024:10:46:00 +0000] "GET /api HTTP/1.1" 200 5678
 # ... (continúa mostrando nuevas líneas)
 # Presiona Ctrl+C para salir
-
+# <1>
+# <2>
 ```
 1. `-f` (follow) monitoriza cambios en tiempo real
 
@@ -317,9 +319,10 @@ $ tail -f ~/Library/Logs/system.log
 ```powershell
 # PowerShell no tiene -f nativo, pero:
 PS> Get-Content archivo.txt -Wait -Tail 10  
+# <1>
 # Para monitorizar más eficientemente:
 PS> while($true) { Clear-Host; Get-Content archivo.txt | Select-Object -Last 20; Start-Sleep 1 }
-
+# <2>
 ```
 1. `-Wait` intenta emular `-f`
 
@@ -368,7 +371,7 @@ wc [opciones] [archivo]
 ```bash
 $ wc -l /etc/passwd
 45 /etc/passwd
-
+# <1>
 ```
 1. El archivo tiene 45 líneas
 
@@ -387,7 +390,7 @@ PS> (Get-Content archivo.txt).Count
 # o más explícito:
 PS> @(Get-Content archivo.txt).Length
 47
-
+# <1>
 ```
 1. PowerShell cuenta diferente (puede dar resultados distintos)
 
@@ -402,7 +405,7 @@ PS> @(Get-Content archivo.txt).Length
 $ wc /etc/hostname
  1  1 15 /etc/hostname
 # líneas palabras bytes
-
+# <1>
 ```
 1. Formato: líneas, palabras, bytes, nombre
 
@@ -422,7 +425,7 @@ PS> $words = ($content | Measure-Object -Word).Words
 PS> $bytes = (Get-Item archivo.txt).Length
 PS> "$lines $words $bytes"
 1 1 15
-
+# <1>
 ```
 1. PowerShell requiere múltiples comandos para lo mismo
 
@@ -460,7 +463,7 @@ $ file /etc/hostname
 /etc/hostname: ASCII text
 $ file /var/log/syslog
 /var/log/syslog: ASCII text
-
+# <1>
 ```
 1. Detecta ejecutables ELF, archivos de texto, logs, etc.
 
@@ -470,7 +473,7 @@ $ file /bin/bash
 /bin/bash: Mach-O 64-bit executable x86_64
 $ file /etc/hostname
 /etc/hostname: ASCII text
-
+# <1>
 ```
 1. macOS usa formato Mach-O para ejecutables
 
@@ -478,13 +481,14 @@ $ file /etc/hostname
 ```powershell
 # Windows no tiene 'file' nativo, alternativas:
 PS> (Get-Item archivo.exe).VersionInfo
+# <1>
 # o simple:
 PS> Get-Item archivo.exe | ForEach-Object {$_.Extension}
 .exe
 
 # Mejor opción si tienes WSL o Git Bash:
 PS> wsl file archivo.exe  
-
+# <2>
 ```
 1. `file` no existe en PowerShell nativo
 
@@ -526,7 +530,7 @@ Access: 2024-01-29 10:45:32.123456789 +0000
 Modify: 2024-01-28 15:30:15.987654321 +0000
 Change: 2024-01-28 15:30:15.987654321 +0000
 Birth: -
-
+# <1>
 ```
 1. Muestra todos los metadatos disponibles
 
@@ -541,7 +545,7 @@ Access: Mon Jan 29 10:45:32 2024
 Modify: Sun Jan 28 15:30:15 2024
 Change: Sun Jan 28 15:30:15 2024
 Birth: Sun Jan 28 15:30:15 2024
-
+# <1>
 ```
 1. Formato ligeramente distinto a Linux
 
@@ -554,7 +558,7 @@ FullName                  : C:\Users\usuario\archivo.txt
 CreationTime              : 28/01/2024 15:30:15
 LastAccessTime            : 29/01/2024 10:45:32
 LastWriteTime             : 28/01/2024 15:30:15
-
+# <1>
 ```
 1. PowerShell usa `Get-Item` para metadatos similares
 

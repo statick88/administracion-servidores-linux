@@ -53,7 +53,7 @@ $ find ~ -name "*.txt"
 /home/usuario/archivo1.txt
 /home/usuario/Documentos/notas.txt
 /home/usuario/Proyectos/proyecto.txt
-
+# <1>
 ```
 1. `-name` busca por nombre de archivo (case-sensitive)
 
@@ -63,7 +63,7 @@ $ find ~ -name "*.txt"
 /Users/usuario/archivo1.txt
 /Users/usuario/Documents/notes.txt
 /Users/usuario/Projects/project.txt
-
+# <1>
 ```
 1. Funciona igual que Linux
 
@@ -72,7 +72,7 @@ $ find ~ -name "*.txt"
 # find no existe en Windows nativo
 # Usar Get-ChildItem recursivamente:
 PS> Get-ChildItem -Path C:\Users\usuario -Filter "*.txt" -Recurse
-
+# <1>
     Directory: C:\Users\usuario\Documents
 
 Mode                 LastWriteTime         Length Name
@@ -94,11 +94,12 @@ PS> wsl find ~ -name "*.txt"
 
 #### Linux
 ```bash
-$ find / -type f -size +100M  
+$ find / -type f -size +100M
+# <1>
 /var/lib/docker/overlay2/abc123.../layer.tar
 /home/usuario/videos/pelicula.mp4
 /var/cache/cache-file.bin
-
+# <2>
 ```
 1. `-size +100M` busca archivos mayores a 100MB
 
@@ -134,10 +135,11 @@ Mode                 LastWriteTime         Length Name
 
 #### Linux
 ```bash
-$ find ~ -type f -mtime -7  
+$ find ~ -type f -mtime -7
+# <1>
 /home/usuario/Documentos/archivo-reciente.txt
 /home/usuario/Descargas/descarga.pdf
-
+# <2>
 ```
 1. `-mtime -7` = modificado en últimos 7 días (negativo = pasado reciente)
 
@@ -169,10 +171,11 @@ PS> Get-ChildItem -Path C:\Users\usuario -Recurse -File |
 
 #### Linux
 ```bash
-$ find ~ -type d -empty  
+$ find ~ -type d -empty
+# <1>
 /home/usuario/directorio-vacio
 /home/usuario/proyectos/carpeta-vieja
-
+# <2>
 ```
 1. `-type d` busca solo directorios
 
@@ -230,7 +233,7 @@ grep [opciones] patrón [archivo(s)]
 $ grep "error" /var/log/syslog
 [10:45:32] error: connection timeout
 [10:46:00] error: authentication failed
-
+# <1>
 ```
 1. Busca la palabra "error" en el archivo de log
 
@@ -238,18 +241,18 @@ $ grep "error" /var/log/syslog
 ```bash
 $ grep "error" ~/Library/Logs/system.log
 [10:45:32] error: connection timeout
-
+# <1>
 ```
 1. Mismo funcionamiento
 
 #### Windows
 ```powershell
 # grep no existe, usar Select-String:
-PS> Select-String -Path C:\path\to\file.log -Pattern "error"  
-
+PS> Select-String -Path C:\path\to\file.log -Pattern "error"
+# <1>
 archivo.log:5:error: connection timeout
 archivo.log:8:error: authentication failed
-
+# <2>
 ```
 1. `-Pattern` es el equivalente a patrón en grep
 
@@ -266,7 +269,7 @@ archivo.log:8:error: authentication failed
 $ grep -r "password" ~/proyectos/
 proyectos/config.txt:mysql_password=secret123
 proyectos/app/settings.py:password_hash = "abc123"
-
+# <1>
 ```
 1. `-r` busca en todos los archivos del directorio recursivamente
 
@@ -274,7 +277,7 @@ proyectos/app/settings.py:password_hash = "abc123"
 ```bash
 $ grep -r "password" ~/Projects/
 Projects/config.txt:mysql_password=secret123
-
+# <1>
 ```
 1. Funciona igual
 
@@ -282,10 +285,10 @@ Projects/config.txt:mysql_password=secret123
 ```powershell
 # Búsqueda recursiva
 PS> Select-String -Path C:\proyectos -Pattern "password" -Recurse
-
+# <1>
 config.txt:1:mysql_password=secret123
 settings.py:15:password_hash = "abc123"
-
+# <2>
 ```
 1. `-Recurse` es el equivalente a `-r` de grep
 
@@ -298,10 +301,10 @@ settings.py:15:password_hash = "abc123"
 #### Linux
 ```bash
 $ grep -in "ERROR" /var/log/syslog
+# <1>
 45:[10:45:32] Error: connection timeout
 67:[10:46:00] ERROR: authentication failed
-
-
+# <2>
 ```
 1. `-i` ignora mayúsculas
 
@@ -311,21 +314,21 @@ $ grep -in "ERROR" /var/log/syslog
 ```bash
 $ grep -in "ERROR" ~/Library/Logs/system.log
 45:[10:45:32] Error: connection timeout
-
+# <1>
 ```
 1. Funciona igual
 
 #### Windows
 ```powershell
 PS> Select-String -Path archivo.log -Pattern "ERROR" `
-    -CaseSensitive:$false | 
+    -CaseSensitive:$false |
     Select-Object -Property LineNumber, Line
-
+# <1>
 LineNumber Line
 ---------- ----
 45         [10:45:32] Error: connection timeout
 67         [10:46:00] ERROR: authentication failed
-
+# <2>
 ```
 1. Sin `-CaseSensitive` es case-insensitive por defecto
 
@@ -339,7 +342,7 @@ LineNumber Line
 ```bash
 $ grep -c "Failed password" /var/log/auth.log
 42
-
+# <1>
 ```
 1. `-c` solo muestra el número de coincidencias
 
@@ -347,7 +350,7 @@ $ grep -c "Failed password" /var/log/auth.log
 ```bash
 $ grep -c "Failed password" /var/log/auth.log
 42
-
+# <1>
 ```
 1. Funciona igual
 
@@ -355,7 +358,7 @@ $ grep -c "Failed password" /var/log/auth.log
 ```powershell
 PS> (Select-String -Path auth.log -Pattern "Failed password").Count
 42
-
+# <1>
 ```
 1. PowerShell cuenta las coincidencias automáticamente
 
@@ -369,12 +372,12 @@ PS> (Select-String -Path auth.log -Pattern "Failed password").Count
 ```bash
 # Buscar líneas que comienzan con Error o Warning
 $ grep -E "^(Error|Warning)" /var/log/app.log
+# <1>
 Error: Database connection failed
 Warning: Memory usage high
 Error: API timeout
-
-
-
+# <2>
+# <3>
 ```
 1. `-E` habilita expresiones regulares extendidas
 
@@ -386,7 +389,7 @@ Error: API timeout
 ```bash
 $ grep -E "^(Error|Warning)" ~/Library/Logs/app.log
 Error: Database connection failed
-
+# <1>
 ```
 1. Funciona igual
 
@@ -394,11 +397,11 @@ Error: Database connection failed
 ```powershell
 # PowerShell usa .NET regex:
 PS> Select-String -Path app.log -Pattern "^(Error|Warning)"
-
+# <1>
 app.log:1:Error: Database connection failed
 app.log:3:Warning: Memory usage high
 app.log:5:Error: API timeout
-
+# <2>
 ```
 1. PowerShell usa regex compatibles con .NET por defecto
 
@@ -424,13 +427,13 @@ La verdadera potencia viene al combinar herramientas. Los pipes (`|`) permiten p
 $ find ~ -name "*.txt" -exec grep -l "importante" {} \;
 /home/usuario/Documentos/notas.txt
 /home/usuario/tareas.txt
+# <1>
 
 # Alternativa con pipe (más moderna):
 $ find ~ -name "*.txt" | xargs grep "importante"
 Documentos/notas.txt:Este es un punto importante
 tareas.txt:importante: completar antes del viernes
-
-
+# <2>
 ```
 1. `-exec` ejecuta un comando en cada resultado
 
@@ -440,21 +443,22 @@ tareas.txt:importante: completar antes del viernes
 ```bash
 $ find ~ -name "*.txt" -exec grep -l "importante" {} \;
 /Users/usuario/Documents/notes.txt
+# <1>
 
 $ find ~ -name "*.txt" | xargs grep "importante"
 Documents/notes.txt:Este es un punto importante
-
+# <2>
 ```
 1. Funciona igual que Linux
 
 #### Windows
 ```powershell
 # Buscar archivos .txt con contenido "importante"
-PS> Get-ChildItem -Path C:\Users\usuario -Filter "*.txt" -Recurse | 
+PS> Get-ChildItem -Path C:\Users\usuario -Filter "*.txt" -Recurse |
     ForEach-Object { Select-String -Path $_.FullName -Pattern "importante" }
-
+# <1>
 Documents\notes.txt:3:Este es un punto importante
-
+# <2>
 ```
 1. PowerShell usa tuberías (pipes) con `|` igual que bash
 
@@ -470,7 +474,7 @@ Documents\notes.txt:3:Este es un punto importante
 $ find /var/log -name "*.log" -size +1M -exec grep -l "error" {} \;
 /var/log/syslog
 /var/log/kern.log
-
+# <1>
 ```
 1. Combina múltiples condiciones de `find`
 
@@ -478,17 +482,17 @@ $ find /var/log -name "*.log" -size +1M -exec grep -l "error" {} \;
 ```bash
 $ find ~/Library/Logs -name "*.log" -size +1M | xargs grep -l "error"
 ~/Library/Logs/system.log
-
+# <1>
 ```
 1. Funciona similar
 
 #### Windows
 ```powershell
-PS> Get-ChildItem -Path C:\Logs -Filter "*.log" -Recurse | 
-    Where-Object {$_.Length -gt 1MB} | 
-    ForEach-Object { Select-String -Path $_.FullName -Pattern "error" } | 
+PS> Get-ChildItem -Path C:\Logs -Filter "*.log" -Recurse |
+    Where-Object {$_.Length -gt 1MB} |
+    ForEach-Object { Select-String -Path $_.FullName -Pattern "error" } |
     Select-Object -Unique Path
-
+# <1>
 ```
 1. PowerShell requiere más pasos pero es más legible
 
@@ -514,14 +518,15 @@ locate [opciones] patrón
 #### Linux
 ```bash
 # Actualizar base de datos (se hace automáticamente cada noche)
-$ sudo updatedb  
+$ sudo updatedb
+# <1>
 
 # Buscar archivos que contengan "apache" en el nombre
 $ locate apache
 /etc/apache2/apache2.ctl
 /usr/bin/apache2ctl
 /var/log/apache2/access.log
-
+# <2>
 ```
 1. `locate` es mucho más rápido que `find`
 
@@ -533,7 +538,7 @@ $ locate apache
 $ locate apache
 /etc/apache2/apache2.ctl
 /usr/local/bin/apache2ctl
-
+# <1>
 ```
 1. La BD se actualiza automáticamente cada semana
 
@@ -541,9 +546,9 @@ $ locate apache
 ```powershell
 # Windows no tiene locate nativo
 # Alternativa: crear índice con Everything o:
+# <2>
 PS> Get-ChildItem -Path C:\ -Recurse -Filter "*apache*" -ErrorAction SilentlyContinue
-
-
+# <1>
 ```
 1. Sin herramienta especializada, es más lento
 
