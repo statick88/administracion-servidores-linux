@@ -22,7 +22,8 @@ function trackedFiles() {
   return execFileSync("git", ["ls-files"], { cwd: ROOT, encoding: "utf8" })
     .split("\n")
     .filter(Boolean)
-    .filter((f) => !EXCLUDED_DIRS.test(f));
+    .filter((f) => !EXCLUDED_DIRS.test(f))
+    .filter((f) => existsSync(join(ROOT, f)));
 }
 
 test("tracked file paths never contain the brand", () => {
@@ -40,7 +41,7 @@ test("tracked text sources contain zero brand occurrences", () => {
 });
 
 test("built site output contains zero brand occurrences", () => {
-  const out = join(ROOT, "docs");
+  const out = process.env.SITE_OUTPUT || join(ROOT, "_site");
   if (!existsSync(out)) return; // build output checked by CI after the site build (T7)
   const hits = [];
   const walk = (dir) => {
