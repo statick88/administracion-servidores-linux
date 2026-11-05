@@ -1,166 +1,40 @@
 ---
-title: "Quiz Unidad 3: Comandos Básicos de Linux"
-description: "Evaluación sobre navegación, manipulación de archivos, permisos y comandos esenciales"
+title: "Quiz Unidad 3: Scripting y Automatización con Bash"
+description: "Evaluación sobre Bash, permisos y automatización"
 author: "Diego Saavedra"
-date: today
-format:
-  html:
-    toc: true
-    number-sections: false
 ---
 
-# Quiz: Unidad 3 - Comandos Básicos de Linux
+# Quiz: Unidad 3 - Scripting y Automatización con Bash
 
 ::: quizdown
-## ¿Qué comando se usa para mostrar el directorio actual?
+## ¿Qué opción activa un manejo estricto de errores en un script Bash?
 
-[x] pwd (print working directory)
-[ ] cd
-[ ] ls
-[ ] dir
+[x] set -euo pipefail
+[ ] set --interactive
+[ ] bash --ignore-errors
+[ ] chmod 777 script.sh
 
-*pwd significa "print working directory" y muestra la ruta actual.*
-
----
-
-## ¿Qué comando lista el contenido de un directorio?
-
-[x] ls
-[ ] cd
-[ ] mkdir
-[ ] rm
-
-*ls (list) muestra los archivos y directorios en la ubicación actual.*
+*`set -euo pipefail` detiene el script ante errores, variables no definidas y fallos en tuberías.*
 
 ---
 
-## ¿Cuál es la diferencia entre ruta absoluta y relativa?
+## ¿Qué directorio FHS se usa normalmente para logs de aplicaciones?
 
-[x] La absoluta comienza desde / (raíz); la relativa desde el directorio actual
-[ ] No hay diferencia
-[ ] La absoluta solo funciona en servidores
-[ ] La relativa es más larga
+[ ] /home
+[x] /var/log
+[ ] /boot
+[ ] /proc
 
-*Ruta absoluta: /home/usuario/archivo | Ruta relativa: documentos/archivo*
-
----
-
-## ¿Qué comando crea un nuevo directorio?
-
-[x] mkdir (make directory)
-[ ] mkfile
-[ ] newdir
-[ ] create
-
-*mkdir crea directorios nuevos. Uso: mkdir nombre_carpeta*
+*Los registros variables del sistema y de aplicaciones se almacenan bajo `/var/log`.*
 
 ---
 
-## ¿Qué comando se usa para cambiar de directorio?
+## ¿Qué servicio permite programar una tarea moderna con registros en journalctl?
 
-[x] cd (change directory)
-[ ] chdir
-[ ] change
-[ ] goto
+[ ] cron solamente
+[x] systemd timer
+[ ] ssh-agent
+[ ] apt update
 
-*cd es el comando universal para navegar entre directorios.*
-
----
-
-## ¿Qué significa el directorio especial ".."?
-
-[x] El directorio padre (uno nivel arriba)
-[ ] El directorio actual
-[ ] El directorio raíz
-[ ] El directorio de inicio del usuario
-
-*.. siempre refiere al directorio padre del actual.*
-
----
-
-## ¿Qué comando elimina un archivo?
-
-[x] rm (remove)
-[ ] delete
-[ ] erase
-[ ] cut
-
-*rm elimina archivos. ¡Cuidado: no hay papelera en la terminal!*
-
----
-
-## ¿Qué comando copia un archivo?
-
-[x] cp (copy)
-[ ] copy
-[ ] duplicate
-[ ] clone
-
-*cp archivo_original archivo_copia*
-
----
-
-## ¿Qué comando mueve o renombra un archivo?
-
-[x] mv (move)
-[ ] move
-[ ] rename
-[ ] change
-
-*mv sirve para mover archivos o renombrarlos.*
-
----
-
-## ¿Qué representa el permiso "rwx" para el propietario?
-
-[x] Lectura, escritura y ejecución
-[ ] Solo lectura y escritura
-[ ] Solo lectura y ejecución
-[ ] Ninguno de los anteriores
-
-*rwx = Read + Write + Execute*
-
----
-
-## ¿Qué comando cambia los permisos de un archivo?
-
-[x] chmod
-[ ] chown
-[ ] chperm
-[ ] perm
-
-*chmod modifica permisos. Uso: chmod 755 archivo o chmod +x archivo*
-
----
-
-## ¿Qué significa el valor numérico 755 en permisos?
-
-[x] Propietario tiene todos los permisos, grupo y otros solo lectura y ejecución
-[ ] Todos tienen todos los permisos
-[ ] Solo el propietario tiene lectura
-[ ] Nadie tiene permisos
-
-*755 = rwx (propietario) + r-x (grupo) + r-x (otros)*
-
----
-
-## ¿Qué comando cambia el propietario de un archivo?
-
-[x] chown
-[ ] chmod
-[ ] chgrp
-[ ] own
-
-*chown usuario:grupo archivo cambia propietario y grupo.*
-
----
-
-## ¿Qué significa el sticky bit en un directorio?
-
-[x] Solo el propietario puede eliminar sus archivos en ese directorio
-[ ] El directorio está oculto
-[ ] El directorio es de solo lectura
-[ ] El directorio tiene permisos especiales de ejecución
-
-*El sticky bit (t) en directorios como /tmp evita que usuarios borren archivos de otros.*
+*Un timer de systemd programa servicios y deja su ejecución registrada en el journal.*
 :::
