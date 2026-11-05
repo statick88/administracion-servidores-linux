@@ -1,6 +1,6 @@
 ---
 title: "UNIDAD VII: Seguridad Práctica — Hardening"
-subtitle: "ufw, fail2ban, auditoría, SSH, kernel — Enfoque Práctico Abacom™"
+subtitle: "ufw, fail2ban, auditoría, SSH, kernel — Enfoque Práctico"
 author: "Diego Saavedra - Instructor Principal"
 date: "2026-07-20"
 format:
@@ -146,7 +146,7 @@ action = %(action_ufw)s
 # action = %(action_ufw)s%(action_mwl)s  # + email con whois
 
 # Destinatario alertas
-destemail = seguridad@abacom.cl
+destemail = seguridad@ejemplo.com
 sender = fail2ban@$(hostname -f)
 sendername = Fail2Ban-$(hostname -s)
 
@@ -222,7 +222,7 @@ sudo journalctl -u fail2ban -f
 
 ## 3. SSH Hardening Avanzado
 
-### 3.1 `/etc/ssh/sshd_config.d/99-abacom-hardening.conf`
+### 3.1 `/etc/ssh/sshd_config.d/99-lab-hardening.conf`
 
 ```ssh
 # Puerto no estándar (reduce ruido)
@@ -282,7 +282,7 @@ sudo systemctl reload ssh
 
 ## 4. Kernel Hardening — sysctl
 
-### 4.1 `/etc/sysctl.d/99-abacom-hardening.conf`
+### 4.1 `/etc/sysctl.d/99-lab-hardening.conf`
 
 ```ini
 # Network — RFC compliance y mitigación
@@ -347,7 +347,7 @@ sudo systemctl enable --now auditd
 1. **apt install auditd audispd-plugins** instala el daemon de auditoría del sistema y los plugins de procesamiento de eventos. auditd registra eventos de seguridad: accesos a archivos, cambios de identidad, comandos privilegiados.
 2. **systemctl enable --now auditd** habilita e inicia auditd al arrancar. Las reglas se cargan automáticamente desde /etc/audit/rules.d/.
 
-### 5.2 `/etc/audit/rules.d/abacom.rules`
+### 5.2 `/etc/audit/rules.d/identity.rules`
 
 ```bash
 # Eliminar reglas previas
@@ -396,7 +396,7 @@ sudo auditctl -l
 
 1. **augenrules --load** compila y carga las reglas de auditoría desde /etc/audit/rules.d/. Combina todas las reglas en un archivo temporal y las envía al kernel.
 2. **systemctl restart auditd** reinicia el daemon después de cargar nuevas reglas. Asegura que las reglas se apliquen completamente.
-3. **auditctl -l** lista todas las reglas de auditoría activas en el kernel. Verificar que las reglas de abacom.rules aparecen en la lista.
+3. **auditctl -l** lista todas las reglas de auditoría activas en el kernel. Verificar que las reglas de identity.rules aparecen en la lista.
 
 ### 5.3 Consultas útiles
 
@@ -511,8 +511,8 @@ USER appuser
 - [ ] **ufw**: Política deny incoming/allow outgoing, reglas SSH (puerto custom), HTTP/HTTPS, rate-limit SSH, logging medium.
 - [ ] **fail2ban**: `jail.local` con sshd (maxretry=3, bantime=2h), nginx jails, backend systemd, action ufw.
 - [ ] **SSH**: Puerto 2222, solo ed25519, PasswordAuthentication no, AllowGroups sshusers, ClientAliveInterval 300.
-- [ ] **sysctl**: Aplicar `/etc/sysctl.d/99-abacom-hardening.conf`, verificar `sysctl -p`.
-- [ ] **auditd**: Reglas `abacom.rules` cargadas, probar `sudo ausearch -k identity`.
+- [ ] **sysctl**: Aplicar `/etc/sysctl.d/99-lab-hardening.conf`, verificar `sysctl -p`.
+- [ ] **auditd**: Reglas `identity.rules` cargadas, probar `sudo ausearch -k identity`.
 - [ ] **Lynis**: Ejecutar `sudo lynis audit system --quick`, punteado > 70, sin hallazgos críticos.
 - [ ] **Evidencia**: Captura `ufw status numbered`, `fail2ban-client status sshd`, `sshd -T | grep -E 'port|password|pubkey'`, `sysctl net.ipv4.tcp_syncookies`, `auditctl -l`, Lynis hardening index.
 

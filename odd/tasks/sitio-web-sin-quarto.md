@@ -32,7 +32,7 @@ Runner de pruebas: `node --test site/*.test.mjs` + `python3 -m pytest`/scripts d
 
 ## Tasks
 
-- T1 | S2 | inline | done | Láminas `design/sitio-web/01..03` + `design.json` (HTML balanceado, 0 ocurrencias "abacom", previews con Playwright). Elegida por el usuario: **01-recorrido** (hero radial + catálogo de 11 unidades en dos columnas). Commit `2019e74`.
+- T1 | S2 | inline | done | Láminas `design/sitio-web/01..03` + `design.json` (HTML balanceado, 0 ocurrencias "abacom", previews con Playwright). Elegida por el usuario: **01-recorrido** (hero radial + catálogo de 11 unidades en dos columnas). Commit `c7ed152`.
 - T2 | S3 | inline | pending | Contrato y builder: `course/catalog.json` (schemaVersion 1), `site/page.html` con tokens, `tools/build_site.py`, tests Node del sitio.
 - T3 | S1,S5,S7 | inline | pending | Conversor de contenido: subconjunto Quarto (frontmatter, callouts, tablas, código resaltado, anclas) → HTML para las 11 unidades (`01`–`11`), capítulos de introducción y quizzes de opción múltiple por unidad.
 - T4 | S4 | inline | done | Scrub context-aware sobre fuentes trackeadas (2 rondas: 100+ archivos), artefactos de render `01`–`11/index.html` y `images/logo.jpeg` eliminados, `anexos/Anexo_I_Openclaw_Telegram_Abacombot.qmd` → `..._Bot.qmd` con referencias. Guard `tests/guard_brand.test.mjs` (3 pruebas: rutas, fuentes, salida): 0 residuos con grep independiente, 3/3 verdes, probado por mutación (rojo con la marca → verde sin ella). Excluidos `odd/` (citas verbatim) y `.atl/` (registry autogenerada por `gentle-ai skill-registry refresh`).

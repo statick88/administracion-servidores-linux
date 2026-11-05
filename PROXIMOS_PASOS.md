@@ -1,4 +1,4 @@
-# PRÓXIMOS PASOS - Administración de Servidores Linux (Abacom)
+# PRÓXIMOS PASOS - Administración de Servidores Linux
 
 **Preparado por:** OpenCode  
 **Fecha:** Enero 29, 2026  
@@ -10,7 +10,7 @@
 
 ### Comunicación (1-2 semanas antes)
 
-- [ ] Enviar correo de bienvenida a estudiantes de Abacom
+- [ ] Enviar correo de bienvenida a estudiantes de la empresa
 - [ ] Incluir: Objetivos, cronograma, requisitos técnicos
 - [ ] Proporcionar link a documentación (README.md)
 - [ ] Crear grupo de comunicación (Slack/Teams/Discord)
@@ -22,7 +22,7 @@ Asunto: Bienvenida - Curso Administración de Servidores Linux
 
 Estimados Participantes,
 
-Bienvenidos al Curso de Administración de Servidores Linux de Abacom.
+Bienvenidos al Curso de Administración de Servidores Linux.
 
 Durante las próximas semanas, aprenderemos a:
 - Instalar y configurar servidores Linux
@@ -143,7 +143,7 @@ Seguir estructura de GUIA_INSTRUCTOR.md con adapaciones por unidad.
 
 ## 🎯 PROYECTO FINAL SUGERIDO
 
-**Objetivo:** Configurar un servidor empresarial completo para Abacom
+**Objetivo:** Configurar un servidor empresarial completo para la empresa
 
 **Requisitos:**
 1. Instalación limpia de Ubuntu/CentOS
@@ -194,7 +194,7 @@ Seguir estructura de GUIA_INSTRUCTOR.md con adapaciones por unidad.
 - Checklist de aceptación (al final de cada lab/práctica)
 - Encuesta Likert (5 preguntas simples)
 
-### Reportes a Abacom
+### Reportes a la empresa
 - Reporte mensual de progreso
 - Resumen de dificultades encontradas
 - Propuestas de mejora
@@ -258,7 +258,7 @@ Seguir estructura de GUIA_INSTRUCTOR.md con adapaciones por unidad.
 ### Opcional (Futuro)
 - [ ] Laboratorios 5-6 (Almacenamiento, Servicios)
 - [ ] Quiz de autoevaluación interactivos
-- [ ] Casos de estudio reales de Abacom
+- [ ] Casos de estudio reales de la empresa
 - [ ] Certificado digital de finalización
 
 ---
@@ -298,7 +298,6 @@ Antes de la primera sesión:
 
 **Instructor:** Diego Saavedra  
 **Web:** https://statick88.github.io  
-**Empresa:** Abacom
 
 Para preguntas sobre preparación o ajustes, no dudes en comunicarte.
 

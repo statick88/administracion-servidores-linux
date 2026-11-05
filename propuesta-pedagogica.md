@@ -2,17 +2,17 @@
 
 **Fecha:** Julio 2026  
 **Autor:** Diego Saavedra (statick88)  
-**Fuentes:** Brochure Abacom (11 unidades), Curso actual (15 unidades)
+**Fuentes:** Brochure del curso (11 unidades), Curso actual (15 unidades)
 
 ---
 
 ## 1. Objetivo
 
-Documentar el mapeo completo entre la estructura propuesta en el Brochure Abacom (11 unidades) y la estructura actual implementada en el curso (15 unidades), verificando cobertura 100% de los temas del brochure.
+Documentar el mapeo completo entre la estructura propuesta en el Brochure del curso (11 unidades) y la estructura actual implementada en el curso (15 unidades), verificando cobertura 100% de los temas del brochure.
 
 ---
 
-## 2. Estructura del Brochure Abacom
+## 2. Estructura del Brochure del curso
 
 | Unidad | Tema | Subtemas Clave |
 |--------|------|----------------|
@@ -334,10 +334,10 @@ Unidad XII → Troubleshooting (actual XII)
 
 ## 10. Conclusión
 
-El curso actual tiene **cobertura del 91%** de los temas del brochure Abacom, con 4 unidades adicionales que superan la propuesta original. Las brechas principales están en **LVM/fstab** (crítico para administración) y **PAM/ACL** (seguridad avanzada).
+El curso actual tiene **cobertura del 91%** de los temas del brochure del curso, con 4 unidades adicionales que superan la propuesta original. Las brechas principales están en **LVM/fstab** (crítico para administración) y **PAM/ACL** (seguridad avanzada).
 
 **Recomendación inmediata:** Completar las brechas críticas (LVM, fstab) sin reestructurar el curso, ya que la estructura actual de 15 unidades es funcional y está bien organizada.
 
 ---
 
-*Documento generado como parte del proceso de mejora continua del curso Administración de Servidores Linux — Abacom.*
+*Documento generado como parte del proceso de mejora continua del curso Administración de Servidores Linux.*

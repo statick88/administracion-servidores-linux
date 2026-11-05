@@ -80,7 +80,7 @@ $ sudo systemctl status ssh --no-pager  # <3>
 ### 1.1 En el host local: Generar par de claves
 
 ```bash
-$ ssh-keygen -t rsa -b 4096 -C "opencode-lab@abacom"  # <1>
+$ ssh-keygen -t rsa -b 4096 -C "opencode-lab@ejemplo.com"  # <1>
 Generating public/private rsa key pair.
 Enter file in which to save the key (/home/usuario/.ssh/id_rsa): [Press enter]
 Enter passphrase (empty for no passphrase): [Press enter - sin passphrase para el lab]
@@ -474,6 +474,5 @@ Implementa:
 ---
 
 **Instructor:** Diego Saavedra  
-**Empresa:** Abacom  
 **Fecha:** Febrero 2026  
 **Versión:** 1.0

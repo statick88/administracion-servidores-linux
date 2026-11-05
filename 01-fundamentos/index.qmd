@@ -1,6 +1,6 @@
 ---
 title: "UNIDAD I: Fundamentos de Linux y Virtualización Ligera"
-subtitle: "WSL2, Docker Desktop, Terminal Bash — Enfoque Práctico Abacom™"
+subtitle: "WSL2, Docker Desktop, Terminal Bash — Enfoque Práctico"
 author: "Diego Saavedra - Instructor Principal"
 date: "2026-07-20"
 format:
@@ -20,11 +20,11 @@ Al finalizar esta unidad, serás capaz de:
 - Entender **qué es Linux**, su filosofía y por qué domina servidores e infraestructura cloud.
 - Configurar un **entorno de desarrollo/producción local** usando **WSL2 (Ubuntu 24.04 LTS)** y **Docker Desktop** — sin máquinas virtuales pesadas.
 - Navegar y operar la **terminal Bash** con fluidez: rutas, permisos, editores, ayuda.
-- Aplicar la **Metodología Abacom™**: diagnóstico reproducible, evidencia documentada, hardening desde el día 1.
+- Aplicar la **Metodología del curso**: diagnóstico reproducible, evidencia documentada, hardening desde el día 1.
 
 ---
 
-## 1. ¿Qué es Linux y por qué importa en Abacom
+## 1. ¿Qué es Linux y por qué importa
 
 **Linux** es el kernel que, combinado con herramientas GNU (coreutils, bash, glibc, etc.), forma el sistema operativo que impulsa:
 
@@ -56,7 +56,7 @@ En este curso usamos **Ubuntu 24.04 LTS (Noble Numbat)** — soporte hasta 2029,
 
 ## 2. Entorno Práctico: WSL2 + Docker Desktop (Sin VirtualBox/VMware)
 
-> **Regla de oro Abacom**: *No instalamos ISOs en VirtualBox/VMware*. Usamos virtualización ligera nativa.
+> **Regla de oro**: *No instalamos ISOs en VirtualBox/VMware*. Usamos virtualización ligera nativa.
 
 ### 2.1 WSL2 — Linux real dentro de Windows
 
@@ -272,7 +272,7 @@ setfacl -b /ruta                          # Borrar todas las ACLs
 11. **`setfacl -b`**: Elimina todas las ACLs, dejando solo permisos POSIX estándar
 
 ::: {.callout-tip}
-## Regla de oro permisos Abacom
+## Regla de oro de permisos
 
 - **Archivos**: `640` (dueño rw, grupo r, otros -) o `600` si sensibles (claves, certs).
 - **Directorios**: `750` (dueño rwx, grupo rx, otros -) o `700` si privados.
@@ -357,7 +357,7 @@ sudo apt clean
 - [ ] `docker version` muestra Client + Server (Engine)
 - [ ] `docker run --rm hello-world` → "Hello from Docker!"
 - [ ] `groups $USER` incluye `docker` (si no: `sudo usermod -aG docker $USER` y **re-login**)
-- [ ] `ssh-keygen -t ed25519 -C "tu-email@abacom.cl"` generado
+- [ ] `ssh-keygen -t ed25519 -C "tu-email@ejemplo.com"` generado
 - [ ] `cat ~/.ssh/id_ed25519.pub` copiado a GitHub/GitLab
 - [ ] `git config --global user.name "Tu Nombre"` y `user.email`
 - [ ] Editor configurado (`vim`/`nvim` con config básica o VS Code + Remote-WSL)
@@ -391,7 +391,7 @@ sudo apt clean
 3. **Linux = Kernel + GNU Userland + Distro**. Ubuntu 24.04 LTS es nuestra base.
 4. **WSL2 + Docker Desktop** = Entorno pro sin VMs pesadas. Olvida VirtualBox/VMware.
 5. **Bash + FHS + Permisos/ACLs** = Fundación de todo lo que viene (scripts, services, contenedores, hardening).
-6. **Metodología Abacom**: Evidencia, reproducible, documentado.
+6. **Metodología del curso**: Evidencia, reproducible, documentado.
 :::
 
 ### 📋 Checklist de competencias Unidad I

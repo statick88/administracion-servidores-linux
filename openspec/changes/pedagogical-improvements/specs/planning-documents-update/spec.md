@@ -19,7 +19,7 @@ The system SHALL update GUIA_INSTRUCTOR.md section "2. Estructura del Curso" to 
 
 #### Scenario: Unit names match brochure
 
-- GIVEN the Abacom brochure defines specific unit names
+- GIVEN the course brochure defines specific unit names
 - WHEN the table is updated
 - THEN unit names align with the brochure terminology (e.g., "Gestión de Usuarios y Permisos" not "Usuarios y Docker")
 

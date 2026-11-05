@@ -105,7 +105,7 @@ français
 Português (Brasil)
 ```
 
-**Para Abacom (empresa española)**: Selecciona **"Español (España)"**
+**Para España**: Selecciona **"Español (España)"**
 
 Haz clic en **"Continue"** o presiona Enter.
 
@@ -133,7 +133,7 @@ Si no está disponible, **English (US)** es universal - puedes cambiar después.
 Choose your location
 ────────────────────
 Europe
-  Spain  ← Para Abacom
+  Spain  ← Para la empresa
   France
 Americas
   United States
@@ -170,7 +170,7 @@ Si no tienes internet, puedes instalar offline (menos recomendado).
 
 ## Paso 5: Particionamiento de Disco - LA PARTE CRÍTICA
 
-### Opción A: Instalación Única (Recomendado para Abacom)
+### Opción A: Instalación Única (Recomendado para la empresa)
 
 ```
 Installation type
@@ -249,7 +249,7 @@ NAME   TYPE      SIZE      MOUNT POINT
 [Edit] para modificar
 ```
 
-**Partición típica para servidor Abacom:**
+**Partición típica para servidor empresarial:**
 
 ```
 /dev/sda1 (EFI)         1 GB    /boot/efi     (FAT32)
@@ -299,7 +299,7 @@ NAME   TYPE      SIZE      MOUNT POINT
 Who are you?
 ─────────────
 Your name:              [Diego Saavedra          ]
-Your computer's name:   [abacom-ubuntu           ]
+Your computer's name:   [lab-ubuntu           ]
 Pick a username:        [diego                   ]
 Choose a password:      [••••••••••              ]
 Confirm password:       [••••••••••              ]
@@ -317,19 +317,19 @@ Confirm password:       [••••••••••              ]
 2. **Computer's name**: Nombre del equipo en la red (hostname)
 
    - Debe ser alfanumérico, guiones permitidos
-   - Ejemplo: **abacom-ubuntu** (sin espacios)
-   - Acceso después: **ssh diego@abacom-ubuntu.local**
+   - Ejemplo: **lab-ubuntu** (sin espacios)
+   - Acceso después: **ssh diego@ejemplo.com-ubuntu.local**
 
 3. **Username**: Usuario login (minúsculas, sin espacios)
 
    - Ejemplo: **diego** (no **Diego Saavedra**)
-   - Acceso: **ssh diego@abacom-ubuntu.local**
+   - Acceso: **ssh diego@ejemplo.com-ubuntu.local**
 
 4. **Password**: Contraseña del usuario
 
    - Mínimo 8 caracteres
    - Recomendado: letras, números, símbolos
-   - Ejemplo: **AbacomLinux2024!**
+   - Ejemplo: **ServidorLinux2024!**
    - ⚠️ **NO OLVIDES** - sin password = sin acceso
 
 5. **Require my password**: Marcar esta opción
@@ -349,7 +349,7 @@ Updates and other software
 [ ] Install third-party software for graphics, WiFi, etc
 ```
 
-**Recomendaciones para Abacom:**
+**Recomendaciones para la empresa:**
 
 ```
 [✓] Install security updates automatically
@@ -373,7 +373,7 @@ Installation Summary
 Location:           Spain
 Keyboard:           Spanish
 Locale:             es_ES.UTF-8
-Hostname:           abacom-ubuntu
+Hostname:           lab-ubuntu
 Username:           diego
 Installation type:  Erase disk and install Ubuntu
 Disk to install to: /dev/sda (500 GB)
@@ -457,7 +457,7 @@ Después del reinicio (~1 minuto), verás:
 ```
 Ubuntu Server LTS
 
-abacom-ubuntu login: diego
+lab-ubuntu login: diego
 Password: ••••••••••
 ```
 
@@ -573,15 +573,15 @@ Si ves 3 respuestas exitosas = Internet funciona ✓
 
 ::: {.panel-tabset}
 
-### Ejemplo 1: Instalación en Abacom (Empresa Real)
+### Ejemplo 1: Instalación en una empresa real
 
 #### Servidor Linux (Ubuntu Server LTS)
 
-**Escenario**: Abacom necesita 5 servidores Ubuntu Server LTS
+**Escenario**: La empresa necesita 5 servidores Ubuntu Server LTS
 
 **Configuración estándar por servidor:**
 
-- **Hostname**: **abacom-server-01** a **abacom-server-05**
+- **Hostname**: **lab-server-01** a **lab-server-05**
 - **Usuario**: **admin** (o **sysadmin**)
 - **Particiones**:
 
@@ -600,9 +600,9 @@ Si ves 3 respuestas exitosas = Internet funciona ✓
 
 ```bash
 # Verificar instalación en primer servidor:
-$ ssh admin@abacom-server-01  
+$ ssh admin@ejemplo.com-server-01  
 $ cat /etc/hostname  
-abacom-server-01
+lab-server-01
 $ df -h  
 Filesystem     Size  Used Avail Use% Mounted on
 /dev/sda1       50G  2.5G   47G   5% /
@@ -611,7 +611,7 @@ Filesystem     Size  Used Avail Use% Mounted on
 /dev/sda4       16G     0   16G   0% swap
 ```
 
-1. **ssh admin@abacom-server-01** conecta al servidor recién instalado por SSH para verificación remota
+1. **ssh admin@ejemplo.com-server-01** conecta al servidor recién instalado por SSH para verificación remota
 2. **cat /etc/hostname** muestra el nombre del host asignado durante la instalación
 3. **df -h** verifica que las particiones se crearon correctamente con los tamaños planificados
 
@@ -674,16 +674,16 @@ $ brew install multipass
 # <1>
 
 # Crear VM Ubuntu
-$ multipass launch --name abacom-dev ubuntu:22.04
+$ multipass launch --name lab-dev ubuntu:22.04
 Creating instance with 1 CPU, 1GB of memory and 5GB of disk space
 
 # Acceder a la VM
-$ multipass shell abacom-dev
-ubuntu@abacom-dev:~$ uname -a
-Linux abacom-dev 5.15.0-1234-generic #1234-Ubuntu SMP x86_64
+$ multipass shell lab-dev
+ubuntu@ejemplo.com-dev:~$ uname -a
+Linux lab-dev 5.15.0-1234-generic #1234-Ubuntu SMP x86_64
 
 # Desde macOS, copiar archivos a VM:
-$ multipass transfer archivo.txt abacom-dev:/home/ubuntu/  
+$ multipass transfer archivo.txt lab-dev:/home/ubuntu/  
 # <2>
 ```
 
@@ -768,7 +768,7 @@ $ diskutil secureErase freespace 0 /Volumes/FreeSapce
 
 ### Ejemplo 3: Caso Real - Servidor Multi-Disco con RAID
 
-#### Linux (Configuración Abacom)
+#### Linux (Configuración de la empresa)
 
 **Escenario**: Servidor de bases de datos con 2 SSDs y 4 HDDs
 
@@ -991,9 +991,9 @@ swapon --show
 
 | Etapa | Opción | Recomendación |
 |------|--------|---------------|
-| **Idioma** | Español / English | Español (España) para Abacom |
+| **Idioma** | Español / English | Español (España) para la empresa |
 | **Teclado** | Spanish / English | Spanish si está disponible |
-| **Ubicación** | Tu país | Spain para Abacom |
+| **Ubicación** | Tu país | Spain para la empresa |
 | **Red** | Wired / WiFi | Wired si es posible (más estable) |
 | **Instalación** | Erase / Manual | Erase (simple) o Manual (control) |
 | **Usuario** | nombre_usuario | Minúsculas, sin espacios, 8+ caracteres |
@@ -1098,7 +1098,7 @@ swapon --show
 
 7. INSTALADOR - USUARIO (3 min)
    □ Your name: Tu nombre completo
-   □ Computer name: hostname (ej: abacom-ubuntu)
+   □ Computer name: hostname (ej: lab-ubuntu)
    □ Pick a username: usuario lowercase (ej: diego)
    □ Password: contraseña segura (8+ caracteres)
    □ Marca "Require my password to log in"

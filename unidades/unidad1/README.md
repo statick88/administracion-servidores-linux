@@ -2,7 +2,7 @@
 
 ## 🎯 Resumen Ejecutivo
 
-Esta unidad presenta los fundamentos esenciales para entender Linux. Aprenderás qué es un sistema operativo, la historia fascinante de Linux desde 1991, las diferentes distribuciones disponibles, y por qué hemos elegido **Ubuntu 22.04 LTS** para Abacom.
+Esta unidad presenta los fundamentos esenciales para entender Linux. Aprenderás qué es un sistema operativo, la historia fascinante de Linux desde 1991, las diferentes distribuciones disponibles, y por qué hemos elegido **Ubuntu 22.04 LTS** para la empresa.
 
 **Duración total:** ~2 horas de lectura + 3-4 horas de laboratorios prácticos  
 **Nivel:** Principiante  
@@ -17,7 +17,7 @@ Esta unidad presenta los fundamentos esenciales para entender Linux. Aprenderás
 | 1 | **Introducción a Sistemas Operativos** | 20 min | Entender qué es un SO, sus componentes y funciones |
 | 2 | **Historia y Evolución de Linux** | 18 min | Conocer origen, Linus Torvalds, GPL y evolución |
 | 3 | **Distribuciones de Linux** | 22 min | Comprender diferencias entre Ubuntu, CentOS, Debian |
-| 4 | **Ventajas de Linux para Abacom** | 15 min | Por qué Ubuntu 22.04 LTS es la mejor opción |
+| 4 | **Ventajas de Linux** | 15 min | Por qué Ubuntu 22.04 LTS es la mejor opción |
 
 **Total teoría:** ~75 minutos  
 **Total laboratorios:** ~270 minutos (4.5 horas)
@@ -114,7 +114,7 @@ Cada tema tiene un laboratorio práctico de 60-90 minutos. Al completar todos:
 - Qué es una distribución
 - Familias principales (Debian, RHEL, Arch)
 - Comparativa: Ubuntu vs CentOS vs Debian
-- Por qué Ubuntu 22.04 LTS para Abacom
+- Por qué Ubuntu 22.04 LTS para la empresa
 
 **Recursos:**
 - [DistroWatch](https://distrowatch.com/) - Base de datos de 300+ distros
@@ -122,7 +122,7 @@ Cada tema tiene un laboratorio práctico de 60-90 minutos. Al completar todos:
 
 ---
 
-### Tema 4: Ventajas de Linux para Abacom
+### Tema 4: Ventajas de Linux
 
 **Contenido:**
 - Gratuidad y licencia GPL
@@ -223,8 +223,7 @@ Marca estos items cuando los completes:
 ## 📞 Contacto
 
 - **Instructor:** Diego Saavedra (statick88@github.io)
-- **Empresa:** Abacom
-- **Repositorio:** [GitHub Link]
+- - **Repositorio:** [GitHub Link]
 - **Reportar errores:** [GitHub Issues]
 
 ---

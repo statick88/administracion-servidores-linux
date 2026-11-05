@@ -2,12 +2,12 @@
 
 ## Bienvenido a los Anexos
 
-Los **anexos** son mini-cursos especializados que proporcionan **conocimiento profundo** sobre herramientas y sistemas específicos necesarios para la administración de servidores Linux en Abacom.
+Los **anexos** son mini-cursos especializados que proporcionan **conocimiento profundo** sobre herramientas y sistemas específicos necesarios para la administración de servidores Linux en la empresa.
 
 A diferencia de las unidades (que enseñan conceptos generales), los anexos son **100% prácticos** y se enfocan en:
 - Dominar una herramienta específica
 - Scripts listos para usar
-- Casos reales de Abacom
+- Casos reales de la empresa
 - Referencia rápida para búsqueda
 
 ---
@@ -29,7 +29,7 @@ A diferencia de las unidades (que enseñan conceptos generales), los anexos son 
 **Cuándo usarlo**:
 - Necesitas crear scripts de automatización
 - Unidades requieren Bash (verás referencias aquí)
-- Desarrollar tools personalizadas para Abacom
+- Desarrollar tools personalizadas para la empresa
 
 **Tiempo**: 2 horas
 
@@ -270,7 +270,7 @@ Todos los anexos siguen este patrón:
 
 1. **Introducción** - Por qué es importante
 2. **Conceptos** - Explicación teórica (mínima)
-3. **Ejemplos Prácticos** - Casos reales de Abacom
+3. **Ejemplos Prácticos** - Casos reales de la empresa
 4. **Comparativas** - Diferencias (Debian vs CentOS vs Arch)
 5. **Errores Comunes** - Qué NO hacer
 6. **Quiz** - Autoevaluación
@@ -318,7 +318,7 @@ Todos los anexos siguen este patrón:
 Después de dominar los anexos:
 
 1. **Aplicar en Unidades**: Usa lo aprendido cuando estudies Unidades
-2. **Crear Scripts Propios**: Automatiza tareas reales de Abacom
+2. **Crear Scripts Propios**: Automatiza tareas reales de la empresa
 3. **Experimentar**: Combina herramientas para casos nuevos
 4. **Enseñar a Otros**: La mejor forma de dominar es explicar
 
@@ -356,7 +356,7 @@ anexos/
 
 ## ✨ Bienvenido a los Anexos
 
-**Recuerda**: Estos no son temas teóricos. Son herramientas reales que usarás TODOS LOS DÍAS como administrador Linux en Abacom.
+**Recuerda**: Estos no son temas teóricos. Son herramientas reales que usarás TODOS LOS DÍAS como administrador Linux en la empresa.
 
 **Objetivo**: Que después de estos anexos, te sientas cómodo en la terminal. 🖥️
 

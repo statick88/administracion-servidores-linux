@@ -2,7 +2,6 @@
 
 **Para:** Diego Saavedra  
 **Proyecto:** Administración de Servidores Linux  
-**Empresa:** Abacom
 
 ---
 
@@ -121,7 +120,7 @@ sudo ufw enable
 **Problema:** "¿Qué hacen si X no funciona?"
 - Ver: Troubleshooting en cada lab (final)
 
-**Problema:** "¿Cómo comunico con Abacom?"
+**Problema:** "¿Cómo comunico con la empresa?"
 - Ver: PROXIMOS_PASOS.md, Comunicación
 
 ---
@@ -184,7 +183,7 @@ El proyecto está completamente preparado. Solo necesitas:
 
 1. Leer la documentación
 2. Practicar en tu VM
-3. Comunicarte con Abacom
+3. Comunicarte con la empresa
 4. ¡Empezar el curso!
 
 **Duración estimada:** 

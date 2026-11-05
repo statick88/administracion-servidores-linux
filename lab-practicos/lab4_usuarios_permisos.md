@@ -25,7 +25,7 @@
 # Desde terminal con sudo
 sudo useradd -m -s /bin/bash carlos
 sudo useradd -m -s /bin/bash maria
-sudo useradd -m -s /bin/bash admin_abacom
+sudo useradd -m -s /bin/bash admin_lab
 
 # Verificar usuarios creados
 cat /etc/passwd | grep -E "carlos|maria|admin"
@@ -47,7 +47,7 @@ sudo passwd maria
 # Ingresa: Maria@123
 
 # Cambiar para admin
-sudo passwd admin_abacom
+sudo passwd admin_lab
 # Ingresa: Admin@123
 ```
 
@@ -63,12 +63,12 @@ sudo groupadd sys_admins
 # Agregar usuarios a grupos
 sudo usermod -aG desarrolladores carlos
 sudo usermod -aG desarrolladores maria
-sudo usermod -aG sys_admins admin_abacom
+sudo usermod -aG sys_admins admin_lab
 
 # Verificar pertenencia a grupos
 groups carlos
 groups maria
-groups admin_abacom
+groups admin_lab
 ```
 
 ### Paso 4: Entender Permisos Básicos (25 min)
@@ -118,14 +118,14 @@ sudo -u carlos ls /home/alumno/proyecto_privado/   # Permission denied
 
 ```bash
 # Agregar usuario a sudoers
-sudo usermod -aG sudo admin_abacom
+sudo usermod -aG sudo admin_lab
 
 # Ver entrada de sudoers
 sudo visudo -c
-# Ver regla para admin_abacom
+# Ver regla para admin_lab
 
-# Probar sudo como admin_abacom
-sudo -u admin_abacom sudo whoami   # Debería mostrar "root"
+# Probar sudo como admin_lab
+sudo -u admin_lab sudo whoami   # Debería mostrar "root"
 
 # Ver histórico de sudo
 sudo journalctl -u sudo -n 10
@@ -141,7 +141,7 @@ sudo chown carlos /home/alumno/archivo_publico.txt
 sudo chgrp desarrolladores /home/alumno/archivo_publico.txt
 
 # Cambiar propietario y grupo simultáneamente
-sudo chown admin_abacom:sys_admins /home/alumno/proyecto_publico
+sudo chown admin_lab:sys_admins /home/alumno/proyecto_publico
 
 # Verificar cambios
 ls -la /home/alumno/archivo_publico.txt
@@ -152,7 +152,7 @@ ls -ld /home/alumno/proyecto_publico
 
 ### Ejercicio A: Estructura de Permisos (30 min)
 
-1. Crea un directorio llamado `/home/alumno/abacom-data`
+1. Crea un directorio llamado `/home/alumno/lab-data`
 2. Crea 3 archivos dentro: `config.txt`, `logs.txt`, `backup.tar`
 3. Asigna permisos:
    - `config.txt`: Solo propietario puede leer/escribir (600)
@@ -163,10 +163,10 @@ ls -ld /home/alumno/proyecto_publico
 
 ### Ejercicio B: Gestión de Grupos (20 min)
 
-1. Crea un grupo llamado "abacom-team"
-2. Agrega 3 usuarios: carlos, maria, admin_abacom
+1. Crea un grupo llamado "lab-team"
+2. Agrega 3 usuarios: carlos, maria, admin_lab
 3. Crea un directorio `/home/alumno/equipo`
-4. Cambia propietario a "admin_abacom:abacom-team"
+4. Cambia propietario a "admin_lab:lab-team"
 5. Asigna permisos 770 al directorio
 6. Verifica que todos los miembros del grupo pueden acceder
 
@@ -198,8 +198,8 @@ ls -ld /home/alumno/proyecto_publico
 
 ## Checklist de aceptación
 
-- [ ] Existen los usuarios `carlos`, `maria`, `admin_abacom` y puedo mostrar `id`/`groups`
+- [ ] Existen los usuarios `carlos`, `maria`, `admin_lab` y puedo mostrar `id`/`groups`
 - [ ] Probé acceso a `archivo_publico.txt` vs `archivo_privado.txt` como otro usuario (evidencia del OK y del fallo)
 - [ ] Completé Ejercicio A con permisos correctos (evidencia de `ls -la`)
 - [ ] Completé Ejercicio B con grupo compartido y permisos `770` (evidencia de `ls -ld` y acceso)
-- [ ] `admin_abacom` puede ejecutar `sudo whoami` y devuelve `root`
+- [ ] `admin_lab` puede ejecutar `sudo whoami` y devuelve `root`

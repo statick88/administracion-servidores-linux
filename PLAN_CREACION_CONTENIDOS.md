@@ -82,7 +82,7 @@ TOTAL: 32 archivos | 44.5 horas
   ├─ Principales (Ubuntu, CentOS, Debian)
   ├─ Tabla comparativa
   ├─ Cuál elegir para qué
-  └─ Abacom: Por qué Ubuntu 22.04 LTS
+  └─ Empresa: Por qué Ubuntu 22.04 LTS
 
 14:15-14:30  Break
 
@@ -92,7 +92,7 @@ TOTAL: 32 archivos | 44.5 horas
   ├─ Estabilidad
   ├─ Costo
   ├─ Comunidad
-  └─ Ventajas para Abacom
+  └─ Ventajas para la empresa
 ```
 
 #### Día 2-3: Unidad 2 (Instalación) - 7 horas
@@ -359,7 +359,7 @@ $ comando ejemplo
 output
 ```
 
-## Casos de Uso Reales en Abacom
+## Casos de Uso Reales en la empresa
 
 Cómo se aplica en la empresa...
 
@@ -433,7 +433,7 @@ unidades/
 - [ ] Escribir título y objetivos
 - [ ] Desarrollo de conceptos
 - [ ] Ejemplos y comandos probados
-- [ ] Casos de uso Abacom
+- [ ] Casos de uso reales
 - [ ] Resumen y preguntas
 
 ### Después de Crear

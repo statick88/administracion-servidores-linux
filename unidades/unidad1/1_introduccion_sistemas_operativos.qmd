@@ -17,7 +17,7 @@ biblio-style: apalike
 
 ## Introducción
 
-Un **Sistema Operativo** es el software fundamental que controla todos los recursos de una computadora y gestiona las interacciones entre el usuario, aplicaciones y hardware. En Abacom, entender profundamente qué es un SO y cómo funciona es crítico para administrar servidores, resolver problemas de infraestructura y tomar decisiones arquitectónicas correctas.
+Un **Sistema Operativo** es el software fundamental que controla todos los recursos de una computadora y gestiona las interacciones entre el usuario, aplicaciones y hardware. En la empresa, entender profundamente qué es un SO y cómo funciona es crítico para administrar servidores, resolver problemas de infraestructura y tomar decisiones arquitectónicas correctas.
 
 **Tiempo de lectura:** ~20 minutos  
 **Nivel:** Principiante  
@@ -51,7 +51,7 @@ Un Sistema Operativo (SO) es un programa especial que actúa como **intermediari
 ## ¿Por qué importa?
 
 - **Impacto directo:** Sin un SO, no podrías ejecutar ningún programa. El SO es lo que permite que todo funcione.
-- **En Abacom:** Necesitamos entender cómo el SO gestiona servidores para optimizar rendimiento y resolver problemas.
+- **En la empresa:** Necesitamos entender cómo el SO gestiona servidores para optimizar rendimiento y resolver problemas.
 - **Ventaja profesional:** Un administrador que entiende el SO puede diagnosticar 80% de problemas sin herramientas externas.
 
 :::
@@ -86,7 +86,7 @@ El kernel trabaja en "modo privilegiado" (ring 0), lo que significa tiene acceso
 ```bash
 # Ver información del SO en Linux
 $ uname -a
-Linux servidor-abacom 5.15.0-89-generic #99-Ubuntu SMP Mon Oct 5 09:29:34 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+Linux servidor-lab 5.15.0-89-generic #99-Ubuntu SMP Mon Oct 5 09:29:34 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
 
 # Información adicional
 $ cat /etc/os-release | grep PRETTY_NAME
@@ -211,12 +211,12 @@ PS> tasklist /V | findstr "python"
 
 ---
 
-### Ejemplo 3: Caso Real Abacom
+### Ejemplo 3: Caso Real
 
 #### Linux (Servidor de Producción)
 
 ```bash
-# En un servidor Linux de Abacom, verificar recursos del sistema
+# En un servidor Linux de la empresa, verificar recursos del sistema
 $ free -h
               total        used        free      shared  buff/cache   available
 Mem:           15.6G       3.2G       9.1G       256M       3.3G      12.0G
@@ -230,7 +230,7 @@ $ uptime
 $ ps aux | grep "python\|node\|java"
 ```
 
-**Por qué lo usamos en Abacom:**
+**Por qué lo usamos:**
 
 - Monitorear memoria disponible para aplicaciones críticas
 - Detectar si el servidor está bajo carga (load average)
@@ -240,7 +240,7 @@ $ ps aux | grep "python\|node\|java"
 #### macOS (Máquina de Desarrollo)
 
 ```bash
-# En una Mac de desarrollo de Abacom
+# En una Mac de desarrollo de la empresa
 $ memory_pressure
 System memory pressure level: 2 (elevated)
 Physical memory: 16GB
@@ -252,7 +252,7 @@ $ top -l 1 -stats cpu,mem -n 5
 $ vm_stat
 ```
 
-**Por qué lo usamos en Abacom:**
+**Por qué lo usamos:**
 
 - Verificar que tenemos suficiente RAM para Docker/VirtualBox
 - Monitorear si las herramientas de desarrollo están consumiendo demasiado
@@ -261,7 +261,7 @@ $ vm_stat
 #### Windows (Máquina de Administrador)
 
 ```powershell
-# En Windows para administración remota de Abacom
+# En Windows para administración remota de la empresa
 PS> Get-ComputerInfo -Property TotalPhysicalMemory, FreePhysicalMemory
 
 TotalPhysicalMemory : 17179869184 (16 GB)
@@ -274,7 +274,7 @@ PS> Get-Process | Sort-Object Memory -Descending | Select-Object -First 5
 PS> systeminfo | findstr /C:"Processor" /C:"System Type" /C:"Total Physical Memory"
 ```
 
-**Por qué lo usamos en Abacom:**
+**Por qué lo usamos:**
 
 - Monitorear servidores remotos desde Windows
 - Verificar que tengas suficiente RAM en tu máquina
@@ -640,7 +640,7 @@ Si **free** es muy pequeño o **used** es muy grande, la RAM está llena.
   - ✅ Usar `free -h` cuando: Java reporta "OutOfMemoryError" o aplicación se crashes con "Cannot allocate memory"
   - ❌ No usar `free -h` cuando: El disco muestra "100% full" o error de "No space left on device"
 
-  **Caso Abacom:** En nuestros servidores, cuando una base de datos se ralentiza, PRIMERO revisamos `free -h`. Si RAM está bien, LUEGO revisamos `df -h` y otros factores.
+  **Caso de la empresa:** En nuestros servidores, cuando una base de datos se ralentiza, PRIMERO revisamos `free -h`. Si RAM está bien, LUEGO revisamos `df -h` y otros factores.
 </details>
 
 ---
@@ -719,7 +719,7 @@ $ yes > /dev/null  # Genera CPU load
 
 ### Ejercicio Avanzado - Investigar Problema de Rendimiento
 
-**Objetivo:** Simular un diagnóstico real de Abacom.
+**Objetivo:** Simular un diagnóstico real de la empresa.
 
 **Instrucciones:**
 ```bash
@@ -845,7 +845,7 @@ $ ps aux | wc -l >> resultados/procesos.txt
 
 **Desafío Final:** Crea un resumen de diagnóstico como un administrador real.
 
-**Escenario:** En Abacom, el servidor está reportando bajo rendimiento. Necesitas diagnosticar.
+**Escenario:** En la empresa, el servidor está reportando bajo rendimiento. Necesitas diagnosticar.
 
 **Solución esperada:**
 ```bash
@@ -962,7 +962,7 @@ $ vm_stat
 # O instalar: brew install gnu-coreutils
 ```
 
-**P: ¿Cómo aplico esto en Abacom?**
+**P: ¿Cómo aplico esto?**
 
 R: En nuestro caso, usamos estos comandos diariamente:
 
@@ -972,7 +972,7 @@ R: En nuestro caso, usamos estos comandos diariamente:
 - `ps aux` para encontrar procesos problemáticos
 
 ```bash
-$ # Diagnóstico rápido de servidor Abacom
+$ # Diagnóstico rápido de servidor empresarial
 $ uptime && free -h && df -h && top -b -n 1 | head -20
 ```
 
@@ -1017,7 +1017,7 @@ $ uptime && free -h && df -h && top -b -n 1 | head -20
 
 - 💬 **Preguntas técnicas:** Abre un issue en [GitHub Issues]
 - 🐛 **Errores no cubiertos:** Reporta en el repositorio
-- 💡 **Sugerencias para mejorar:** Envía feedback a diego@abacom.cl
+- 💡 **Sugerencias para mejorar:** Envía feedback a diego@ejemplo.com
 - 🔗 **Recursos adicionales:** Disponibles en la sección [Recursos Adicionales](#recursos-adicionales)
 :::
 

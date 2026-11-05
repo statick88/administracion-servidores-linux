@@ -1,6 +1,6 @@
 # Administración de Servidores Linux
 
-Material del curso profesional para Abacom.
+Material del curso profesional.
 
 Instructor: Diego Saavedra (https://statick88.github.io)
 

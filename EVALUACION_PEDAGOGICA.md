@@ -2,19 +2,19 @@
 
 **Fecha:** Julio 2026  
 **Evaluador:** Diego Saavedra (statick88)  
-**Fuentes:** Brochure Abacom, contenido actual del curso, CV1226 (Didáctica y Aprendizajes Activos), CV1326 (Docente como Mediador del Aprendizaje)
+**Fuentes:** Brochure del curso, contenido actual del curso, CV1226 (Didáctica y Aprendizajes Activos), CV1326 (Docente como Mediador del Aprendizaje)
 
 ---
 
 ## 1. Resumen Ejecutivo
 
-Este documento evalúa la alineación entre la propuesta del Brochure Abacom, el contenido actual del curso y los marcos pedagógicos de los cursos CV1226 y CV1326. El curso actual tiene **12 unidades, ~57 archivos de contenido, 16 laboratorios, 15 quizzes y 11 annexes**, superando significativamente la propuesta original del brochure (11 unidades, enfoque Docker/contenedores). Sin embargo, existen **desalineaciones críticas** en profundidad pedagógica, metodología de enseñanza y evaluación auténtica que deben abordarse.
+Este documento evalúa la alineación entre la propuesta del Brochure del curso, el contenido actual del curso y los marcos pedagógicos de los cursos CV1226 y CV1326. El curso actual tiene **12 unidades, ~57 archivos de contenido, 16 laboratorios, 15 quizzes y 11 annexes**, superando significativamente la propuesta original del brochure (11 unidades, enfoque Docker/contenedores). Sin embargo, existen **desalineaciones críticas** en profundidad pedagógica, metodología de enseñanza y evaluación auténtica que deben abordarse.
 
 **Hallazgo principal:** El curso tiene excelente cobertura técnica pero déficit en diseño instruccional — falta alineamiento constructivo, evaluación auténtica y metodologías activas fundamentadas.
 
 ---
 
-## 2. Análisis del Brochure Abacom
+## 2. Análisis del Brochure del curso
 
 ### 2.1 Estructura Propuesta
 
@@ -119,7 +119,7 @@ Este documento evalúa la alineación entre la propuesta del Brochure Abacom, el
 | **Ingeniería de Prompts Educativos (5 pilares)** | Ausente — no se enseña a usar IA para resolver problemas de servidores | **ALTA** |
 | **Validación Humana Obligatoria** | No abordado — los estudiantes no aprenden a verificar sugerencias de IA | **ALTA** |
 | **Gamificación** | Parcial — los Retos GNU/Linux y quizzes son gamificados, pero sin sistema de puntos/badges | **MEDIA** |
-| **Aprendizaje Basado en Desafíos (ABR)** | Parcial — los labs son desafíos, pero no son auténticos ni contextualizados a Abacom | **MEDIA** |
+| **Aprendizaje Basado en Desafíos (ABR)** | Parcial — los labs son desafíos, pero no son auténticos ni contextualizados a la empresa | **MEDIA** |
 | **Microlearning** | Ausente — no hay cápsulas de 5-10 min | **ALTA** |
 | **Recursos Autocorregibles** | Parcial — quizzes dan retroalimentación, pero los labs no tienen validación automática | **MEDIA** |
 | **Ecosistemas de Aprendizaje Digital** | Parcial — Quarto + quizzes, pero sin integración LMS/terminal/IA | **MEDIA** |
@@ -195,7 +195,7 @@ Objetivo: "Configurar un servidor web Nginx con SSL"
 
 ## 6. Tabla Resumen: Brochure vs. Curso Actual vs. Marco Ideal
 
-| Dimensión | Brochure Abacom | Curso Actual | Marco Ideal (CV1226+CV1326) |
+| Dimensión | Brochure del curso | Curso Actual | Marco Ideal (CV1226+CV1326) |
 |---|---|---|---|
 | **Unidades** | 11 | 12 | 10-12 + unidad de usuarios |
 | **Contenido técnico** | Moderado | **Superior** | Equivalente al actual |
@@ -253,4 +253,4 @@ El curso actual es un **producto técnico de alta calidad** que necesita evoluci
 
 ---
 
-*Documento generado como parte del proceso de mejora continua del curso Administración de Servidores Linux — Abacom.*
+*Documento generado como parte del proceso de mejora continua del curso Administración de Servidores Linux.*
