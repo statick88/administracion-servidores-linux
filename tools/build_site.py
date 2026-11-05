@@ -7,6 +7,8 @@ from pathlib import Path
 import re
 import sys
 
+from content import quiz_forms, render_markdown
+
 ROOT = Path(__file__).resolve().parents[1]
 FALLBACK = '''<!doctype html><html lang="es"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -71,8 +73,13 @@ def build(output):
                            f'{escape(other["title"])}</a></li>')
         navigation += '</ul>'
         source = (ROOT / unit['source']).read_text()
-        # Replaced by the Markdown converter in the next work unit.
-        content = f'<article><h1>{escape(unit["title"])}</h1><pre>{escape(source)}</pre></article>'
+        unit_routes = {item['id']: f"../{item['id']}.html" for item in units}
+        lesson = render_markdown(source, unit_routes)
+        internal_quiz, offset = ('', 0)
+        if 'quizdown' in source:
+            internal_quiz, offset = quiz_forms(source, unit['id'])
+        external_quiz, _ = quiz_forms((ROOT / unit['quiz']).read_text(), unit['id'], offset)
+        content = f'<article>{lesson}<section aria-label="Evaluaciones">{internal_quiz}{external_quiz}</section></article>'
         planned[f'unidades/{unit["id"]}.html'] = page(template, unit['title'], content, navigation, '../')
     for name in ('style.css', 'app.js'):
         asset = ROOT / 'site' / name
