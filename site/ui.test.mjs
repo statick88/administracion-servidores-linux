@@ -52,6 +52,23 @@ test('generated reader styles keep long source content inside local scroll areas
   }
 });
 
+test('generated homepage restores its full-width column when the sidebar has no units', () => {
+  const { output, run } = buildSite();
+  try {
+    assert.equal(run.status, 0, run.stderr);
+    const home = readFileSync(join(output, 'index.html'), 'utf8');
+    const reader = readFileSync(join(output, 'unidades', '01-fundamentos.html'), 'utf8');
+    const styles = readFileSync(join(output, 'assets', 'style.css'), 'utf8');
+    const homeSidebar = home.match(/<aside class="course-sidebar"[\s\S]*?<\/aside>/)?.[0] || '';
+    const readerSidebar = reader.match(/<aside class="course-sidebar"[\s\S]*?<\/aside>/)?.[0] || '';
+    assert.doesNotMatch(homeSidebar, /<ul>/);
+    assert.match(readerSidebar, /<ul>/);
+    assert.match(styles, /main:not\(:has\(\.course-sidebar ul\)\) \{ display: block; \}/);
+  } finally {
+    rmSync(output, { recursive: true, force: true });
+  }
+});
+
 test('filtering and quiz feedback expose all client-side states', async () => {
   const module = await import('./app.js');
   const entries = [
