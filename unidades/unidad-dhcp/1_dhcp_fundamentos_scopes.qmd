@@ -1,0 +1,377 @@
+---
+title: "Unidad VIII: ISC dhcpd y scopes"
+subtitle: "8.1 ISC dhcpd y scopes — instalación y definición de scopes en Ubuntu 24.04"
+author: "Diego Saavedra"
+date: "2026-11-14"
+date-format: medium
+---
+
+# Unidad VIII: ISC dhcpd y scopes
+
+## Introducción
+
+En la parte 8.1 del temario trabajamos el servidor DHCP de ISC (`dhcpd`): qué es DHCP, cómo se instala en Ubuntu 24.04, cómo se estructura `/etc/dhcp/dhcpd.conf` y, sobre todo, cómo se define un **scope** (alcance): la subred + el rango de direcciones + los parámetros que el servidor entrega a sus clientes.
+
+Al terminar esta unidad podrás:
+
+1. Explicar el intercambio DORA (Discover, Offer, Request, Ack).
+2. Instalar y arrancar `isc-dhcp-server` en Ubuntu 24.04.
+3. Escribir un `dhcpd.conf` con parámetros globales y un scope completo.
+4. Excluir direcciones, definir tiempos de lease y declarar subredes adicionales.
+5. Validar la configuración y verificar que el servidor está escuchando.
+
+**Punto del brochure:** 8.1 — ISC dhcpd y scopes.
+
+---
+
+## Qué es DHCP
+
+**DHCP** (Dynamic Host Configuration Protocol, RFC 2131) asigna direcciones IP y parámetros de red automáticamente. Sin DHCP, cada equipo se configura a mano: errores de IP duplicada, puertas de enlace equivocadas y horas de soporte.
+
+| Elemento | Valor en DHCPv4 |
+|----------|-----------------|
+| **Puerto del servidor** | UDP 67 |
+| **Puerto del cliente** | UDP 68 |
+| **Transmisión inicial** | broadcast a 255.255.255.255 |
+| **Estándares** | RFC 2131 (protocolo), RFC 2132 (opciones) |
+| **Servidor en Ubuntu 24.04** | `isc-dhcp-server` (ISC DHCP 4.4.3-P1) |
+
+En este curso usamos **ISC dhcpd**, el implemento de referencia en servidores Linux. El paquete de Ubuntu 24.04 se llama `isc-dhcp-server` y vive en el componente `universe` (habilitado por defecto en las instalaciones estándar).
+
+---
+
+## El intercambio DORA
+
+Todo cliente DHCP negocia su dirección en cuatro pasos, conocidos como **DORA**:
+
+```
+   Cliente (sin IP)                              Servidor dhcpd
+   ---------------------------------------------------------------
+   1. DHCPDISCOVER  ──── broadcast :67 ──────►  "¿hay algún servidor?"
+   (origen 0.0.0.0:68)
+
+   2. DHCPOFFER     ◄──── broadcast :68 ──────  "Te ofrezco 192.168.100.100
+   (IP + opciones + lease)                      con estas opciones"
+
+   3. DHCPREQUEST   ──── broadcast :67 ──────►  "Acepto esa oferta"
+   (para confirmar ante otros servidores)
+
+   4. DHCPACK       ◄──── broadcast :68 ──────  "Confirmado, usa esa IP"
+   --------------------------------------------------------------
+
+   Durante la vida de la concesión:
+   T1 (50%):  DHCPREQUEST  ──► renovación directa con el servidor
+   T2 (87,5%): DHCPREQUEST ──► reintento broadcast (si el servidor no responde)
+
+   Al finalizar:
+   DHCPRELEASE  ────►  el cliente devuelve la IP al servidor
+```
+
+| Mensaje | Dirección | Significado |
+|---------|-----------|-------------|
+| `DHCPDISCOVER` | cliente → servidor | Busca servidores disponibles |
+| `DHCPOFFER` | servidor → cliente | Propuesta de IP con opciones y tiempo de lease |
+| `DHCPREQUEST` | cliente → servidor | Acepta la oferta (también al renovar) |
+| `DHCPACK` | servidor → cliente | Confirma la concesión |
+| `DHCPNAK` | servidor → cliente | Rechaza: la IP no es válida en esta red |
+| `DHCPRELEASE` | cliente → servidor | Libera la dirección anticipadamente |
+
+:::{.callout-note}
+## 📝 NOTA
+
+Los cuatro primeros pasos ocurren con **broadcast** porque el cliente aún no tiene dirección IP propia. Por eso el firewall debe permitir el UDP 67 (lo veremos en el capítulo de lease file y firewall).
+:::
+
+---
+
+## Entorno WSL2: dónde puede correr dhcpd
+
+El curso se ejecuta en **WSL2 + Ubuntu 24.04**, y eso condiciona dónde puede servir dhcpd.
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA — WSL2 está detrás de una red NAT
+
+**Descripción del problema:** por defecto, WSL2 vive detrás de una interfaz NAT de Windows. Un `dhcpd` corriendo dentro de WSL2 **no puede ofrecer direcciones a los equipos de tu red LAN local**: sus broadcast no llegan fuera de la VM.
+
+**Lo que podría salir mal:**
+- Creer que el servidor "no funciona" cuando en realidad es la topología de WSL2.
+- Intentar servir DHCP a la LAN de la oficina desde WSL2 y bloquear el DHCP real de tu red (dos servidores DHCP en el mismo segmento = caos).
+
+**Cómo prevenirlo:**
+1. Para practicar en WSL2, usa una topología aislada con *network namespaces* y pares veth (así lo haremos en el laboratorio).
+2. Para servir a una LAN real, ejecuta dhcpd en un servidor Ubuntu completo o en una VM con interfaz en puente (*bridged*).
+3. Windows 11 también ofrece el modo de red *mirrored* para WSL2, pero el laboratorio del curso no depende de él.
+:::
+
+---
+
+## Instalación en Ubuntu 24.04
+
+```bash
+# Actualizar el índice de paquetes
+$ sudo apt update  # <1>
+
+# Instalar el servidor DHCP de ISC
+$ sudo apt install -y isc-dhcp-server  # <2>
+
+# Verificar la versión instalada
+$ dhcpd --version  # <3>
+Internet Systems Consortium DHCP Server 4.4.3-P1
+```
+
+
+
+1. **apt update**: refresca la lista de paquetes disponibles antes de instalar.
+2. **isc-dhcp-server**: instala `dhcpd`, la configuración de ejemplo y la unidad systemd; en Ubuntu 24.04 corresponde a ISC DHCP 4.4.3-P1.
+3. **dhcpd --version**: confirma el binario y su versión sin necesidad de root.
+
+:::{.callout-note}
+## 📝 NOTA
+
+Si `apt` responde `Unable to locate package isc-dhcp-server`, el componente `universe` no está habilitado; actívalo con `sudo add-apt-repository universe` y vuelve a ejecutar `sudo apt update`.
+:::
+
+### Estado inicial del servicio
+
+En una instalación limpia el paquete trae `/etc/dhcp/dhcpd.conf` **solo con comentarios de ejemplo**, sin ningún scope activo. Por eso el servicio suele fallar al arrancar:
+
+```bash
+# Ver el estado tras la instalación
+$ sudo systemctl status isc-dhcp-server --no-pager  # <1>
+× isc-dhcp-server.service - ISC DHCP IPv4 server
+     Loaded: loaded (/usr/lib/systemd/system/isc-dhcp-server.service; enabled; preset: enabled)
+     Active: failed (Result: exit-code) since Fri 2026-11-14 09:15:02 -05; 12s ago
+   Main PID: 2143 (code=exited, status=1/FAILURE)
+
+# Ver la causa en el journal
+$ sudo journalctl -u isc-dhcp-server -n 5 --no-pager  # <2>
+Nov 14 09:15:02 ubuntu dhcpd: No subnet declaration for eth0 (192.168.100.10).
+Nov 14 09:15:02 ubuntu dhcpd: Can't forward requests from eth0!
+Nov 14 09:15:02 ubuntu systemd[1]: isc-dhcp-server.service: Main process exited, code=exited, status=1/FAILURE
+```
+
+
+
+1. **systemctl status**: `failed` con `status=1/FAILURE` confirma que dhcpd se negó a arrancar.
+2. **journalctl**: el mensaje `No subnet declaration` indica que falta el scope de la interfaz; es el estado esperado hasta definirlo.
+
+No es un error de instalación: es el servidor exigiendo que declares **en qué red trabaja**. Lo resolvemos en las siguientes secciones.
+
+---
+
+## El archivo /etc/dhcp/dhcpd.conf
+
+`dhcpd.conf` mezcla dos tipos de sentencias:
+
+- **Parámetros**: indican *cómo* se comporta el servidor (`default-lease-time`, `authoritative`...). Deben aparecer antes que las declaraciones que los usan.
+- **Declaraciones**: describen la topología (`subnet`, `range`, `host`) o agrupan parámetros (`group`).
+
+Regla de oro: **todos los parámetros antes de las declaraciones que dependen de ellos**.
+
+### Configuración base con un scope
+
+```bash
+# Respaldo de la configuración original (para poder restaurarla después)
+$ sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.orig  # <1>
+
+# Escribir la configuración con parámetros globales y un scope
+$ sudo tee /etc/dhcp/dhcpd.conf >/dev/null <<'EOF'  # <2>
+authoritative;
+
+default-lease-time 3600;
+max-lease-time 86400;
+
+option domain-name "lab.abacom.local";
+option domain-name-servers 192.168.100.1, 8.8.8.8;
+
+subnet 192.168.100.0 netmask 255.255.255.0 {
+    range 192.168.100.100 192.168.100.199;
+    option routers 192.168.100.1;
+    option broadcast-address 192.168.100.255;
+}
+EOF
+```
+
+
+
+1. **cp**: guarda el archivo original en `dhcpd.conf.orig` para poder restaurarlo en la limpieza del laboratorio.
+2. **tee**: escribe el nuevo `dhcpd.conf`; los parámetros globales aplican a todo el servidor y el bloque `subnet` define el primer scope.
+
+Qué contiene esa configuración:
+
+| Sentencia | Tipo | Función |
+|-----------|------|---------|
+| `authoritative;` | parámetro | El servidor responde `DHCPNAK` a clientes con direcciones de otra red |
+| `default-lease-time 3600;` | parámetro | Duración de la concesión si el cliente no pide nada (1 hora) |
+| `max-lease-time 86400;` | parámetro | Tope máximo de la concesión (24 horas) |
+| `option domain-name ...` | parámetro | Dominio que reciben los clientes |
+| `option domain-name-servers ...` | parámetro | Servidores DNS entregados por DHCP |
+| `subnet ... netmask ...` | declaración | **Scope**: la red que este servidor conoce |
+| `range ... ...;` | declaración | Rango de direcciones dinámicas disponibles en el scope |
+| `option routers ...` | parámetro | Puerta de enlace entregada a los clientes del scope |
+
+---
+
+## Scopes: definir la red que sirve dhcpd
+
+Un **scope** es la unidad de trabajo de dhcpd: una subred declarada, su rango de direcciones y los parámetros aplicables. Sin `subnet` para la red de la interfaz, el servidor no arranca.
+
+### Estructura de un scope
+
+```text
+subnet <red> netmask <mascara> {          ← el scope (obligatorio)
+    range <inicio> <fin>;                 ← direcciones dinámicas
+    option routers <gateway>;             ← parámetros del scope
+    default-lease-time <segundos>;
+    max-lease-time <segundos>;
+}
+```
+
+Toda red directamente conectada necesita su declaración `subnet`, **aunque no reparta direcciones** (por ejemplo, una red solo con reservas): dhcpd la usa para reconocer los paquetes que llegan por esa interfaz.
+
+### Exclusiones de direcciones
+
+ISC dhcpd **no tiene** una declaración `exclude` (eso es de Windows Server). Las exclusiones se logran simplemente **no incluyendo** la dirección en ningún `range`:
+
+```text
+subnet 192.168.100.0 netmask 255.255.255.0 {
+    # La dirección .150 queda excluida porque no aparece en ningún range
+    range 192.168.100.100 192.168.100.149;
+    range 192.168.100.151 192.168.100.199;
+    option routers 192.168.100.1;
+}
+```
+
+Se pueden declarar varios `range` en el mismo scope; dhcpd los agrupa en un solo conjunto de direcciones disponibles.
+
+### Varias subredes en el mismo segmento
+
+Si dos subredes comparten el mismo dominio de broadcast (por ejemplo, dividir una red grande en dos `/25`), sus declaraciones deben ir dentro de un `shared-network`:
+
+```text
+shared-network oficina {
+    subnet 192.168.100.0 netmask 255.255.255.128 {
+        range 192.168.100.10 192.168.100.126;
+        option routers 192.168.100.1;
+    }
+    subnet 192.168.100.128 netmask 255.255.255.128 {
+        range 192.168.100.138 192.168.100.254;
+        option routers 192.168.100.129;
+    }
+}
+```
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA — `shared-network` solo si es real
+
+**Lo que podría salir mal:** usar `shared-network` cuando cada interfaz tiene una red distinta produce respuestas incorrectas y clientes con configuraciones cruzadas.
+
+**Cómo prevenirlo:** aplica `shared-network` únicamente cuando dos subredes realmente coexisten en el mismo segmento de red (mismo dominio de broadcast). En un servidor con una sola LAN, un `subnet` simple es suficiente.
+:::
+
+### Duración de las concesiones
+
+| Parámetro | Ejemplo | Significado |
+|-----------|---------|-------------|
+| `default-lease-time` | `3600` | Duración si el cliente no solicita un tiempo |
+| `max-lease-time` | `86400` | Máximo que el servidor concederá (aunque el cliente pida más) |
+
+Un scope de laboratorio puede usar tiempos cortos (600 segundos) para observar renovaciones; en producción, valores de 8 horas a 24 horas son habituales. Los momentos exactos de renovación (T1/T2) se detallan en el capítulo de lease file.
+
+---
+
+## Interfaz de escucha y arranque
+
+dhcpd necesita saber **en cuáles interfaces escuchar**. En Ubuntu 24.04 eso se configura en `/etc/default/isc-dhcp-server` mediante la variable `INTERFACESv4`.
+
+```bash
+# Ver las variables de interfaz actuales
+$ grep INTERFACES /etc/default/isc-dhcp-server  # <1>
+INTERFACESv4=""
+INTERFACESv6=""
+
+# Declarar la interfaz que atenderá el servidor (eth0 en este ejemplo)
+$ sudo tee /etc/default/isc-dhcp-server >/dev/null <<'EOF'  # <2>
+INTERFACESv4="eth0"
+INTERFACESv6=""
+EOF
+```
+
+
+
+1. **grep INTERFACES**: en una instalación limpia ambas variables vienen vacías; `INTERFACESv4` es la lista (separada por espacios) de interfaces IPv4 para dhcpd.
+2. **tee**: fija `INTERFACESv4="eth0"`; `INTERFACESv6` se reserva para DHCPv6, que queda fuera del alcance de este capítulo.
+
+### Validar y arrancar
+
+```bash
+# Probar la sintaxis de dhcpd.conf sin operar sobre la red
+$ sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf  # <1>
+
+# Aplicar cambios: dhcpd NO recarga con reload, hay que reiniciar
+$ sudo systemctl restart isc-dhcp-server  # <2>
+
+# Confirmar que el servicio quedó activo
+$ sudo systemctl status isc-dhcp-server --no-pager  # <3>
+● isc-dhcp-server.service - ISC DHCP IPv4 server
+     Loaded: loaded (/usr/lib/systemd/system/isc-dhcp-server.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-11-14 09:20:41 -05; 5s ago
+   Main PID: 2310 (dhcpd)
+      Tasks: 1 (limit: 9402)
+     Memory: 3.5M
+        CPU: 14ms
+```
+
+
+
+1. **dhcpd -t**: valida la configuración; sin errores sale en silencio con código 0 (con errores imprime la línea exacta del problema).
+2. **systemctl restart**: obligatorio tras cada cambio de `dhcpd.conf`; el propio manual de dhcpd confirma que el servidor no se recarga con SIGHUP.
+3. **systemctl status**: `active (running)` confirma que el servidor aceptó la configuración y arrancó.
+
+### Verificación del servidor
+
+```bash
+# Ver el socket UDP 67 del dhcpd
+$ sudo ss -ulnp | grep dhcpd  # <1>
+UNCONN 0 0 0.0.0.0:67 0.0.0.0:* users:(("dhcpd",pid=2310,fd=7))
+
+# Revisar el arranque en el journal
+$ sudo journalctl -u isc-dhcp-server -n 6 --no-pager  # <2>
+Nov 14 09:20:41 ubuntu dhcpd: Internet Systems Consortium DHCP Server 4.4.3-P1
+Nov 14 09:20:41 ubuntu dhcpd: Copyright 2004-2022 Internet Systems Consortium.
+Nov 14 09:20:41 ubuntu dhcpd: All rights reserved.
+Nov 14 09:20:41 ubuntu dhcpd: Config file: /etc/dhcp/dhcpd.conf
+Nov 14 09:20:41 ubuntu dhcpd: Database file: /var/lib/dhcp/dhcpd.leases
+Nov 14 09:20:41 ubuntu dhcpd: Listening on LPF/eth0/00:0c:29:aa:bb:cc
+```
+
+
+
+1. **ss -ulnp**: el socket `0.0.0.0:67` con proceso `dhcpd` confirma que el servidor escucha en todas las interfaces (o en las indicadas en `INTERFACESv4`).
+2. **journalctl**: el banner y `Config file`/`Database file` muestran qué archivos está usando el servidor; `Listening on LPF/eth0/...` identifica la interfaz atendida.
+
+---
+
+## Resumen
+
+| Tema | Comando o archivo | Propósito |
+|------|-------------------|-----------|
+| Paquete | `apt install isc-dhcp-server` | Instala dhcpd en Ubuntu 24.04 |
+| Configuración | `/etc/dhcp/dhcpd.conf` | Parámetros globales y scopes |
+| Scope | `subnet ... netmask ... { range ...; }` | Red + direcciones dinámicas |
+| Exclusiones | dividir el `range` | Sacar direcciones del pool |
+| Interfaz | `/etc/default/isc-dhcp-server` (`INTERFACESv4`) | Interfaces que atiende dhcpd |
+| Validación | `dhcpd -t -cf /etc/dhcp/dhcpd.conf` | Probar sintaxis sin reiniciar |
+| Arranque | `systemctl restart isc-dhcp-server` | Aplicar cambios (dhcpd no hace reload) |
+| Verificación | `ss -ulnp \| grep dhcpd` | Confirmar el socket UDP 67 |
+| Logs | `journalctl -u isc-dhcp-server` | Diagnóstico de arranque y errores |
+
+---
+
+## Referencias
+
+- [dhcpd(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/dhcpd.8.html)
+- [dhcpd.conf(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcpd.conf.5.html)
+- [ISC DHCP 4.4 Manual Pages](https://kb.isc.org/docs/isc-dhcp-441-manual-pages)
+- [RFC 2131 — Dynamic Host Configuration Protocol](https://www.rfc-editor.org/rfc/rfc2131)
+- [RFC 2132 — DHCP Options and BOOTP Vendor Extensions](https://www.rfc-editor.org/rfc/rfc2132)

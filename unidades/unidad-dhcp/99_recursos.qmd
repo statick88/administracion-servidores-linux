@@ -1,0 +1,65 @@
+---
+title: "Unidad VIII: Recursos"
+subtitle: "Servidor DHCP — referencias y cheatsheet"
+author: "Diego Saavedra"
+date: "2026-11-15"
+date-format: medium
+---
+
+# Unidad VIII: Recursos
+
+## Introducción
+
+Referencias de consulta rápida para la Unidad VIII (ISC dhcpd, opciones y reservaciones, lease file y firewall).
+
+---
+
+## Comandos clave (cheatsheet)
+
+- Instalación: `apt install isc-dhcp-server isc-dhcp-client`, `dhcpd --version`
+- Configuración: `/etc/dhcp/dhcpd.conf`, `/etc/default/isc-dhcp-server` (`INTERFACESv4`)
+- Validar y aplicar: `dhcpd -t -cf /etc/dhcp/dhcpd.conf`, `systemctl restart isc-dhcp-server`
+- Verificación: `ss -ulnp | grep dhcpd`, `journalctl -u isc-dhcp-server`
+- Leases: `dhcp-lease-list`, `cat /var/lib/dhcp/dhcpd.leases`, `grep '^lease ' /var/lib/dhcp/dhcpd.leases`
+- Cliente: `dhclient -v eth0`, `dhclient -r eth0`, `ip -4 addr show eth0`
+- Firewall: `ufw allow in on eth0 to any port 67 proto udp`, `ufw status numbered`
+
+---
+
+## Archivos clave
+
+| Archivo | Contenido |
+|---------|-----------|
+| `/etc/dhcp/dhcpd.conf` | Parámetros globales, scopes (`subnet`), opciones y reservas (`host`) |
+| `/etc/default/isc-dhcp-server` | Interfaces IPv4/IPv6 que atiende dhcpd (`INTERFACESv4`) |
+| `/var/lib/dhcp/dhcpd.leases` | Base de concesiones (log-structured; la última declaración de cada IP es la vigente) |
+| `/var/lib/dhcp/dhcpd.leases~` | Respaldo que deja la rotación automática de dhcpd |
+| `/usr/local/sbin/clean_leases` | Script de limpieza de concesiones expiradas (servicio detenido) |
+
+---
+
+## Conceptos de repaso
+
+| Concepto | Definición corta |
+|----------|------------------|
+| DORA | Discover, Offer, Request, Ack: los 4 pasos de una concesión |
+| Scope | Subred declarada + rango dinámico + parámetros aplicables |
+| Reservación | IP fija ligada a una MAC con `host` + `hardware ethernet` + `fixed-address` |
+| T1 / T2 | Renovación al 50 % y rebind al 87,5 % de la concesión |
+| Broadcast | DHCP inicial viaja a `255.255.255.255` desde `0.0.0.0` (condiciona el firewall) |
+| Puertos DHCP | UDP 67 (servidor) y UDP 68 (cliente) |
+
+---
+
+## Referencias
+
+- [dhcpd(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/dhcpd.8.html)
+- [dhcpd.conf(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcpd.conf.5.html)
+- [dhcpd.leases(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcpd.leases.5.html)
+- [dhcp-options(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcp-options.5.html)
+- [dhcp-lease-list(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/dhcp-lease-list.8.html)
+- [dhclient(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/dhclient.8.html)
+- [ufw-framework(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/ufw-framework.8.html)
+- [RFC 2131 — Dynamic Host Configuration Protocol](https://www.rfc-editor.org/rfc/rfc2131)
+- [RFC 2132 — DHCP Options and BOOTP Vendor Extensions](https://www.rfc-editor.org/rfc/rfc2132)
+- [ISC DHCP 4.4 Manual Pages](https://kb.isc.org/docs/isc-dhcp-441-manual-pages)
