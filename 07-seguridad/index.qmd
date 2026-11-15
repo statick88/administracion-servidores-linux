@@ -23,6 +23,9 @@ Al finalizar esta unidad, serás capaz de:
 - Aplicar **parámetros de kernel** (sysctl) para mitigación de red y memoria.
 - Configurar **auditd** para trazabilidad de eventos críticos.
 - Ejecutar **Lynis** como baseline de auditoría automatizada.
+- Aplicar **umask** correcta en archivos, directorios y servicios, y firmar respaldos con **GPG**.
+- Gestionar los modos de **SELinux** (enforcing/permissive/disabled), booleans, etiquetas de contexto y denegaciones.
+- Operar **AppArmor** en modos enforce/complain con `aa-status`, y comparar ambos marcos MAC.
 
 ---
 
@@ -464,7 +467,375 @@ jobs:
 
 ---
 
-## 7. Docker — Consideraciones de Seguridad
+## 7. Umask y GPG — Permisos por Defecto
+
+### 7.1 Qué es umask y cómo afecta a archivos y directorios
+
+La *umask* es la máscara de permisos que el sistema aplica **automáticamente** al crear archivos y directorios nuevos. No otorga permisos: **resta** de los permisos base del sistema:
+
+- Archivo nuevo: `666` (lectura y escritura para todos) − umask = permisos finales.
+- Directorio nuevo: `777` (todo para todos) − umask = permisos finales.
+
+```bash
+umask # <1>
+0022
+
+umask -S                                     # <2>
+u=rwx,g=rx,o=rx
+
+touch archivo-nuevo.txt                      # <3>
+mkdir directorio-nuevo                       # <4>
+ls -ld archivo-nuevo.txt directorio-nuevo    # <5>
+-rw-r--r-- 1 usuario usuario  0 nov 14 10:00 archivo-nuevo.txt
+drwxr-xr-x 2 usuario usuario 4096 nov 14 10:00 directorio-nuevo
+```
+
+1. **umask** muestra la máscara activa en notación octal (cuatro dígitos: los dos primeros son herencia de grupo). Con `0022`, un archivo nace como `666 − 022 = 644` (`-rw-r--r--`) y un directorio como `777 − 022 = 755` (`drwxr-xr-x`).
+2. **umask -S** muestra la misma máscara en notación simbólica, más legible: propietario con todos los permisos, grupo y otros solo lectura y ejecución.
+3. **touch archivo-nuevo.txt** crea un archivo vacío y demuestra el efecto real: no nace en `666`, sino con los permisos restados por la umask.
+4. **mkdir directorio-nuevo** crea un directorio con la misma lógica sobre la base `777`: por eso los directorios conservan el permiso de ejecución para grupo y otros — sin él, no se podría entrar a la carpeta.
+5. **ls -ld** confirma el resultado en disco. Es la comprobación que se repite en cualquier auditoría de permisos.
+
+:::{.callout-note}
+## 📝 La umask solo afecta a lo nuevo
+
+La umask se aplica en el momento de **crear** un archivo o directorio. Cambiarla no modifica permisos de archivos ya existentes: para eso se usan `chmod` y `chown`.
+:::
+
+### 7.2 Valores comunes: 022 vs 077
+
+| Valor | Archivo nuevo | Directorio nuevo | Cuándo usarlo |
+|-------|---------------|------------------|---------------|
+| **`002`** | `-rw-rw-r--` (666) | `drwxrwxr-x` (775) | Equipos que comparten un directorio de trabajo: el grupo escribe. |
+| **`022`** | `-rw-r--r--` (644) | `drwxr-xr-x` (755) | **Valor por defecto** en servidores: otros usuarios leen, solo el dueño escribe (páginas web, logs compartidos). |
+| **`027`** | `-rw-r-----` (640) | `drwxr-x---` (750) | Servicios con grupo dedicado (`www-data`, `mysql`): el grupo accede, los demás no. |
+| **`077`** | `---------` (600) | `---------` (700) | **Máxima restricción**: respaldos, claves y datos privados — solo el propietario. |
+
+- **`022` = lectura para todos, escritura solo para el dueño.** Adecuado cuando otros procesos del sistema deben leer lo que el servicio escribe (por ejemplo, nginx sirve en lectura archivos creados por un deploy).
+- **`077` = nadie más entra.** Adecuado para datos sensibles: `~/.ssh`, `/var/backups`, carpetas de bases de datos. Un archivo creado con esta umask nace en `600`.
+
+```bash
+umask 077                                     # <1>
+touch respaldo-secreto.txt                    # <2>
+ls -l respaldo-secreto.txt                    # <3>
+-rw------- 1 usuario usuario 0 nov 14 10:05 respaldo-secreto.txt
+```
+
+1. **umask 077** cambia la máscara de la sesión actual a modo estricto; el cambio aplica de inmediato a todo lo que se cree desde esta shell.
+2. **touch respaldo-secreto.txt** crea el archivo bajo la nueva máscara: `666 − 077 = 600`.
+3. **ls -l** verifica el resultado: `-rw-------` — ni grupo ni otros pueden leer o escribir el respaldo.
+
+### 7.3 Configuración persistente: `/etc/login.defs`, `pam_umask` y systemd
+
+Cambiar la umask en la shell solo afecta a esa sesión. Para que sea **persistente** hay tres puntos de configuración, según el tipo de proceso:
+
+```bash
+grep -E '^(UMASK|USERGROUPS_ENAB)' /etc/login.defs    # <1>
+UMASK 022
+USERGROUPS_ENAB yes
+
+grep -n 'pam_umask' /etc/pam.d/common-session         # <2>
+120:session optional pam_umask.so
+```
+
+1. **grep UMASK /etc/login.defs** muestra la umask por defecto del sistema para los inicios de sesión y si se crean grupos privados por usuario (`USERGROUPS_ENAB yes`). `UMASK 022` es el valor de fábrica: edita este archivo para cambiar la umask de todos los logins nuevos.
+2. **grep pam_umask /etc/pam.d/common-session** verifica que el módulo PAM `pam_umask` esté en la cadena de sesión: es quien aplica la umask a cada login. Para imponer un valor distinto sin editar `login.defs`, la línea puede definirse como `session optional pam_umask.so umask=0027`.
+
+Los servicios que crean archivos (bases de datos, respaldos programados) **no pasan por login**: para ellos, la umask se define en su unidad systemd:
+
+```ini
+# /etc/systemd/system/mi-servicio.service
+[Service]
+Umask=0077
+```
+
+Tras editar la unidad, ejecuta `sudo systemctl daemon-reload`; el nuevo valor aplica en el próximo arranque del servicio.
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN — qué umask elegir
+
+**Casos de uso:**
+
+- **Servidor general (web, archivos compartidos):** `022` — valor por defecto, contenido legible, escritura solo para el dueño.
+- **Datos sensibles (respaldos, claves, BD):** `077` — ni grupo ni otros se acercan.
+- **Servicios con usuario dedicado:** `027` — el grupo del servicio (`www-data`, `mysql`) administra, el resto no.
+
+**Cuándo aplicar:**
+
+- Al crear usuarios de servicio o directorios de datos, decide la umask **antes** de poblar el contenido: cambiarla después no repara permisos ya creados.
+:::
+
+### 7.4 GPG — firma de archivos y respaldos
+
+GPG además sirve para **firmar archivos propios**: respaldos, configuraciones y entregas, de modo que cualquiera con tu clave pública pueda comprobar que no fueron alterados y quién los produjo. El firmado de paquetes y repositorios (apt) se trata en [**02-paquetes/index.qmd**](../02-paquetes/index.qmd); aquí solo se usa GPG como firma de archivos del sistema.
+
+```bash
+gpg --sign --output respaldo.tar.gz.gpg respaldo.tar.gz     # <1>
+gpg --detach-sign respaldo.tar.gz                          # <2>
+gpg --verify respaldo.tar.gz.sig respaldo.tar.gz           # <3>
+```
+
+1. **gpg --sign** genera un archivo firmado que empaqueta el original: al verificarlo se confirma integridad y origen con tu clave pública.
+2. **gpg --detach-sign** crea solo la firma (`.sig`) y deja el archivo original intacto — el formato habitual para respaldos y documentos que deben viajar separados de su firma.
+3. **gpg --verify** contrasta la firma con la clave pública del firmante y reporta `Good signature` si el archivo no cambió desde que se firmó.
+
+---
+
+## 8. SELinux — Modos de Operación
+
+SELinux es un módulo de control de acceso **obligatorio** (MAC) del kernel: complementa a los permisos tradicionales con una política que describe qué puede hacer cada proceso con cada objeto. Funciona en tres modos de operación.
+
+### 8.1 Los tres modos: enforcing, permissive, disabled
+
+| Modo | Comportamiento | Cuándo usarlo |
+|------|----------------|---------------|
+| **enforcing** | Bloquea **y** registra las operaciones que violan la política | Producción: es el único modo que protege de verdad |
+| **permissive** | Solo registra (audita) las violaciones; no bloquea | Despliegue inicial y diagnóstico: recoger denegaciones antes de pasar a enforcing |
+| **disabled** | Sin política cargada: sin etiquetas ni auditoría | No recomendado en servidores; desactiva por completo la MAC y obliga a relabellar al reactivarlo |
+
+### 8.2 Consultar y cambiar el modo
+
+```bash
+getenforce                                   # <1>
+Permissive
+
+sudo setenforce 1                            # <2>
+
+getenforce                                   # <3>
+Enforcing
+
+grep -E '^SELINUX=' /etc/selinux/config      # <4>
+SELINUX=enforcing
+```
+
+1. **getenforce** muestra el modo activo en este momento: `Enforcing`, `Permissive` o `Disabled`.
+2. **sudo setenforce 1** cambia a enforcing en caliente, sin reiniciar (`1` = enforcing, `0` = permissive). Solo funciona si SELinux está habilitado desde el arranque; el cambio vive en memoria y se pierde al reiniciar.
+3. **getenforce** confirma el cambio inmediato.
+4. **grep ... /etc/selinux/config** muestra el modo persistente que se aplicará en el próximo arranque: `enforcing`, `permissive` o `disabled`. Es la configuración que complementa al `setenforce` temporal.
+
+:::{.callout-warning}
+## ⚠️ Cambiar entre modos con cuidado
+
+**Lo que podría salir mal:**
+
+- Activar SELinux sobre un sistema que estuvo `disabled` deja archivos **sin etiquetar**: en enforcing, el servicio legítimo se deniega en masa y el servidor puede dejar de responder.
+- `setenforce` solo conmuta entre permissive y enforcing; para `disabled`/`enabled` hace falta editar `/etc/selinux/config` y reiniciar.
+
+**Cómo prevenirlo:**
+
+1. Antes del arranque con la política activa, genera las etiquetas con `sudo fixfiles onboot`.
+2. Tras el arranque, valida en permissive con `ausearch -m avc` y solo después pasa a enforcing.
+:::
+
+### 8.3 Booleans — interruptores de política
+
+```bash
+getsebool -a | grep httpd                    # <1>
+httpd_can_network_connect off
+httpd_enable_cgi on
+
+sudo setsebool -P httpd_can_network_connect on   # <2>
+
+getsebool httpd_can_network_connect          # <3>
+httpd_can_network_connect --> on
+```
+
+1. **getsebool -a** lista todos los interruptores de la política con su valor actual. Son ajustes permitidos sin tocar la política: por ejemplo, `httpd_can_network_connect` gobierna si Apache puede conectarse a una base de datos remota.
+2. **setsebool -P** cambia el booleano y lo **persiste en disco** (sin `-P`, el valor vuelve a su estado original al reiniciar).
+3. **getsebool** sin `-a` consulta un booleano concreto: confirma que el cambio quedó aplicado.
+
+### 8.4 Etiquetas de contexto (labels)
+
+Todo objeto y proceso lleva una etiqueta `usuario:rol:tipo:nivel`, por ejemplo `system_u:object_r:httpd_sys_content_t:s0`. Lo que la política evalúa es sobre todo el **tipo**: un proceso `httpd_t` solo puede tocar objetos `httpd_sys_content_t`.
+
+```bash
+ls -Z /var/www/html/index.html               # <1>
+system_u:object_r:httpd_sys_content_t:s0 /var/www/html/index.html
+
+ps -eZ | grep -E 'sshd|httpd'                # <2>
+system_u:system_r:sshd_t:s0 812 ? 00:00:00 sshd
+system_u:system_r:httpd_t:s0 944 ? 00:00:02 apache2
+
+sudo chcon -t httpd_sys_content_t /var/www/html/index.html  # <3>
+sudo restorecon -v /var/www/html/index.html   # <4>
+/var/www/html/index.html reset to system_u:object_r:httpd_sys_content_t:s0
+```
+
+1. **ls -Z** muestra el contexto de seguridad del archivo. El tercer campo (`httpd_sys_content_t`) es el tipo que decide la política.
+2. **ps -eZ** muestra el contexto de cada proceso: el tipo `sshd_t` o `httpd_t` define qué objetos puede tocar según la política cargada.
+3. **chcon** cambia la etiqueta de forma **temporal**: sirve para pruebas, pero un `restorecon` o un relabel del sistema la devuelven al valor del índice de archivos.
+4. **restorecon** restaura la etiqueta "correcta" según los tipos que define el paquete propietario del archivo — es la forma permanente y segura de corregir etiquetas.
+
+### 8.5 Diagnóstico de denegaciones (AVC)
+
+```bash
+sudo ausearch -m avc -ts recent              # <1>
+type=AVC msg=audit(1763971234.512:45): avc:  denied  { read } for  pid=812 comm="mysqld" name="shadow" scontext=system_u:system_r:mysqld_t:s0 tcontext=system_u:object_r:shadow_t:s0 tclass=file permissive=0
+
+sudo dmesg | grep -i 'avc.*denied'           # <2>
+[ 341.512] audit: type=1400 audit(1763971234.512:45): avc:  denied  { read } for  pid=812 comm="mysqld" name="shadow" scontext=system_u:system_r:mysqld_t:s0 tcontext=system_u:object_r:shadow_t:s0 tclass=file permissive=0
+
+sudo grep 'avc:.*denied' /var/log/audit/audit.log | tail -5   # <3>
+```
+
+1. **ausearch -m avc -ts recent** busca en el log de auditoría los eventos AVC (Access Vector Cache) recientes: qué proceso, qué archivo y qué operación fueron denegados. Es el punto de partida de todo diagnóstico SELinux.
+2. **dmesg | grep ...** muestra las denegaciones que el kernel dejó en el búfer del sistema — el primer lugar a mirar cuando auditd no está instalado o corriendo.
+3. **grep ... audit.log** consulta `/var/log/audit/audit.log`, la fuente permanente de los AVC; `tail -5` acota la salida a los últimos eventos.
+
+```bash
+sudo ausearch -m avc -ts recent --raw | sudo audit2why                  # <1>
+sudo ausearch -m avc -ts recent --raw | sudo audit2allow -M correccion-mysqld # <2>
+```
+
+1. **audit2why** traduce los AVC a lenguaje humano: indica qué acceso faltaba y qué boolean o tipo de política lo gobierna. Antes de generar permisos, intenta resolver con `setsebool` o `restorecon`.
+2. **audit2allow** genera un módulo de política (`.te` y `.pp`) que permite exactamente lo denegado. Revisa siempre el archivo generado: cada línea `allow` amplía la política y un permiso demasiado amplio anula el hardening.
+
+:::{.callout-warning}
+## ⚠️ audit2allow no es la primera solución
+
+**Lo que podría salir mal:** un `allow` demasiado amplio convierte la política en papel y elimina la ventaja de SELinux.
+
+**Cómo prevenirlo:**
+
+1. Verifica si es un error de etiqueta: `sudo restorecon -Rv <ruta>`.
+2. Busca un booleano que cubra el caso: `getsebool -a | grep <servicio>`.
+3. Solo si el comportamiento es legítimo y esperado, genera el módulo con `audit2allow` y revísalo línea por línea antes de cargarlo.
+:::
+
+### 8.6 ¿Qué modo usar en cada fase?
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN — modo SELinux según la fase
+
+**Casos de uso:**
+
+- **Migración o despliegue nuevo:** `permissive` primero. Recoge denegaciones con `ausearch -m avc`, ajusta booleanos y etiquetas hasta que no queden AVC legítimos.
+- **Producción:** `enforcing`. Solo así la MAC aporta algo: en permissive, SELinux observa pero no protege.
+- **`disabled`:** evítalo en servidores; desactiva la auditoría por completo y obliga a relabellar al volver a activarlo.
+
+**Cuándo aplicar:**
+
+- En Ubuntu 24.04 el módulo MAC por defecto es AppArmor (sección siguiente); SELinux es el estándar en RHEL, Fedora, AlmaLinux y Rocky, donde casi siempre se opera en enforcing.
+:::
+
+---
+
+## 9. AppArmor — Perfiles y Modos
+
+AppArmor es el módulo de control de acceso obligatorio (MAC) que Ubuntu trae **activado por defecto**. A diferencia de SELinux, que usa etiquetas por objeto, AppArmor se basa en **perfiles por ruta de archivo**: cada ejecutable tiene un perfil en `/etc/apparmor.d/` que describe qué puede abrir, leer, escribir y ejecutar.
+
+:::{.callout-note}
+## 📝 Ubuntu 24.04: AppArmor por defecto, SELinux disponible
+
+- **AppArmor** está activo desde la instalación de Ubuntu 24.04 y protege servicios y snaps con perfiles en `/etc/apparmor.d/`.
+- **SELinux** está presente en los repositorios (`selinux-basics`, `selinux-utils`) pero **no viene habilitado** en una instalación estándar; cuando se activa el marco completo, lo habitual es encontrarlo en `permissive` hasta que se configura explícitamente.
+- Por eso, en este curso AppArmor es el módulo MAC de referencia en Ubuntu, y los modos de SELinux se estudian porque son el estándar en las distribuciones enterprise.
+:::
+
+### 9.1 Modos de un perfil: enforce vs complain
+
+| Modo | Comportamiento | Cuándo usarlo |
+|------|----------------|---------------|
+| **enforce** | Aplica el perfil: todo lo no permitido se **bloquea** y se registra | Producción: es el modo real de protección |
+| **complain** | Solo **registra** las violaciones; nada se bloquea | Generación y depuración de perfiles (`aa-genprof`, `aa-logprof`) antes de pasar a enforce |
+
+A diferencia de SELinux, que aplica un modo único a todo el sistema, en AppArmor **cada perfil tiene su modo**: un servicio puede estar en enforce mientras se depura otro en complain.
+
+### 9.2 Estado del sistema con `aa-status`
+
+```bash
+aa-enabled && echo "AppArmor habilitado"    # <1>
+AppArmor habilitado
+
+cat /sys/module/apparmor/parameters/enabled # <2>
+Y
+
+sudo aa-status                               # <3>
+apparmor module is loaded.
+174 profiles are loaded.
+171 profiles are in enforce mode.
+   /usr/sbin/mysqld
+   /usr/lib/snapd/snap-confine
+   /usr/sbin/tcpdump
+3 profiles are in complain mode.
+   /usr/bin/evince
+   /usr/lib/cups/backend/cups-pdf
+   /usr/sbin/dhcpd
+0 profiles are unconfined.
+```
+
+1. **aa-enabled** comprueba que AppArmor esté cargado en el kernel; con `&& echo` deja una salida explícita para el reporte (sin salida y código de salida 1 si no está habilitado).
+2. **cat .../parameters/enabled** lee directamente de sysfs: `Y` = módulo activo, `N` = inactivo. La comprobación mínima, sin dependencias.
+3. **aa-status** inventaría completo: perfiles cargados, cuántos están en **enforce** y cuántos en **complain**, y los perfiles sin confinar. Es el primer comando de cualquier revisión de AppArmor.
+
+### 9.3 Cambiar el modo de un perfil
+
+```bash
+sudo aa-complain /etc/apparmor.d/usr.sbin.mysqld   # <1>
+Setting /etc/apparmor.d/usr.sbin.mysqld to complain mode.
+
+sudo aa-enforce /etc/apparmor.d/usr.sbin.mysqld    # <2>
+Setting /etc/apparmor.d/usr.sbin.mysqld to enforce mode.
+
+sudo systemctl reload apparmor                     # <3>
+```
+
+1. **aa-complain** pasa el perfil a modo queja: el servicio sigue funcionando pero cada violación queda registrada — el paso previo para depurar un perfil sin romper el servicio.
+2. **aa-enforce** vuelve a aplicación real: cualquier acceso fuera del perfil se bloquea. Es el modo correcto para producción.
+3. **systemctl reload apparmor** recarga todos los perfiles de `/etc/apparmor.d/` sin reiniciar servicios; imprescindible tras editar un archivo de perfil a mano (las herramientas `aa-complain` y `aa-enforce` ya aplican el cambio solo en el perfil indicado).
+
+Los perfiles viven en `/etc/apparmor.d/`; un perfil deshabilitado se reconoce porque su archivo lleva la extensión `.disabled`.
+
+### 9.4 Generar y actualizar perfiles
+
+```bash
+sudo aa-genprof /usr/sbin/mysqld   # <1>
+sudo aa-logprof                    # <2>
+```
+
+1. **aa-genprof** genera un perfil nuevo de forma interactiva: ejecuta el programa en modo complain y pregunta, acceso por acceso, qué debe permitirse. El resultado queda en `/etc/apparmor.d/`.
+2. **aa-logprof** revisa las violaciones registradas y propone actualizaciones al perfil existente cuando la aplicación cambia (archivos o bibliotecas nuevos). Tras aceptar, el perfil se recarga.
+
+### 9.5 Diagnóstico de denegaciones
+
+```bash
+sudo dmesg | grep -i apparmor | tail -5                    # <1>
+[  341.512] audit: type=1400 audit(1763971234.512:45): apparmor="DENIED" operation="open" profile="/usr/sbin/mysqld" name="/etc/shadow" pid=812 comm="mysqld" requested_mask="r" denied_mask="r" fsuid=111 ouid=0
+
+sudo grep -i 'apparmor="DENIED"' /var/log/kern.log | tail -5   # <2>
+```
+
+1. **dmesg | grep -i apparmor** muestra las denegaciones que AppArmor dejó en el búfer del kernel: perfil, archivo y operación bloqueada. `tail -5` acota la salida a los últimos eventos.
+2. **grep apparmor DENIED /var/log/kern.log** consulta el log persistente de kernel/syslog; con auditd instalado, las mismas denegaciones aparecen también en `/var/log/audit/audit.log`.
+
+### 9.6 SELinux vs AppArmor
+
+| Aspecto | SELinux | AppArmor |
+|---------|---------|----------|
+| **Enfoque** | Etiquetas (labels) en archivos, puertos y procesos | Perfiles por ruta de archivo |
+| **Unidad de política** | Tipo de objeto (`httpd_sys_content_t`) | Perfil por ejecutable (`/usr/sbin/mysqld`) |
+| **Modos** | enforcing / permissive / disabled (un modo por sistema) | enforce / complain (un modo por perfil) |
+| **Herramientas** | `getenforce`, `setsebool`, `restorecon`, `ausearch` | `aa-status`, `aa-complain`, `aa-enforce`, `aa-genprof` |
+| **Diagnóstico** | AVC en el log de auditoría (`ausearch -m avc`) | `apparmor="DENIED"` en dmesg/syslog/audit.log |
+| **Distribuciones por defecto** | RHEL, Fedora, AlmaLinux, Rocky | Ubuntu, Debian, SUSE |
+| **Ubuntu 24.04** | Disponible, no habilitado por defecto | **Activo por defecto** ✅ |
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN — qué marco aplicar
+
+**Casos de uso:**
+
+- **En Ubuntu 24.04 (este curso):** AppArmor ya está activo; dedica el esfuerzo a revisar y ajustar los perfiles de tus servicios con `aa-status` y los modos enforce/complain.
+- **En entornos RHEL/Fedora/AlmaLinux:** SELinux suele venir en enforcing; domina sus modos, booleans y etiquetas.
+
+**Cuándo aplicar:**
+
+- Regla general: `permissive`/`complain` para aprender y depurar, `enforcing`/`enforce` para producción. Ningún módulo MAC protege si no termina en modo de aplicación.
+:::
+
+---
+
+## 10. Docker — Consideraciones de Seguridad
 
 ::: {.callout-note}
 ## ufw + Docker
@@ -479,7 +850,7 @@ Docker manipula iptables/nftables directamente y **ignora ufw** para puertos pub
 4. **Usar `ufw-docker`** script: `wget -O /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker && chmod +x /usr/local/bin/ufw-docker && ufw-docker install`
 :::
 
-### 7.2 Hardening contenedores (resumen)
+### 10.1 Hardening contenedores (resumen)
 
 ```dockerfile
 # Dockerfile seguro
@@ -501,7 +872,7 @@ USER appuser
 
 ---
 
-## 8. Laboratorio Práctico: Hardening End-to-End
+## 11. Laboratorio Práctico: Hardening End-to-End
 
 ::: {.callout-note}
 ## 🎯 Lab 07 — Hardening Completo (90-120 min)
@@ -539,17 +910,20 @@ USER appuser
 
 ---
 
-## 9. Resumen y Próximos Pasos
+## 12. Resumen y Próximos Pasos
 
 ::: {.callout-tip}
 ## ✅ Lo esencial de la Unidad VII
 
-7. **ufw**: deny-by-default, reglas explícitas con comentario, logging, rate-limit.
-8. **fail2ban**: `jail.local` con backend systemd, acción ufw, jails sshd/nginx, ignoreip.
-9. **SSH**: Puerto no estándar, solo ed25519, sin password, grupos permitidos, timeouts.
-10. **sysctl**: tcp_syncookies, rp_filter, kernel hardening (ptrace, kptr, dmesg, bpf).
-11. **auditd**: Reglas para identidad, privilegios, montajes, red, accesos denegados.
-12. **Lynis**: Baseline automatizado, integración CI/CD, hardening index > 70.
+1. **ufw**: deny-by-default, reglas explícitas con comentario, logging, rate-limit.
+2. **fail2ban**: `jail.local` con backend systemd, acción ufw, jails sshd/nginx, ignoreip.
+3. **SSH**: Puerto no estándar, solo ed25519, sin password, grupos permitidos, timeouts.
+4. **sysctl**: tcp_syncookies, rp_filter, kernel hardening (ptrace, kptr, dmesg, bpf).
+5. **auditd**: Reglas para identidad, privilegios, montajes, red, accesos denegados.
+6. **Lynis**: Baseline automatizado, integración CI/CD, hardening index > 70.
+7. **umask**: `022` para servidores, `077` para datos sensibles; persistente en `login.defs`, `pam_umask` y `Umask=` de systemd; GPG para firmar respaldos.
+8. **SELinux**: modos enforcing/permissive/disabled, booleans con `-P`, etiquetas con `restorecon`, denegaciones con `ausearch -m avc`.
+9. **AppArmor**: perfiles en `/etc/apparmor.d/`, modos enforce/complain, `aa-status` y `aa-genprof`; activo por defecto en Ubuntu 24.04.
 :::
 
 ### 📋 Checklist de competencias Unidad VII
@@ -560,10 +934,13 @@ USER appuser
 - [ ] Aplicar sysctl de red, memoria y kernel; validar con `sysctl -a`.
 - [ ] Configurar auditd con reglas de identidad, comandos privilegiados, acceso denegado.
 - [ ] Ejecutar Lynis e interpretar reporte; corregir hallazgos altos/críticos.
+- [ ] Aplicar la umask adecuada (022/077) y verificarla en `login.defs`, `pam_umask` y unidades systemd; firmar respaldos con GPG.
+- [ ] Gestionar SELinux: consultar y cambiar el modo, ajustar booleans, restaurar etiquetas y diagnosticar AVC.
+- [ ] Operar AppArmor: `aa-status`, cambiar perfiles entre enforce y complain, generar perfiles con `aa-genprof`.
 
 ---
 
-## 10. Recursos y Referencias
+## 13. Recursos y Referencias
 
 - **ufw**: `man ufw`, <https://help.ubuntu.com/community/UFW>
 - **fail2ban**: <https://github.com/fail2ban/fail2ban/wiki>
@@ -571,11 +948,15 @@ USER appuser
 - **Kernel sysctl**: <https://www.kernel.org/doc/Documentation/sysctl/>, <https://sysctl-explorer.net/>
 - **auditd**: `man auditctl`, `man ausearch`, `man aureport`, <https://linux.die.net/man/8/auditd>
 - **Lynis**: <https://cisofy.com/lynis/>, <https://packages.cisofy.com/>
+- **umask**: `man umask`, `man login.defs`, `man pam_umask`
+- **GPG**: `man gpg`, <https://www.gnupg.org/gph/en/manual/>
+- **SELinux**: `man getenforce`, `man restorecon`, `man setsebool`, <https://github.com/SELinuxProject/selinux/wiki>
+- **AppArmor**: `man aa-status`, `man aa-genprof`, <https://apparmor.net/>
 - **CIS Benchmarks**: <https://www.cisecurity.org/cis-benchmarks/>
 
 ---
 
-## 11. Quiz Interactivo (quizdown)
+## 14. Quiz Interactivo (quizdown)
 
 ```{quizdown}
 ---
