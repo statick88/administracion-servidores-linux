@@ -20,6 +20,7 @@ Al finalizar esta unidad, serás capaz de:
 - Entender **qué es Linux**, su filosofía y por qué domina servidores e infraestructura cloud.
 - Configurar un **entorno de desarrollo/producción local** usando **WSL2 (Ubuntu 24.04 LTS)** y **Docker Desktop** — sin máquinas virtuales pesadas.
 - Navegar y operar la **terminal Bash** con fluidez: rutas, permisos, editores, ayuda.
+- Comprender el **arranque de Linux**: GRUB2 (edición de entradas y parámetros de kernel), runlevels SysV y **targets de systemd**.
 - Aplicar la **Metodología Abacom™**: diagnóstico reproducible, evidencia documentada, hardening desde el día 1.
 
 ---
@@ -383,7 +384,187 @@ sudo apt clean
 
 ---
 
-## 6. Resumen y Próximos Pasos
+## 6. GRUB2 — El cargador de arranque
+
+**GRUB2** (GRand Unified Bootloader, versión 2) es el programa que se ejecuta antes que Ubuntu: muestra el menú de arranque, carga el kernel de Linux y le pasa el control del sistema. En Ubuntu 24.04 la configuración real vive en dos lugares:
+
+- **`/etc/default/grub`** — variables editables (timeout, parámetros por defecto del kernel).
+- **`/etc/grub.d/`** — scripts que ensamblan el menú (`10_linux` agrega una entrada por cada kernel instalado).
+
+Ambos se procesan con `update-grub` para generar **`/boot/grub/grub.cfg`**, el archivo que GRUB ejecuta en cada arranque.
+
+### 6.1 Editar una entrada al arrancar (cambios temporales)
+
+Cuando el equipo no arranca bien, no necesitas editar archivos: GRUB permite modificar una entrada **una sola vez**, sin guardar nada.
+
+1. Durante el arranque, mantén presionado **`Shift`** (BIOS) o **`Esc`** (UEFI) hasta ver el menú de GRUB.
+2. Selecciona la entrada con las flechas y presiona **`e`** para editarla.
+3. Busca la línea que empieza con **`linux`** y añade el parámetro al final de **esa** línea (ver tabla de la sección 6.2).
+4. Presiona **`Ctrl+X`** o **`F10`** para arrancar con esos cambios (solo en este arranque).
+
+| Tecla | Acción |
+|-------|--------|
+| `Enter` | Arranca la entrada seleccionada sin cambios |
+| `e` | Edita la entrada (los cambios **no** se guardan) |
+| `c` | Consola de comandos de GRUB (rescate avanzado: `ls`, `linux`, `boot`) |
+| `Ctrl+X` / `F10` | Arranca con los cambios que editaste |
+
+### 6.2 Parámetros de kernel para recuperación
+
+| Parámetro | Cuándo usarlo |
+|-----------|---------------|
+| `nomodeset` | Pantalla negra o caída tras actualizar el driver gráfico: desactiva el modo gráfico del kernel |
+| `quiet splash` | **Quítalo** de la línea `linux` para ver todos los mensajes de arranque al diagnosticar |
+| `ro` | La raíz se monta en solo lectura al arrancar (opción por defecto en Ubuntu) y systemd la remonta en lectura-escritura; conserva `ro` si el filesystem está dañado |
+| `systemd.unit=rescue.target` | Arranca directo al modo de rescate (alias cortos: `single` o `1`) — ver sección 8 |
+| `init=/bin/bash` | Arranca un shell como PID 1 **sin** systemd; para reparar cuando el propio systemd no arranca |
+
+::: {.callout-warning}
+## ⚠️ Nunca edites `/boot/grub/grub.cfg` a mano
+
+**Por qué**: es un archivo **generado** por `update-grub`; cualquier edición manual se sobreescribe en el próximo cambio de kernel o de configuración.
+
+**Lo que podría salir mal**:
+- Cambios que desaparecen sin aviso y vuelven el problema anterior.
+- Sintaxis rota en `grub.cfg` → menú de GRUB inutilizable y sistema que no arranca.
+
+**Cómo prevenirlo**:
+1. Edita `/etc/default/grub` (variables) o `/etc/grub.d/` (entradas del menú).
+2. Ejecuta `sudo update-grub` para regenerar el archivo.
+3. Lee `/boot/grub/grub.cfg` solo para verificación, nunca para escribir.
+:::
+
+### 6.3 Regenerar la configuración (`grub-mkconfig` / `update-grub`)
+
+```bash
+# Variables de configuración editables
+cat /etc/default/grub                 # <1>
+
+# Scripts que generan el menú (00_header, 10_linux, ...)
+ls /etc/grub.d/                       # <2>
+
+# Regenera /boot/grub/grub.cfg (obligatorio tras cada cambio)
+sudo update-grub                      # <3>
+```
+
+1. **`cat /etc/default/grub`**: muestra las variables editables; entre ellas `GRUB_TIMEOUT` y `GRUB_TIMEOUT_STYLE` (Ubuntu oculta el menú por defecto: usa `GRUB_TIMEOUT_STYLE=menu` para mostrarlo siempre)
+2. **`ls /etc/grub.d/`**: lista los scripts que ensamblan el menú; `10_linux` agrega una entrada por cada kernel instalado
+3. **`sudo update-grub`**: ejecuta el comando genérico `grub-mkconfig -o /boot/grub/grub.cfg` y regenera el menú; obligatorio tras editar `/etc/default/grub` (en Ubuntu, la instalación de kernels lo dispara automáticamente)
+
+::: {.callout-note}
+## 📝 WSL2 no tiene GRUB
+
+En WSL2 el kernel lo lanza Windows directamente: **no hay menú de GRUB, ni edición de entradas, ni parámetros de kernel que agregar**. Practica esta sección en un servidor real (físico o en la nube con consola de arranque); en los laboratorios del curso usarás WSL2 para todo lo demás.
+:::
+
+---
+
+## 7. Runlevels (SysV) — El modelo histórico
+
+**Runlevels** son los 7 niveles de operación (0–6) del init clásico **SysV init**. Cada nivel define qué servicios están activos y se cambia de nivel con `telinit`/`init`. Ubuntu 24.04 **no arranca con SysV**: systemd es su init, pero conserva los runlevels como **capa de compatibilidad** porque mucha documentación y muchos scripts antiguos los referencian.
+
+| Runlevel | Significado (SysV) | Equivalente en Ubuntu 24.04 (systemd) |
+|----------|--------------------|----------------------------------------|
+| `0` | Apagar el equipo | `poweroff.target` |
+| `1` | Single-user (mantenimiento) | `rescue.target` |
+| `2` | Multi-user sin NFS (convención clásica) | `multi-user.target` |
+| `3` | Multi-user con red, solo consola | `multi-user.target` |
+| `4` | Personalizado (sin usar) | `multi-user.target` |
+| `5` | Multi-user + GUI | `graphical.target` |
+| `6` | Reiniciar | `reboot.target` |
+
+En Ubuntu 24.04 los niveles 2, 3 y 4 apuntan todos a `multi-user.target`: la distinción clásica "sin red / con red" ya no existe en systemd. En un servidor sin GUI verás el runlevel **3**; en un escritorio, el **5**.
+
+### Consultar el runlevel actual
+
+```bash
+runlevel                           # <1>
+# N 5
+```
+
+1. **`runlevel`**: imprime dos columnas — el nivel **anterior** y el **actual**. `N` significa "sin nivel anterior" (recién arrancado); el segundo valor (`5` en un escritorio, `3` en un servidor) es el nivel actual. El historial se guarda en `/var/run/utmp`.
+
+::: {.callout-note}
+## 📝 Del runlevel al target
+
+El comando moderno para **cambiar** de estado no es `telinit`: es `systemctl isolate <target>` (sección 8). `telinit 3` sigue funcionando porque systemd lo traduce a `systemctl isolate multi-user.target`. Bajo WSL2, que no arranca vía SysV, `runlevel` puede no reflejar el estado real del sistema: verifica siempre con `systemctl`.
+:::
+
+---
+
+## 8. Systemd targets — El modelo actual de arranque
+
+**systemd** reemplaza los runlevels con **target units**: unidades `.target` que agrupan a otras unidades y funcionan como puntos de sincronización del arranque. Son más flexibles que los runlevels: cada target puede apuntar a cualquier conjunto de unidades, no a niveles fijos.
+
+### 8.1 Target por defecto y cambio de estado
+
+```bash
+# Target que se usará en el próximo arranque
+systemctl get-default                # <1>
+# graphical.target
+
+# En servidores: arrancar siempre sin GUI (aplica en el próximo boot)
+sudo systemctl set-default multi-user.target  # <2>
+
+# Listar todos los targets y su estado
+systemctl list-units --type=target --all     # <3>
+
+# Cambiar AHORA al target multi-user (detiene lo que no pertenezca a él)
+sudo systemctl isolate multi-user.target      # <4>
+```
+
+1. **`systemctl get-default`**: lee el symlink `/etc/systemd/system/default.target` y muestra el target de arranque (Ubuntu Desktop: `graphical.target`; servidor Ubuntu: `multi-user.target`)
+2. **`systemctl set-default`**: re-apunta ese symlink al target indicado; **no** reinicia nada — el cambio aplica en el próximo arranque
+3. **`systemctl list-units --type=target`**: lista los targets cargados y si están activos
+4. **`systemctl isolate`**: cambia **al instante** al target indicado, deteniendo todas las unidades que no pertenezcan a su árbol de dependencias
+
+### 8.2 Targets clave
+
+| Target | Runlevel | Qué hace |
+|--------|----------|----------|
+| `multi-user.target` | 2/3/4 | Servidor multi-usuario **sin** GUI — el estándar en producción |
+| `graphical.target` | 5 | Multi-user + gestor de pantalla (GDM); target por defecto de Ubuntu Desktop |
+| `rescue.target` | 1 | "Single-user": monta **todos** los filesystems y deja una shell de rescate con los servicios más básicos — el equivalente moderno de single-user mode |
+| `emergency.target` | — | Mínimo absoluto: solo PID 1 y una shell; **no** arranca servicios ni monta filesystems adicionales. Úsalo solo si `rescue.target` no entra |
+
+Para llegar a rescue/emergency desde el arranque (sección 6), añade a la línea `linux` de GRUB el parámetro `systemd.unit=rescue.target` (alias cortos: `1` o `single`) o `systemd.unit=emergency.target` (alias: `emergency`).
+
+::: {.callout-warning}
+## ⚠️ `systemctl isolate` sobre SSH corta tu sesión
+
+**Por qué**: `isolate rescue.target` e `isolate emergency.target` detienen **todas** las unidades que no pertenezcan al target — incluido el servicio SSH (`sshd`).
+
+**Lo que podría salir mal**:
+- Pierdes la sesión SSH remota y dejas el sistema en modo rescate sin nadie atendiendo.
+
+**Cómo prevenirlo**:
+1. En servidores remotos, entra a rescue/emergency por **consola o parámetro de arranque** (`systemd.unit=...`, sección 6), nunca con `isolate` desde SSH.
+2. `isolate multi-user.target` desde un escritorio detiene también la GUI: úsalo solo si no dependes de las unidades que se detendrán.
+3. Para volver al estado anterior: `sudo systemctl isolate graphical.target` (o reinicia el equipo).
+:::
+
+### 8.3 systemd bajo WSL2 (límites honestos)
+
+WSL2 no arranca con GRUB ni con SysV, pero **sí puede ejecutar systemd** si está habilitado en `/etc/wsl.conf`:
+
+```ini
+# /etc/wsl.conf (dentro de WSL2)
+[boot]
+systemd=true
+```
+
+```bash
+systemctl is-system-running # <1>
+# running
+```
+
+1. **`systemctl is-system-running`**: reporta el estado del gestor; `running` o `degraded` confirman que systemd está activo bajo WSL2. Si `systemd=true` no está habilitado, el comando falla indicando que el sistema no arrancó con systemd.
+
+Después de editar `/etc/wsl.conf`, aplica el cambio desde PowerShell con `wsl --shutdown` y vuelve a abrir la distribución. Ten en cuenta que en WSL2 un `systemctl isolate` a rescue/emergency detiene los servicios de la distribución y puede matar tu sesión: practica targets de rescate en un servidor real.
+
+---
+
+## 9. Resumen y Próximos Pasos
 
 ::: {.callout-tip}
 ## ✅ Lo esencial de la Unidad I
@@ -402,11 +583,15 @@ sudo apt clean
 - [ ] Leer/interpretar `ls -la` (tipo, permisos, owner, grupo, size, mtime).
 - [ ] Aplicar `chmod` (simbólico/octal), `chown`, `setfacl`/`getfacl`.
 - [ ] Usar `man`, `--help`, `tldr` para auto-ayuda.
+- [ ] Editar una entrada de GRUB2 y probar parámetros de kernel (p. ej. `nomodeset`).
+- [ ] Regenerar la configuración de GRUB con `update-grub` tras modificar `/etc/default/grub`.
+- [ ] Interpretar `runlevel` y mapearlo al target equivalente de systemd.
+- [ ] Consultar/cambiar el target con `get-default`/`set-default` y usar `isolate` con criterio (rescue/emergency).
 - [ ] Generar SSH key ed25519 y configurar Git.
 
 ---
 
-## 7. Recursos y Referencias
+## 10. Recursos y Referencias
 
 - **FHS 3.0**: <https://refspecs.linuxfoundation.org/fhs.shtml>
 - **WSL Documentation**: <https://learn.microsoft.com/windows/wsl/>
@@ -417,7 +602,7 @@ sudo apt clean
 
 ---
 
-## 8. Quiz Interactivo (quizdown)
+## 11. Quiz Interactivo (quizdown)
 
 ```{quizdown}
 ---

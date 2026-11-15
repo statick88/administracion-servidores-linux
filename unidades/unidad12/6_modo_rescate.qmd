@@ -1,0 +1,382 @@
+---
+title: "Unidad XII: Boot single-user y rescue mode"
+subtitle: "Arranque de rescate, fsck y recuperación de contraseña"
+author: "Diego Saavedra"
+date: "2026-11-14"
+date-format: medium
+---
+
+# Unidad XII: Boot single-user y rescue mode
+
+## Introducción
+
+Hay fallas que no se pueden resolver con el sistema operativo arriba: una contraseña de root olvidada, un `/etc/fstab` con un error que impide el arranque, o un sistema de archivos dañado tras un corte de energía. Para esos casos, Linux ofrece modos de arranque de rescate que dejan una shell de administrador antes de que arranque el sistema completo.
+
+En esta unidad verás cómo entrar a esos modos desde GRUB, cómo verificar y remontar la raíz en lectura/escritura, cómo ejecutar fsck desde el rescate y cómo restablecer contraseñas — siempre con verificación al final de cada procedimiento.
+
+## Ruta rápida
+
+1. Reinicia el servidor y entra al menú de GRUB (mantén pulsado `Shift` en BIOS o `Esc` en UEFI).
+2. Resalta la entrada por defecto y presiona `e` para editarla.
+3. Añade el parámetro de rescate al final de la línea `linux`.
+4. Arranca con `Ctrl+X` y trabaja en la shell de rescate.
+5. Verifica el estado de la raíz con `findmnt` y remonta en lectura/escritura si aparece `ro`.
+6. Aplica el arreglo (contraseña, fsck, edición de archivos).
+7. Reinicia y verifica el arranque normal.
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Practica todos los procedimientos de esta unidad en una máquina virtual con snapshot antes de aplicarlos en un servidor de producción.**
+
+**Casos de uso:**
+- Primera vez que ejecutas un fsck o un restablecimiento de contraseña
+- Servidor de producción sin consola remota de respaldo
+
+**Cuándo aplicar:**
+- Siempre que vayas a modificar el arranque, el sistema de archivos o las credenciales de acceso
+:::
+
+## Modos de rescate: qué ofrece cada uno
+
+| Modo | Cómo se entra | systemd (PID 1) | Servicios y montajes | Contraseña de root |
+|------|---------------|-----------------|----------------------|--------------------|
+| **rescue.target** (single-user) | GRUB: `systemd.unit=rescue.target` (alias `single`, `1`) o `systemctl isolate rescue.target` desde el sistema en ejecución | Sí | Sistema base con **todos** los sistemas de archivos montados; sin servicios de usuario | Sí (pide la contraseña de root) |
+| **emergency.target** | GRUB: `systemd.unit=emergency.target` (alias `emergency`) | Sí | Solo PID 1 y la shell; no monta sistemas de archivos adicionales | Sí (pide la contraseña de root) |
+| **init=/bin/bash** | GRUB: `init=/bin/bash` | No: la shell es el PID 1 | Ninguno; sin red y sin `systemctl` | No: entra directamente |
+
+:::{.callout-note}
+## 📝 NOTA
+
+La diferencia práctica entre rescue y emergency: **rescue** monta todos los sistemas de archivos y arranca lo mínimo, por eso es el "single-user" moderno; **emergency** es más radical y deja el sistema sin montar nada más allá de lo imprescindible. Si no sabes cuál usar, empieza por `rescue.target`.
+:::
+
+## Entrada por GRUB
+
+### Pasos para editar la entrada
+
+1. Reinicia el servidor. Mantén pulsado `Shift` (BIOS) o `Esc` (UEFI) hasta ver el menú de GRUB.
+2. Usa las flechas para resaltar la entrada por defecto y presiona `e` para editarla.
+3. Ubica la línea que inicia con `linux` (o `linuxefi` en algunos sistemas) y añade el parámetro al final de esa línea.
+4. Presiona `Ctrl+X` o `F10` para arrancar con los parámetros modificados.
+
+```text
+linux   /boot/vmlinuz-6.8.0-45-generic root=UUID=8f3a1c2e-4b7d-4e21-9c05-1a2b3c4d5e6f ro quiet splash systemd.unit=rescue.target
+initrd  /boot/initrd.img-6.8.0-45-generic
+```
+
+La edición es **temporal**: solo aplica a ese arranque y no modifica el GRUB instalado en disco. Para volver al arranque normal, simplemente arranca la entrada sin editar.
+
+### Parámetros según el objetivo
+
+| Objetivo | Añadir al final de la línea `linux` |
+|----------|--------------------------------------|
+| Rescate / single-user | `systemd.unit=rescue.target` (alias: `single`, `1`, `s`, `S`) |
+| Modo emergencia | `systemd.unit=emergency.target` (alias: `emergency`) |
+| Shell directa sin systemd ni contraseña | `init=/bin/bash` |
+| Forzar la verificación de archivos en el arranque | `fsck.mode=force fsck.repair=yes` |
+
+:::{.callout-note}
+## 📝 NOTA
+
+Los alias `single`, `1`, `emergency` y `s`/`S` son atajos compatibles con SysV que systemd sigue entendiendo en la línea de comandos del kernel. Equivalentes: `single` y `1` arrancan `rescue.target`; `emergency` arranca `emergency.target`. El nombre completo y documentado es `systemd.unit=rescue.target`.
+:::
+
+## Arranque con init=/bin/bash
+
+`init=/bin/bash` le dice al kernel que ejecute `/bin/bash` como proceso init, sin arrancar systemd ni ningún servicio. Es la vía más rápida para entrar sin contraseña de root, y también la más desnuda: no hay red, no hay `systemctl`, y la raíz suele quedar montada en **solo lectura**.
+
+### Tras entrar: verificar y remontar en escritura
+
+```bash
+$ findmnt /                 # <1>
+TARGET SOURCE     FSTYPE OPTIONS
+/      /dev/sda1 ext4   ro,relatime
+
+$ mount -o remount,rw /     # <2>
+
+$ findmnt /                 # <3>
+TARGET SOURCE     FSTYPE OPTIONS
+/      /dev/sda1 ext4   rw,relatime
+```
+
+1. **findmnt /** muestra cómo está montada la raíz; la opción `ro` confirma que está en solo lectura y que no podrás guardar cambios
+2. **mount -o remount,rw /** remonta la raíz en lectura/escritura; sin este paso, cualquier escritura (`passwd`, edición de archivos) falla con "Read-only file system"
+3. **findmnt /** repetido verifica que ahora la opción `rw` está activa; es la confirmación de que el sistema admite escrituras
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Escribir en la raíz sin haberla remontado en lectura/escritura**
+
+**Lo que podría salir mal:**
+- `passwd` falla con "Read-only file system" y crees que la herramienta está rota
+- Ediciones de `/etc/fstab` o `/etc/ssh/sshd_config` que no se guardan
+- Continuar el arreglo sobre un sistema que sigue en `ro`
+
+**Cómo prevenirlo:**
+1. Ejecuta `findmnt /` antes de escribir nada
+2. Remonta con `mount -o remount,rw /`
+3. Confirma con `findmnt /` que aparezca `rw`
+:::
+
+### Salir del modo init=/bin/bash
+
+Como no hay systemd corriendo, `systemctl` no funciona y **`exit` no es una salida válida**: la shell es el PID 1 y al terminar provocaría un panic del kernel ("Attempted to kill init"). Tienes dos formas correctas de continuar:
+
+```bash
+$ exec /sbin/init           # <1>
+```
+
+1. **exec /sbin/init** reemplaza la shell por el proceso init real (systemd) y continúa el arranque normal; úsalo cuando terminaste los cambios y quieres volver al sistema arriba sin reiniciar el hardware
+
+Si prefieres reiniciar la máquina:
+
+```bash
+$ reboot -f                 # <1>
+```
+
+1. **reboot -f** fuerza el reinicio mediante la llamada al sistema `reboot(2)` sin pasar por init; necesario porque con `init=/bin/bash` no hay demonio que atienda la petición de reinicio
+
+## Rescate con systemd: rescue y emergency
+
+Entra por GRUB con `systemd.unit=rescue.target`. En la mayoría de distribuciones verás una petición de la contraseña de root (sulogin): esa es la diferencia fundamental con `init=/bin/bash`. Si root tiene contraseña, la necesitas; si la has olvidado, usa `init=/bin/bash`.
+
+Dentro del rescate, verifica el estado antes de tocar nada:
+
+```bash
+$ findmnt -no TARGET,OPTIONS /    # <1>
+TARGET OPTIONS
+/ rw,relatime
+
+$ systemctl is-system-running     # <2>
+running
+```
+
+1. **findmnt -no TARGET,OPTIONS /** muestra solo el punto de montaje y sus opciones; `rw` significa que ya puedes escribir y `ro` que necesitas remontar
+2. **systemctl is-system-running** confirma que systemd (PID 1) está operativo; `running` o `degraded` indican que el sistema está vivo
+
+Si la raíz aparece en `ro` (por ejemplo, si entraste en emergency y el kernel arrancó con `ro`), remonta antes de escribir:
+
+```bash
+$ mount -o remount,rw /           # <1>
+$ findmnt -no TARGET,OPTIONS /    # <2>
+TARGET OPTIONS
+/ rw,relatime
+```
+
+1. **mount -o remount,rw /** cambia la raíz de solo lectura a lectura/escritura; imprescindible antes de editar archivos o restablecer contraseñas
+2. **findmnt -no TARGET,OPTIONS /** verifica que la opción `rw` quedó activa
+
+:::{.callout-note}
+## 📝 NOTA
+
+`emergency.target` no remonta nada por sí solo: según la documentación de systemd, la raíz puede quedar en solo lectura o en lectura/escritura dependiendo de cómo se llegó al modo (por ejemplo, si el arranque incluyó `ro`). Por eso la regla es **verificar con `findmnt` antes de escribir**, no asumir.
+:::
+
+## fsck desde el rescate
+
+La regla de oro: **fsck solo se ejecuta sobre sistemas de archivos que NO están montados**. Un fsck sobre un sistema montado puede corromper datos y las herramientas ext lo rechazan.
+
+### Sistemas de datos (no raíz)
+
+Supón que `/home` vive en una partición aparte (`/dev/sdb1`). En `rescue.target` todos los sistemas de archivos quedan montados, así que primero desmonta el que quieres revisar:
+
+```bash
+$ findmnt /home                # <1>
+TARGET SOURCE FSTYPE OPTIONS
+/home /dev/sdb1 ext4  rw,relatime
+
+$ umount /home                 # <2>
+
+$ findmnt /home                # <3>
+
+$ fsck -y /dev/sdb1            # <4>
+fsck from util-linux 2.39.3
+/dev/sdb1: clean, 11470/65536 files, 83988/262144 blocks
+```
+
+1. **findmnt /home** confirma que `/home` está montado y muestra el dispositivo real (`/dev/sdb1`); nunca adivines el dispositivo
+2. **umount /home** desmonta la partición; fsck exige un sistema de archivos sin montar
+3. **findmnt /home** sin salida confirma que ya no queda ningún montaje activo en esa ruta; es la verificación previa a fsck
+4. **fsck -y** ejecuta la verificación respondiendo "yes" a cada corrección; la salida "clean" indica que no quedaron errores pendientes
+
+Verifica el resultado en modo solo lectura (dry-run) y revisa el código de salida:
+
+```bash
+$ fsck -n /dev/sdb1            # <1>
+/dev/sdb1: clean, 11470/65536 files, 83988/262144 blocks
+
+$ echo $?                      # <2>
+0
+```
+
+1. **fsck -n** corre el chequeo sin corregir nada (dry-run) y sale con error si encuentra problemas; es la evidencia de que la reparación quedó completa
+2. **echo $?** muestra el código de salida del comando anterior; `0` significa "sin errores" y es lo que debes capturar como evidencia
+
+### Sistema de archivos raíz
+
+La raíz no se puede desmontar mientras el sistema la usa, así que desde el rescate no hay forma directa de fsck sobre ella. Dos rutas correctas:
+
+1. **Forzar el chequeo en el arranque**: entra otra vez por GRUB con `fsck.mode=force fsck.repair=yes`. Esos parámetros los entiende `systemd-fsck`, que ejecuta el fsck **en el initramfs, antes de montar la raíz** — es decir, con la partición aún sin montar, que es justo lo que fsck necesita. `fsck.mode` acepta `auto`, `force` o `skip`; `fsck.repair` acepta `preen`, `yes` o `no`.
+2. **Medio live**: arranca desde un USB o imagen live y ejecuta `fsck -y /dev/sda1` con la partición desmontada.
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Forzar fsck con datos sin respaldar o con la partición montada**
+
+**Lo que podría salir mal:**
+- fsck sobre un sistema montado corrompe estructuras del sistema de archivos
+- Las correcciones automáticas pueden convertir archivos perdidos en `lost+found`
+- Un corte de energía durante el fsck deja el sistema a medias
+
+**Cómo prevenirlo:**
+1. Toma un snapshot de la VM o un respaldo antes de reparar
+2. Verifica con `findmnt` que la partición no esté montada
+3. Usa `fsck -n` primero para dimensionar el daño y solo después `fsck -y`
+:::
+
+## Recuperación de contraseña de root
+
+### Caso 1: contraseña de un usuario normal olvidada (conoces la de root)
+
+Entra en rescue (`systemd.unit=rescue.target`), autentica con la contraseña de root y restablece la del usuario:
+
+```bash
+$ passwd diego                 # <1>
+New password: ********
+Retype new password: ********
+passwd: password updated successfully
+```
+
+1. **passwd diego** cambia la contraseña del usuario indicado; desde la shell de rescate eres root, así que puedes restablecerla sin conocer la anterior
+
+### Caso 2: contraseña de root olvidada
+
+Si no recuerdas la contraseña de root, rescue te pedirá una que ya no tienes: usa `init=/bin/bash`, que no pide autenticación:
+
+```bash
+$ mount -o remount,rw /        # <1>
+$ passwd root                  # <2>
+New password: ********
+Retype new password: ********
+passwd: password updated successfully
+```
+
+1. **mount -o remount,rw /** habilita la escritura en la raíz; sin esto `passwd` falla porque `/etc/shadow` no se puede modificar
+2. **passwd root** asigna una nueva contraseña a la cuenta root; en Ubuntu la cuenta root viene bloqueada y este comando la habilita al definirle contraseña
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**Cualquier persona con acceso a consola puede restablecer las contraseñas**
+
+**Lo que podría salir mal:**
+- Un tercero con acceso físico o consola remota toma control del servidor en minutos
+- El arranque de rescate no tiene autenticación si se usa `init=/bin/bash`
+
+**Cómo prevenirlo:**
+1. Protege el acceso a consola y al menú de GRUB (contraseña en GRUB y en la BIOS/UEFI)
+2. Usa cifrado de disco completo (LUKS): sin la clave, el arranque de rescate no aporta nada
+3. Restringe el acceso físico al rack o a la hypervisor
+:::
+
+## Workflow paso a paso
+
+### Workflow A: recuperar el acceso al servidor
+
+1. **Diagnostica**: ¿qué contraseña falla? ¿El sistema arranca? (Si no arranca, usa el Workflow B.)
+2. **Entra por GRUB**: añade `init=/bin/bash` si olvidaste la contraseña de root, o `systemd.unit=rescue.target` si solo necesitas la de un usuario y conoces la de root.
+3. **Verifica la raíz**: `findmnt /`; si es `ro`, remonta con `mount -o remount,rw /`.
+4. **Restablece la contraseña**: `passwd <usuario>`.
+5. **Continúa el arranque**: `exec /sbin/init` o `reboot -f` desde `init=/bin/bash`; `systemctl reboot` desde rescue.
+6. **Verifica**: inicia sesión con la nueva contraseña y confirma quién entró:
+
+```bash
+$ systemctl is-system-running  # <1>
+running
+
+$ last -n 3                    # <2>
+diego   pts/0  2026-11-14 10:12 - still logged in
+reboot   system boot 2026-11-14 10:08
+
+wtmp begins 2026-10-01 09:00:01
+```
+
+1. **systemctl is-system-running** confirma que el sistema terminó de arrancar de forma normal (`running` o `degraded`)
+2. **last -n 3** muestra los últimos accesos registrados; el usuario y la hora del login son la evidencia de que la recuperación funcionó
+
+### Workflow B: el sistema no arranca por un error de fsck
+
+1. **Observa**: el arranque se detiene en `emergency.target`; systemd entra ahí automáticamente cuando fsck termina con "errores sin corregir".
+2. **Entra por GRUB** con `fsck.mode=force fsck.repair=yes` para que el initramfs repita el chequeo antes de montar la raíz; si falla de nuevo, entra con `init=/bin/bash` y trabaja por partes.
+3. **Identifica el dispositivo** real antes de tocar nada:
+
+```bash
+$ lsblk                       # <1>
+NAME   MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0  40G  0 disk
+├─sda1   8:1    0  39G  0 part /
+└─sda2   8:2    0   1G  0 part [SWAP]
+sdb      8:16   0  20G  0 disk
+└─sdb1   8:17   0  20G  0 part /home
+```
+
+1. **lsblk** lista los discos y particiones con sus puntos de montaje; confirma qué dispositivo corresponde a `/`, a `/home` y a swap antes de ejecutar fsck
+
+4. **Repara**: para particiones de datos, desmonta y ejecuta `fsck -y` (ya visto en "fsck desde el rescate"); para la raíz, usa la ruta del arranque forzado o un medio live.
+5. **Verifica el arranque**: sin prompts de emergencia y con systemd operativo:
+
+```bash
+$ systemctl is-system-running  # <1>
+running
+
+$ findmnt -no TARGET,OPTIONS / # <2>
+TARGET OPTIONS
+/ rw,relatime
+```
+
+1. **systemctl is-system-running** confirma que el sistema completó el arranque normal; `running` o `degraded` son aceptables tras una reparación
+2. **findmnt -no TARGET,OPTIONS /** confirma que la raíz quedó montada en lectura/escritura, listo para operar
+
+## Errores comunes
+
+| Error | Consecuencia | Corrección |
+|-------|--------------|------------|
+| Escribir en la raíz sin remontar `rw` | "Read-only file system" | `mount -o remount,rw /` |
+| Presionar `exit` en la shell de `init=/bin/bash` | Panic del kernel: "Attempted to kill init" | `exec /sbin/init` o `reboot -f` |
+| Ejecutar fsck con la partición montada | Corrupción o rechazo de la herramienta | Desmonta primero y verifica con `findmnt` |
+| Esperar que la edición de GRUB sea permanente | El parámetro se pierde en el siguiente arranque | Si lo necesitas permanente, ajusta `/etc/default/grub` y ejecuta `update-grub` |
+| Usar rescue sin conocer la contraseña de root | sulogin no te deja entrar | Usa `init=/bin/bash` |
+| Ejecutar `fsck` sobre el dispositivo equivocado | Daño a otro sistema de archivos | Confirma el dispositivo con `lsblk` y `findmnt` |
+
+## Verificación
+
+Al terminar esta unidad debes poder demostrar cada habilidad:
+
+| Habilidad | Verificación |
+|-----------|-------------|
+| Entrada por GRUB | Llegaste a la shell de rescate añadiendo el parámetro a la línea `linux` |
+| Remontar la raíz | `findmnt /` muestra `rw` después de `mount -o remount,rw /` |
+| init=/bin/bash | Entraste sin contraseña y confirmaste que `systemctl` no está disponible |
+| Salida segura | `exec /sbin/init` o `reboot -f` reinician sin panic del kernel |
+| fsck de datos | `fsck -n` termina limpio y `echo $?` devuelve `0` |
+| Recuperación de contraseña | `last` muestra el login con la nueva contraseña |
+| Arranque forzado de fsck | Tras el arranque, `systemctl is-system-running` responde `running` o `degraded` |
+
+## Resumen
+
+| Situación | Entrada por GRUB | Acción clave | Verificación |
+|-----------|------------------|--------------|--------------|
+| Contraseña de root olvidada | `init=/bin/bash` | Remontar `rw` + `passwd root` | Login tras reinicio; `last` |
+| Contraseña de usuario olvidada | `systemd.unit=rescue.target` | `passwd <usuario>` | Login tras reinicio; `last` |
+| fsck de una partición de datos | `systemd.unit=rescue.target` | `umount` + `fsck -y` | `fsck -n` + `echo $?` = `0` |
+| fsck de la raíz | `fsck.mode=force fsck.repair=yes` | Que systemd-fsck corra en el initramfs | Arranque normal + `systemctl is-system-running` |
+| Editar `/etc/fstab` o configs | rescue o `init=/bin/bash` | Remontar `rw`, editar, guardar | Arranque sin prompts de emergencia |
+
+## Referencias
+
+- [systemd(1) — parámetros de línea de comandos del kernel](https://www.freedesktop.org/software/systemd/man/systemd.html)
+- [systemd.special(7) — rescue.target y emergency.target](https://www.freedesktop.org/software/systemd/man/systemd.special.html)
+- [systemd-fsck@.service(8) — fsck.mode y fsck.repair](https://www.freedesktop.org/software/systemd/man/systemd-fsck%40.service.html)
