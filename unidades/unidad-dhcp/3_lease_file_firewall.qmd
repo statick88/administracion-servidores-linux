@@ -1,0 +1,397 @@
+---
+title: "Unidad VIII: Lease file y firewall"
+subtitle: "8.3 Lease file y firewall — base de concesiones, renovación y reglas ufw para DHCP"
+author: "Diego Saavedra"
+date: "2026-11-15"
+date-format: medium
+---
+
+# Unidad VIII: Lease file y firewall
+
+## Introducción
+
+En la parte 8.3 del temario vemos dónde guarda dhcpd sus concesiones (`/var/lib/dhcp/dhcpd.leases`), cómo leerlas y limpiarlas, cómo se renueva una concesión y qué reglas de firewall necesita el DHCP (UDP 67/68 con broadcast).
+
+Al terminar esta unidad podrás:
+
+1. Explicar la estructura del archivo `dhcpd.leases` y leerla con `dhcp-lease-list` o `cat`.
+2. Controlar la rotación y limpieza de concesiones con `max-lease-time` y el script `clean_leases`.
+3. Describir el ciclo de renovación de una concesión (T1, T2, RELEASE).
+4. Abrir los puertos UDP 67/68 en ufw considerando que DHCP usa broadcast.
+5. Verificar el servidor con `ss -ulnp`, `journalctl` y `ufw status`.
+
+**Punto del brochure:** 8.3 — Lease file y firewall.
+
+---
+
+## El archivo /var/lib/dhcp/dhcpd.leases
+
+`dhcpd` guarda todas sus concesiones en una base de datos ASCII persistente: `/var/lib/dhcp/dhcpd.leases`. Sin este archivo el servidor no arranca (en una instalación limpia puedes crearlo vacío con `touch /var/lib/dhcp/dhcpd.leases`).
+
+El archivo es **log-structured**: cada vez que una concesión cambia (se adquiere, renueva o libera), su nueva versión se anota **al final** del archivo. Por eso pueden existir varias declaraciones para la misma IP y **la última es la que vale**.
+
+### Estructura de una concesión
+
+```text
+lease 192.168.100.100 {
+  starts 4 2026/11/15 14:30:00;
+  ends   4 2026/11/15 15:30:00;
+  hardware ethernet 00:0c:29:aa:bb:cc;
+  uid "\001\000\f)\252\273\314";
+  client-hostname "laptop-diego";
+  binding state active;
+  next binding state free;
+}
+```
+
+| Campo | Significado |
+|-------|-------------|
+| `lease 192.168.100.100` | La dirección concedida (una declaración por IP) |
+| `starts` / `ends` | Inicio y fin de la concesión; fecha y hora en **UTC** |
+| `hardware ethernet` | MAC del cliente que recibió la IP |
+| `uid` | *client-identifier* enviado por el cliente (si lo envió) |
+| `client-hostname` | Nombre de host informado por el cliente |
+| `binding state` | Estado actual: `active` (en uso), `free` (disponible) o `abandoned` |
+| `next binding state` | Estado al que pasa cuando `ends` se cumple (normalmente `free`) |
+
+Los estados más comunes:
+
+| Estado | Significado |
+|--------|-------------|
+| `active` | La concesión está asignada y vigente |
+| `free` | La IP está disponible para volver a asignarse |
+| `abandoned` | El servidor marcó la IP como problemática (no la ofrece) |
+
+:::{.callout-note}
+## 📝 NOTA
+
+Las fechas del archivo están en **UTC**, no en la hora local. Para leer `ends` con la hora de tu país convierte el epoch con `date -d @<epoch>` o usa `dhcp-lease-list --parsable`, que muestra fechas completas.
+:::
+
+### Cómo leer las concesiones
+
+```bash
+# Listar las concesiones activas con dhcp-lease-list (viene con isc-dhcp-server)
+$ dhcp-lease-list  # <1>
+lease table is empty
+
+# Ver el archivo crudo con cat
+$ sudo cat /var/lib/dhcp/dhcpd.leases  # <2>
+lease 192.168.100.100 {
+  starts 4 2026/11/15 14:30:00;
+  ends   4 2026/11/15 15:30:00;
+  hardware ethernet 00:0c:29:aa:bb:cc;
+  binding state active;
+  next binding state free;
+}
+
+# Ver solo las IPs concedidas con grep
+$ sudo grep '^lease ' /var/lib/dhcp/dhcpd.leases  # <3>
+lease 192.168.100.100 {
+```
+
+
+
+1. **dhcp-lease-list**: muestra la tabla de concesiones filtrando las entradas obsoletas; `--all` incluye históricas y `--last` muestra la última concesión de cada MAC aunque ya haya expirado.
+2. **cat**: muestra el archivo tal cual; recuerda que la última declaración de cada IP es la vigente.
+3. **grep '^lease '**: extrae solo las líneas de apertura de cada concesión; una forma rápida de ver qué direcciones están registradas.
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Usa `dhcp-lease-list` para revisión diaria y `cat`/`grep` para diagnóstico puntual.** `dhcp-lease-list` oculta entradas obsoletas y deja el archivo ilegible para un humano; cuando necesites ver la historia completa (o una concesión concreta), recurre al archivo crudo.
+:::
+
+---
+
+## Rotación y limpieza del lease file
+
+Con el tiempo el archivo crece sin límite: cada renovación anota una entrada nueva. dhcpd lo evita **rotando** el archivo periódicamente: crea una base temporal, vuelca las concesiones conocidas, renombra el archivo actual a `/var/lib/dhcp/dhcpd.leases~` (respaldo) y coloca la versión nueva en su lugar.
+
+Dos mecanismos complementarios mantienen el archivo bajo control:
+
+| Mecanismo | Dónde | Efecto |
+|-----------|-------|--------|
+| `default-lease-time` / `max-lease-time` | `/etc/dhcp/dhcpd.conf` | Limita la vida de cada concesión: menos renovaciones = menos entradas |
+| Rotación automática | el propio dhcpd | Reescribe el archivo descartando declaraciones obsoletas y guarda `dhcpd.leases~` |
+
+### Limitar la vida de las concesiones
+
+```bash
+# Limitar la duración máxima de las concesiones en dhcpd.conf
+$ sudo tee -a /etc/dhcp/dhcpd.conf >/dev/null <<'EOF'  # <1>
+default-lease-time 3600;
+max-lease-time 86400;
+EOF
+
+# Validar y reiniciar para aplicar
+$ sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf && sudo systemctl restart isc-dhcp-server  # <2>
+```
+
+
+
+1. **tee -a**: agrega los parámetros globales; `max-lease-time 86400` impide que un cliente solicite una concesión de más de 24 horas, acotando el crecimiento del archivo.
+2. **dhcpd -t && restart**: valida la sintaxis y solo entonces reinicia (dhcpd no recarga en caliente).
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA — `max-lease-time` no es limpieza
+
+**Lo que podría salir mal:** creer que con `max-lease-time` el archivo nunca crece. El archivo solo se reescribe cuando dhcpd lo decide (al arrancar y periódicamente); las concesiones `free` de equipos que ya no existen siguen ahí hasta la siguiente rotación.
+
+**Cómo prevenirlo:**
+1. Combina tiempos de concesión razonables con una revisión periódica del archivo.
+2. Usa el script `clean_leases` (abajo) para purgar concesiones expiradas de forma controlada.
+3. Antes de tocar el archivo, haz un respaldo: `sudo cp /var/lib/dhcp/dhcpd.leases /var/lib/dhcp/dhcpd.leases.bak`.
+:::
+
+### El script clean_leases
+
+Para laboratorios y servidores con muchos equipos de prueba resulta útil un script que purgue las concesiones expiradas. Guárdalo en `/usr/local/sbin/clean_leases`:
+
+```bash
+# Crear el script de limpieza de concesiones expiradas
+$ sudo tee /usr/local/sbin/clean_leases >/dev/null <<'EOF'  # <1>
+#!/bin/bash
+# clean_leases: elimina del lease file las concesiones cuyo "ends" ya pasó.
+# Debe ejecutarse con dhcpd detenido (el servidor reescribe el archivo al arrancar).
+set -euo pipefail
+
+LEASES=/var/lib/dhcp/dhcpd.leases
+now=$(date -u +%s)
+
+systemctl is-active --quiet isc-dhcp-server && {
+    echo "ERROR: detén isc-dhcp-server antes de limpiar: sudo systemctl stop isc-dhcp-server" >&2
+    exit 1
+}
+
+cp -a "$LEASES" "$LEASES.bak.$(date +%Y%m%d%H%M%S)"
+
+TZ=UTC awk -v now="$now" '
+  function ends_epoch(line,   d, p, s) {
+    # ends 4 2026/11/15 15:30:00;  ->  epoch UTC
+    split(line, d, " "); split(d[3], p, "/"); split(d[4], s, ":")
+    gsub(/;/, "", s[3])
+    if (d[3] ~ /^never/) return now + 1
+    return mktime(sprintf("%04d %02d %02d %02d %02d %02d",
+                          p[1], p[2], p[3], s[1], s[2], s[3]))
+  }
+  {
+    if (!in_lease && $0 ~ /^lease /) { in_lease = 1; buf = $0; expired = 0; next }
+    if (in_lease) {
+      buf = buf ORS $0
+      if ($1 == "ends") expired = (ends_epoch($0) < now)
+      if ($0 == "}") { if (!expired) print buf; in_lease = 0; buf = "" }
+      next
+    }
+    print
+  }
+' "$LEASES" > "$LEASES.new"
+
+mv "$LEASES.new" "$LEASES"
+echo "Limpieza completada: $(grep -c '^lease ' "$LEASES" || true) concesiones restantes."
+EOF
+
+# Hacerlo ejecutable
+$ sudo chmod 755 /usr/local/sbin/clean_leases  # <2>
+
+# Uso: detener, limpiar y volver a arrancar
+$ sudo systemctl stop isc-dhcp-server && sudo /usr/local/sbin/clean_leases && sudo systemctl start isc-dhcp-server  # <3>
+Limpieza completada: 3 concesiones restantes.
+```
+
+
+
+1. **tee**: crea el script; verifica que dhcpd esté **detenido** (si no, aborta), respalda el archivo con marca de tiempo y reescribe `dhcpd.leases` eliminando los bloques `lease` cuyo `ends` ya pasó (las fechas del archivo están en UTC, por eso se fija `TZ=UTC` para `mktime`).
+2. **chmod 755**: deja el script listo para ejecutarlo con `sudo`.
+3. **stop / clean / start**: secuencia segura; dhcpd relee el archivo limpio al arrancar. El propio script imprime cuántas concesiones quedaron.
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA — Nunca edites dhcpd.leases con dhcpd corriendo
+
+**Lo que podría salir mal:** editar o sobrescribir `/var/lib/dhcp/dhcpd.leases` mientras dhcpd está activo; el servidor tiene el archivo en uso y su próxima rotación pisa tus cambios (o corrompe la base).
+
+**Cómo prevenirlo:**
+1. Detén siempre el servicio antes de limpiar: `sudo systemctl stop isc-dhcp-server`.
+2. Haz un respaldo antes de tocar nada (el script ya lo hace).
+3. Reinicia después y comprueba con `dhcp-lease-list` que las concesiones siguen correctas.
+:::
+
+---
+
+## Renovación de la concesión
+
+Una concesión no dura para siempre: el cliente negocia su renovación usando los momentos **T1** y **T2**:
+
+| Momento | Porcentaje | Acción del cliente |
+|---------|-----------|--------------------|
+| `starts` | 0 % | El servidor concede la IP |
+| **T1** | 50 % del lease | `DHCPREQUEST` **directo** al servidor (RENEWING) |
+| **T2** | 87,5 % del lease | `DHCPREQUEST` por **broadcast** a todos los servidores (REBINDING) |
+| `ends` | 100 % | Si nadie responde, el cliente **libera la IP** y vuelve a `DHCPDISCOVER` |
+
+Con un `default-lease-time 3600` (1 hora): T1 a los 30 minutos y T2 a los 52,5 minutos. Si el cliente se desconecta limpiamente envía `DHCPRELEASE` y el servidor marca la IP como `free` de inmediato.
+
+Cómo observar la renovación desde el cliente:
+
+```bash
+# Ver la concesión actual con su tiempo de vida restante
+$ ip -4 addr show eth0  # <1>
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
+    inet 192.168.100.100/24 brd 192.168.100.255 scope global dynamic eth0
+       valid_lft 3412sec preferred_lft 3412sec
+
+# Liberar la concesión (envía DHCPRELEASE)
+$ sudo dhclient -r eth0  # <2>
+
+# Pedir una concesión nueva (DORA completo)
+$ sudo dhclient -v eth0  # <3>
+DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+DHCPOFFER of 192.168.100.100 from 192.168.100.1
+DHCPREQUEST for 192.168.100.100 on eth0 to 255.255.255.255 port 67
+DHCPACK of 192.168.100.100 from 192.168.100.1
+```
+
+
+
+1. **ip addr**: `scope global dynamic` y `valid_lft` muestran que la IP vino de DHCP y cuánto tiempo le queda; el valor baja en vivo hasta T1, cuando el cliente renueva.
+2. **dhclient -r**: libera la concesión anticipadamente (DHCPRELEASE); el servidor la marca `free` y puede asignarla a otro equipo.
+3. **dhclient -v**: muestra el intercambio DORA completo; `-v` (verbose) esencial para diagnóstico.
+
+En el servidor, cada renovación queda registrada:
+
+```bash
+# Ver las transacciones DHCP en el journal
+$ sudo journalctl -u isc-dhcp-server --since "10 min ago" --no-pager  # <1>
+Nov 15 15:00:12 ubuntu dhcpd: DHCPREQUEST for 192.168.100.100 from 00:0c:29:aa:bb:cc (laptop-diego) via eth0
+Nov 15 15:00:12 ubuntu dhcpd: DHCPACK on 192.168.100.100 to 00:0c:29:aa:bb:cc (laptop-diego) via eth0
+```
+
+
+
+1. **journalctl**: `DHCPREQUEST`/`DHCPACK` confirman la renovación; `via eth0` indica la interfaz por la que llegó, útil cuando el servidor atiende varias redes.
+
+---
+
+## Firewall para DHCP: ufw y los puertos 67/68
+
+DHCP usa **UDP 67** (servidor) y **UDP 68** (cliente), y su intercambio inicial es **broadcast**: el cliente aún no tiene IP, así que manda `DHCPDISCOVER` a `255.255.255.255:67` desde `0.0.0.0:68`. Eso condiciona las reglas de firewall.
+
+| Tráfico | Dirección | Puerto | Quién lo necesita |
+|---------|-----------|--------|-------------------|
+| `DHCPDISCOVER` / `DHCPREQUEST` | cliente → servidor | UDP 67 (destino) | El servidor debe **recibirlo** (entrada) |
+| `DHCPOFFER` / `DHCPACK` | servidor → cliente | UDP 68 (destino) | Salida del servidor (permitida por defecto en ufw) |
+
+### Abrir los puertos en ufw
+
+```bash
+# Ver el estado actual del firewall
+$ sudo ufw status verbose  # <1>
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), allow (routed)
+
+# Permitir DHCP en la interfaz de la LAN (broadcast, sin restringir origen)
+$ sudo ufw allow in on eth0 to any port 67 proto udp  # <2>
+Rule added
+Rule added (v6)
+
+# Verificar que la regla quedó aplicada
+$ sudo ufw status numbered  # <3>
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 67/udp on eth0             ALLOW IN    Anywhere
+```
+
+
+
+1. **ufw status verbose**: la política por defecto es `deny (incoming)`; sin reglas, el `DHCPDISCOVER` entrante se descarta y el cliente nunca recibe oferta.
+2. **allow in on eth0 to any port 67**: abre solo la entrada UDP 67 en la interfaz de la LAN. Las respuestas del servidor (67 → 68) son de salida y ufw las permite por defecto, así que **no hace falta abrir el 68 en el servidor**.
+3. **ufw status numbered**: confirma la regla aplicada; `# <1>` de referencia para `ufw delete 1` si quieres retirarla.
+
+### Consideraciones especiales con broadcast
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA — DHCP viaja por broadcast
+
+**Lo que podría salir mal:**
+- Restringir la regla a `from 192.168.100.0/24` y que **no funcione**: el `DHCPDISCOVER` llega con origen `0.0.0.0`, no con una IP de la subred, así que la regla por origen no lo coincide.
+- Servir DHCP a una VLAN sin permitir el tráfico en la interfaz o el subinterface correspondiente (`eth0.100`): los paquetes broadcast nunca llegan a dhcpd.
+
+**Cómo prevenirlo:**
+1. Para clientes directos, permite el 67 **sin filtro de origen**: `sudo ufw allow in on eth0 to any port 67 proto udp`.
+2. Si el segmento es una VLAN, aplica la regla en la interfaz real o el subinterface por el que entra el broadcast (`eth0.100`), no en la interfaz madre.
+3. Si el servidor atiende varias subredes, repite la regla por cada interfaz donde escucha dhcpd.
+:::
+
+### Permitir desde una subred o VLAN específica
+
+Cuando el broadcast ya está resuelto (por ejemplo, con un *relay* `dhcrelay` que reenvía el tráfico con origen real) o quieres acotar el acceso, sí conviene filtrar por origen:
+
+```bash
+# Permitir DHCP solo desde la subred de la VLAN de oficina
+$ sudo ufw allow in on eth0 from 192.168.100.0/24 to any port 67 proto udp  # <1>
+Rule added
+
+# Con relay DHCP: permitir desde la IP del relay (el origen ya no es 0.0.0.0)
+$ sudo ufw allow in on eth0 from 192.168.100.254 to any port 67 proto udp  # <2>
+Rule added
+```
+
+
+
+1. **from 192.168.100.0/24**: acota el DHCP a esa subred; válido cuando los clientes ya tienen IP (renovaciones) o el tráfico llega relayeado.
+2. **from 192.168.100.254**: con un relay (`dhcrelay`), el origen del paquete es la IP del relay, no `0.0.0.0`; esta es la regla típica en topologías con VLANs.
+
+---
+
+## Verificación del servidor
+
+```bash
+# Ver el socket UDP 67 de dhcpd
+$ sudo ss -ulnp | grep dhcpd  # <1>
+UNCONN 0 0 0.0.0.0:67 0.0.0.0:* users:(("dhcpd",pid=2310,fd=7))
+
+# Revisar el arranque y las transacciones en el journal
+$ sudo journalctl -u isc-dhcp-server -n 5 --no-pager  # <2>
+Nov 15 14:30:01 ubuntu dhcpd: Listening on LPF/eth0/00:0c:29:aa:bb:cc
+Nov 15 14:30:01 ubuntu dhcpd: Sending on   LPF/eth0/00:0c:29:aa:bb:cc
+Nov 15 14:31:12 ubuntu dhcpd: DHCPDISCOVER from 00:0c:29:aa:bb:cc via eth0
+
+# Confirmar que ufw deja pasar el DHCP
+$ sudo ufw status | grep 67  # <3>
+67/udp on eth0                     ALLOW IN    Anywhere
+```
+
+
+
+1. **ss -ulnp**: el socket `0.0.0.0:67` con proceso `dhcpd` confirma que el servidor escucha; si no aparece, dhcpd no está corriendo o falló al arrancar.
+2. **journalctl**: `Listening on`/`Sending on` identifican la interfaz atendida y `DHCPDISCOVER ... via eth0` demuestra que las peticiones de los clientes llegan (si nunca aparecen, revisa el firewall o la interfaz).
+3. **ufw status**: la regla del 67 debe aparecer activa; sin ella, el journal no mostrará ningún `DHCPDISCOVER`.
+
+---
+
+## Resumen
+
+| Tema | Archivo o comando | Propósito |
+|------|-------------------|-----------|
+| Lease file | `/var/lib/dhcp/dhcpd.leases` | Base de concesiones (log-structured, última entrada gana) |
+| Respaldo | `/var/lib/dhcp/dhcpd.leases~` | Copia que deja la rotación automática |
+| Leer concesiones | `dhcp-lease-list` / `cat` | Tabla filtrada / archivo crudo |
+| Limitar crecimiento | `max-lease-time` en `dhcpd.conf` | Acota la vida de cada concesión |
+| Limpieza | `/usr/local/sbin/clean_leases` | Purga concesiones expiradas (servicio detenido) |
+| Renovación | T1 50 %, T2 87,5 % | `DHCPREQUEST` directo y luego por broadcast |
+| Firewall | `ufw allow in on eth0 to any port 67 proto udp` | Entrada UDP 67 (el 68 es solo del cliente) |
+| Verificación | `ss -ulnp`, `journalctl`, `ufw status` | Socket, transacciones y reglas |
+
+---
+
+## Referencias
+
+- [dhcpd.leases(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcpd.leases.5.html)
+- [dhcp-lease-list(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/dhcp-lease-list.8.html)
+- [dhcpd.conf(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcpd.conf.5.html)
+- [ufw-framework(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/ufw-framework.8.html)
+- [RFC 2131 — Dynamic Host Configuration Protocol](https://www.rfc-editor.org/rfc/rfc2131)
+- [ISC DHCP 4.4 Manual Pages](https://kb.isc.org/docs/isc-dhcp-441-manual-pages)
