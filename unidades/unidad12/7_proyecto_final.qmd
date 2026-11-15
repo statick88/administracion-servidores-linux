@@ -1,0 +1,334 @@
+---
+title: "Unidad XII: Proyecto Final — Competencias y práctica integradora"
+subtitle: "Entregable integrador, rúbrica de evaluación y evidencias"
+author: "Diego Saavedra"
+date: "2026-11-14"
+date-format: medium
+---
+
+# Unidad XII: Proyecto Final — Competencias y práctica integradora
+
+## Introducción
+
+El Proyecto Final integra en un solo entregable todo lo aprendido en el curso: preparación del servidor, seguridad, servicios de red, base de datos, monitoreo, diagnóstico de problemas y documentación. No es un examen teórico: se evalúa un servidor Linux real, funcionando y verificable.
+
+## Competencias que integra el proyecto
+
+| Competencia | Qué demuestra | Fuente en el curso |
+|-------------|---------------|--------------------|
+| Arquitectura y preparación | Diseña e instala el servidor con red, almacenamiento y hostname definidos | Unidad I: instalación y configuración inicial |
+| Seguridad del servidor | Usuarios con mínimo privilegio, firewall por defecto negativo, SSH endurecido | Unidad VII: hardening |
+| Servicios de red y web | Apache con virtual host propio y HTTPS respondiendo | Unidad IX/X: servidor web y SSL |
+| Bases de datos | MariaDB con base de datos, usuario de aplicación de mínimo privilegio y respaldo | Unidad XI: MariaDB |
+| Diagnóstico y resolución | Aplica la metodología de troubleshooting ante incidentes inyectados | Unidad XII: metodología, logs, red y recursos |
+| Documentación y comunicación | Entrega evidencias reproducibles e informe claro | Todo el curso |
+
+## Escenario
+
+| Elemento | Valor |
+|----------|-------|
+| Servidor | `server01` — Ubuntu Server 24.04 LTS en VM con 2 vCPU, 4 GB de RAM y 40 GB de disco |
+| Red | `192.168.56.10/24` (red host-only), hostname `server01` |
+| Servicios requeridos | SSH, firewall (ufw), Apache con virtual host propio y HTTPS, MariaDB con base de datos de la aplicación, monitoreo básico con alertas |
+| Incidentes | El instructor inyectará al menos 2 fallas (por ejemplo, un servicio detenido y una regla de firewall eliminada) que deberás resolver con la metodología de la Unidad XII |
+| Punto de partida | Toma un snapshot de la VM antes de empezar y otro al finalizar |
+
+## Entregable
+
+| Componente | Formato |
+|------------|---------|
+| Servidor funcionando | VM encendida y accesible desde la red del aula |
+| Informe | Markdown o PDF con arquitectura, decisiones tomadas y topología de red |
+| Evidencias | Salidas de comandos, capturas de pantalla y archivos de configuración (ver checklist) |
+| Demostración | 10 minutos en vivo ante el instructor |
+
+## Pasos de ejecución
+
+### Fase 1: planificación y base
+
+Define el hostname, verifica la red y toma el snapshot inicial antes de cambiar nada:
+
+```bash
+$ hostnamectl set-hostname server01   # <1>
+$ ip -br addr show                    # <2>
+eth0             UP             192.168.56.10/24 fe80::a00:27ff:fe4d:1a2b/64
+
+$ ping -c 3 192.168.56.1              # <3>
+PING 192.168.56.1 (192.168.56.1) 56(84) bytes of data.
+64 bytes from 192.168.56.1: icmp_seq=1 ttl=64 time=0.412 ms
+
+--- 192.168.56.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss
+```
+
+1. **hostnamectl set-hostname** define el nombre del servidor y actualiza `/etc/hostname` en el mismo momento
+2. **ip -br addr show** muestra las interfaces en formato breve; confirma que la IP `192.168.56.10/24` está asignada y la interfaz está `UP`
+3. **ping -c 3** comprueba la conectividad con la pasarela en 3 paquetes; sin ella no hay red ni acceso remoto al servidor
+
+### Fase 2: seguridad
+
+Firewall por defecto negativo, solo los puertos necesarios y el servicio SSH activo:
+
+```bash
+$ sudo ufw default deny incoming      # <1>
+$ sudo ufw default allow outgoing     # <2>
+$ sudo ufw allow OpenSSH              # <3>
+$ sudo ufw allow 80/tcp,443/tcp       # <4>
+$ sudo ufw enable                     # <5>
+$ sudo ufw status verbose             # <6>
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere
+80/tcp                     ALLOW IN    Anywhere
+443/tcp                    ALLOW IN    Anywhere
+```
+
+1. **ufw default deny incoming** bloquea todo el tráfico entrante por defecto; es la base de un firewall de mínimo privilegio
+2. **ufw default allow outgoing** permite la salida para actualizaciones y consultas DNS
+3. **ufw allow OpenSSH** abre el puerto 22 usando el perfil del servicio SSH; sin esto te bloqueas al activar el firewall
+4. **ufw allow 80/tcp,443/tcp** abre HTTP y HTTPS con una sola regla; la sintaxis acepta listas separadas por comas
+5. **ufw enable** activa el firewall y avisa que SSH sigue permitido para no cortar la sesión
+6. **ufw status verbose** muestra el estado final con política por defecto; captura esta salida como evidencia
+
+### Fase 3: servicios web y base de datos
+
+Apache con activación automática y respuesta verificada:
+
+```bash
+$ sudo systemctl enable --now apache2 # <1>
+$ systemctl is-enabled apache2        # <2>
+enabled
+
+$ curl -I http://localhost            # <3>
+HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)
+```
+
+1. **systemctl enable --now apache2** inicia Apache y lo habilita para que arranque con el sistema en un solo comando
+2. **systemctl is-enabled apache2** confirma que el arranque automático quedó registrado (`enabled`)
+3. **curl -I** solicita solo las cabeceras HTTP; un `200 OK` demuestra que el servidor responde localmente sin descargar la página
+
+Activa el virtual host propio y HTTPS. El archivo de sitio y el certificado (autofirmado o emitido con certbot) los preparaste en las unidades de Apache y SSL; en esta fase solo los activas y verificas:
+
+```bash
+$ sudo a2enmod ssl                   # <1>
+$ sudo a2ensite server01.conf        # <2>
+$ sudo systemctl reload apache2      # <3>
+$ curl -kI https://localhost         # <4>
+HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)
+```
+
+1. **a2enmod ssl** habilita el módulo SSL de Apache; sin él el puerto 443 no se activa
+2. **a2ensite server01.conf** habilita el virtual host propio del proyecto
+3. **systemctl reload apache2** recarga la configuración sin cortar las conexiones activas
+4. **curl -kI https://localhost** verifica que HTTPS responde; `-k` acepta el certificado auto-firmado del laboratorio (con un certificado confiable no lo necesitarías)
+
+MariaDB con base de datos y usuario de aplicación de mínimo privilegio:
+
+```bash
+$ sudo systemctl enable --now mariadb   # <1>
+$ sudo mysql -e "CREATE DATABASE appdb CHARACTER SET utf8mb4;"   # <2>
+$ sudo mysql -e "CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'Cambiala_2026';"   # <3>
+$ sudo mysql -e "GRANT SELECT,INSERT,UPDATE ON appdb.* TO 'appuser'@'localhost';"    # <4>
+```
+
+1. **systemctl enable --now mariadb** inicia MariaDB y lo habilita en el arranque
+2. **CREATE DATABASE** crea la base de datos de la aplicación con codificación `utf8mb4` (soporte completo para Unicode)
+3. **CREATE USER** crea el usuario de la aplicación apuntado solo a `localhost`; nunca uses root desde la aplicación
+4. **GRANT** otorga únicamente los permisos de lectura y escritura necesarios sobre `appdb`; es el principio de mínimo privilegio aplicado a la base de datos
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Genera contraseñas únicas y no las pegues en el informe.**
+
+**Casos de uso:**
+- Usuario de base de datos de la aplicación
+- Cualquier credencial que aparezca en evidencias
+
+**Cuándo aplicar:**
+- Antes de crear usuarios reales: usa `openssl rand -base64 18` para generar una contraseña y entrégala al instructor por un canal distinto al informe; en las capturas, reemplázala por un marcador como `********`
+:::
+
+### Fase 4: monitoreo y respaldo
+
+Estado de los servicios críticos, recursos y respaldo de la base de datos:
+
+```bash
+$ systemctl is-active ssh apache2 mariadb   # <1>
+active
+active
+active
+
+$ df -h                                      # <2>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        39G  8.4G   29G  23% /
+
+$ free -h                                     # <3>
+               total        used        free      shared  buff/cache   available
+Mem:           3.8Gi       1.1Gi       1.4Gi       112Mi       1.3Gi       2.4Gi
+Swap:          2.0Gi          0B       2.0Gi
+```
+
+1. **systemctl is-active** verifica los tres servicios críticos a la vez; las tres líneas `active` confirman que SSH, Apache y MariaDB responden
+2. **df -h** muestra el uso de disco; mantén la raíz por debajo del 85% para evitar bloqueos por espacio lleno
+3. **free -h** muestra la memoria disponible; la columna `available` es la métrica a vigilar, no `free`
+
+Genera el respaldo de la base de datos que deberás entregar como evidencia:
+
+```bash
+$ sudo mysqldump appdb > /tmp/appdb-backup.sql   # <1>
+$ ls -lh /tmp/appdb-backup.sql                   # <2>
+-rw-r--r-- 1 root root 2.1K Nov 14 11:04 /tmp/appdb-backup.sql
+```
+
+1. **mysqldump appdb** exporta la base de datos completa a un archivo SQL; con `sudo` usa la autenticación por socket de root
+2. **ls -lh** confirma que el archivo existe y muestra su tamaño; un archivo vacío o ausente significa que el respaldo falló
+
+### Fase 5: incidentes
+
+Resolverás al menos 2 fallas inyectadas por el instructor aplicando la metodología de la Unidad XII: síntoma → evidencia → hipótesis → arreglo → verificación.
+
+**Incidente 1: el sitio web dejó de responder**
+
+```bash
+$ systemctl is-active apache2          # <1>
+inactive
+
+$ sudo systemctl start apache2         # <2>
+$ systemctl is-active apache2          # <3>
+active
+```
+
+1. **systemctl is-active apache2** devuelve `inactive`: el servicio está detenido, esa es la evidencia que confirma la hipótesis
+2. **systemctl start apache2** arranca el servicio detenido; si el instructor lo deshabilitó, completa con `sudo systemctl enable apache2`
+3. **systemctl is-active apache2** ahora responde `active`: es la verificación de que el arreglo funcionó
+
+**Incidente 2: el sitio no responde desde fuera del servidor**
+
+```bash
+$ sudo ufw status numbered              # <1>
+[1] 22/tcp                         ALLOW IN    Anywhere
+
+$ sudo ufw allow 80/tcp,443/tcp        # <2>
+Rule added
+Rule added (v6)
+
+$ sudo ufw status verbose              # <3>
+Status: active
+...
+80/tcp                         ALLOW IN    Anywhere
+443/tcp                        ALLOW IN    Anywhere
+```
+
+1. **ufw status numbered** muestra las reglas actuales: falta la regla de HTTP/HTTPS que creaste en la Fase 2, el firewall es la causa
+2. **ufw allow 80/tcp,443/tcp** repone las reglas eliminadas por el instructor
+3. **ufw status verbose** verifica que las reglas vuelven a estar presentes y el firewall sigue `active`
+
+:::{.callout-note}
+## 📝 NOTA
+
+Documenta cada incidente en el informe con esta estructura: **síntoma** (qué se observó), **evidencia** (comandos y salida), **hipótesis** (causa probable), **arreglo** (cambio aplicado) y **verificación** (comando que prueba la solución). Esa es la metodología de diagnóstico de la Unidad XII aplicada de forma integradora.
+:::
+
+## Verificación final
+
+Ejecuta esta secuencia antes de la demo y captura la salida completa: son las pruebas que respaldan tu entregable.
+
+```bash
+$ sudo ufw status verbose                      # <1>
+Status: active
+Default: deny (incoming), allow (outgoing), disabled (routed)
+
+$ systemctl is-active ssh apache2 mariadb      # <2>
+active
+active
+active
+
+$ curl -I http://localhost                     # <3>
+HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)
+
+$ sudo mysqladmin ping                         # <4>
+mysqld is alive
+
+$ ss -tlnp | grep -E ':22|:80|:443|:3306'      # <5>
+LISTEN 0 511 0.0.0.0:22 0.0.0.0:* users:(("sshd",pid=890,fd=3))
+LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:(("apache2",pid=1234,fd=4))
+LISTEN 0 511 0.0.0.0:443 0.0.0.0:* users:(("apache2",pid=1234,fd=6))
+LISTEN 0 80 0.0.0.0:3306 0.0.0.0:* users:(("mariadbd",pid=1456,fd=21))
+
+$ df -h /                                      # <6>
+/dev/sda1  39G  8.4G  29G  23% /
+```
+
+1. **ufw status verbose** evidencia el firewall activo con la política por defecto deny (incoming)
+2. **systemctl is-active** confirma los tres servicios críticos en `active`
+3. **curl -I** evidencia que Apache responde con `200 OK` y muestra su versión
+4. **mysqladmin ping** confirma que el servidor MariaDB acepta conexiones ("mysqld is alive")
+5. **ss -tlnp | grep** lista los puertos esperados en escucha con el proceso responsable; si falta `3306` o `80`, el servicio no está expuesto
+6. **df -h /** confirma que el disco raíz queda por debajo del 85% de uso
+
+## Rúbrica de evaluación
+
+La evaluación total es de **100 puntos**:
+
+| # | Criterio | Puntaje | Qué se evalúa |
+|---|----------|---------|---------------|
+| 1 | Preparación y arquitectura | 10 | Hostname, red y almacenamiento definidos; snapshots tomados; plan reflejado en la VM |
+| 2 | Seguridad y hardening | 20 | ufw con política deny por defecto y solo puertos necesarios, SSH sin root con contraseña, usuarios de mínimo privilegio, sistema actualizado |
+| 3 | Servidor web | 20 | Apache activo con arranque automático, virtual host propio, HTTPS con certificado configurado (auto-firmado o de CA local) y respondiendo |
+| 4 | Base de datos | 15 | MariaDB con base de datos y usuario de aplicación con permisos mínimos, respaldo `mysqldump` generado |
+| 5 | Monitoreo, logs y alertas | 10 | Verificación periódica de servicios y recursos, limpieza de logs, alerta de salud implementada |
+| 6 | Diagnóstico y resolución | 15 | Los 2 incidentes resueltos con la metodología completa y verificación demostrable |
+| 7 | Documentación y evidencias | 10 | Informe claro y checklist de evidencias completo y reproducible |
+| | **Total** | **100** | |
+
+### Niveles de logro
+
+| Rango | Nivel |
+|-------|-------|
+| 90 – 100 | Excelente: integra todas las competencias sin intervención |
+| 80 – 89 | Bueno: integra todo con errores menores corregibles |
+| 70 – 79 | Suficiente: cumple lo esencial con debilidades puntuales |
+| Menos de 70 | Insuficiente: requiere nueva entrega |
+
+**Criterio de aprobación:** 70 puntos o más en el total, **y** al menos 10 de los 20 puntos del criterio 2 (Seguridad y hardening). Un servidor inseguro no aprueba aunque el total alcance 70.
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Autoevalúa con esta rúbrica antes de la demo.**
+
+**Casos de uso:**
+- Revisar el propio entregable el día anterior a la entrega
+- Detectar criterios con puntaje bajo antes de que lo haga el instructor
+
+**Cuándo aplicar:**
+- Después de completar la Verificación final y antes de enviar el informe
+:::
+
+## Checklist de evidencias
+
+Debes entregar cada elemento; los que faltan descuentan del criterio 7 (Documentación y evidencias):
+
+- [ ] Informe en Markdown o PDF con: arquitectura del servidor, decisiones tomadas y topología de red
+- [ ] Snapshot inicial y snapshot final de la VM
+- [ ] Salida completa de los 6 comandos de la sección **Verificación final**
+- [ ] Captura de pantalla del sitio abierto desde un navegador externo vía HTTPS (acepta la advertencia del certificado auto-firmado; sin advertencia si usas un certificado confiable)
+- [ ] Archivos de configuración: virtual host de Apache, reglas de ufw (`ufw status numbered`) y usuario de MariaDB — sin contraseñas reales
+- [ ] Archivo de respaldo `mysqldump` generado en la Fase 4 con fecha visible
+- [ ] Registro de los 2 incidentes con la estructura síntoma → evidencia → hipótesis → arreglo → verificación
+- [ ] Prueba de login tras cualquier cambio de credenciales (`last`)
+- [ ] Demo en vivo de 10 minutos ante el instructor
+- [ ] Autoevaluación firmada con la rúbrica (puntaje por criterio)
+
+## Resumen
+
+El Proyecto Final convierte las unidades del curso en un servidor verificable: preparas la base (Fase 1), endureces (Fase 2), publicas servicios web y base de datos (Fase 3), implementas monitoreo y respaldo (Fase 4), resuelves incidentes con metodología (Fase 5) y lo demuestras con evidencias. La rúbrica de 100 puntos y el checklist de evidencias definen exactamente qué se evalúa; usa ambos como lista de control desde el primer día.
