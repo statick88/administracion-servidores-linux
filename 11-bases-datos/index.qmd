@@ -380,6 +380,108 @@ Esto ejecuta el backup **todos los días a las 02:00**. Verifica periódicamente
 
 ---
 
+## Tuning básico — diagnóstico, índices y variables
+
+El **tuning básico** (subtema del brochure) responde a una pregunta: *¿por qué esta consulta va lenta?*. Sigue el método de la Unidad 12: **mide antes, cambia una sola cosa, mide después**. Los ejemplos usan el contenedor `mysql` del laboratorio y se ejecutan desde el host.
+
+### Encontrar la consulta lenta
+
+```bash
+$ docker exec -it mysql mysql -u root -p -e 'SHOW FULL PROCESSLIST;'  # <1>
+Enter password:
++----+------+-------------+--------+---------+------+--------------+---------------------------+
+| Id | User | Host        | db     | Command | Time | State        | Info                      |
++----+------+-------------+--------+---------+------+--------------+---------------------------+
+| 12 | app  | 172.18.0.4  | appdb  | Query   |   38 | Sending data | SELECT * FROM pedidos ... |
++----+------+-------------+--------+---------+------+--------------+---------------------------+
+```
+
+1. **`SHOW FULL PROCESSLIST`** lista las conexiones activas; la columna **Time** muestra los segundos que la consulta lleva ejecutándose.
+2. Un **Time** alto en estado **Sending data**, con la consulta visible en **Info**, identifica la candidata a optimizar.
+
+### Leer el plan de consulta con EXPLAIN
+
+```bash
+$ docker exec -it mysql mysql -u root -p appdb -e 'EXPLAIN SELECT * FROM pedidos WHERE cliente_id = 42;'  # <1>
+Enter password:
++----+-------------+-------+------+---------------+------+---------+------+------+-----------+------------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra       |
++----+-------------+-------+------+---------------+------+---------+------+------+-----------+------------------+
+|  1 | SIMPLE      | pedidos | ALL | idx_pedidos   | NULL | NULL    | NULL | 9821 | Using where |
++----+-------------+-------+------+---------------+------+---------+------+------+-----------+------------------+
+```
+
+1. **`EXPLAIN`** muestra cómo MySQL piensa ejecutar la consulta antes de ejecutarla.
+2. **`type = ALL`** significa recorrido de la tabla completa: es el síntoma de no tener un índice útil para el `WHERE`.
+3. **`key = NULL`** confirma que no se usó ningún índice y **`rows`** estima las filas recorridas (aquí 9821).
+4. Después de crear el índice, repite el `EXPLAIN`: espera **`type = ref`** y **`key = idx_pedidos_cliente`**.
+
+### Índices: la palanca más grande
+
+```bash
+$ docker exec -it mysql mysql -u root -p appdb -e 'CREATE INDEX idx_pedidos_cliente ON pedidos(cliente_id);'  # <1>
+$ docker exec -it mysql mysql -u root -p appdb -e 'SHOW INDEX FROM pedidos;'  # <2>
+```
+
+1. **`CREATE INDEX idx_pedidos_cliente ON pedidos(cliente_id)`** crea el índice sobre la columna que filtra el `WHERE`.
+2. **`SHOW INDEX FROM pedidos`** lista los índices de la tabla para confirmar la creación.
+
+::: {.callout-warning}
+## Un índice no es gratis
+
+Los índices aceleran `SELECT`, `JOIN` y `WHERE`, pero **añaden trabajo a cada `INSERT`, `UPDATE` y `DELETE`** y ocupan disco. Crea índices sobre las columnas que realmente se filtran o ordenan; no los agregues "por si acaso". Tras crear uno, vuelve a medir con `EXPLAIN` y con el tiempo real de la consulta.
+:::
+
+### Variables clave y el límite del contenedor
+
+```bash
+$ docker exec -it mysql mysql -u root -p -e "SHOW VARIABLES LIKE 'innodb_buffer_pool_size'; SHOW VARIABLES LIKE 'max_connections';"  # <1>
+Enter password:
++-------------------------+-------+
+| Variable_name           | Value |
++-------------------------+-------+
+| innodb_buffer_pool_size | 134217728 |
+| max_connections         | 151   |
++-------------------------+-------+
+```
+
+1. **`innodb_buffer_pool_size`** es la memoria que InnoDB dedica a cachear datos e índices: es la variable con mayor impacto en rendimiento.
+2. **`max_connections`** limita las conexiones simultáneas; subirla sin memoria suficiente provoca fallos, no velocidad.
+
+::: {.callout-important}
+## En contenedores, el límite de Docker manda
+
+El `buffer_pool_size` **nunca debe superar el límite de memoria del contenedor** (unos 70% de `mem_limit`/`deploy.limits`): si lo haces, el kernel mata el contenedor por OOM. En un servidor dedicado se suele usar el 50–70% de la RAM; en contenedor, primero define el límite y después ajusta la variable.
+:::
+
+Para aplicar un cambio, añade un archivo de configuración dentro del contenedor y reinicia:
+
+```bash
+$ docker exec -it mysql sh -c 'printf "[mysqld]\ninnodb_buffer_pool_size=512M\n" > /etc/mysql/conf.d/99-tuning.cnf'  # <1>
+$ docker compose restart db  # <2>
+```
+
+1. **`printf ... > /etc/mysql/conf.d/99-tuning.cnf`** escribe la directiva en el directorio que la imagen oficial de MySQL incluye siempre al arrancar.
+2. **`docker compose restart db`** reinicia el servicio para que MySQL lea la nueva configuración.
+
+### Verificar que el tuning funcionó
+
+```bash
+$ docker exec -it mysql mysql -u root -p -e "SHOW STATUS LIKE 'Innodb_buffer_pool_read%';"  # <1>
+Enter password:
++---------------------------------------+--------+
+| Variable_name                         | Value  |
++---------------------------------------+--------+
+| Innodb_buffer_pool_reads              | 12     |
+| Innodb_buffer_pool_read_requests      | 98412  |
++---------------------------------------+--------+
+```
+
+1. **`Innodb_buffer_pool_read_requests`** cuenta lecturas servidas por la caché y **`Innodb_buffer_pool_reads`** las que tuvieron que ir a disco: un valor bajo respecto al total significa buen *hit rate*.
+2. Si **`reads`** crece tras el cambio, el buffer pool sigue siendo pequeño para el dataset: ese es tu indicador de que falta memoria o de que la consulta necesita un índice.
+
+---
+
 ## 6. Docker Compose: pila completa App + DB
 
 Hasta ahora usamos `docker run`. Para una aplicación real necesitamos **dos servicios** (app y base de datos) que se comunican por una **red interna**, con **volúmenes persistentes**, orden de arranque y comprobación de salud. Docker Compose define todo esto en un único archivo declarativo.
