@@ -53,6 +53,37 @@ Al finalizar esta unidad, serás capaz de:
 
 En este curso usamos **Ubuntu 24.04 LTS (Noble Numbat)** — soporte hasta 2029, base de WSL2 y de nuestras imágenes Docker.
 
+## Breve historia de Linux
+
+**Unix (1969, AT&T Bell Labs)** definió cómo se ve un SO moderno; sus principios POSIX son los que Linux y todo el entorno "Unix-like" siguen hoy [@unix_history].
+
+En **1991**, Linus Torvalds —estudiante finlandés de 21 años— publicó en Usenet un pequeño kernel basado en Minix [@torvalds_linux_birth]:
+
+> *"Hello from Finland. I'm doing a (free) operating system (just a hobby, won't be big and professional like gnu) for 386(486) AT clones."*
+
+La decisión decisiva no fue el código original: fue **liberarlo bajo licencia GPL** [@gpl_license] y aceptar contribuciones. La GPL garantiza 4 libertades: usar, estudiar, modificar y distribuir el software.
+
+**Evolución del kernel:**
+
+| Era | Periodo | Hito principal |
+|-----|---------|----------------|
+| Fundamentos | 1991–2003 | De 0.01 (1991) a 1.0 (1993) y SMP (1996); de ~10 K a millones de líneas |
+| Estabilidad | 2003–2011 | Kernel 2.6: 8 años de desarrollo, base de servidores críticos |
+| Innovación rápida | 2011–hoy | Release cada 2–3 meses; hoy kernel 6.x |
+
+**En producción:** las distros LTS (ej. Ubuntu 24.04) usan un kernel LTS con años de actualizaciones de seguridad — en servidores el kernel no se cambia por costumbre, se cambia por necesidad.
+
+---
+
+## Ventajas de Linux en infraestructura
+
+- **Económica**: el costo de licencia por servidor es $0 (GPL). Referencia del mercado: Windows Server $5.000–20.000 de licencia + soporte anual, RHEL $1.000–3.000 por servidor/año, Ubuntu LTS gratuito (soporte profesional opcional).
+- **Seguridad**: el código se audita públicamente; las vulnerabilidades se encuentran y se corrigen rápido, sin "puertas traseras" ocultas [@linux_foundation_history].
+- **Estabilidad**: actualizaciones y cambios de configuración **sin reinicio**; los reinicios son planificados, no forzados por ciclos mensuales de parches. Uptimes de años son normales.
+- **Rendimiento**: huella mínima (~2 GB de disco, ~512 MB de RAM operativos) → más aplicaciones por servidor y menor costo de infraestructura (energía, refrigeración, espacio).
+- **Comunidad**: miles de contribuidores activos y documentación masiva: si tienes un problema, probablemente ya está resuelto y documentado.
+- **Flexibilidad**: kernel y sistema se ajustan al hardware y a la carga específicos, sin componentes obligatorios que no uses.
+
 ---
 
 ## 2. Entorno Práctico: WSL2 + Docker Desktop (Sin VirtualBox/VMware)
@@ -279,6 +310,36 @@ setfacl -b /ruta                          # Borrar todas las ACLs
 - **Directorios**: `750` (dueño rwx, grupo rx, otros -) o `700` si privados.
 - **Scripts ejecutables**: `750` + shebang `#!/bin/bash`.
 - **Nunca** `777` ni `666` en producción.
+:::
+
+#### Permisos especiales: setuid, setgid y sticky
+
+Tres bits que modifican el comportamiento al ejecutar o borrar archivos:
+
+| Permiso | Octal | Efecto | Ejemplo típico |
+|---------|-------|--------|----------------|
+| **setuid** | 4000 | El binario se ejecuta con permisos del **propietario** (se marca `s` en lugar de `x` del dueño) | `/usr/bin/sudo` |
+| **setgid** | 2000 | Se ejecuta con permisos del **grupo**; en directorios, los archivos nuevos heredan el grupo | directorios compartidos |
+| **sticky** | 1000 | En directorios, solo el propietario borra sus archivos (se marca `t` al final) | `/tmp` |
+
+```bash
+# Identificarlos
+ls -l /usr/bin/sudo
+# -rwsr-xr-x 1 root root ... /usr/bin/sudo    <- 's' = setuid
+
+ls -ld /tmp
+# drwxrwxrwt 2 root root ... /tmp              <- 't' = sticky bit
+
+# Establecerlos (octal con 4 dígitos, o simbólico)
+chmod 4755 script.sh      # 4 = setuid; equivalente: chmod u+s script.sh
+chmod 2770 directorio/    # 2 = setgid;   equivalente: chmod g+s directorio/
+chmod +t directorio/      # sticky
+```
+
+::: {.callout-warning}
+## setuid es poderoso y peligroso
+
+Un binario **setuid-root** se ejecuta como root sin importar quién lo invoque. Solo se aplica a binarios auditados (como `sudo`); **nunca** a scripts ni binarios de terceros sin revisar. Audita periódicamente con `find / -perm -4000 -o -perm -2000`.
 :::
 
 ### 3.4 Editores — `nano` (inicio), `vim`/`nvim` (pro)
