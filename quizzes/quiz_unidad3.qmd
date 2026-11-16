@@ -11,179 +11,163 @@ format:
 
 # Quiz: Unidad 3 - Scripting y Automatización con Bash
 
-::: quizdown
+````quizdown
 ## ¿Qué shebang se considera portable en un script Bash profesional?
 
-[x] #!/usr/bin/env bash — busca bash en el PATH del sistema
-[ ] #!/bin/bash — ruta fija en cualquier distribución
-[ ] #!/bin/sh — siempre equivale a Bash
-[ ] #!/usr/bin/bash — sin buscar en el PATH
+1. [x] #!/usr/bin/env bash — busca bash en el PATH del sistema
+1. [ ] #!/bin/bash — ruta fija en cualquier distribución
+1. [ ] #!/bin/sh — siempre equivale a Bash
+1. [ ] #!/usr/bin/bash — sin buscar en el PATH
 
-*`#!/usr/bin/env bash` encuentra bash en `$PATH`, por eso es el shebang portable recomendado.*
+> `#!/usr/bin/env bash` encuentra bash en `$PATH`, por eso es el shebang portable recomendado.
 
----
 
 ## ¿Qué hace `set -euo pipefail` en un script?
 
-[x] Sale ante cualquier error, falla con variables no definidas y falla si un comando de un pipeline falla
-[ ] Solo activa el modo depuración del script
-[ ] Crea un respaldo automático antes de ejecutar
-[ ] Permite ejecutar el script como root
+1. [x] Sale ante cualquier error, falla con variables no definidas y falla si un comando de un pipeline falla
+1. [ ] Solo activa el modo depuración del script
+1. [ ] Crea un respaldo automático antes de ejecutar
+1. [ ] Permite ejecutar el script como root
 
-*`-e` termina en error, `-u` con variable no seteada y `-o pipefail` detecta fallos dentro de pipelines.*
+> `-e` termina en error, `-u` con variable no seteada y `-o pipefail` detecta fallos dentro de pipelines.
 
----
 
 ## ¿Qué hace la función `die()` en el patrón de logging del curso?
 
-[x] Registra el mensaje con nivel ERROR y termina el script con código de salida 1
-[ ] Reinicia el servicio asociado al script
-[ ] Ignora el error y continúa con la siguiente instrucción
-[ ] Reinicia el sistema para aplicar cambios
+1. [x] Registra el mensaje con nivel ERROR y termina el script con código de salida 1
+1. [ ] Reinicia el servicio asociado al script
+1. [ ] Ignora el error y continúa con la siguiente instrucción
+1. [ ] Reinicia el sistema para aplicar cambios
 
-*`die()` combina log y salida: `log "ERROR" "$*"; exit 1` — documenta la falla y detiene con código distinto de cero.*
+> `die()` combina log y salida: `log "ERROR" "$*"; exit 1` — documenta la falla y detiene con código distinto de cero.
 
----
 
 ## ¿Por qué se validan el origen y las herramientas antes de operar en un script de backup?
 
-[x] Para abortar con un mensaje claro si falta el directorio origen o el comando `tar`
-[ ] Porque Linux exige validación obligatoria en todo script
-[ ] Para mejorar la velocidad del respaldo
-[ ] Solo por estética del código
+1. [x] Para abortar con un mensaje claro si falta el directorio origen o el comando `tar`
+1. [ ] Porque Linux exige validación obligatoria en todo script
+1. [ ] Para mejorar la velocidad del respaldo
+1. [ ] Solo por estética del código
 
-*`[[ -d "$BACKUP_SRC" ]] || die ...` y `command -v tar || die ...` fallan pronto y explican la causa.*
+> `[[ -d "$BACKUP_SRC" ]] || die ...` y `command -v tar || die ...` fallan pronto y explican la causa.
 
----
 
 ## ¿Qué declara `declare -A PORTS=( [nginx]=80 [postgresql]=5432 )`?
 
-[x] Un array asociativo (mapa clave → valor), a diferencia del array indexado `declare -a`
-[ ] Una variable de entorno persistente para todos los usuarios
-[ ] Una lista de puertos abiertos en el firewall
-[ ] Un alias de shell para systemctl
+1. [x] Un array asociativo (mapa clave → valor), a diferencia del array indexado `declare -a`
+1. [ ] Una variable de entorno persistente para todos los usuarios
+1. [ ] Una lista de puertos abiertos en el firewall
+1. [ ] Un alias de shell para systemctl
 
-*`declare -A` crea arrays asociativos; `declare -a` crea arrays indexados numéricamente.*
+> `declare -A` crea arrays asociativos; `declare -a` crea arrays indexados numéricamente.
 
----
 
 ## ¿Cómo se recorren todos los elementos de un array en un bucle?
 
-[x] `for svc in "${SERVICES[@]}"; do ... done` — comillas para respetar espacios en los elementos
-[ ] `for svc in $SERVICES; do ... done` sin comillas siempre
-[ ] `while SERVICES; do ... done`
-[ ] `foreach svc in SERVICES; do ... done`
+1. [x] `for svc in "${SERVICES[@]}"; do ... done` — comillas para respetar espacios en los elementos
+1. [ ] `for svc in $SERVICES; do ... done` sin comillas siempre
+1. [ ] `while SERVICES; do ... done`
+1. [ ] `foreach svc in SERVICES; do ... done`
 
-*`"${SERVICES[@]}"` expande cada elemento tal cual; sin comillas el word splitting rompe valores con espacios.*
+> `"${SERVICES[@]}"` expande cada elemento tal cual; sin comillas el word splitting rompe valores con espacios.
 
----
 
 ## ¿Qué hace `: "${BACKUP_DST:=/mnt/backups}"`?
 
-[x] Asigna el valor por defecto `/mnt/backups` solo si la variable no está definida (o está vacía)
-[ ] Sobrescribe la variable en cada ejecución sin excepción
-[ ] Borra la variable y su contenido
-[ ] Exporta la variable a todos los procesos del sistema
+1. [x] Asigna el valor por defecto `/mnt/backups` solo si la variable no está definida (o está vacía)
+1. [ ] Sobrescribe la variable en cada ejecución sin excepción
+1. [ ] Borra la variable y su contenido
+1. [ ] Exporta la variable a todos los procesos del sistema
 
-*La expansión `${VAR:=default}` asigna el default únicamente cuando la variable no tiene valor.*
+> La expansión `${VAR:=default}` asigna el default únicamente cuando la variable no tiene valor.
 
----
 
 ## ¿Para qué sirve `trap cleanup EXIT INT TERM`?
 
-[x] Ejecuta la función de limpieza al terminar el script, interrumpirlo o recibir una señal de terminación
-[ ] Evita que el script pueda ser interrumpido
-[ ] Reinicia el script automáticamente si falla
-[ ] Convierte las señales en errores de compilación
+1. [x] Ejecuta la función de limpieza al terminar el script, interrumpirlo o recibir una señal de terminación
+1. [ ] Evita que el script pueda ser interrumpido
+1. [ ] Reinicia el script automáticamente si falla
+1. [ ] Convierte las señales en errores de compilación
 
-*El trap garantiza liberar temporales también en salidas anormales; `local exit_code=$?` preserva el código original.*
+> El trap garantiza liberar temporales también en salidas anormales; `local exit_code=$?` preserva el código original.
 
----
 
 ## Según el FHS, ¿dónde deben guardarse los logs de una aplicación?
 
-[x] /var/log/ — por ejemplo /var/log/app/access.log
-[ ] /home/usuario/logs
-[ ] /opt/logs
-[ ] /etc/logs
+1. [x] /var/log/ — por ejemplo /var/log/app/access.log
+1. [ ] /home/usuario/logs
+1. [ ] /opt/logs
+1. [ ] /etc/logs
 
-*FHS reserva `/var` para datos en ejecución como logs y caché; `/etc` es solo configuración.*
+> FHS reserva `/var` para datos en ejecución como logs y caché; `/etc` es solo configuración.
 
----
 
 ## ¿Qué hace `setfacl -d -m g:adm:r /var/log/app`?
 
-[x] Establece una ACL por defecto: los archivos y directorios nuevos dentro heredarán lectura para el grupo adm
-[ ] Cambia el propietario del directorio al grupo adm
-[ ] Elimina todas las ACL existentes
-[ ] Otorga permisos rwx al usuario deploy
+1. [x] Establece una ACL por defecto: los archivos y directorios nuevos dentro heredarán lectura para el grupo adm
+1. [ ] Cambia el propietario del directorio al grupo adm
+1. [ ] Elimina todas las ACL existentes
+1. [ ] Otorga permisos rwx al usuario deploy
 
-*`-d` crea la ACL por defecto (heredable); `getfacl` la muestra y `-m` modifica la ACL actual.*
+> `-d` crea la ACL por defecto (heredable); `getfacl` la muestra y `-m` modifica la ACL actual.
 
----
 
 ## ¿Qué verifica `[[ -s "$ARCHIVE" ]]` en el script de backup?
 
-[x] Que el archivo de respaldo existe y no está vacío antes de dar por bueno el backup
-[ ] Que el archivo tiene permisos de solo lectura
-[ ] Que el archivo está comprimido con gzip
-[ ] Que el archivo supera los 7 días de retención
+1. [x] Que el archivo de respaldo existe y no está vacío antes de dar por bueno el backup
+1. [ ] Que el archivo tiene permisos de solo lectura
+1. [ ] Que el archivo está comprimido con gzip
+1. [ ] Que el archivo supera los 7 días de retención
 
-*`-s` comprueba tamaño mayor que cero: un backup vacío o ausente se detecta al instante.*
+> `-s` comprueba tamaño mayor que cero: un backup vacío o ausente se detecta al instante.
 
----
 
 ## ¿Cómo se aplican la retención de 7 días en el backup rotativo?
 
-[x] `find "$BACKUP_DST" -name 'app-*.tar.zst' -type f -mtime +7 -delete` — borra los respaldos con más de 7 días
-[ ] `rm -rf /mnt/backups` cada vez que se ejecuta el script
-[ ] `tar --delete` elimina los archivos viejos del sistema de archivos
-[ ] La retención la aplica el filesystem automáticamente
+1. [x] `find "$BACKUP_DST" -name 'app-*.tar.zst' -type f -mtime +7 -delete` — borra los respaldos con más de 7 días
+1. [ ] `rm -rf /mnt/backups` cada vez que se ejecuta el script
+1. [ ] `tar --delete` elimina los archivos viejos del sistema de archivos
+1. [ ] La retención la aplica el filesystem automáticamente
 
-*`-mtime +N` selecciona archivos modificados hace más de N días; `-delete` los elimina como parte de la rotación.*
+> `-mtime +N` selecciona archivos modificados hace más de N días; `-delete` los elimina como parte de la rotación.
 
----
 
 ## ¿Qué comando comprueba la integridad de un respaldo sin extraerlo?
 
-[x] `tar --test -f "$ARCHIVE"` — verifica que el archivo está intacto
-[ ] `tar --list -f "$ARCHIVE"` — solo lista el contenido
-[ ] `gzip -t` sobre un `.tar.zst`
-[ ] `cat "$ARCHIVE"` — lee el respaldo completo
+1. [x] `tar --test -f "$ARCHIVE"` — verifica que el archivo está intacto
+1. [ ] `tar --list -f "$ARCHIVE"` — solo lista el contenido
+1. [ ] `gzip -t` sobre un `.tar.zst`
+1. [ ] `cat "$ARCHIVE"` — lee el respaldo completo
 
-*`--test` valida la estructura del archivo y falla si está dañado; `--list` solo muestra el contenido.*
+> `--test` valida la estructura del archivo y falla si está dañado; `--list` solo muestra el contenido.
 
----
 
 ## ¿Cómo pruebas la configuración de logrotate sin ejecutar la rotación real?
 
-[x] `logrotate -d /etc/logrotate.d/myscript` — modo debug que solo muestra lo que haría
-[ ] `logrotate -f /etc/logrotate.d/myscript` — fuerza la rotación inmediata
-[ ] `systemctl restart logrotate`
-[ ] Editando el archivo `/var/log/syslog`
+1. [x] `logrotate -d /etc/logrotate.d/myscript` — modo debug que solo muestra lo que haría
+1. [ ] `logrotate -f /etc/logrotate.d/myscript` — fuerza la rotación inmediata
+1. [ ] `systemctl restart logrotate`
+1. [ ] Editando el archivo `/var/log/syslog`
 
-*`-d` es el modo debug (no rota nada); `-f` fuerza la rotación — se usa solo cuando se quiere ejecutar ya.*
+> `-d` es el modo debug (no rota nada); `-f` fuerza la rotación — se usa solo cuando se quiere ejecutar ya.
 
----
 
 ## ¿Qué programa el siguiente crontab: `0 2 * * * /usr/local/sbin/backup.sh`?
 
-[x] Ejecutar el script de backup todos los días a las 02:00
-[ ] Ejecutar el script cada 2 minutos
-[ ] Ejecutar el backup el día 2 de cada mes a medianoche
-[ ] Ejecutar el script solo los lunes
+1. [x] Ejecutar el script de backup todos los días a las 02:00
+1. [ ] Ejecutar el script cada 2 minutos
+1. [ ] Ejecutar el backup el día 2 de cada mes a medianoche
+1. [ ] Ejecutar el script solo los lunes
 
-*Los cinco campos son minuto, hora, día del mes, mes y día de la semana: `0 2 * * *` = 02:00 diario.*
+> Los cinco campos son minuto, hora, día del mes, mes y día de la semana: `0 2 * * *` = 02:00 diario.
 
----
 
 ## ¿Qué ventaja aporta `Persistent=true` en un systemd timer como `backup.timer`?
 
-[x] Si el sistema estaba apagado a la hora programada, ejecuta la tarea al encender de nuevo
-[ ] Ejecuta la tarea en paralelo con el arranque del sistema
-[ ] Hace que el timer se ejecute una sola vez y nunca más
-[ ] Guarda la salida del timer en un archivo permanente
+1. [x] Si el sistema estaba apagado a la hora programada, ejecuta la tarea al encender de nuevo
+1. [ ] Ejecuta la tarea en paralelo con el arranque del sistema
+1. [ ] Hace que el timer se ejecute una sola vez y nunca más
+1. [ ] Guarda la salida del timer en un archivo permanente
 
-*`OnCalendar` define el horario y `Persistent=true` recupera las ejecuciones perdidas por apagones; `Type=oneshot` corresponde al servicio asociado.*
-
-:::
+> `OnCalendar` define el horario y `Persistent=true` recupera las ejecuciones perdidas por apagones; `Type=oneshot` corresponde al servicio asociado.
+````
