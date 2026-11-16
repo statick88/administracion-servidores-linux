@@ -1,6 +1,6 @@
 ---
-title: "Quiz Unidad 7: Redes Básicas"
-description: "Evaluación sobre fundamentos de redes, TCP/IP, configuración de red y herramientas de diagnóstico"
+title: "Quiz Unidad 7: Seguridad Práctica - Hardening"
+description: "Evaluación sobre permisos avanzados, umask y GPG, modos de SELinux y AppArmor, auditd y Lynis"
 author: "Diego Saavedra"
 date: today
 format:
@@ -9,158 +9,170 @@ format:
     number-sections: false
 ---
 
-# Quiz: Unidad 7 - Redes Básicas
+# Quiz: Unidad 7 - Seguridad Práctica - Hardening
 
 ::: quizdown
-## ¿Qué significa TCP/IP?
+## ¿Qué permiso especial queda activo con `chmod 4755 archivo`?
 
-[x] Transmission Control Protocol / Internet Protocol
-[ ] Technical Computer Protocol / Internal Process
-[ ] Transfer Control Protocol / Internet Path
-[ ] Transmission Channel Protocol / Information Package
+[x] SUID (Set User ID)
+[ ] SGID (Set Group ID)
+[ ] Sticky Bit
+[ ] ACL por defecto
 
-*TCP/IP es el conjunto de protocolos fundamentales de internet.*
-
----
-
-## ¿Qué significa IP?
-
-[x] Internet Protocol - Protocolo que identifica dispositivos en una red
-[ ] Internal Protocol
-[ ] Internet Path
-[ ] Integrated Protocol
-
-*La dirección IP identifica cada dispositivo en la red.*
+*El 4 inicial enciende SUID; 2 es SGID y 1 es sticky bit. Los tres se aplican sobre el octeto de permisos clásico.*
 
 ---
 
-## ¿Cuál es el rango de direcciones IP privadas clase C?
+## ¿Qué significa que un binario tenga SUID?
 
-[x] 192.168.0.0 - 192.168.255.255
-[ ] 10.0.0.0 - 10.255.255.255
-[ ] 172.16.0.0 - 172.31.255.255
-[ ] 169.254.0.0 - 169.254.255.255
+[x] Se ejecuta siempre con los privilegios de su propietario, no con los de quien lo lanza
+[ ] Solo el grupo propietario puede ejecutarlo
+[ ] El archivo no puede ser borrado por otros usuarios
+[ ] Hereda los permisos del directorio donde está
 
-*Las IPs privadas clase C son típicas para redes domésticas: 192.168.x.x*
-
----
-
-## ¿Qué es una máscara de subred?
-
-[x] Define qué parte de la IP es red y qué parte es host
-[ ] El número de dispositivos en la red
-[ ] El gateway predeterminado
-[ ] El servidor DNS
-
-*255.255.255.0 significa que los primeros 3 octetos son la red.*
+*Por eso `/usr/bin/passwd` tiene SUID root: cambia `/etc/shadow` aunque lo ejecute un usuario normal — y por eso un binario SUID mal configurado es un riesgo crítico.*
 
 ---
 
-## ¿Qué comando muestra la configuración de red en Linux?
+## ¿Qué hace el sticky bit en un directorio como /tmp?
 
-[x] ip a
-[ ] ipconfig
-[ ] netstat
-[ ] ping
+[x] Solo el propietario del archivo (o root) puede borrarlo o renombrarlo
+[ ] Impide crear archivos nuevos dentro del directorio
+[ ] Hace que todos los archivos sean de solo lectura
+[ ] Oculta el directorio de los demás usuarios
 
-*ip a (ip address) muestra interfaces e IPs asignadas.*
-
----
-
-## ¿Qué significa "gateway"?
-
-[x] El dispositivo que conecta tu red a otras redes (generalmente internet)
-[ ] El servidor DNS
-[ ] Tu dirección IP pública
-[ ] El nombre de tu red WiFi
-
-*El gateway es la "puerta de salida" hacia otras redes.*
+*Sin sticky bit, cualquier usuario con permiso de escritura en el directorio podría borrar los archivos de los demás.*
 
 ---
 
-## ¿Qué protocolo traduce nombres de dominio a direcciones IP?
+## ¿Cómo se otorgan permisos a un usuario concreto sin cambiar owner ni grupo?
 
-[x] DNS (Domain Name System)
-[ ] DHCP
-[ ] TCP
-[ ] HTTP
+[x] Con una ACL: setfacl -m u:deploy:rwx /ruta
+[ ] Con chmod u+rwx en el directorio raíz
+[ ] Con chown deploy /ruta
+[ ] Con umask 000
 
-*DNS convierte www.ejemplo.com a 192.0.2.1*
-
----
-
-## ¿Qué es DHCP?
-
-[x] Dynamic Host Configuration Protocol - Asigna IPs automáticamente
-[ ] Un tipo de firewall
-[ ] Un protocolo de seguridad
-[ ] Un servidor web
-
-*DHCP evita tener que configurar IPs manualmente en cada dispositivo.*
+*Las ACL (`setfacl` / `getfacl`) complementan los permisos POSIX; `setfacl -b` las elimina todas.*
 
 ---
 
-## ¿Qué comando prueba conectividad a otro host?
+## Con una umask de 022, ¿con qué permisos nace un archivo nuevo?
 
-[x] ping
-[ ] traceroute
-[ ] ip
-[ ] netstat
+[x] 644 (-rw-r--r--)
+[ ] 600 (-rw-------)
+[ ] 755 (drwxr-xr-x)
+[ ] 666 (-rw-rw-rw-)
 
-*ping envía ICMP echo requests y muestra respuesta y latencia.*
-
----
-
-## ¿Qué puerto usa HTTP por defecto?
-
-[ ] 443
-[x] 80
-[ ] 22
-[ ] 21
-
-*HTTP usa puerto 80, HTTPS usa 443, SSH usa 22.*
+*El archivo parte de 666 y se restan los permisos de la umask: 666 − 022 = 644. Un directorio parte de 777 y queda en 755.*
 
 ---
 
-## ¿Qué significa "localhost"?
+## ¿Qué umask se usa para respaldos o claves donde solo debe entrar el propietario?
 
-[x] La dirección 127.0.0.1 que referencia la propia máquina
-[ ] El servidor principal de la red
-[ ] El gateway
-[ ] El servidor DNS
+[x] 077
+[ ] 022
+[ ] 002
+[ ] 000
 
-*Todo lo enviado a localhost se queda en tu propia máquina.*
-
----
-
-## ¿Qué archivo contiene la resolución DNS estática?
-
-[x] /etc/hosts
-[ ] /etc/resolv.conf
-[ ] /etc/dns.conf
-[ ] /etc/network/interfaces
-
-*/etc/hosts permite definir nombres locales sin usar DNS.*
+*Con 077 el archivo nace en 600 y el directorio en 700; 022 es el valor por defecto de servidor y 002 sirve para directorios de equipo compartidos.*
 
 ---
 
-## ¿Qué comando muestra las rutas de red?
+## ¿Afecta la umask a los archivos que ya existen en el sistema?
 
-[x] ip route
-[ ] ip neigh
-[ ] ss
-[ ] netstat
+[x] No, solo se aplica en el momento de crear archivos y directorios nuevos
+[ ] Sí, recalcula los permisos de todo el árbol al iniciar sesión
+[ ] Sí, pero solo para los archivos creados por root
+[ ] Solo afecta a los directorios, no a los archivos
 
-*ip route (o route) muestra la tabla de enrutamiento.*
+*Para modificar permisos de archivos existentes se usan `chmod` y `chown`; cambiar la umask no los toca.*
 
 ---
 
-## ¿Qué significa NAT?
+## ¿Qué opción de GPG genera solo la firma (.sig) y deja el respaldo original intacto?
 
-[x] Network Address Translation - Traduce IPs privadas a públicas
-[ ] Network Attachment Technology
-[ ] New Address Translation
-[ ] Network Authentication Token
+[x] gpg --detach-sign respaldo.tar.gz
+[ ] gpg --sign respaldo.tar.gz
+[ ] gpg --symmetric respaldo.tar.gz
+[ ] gpg --export respaldo.tar.gz
 
-*NAT permite que múltiples dispositivos con IPs privadas compartan una IP pública.*
+*`--sign` empaqueta original y firma en un solo archivo; `--detach-sign` deja el `.sig` separado, el formato habitual para respaldos, y `gpg --verify respaldo.tar.gz.sig respaldo.tar.gz` reporta `Good signature` si el archivo no cambió desde que se firmó.*
+
+---
+
+## ¿Cuáles son los tres modos de operación de SELinux?
+
+[x] enforcing, permissive y disabled
+[ ] enforce, complain y disabled
+[ ] active, audit y off
+[ ] strict, relaxed y off
+
+*`enforcing` bloquea y registra, `permissive` solo registra y `disabled` no carga política. `enforce`/`complain` son los modos de perfil de AppArmor.*
+
+---
+
+## ¿Qué comando muestra el modo de SELinux activo en este momento?
+
+[x] getenforce
+[ ] aa-status
+[ ] getsebool -a
+[ ] semanage fcontext -l
+
+*`getenforce` devuelve Enforcing, Permissive o Disabled; `setenforce 1` o `0` cambia el modo en caliente, pero el valor persistente vive en `/etc/selinux/config`.*
+
+---
+
+## ¿Cuál es la diferencia entre el modo permissive de SELinux y el modo complain de AppArmor?
+
+[x] permissive es global para todo el sistema; complain se aplica a cada perfil de forma individual
+[ ] No hay diferencia, son el mismo concepto con otro nombre
+[ ] complain bloquea y permissive solo registra
+[ ] permissive es por perfil y complain es global
+
+*En AppArmor cada perfil tiene su modo, así que un servicio puede estar en enforce mientras se depura otro en complain; en SELinux el modo es único para el sistema.*
+
+---
+
+## ¿Qué muestra `aa-status`?
+
+[x] Los perfiles de AppArmor cargados y cuántos están en enforce o complain
+[ ] El modo global de SELinux
+[ ] Las reglas activas de auditd
+[ ] El índice de hardening de Lynis
+
+*Es el punto de partida para auditar AppArmor: lista perfiles, perfiles de ejecución y estado del módulo.*
+
+---
+
+## ¿Qué marco MAC trae Ubuntu 24.04 activado por defecto?
+
+[x] AppArmor
+[ ] SELinux en enforcing
+[ ] TOMOYO
+[ ] YAMA
+
+*SELinux está en los repos pero deshabilitado en una instalación estándar; en Ubuntu se trabaja normalmente en permissive antes de forzar enforcing.*
+
+---
+
+## ¿Qué audita exactamente la regla `auditd -w /etc/passwd -p wa -k identity`?
+
+[x] Escrituras y cambios de atributos sobre /etc/passwd
+[ ] Lecturas del archivo por parte de los usuarios
+[ ] La ejecución del archivo /etc/passwd
+[ ] Solo el cambio de propietario
+
+*`-w` watch, `-p wa` write + attribute, `-k identity` etiqueta los eventos para filtrarlos después con `ausearch -k identity`.*
+
+---
+
+## ¿Qué produce `lynis audit system` y qué valor conviene vigilar?
+
+[x] Un informe de auditoría con recomendaciones y un hardening index de 0 a 100
+[ ] Un firewall activo con reglas predefinidas
+[ ] La rotación automática de todos los logs
+[ ] El bloqueo de cuentas con contraseñas débiles
+
+*Lynis audita el sistema contra benchmarks; el hardening index es la métrica que se sigue en cada iteración de hardening.*
+
 :::

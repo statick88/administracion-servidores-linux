@@ -1,5 +1,5 @@
 ---
-title: "Quiz Unidad 12: Diagnóstico y Troubleshooting"
+title: "Quiz Unidad 12: Proyecto Final"
 description: "Evaluación sobre metodología de diagnóstico, logs, herramientas de análisis y resolución de problemas"
 author: "Diego Saavedra"
 date: today
@@ -9,7 +9,7 @@ format:
     number-sections: false
 ---
 
-# Quiz: Unidad 12 - Diagnóstico y Troubleshooting
+# Quiz: Unidad 12 - Proyecto Final
 
 ::: quizdown
 ## ¿Qué es la metodología de diagnóstico?
@@ -174,4 +174,93 @@ format:
 [ ] Un archivo de configuración
 
 *Los runbooks estandarizan respuestas y reducen tiempo de resolución.*
+
+---
+
+## ¿Cómo entras al modo de rescate editando el menú de GRUB?
+
+[x] Resaltas la entrada, pulsas `e`, añades `systemd.unit=rescue.target` al final de la línea `linux` y arrancas con `Ctrl+X`
+[ ] Pulsas `Esc` y seleccionas "Recovery Mode" desde el sistema en ejecución
+[ ] Editas `/etc/grub.conf` y reinicias el servidor
+[ ] Ejecutas `systemctl isolate rescue.target` sin reiniciar
+
+*La edición desde GRUB es temporal: aplica solo a ese arranque y no modifica el GRUB instalado en disco.*
+
+---
+
+## ¿Cuál es la diferencia práctica entre `rescue.target` y `emergency.target`?
+
+[x] `rescue` monta todos los sistemas de archivos con lo mínimo en servicios; `emergency` no monta nada más allá de lo imprescindible
+[ ] `emergency` arranca el sistema completo con todos los servicios de red
+[ ] No hay diferencia: son dos nombres para el mismo modo
+[ ] `rescue` no pide contraseña y `emergency` siempre la pide
+
+*Si no sabes cuál usar, empieza por `rescue.target`: es el "single-user" moderno de systemd.*
+
+---
+
+## ¿Qué característica define al arranque con `init=/bin/bash`?
+
+[x] La shell es el PID 1: no arranca systemd, no hay red ni `systemctl` y entra sin pedir contraseña
+[ ] Arranca el sistema completo pero sin servicios gráficos
+[ ] Pide la contraseña de root antes de mostrar la shell
+[ ] Monta todos los sistemas de archivos en lectura/escritura
+
+*Es la vía para entrar cuando olvidaste la contraseña de root; la raíz suele quedar montada en solo lectura.*
+
+---
+
+## Al intentar `passwd` dentro de `init=/bin/bash` aparece "Read-only file system". ¿Cuál es el arreglo?
+
+[x] `mount -o remount,rw /` y verificar con `findmnt /` que aparezca la opción `rw`
+[ ] Reiniciar el servidor e intentar de nuevo
+[ ] Formatear la partición raíz
+[ ] `chmod 777 /etc/shadow` para habilitar la escritura
+
+*Sin remontar en lectura/escritura, ninguna escritura en la raíz se guarda — verifica siempre con `findmnt`.*
+
+---
+
+## ¿Qué regla aplica al ejecutar `fsck` desde el modo de rescate?
+
+[x] Solo se ejecuta sobre sistemas de archivos NO montados: desmonta la partición y verifica con `findmnt` antes; para la raíz usa `fsck.mode=force fsck.repair=yes` en el arranque
+[ ] Se puede ejecutar sobre cualquier partición aunque esté montada
+[ ] Solo funciona con el sistema completo arriba
+[ ] Requiere deshabilitar el firewall antes de ejecutarlo
+
+*fsck sobre un sistema montado puede corromper datos; `fsck -n` es el dry-run previo y `echo $?` devuelve 0 si quedó limpio.*
+
+---
+
+## Olvidaste la contraseña de root y `rescue.target` no te deja entrar (sulogin la pide). ¿Qué haces?
+
+[x] Entras con `init=/bin/bash`, remontas la raíz con `mount -o remount,rw /` y ejecutas `passwd root`
+[ ] Formateas `/etc/shadow` con `mkfs`
+[ ] Usas `sudo passwd root` desde tu sesión habitual de escritorio
+[ ] Desinstalas y vuelves a instalar el sistema operativo
+
+*Sin contraseña de root no entras a rescue: `init=/bin/bash` no autentica; protege después el acceso a consola y a GRUB.*
+
+---
+
+## Según la rúbrica del Proyecto Final, ¿qué se exige para aprobar?
+
+[x] Al menos 70 puntos sobre 100 en total y al menos 10 de los 20 puntos del criterio "Seguridad y hardening"
+[ ] Solo alcanzar 70 puntos en total, sin importar el criterio de seguridad
+[ ] 100 puntos exactos para aprobar
+[ ] La aprobación la define el instructor al final del curso
+
+*Un servidor inseguro no aprueba aunque el total alcance 70: el criterio 2 tiene piso propio de 10/20.*
+
+---
+
+## ¿Cuáles son los componentes del entregable del Proyecto Final?
+
+[x] VM funcionando e accesible, informe (Markdown o PDF), evidencias de comandos y configuraciones, y demo en vivo de 10 minutos
+[ ] Solo el informe escrito sin servidor
+[ ] Un examen teórico de 50 preguntas
+[ ] La VM con snapshots, sin documentación
+
+*La rúbrica de 100 puntos y el checklist de evidencias definen exactamente qué se evalúa en el entregable.*
+
 :::

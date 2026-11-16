@@ -1,6 +1,6 @@
 ---
-title: "Quiz Unidad 8: Introducción a Servidores Web"
-description: "Evaluación sobre conceptos fundamentales de servidores web, HTTP y arquitectura web"
+title: "Quiz Unidad 8: Servidor DHCP"
+description: "Evaluación sobre ISC dhcpd y scopes, opciones y reservaciones, archivo de concesiones y firewall"
 author: "Diego Saavedra"
 date: today
 format:
@@ -9,158 +9,170 @@ format:
     number-sections: false
 ---
 
-# Quiz: Unidad 8 - Introducción a Servidores Web
+# Quiz: Unidad 8 - Servidor DHCP
 
 ::: quizdown
-## ¿Qué es un servidor web?
+## ¿Qué secuencia describe el intercambio DORA en DHCP?
 
-[x] Un software que procesa solicitudes HTTP y devuelve contenido web
-[ ] Una computadora física conectada a internet
-[ ] Un tipo de base de datos
-[ ] Un programa para diseñar páginas web
+[x] Discover, Offer, Request, Acknowledge
+[ ] Discover, Acknowledge, Offer, Request
+[ ] Request, Discover, Acknowledge, Offer
+[ ] Offer, Discover, Acknowledge, Request
 
-*Apache, Nginx y IIS son ejemplos de servidores web.*
-
----
-
-## ¿Qué significa HTTP?
-
-[x] HyperText Transfer Protocol - Protocolo de transferencia de hipertexto
-[ ] High Tech Transmission Protocol
-[ ] HyperText Transmission Process
-[ ] Home Tool Transfer Protocol
-
-*HTTP es el protocolo de comunicación entre clientes y servidores web.*
+*El cliente emite `DHCPDISCOVER` en broadcast, el servidor responde `DHCPOFFER`, el cliente pide con `DHCPREQUEST` y el servidor confirma con `DHCPACK`.*
 
 ---
 
-## ¿Qué significa HTTPS?
+## ¿Qué puertos UDP usa el servicio DHCP y quién los ocupa?
 
-[x] HTTP Secure - HTTP con encriptación TLS/SSL
-[ ] HTTP Server
-[ ] High Traffic Server
-[ ] HTTP Transfer Standard
+[x] UDP 67 en el servidor y UDP 68 en el cliente
+[ ] UDP 67 en el cliente y UDP 68 en el servidor
+[ ] TCP 67 y TCP 68 en ambos sentidos
+[ ] UDP 53 y UDP 54
 
-*HTTPS protege la información con certificados SSL/TLS.*
-
----
-
-## ¿Qué es un servidor web Nginx?
-
-[x] Un servidor web ligero y de alto rendimiento, también usado como reverse proxy
-[ ] Un sistema de base de datos
-[ ] Un firewall
-[ ] Un lenguaje de programación
-
-*Nginx es famoso por manejar miles de conexiones concurrentes.*
+*Por eso el tráfico inicial es broadcast: el cliente aún no tiene dirección y se dirige a `255.255.255.255:67` desde `0.0.0.0:68`.*
 
 ---
 
-## ¿Qué es un VirtualHost?
+## ¿Cuál es el archivo de configuración de ISC dhcpd en Ubuntu?
 
-[x] Una configuración que permite servir múltiples dominios en un solo servidor
-[ ] Un tipo de máquina virtual
-[ ] Un sistema de virtualización
-[ ] Un protocolo de red
+[x] /etc/dhcp/dhcpd.conf
+[ ] /etc/dhcpd.conf
+[ ] /etc/default/isc-dhcp-server
+[ ] /etc/network/interfaces
 
-*VirtualHost permite Hospedar varios sitios web en un servidor.*
-
----
-
-## ¿Qué es un reverse proxy?
-
-[x] Un servidor que recibe solicitudes y las redirige a servidores backend
-[ ] Un firewall de red
-[ ] Un servidor DNS
-[ ] Un tipo de base de datos
-
-*Reverse proxy proporciona balanceo de carga, SSL y caché.*
+*`/etc/default/isc-dhcp-server` solo define en qué interfaces escucha dhcpd (`INTERFACESv4`); los parámetros y scopes van en `dhcpd.conf`.*
 
 ---
 
-## ¿Qué puerto usa HTTPS por defecto?
+## ¿Qué declara el bloque `subnet 192.168.100.0 netmask 255.255.255.0 { range ... }`?
 
-[ ] 80
-[x] 443
-[ ] 8080
-[ ] 22
+[x] Un scope: la subred que el servidor atiende, con su rango de direcciones dinámicas
+[ ] Una reserva de una sola dirección
+[ ] Una regla de firewall para la red
+[ ] El dominio DNS del sitio
 
-*HTTPS usa puerto 443 (el estándar para tráfico encriptado).*
-
----
-
-## ¿Qué es un certificado SSL/TLS?
-
-[x] Un archivo que habilita encriptación y verifica la identidad del servidor
-[ ] Un tipo de contraseña
-[ ] Un programa antivirus
-[ ] Un sistema operativo
-
-*Los certificados SSL/TLS habilitan HTTPS y validan identidad.*
+*Sin declaración `subnet` para la red de la interfaz por la que llega el paquete, dhcpd no arranca: `No subnet declaration for eth0`.*
 
 ---
 
-## ¿Qué significa "request" en el contexto web?
+## ¿Cómo se excluye la dirección .150 de la entrega dinámica en ISC dhcpd?
 
-[x] Una solicitud del cliente (navegador) al servidor web
-[ ] Una respuesta del servidor
-[ ] Un tipo de virus
-[ ] Un archivo de configuración
+[x] No incluyéndola en ningún `range` (declarando dos rangos separados)
+[ ] Con una declaración `exclude 192.168.100.150;`
+[ ] Con `deny unknown-clients;`
+[ ] Borrándola del archivo de concesiones
 
-*El cliente envía request, el servidor responde con response.*
-
----
-
-## ¿Qué significa "response" en el contexto web?
-
-[x] La respuesta del servidor web al cliente después de procesar un request
-[ ] Una solicitud del cliente
-[ ] Un tipo de error
-[ ] Un archivo de configuración
-
-*El response incluye código de estado, headers y contenido.*
+*ISC dhcpd no tiene la declaración `exclude` de Windows Server; las exclusiones se logran partiéndose el rango en dos bloques.*
 
 ---
 
-## ¿Qué código de estado HTTP indica "OK" (éxito)?
+## ¿Qué hace la directiva `authoritative;` en dhcpd.conf?
 
-[ ] 404
-[ ] 500
-[x] 200
-[ ] 301
+[x] Hace que el servidor responda DHCPNAK a clientes con direcciones que no pertenecen a su red
+[ ] Exige que todos los clientes estén reservados
+[ ] Habilita la autenticación por contraseña de los clientes
+[ ] Prioriza este servidor frente a otros de la red
 
-*200 = OK, la solicitud fue exitosa.*
-
----
-
-## ¿Qué código de estado HTTP indica "Not Found"?
-
-[ ] 200
-[ ] 500
-[x] 404
-[ ] 301
-
-*404 = Not Found, el recurso no existe.*
+*Evita que un cliente siga usando una dirección antigua de otro servidor; es recomendable en redes donde dhcpd es el único servidor.*
 
 ---
 
-## ¿Qué código de estado HTTP indica "Internal Server Error"?
+## ¿Cuál es el orden de jerarquía de alcances de una opción DHCP?
 
-[ ] 200
-[x] 500
-[ ] 404
-[ ] 301
+[x] Global → subnet → host; el nivel más específico gana
+[ ] host → subnet → global; el nivel más general gana
+[ ] Todos tienen la misma prioridad y el último gana
+[ ] Solo se admiten opciones a nivel global
 
-*500 = Internal Server Error, error en el servidor.*
+*Una opción declarada dentro de un bloque `host` sobreescribe a la del `subnet`, y esta a la global.*
 
 ---
 
-## ¿Qué significa "负载均衡" (load balancing)?
+## ¿Qué opción DHCP entrega la puerta de enlace predeterminada y cuál es su número?
 
-[x] Distribuir tráfico entre múltiples servidores para evitar sobrecarga
-[ ] Aumentar la velocidad de un servidor
-[ ] Reducir costos de hosting
-[ ] Hacer copias de seguridad
+[x] `option routers`, opción 3
+[ ] `option subnet-mask`, opción 3
+[ ] `option domain-name-servers`, opción 3
+[ ] `option broadcast-address`, opción 3
 
-*Load balancing mejora disponibilidad y rendimiento.*
+*La opción 1 es la máscara de subred, 3 el router, 6 los servidores DNS, 12 el nombre de host y 15 el dominio.*
+
+---
+
+## ¿Por qué `default-lease-time` y `max-lease-time` no llevan la palabra `option`?
+
+[x] Son parámetros del servidor, no opciones del protocolo DHCP
+[ ] Porque están obsoletos en las versiones actuales
+[ ] Porque solo aplican a los clientes reservados
+[ ] Porque se configuran en el archivo de concesiones
+
+*Igual ocurre con `authoritative` y `range`: se escriben sin `option` dentro del scope.*
+
+---
+
+## ¿Cómo se define una reservación (MAC → IP fija) en dhcpd.conf?
+
+[x] host impresora { hardware ethernet 02:00:00:00:00:01; fixed-address 192.168.100.50; }
+[ ] reservation impresora 192.168.100.50 02:00:00:00:00:01;
+[ ] static-lease 02:00:00:00:00:01 192.168.100.50;
+[ ] host impresora { ip 192.168.100.50; }
+
+*`hardware ethernet` identifica al equipo por su MAC y `fixed-address` fija la IP que siempre recibirá.*
+
+---
+
+## ¿Dónde debe estar ubicada la dirección de una reserva?
+
+[x] Dentro de un `subnet` declarado, pero preferiblemente fuera del `range` dinámico
+[ ] Obligatoriamente dentro del `range` dinámico
+[ ] Fuera de cualquier `subnet` declarada
+[ ] En el archivo de concesiones, no en dhcpd.conf
+
+*Fuera del rango evita que una dirección dinámica choque con la reserva; si el cliente pide otra, el servidor responde `DHCPNAK`.*
+
+---
+
+## ¿Dónde guarda dhcpd sus concesiones?
+
+[x] En /var/lib/dhcp/dhcpd.leases
+[ ] En /var/log/dhcpd.log
+[ ] En /etc/dhcp/dhcpd.leases
+[ ] En /var/lib/dhclient/
+
+*Es una base ASCII persistente; sin este archivo dhcpd no arranca y en una instalación limpia se crea vacío con `touch /var/lib/dhcp/dhcpd.leases`.*
+
+---
+
+## ¿Qué ocurre con el archivo de concesiones cuando crece sin límite?
+
+[x] dhcpd lo rota y deja el respaldo como /var/lib/dhcp/dhcpd.leases~
+[ ] El sistema borra automáticamente las concesiones vencidas
+[ ] Se comprime con gzip cada 24 horas
+[ ] Se divide en un archivo por subred
+
+*La rotación la hace el propio dhcpd: reescribe descartando declaraciones obsoletas y guarda la versión anterior como respaldo.*
+
+---
+
+## ¿Qué regla de ufw permite recibir el DHCPDISCOVER en la interfaz de la LAN?
+
+[x] sudo ufw allow in on eth0 to any port 67 proto udp
+[ ] sudo ufw allow out on eth0 to any port 68 proto udp
+[ ] sudo ufw allow from 192.168.100.0/24 to any port 67
+[ ] sudo ufw allow 67,68
+
+*La política por defecto de ufw es `deny (incoming)`: sin regla de entrada el `DHCPDISCOVER` se descarta y el cliente nunca recibe oferta. En el servidor no hace falta abrir el 68, porque las respuestas salen del 67 hacia el 68.*
+
+---
+
+## ¿Por qué una regla `ufw allow in on eth0 from 192.168.100.0/24 to any port 67 proto udp` no deja pasar el primer DISCOVER?
+
+[x] Porque el DHCPDISCOVER llega con origen 0.0.0.0, no con una IP de la subred
+[ ] Porque DHCP usa TCP en lugar de UDP
+[ ] Porque el puerto correcto es el 68 en el servidor
+[ ] Porque ufw no admite filtros por interfaz
+
+*Esa regla por origen sirve para renovaciones o para tráfico relayeado; con un relay (`dhcrelay`) el origen es la IP del relay, no `0.0.0.0`.*
+
 :::

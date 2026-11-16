@@ -1,6 +1,6 @@
 ---
-title: "Quiz Unidad 2: Instalación y Configuración"
-description: "Evaluación sobre instalación de Ubuntu Server, configuración inicial y seguridad básica"
+title: "Quiz Unidad 2: Gestión de Paquetes y Entornos"
+description: "Evaluación sobre gestores de paquetes APT y DNF, repositorios EPEL y PPA, Snap/Flatpak y firmas GPG"
 author: "Diego Saavedra"
 date: today
 format:
@@ -9,136 +9,159 @@ format:
     number-sections: false
 ---
 
-# Quiz: Unidad 2 - Instalación y Configuración de Linux
+# Quiz: Unidad 2 - Gestión de Paquetes y Entornos
 
 ::: quizdown
-## ¿Cuál es el requisito mínimo de RAM para instalar Ubuntu Server?
+## ¿Qué gestor de paquetes utilizan RHEL, Rocky Linux y AlmaLinux?
 
-[ ] 512 MB
-[x] 1 GB
-[ ] 4 GB
-[ ] 8 GB
+[x] DNF (con RPM como formato de paquete subyacente)
+[ ] APT
+[ ] Pacman
+[ ] Portage
 
-*El requisito mínimo oficial de RAM para Ubuntu Server es 1 GB.*
-
----
-
-## ¿Qué formato de particionado se recomienda para servidores modernos?
-
-[x] GPT (GUID Partition Table)
-[ ] MBR (Master Boot Record)
-[ ] FAT32
-[ ] NTFS
-
-*GPT es el estándar moderno que soporta particiones mayores de 2TB y es requerido para UEFI.*
+*DNF es el gestor de las familias RPM; APT pertenece a Debian/Ubuntu, Pacman a Arch y Portage a Gentoo.*
 
 ---
 
-## ¿Qué significa UEFI?
+## ¿En qué formato de paquete se distribuyen los programas en Fedora o RHEL?
 
-[x] Unified Extensible Firmware Interface, el reemplazo moderno de BIOS
-[ ] Universal External File Interface
-[ ] Unix Extended Firmware Integration
-[ ] Unified Enterprise File Interface
+[x] .rpm
+[ ] .deb
+[ ] .pkg.tar.zst
+[ ] .msi
 
-*UEFI es el firmware moderno que reemplaza a BIOS, con soporte para particiones GPT y arranque seguro.*
-
----
-
-## ¿Cuál es el tamaño mínimo recomendado para la partición raíz (/) en un servidor?
-
-[x] 10-20 GB mínimo
-[ ] 5 GB
-[ ] 50 GB
-[ ] 100 GB
-
-*Se recomiendan mínimo 10-20 GB para el sistema operativo, aplicaciones y logs.*
+*Los sistemas RPM empaquetan en `.rpm`; Debian y Ubuntu usan `.deb`.*
 
 ---
 
-## ¿Qué comando permite verificar la configuración de red después de la instalación?
+## ¿Cuál es el comando DNF equivalente a `apt list --installed`?
 
-[x] ip a
-[ ] ifconfig
-[ ] netstat
-[ ] ping
+[x] dnf list installed
+[ ] dnf list available
+[ ] dnf repolist
+[ ] rpm -qa
 
-*El comando `ip a` (o `ip address`) muestra la configuración de interfaces de red.*
-
----
-
-## ¿Qué significa "habilitar" un servicio en systemd?
-
-[x] Que el servicio se inicie automáticamente al arrancar el sistema
-[ ] Que el servicio está ejecutándose actualmente
-[ ] Que el servicio está instalado
-[ ] Que el servicio está detenido
-
-*Enable significa que systemd iniciará el servicio automáticamente en cada arranque.*
+*`dnf list installed` enumera los paquetes instalados; `rpm -qa` es la capa inferior y no pasa por los repositorios.*
 
 ---
 
-## ¿Cuál es el comando para actualizar todos los paquetes en Ubuntu?
+## ¿Qué par de comandos actualiza el índice de paquetes en APT y en DNF?
 
-[x] sudo apt update && sudo apt upgrade
-[ ] sudo yum update
-[ ] sudo dnf upgrade
-[ ] sudo apt install --update
+[x] apt update y dnf makecache
+[ ] apt upgrade y dnf upgrade
+[ ] apt refresh y dnf refresh
+[ ] apt sync y dnf sync
 
-*En Ubuntu/Debian, `apt update` actualiza la lista de paquetes y `apt upgrade` los instala.*
-
----
-
-## ¿Qué puerto usa SSH por defecto?
-
-[ ] 80
-[x] 22
-[ ] 443
-[ ] 8080
-
-*SSH usa el puerto 22 por defecto según el estándar RFC 4252.*
+*Actualizar el índice (metadatos) es `apt update` / `dnf makecache`; instalar las versiones nuevas es `apt upgrade` / `dnf upgrade`.*
 
 ---
 
-## ¿Qué significa "hardening" en el contexto de servidores Linux?
+## ¿Qué significa EPEL?
 
-[x] Aplicar medidas de seguridad para reducir vulnerabilidades
-[ ] Endurecer el hardware del servidor
-[ ] Instalar un firewall físico
-[ ] Aumentar la RAM del servidor
+[x] Extra Packages for Enterprise Linux — repositorio que amplía los paquetes disponibles en RHEL
+[ ] Enterprise Package Exchange Layer
+[ ] Enhanced Package Enrollment License
+[ ] External Providers of Enterprise Linux
 
-*Hardening es el proceso de fortalecer la seguridad del sistema.*
-
----
-
-## ¿Qué herramienta se usa para configurar el firewall en Ubuntu de forma sencilla?
-
-[x] UFW (Uncomplicated Firewall)
-[ ] iptables
-[ ] firewalld
-[ ] TCP Wrappers
-
-*UFW es la herramienta simple para configurar netfilter en Ubuntu.*
+*EPEL es un repositorio comunitario para RHEL y sus derivados; se instala con el paquete `epel-release`.*
 
 ---
 
-## ¿Cuál es el comando para permitir tráfico SSH con UFW?
+## ¿Qué paquete habilita el repositorio EPEL en un sistema RHEL?
 
-[x] sudo ufw allow ssh
-[ ] sudo ufw enable ssh
-[ ] sudo ufw permit ssh
-[ ] sudo ufw open ssh
+[x] epel-release
+[ ] crb-release
+[ ] rpmfusion-release
+[ ] elrepo-release
 
-*`ufw allow ssh` añade una regla para permitir el puerto SSH (22).*
+*`sudo dnf install epel-release` añade la configuración del repo; CRB/PowerTools se habilita aparte con `dnf config-manager --set-enabled crb`.*
 
 ---
 
-## ¿Qué debe hacerse después de crear un nuevo usuario en un servidor?
+## ¿Qué es un PPA?
 
-[x] Asignar una contraseña segura y configurar sudo si es necesario
-[ ] Reiniciar el servidor inmediatamente
-[ ] Instalar el entorno gráfico
-[ ] Eliminar el usuario root
+[x] Personal Package Archive: repositorio de paquetes publicado por terceros en Launchpad para Ubuntu
+[ ] Un formato de paquete de Debian
+[ ] Un protocolo de autenticación de paquetes
+[ ] El repositorio oficial de Canonical
 
-*La seguridad básica incluye contraseña robusta y configuración correcta de privilegios.*
+*Los PPA permiten distribuir software fuera de los repositorios oficiales; su confianza depende de la clave GPG del autor.*
+
+---
+
+## ¿Cuál es el riesgo principal de añadir un PPA o un repo de terceros sin verificar?
+
+[x] Instalar paquetes firmados por quien quiera, sin poder comprobar su procedencia
+[ ] Que el paquete ocupe más espacio en disco
+[ ] Que APT deje de funcionar con los repositorios oficiales
+[ ] Que el sistema cambie de kernel automáticamente
+
+*La firma GPG es la única prueba de que el paquete salió del autor declarado; por eso se usa `signed-by` con una clave en `/etc/apt/keyrings/`.*
+
+---
+
+## ¿Cuál es el formato moderno para añadir un repositorio APT con clave GPG verificada?
+
+[x] Clave en /etc/apt/keyrings/clave.gpg y directiva [signed-by=/etc/apt/keyrings/clave.gpg] en el archivo .sources o .list
+[ ] apt-key add clave.gpg y un echo "deb http://repo" en /etc/apt/sources.list
+[ ] Copiar la clave a /etc/apt/trusted.gpg.d/ y olvidarse del repo
+[ ] apt install --allow-unauthenticated repo-package
+
+*`apt-key` está obsoleto y `trusted.gpg.d` confiere confianza a la clave para TODOS los repos, no solo para el propio.*
+
+---
+
+## ¿Qué tecnología de sandbox NO está diseñada para servicios systemd en servidores?
+
+[x] Snap y Flatpak
+[ ] Contenedores Docker
+[ ] systemd-nspawn
+[ ] Podman
+
+*Flatpak y Snap están pensados para aplicaciones de usuario; en servidores se prefiere APT/DNF con contenedores.*
+
+---
+
+## ¿Qué sandbox utiliza Flatpak para aislar las aplicaciones?
+
+[x] bubblewrap
+[ ] AppArmor
+[ ] seccomp-bpf únicamente
+[ ] SELinux
+
+*Flatpak usa bubblewrap (del proyecto Freedesktop); Snap aísla con perfiles de AppArmor.*
+
+---
+
+## ¿Cuál es el repositorio oficial desde el que se instalan aplicaciones Flatpak?
+
+[x] Flathub
+[ ] Snap Store
+[ ] EPEL
+[ ] Ubuntu PPA
+
+*Se añade con `flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo`.*
+
+---
+
+## ¿Qué significa la opción `--classic` al instalar un snap?
+
+[x] Otorga al snap acceso completo al sistema, sin el aislamiento del sandbox
+[ ] Instala la versión de pago del paquete
+[ ] Instala el snap en modo clásico de texto
+[ ] Limita el snap a una sola interfaz de red
+
+*Se usa cuando la herramienta necesita leer configuración del sistema, por ejemplo `sudo snap install --classic certbot`.*
+
+---
+
+## ¿Cómo se firma un archivo con GPG para que cualquiera pueda verificar su integridad?
+
+[x] Se firma con la clave privada del autor y se verifica con su clave pública distribuida
+[ ] Se guarda junto al archivo una copia de la clave privada
+[ ] Se añade un checksum en el mismo archivo
+[ ] Se cifra el archivo con la contraseña del sistema
+
+*La firma no oculta el contenido pero demuestra procedencia e integridad: si un solo byte cambia, la verificación falla.*
+
 :::
