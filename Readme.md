@@ -19,7 +19,10 @@ Instructor: Diego Saavedra (https://statick88.github.io)
 
 ## Estructura
 
-- `unidades/`: contenido por unidad (ebook)
-- `lab-practicos/`: laboratorios
+- `01-fundamentos/` … `11-bases-datos/`: capítulos del ebook
+- `unidades/`: unidades publicadas por carpeta (instalación, DHCP, Apache, Proyecto Final, extras)
+- `quizzes/`: quizzes interactivos por unidad y avanzados
+- `anexos/`: mini-cursos complementarios
+- `lab-practicos/`, `practicas/`: laboratorios y prácticas guiadas
 - `presentaciones/`: subproyecto de slides (Reveal.js)
 - `docs/`: salida HTML publicada

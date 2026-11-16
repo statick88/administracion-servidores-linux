@@ -1,6 +1,10 @@
 # 📚 ANÁLISIS DE CONTENIDOS FALTANTES
 ## Administración de Servidores Linux - Abacom
 
+> [!CAUTION]
+> **DOCUMENTO OBSOLETO — NO USAR PARA PLANIFICAR.**
+> Refleja el estado del curso al 29 de enero de 2026 y ya no corresponde a la realidad del repositorio. Se conserva únicamente como referencia histórica. El diagnóstico vigente, el plan de remediación y el estado real (Fases 1–3 completadas) están en [`PLAN_REMEDIACION_BROCHURE.md`](PLAN_REMEDIACION_BROCHURE.md).
+
 **Análisis realizado:** 29 de Enero de 2026  
 **Curso:** Administración de Servidores Linux  
 **Instructor:** Diego Saavedra
