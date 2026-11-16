@@ -1,6 +1,6 @@
 ---
-title: "Quiz Unidad 4: Docker y Containerización"
-description: "Evaluación sobre contenedores Docker, Docker Compose y DevContainers"
+title: "Quiz Unidad 4: Administración y Seguridad de Usuarios"
+description: "Evaluación sobre /etc/passwd, /etc/shadow y /etc/group, PAM básico, sudoers y chage"
 author: "Diego Saavedra"
 date: today
 format:
@@ -9,158 +9,159 @@ format:
     number-sections: false
 ---
 
-# Quiz: Unidad 4 - Docker y Containerización
+# Quiz: Unidad 4 - Administración y Seguridad de Usuarios
 
 ::: quizdown
-## ¿Qué es un contenedor Docker?
+## ¿Qué archivo guarda los hashes de contraseña y el envejecimiento de las cuentas?
 
-[x] Una unidad de software que empaqueta código junto con todas sus dependencias
-[ ] Una máquina virtual completa
-[ ] Un tipo de base de datos
-[ ] Un sistema operativo alternativo
+[x] /etc/shadow
+[ ] /etc/passwd
+[ ] /etc/group
+[ ] /etc/login.defs
 
-*Los contenedores comparten el kernel del SO host y aíslan la aplicación con sus dependencias.*
-
----
-
-## ¿Cuál es la diferencia principal entre un contenedor y una máquina virtual?
-
-[x] Los contenedores comparten el kernel del SO host; las VMs tienen su propio kernel
-[ ] Los contenedores son más pesados que las VMs
-[ ] Las VMs son más rápidas que los contenedores
-[ ] No hay diferencia significativa
-
-*Esta es la diferencia fundamental: contenedores = ligero, VMs = aislado completo.*
+*`/etc/shadow` es de lectura restringida (`640 root:shadow`); `/etc/shadow` es el único que contiene los hashes.*
 
 ---
 
-## ¿Qué archivo define la configuración de un contenedor Docker?
+## ¿Cuáles son los permisos típicos de /etc/shadow?
 
-[x] Dockerfile
-[ ] docker-compose.yml
-[ ] docker.config
-[ ] container.json
+[x] 640 root:shadow
+[ ] 644 root:root
+[ ] 600 root:root
+[ ] 440 shadow:shadow
 
-*Dockerfile contiene las instrucciones para construir la imagen del contenedor.*
-
----
-
-## ¿Qué comando crea una imagen Docker desde un Dockerfile?
-
-[x] docker build
-[ ] docker create
-[ ] docker run
-[ ] docker construct
-
-*docker build -t nombre:tag . construye la imagen.*
+*`640 root:shadow` permite leer el archivo solo a root y al grupo `shadow`, que es el que usan las herramientas de autenticación.*
 
 ---
 
-## ¿Qué comando ejecuta un contenedor Docker?
+## ¿Qué contiene el campo 2 de una línea de /etc/shadow?
 
-[x] docker run
-[ ] docker execute
-[ ] docker start
-[ ] docker up
+[x] El hash de la contraseña, con su prefijo de algoritmo
+[ ] El UID numérico del usuario
+[ ] La fecha del último cambio de contraseña
+[ ] El directorio home
 
-*docker run crea y ejecuta un contenedor desde una imagen.*
-
----
-
-## ¿Qué significa la bandera "-d" en docker run?
-
-[x] Ejecuta el contenedor en segundo plano (detached mode)
-[ ] Elimina el contenedor al finalizar
-[ ] Monta un volumen
-[ ] Asigna un puerto
-
-*-d (detach) permite que el contenedor corra en background.*
+*El prefijo identifica el algoritmo: `$y$` yescrypt, `$6$` SHA-512, `$1$` MD5 (obsoleto).*
 
 ---
 
-## ¿Qué es Docker Compose?
+## ¿Qué representa el campo 3 de /etc/shadow?
 
-[x] Una herramienta para definir y ejecutar aplicaciones multi-contenedor
-[ ] Un lenguaje de programación
-[ ] Un sistema de monitoreo de contenedores
-[ ] Una alternativa a Docker
+[x] Los días transcurridos desde el 1 de enero de 1970 (epoch) del último cambio de contraseña
+[ ] La fecha en que la cuenta expira
+[ ] El número mínimo de días entre cambios
+[ ] Los días de aviso antes de expirar
 
-*docker-compose.yml define servicios, redes y volúmenes.*
-
----
-
-## ¿Qué comando inicia todos los servicios definidos en docker-compose.yml?
-
-[x] docker compose up
-[ ] docker compose start
-[ ] docker run
-[ ] docker up
-
-*docker compose up crea e inicia los contenedores.*
+*Los campos 4 a 8 son mínimo, máximo, aviso, gracia e inactividad; el campo 8 marca la expiración de la cuenta.*
 
 ---
 
-## ¿Qué es un volumen en Docker?
+## ¿Qué archivo de la misma familia almacena los grupos y sus miembros?
 
-[x] Un mecanismo para persistir datos generados por un contenedor
-[ ] Una copia de seguridad automática
-[ ] Un tipo de red virtual
-[ ] El sistema de archivos del contenedor
+[x] /etc/group
+[ ] /etc/gshadow únicamente
+[ ] /etc/groups
+[ ] /etc/group.conf
 
-*Los volúmenes permiten que los datos sobrevivan a la eliminación del contenedor.*
-
----
-
-## ¿Qué significa la opción "--restart=always" en un contenedor?
-
-[x] El contenedor se reiniciará automáticamente si se detiene o si Docker reinicia
-[ ] El contenedor nunca se detendrá
-[ ] El contenedor solo reinicia una vez
-[ ] El contenedor inicia manualmente
-
-*restart=always es crucial para servicios de producción.*
+*`/etc/group` guarda nombre, GID y miembros; `/etc/gshadow` añade contraseña y administradores del grupo.*
 
 ---
 
-## ¿Qué es un DevContainer?
+## ¿Cuál es la forma segura de editar /etc/passwd sin corromper el índice del sistema?
 
-[x] Un contenedor configurado específicamente para desarrollo, usado por VS Code
-[ ] Un contenedor de producción
-[ ] Un tipo de base de datos
-[ ] Un sistema de archivos especial
+[x] Usar vipw (o vigr para /etc/group) y useradd/usermod/userdel
+[ ] Abrirlo con vim y guardarlo directamente
+[ ] Redirigir un echo sobre el archivo
+[ ] Borrarlo y regenerarlo con cat
 
-*DevContainers permiten entornos de desarrollo consistentes.*
-
----
-
-## ¿Qué comando muestra los contenedores en ejecución?
-
-[x] docker ps
-[ ] docker containers
-[ ] docker list
-[ ] docker show
-
-*docker ps lista contenedores activos. docker ps -a muestra todos.*
+*Editar a mano deja índices desincronizados y puede dejar el sistema sin acceso; `vipw` abre una copia y valida antes de reemplazarla.*
 
 ---
 
-## ¿Cuál es el puerto por defecto que expone Nginx cuando se configura en Docker?
+## ¿Qué hace exactamente `chage -d 0 juanp`?
 
-[ ] 80
-[x] 80
-[ ] 443
-[ ] 8080
+[x] Obliga al usuario a cambiar su contraseña en el siguiente inicio de sesión
+[ ] Elimina la contraseña del usuario
+[ ] Bloquea la cuenta indefinidamente
+[ ] Establece la contraseña a cero días de validez
 
-*Por defecto Nginx escucha en el puerto 80 (HTTP).*
+*Poner el campo de último cambio en 0 hace que el sistema lo considere vencido: la primera autenticación fuerza el cambio.*
 
 ---
 
-## ¿Qué es una red (network) en Docker?
+## ¿Qué comando muestra el estado de envejecimiento de una cuenta?
 
-[x] Un mecanismo que permite la comunicación entre contenedores aislados
-[ ] La conexión a internet del host
-[ ] Un tipo de volumen
-[ ] El sistema de archivos compartido
+[x] chage -l juanp
+[ ] chage -d juanp
+[ ] passwd -S juanp
+[ ] usermod -l juanp
 
-*Las redes Docker aíslan la comunicación entre grupos de contenedores.*
+*`chage -l` lista último cambio, mínimo, máximo, aviso, inactividad y expiración; `passwd -S` da un resumen más corto.*
+
+---
+
+## ¿Dónde vive la configuración de PAM para cada servicio?
+
+[x] En /etc/pam.d/, un archivo por servicio (sshd, sudo, login, common-*)
+[ ] En /etc/pam.conf únicamente
+[ ] En /etc/security/pam.d/
+[ ] En /etc/pam/hosts
+
+*Los archivos `common-*` se incluyen desde cada servicio para mantener una política única en todo el sistema.*
+
+---
+
+## ¿Cuál es el tipo de módulo PAM que verifica la identidad del usuario?
+
+[x] auth
+[ ] account
+[ ] password
+[ ] session
+
+*`auth` comprueba credenciales, `account` el estado de la cuenta, `password` el cambio de contraseña y `session` el inicio y cierre de sesión.*
+
+---
+
+## ¿Qué módulo PAM impone longitud y complejidad a las contraseñas?
+
+[x] pam_pwquality.so
+[ ] pam_unix.so
+[ ] pam_limits.so
+[ ] pam_rootok.so
+
+*Se añade como `requisite` en `/etc/pam.d/common-password`, antes de `pam_unix.so`, para que el rechazo detenga el cambio.*
+
+---
+
+## Si un módulo PAM está marcado como `sufficient` y devuelve éxito, ¿qué ocurre?
+
+[x] Se acepta la autenticación sin evaluar el resto de módulos del tipo
+[ ] Se continúa evaluando todos los módulos obligatorios
+[ ] Se revierte la decisión de los módulos `required`
+[ ] La sesión se cierra automáticamente
+
+*`required` obliga a que todos pasen, `requisite` corta al fallar y `sufficient` corta al tener éxito.*
+
+---
+
+## ¿Cuál es el formato correcto para que el usuario `deploy` ejecute solo /opt/scripts/deploy.sh como www-data sin pedir contraseña?
+
+[x] deploy ALL=(www-data:www-data) NOPASSWD: /opt/scripts/deploy.sh
+[ ] deploy ALL=NOPASSWD: /opt/scripts/deploy.sh
+[ ] %deploy ALL=(www-data) /opt/scripts/deploy.sh
+[ ] deploy www-data /opt/scripts/deploy.sh
+
+*El segundo campo del paréntesis es el grupo destino; sin él se permite cualquier usuario del sistema.*
+
+---
+
+## ¿Qué archivo debe editarse para definir reglas de sudo y con qué herramienta?
+
+[x] /etc/sudoers, siempre con visudo (o incluyendo archivos desde sudoers.d)
+[ ] /etc/sudo.conf, con vim directamente
+[ ] /etc/sudo/permissions, con chmod
+[ ] ~/.sudoers, con cualquier editor
+
+*`visudo` valida la sintaxis antes de guardar: un error tipeado en `/etc/sudoers` puede dejar a todos sin privilegios.*
+
 :::

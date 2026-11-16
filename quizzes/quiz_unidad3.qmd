@@ -1,6 +1,6 @@
 ---
-title: "Quiz Unidad 3: Comandos Básicos de Linux"
-description: "Evaluación sobre navegación, manipulación de archivos, permisos y comandos esenciales"
+title: "Quiz Unidad 3: Scripting y Automatización con Bash"
+description: "Evaluación sobre scripting bash profesional, FHS y ACLs, backups rotativos, logging estructurado y automatización de tareas"
 author: "Diego Saavedra"
 date: today
 format:
@@ -9,158 +9,181 @@ format:
     number-sections: false
 ---
 
-# Quiz: Unidad 3 - Comandos Básicos de Linux
+# Quiz: Unidad 3 - Scripting y Automatización con Bash
 
 ::: quizdown
-## ¿Qué comando se usa para mostrar el directorio actual?
+## ¿Qué shebang se considera portable en un script Bash profesional?
 
-[x] pwd (print working directory)
-[ ] cd
-[ ] ls
-[ ] dir
+[x] #!/usr/bin/env bash — busca bash en el PATH del sistema
+[ ] #!/bin/bash — ruta fija en cualquier distribución
+[ ] #!/bin/sh — siempre equivale a Bash
+[ ] #!/usr/bin/bash — sin buscar en el PATH
 
-*pwd significa "print working directory" y muestra la ruta actual.*
-
----
-
-## ¿Qué comando lista el contenido de un directorio?
-
-[x] ls
-[ ] cd
-[ ] mkdir
-[ ] rm
-
-*ls (list) muestra los archivos y directorios en la ubicación actual.*
+*`#!/usr/bin/env bash` encuentra bash en `$PATH`, por eso es el shebang portable recomendado.*
 
 ---
 
-## ¿Cuál es la diferencia entre ruta absoluta y relativa?
+## ¿Qué hace `set -euo pipefail` en un script?
 
-[x] La absoluta comienza desde / (raíz); la relativa desde el directorio actual
-[ ] No hay diferencia
-[ ] La absoluta solo funciona en servidores
-[ ] La relativa es más larga
+[x] Sale ante cualquier error, falla con variables no definidas y falla si un comando de un pipeline falla
+[ ] Solo activa el modo depuración del script
+[ ] Crea un respaldo automático antes de ejecutar
+[ ] Permite ejecutar el script como root
 
-*Ruta absoluta: /home/usuario/archivo | Ruta relativa: documentos/archivo*
-
----
-
-## ¿Qué comando crea un nuevo directorio?
-
-[x] mkdir (make directory)
-[ ] mkfile
-[ ] newdir
-[ ] create
-
-*mkdir crea directorios nuevos. Uso: mkdir nombre_carpeta*
+*`-e` termina en error, `-u` con variable no seteada y `-o pipefail` detecta fallos dentro de pipelines.*
 
 ---
 
-## ¿Qué comando se usa para cambiar de directorio?
+## ¿Qué hace la función `die()` en el patrón de logging del curso?
 
-[x] cd (change directory)
-[ ] chdir
-[ ] change
-[ ] goto
+[x] Registra el mensaje con nivel ERROR y termina el script con código de salida 1
+[ ] Reinicia el servicio asociado al script
+[ ] Ignora el error y continúa con la siguiente instrucción
+[ ] Reinicia el sistema para aplicar cambios
 
-*cd es el comando universal para navegar entre directorios.*
-
----
-
-## ¿Qué significa el directorio especial ".."?
-
-[x] El directorio padre (uno nivel arriba)
-[ ] El directorio actual
-[ ] El directorio raíz
-[ ] El directorio de inicio del usuario
-
-*.. siempre refiere al directorio padre del actual.*
+*`die()` combina log y salida: `log "ERROR" "$*"; exit 1` — documenta la falla y detiene con código distinto de cero.*
 
 ---
 
-## ¿Qué comando elimina un archivo?
+## ¿Por qué se validan el origen y las herramientas antes de operar en un script de backup?
 
-[x] rm (remove)
-[ ] delete
-[ ] erase
-[ ] cut
+[x] Para abortar con un mensaje claro si falta el directorio origen o el comando `tar`
+[ ] Porque Linux exige validación obligatoria en todo script
+[ ] Para mejorar la velocidad del respaldo
+[ ] Solo por estética del código
 
-*rm elimina archivos. ¡Cuidado: no hay papelera en la terminal!*
-
----
-
-## ¿Qué comando copia un archivo?
-
-[x] cp (copy)
-[ ] copy
-[ ] duplicate
-[ ] clone
-
-*cp archivo_original archivo_copia*
+*`[[ -d "$BACKUP_SRC" ]] || die ...` y `command -v tar || die ...` fallan pronto y explican la causa.*
 
 ---
 
-## ¿Qué comando mueve o renombra un archivo?
+## ¿Qué declara `declare -A PORTS=( [nginx]=80 [postgresql]=5432 )`?
 
-[x] mv (move)
-[ ] move
-[ ] rename
-[ ] change
+[x] Un array asociativo (mapa clave → valor), a diferencia del array indexado `declare -a`
+[ ] Una variable de entorno persistente para todos los usuarios
+[ ] Una lista de puertos abiertos en el firewall
+[ ] Un alias de shell para systemctl
 
-*mv sirve para mover archivos o renombrarlos.*
-
----
-
-## ¿Qué representa el permiso "rwx" para el propietario?
-
-[x] Lectura, escritura y ejecución
-[ ] Solo lectura y escritura
-[ ] Solo lectura y ejecución
-[ ] Ninguno de los anteriores
-
-*rwx = Read + Write + Execute*
+*`declare -A` crea arrays asociativos; `declare -a` crea arrays indexados numéricamente.*
 
 ---
 
-## ¿Qué comando cambia los permisos de un archivo?
+## ¿Cómo se recorren todos los elementos de un array en un bucle?
 
-[x] chmod
-[ ] chown
-[ ] chperm
-[ ] perm
+[x] `for svc in "${SERVICES[@]}"; do ... done` — comillas para respetar espacios en los elementos
+[ ] `for svc in $SERVICES; do ... done` sin comillas siempre
+[ ] `while SERVICES; do ... done`
+[ ] `foreach svc in SERVICES; do ... done`
 
-*chmod modifica permisos. Uso: chmod 755 archivo o chmod +x archivo*
-
----
-
-## ¿Qué significa el valor numérico 755 en permisos?
-
-[x] Propietario tiene todos los permisos, grupo y otros solo lectura y ejecución
-[ ] Todos tienen todos los permisos
-[ ] Solo el propietario tiene lectura
-[ ] Nadie tiene permisos
-
-*755 = rwx (propietario) + r-x (grupo) + r-x (otros)*
+*`"${SERVICES[@]}"` expande cada elemento tal cual; sin comillas el word splitting rompe valores con espacios.*
 
 ---
 
-## ¿Qué comando cambia el propietario de un archivo?
+## ¿Qué hace `: "${BACKUP_DST:=/mnt/backups}"`?
 
-[x] chown
-[ ] chmod
-[ ] chgrp
-[ ] own
+[x] Asigna el valor por defecto `/mnt/backups` solo si la variable no está definida (o está vacía)
+[ ] Sobrescribe la variable en cada ejecución sin excepción
+[ ] Borra la variable y su contenido
+[ ] Exporta la variable a todos los procesos del sistema
 
-*chown usuario:grupo archivo cambia propietario y grupo.*
+*La expansión `${VAR:=default}` asigna el default únicamente cuando la variable no tiene valor.*
 
 ---
 
-## ¿Qué significa el sticky bit en un directorio?
+## ¿Para qué sirve `trap cleanup EXIT INT TERM`?
 
-[x] Solo el propietario puede eliminar sus archivos en ese directorio
-[ ] El directorio está oculto
-[ ] El directorio es de solo lectura
-[ ] El directorio tiene permisos especiales de ejecución
+[x] Ejecuta la función de limpieza al terminar el script, interrumpirlo o recibir una señal de terminación
+[ ] Evita que el script pueda ser interrumpido
+[ ] Reinicia el script automáticamente si falla
+[ ] Convierte las señales en errores de compilación
 
-*El sticky bit (t) en directorios como /tmp evita que usuarios borren archivos de otros.*
+*El trap garantiza liberar temporales también en salidas anormales; `local exit_code=$?` preserva el código original.*
+
+---
+
+## Según el FHS, ¿dónde deben guardarse los logs de una aplicación?
+
+[x] /var/log/ — por ejemplo /var/log/app/access.log
+[ ] /home/usuario/logs
+[ ] /opt/logs
+[ ] /etc/logs
+
+*FHS reserva `/var` para datos en ejecución como logs y caché; `/etc` es solo configuración.*
+
+---
+
+## ¿Qué hace `setfacl -d -m g:adm:r /var/log/app`?
+
+[x] Establece una ACL por defecto: los archivos y directorios nuevos dentro heredarán lectura para el grupo adm
+[ ] Cambia el propietario del directorio al grupo adm
+[ ] Elimina todas las ACL existentes
+[ ] Otorga permisos rwx al usuario deploy
+
+*`-d` crea la ACL por defecto (heredable); `getfacl` la muestra y `-m` modifica la ACL actual.*
+
+---
+
+## ¿Qué verifica `[[ -s "$ARCHIVE" ]]` en el script de backup?
+
+[x] Que el archivo de respaldo existe y no está vacío antes de dar por bueno el backup
+[ ] Que el archivo tiene permisos de solo lectura
+[ ] Que el archivo está comprimido con gzip
+[ ] Que el archivo supera los 7 días de retención
+
+*`-s` comprueba tamaño mayor que cero: un backup vacío o ausente se detecta al instante.*
+
+---
+
+## ¿Cómo se aplican la retención de 7 días en el backup rotativo?
+
+[x] `find "$BACKUP_DST" -name 'app-*.tar.zst' -type f -mtime +7 -delete` — borra los respaldos con más de 7 días
+[ ] `rm -rf /mnt/backups` cada vez que se ejecuta el script
+[ ] `tar --delete` elimina los archivos viejos del sistema de archivos
+[ ] La retención la aplica el filesystem automáticamente
+
+*`-mtime +N` selecciona archivos modificados hace más de N días; `-delete` los elimina como parte de la rotación.*
+
+---
+
+## ¿Qué comando comprueba la integridad de un respaldo sin extraerlo?
+
+[x] `tar --test -f "$ARCHIVE"` — verifica que el archivo está intacto
+[ ] `tar --list -f "$ARCHIVE"` — solo lista el contenido
+[ ] `gzip -t` sobre un `.tar.zst`
+[ ] `cat "$ARCHIVE"` — lee el respaldo completo
+
+*`--test` valida la estructura del archivo y falla si está dañado; `--list` solo muestra el contenido.*
+
+---
+
+## ¿Cómo pruebas la configuración de logrotate sin ejecutar la rotación real?
+
+[x] `logrotate -d /etc/logrotate.d/myscript` — modo debug que solo muestra lo que haría
+[ ] `logrotate -f /etc/logrotate.d/myscript` — fuerza la rotación inmediata
+[ ] `systemctl restart logrotate`
+[ ] Editando el archivo `/var/log/syslog`
+
+*`-d` es el modo debug (no rota nada); `-f` fuerza la rotación — se usa solo cuando se quiere ejecutar ya.*
+
+---
+
+## ¿Qué programa el siguiente crontab: `0 2 * * * /usr/local/sbin/backup.sh`?
+
+[x] Ejecutar el script de backup todos los días a las 02:00
+[ ] Ejecutar el script cada 2 minutos
+[ ] Ejecutar el backup el día 2 de cada mes a medianoche
+[ ] Ejecutar el script solo los lunes
+
+*Los cinco campos son minuto, hora, día del mes, mes y día de la semana: `0 2 * * *` = 02:00 diario.*
+
+---
+
+## ¿Qué ventaja aporta `Persistent=true` en un systemd timer como `backup.timer`?
+
+[x] Si el sistema estaba apagado a la hora programada, ejecuta la tarea al encender de nuevo
+[ ] Ejecuta la tarea en paralelo con el arranque del sistema
+[ ] Hace que el timer se ejecute una sola vez y nunca más
+[ ] Guarda la salida del timer en un archivo permanente
+
+*`OnCalendar` define el horario y `Persistent=true` recupera las ejecuciones perdidas por apagones; `Type=oneshot` corresponde al servicio asociado.*
+
 :::
