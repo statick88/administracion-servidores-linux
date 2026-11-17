@@ -591,6 +591,85 @@ echo "Rotación completada. Valida acceso a todos los hosts."
 
 ---
 
+### 5.6 Túneles SSH — reenvío de puertos (`-L`/`-R`/`-D`) y saltos (`-J`)
+
+SSH transporta puertos de forma cifrada, sin instalar VPN ni abrir puertos adicionales en el firewall:
+
+| Tipo | Flag | Sentido | Caso típico |
+|------|------|---------|-------------|
+| Local | `-L` | mi máquina → servidor | Servicio interno (BD, panel) accesible como si estuviera en `localhost` |
+| Remoto | `-R` | servidor → mi máquina | Publicar una app de desarrollo a través del servidor público |
+| Dinámico | `-D` | proxy SOCKS | Salir al internet por el servidor (redes públicas) |
+| Salto | `-J` | multi-hop | Atravesar un bastión hasta una red privada |
+
+```bash
+# -L: MySQL remoto expuesto en mi localhost:3306
+ssh -L 3306:localhost:3306 usuario@servidor-remoto
+mysql -h 127.0.0.1 -u root -p        # en otra terminal; "localhost" = el DEL servidor
+
+# -L: la app del servidor en :8080 queda en mi :8888
+ssh -L 8888:localhost:8080 usuario@servidor-remoto
+
+# -R: mi app local :3000 publicada en el servidor :8080
+ssh -R 8080:localhost:3000 usuario@servidor-publico
+
+# -D: proxy SOCKS5 en mi puerto 1080
+ssh -D 1080 usuario@servidor-seguro
+curl --socks5 localhost:1080 https://whatismyip.com
+
+# -J: salto hasta el servidor privado vía bastión (sin sesiones manuales encadenadas)
+ssh -J bastion.empresa.com usuario@servidor-privado
+```
+
+**Sesión estable y en segundo plano:**
+
+```bash
+# -N sin shell remota; -f en background; keepalives para que no se corte
+ssh -Nf -o ServerAliveInterval=60 -o ServerAliveCountMax=3 \
+    -L 3306:localhost:3306 usuario@servidor
+
+# Varios puertos en un solo túnel
+ssh -L 3306:localhost:3306 -L 5432:localhost:5432 usuario@servidor
+
+# Debug cuando "no conecta"
+ssh -vvv -L 3306:localhost:3306 usuario@servidor
+```
+
+**Persistencia en producción** — un túnel que se cae no sirve; automatízalo:
+
+```bash
+# Con systemd: se levanta al arrancar y tras la red
+sudo tee /etc/systemd/system/ssh-tunnel-mysql.service > /dev/null << 'EOF'
+[Unit]
+Description=Tunel SSH a MySQL de produccion
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/ssh -Nf -L 3306:10.0.5.100:3306 usuario@bastion.empresa.com
+ExecStop=/usr/bin/pkill -f "ssh.*-L 3306"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl enable --now ssh-tunnel-mysql
+```
+
+```bash
+# Con autossh: reconexión automática si el túnel se cae
+sudo apt install -y autossh
+autossh -M 20000 -f -N -L 3306:10.0.5.100:3306 \
+  -o ServerAliveInterval=60 -o ServerAliveCountMax=3 \
+  usuario@bastion.empresa.com
+```
+
+::: {.callout-warning}
+## Los túneles pueden estar deshabilitados por política
+
+El hardening de `sshd` puede bloquearlos (`AllowTcpForwarding no`, `PermitTunnel no` — ver **Unidad VII**). Si el túnel falla con *"Administratively prohibited"*, esa es la causa: la política del servidor manda y solo se habilita con justificación explícita.
+:::
+
 ## 6. Laboratorio Práctico: Gestión Segura de Usuarios
 
 ::: {.callout-note}

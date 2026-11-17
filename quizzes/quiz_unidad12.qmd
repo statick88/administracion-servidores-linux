@@ -11,256 +11,233 @@ format:
 
 # Quiz: Unidad 12 - Proyecto Final
 
-::: quizdown
+````quizdown
 ## ¿Qué es la metodología de diagnóstico?
 
-[x] Un proceso sistemático para identificar, analizar y resolver problemas
-[ ] Un tipo de backup
-[ ] Un comando de Linux
-[ ] Un sistema de monitoreo
+1. [x] Un proceso sistemático para identificar, analizar y resolver problemas
+1. [ ] Un tipo de backup
+1. [ ] Un comando de Linux
+1. [ ] Un sistema de monitoreo
 
-*La metodología incluye: Observar → Hipotizar → Testear → Documentar.*
+> La metodología incluye: Observar → Hipotizar → Testear → Documentar.
 
----
 
 ## ¿Qué significa "observar" en la fase de diagnóstico?
 
-[x] Reunir información sin modificar nada (logs, estado, métricas)
-[ ] Reiniciar servicios inmediatamente
-[ ] Cambiar configuraciones al azar
-[ ] Pedir ayuda sin investigar
+1. [x] Reunir información sin modificar nada (logs, estado, métricas)
+1. [ ] Reiniciar servicios inmediatamente
+1. [ ] Cambiar configuraciones al azar
+1. [ ] Pedir ayuda sin investigar
 
-*Observar es crucial: no hacer cambios hasta entender el problema.*
+> Observar es crucial: no hacer cambios hasta entender el problema.
 
----
 
 ## ¿Qué comando muestra los logs del sistema en systemd?
 
-[x] journalctl
-[ ] dmesg
-[ ] syslog
-[ ] cat /var/log/messages
+1. [x] journalctl
+1. [ ] dmesg
+1. [ ] syslog
+1. [ ] cat /var/log/messages
 
-*journalctl muestra todos los logs de systemd. journalctl -xe para ver final.*
+> journalctl muestra todos los logs de systemd. journalctl -xe para ver final.
 
----
 
 ## ¿Qué comando muestra logs de un servicio específico?
 
-[x] journalctl -u nombre_servicio
-[ ] journalctl --system
-[ ] dmesg | grep servicio
-[ ] cat /var/log/servicio.log
+1. [x] journalctl -u nombre_servicio
+1. [ ] journalctl --system
+1. [ ] dmesg | grep servicio
+1. [ ] cat /var/log/servicio.log
 
-*-u (unit) filtra por servicio específico.*
+> -u (unit) filtra por servicio específico.
 
----
 
 ## ¿Qué significa "-e" en journalctl -xe?
 
-[x] Muestra el log al final (equivalente a tail)
-[ ] Exporta a archivo
-[ ] Encripta los logs
-[ ] Elimina logs antiguos
+1. [x] Muestra el log al final (equivalente a tail)
+1. [ ] Exporta a archivo
+1. [ ] Encripta los logs
+1. [ ] Elimina logs antiguos
 
-*journalctl -xe va directamente al final de los logs.*
+> journalctl -xe va directamente al final de los logs.
 
----
 
 ## ¿Qué significa "dmesg"?
 
-[x] Muestra mensajes del kernel (hardware, drivers)
-[ ] Muestra errores de usuario
-[ ] Lista procesos activos
-[ ] Muestra uso de memoria
+1. [x] Muestra mensajes del kernel (hardware, drivers)
+1. [ ] Muestra errores de usuario
+1. [ ] Lista procesos activos
+1. [ ] Muestra uso de memoria
 
-*dmesg muestra logs del kernel, útil para problemas de hardware.*
+> dmesg muestra logs del kernel, útil para problemas de hardware.
 
----
 
 ## ¿Qué comando muestra el uso de memoria RAM?
 
-[x] free -h
-[ ] df -h
-[ ] du -h
-[ ] top -n 1
+1. [x] free -h
+1. [ ] df -h
+1. [ ] du -h
+1. [ ] top -n 1
 
-*free -h muestra memoria total, usada, libre en formato legible.*
+> free -h muestra memoria total, usada, libre en formato legible.
 
----
 
 ## ¿Qué significa "load average" en el comando uptime?
 
-[x] La carga del sistema (procesos en cola) promediada en 1, 5 y 15 minutos
-[ ] El uso de CPU en porcentaje
-[ ] El número de usuarios conectados
-[ ] El tiempo de actividad del servidor
+1. [x] La carga del sistema (procesos en cola) promediada en 1, 5 y 15 minutos
+1. [ ] El uso de CPU en porcentaje
+1. [ ] El número de usuarios conectados
+1. [ ] El tiempo de actividad del servidor
 
-*Load average > número de CPUs indica sobrecarga.*
+> Load average > número de CPUs indica sobrecarga.
 
----
 
 ## ¿Qué comando muestra procesos consumiendo más CPU?
 
-[x] top
-[ ] ps aux
-[ ] htop
-[ ] Todos los anteriores
+1. [x] top
+1. [ ] ps aux
+1. [ ] htop
+1. [ ] Todos los anteriores
 
-*top, ps aux y htop muestran uso de CPU por proceso.*
+> top, ps aux y htop muestran uso de CPU por proceso.
 
----
 
 ## ¿Qué significa "estado Z" en un proceso?
 
-[x] Proceso zombie (terminado pero no recolectado)
-[ ] Proceso ejecutándose
-[ ] Proceso durmiendo
-[ ] Proceso detenido
+1. [x] Proceso zombie (terminado pero no recolectado)
+1. [ ] Proceso ejecutándose
+1. [ ] Proceso durmiendo
+1. [ ] Proceso detenido
 
-*Zombies son procesos muertos esperando al padre. Pueden acumularse en bugs.*
+> Zombies son procesos muertos esperando al padre. Pueden acumularse en bugs.
 
----
 
 ## ¿Qué puerto está escuchando un servicio?
 
-[x] ss -tlnp
-[ ] netstat
-[ ] lsof
-[ ] Todos los anteriores
+1. [x] ss -tlnp
+1. [ ] netstat
+1. [ ] lsof
+1. [ ] Todos los anteriores
 
-*ss -tlnp muestra puertos TCP listening con proceso.*
+> ss -tlnp muestra puertos TCP listening con proceso.
 
----
 
 ## ¿Qué significa "500 Internal Server Error"?
 
-[x] Error genérico del servidor, revisar logs para más detalles
-[ ] El servidor está caído
-[ ] Problema de red
-[ ] Error del cliente
+1. [x] Error genérico del servidor, revisar logs para más detalles
+1. [ ] El servidor está caído
+1. [ ] Problema de red
+1. [ ] Error del cliente
 
-*500 indica problema del lado del servidor. Logs de Apache/Nginx revelan causa.*
+> 500 indica problema del lado del servidor. Logs de Apache/Nginx revelan causa.
 
----
 
 ## ¿Qué herramienta para probar conectividad de red?
 
-[x] ping, traceroute, mtr
-[ ] top
-[ ] free
-[ ] df
+1. [x] ping, traceroute, mtr
+1. [ ] top
+1. [ ] free
+1. [ ] df
 
-*ping prueba conectividad básica; traceroute muestra la ruta.*
+> ping prueba conectividad básica; traceroute muestra la ruta.
 
----
 
 ## ¿Qué significa "troubleshooting"?
 
-[x] El proceso de identificar y resolver problemas técnicos
-[ ] Un tipo de configuración
-[ ] Un comando de Linux
-[ ] Un sistema de monitoreo
+1. [x] El proceso de identificar y resolver problemas técnicos
+1. [ ] Un tipo de configuración
+1. [ ] Un comando de Linux
+1. [ ] Un sistema de monitoreo
 
-*Troubleshooting sistemático evita решений parciales y recurrencia.*
+> Troubleshooting sistemático evita решений parciales y recurrencia.
 
----
 
 ## ¿Qué es un "runbook"?
 
-[x] Documento con procedimientos paso a paso para resolver problemas comunes
-[ ] Un tipo de libro de Linux
-[ ] Un comando de backup
-[ ] Un archivo de configuración
+1. [x] Documento con procedimientos paso a paso para resolver problemas comunes
+1. [ ] Un tipo de libro de Linux
+1. [ ] Un comando de backup
+1. [ ] Un archivo de configuración
 
-*Los runbooks estandarizan respuestas y reducen tiempo de resolución.*
+> Los runbooks estandarizan respuestas y reducen tiempo de resolución.
 
----
 
 ## ¿Cómo entras al modo de rescate editando el menú de GRUB?
 
-[x] Resaltas la entrada, pulsas `e`, añades `systemd.unit=rescue.target` al final de la línea `linux` y arrancas con `Ctrl+X`
-[ ] Pulsas `Esc` y seleccionas "Recovery Mode" desde el sistema en ejecución
-[ ] Editas `/etc/grub.conf` y reinicias el servidor
-[ ] Ejecutas `systemctl isolate rescue.target` sin reiniciar
+1. [x] Resaltas la entrada, pulsas `e`, añades `systemd.unit=rescue.target` al final de la línea `linux` y arrancas con `Ctrl+X`
+1. [ ] Pulsas `Esc` y seleccionas "Recovery Mode" desde el sistema en ejecución
+1. [ ] Editas `/etc/grub.conf` y reinicias el servidor
+1. [ ] Ejecutas `systemctl isolate rescue.target` sin reiniciar
 
-*La edición desde GRUB es temporal: aplica solo a ese arranque y no modifica el GRUB instalado en disco.*
+> La edición desde GRUB es temporal: aplica solo a ese arranque y no modifica el GRUB instalado en disco.
 
----
 
 ## ¿Cuál es la diferencia práctica entre `rescue.target` y `emergency.target`?
 
-[x] `rescue` monta todos los sistemas de archivos con lo mínimo en servicios; `emergency` no monta nada más allá de lo imprescindible
-[ ] `emergency` arranca el sistema completo con todos los servicios de red
-[ ] No hay diferencia: son dos nombres para el mismo modo
-[ ] `rescue` no pide contraseña y `emergency` siempre la pide
+1. [x] `rescue` monta todos los sistemas de archivos con lo mínimo en servicios; `emergency` no monta nada más allá de lo imprescindible
+1. [ ] `emergency` arranca el sistema completo con todos los servicios de red
+1. [ ] No hay diferencia: son dos nombres para el mismo modo
+1. [ ] `rescue` no pide contraseña y `emergency` siempre la pide
 
-*Si no sabes cuál usar, empieza por `rescue.target`: es el "single-user" moderno de systemd.*
+> Si no sabes cuál usar, empieza por `rescue.target`: es el "single-user" moderno de systemd.
 
----
 
 ## ¿Qué característica define al arranque con `init=/bin/bash`?
 
-[x] La shell es el PID 1: no arranca systemd, no hay red ni `systemctl` y entra sin pedir contraseña
-[ ] Arranca el sistema completo pero sin servicios gráficos
-[ ] Pide la contraseña de root antes de mostrar la shell
-[ ] Monta todos los sistemas de archivos en lectura/escritura
+1. [x] La shell es el PID 1: no arranca systemd, no hay red ni `systemctl` y entra sin pedir contraseña
+1. [ ] Arranca el sistema completo pero sin servicios gráficos
+1. [ ] Pide la contraseña de root antes de mostrar la shell
+1. [ ] Monta todos los sistemas de archivos en lectura/escritura
 
-*Es la vía para entrar cuando olvidaste la contraseña de root; la raíz suele quedar montada en solo lectura.*
+> Es la vía para entrar cuando olvidaste la contraseña de root; la raíz suele quedar montada en solo lectura.
 
----
 
 ## Al intentar `passwd` dentro de `init=/bin/bash` aparece "Read-only file system". ¿Cuál es el arreglo?
 
-[x] `mount -o remount,rw /` y verificar con `findmnt /` que aparezca la opción `rw`
-[ ] Reiniciar el servidor e intentar de nuevo
-[ ] Formatear la partición raíz
-[ ] `chmod 777 /etc/shadow` para habilitar la escritura
+1. [x] `mount -o remount,rw /` y verificar con `findmnt /` que aparezca la opción `rw`
+1. [ ] Reiniciar el servidor e intentar de nuevo
+1. [ ] Formatear la partición raíz
+1. [ ] `chmod 777 /etc/shadow` para habilitar la escritura
 
-*Sin remontar en lectura/escritura, ninguna escritura en la raíz se guarda — verifica siempre con `findmnt`.*
+> Sin remontar en lectura/escritura, ninguna escritura en la raíz se guarda — verifica siempre con `findmnt`.
 
----
 
 ## ¿Qué regla aplica al ejecutar `fsck` desde el modo de rescate?
 
-[x] Solo se ejecuta sobre sistemas de archivos NO montados: desmonta la partición y verifica con `findmnt` antes; para la raíz usa `fsck.mode=force fsck.repair=yes` en el arranque
-[ ] Se puede ejecutar sobre cualquier partición aunque esté montada
-[ ] Solo funciona con el sistema completo arriba
-[ ] Requiere deshabilitar el firewall antes de ejecutarlo
+1. [x] Solo se ejecuta sobre sistemas de archivos NO montados: desmonta la partición y verifica con `findmnt` antes; para la raíz usa `fsck.mode=force fsck.repair=yes` en el arranque
+1. [ ] Se puede ejecutar sobre cualquier partición aunque esté montada
+1. [ ] Solo funciona con el sistema completo arriba
+1. [ ] Requiere deshabilitar el firewall antes de ejecutarlo
 
-*fsck sobre un sistema montado puede corromper datos; `fsck -n` es el dry-run previo y `echo $?` devuelve 0 si quedó limpio.*
+> fsck sobre un sistema montado puede corromper datos; `fsck -n` es el dry-run previo y `echo $?` devuelve 0 si quedó limpio.
 
----
 
 ## Olvidaste la contraseña de root y `rescue.target` no te deja entrar (sulogin la pide). ¿Qué haces?
 
-[x] Entras con `init=/bin/bash`, remontas la raíz con `mount -o remount,rw /` y ejecutas `passwd root`
-[ ] Formateas `/etc/shadow` con `mkfs`
-[ ] Usas `sudo passwd root` desde tu sesión habitual de escritorio
-[ ] Desinstalas y vuelves a instalar el sistema operativo
+1. [x] Entras con `init=/bin/bash`, remontas la raíz con `mount -o remount,rw /` y ejecutas `passwd root`
+1. [ ] Formateas `/etc/shadow` con `mkfs`
+1. [ ] Usas `sudo passwd root` desde tu sesión habitual de escritorio
+1. [ ] Desinstalas y vuelves a instalar el sistema operativo
 
-*Sin contraseña de root no entras a rescue: `init=/bin/bash` no autentica; protege después el acceso a consola y a GRUB.*
+> Sin contraseña de root no entras a rescue: `init=/bin/bash` no autentica; protege después el acceso a consola y a GRUB.
 
----
 
 ## Según la rúbrica del Proyecto Final, ¿qué se exige para aprobar?
 
-[x] Al menos 70 puntos sobre 100 en total y al menos 10 de los 20 puntos del criterio "Seguridad y hardening"
-[ ] Solo alcanzar 70 puntos en total, sin importar el criterio de seguridad
-[ ] 100 puntos exactos para aprobar
-[ ] La aprobación la define el instructor al final del curso
+1. [x] Al menos 70 puntos sobre 100 en total y al menos 10 de los 20 puntos del criterio "Seguridad y hardening"
+1. [ ] Solo alcanzar 70 puntos en total, sin importar el criterio de seguridad
+1. [ ] 100 puntos exactos para aprobar
+1. [ ] La aprobación la define el instructor al final del curso
 
-*Un servidor inseguro no aprueba aunque el total alcance 70: el criterio 2 tiene piso propio de 10/20.*
+> Un servidor inseguro no aprueba aunque el total alcance 70: el criterio 2 tiene piso propio de 10/20.
 
----
 
 ## ¿Cuáles son los componentes del entregable del Proyecto Final?
 
-[x] VM funcionando e accesible, informe (Markdown o PDF), evidencias de comandos y configuraciones, y demo en vivo de 10 minutos
-[ ] Solo el informe escrito sin servidor
-[ ] Un examen teórico de 50 preguntas
-[ ] La VM con snapshots, sin documentación
+1. [x] VM funcionando e accesible, informe (Markdown o PDF), evidencias de comandos y configuraciones, y demo en vivo de 10 minutos
+1. [ ] Solo el informe escrito sin servidor
+1. [ ] Un examen teórico de 50 preguntas
+1. [ ] La VM con snapshots, sin documentación
 
-*La rúbrica de 100 puntos y el checklist de evidencias definen exactamente qué se evalúa en el entregable.*
-
-:::
+> La rúbrica de 100 puntos y el checklist de evidencias definen exactamente qué se evalúa en el entregable.
+````

@@ -11,116 +11,106 @@ format:
 
 # Quiz Avanzado: Troubleshooting en Linux
 
-::: quizdown
+````quizdown
 ## Escenario 1: El servidor no responde a ping pero SSH funciona. ¿Qué puede ser?
 
-[x] ICMP bloqueado por firewall, servicio SSH activo
-[ ] El servidor está caído
-[ ] Problema de DNS
-[ ] CPU al 100%
+1. [x] ICMP bloqueado por firewall, servicio SSH activo
+1. [ ] El servidor está caído
+1. [ ] Problema de DNS
+1. [ ] CPU al 100%
 
-*Ping usa ICMP, SSH usa TCP. Firewall puede bloquear ICMP.*
+> Ping usa ICMP, SSH usa TCP. Firewall puede bloquear ICMP.
 
----
 
 ## Escenario 2: Proceso zombie consume CPU. ¿Qué haces?
 
-[x] Identificar y matar el proceso padre (PPID)
-[ ] Matar todos los procesos zombies
-[ ] Reiniciar el servidor
-[ ] formatear el disco
+1. [x] Identificar y matar el proceso padre (PPID)
+1. [ ] Matar todos los procesos zombies
+1. [ ] Reiniciar el servidor
+1. [ ] formatear el disco
 
-*Zombies esperan al padre. Hay que arreglar el proceso padre.*
+> Zombies esperan al padre. Hay que arreglar el proceso padre.
 
----
 
 ## Escenario 3: Disco lleno (/dev/sda1 100%). ¿Qué archivos borrar primero?
 
-[x] /var/log/* (logs antiguos), /tmp/* (archivos temporales)
-[ ] /etc/passwd
-[ ] /home/* (datos de usuarios)
-[ ] /var/www/* (sitios web)
+1. [x] /var/log/* (logs antiguos), /tmp/* (archivos temporales)
+1. [ ] /etc/passwd
+1. [ ] /home/* (datos de usuarios)
+1. [ ] /var/www/* (sitios web)
 
-*Logs y tmp son seguros de limpiar si no están en uso.*
+> Logs y tmp son seguros de limpiar si no están en uso.
 
----
 
 ## Escenario 4: Apache devuelve 500 Error. ¿Qué logs ves?
 
-[x] /var/log/apache2/error.log
-[ ] /var/log/syslog
-[ ] /var/log/messages
-[ ] /var/log/kern.log
+1. [x] /var/log/apache2/error.log
+1. [ ] /var/log/syslog
+1. [ ] /var/log/messages
+1. [ ] /var/log/kern.log
 
-*Apache tiene sus propios logs de error.*
+> Apache tiene sus propios logs de error.
 
----
 
 ## Escenario 5: Puerto 8080 aparece "en uso". ¿Qué proceso?
 
-[x] lsof -i :8080 o ss -tlnp | grep 8080
-[ ] netstat -a
-[ ] ping 8080
-[ ] ps aux | grep 8080
+1. [x] lsof -i :8080 o ss -tlnp | grep 8080
+1. [ ] netstat -a
+1. [ ] ping 8080
+1. [ ] ps aux | grep 8080
 
-*lsof y ss muestran qué proceso usa el puerto.*
+> lsof y ss muestran qué proceso usa el puerto.
 
----
 
 ## Escenario 6: Usuario no puede login por SSH. ¿Qué verificas?
 
-[x] Permisos de ~/.ssh/, authorized_keys, /etc/passwd
-[ ] El servicio Apache
-[ ] El espacio en disco
-[ ] La memoria RAM
+1. [x] Permisos de ~/.ssh/, authorized_keys, /etc/passwd
+1. [ ] El servicio Apache
+1. [ ] El espacio en disco
+1. [ ] La memoria RAM
 
-*SSH necesita ~/.ssh/ con permisos 700, authorized_keys 600.*
+> SSH necesita ~/.ssh/ con permisos 700, authorized_keys 600.
 
----
 
 ## Escenario 7: DNS resuelve lento. ¿Qué prueba basic?
 
-[x] dig +short dominio.com y nslookup dominio.com
-[ ] ping dominio.com
-[ ] curl dominio.com
-[ ] traceroute dominio.com
+1. [x] dig +short dominio.com y nslookup dominio.com
+1. [ ] ping dominio.com
+1. [ ] curl dominio.com
+1. [ ] traceroute dominio.com
 
-*dig muestra tiempo de respuesta DNS específicamente.*
+> dig muestra tiempo de respuesta DNS específicamente.
 
----
 
 ## Escenario 8: Memoria "desaparecida". ¿Qué comando la encuentra?
 
-[x] free -h && ps aux --sort=-%mem | head -10
-[ ] df -h
-[ ] du -sh /*
-[ ] cat /proc/meminfo
+1. [x] free -h && ps aux --sort=-%mem | head -10
+1. [ ] df -h
+1. [ ] du -sh /*
+1. [ ] cat /proc/meminfo
 
-*ps aux orden por %mem muestra procesos consumiendo RAM.*
+> ps aux orden por %mem muestra procesos consumiendo RAM.
 
----
 
 ## Escenario 9: Servidor lento pero CPU y RAM OK. ¿Qué puede ser?
 
-[x] I/O de disco, cuello de botella de red, proceso blocking
-[ ] Más RAM
-[ ] Más CPU
-[ ] Mejor tarjeta de red
+1. [x] I/O de disco, cuello de botella de red, proceso blocking
+1. [ ] Más RAM
+1. [ ] Más CPU
+1. [ ] Mejor tarjeta de red
 
-*Disco lento (HDD vs SSD) o red saturada causan lentitud.*
+> Disco lento (HDD vs SSD) o red saturada causan lentitud.
 
----
 
 ## Escenario 10: Error "Permission denied" en archivo que debería ser readable. ¿Qué verificas?
 
-[x] Permisos (ls -l), propietario (ls -l), SELinux/AppArmor (getenforce)
-[ ] El espacio en disco
-[ ] El servicio Apache
-[ ] La fecha del archivo
+1. [x] Permisos (ls -l), propietario (ls -l), SELinux/AppArmor (getenforce)
+1. [ ] El espacio en disco
+1. [ ] El servicio Apache
+1. [ ] La fecha del archivo
 
-*ls -l muestra permisos, getenforce verifica contexto SELinux.*
+> ls -l muestra permisos, getenforce verifica contexto SELinux.
 
----
 
 ## Escenario 11: ¿Qué hace este comando?
 
@@ -128,54 +118,50 @@ format:
 for i in {1..5}; do ping -c 1 google.com > /dev/null && echo "OK: $i" || echo "FAIL: $i"; done
 ```
 
-[x] Prueba conectividad a Google 5 veces, reporta OK/FAIL
-[ ] Hace ping infinito a Google
-[ ] Instala conectividad
-[ ] Configura firewall
+1. [x] Prueba conectividad a Google 5 veces, reporta OK/FAIL
+1. [ ] Hace ping infinito a Google
+1. [ ] Instala conectividad
+1. [ ] Configura firewall
 
-*Script bash simple para verificar conectividad.*
+> Script bash simple para verificar conectividad.
 
----
 
 ## Escenario 12: Logs demasiado grandes. ¿Qué hacer?
 
-[x] Configurar logrotate, comprimir logs antiguos, excluir logs innecesarios
-[ ] Borrar todos los logs
-[ ] Deshabilitar logging
-[ ] Mover a /tmp
+1. [x] Configurar logrotate, comprimir logs antiguos, excluir logs innecesarios
+1. [ ] Borrar todos los logs
+1. [ ] Deshabilitar logging
+1. [ ] Mover a /tmp
 
-*logrotate automatiza rotación, compresión y eliminación.*
+> logrotate automatiza rotación, compresión y eliminación.
 
----
 
 ## Escenario 13: ¿Qué significa "connection refused" al conectar?
 
-[x] No hay servicio escuchando en ese puerto, o firewall bloqueando
-[ ] El servidor está sobrecargado
-[ ] La contraseña es incorrecta
-[ ] El DNS no resuelve
+1. [x] No hay servicio escuchando en ese puerto, o firewall bloqueando
+1. [ ] El servidor está sobrecargado
+1. [ ] La contraseña es incorrecta
+1. [ ] El DNS no resuelve
 
-*Connection refused = nadie responde en ese puerto.*
+> Connection refused = nadie responde en ese puerto.
 
----
 
 ## Escenario 14: El servidor no boot. ¿Qué revisas primero?
 
-[x] GRUB menu, logs de boot (/var/log/boot.log), journalctl -b
-[ ] Los logs de Apache
-[ ] El espacio en disco
-[ ] La memoria RAM
+1. [x] GRUB menu, logs de boot (/var/log/boot.log), journalctl -b
+1. [ ] Los logs de Apache
+1. [ ] El espacio en disco
+1. [ ] La memoria RAM
 
-*journalctl -b muestra logs del último boot.*
+> journalctl -b muestra logs del último boot.
 
----
 
 ## Escenario 15: Error "I/O error" en disco. ¿Qué herramienta diagnosis?
 
-[x] smartctl -a /dev/sda (SMART), dmesg | grep -i error
-[ ] fsck
-[ ] df -h
-[ ] top
+1. [x] smartctl -a /dev/sda (SMART), dmesg | grep -i error
+1. [ ] fsck
+1. [ ] df -h
+1. [ ] top
 
-*dmesg muestra errores de hardware, smartctl estado del disco.*
-:::
+> dmesg muestra errores de hardware, smartctl estado del disco.
+````

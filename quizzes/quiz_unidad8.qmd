@@ -11,168 +11,153 @@ format:
 
 # Quiz: Unidad 8 - Servidor DHCP
 
-::: quizdown
+````quizdown
 ## ¿Qué secuencia describe el intercambio DORA en DHCP?
 
-[x] Discover, Offer, Request, Acknowledge
-[ ] Discover, Acknowledge, Offer, Request
-[ ] Request, Discover, Acknowledge, Offer
-[ ] Offer, Discover, Acknowledge, Request
+1. [x] Discover, Offer, Request, Acknowledge
+1. [ ] Discover, Acknowledge, Offer, Request
+1. [ ] Request, Discover, Acknowledge, Offer
+1. [ ] Offer, Discover, Acknowledge, Request
 
-*El cliente emite `DHCPDISCOVER` en broadcast, el servidor responde `DHCPOFFER`, el cliente pide con `DHCPREQUEST` y el servidor confirma con `DHCPACK`.*
+> El cliente emite `DHCPDISCOVER` en broadcast, el servidor responde `DHCPOFFER`, el cliente pide con `DHCPREQUEST` y el servidor confirma con `DHCPACK`.
 
----
 
 ## ¿Qué puertos UDP usa el servicio DHCP y quién los ocupa?
 
-[x] UDP 67 en el servidor y UDP 68 en el cliente
-[ ] UDP 67 en el cliente y UDP 68 en el servidor
-[ ] TCP 67 y TCP 68 en ambos sentidos
-[ ] UDP 53 y UDP 54
+1. [x] UDP 67 en el servidor y UDP 68 en el cliente
+1. [ ] UDP 67 en el cliente y UDP 68 en el servidor
+1. [ ] TCP 67 y TCP 68 en ambos sentidos
+1. [ ] UDP 53 y UDP 54
 
-*Por eso el tráfico inicial es broadcast: el cliente aún no tiene dirección y se dirige a `255.255.255.255:67` desde `0.0.0.0:68`.*
+> Por eso el tráfico inicial es broadcast: el cliente aún no tiene dirección y se dirige a `255.255.255.255:67` desde `0.0.0.0:68`.
 
----
 
 ## ¿Cuál es el archivo de configuración de ISC dhcpd en Ubuntu?
 
-[x] /etc/dhcp/dhcpd.conf
-[ ] /etc/dhcpd.conf
-[ ] /etc/default/isc-dhcp-server
-[ ] /etc/network/interfaces
+1. [x] /etc/dhcp/dhcpd.conf
+1. [ ] /etc/dhcpd.conf
+1. [ ] /etc/default/isc-dhcp-server
+1. [ ] /etc/network/interfaces
 
-*`/etc/default/isc-dhcp-server` solo define en qué interfaces escucha dhcpd (`INTERFACESv4`); los parámetros y scopes van en `dhcpd.conf`.*
+> `/etc/default/isc-dhcp-server` solo define en qué interfaces escucha dhcpd (`INTERFACESv4`); los parámetros y scopes van en `dhcpd.conf`.
 
----
 
 ## ¿Qué declara el bloque `subnet 192.168.100.0 netmask 255.255.255.0 { range ... }`?
 
-[x] Un scope: la subred que el servidor atiende, con su rango de direcciones dinámicas
-[ ] Una reserva de una sola dirección
-[ ] Una regla de firewall para la red
-[ ] El dominio DNS del sitio
+1. [x] Un scope: la subred que el servidor atiende, con su rango de direcciones dinámicas
+1. [ ] Una reserva de una sola dirección
+1. [ ] Una regla de firewall para la red
+1. [ ] El dominio DNS del sitio
 
-*Sin declaración `subnet` para la red de la interfaz por la que llega el paquete, dhcpd no arranca: `No subnet declaration for eth0`.*
+> Sin declaración `subnet` para la red de la interfaz por la que llega el paquete, dhcpd no arranca: `No subnet declaration for eth0`.
 
----
 
 ## ¿Cómo se excluye la dirección .150 de la entrega dinámica en ISC dhcpd?
 
-[x] No incluyéndola en ningún `range` (declarando dos rangos separados)
-[ ] Con una declaración `exclude 192.168.100.150;`
-[ ] Con `deny unknown-clients;`
-[ ] Borrándola del archivo de concesiones
+1. [x] No incluyéndola en ningún `range` (declarando dos rangos separados)
+1. [ ] Con una declaración `exclude 192.168.100.150;`
+1. [ ] Con `deny unknown-clients;`
+1. [ ] Borrándola del archivo de concesiones
 
-*ISC dhcpd no tiene la declaración `exclude` de Windows Server; las exclusiones se logran partiéndose el rango en dos bloques.*
+> ISC dhcpd no tiene la declaración `exclude` de Windows Server; las exclusiones se logran partiéndose el rango en dos bloques.
 
----
 
 ## ¿Qué hace la directiva `authoritative;` en dhcpd.conf?
 
-[x] Hace que el servidor responda DHCPNAK a clientes con direcciones que no pertenecen a su red
-[ ] Exige que todos los clientes estén reservados
-[ ] Habilita la autenticación por contraseña de los clientes
-[ ] Prioriza este servidor frente a otros de la red
+1. [x] Hace que el servidor responda DHCPNAK a clientes con direcciones que no pertenecen a su red
+1. [ ] Exige que todos los clientes estén reservados
+1. [ ] Habilita la autenticación por contraseña de los clientes
+1. [ ] Prioriza este servidor frente a otros de la red
 
-*Evita que un cliente siga usando una dirección antigua de otro servidor; es recomendable en redes donde dhcpd es el único servidor.*
+> Evita que un cliente siga usando una dirección antigua de otro servidor; es recomendable en redes donde dhcpd es el único servidor.
 
----
 
 ## ¿Cuál es el orden de jerarquía de alcances de una opción DHCP?
 
-[x] Global → subnet → host; el nivel más específico gana
-[ ] host → subnet → global; el nivel más general gana
-[ ] Todos tienen la misma prioridad y el último gana
-[ ] Solo se admiten opciones a nivel global
+1. [x] Global → subnet → host; el nivel más específico gana
+1. [ ] host → subnet → global; el nivel más general gana
+1. [ ] Todos tienen la misma prioridad y el último gana
+1. [ ] Solo se admiten opciones a nivel global
 
-*Una opción declarada dentro de un bloque `host` sobreescribe a la del `subnet`, y esta a la global.*
+> Una opción declarada dentro de un bloque `host` sobreescribe a la del `subnet`, y esta a la global.
 
----
 
 ## ¿Qué opción DHCP entrega la puerta de enlace predeterminada y cuál es su número?
 
-[x] `option routers`, opción 3
-[ ] `option subnet-mask`, opción 3
-[ ] `option domain-name-servers`, opción 3
-[ ] `option broadcast-address`, opción 3
+1. [x] `option routers`, opción 3
+1. [ ] `option subnet-mask`, opción 3
+1. [ ] `option domain-name-servers`, opción 3
+1. [ ] `option broadcast-address`, opción 3
 
-*La opción 1 es la máscara de subred, 3 el router, 6 los servidores DNS, 12 el nombre de host y 15 el dominio.*
+> La opción 1 es la máscara de subred, 3 el router, 6 los servidores DNS, 12 el nombre de host y 15 el dominio.
 
----
 
 ## ¿Por qué `default-lease-time` y `max-lease-time` no llevan la palabra `option`?
 
-[x] Son parámetros del servidor, no opciones del protocolo DHCP
-[ ] Porque están obsoletos en las versiones actuales
-[ ] Porque solo aplican a los clientes reservados
-[ ] Porque se configuran en el archivo de concesiones
+1. [x] Son parámetros del servidor, no opciones del protocolo DHCP
+1. [ ] Porque están obsoletos en las versiones actuales
+1. [ ] Porque solo aplican a los clientes reservados
+1. [ ] Porque se configuran en el archivo de concesiones
 
-*Igual ocurre con `authoritative` y `range`: se escriben sin `option` dentro del scope.*
+> Igual ocurre con `authoritative` y `range`: se escriben sin `option` dentro del scope.
 
----
 
 ## ¿Cómo se define una reservación (MAC → IP fija) en dhcpd.conf?
 
-[x] host impresora { hardware ethernet 02:00:00:00:00:01; fixed-address 192.168.100.50; }
-[ ] reservation impresora 192.168.100.50 02:00:00:00:00:01;
-[ ] static-lease 02:00:00:00:00:01 192.168.100.50;
-[ ] host impresora { ip 192.168.100.50; }
+1. [x] host impresora { hardware ethernet 02:00:00:00:00:01; fixed-address 192.168.100.50; }
+1. [ ] reservation impresora 192.168.100.50 02:00:00:00:00:01;
+1. [ ] static-lease 02:00:00:00:00:01 192.168.100.50;
+1. [ ] host impresora { ip 192.168.100.50; }
 
-*`hardware ethernet` identifica al equipo por su MAC y `fixed-address` fija la IP que siempre recibirá.*
+> `hardware ethernet` identifica al equipo por su MAC y `fixed-address` fija la IP que siempre recibirá.
 
----
 
 ## ¿Dónde debe estar ubicada la dirección de una reserva?
 
-[x] Dentro de un `subnet` declarado, pero preferiblemente fuera del `range` dinámico
-[ ] Obligatoriamente dentro del `range` dinámico
-[ ] Fuera de cualquier `subnet` declarada
-[ ] En el archivo de concesiones, no en dhcpd.conf
+1. [x] Dentro de un `subnet` declarado, pero preferiblemente fuera del `range` dinámico
+1. [ ] Obligatoriamente dentro del `range` dinámico
+1. [ ] Fuera de cualquier `subnet` declarada
+1. [ ] En el archivo de concesiones, no en dhcpd.conf
 
-*Fuera del rango evita que una dirección dinámica choque con la reserva; si el cliente pide otra, el servidor responde `DHCPNAK`.*
+> Fuera del rango evita que una dirección dinámica choque con la reserva; si el cliente pide otra, el servidor responde `DHCPNAK`.
 
----
 
 ## ¿Dónde guarda dhcpd sus concesiones?
 
-[x] En /var/lib/dhcp/dhcpd.leases
-[ ] En /var/log/dhcpd.log
-[ ] En /etc/dhcp/dhcpd.leases
-[ ] En /var/lib/dhclient/
+1. [x] En /var/lib/dhcp/dhcpd.leases
+1. [ ] En /var/log/dhcpd.log
+1. [ ] En /etc/dhcp/dhcpd.leases
+1. [ ] En /var/lib/dhclient/
 
-*Es una base ASCII persistente; sin este archivo dhcpd no arranca y en una instalación limpia se crea vacío con `touch /var/lib/dhcp/dhcpd.leases`.*
+> Es una base ASCII persistente; sin este archivo dhcpd no arranca y en una instalación limpia se crea vacío con `touch /var/lib/dhcp/dhcpd.leases`.
 
----
 
 ## ¿Qué ocurre con el archivo de concesiones cuando crece sin límite?
 
-[x] dhcpd lo rota y deja el respaldo como /var/lib/dhcp/dhcpd.leases~
-[ ] El sistema borra automáticamente las concesiones vencidas
-[ ] Se comprime con gzip cada 24 horas
-[ ] Se divide en un archivo por subred
+1. [x] dhcpd lo rota y deja el respaldo como /var/lib/dhcp/dhcpd.leases~
+1. [ ] El sistema borra automáticamente las concesiones vencidas
+1. [ ] Se comprime con gzip cada 24 horas
+1. [ ] Se divide en un archivo por subred
 
-*La rotación la hace el propio dhcpd: reescribe descartando declaraciones obsoletas y guarda la versión anterior como respaldo.*
+> La rotación la hace el propio dhcpd: reescribe descartando declaraciones obsoletas y guarda la versión anterior como respaldo.
 
----
 
 ## ¿Qué regla de ufw permite recibir el DHCPDISCOVER en la interfaz de la LAN?
 
-[x] sudo ufw allow in on eth0 to any port 67 proto udp
-[ ] sudo ufw allow out on eth0 to any port 68 proto udp
-[ ] sudo ufw allow from 192.168.100.0/24 to any port 67
-[ ] sudo ufw allow 67,68
+1. [x] sudo ufw allow in on eth0 to any port 67 proto udp
+1. [ ] sudo ufw allow out on eth0 to any port 68 proto udp
+1. [ ] sudo ufw allow from 192.168.100.0/24 to any port 67
+1. [ ] sudo ufw allow 67,68
 
-*La política por defecto de ufw es `deny (incoming)`: sin regla de entrada el `DHCPDISCOVER` se descarta y el cliente nunca recibe oferta. En el servidor no hace falta abrir el 68, porque las respuestas salen del 67 hacia el 68.*
+> La política por defecto de ufw es `deny (incoming)`: sin regla de entrada el `DHCPDISCOVER` se descarta y el cliente nunca recibe oferta. En el servidor no hace falta abrir el 68, porque las respuestas salen del 67 hacia el 68.
 
----
 
 ## ¿Por qué una regla `ufw allow in on eth0 from 192.168.100.0/24 to any port 67 proto udp` no deja pasar el primer DISCOVER?
 
-[x] Porque el DHCPDISCOVER llega con origen 0.0.0.0, no con una IP de la subred
-[ ] Porque DHCP usa TCP en lugar de UDP
-[ ] Porque el puerto correcto es el 68 en el servidor
-[ ] Porque ufw no admite filtros por interfaz
+1. [x] Porque el DHCPDISCOVER llega con origen 0.0.0.0, no con una IP de la subred
+1. [ ] Porque DHCP usa TCP en lugar de UDP
+1. [ ] Porque el puerto correcto es el 68 en el servidor
+1. [ ] Porque ufw no admite filtros por interfaz
 
-*Esa regla por origen sirve para renovaciones o para tráfico relayeado; con un relay (`dhcrelay`) el origen es la IP del relay, no `0.0.0.0`.*
-
-:::
+> Esa regla por origen sirve para renovaciones o para tráfico relayeado; con un relay (`dhcrelay`) el origen es la IP del relay, no `0.0.0.0`.
+````
