@@ -8,8 +8,9 @@ Instructor: Diego Saavedra (https://statick88.github.io)
 
 - Sitio (publicado): `https://statick88.github.io/administracion-servidores-linux/`
 - Sitio (HTML generado): `_site/index.html`
-- Diapositivas (Reveal.js): `docs/presentaciones/index.html`
+- Diapositivas: `recursos/presentaciones/curso/index.html` (fuentes `.qmd` en `presentaciones/`)
 - Guía de entorno: `SETUP.qmd` (fuente: `SETUP.md`)
+- Migración desde Quarto: `MIGRATION.md`
 
 ## Ejecutar en local
 
