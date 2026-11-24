@@ -1,5 +1,5 @@
 # 🛡️ Guía Práctica: Unidad IV — Administración y Seguridad de Usuarios
-**Facilitador:** Ing. Diego Medardo Saavedra García | Abacom™
+**Facilitador:** Ing. Diego Medardo Saavedra García
 **Entorno de trabajo:** Ubuntu Server / Contenedor `lab-linux`
 
 ---
@@ -130,7 +130,7 @@ sudo -l -U analopez
 
 ```bash
 # 1. Generar la clave con algoritmo ed25519
-ssh-keygen -t ed25519 -C "analopez@abacom.ec" -f ~/.ssh/id_ed25519_lab
+ssh-keygen -t ed25519 -C "analopez@ejemplo.com" -f ~/.ssh/id_ed25519_lab
 
 # 2. Copiar la clave pública al servidor remoto
 ssh-copy-id -i ~/.ssh/id_ed25519_lab.pub analopez@192.168.100.3

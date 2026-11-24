@@ -1,243 +1,40 @@
 ---
-title: "Quiz Unidad 9: Servidor Web (Apache)"
-description: "Evaluación sobre configuración de Apache, virtualhosts, módulos y seguridad básica"
+title: "Quiz Unidad 9: Nginx como Servidor Web y Proxy"
+description: "Evaluación sobre Nginx, contenido estático y proxy inverso"
 author: "Diego Saavedra"
-date: today
-format:
-  html:
-    toc: true
-    number-sections: false
 ---
 
-# Quiz: Unidad 9 - Servidor Web (Apache)
+# Quiz: Unidad 9 - Nginx como Servidor Web y Proxy
 
-````quizdown
-## ¿Qué es un servidor web?
+::: quizdown
+## ¿Qué directiva envía solicitudes a un backend en Nginx?
 
-1. [x] Un software que procesa solicitudes HTTP y devuelve contenido web
-1. [ ] Una computadora física conectada a internet
-1. [ ] Un tipo de base de datos
-1. [ ] Un programa para diseñar páginas web
+[x] proxy_pass
+[ ] server_name
+[ ] listen
+[ ] root
 
-> Apache, Nginx y IIS son ejemplos de servidores web.
+*`proxy_pass` define la URL del servicio backend al que Nginx reenvía solicitudes.*
 
+---
 
-## ¿Qué significa HTTP?
+## ¿Qué comando valida la configuración de Nginx sin aplicarla?
 
-1. [x] HyperText Transfer Protocol - Protocolo de transferencia de hipertexto
-1. [ ] High Tech Transmission Protocol
-1. [ ] HyperText Transmission Process
-1. [ ] Home Tool Transfer Protocol
+[ ] systemctl restart nginx
+[x] nginx -t
+[ ] nginx --publish
+[ ] docker rm nginx
 
-> HTTP es el protocolo de comunicación entre clientes y servidores web.
+*`nginx -t` verifica la sintaxis antes de una recarga del servicio.*
 
+---
 
-## ¿Qué significa HTTPS?
+## ¿Qué directiva define la raíz de un sitio estático en Nginx?
 
-1. [x] HTTP Secure - HTTP con encriptación TLS/SSL
-1. [ ] HTTP Server
-1. [ ] High Traffic Server
-1. [ ] HTTP Transfer Standard
+[ ] upstream
+[x] root
+[ ] proxy_set_header
+[ ] ssl_certificate
 
-> HTTPS protege la información con certificados SSL/TLS.
-
-
-## ¿Qué puerto usa HTTPS por defecto?
-
-1. [ ] 80
-1. [x] 443
-1. [ ] 8080
-1. [ ] 22
-
-> HTTPS usa puerto 443 (el estándar para tráfico encriptado).
-
-
-## ¿Qué significa "request" en el contexto web?
-
-1. [x] Una solicitud del cliente (navegador) al servidor web
-1. [ ] Una respuesta del servidor
-1. [ ] Un tipo de virus
-1. [ ] Un archivo de configuración
-
-> El cliente envía request, el servidor responde con response.
-
-
-## ¿Qué significa "response" en el contexto web?
-
-1. [x] La respuesta del servidor web al cliente después de procesar un request
-1. [ ] Una solicitud del cliente
-1. [ ] Un tipo de error
-1. [ ] Un archivo de configuración
-
-> El response incluye código de estado, headers y contenido.
-
-
-## ¿Qué código de estado HTTP indica "OK" (éxito)?
-
-1. [ ] 404
-1. [ ] 500
-1. [x] 200
-1. [ ] 301
-
-> 200 = OK, la solicitud fue exitosa.
-
-
-## ¿Qué código de estado HTTP indica "Not Found"?
-
-1. [ ] 200
-1. [ ] 500
-1. [x] 404
-1. [ ] 301
-
-> 404 = Not Found, el recurso no existe.
-
-
-## ¿Qué código de estado HTTP indica "Internal Server Error"?
-
-1. [ ] 200
-1. [ ] 500
-1. [x] 404
-1. [ ] 301
-
-> 500 = Internal Server Error, error en el servidor.
-
-
-## ¿Qué es Apache HTTP Server?
-
-1. [x] El servidor web más usado del mundo, desarrollado por Apache Foundation
-1. [ ] Un sistema operativo
-1. [ ] Un tipo de base de datos
-1. [ ] Un lenguaje de programación
-
-> Apache es el servidor web open source más popular históricamente.
-
-
-## ¿Cuál es el comando para iniciar el servicio Apache?
-
-1. [x] sudo systemctl start apache2
-1. [ ] sudo systemctl start nginx
-1. [ ] sudo apache start
-1. [ ] apache2ctl run
-
-> En Ubuntu/Debian el servicio se llama apache2.
-
-
-## ¿Cuál es el archivo de configuración principal de Apache?
-
-1. [x] /etc/apache2/apache2.conf
-1. [ ] /etc/nginx/nginx.conf
-1. [ ] /etc/httpd/httpd.conf
-1. [ ] /etc/apache/apache.conf
-
-> apache2.conf es el archivo de configuración global de Apache.
-
-
-## ¿Qué directorio contiene los VirtualHosts en Ubuntu?
-
-1. [x] /etc/apache2/sites-available/
-1. [ ] /etc/nginx/sites-enabled/
-1. [ ] /etc/apache2/sites-enabled/
-1. [ ] /etc/httpd/conf.d/
-
-> Los archivos de VirtualHost se crean en sites-available y se habilitan con a2ensite.
-
-
-## ¿Qué comando habilita un sitio en Apache?
-
-1. [x] sudo a2ensite nombre_sitio
-1. [ ] sudo nginx enable sitio
-1. [ ] sudo apache2 activate
-1. [ ] sudo systemctl restart apache
-
-> a2ensite crea el symlink en sites-enabled.
-
-
-## ¿Qué significa "a2dissite"?
-
-1. [x] Deshabilitar un sitio de Apache
-1. [ ] Instalar Apache
-1. [ ] Activar módulo
-1. [ ] Reiniciar servicio
-
-> a2dissite deshabilita un VirtualHost.
-
-
-## ¿Qué comando reinicia Apache después de cambios de configuración?
-
-1. [x] sudo systemctl restart apache2
-1. [ ] sudo nginx restart
-1. [ ] apache2 reload
-1. [ ] sudo systemctl start apache2
-
-> restart (o reload para recarga sin desconexión) aplica cambios.
-
-
-## ¿Qué módulo de Apache proporciona rewrite de URLs?
-
-1. [x] mod_rewrite
-1. [ ] mod_ssl
-1. [ ] mod_proxy
-1. [ ] mod_headers
-
-> mod_rewrite permite URLs amigables y redirecciones.
-
-
-## ¿Qué es un VirtualHost basado en nombre?
-
-1. [x] Un VirtualHost que sirve múltiples dominios en una misma IP
-1. [ ] Un VirtualHost por cada IP
-1. [ ] Un tipo de certificado SSL
-1. [ ] Un sistema de autenticación
-
-> Name-based VirtualHost permite hospedar varios dominios con una IP.
-
-
-## ¿Qué archivo contiene la configuración de puertos en Apache?
-
-1. [x] /etc/apache2/ports.conf
-1. [ ] /etc/apache2/ports.conf
-1. [ ] /etc/nginx/ports.conf
-1. [ ] /etc/httpd/ports.conf
-
-> ports.conf define en qué puertos escucha Apache.
-
-
-## ¿Qué significa .htaccess?
-
-1. [x] Un archivo de configuración por directorio que Apache lee automáticamente
-1. [ ] Un tipo de virus
-1. [ ] Un script de inicio
-1. [ ] Un archivo de log
-
-> .htaccess permite configuraciones sin acceder al archivo principal.
-
-
-## ¿Qué comando muestra el estado de módulos de Apache?
-
-1. [x] apache2ctl -M
-1. [ ] apachectl list
-1. [ ] nginx -V
-1. [ ] systemctl status apache
-
-> apache2ctl -M (o apachectl -M) lista módulos cargados.
-
-
-## ¿Qué significa "AllowOverride All"?
-
-1. [x] Permite usar archivos .htaccess para sobrescribir configuraciones
-1. [ ] Niega todos los accesos
-1. [ ] Solo permite overrides parciales
-1. [ ] Deshabilita .htaccess
-
-> AllowOverride All da flexibilidad a usuarios para configurar sus directorios.
-
-
-## ¿Qué es el directorio DocumentRoot?
-
-1. [x] El directorio donde Apache busca los archivos para servir
-1. [ ] El directorio de logs
-1. [ ] El directorio de configuración
-1. [ ] El directorio de usuarios
-
-> Por defecto en Ubuntu es /var/www/html/
-````
+*La directiva `root` indica el directorio desde el cual Nginx sirve archivos estáticos.*
+:::

@@ -1,153 +1,40 @@
 ---
 title: "Quiz Unidad 2: Gestión de Paquetes y Entornos"
-description: "Evaluación sobre gestores de paquetes APT y DNF, repositorios EPEL y PPA, Snap/Flatpak y firmas GPG"
+description: "Evaluación sobre APT, DNF, repositorios y firmas GPG"
 author: "Diego Saavedra"
-date: today
-format:
-  html:
-    toc: true
-    number-sections: false
 ---
 
 # Quiz: Unidad 2 - Gestión de Paquetes y Entornos
 
-````quizdown
-## ¿Qué gestor de paquetes utilizan RHEL, Rocky Linux y AlmaLinux?
+::: quizdown
+## ¿Qué comando actualiza el índice de paquetes en Ubuntu?
 
-1. [x] DNF (con RPM como formato de paquete subyacente)
-1. [ ] APT
-1. [ ] Pacman
-1. [ ] Portage
+[x] sudo apt update
+[ ] sudo apt upgrade
+[ ] sudo dnf update
+[ ] sudo apt clean
 
-> DNF es el gestor de las familias RPM; APT pertenece a Debian/Ubuntu, Pacman a Arch y Portage a Gentoo.
+*`apt update` descarga los índices de los repositorios sin instalar actualizaciones.*
 
+---
 
-## ¿En qué formato de paquete se distribuyen los programas en Fedora o RHEL?
+## ¿Qué verifica una firma GPG de un repositorio?
 
-1. [x] .rpm
-1. [ ] .deb
-1. [ ] .pkg.tar.zst
-1. [ ] .msi
+[x] La integridad y procedencia de los paquetes
+[ ] El tamaño libre del disco
+[ ] La velocidad de la red
+[ ] Los permisos de los usuarios
 
-> Los sistemas RPM empaquetan en `.rpm`; Debian y Ubuntu usan `.deb`.
+*La clave GPG permite comprobar que los paquetes proceden del repositorio esperado.*
 
+---
 
-## ¿Cuál es el comando DNF equivalente a `apt list --installed`?
+## ¿Qué herramienta corresponde a Fedora y RHEL para gestionar paquetes?
 
-1. [x] dnf list installed
-1. [ ] dnf list available
-1. [ ] dnf repolist
-1. [ ] rpm -qa
+[ ] apt
+[x] dnf
+[ ] snap
+[ ] flatpak
 
-> `dnf list installed` enumera los paquetes instalados; `rpm -qa` es la capa inferior y no pasa por los repositorios.
-
-
-## ¿Qué par de comandos actualiza el índice de paquetes en APT y en DNF?
-
-1. [x] apt update y dnf makecache
-1. [ ] apt upgrade y dnf upgrade
-1. [ ] apt refresh y dnf refresh
-1. [ ] apt sync y dnf sync
-
-> Actualizar el índice (metadatos) es `apt update` / `dnf makecache`; instalar las versiones nuevas es `apt upgrade` / `dnf upgrade`.
-
-
-## ¿Qué significa EPEL?
-
-1. [x] Extra Packages for Enterprise Linux — repositorio que amplía los paquetes disponibles en RHEL
-1. [ ] Enterprise Package Exchange Layer
-1. [ ] Enhanced Package Enrollment License
-1. [ ] External Providers of Enterprise Linux
-
-> EPEL es un repositorio comunitario para RHEL y sus derivados; se instala con el paquete `epel-release`.
-
-
-## ¿Qué paquete habilita el repositorio EPEL en un sistema RHEL?
-
-1. [x] epel-release
-1. [ ] crb-release
-1. [ ] rpmfusion-release
-1. [ ] elrepo-release
-
-> `sudo dnf install epel-release` añade la configuración del repo; CRB/PowerTools se habilita aparte con `dnf config-manager --set-enabled crb`.
-
-
-## ¿Qué es un PPA?
-
-1. [x] Personal Package Archive: repositorio de paquetes publicado por terceros en Launchpad para Ubuntu
-1. [ ] Un formato de paquete de Debian
-1. [ ] Un protocolo de autenticación de paquetes
-1. [ ] El repositorio oficial de Canonical
-
-> Los PPA permiten distribuir software fuera de los repositorios oficiales; su confianza depende de la clave GPG del autor.
-
-
-## ¿Cuál es el riesgo principal de añadir un PPA o un repo de terceros sin verificar?
-
-1. [x] Instalar paquetes firmados por quien quiera, sin poder comprobar su procedencia
-1. [ ] Que el paquete ocupe más espacio en disco
-1. [ ] Que APT deje de funcionar con los repositorios oficiales
-1. [ ] Que el sistema cambie de kernel automáticamente
-
-> La firma GPG es la única prueba de que el paquete salió del autor declarado; por eso se usa `signed-by` con una clave en `/etc/apt/keyrings/`.
-
-
-## ¿Cuál es el formato moderno para añadir un repositorio APT con clave GPG verificada?
-
-1. [x] Clave en /etc/apt/keyrings/clave.gpg y directiva [signed-by=/etc/apt/keyrings/clave.gpg] en el archivo .sources o .list
-1. [ ] apt-key add clave.gpg y un echo "deb http://repo" en /etc/apt/sources.list
-1. [ ] Copiar la clave a /etc/apt/trusted.gpg.d/ y olvidarse del repo
-1. [ ] apt install --allow-unauthenticated repo-package
-
-> `apt-key` está obsoleto y `trusted.gpg.d` confiere confianza a la clave para TODOS los repos, no solo para el propio.
-
-
-## ¿Qué tecnología de sandbox NO está diseñada para servicios systemd en servidores?
-
-1. [x] Snap y Flatpak
-1. [ ] Contenedores Docker
-1. [ ] systemd-nspawn
-1. [ ] Podman
-
-> Flatpak y Snap están pensados para aplicaciones de usuario; en servidores se prefiere APT/DNF con contenedores.
-
-
-## ¿Qué sandbox utiliza Flatpak para aislar las aplicaciones?
-
-1. [x] bubblewrap
-1. [ ] AppArmor
-1. [ ] seccomp-bpf únicamente
-1. [ ] SELinux
-
-> Flatpak usa bubblewrap (del proyecto Freedesktop); Snap aísla con perfiles de AppArmor.
-
-
-## ¿Cuál es el repositorio oficial desde el que se instalan aplicaciones Flatpak?
-
-1. [x] Flathub
-1. [ ] Snap Store
-1. [ ] EPEL
-1. [ ] Ubuntu PPA
-
-> Se añade con `flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo`.
-
-
-## ¿Qué significa la opción `--classic` al instalar un snap?
-
-1. [x] Otorga al snap acceso completo al sistema, sin el aislamiento del sandbox
-1. [ ] Instala la versión de pago del paquete
-1. [ ] Instala el snap en modo clásico de texto
-1. [ ] Limita el snap a una sola interfaz de red
-
-> Se usa cuando la herramienta necesita leer configuración del sistema, por ejemplo `sudo snap install --classic certbot`.
-
-
-## ¿Cómo se firma un archivo con GPG para que cualquiera pueda verificar su integridad?
-
-1. [x] Se firma con la clave privada del autor y se verifica con su clave pública distribuida
-1. [ ] Se guarda junto al archivo una copia de la clave privada
-1. [ ] Se añade un checksum en el mismo archivo
-1. [ ] Se cifra el archivo con la contraseña del sistema
-
-> La firma no oculta el contenido pero demuestra procedencia e integridad: si un solo byte cambia, la verificación falla.
-````
+*DNF es el gestor de paquetes actual de Fedora y las distribuciones RHEL compatibles.*
+:::

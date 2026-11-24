@@ -1,7 +1,7 @@
 # Laboratorios Prácticos - Administración de Servidores Linux
 
 **Curso:** Administración de Servidores Linux  
-**Para:** Abacom  
+**Para:** Estudiantes y administradores de TI  
 **Instructor:** Diego Saavedra  
 
 ---
@@ -266,7 +266,7 @@ Cada laboratorio incluye un **Checklist de aceptación** al final. Ese checklist
 
 ### Cómo Entregar
 - Email al instructor
-- O plataforma de aprendizaje indicada por Abacom
+- O plataforma de aprendizaje indicada por la empresa
 - Nombra archivos: `NombreEstudiante_Lab#.pdf`
 
 ### Fecha Límite

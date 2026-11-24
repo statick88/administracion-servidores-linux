@@ -1,6 +1,6 @@
 ---
 title: "UNIDAD IV: Administración y Seguridad de Usuarios"
-subtitle: "passwd, shadow, PAM, sudoers, SSH Keys — Enfoque Práctico Abacom™"
+subtitle: "passwd, shadow, PAM, sudoers, SSH Keys — Enfoque Práctico"
 author: "Diego Saavedra - Instructor Principal"
 date: "2026-07-20"
 format:
@@ -141,8 +141,8 @@ sudo chmod 600 /etc/skel/.ssh/authorized_keys
 
 
 # Archivos de config por defecto
-cat <<'EOF' | sudo tee /etc/skel/.bashrc.d/abacom.sh
-# Abacom defaults
+cat <<'EOF' | sudo tee /etc/skel/.bashrc.d/sysadmin.sh
+# Personalización por defecto
 export EDITOR=nvim
 alias ll='ls -lh --color=auto'
 alias grep='grep --color=auto'
@@ -154,7 +154,7 @@ EOF
 2. **chmod 700**: Permisos restrictivos. SSH rechaza `authorized_keys` si el directorio `.ssh/` tiene permisos más permisivos que 700.
 3. **touch authorized_keys**: Crea el archivo vacío. Aunque esté vacío, su existencia prepara el terreno para `ssh-copy-id` sin crear conflictos.
 4. **chmod 600**: Solo el propietario puede leer. SSH no acepta claves si el archivo tiene permisos diferentes a 600 o 644.
-5. **bashrc.d/abacom.sh**: Patrón modular: archivos `.sh` en `bashrc.d/` se cargan automáticamente desde `.bashrc` con un loop `source`. Más limpio que editar `.bashrc` directamente.
+5. **bashrc.d/sysadmin.sh**: Patrón modular: archivos `.sh` en `bashrc.d/` se cargan automáticamente desde `.bashrc` con un loop `source`. Más limpio que editar `.bashrc` directamente.
 
 ---
 
@@ -291,7 +291,7 @@ sudo visudo
 2. **Estructura**: Formato `usuario host=(runas:grupo) comandos`. Puede usar aliases (User_Alias, Host_Alias, Cmnd_Alias) para agrupar. Los archivos en `/etc/sudoers.d/` se incluyen automáticamente.
 
 ```sudoers
-# /etc/sudoers.d/abacom-admins (archivo separado, no editar /etc/sudoers directo)
+# /etc/sudoers.d/lab-admins (archivo separado, no editar /etc/sudoers directo)
 
 # Aliases
 User_Alias      ADMINS = diego, juanp, deploy
@@ -322,9 +322,9 @@ Defaults        requiretty
 
 Defaults        passwd_tries=3
 
-Defaults        badpass_message="Acceso denegado. Contacta a seguridad@abacom.cl"
+Defaults        badpass_message="Acceso denegado. Contacta a seguridad@ejemplo.com"
 
-Defaults        mailto="seguridad@abacom.cl"
+Defaults        mailto="seguridad@ejemplo.com"
 
 Defaults        mail_always
 
@@ -377,33 +377,33 @@ sudo -u www-data /opt/scripts/deploy.sh --dry-run
 
 ```bash
 # Generar (ejecutar como el usuario, NO root)
-ssh-keygen -t ed25519 -C "juanp@abacom-$(date +%Y%m%d)" -f ~/.ssh/id_ed25519_abacom
+ssh-keygen -t ed25519 -C "juanp@ejemplo.com-$(date +%Y%m%d)" -f ~/.ssh/id_ed25519_lab
 
 # Passphrase: OBLIGATORIA para claves privadas
 
 # Ver clave pública
-cat ~/.ssh/id_ed25519_abacom.pub
+cat ~/.ssh/id_ed25519_lab.pub
 
-# ssh-ed25519 AAAAC3... juanp@abacom-20260720
+# ssh-ed25519 AAAAC3... juanp@ejemplo.com-20260720
 ```
 
 1. **ssh-keygen**: `-t ed25519` usa el algoritmo moderno (más rápido y seguro que RSA). `-C` añade comentario con fecha para rastrear cuándo se generó. `-f` define la ruta del archivo. **NUNCA** generes como root — las claves deben pertenecer al usuario.
-2. **cat .pub**: Muestra la clave pública que se copiará a los servidores. La clave privada (`id_ed25519_abacom`) NUNCA se comparte. El comentario ayuda a identificar la clave en `authorized_keys` de múltiples servidores.
+2. **cat .pub**: Muestra la clave pública que se copiará a los servidores. La clave privada (`id_ed25519_lab`) NUNCA se comparte. El comentario ayuda a identificar la clave en `authorized_keys` de múltiples servidores.
 
 ### 5.2 Desplegar a servidores
 
 ```bash
 # Método 1: ssh-copy-id (requiere password una vez)
-ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub juanp@srv01.abacom.cl
+ssh-copy-id -i ~/.ssh/id_ed25519_lab.pub juanp@srv01.ejemplo.com
 
 
 # Método 2: Manual (para automatización)
-cat ~/.ssh/id_ed25519_abacom.pub | ssh juanp@srv01 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+cat ~/.ssh/id_ed25519_lab.pub | ssh juanp@srv01 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
 
 
 # Método 3: Ansible / script para muchos hosts
 for host in srv01 srv02 srv03; do
-  ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub juanp@$host
+  ssh-copy-id -i ~/.ssh/id_ed25519_lab.pub juanp@$host
 
 done
 ```
@@ -415,7 +415,7 @@ done
 ### 5.3 Hardening `sshd_config` (servidor)
 
 ```bash
-# /etc/ssh/sshd_config.d/99-abacom-hardening.conf
+# /etc/ssh/sshd_config.d/99-lab-hardening.conf
 Port 22
 
 Protocol 2
@@ -506,17 +506,17 @@ sudo systemctl reload ssh
 # Iniciar agent y añadir clave
 eval "$(ssh-agent -s)"
 
-ssh-add ~/.ssh/id_ed25519_abacom
+ssh-add ~/.ssh/id_ed25519_lab
 
 # Enter passphrase once
 
 # Ver claves cargadas
 ssh-add -l
 
-# 256 SHA256:... juanp@abacom-20260720 (ED25519)
+# 256 SHA256:... juanp@ejemplo.com-20260720 (ED25519)
 
 # Reenvío de agente (SOLO a hosts de confianza)
-ssh -A juanp@bastion.abacom.cl
+ssh -A juanp@bastion.ejemplo.com
 
 # Desde bastion, puedes autenticar a srv01 sin clave en bastion
 ssh srv01
@@ -537,14 +537,14 @@ Un host comprometido con `ForwardAgent yes` puede usar tu agente para autenticar
 ```ssh
 # ~/.ssh/config
 Host bastion
-  HostName bastion.abacom.cl
+  HostName bastion.ejemplo.com
   User juanp
-  IdentityFile ~/.ssh/id_ed25519_abacom
+  IdentityFile ~/.ssh/id_ed25519_lab
 
 Host srv*
-  HostName %h.abacom.cl
+  HostName %h.ejemplo.com
   User juanp
-  IdentityFile ~/.ssh/id_ed25519_abacom
+  IdentityFile ~/.ssh/id_ed25519_lab
   ProxyJump bastion
 ```
 :::
@@ -556,16 +556,16 @@ Host srv*
 # rotate-ssh-key.sh — Rotar clave ed25519 y desplegar
 set -euo pipefail
 
-NEW_KEY="$HOME/.ssh/id_ed25519_abacom_$(date +%Y%m%d)"
-OLD_KEY="$HOME/.ssh/id_ed25519_abacom"
+NEW_KEY="$HOME/.ssh/id_ed25519_lab_$(date +%Y%m%d)"
+OLD_KEY="$HOME/.ssh/id_ed25519_lab"
 
 # 1. Generar nueva
-ssh-keygen -t ed25519 -C "$(whoami)@abacom-$(date +%Y%m%d)" -f "$NEW_KEY"
+ssh-keygen -t ed25519 -C "$(whoami)@lab-$(date +%Y%m%d)" -f "$NEW_KEY"
 
 
 # 2. Desplegar a hosts conocidos (desde ~/.ssh/known_hosts o inventario)
 for host in srv01 srv02 srv03; do
-  ssh-copy-id -i "${NEW_KEY}.pub" "juanp@${host}.abacom.cl"
+  ssh-copy-id -i "${NEW_KEY}.pub" "juanp@${host}.ejemplo.com"
 
 done
 
@@ -679,9 +679,9 @@ El hardening de `sshd` puede bloquearlos (`AllowTcpForwarding no`, `PermitTunnel
 
 - [ ] Crear usuarios `devops`, `deploy`, `monitoring` con `useradd` (UIDs 2001-2003, grupos secundarios `docker`, `sudo` según rol)
 - [ ] Configurar `pam_pwquality` (minlen=14, complexity) y `pam_faillock` (deny=5, unlock=900)
-- [ ] Crear `/etc/sudoers.d/abacom-roles` con aliases y reglas por rol (ver sección 4)
+- [ ] Crear `/etc/sudoers.d/lab-roles` con aliases y reglas por rol (ver sección 4)
 - [ ] Generar claves ed25519 para cada usuario, desplegar a `localhost` (WSL2) via `ssh-copy-id`
-- [ ] Hardening `sshd_config.d/99-abacom-hardening.conf`, recargar, validar `PasswordAuthentication no`
+- [ ] Hardening `sshd_config.d/99-lab-hardening.conf`, recargar, validar `PasswordAuthentication no`
 - [ ] Probar: login con clave, sudo con y sin NOPASSWD, bloqueo tras 5 fallos, expiración contraseña
 - [ ] Auditar: `sudo awk -F: '($3 >= 1000) {print $1, $3, $7}' /etc/passwd`, `sudo grep -E '^\$[6y]\$' /etc/shadow`
 
@@ -690,7 +690,7 @@ El hardening de `sshd` puede bloquearlos (`AllowTcpForwarding no`, `PermitTunnel
 ```bash
 {
   echo "=== Usuarios ===" && getent passwd devops deploy monitoring
-  echo -e "\n=== Sudoers ===" && sudo cat /etc/sudoers.d/abacom-roles
+  echo -e "\n=== Sudoers ===" && sudo cat /etc/sudoers.d/lab-roles
   echo -e "\n=== PAM Faillock ===" && sudo faillock --user devops
   echo -e "\n=== SSH Config ===" && sudo sshd -T | grep -E 'passwordauthentication|pubkeyauthentication|permitrootlogin|maxauthtries'
   echo -e "\n=== Claves SSH ===" && ls -la ~/.ssh/ && ssh-add -l

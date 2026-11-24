@@ -4,22 +4,42 @@ on:
   push:
     branches: ["main"]
     paths:
-      - '**.qmd'
-      - '_quarto.yml'
-      - 'anexos/**'
-      - 'unidades/**'
-      - 'presentaciones/**'
-      - 'images/**'
+      - 'site/**'
+      - 'tools/**'
+      - 'course/**'
+      - 'quizzes/**'
+      - '01-fundamentos/**'
+      - '02-paquetes/**'
+      - '03-scripting/**'
+      - '04-usuarios/**'
+      - '05-procesos/**'
+      - '06-redes/**'
+      - '07-seguridad/**'
+      - '08-docker/**'
+      - '09-nginx/**'
+      - '10-ssl/**'
+      - '11-bases-datos/**'
+      - 'tests/**'
       - '.github/workflows/pages.yml'
   pull_request:
     branches: ["main"]
     paths:
-      - '**.qmd'
-      - '_quarto.yml'
-      - 'anexos/**'
-      - 'unidades/**'
-      - 'presentaciones/**'
-      - 'images/**'
+      - 'site/**'
+      - 'tools/**'
+      - 'course/**'
+      - 'quizzes/**'
+      - '01-fundamentos/**'
+      - '02-paquetes/**'
+      - '03-scripting/**'
+      - '04-usuarios/**'
+      - '05-procesos/**'
+      - '06-redes/**'
+      - '07-seguridad/**'
+      - '08-docker/**'
+      - '09-nginx/**'
+      - '10-ssl/**'
+      - '11-bases-datos/**'
+      - 'tests/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -42,24 +62,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Jupyter
-        run: pip install jupyter
-
-      - name: Setup Quarto
-        uses: quarto-dev/quarto-actions/setup@v2
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          version: '1.7.32'
+          node-version: '20'
 
-      - name: Render Quarto (HTML only)
-        uses: quarto-dev/quarto-actions/render@v2
-        with:
-          to: html
+      - name: Run site tests
+        run: node --test site/*.test.mjs tests/*.test.mjs
+
+      - name: Build site
+        run: python3 tools/build_site.py --output _site
 
       - name: Upload artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: _site
 
   deploy:
     needs: build

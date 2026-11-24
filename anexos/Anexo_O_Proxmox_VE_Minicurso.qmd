@@ -314,7 +314,107 @@ PS> systeminfo | Select-String "Hyper-V"  # <3>
 3. **systeminfo | Select-String** verifica si tu hardware y SO soportan Hyper-V
 
 :::
-
+ 
+### Verificación de Hardware del Host
+ 
+Antes de instalar Proxmox VE, verificá que tu hardware cumple los requisitos mínimos (2 CPU cores, 4GB RAM, 32GB disco, VT-x/AMD-V). Cada SO tiene sus comandos para inspeccionar el hardware:
+ 
+::: {.panel-tabset}
+ 
+#### Linux
+ 
+```bash
+# Verificar arquitectura del CPU
+uname -m  # <1>
+ 
+# Verificar memoria disponible
+free -h  # <2>
+ 
+# Verificar flags de virtualización
+grep -E 'vmx|svm' /proc/cpuinfo  # <3>
+```
+ 
+ 
+1. **uname -m** muestra la arquitectura (debe ser `x86_64` para Proxmox VE)
+2. **free -h** muestra memoria total, usada y disponible en formato legible
+3. **grep vmx|svm** confirma soporte de virtualización Intel (vmx) o AMD (svm)
+ 
+**Salida esperada:**
+ 
+```bash
+$ uname -m
+x86_64
+ 
+$ free -h
+total        used        free      shared  buff/cache   available
+Mem:           15Gi       4.2Gi       8.2Gi       412Mi       3.1Gi      10Gi
+ 
+$ grep -E 'vmx|svm' /proc/cpuinfo
+flags           : ... vmx ...
+```
+ 
+#### macOS
+ 
+```bash
+# Verificar información completa del hardware
+system_profiler SPHardwareDataType  # <1>
+```
+ 
+ 
+1. **system_profiler SPHardwareDataType** muestra modelo, procesador, núcleos y memoria
+ 
+**Salida esperada:**
+ 
+```bash
+$ system_profiler SPHardwareDataType
+ 
+Hardware Overview:
+  Model Name: MacBook Pro
+  Model Identifier: MacBookPro18,3
+  Processor Name: Apple M3 Pro
+  Number of Cores: 12 core CPU
+  Memory: 16 GB
+```
+ 
+#### Windows
+ 
+```powershell
+# Verificar información completa del sistema
+PS> systeminfo  # <1>
+```
+ 
+ 
+1. **systeminfo** muestra nombre del equipo, procesador, tipo de sistema y memoria física total
+ 
+**Salida esperada:**
+ 
+```powershell
+PS> systeminfo
+ 
+Computer Name:          USUARIO-PC
+Processor(s):           1 Logical Processor
+System Type:            x86-64-based PC
+Total Physical Memory:  16384 MB
+```
+ 
+:::
+ 
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+ 
+**Requisitos mínimos para Proxmox VE:**
+ 
+| Componente | Mínimo | Recomendado para Lab |
+|------------|--------|---------------------|
+| CPU | 2 cores (VT-x/AMD-V) | 4+ cores |
+| RAM | 4 GB | 16 GB+ |
+| Disco | 32 GB | 100 GB+ (SSD/NVMe) |
+| Red | 1 Gbps | 10 Gbps (para clustering) |
+| Virtualización | Habilitada en BIOS/UEFI | IOMMU (VT-d/AMD-Vi) para PCI passthrough |
+ 
+Si tu hardware no cumple el mínimo, la instalación fallará o el rendimiento será inaceptable.
+:::
+ 
 ### Proceso de Instalación
 
 Una vez que tengas el medio booteable listo, el proceso de instalación es directo. Piensa en esto como configurar los planos iniciales del edificio — cada decisión aquí afecta cómo se va a construir todo lo demás.

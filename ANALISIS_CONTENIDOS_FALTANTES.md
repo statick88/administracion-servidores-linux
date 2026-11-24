@@ -1,5 +1,5 @@
 # 📚 ANÁLISIS DE CONTENIDOS FALTANTES
-## Administración de Servidores Linux - Abacom
+## Administración de Servidores Linux
 
 > [!CAUTION]
 > **DOCUMENTO OBSOLETO — NO USAR PARA PLANIFICAR.**
@@ -375,7 +375,7 @@ $ comando2
 ```
 
 ## Casos de Uso Reales
-Cómo se usa en Abacom/industria
+Cómo se usa en la industria
 
 ## Comandos Clave
 Tabla de referencia rápida

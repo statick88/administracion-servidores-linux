@@ -1,6 +1,6 @@
 ---
 title: "UNIDAD II: Gestión de Paquetes y Entornos"
-subtitle: "APT vs DNF, PPA, Flatpak/Snap, Firmas GPG, Git — Enfoque Práctico Abacom™"
+subtitle: "APT vs DNF, PPA, Flatpak/Snap, Firmas GPG, Git — Enfoque Práctico"
 author: "Diego Saavedra - Instructor Principal"
 date: "2026-07-20"
 format:
@@ -321,7 +321,7 @@ sudo mv nvim-linux64.appimage /usr/local/bin/nvim
 ```bash
 # Identidad
 git config --global user.name "Tu Nombre"                                      
-git config --global user.email "tu-email@abacom.cl"                            
+git config --global user.email "tu-email@ejemplo.com"                            
 
 # Editor y comportamiento
 git config --global core.editor "nvim"                                         
@@ -355,10 +355,10 @@ Las claves SSH permiten autenticarte en servidores remotos sin escribir contrase
 
 ```bash
 # Generar par de claves ed25519 (recomendado: más seguro y rápido que RSA)
-ssh-keygen -t ed25519 -C "tu-email@abacom.cl" -f ~/.ssh/id_ed25519_abacom
+ssh-keygen -t ed25519 -C "tu-email@ejemplo.com" -f ~/.ssh/id_ed25519_lab
 
 # Si necesitas compatibilidad con sistemas antiguos (SSH < 6.5), usa RSA 4096:
-# ssh-keygen -t rsa -b 4096 -C "tu-email@abacom.cl" -f ~/.ssh/id_rsa_abacom
+# ssh-keygen -t rsa -b 4096 -C "tu-email@ejemplo.com" -f ~/.ssh/id_rsa_lab
 ```
 
 Salida esperada:
@@ -367,22 +367,22 @@ Salida esperada:
 Generating public/private ed25519 key pair.
 Enter passphrase (empty for no passphrase): [ESCRIBIR PASSPHRASE SEGURA]
 Enter same passphrase again: [CONFIRMAR]
-Your identification has been saved in /home/user/.ssh/id_ed25519_abacom
-Your public key has been saved in /home/user/.ssh/id_ed25519_abacom.pub
+Your identification has been saved in /home/user/.ssh/id_ed25519_lab
+Your public key has been saved in /home/user/.ssh/id_ed25519_lab.pub
 The key fingerprint is:
-SHA256:abc123... tu-email@abacom.cl
+SHA256:abc123... tu-email@ejemplo.com
 ```
 
 1. **`ssh-keygen -t ed25519`**: Genera par de claves ed25519 (curva elliptic curve, 256 bits); más seguro y rápido que RSA de 2048+
 2. **`-C "email"`**: Comentario para identificar la clave; usar email facilita saber a quién pertenece
-3. **`-f ~/.ssh/id_ed25519_abacom`**: Nombre específico del archivo; usar nombre descriptivo permite tener claves separadas por servidor
+3. **`-f ~/.ssh/id_ed25519_lab`**: Nombre específico del archivo; usar nombre descriptivo permite tener claves separadas por servidor
 4. **Passphrase**: Contraseña que protege la clave privada; usar passphrase fuerte es crítica si el archivo es comprometido
 
 ::: {.callout-warning}
 ## ⚠️ Nunca subir la clave privada
 
-- `id_ed25519_abacom` (sin `.pub`) es la clave **privada** — NUNCA compartirla
-- `id_ed25519_abacom.pub` es la clave **pública** — esta va al servidor
+- `id_ed25519_lab` (sin `.pub`) es la clave **privada** — NUNCA compartirla
+- `id_ed25519_lab.pub` es la clave **pública** — esta va al servidor
 - Si la clave privada se filtra, revocarla inmediatamente en todos los servidores
 :::
 
@@ -390,7 +390,7 @@ SHA256:abc123... tu-email@abacom.cl
 
 ```bash
 # Método 1: ssh-copy-id (recomendado — automático y seguro)
-ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub usuario@192.168.1.100
+ssh-copy-id -i ~/.ssh/id_ed25519_lab.pub usuario@192.168.1.100
 
 # Te pedirá la contraseña del servidor UNA última vez
 # Autoridad: usuario@192.168.1.100's password: [CONTRASEÑA]
@@ -398,13 +398,13 @@ ssh-copy-id -i ~/.ssh/id_ed25519_abacom.pub usuario@192.168.1.100
 
 ```bash
 # Método 2: Si ssh-copy-id no está disponible (Windows, sistemas antiguos)
-cat ~/.ssh/id_ed25519_abacom.pub | ssh usuario@192.168.1.100 \
+cat ~/.ssh/id_ed25519_lab.pub | ssh usuario@192.168.1.100 \
   "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
 ```
 
 ```bash
 # Método 3: Copiar manualmente (cuando no hay acceso SSH aún)
-# En el servidor, pegar el contenido de id_ed25519_abacom.pub en:
+# En el servidor, pegar el contenido de id_ed25519_lab.pub en:
 #   ~/.ssh/authorized_keys
 # Luego verificar permisos:
 chmod 700 ~/.ssh
@@ -412,7 +412,7 @@ chmod 600 ~/.ssh/authorized_keys
 ```
 
 1. **`ssh-copy-id -i`**: Copia clave pública al servidor de forma segura; agrega a `~/.ssh/authorized_keys` automáticamente
-2. **`-i ~/.ssh/id_ed25519_abacom.pub`**: Especifica qué clave pública copiar; sin `-i` usa `~/.ssh/id_rsa.pub` por defecto
+2. **`-i ~/.ssh/id_ed25519_lab.pub`**: Especifica qué clave pública copiar; sin `-i` usa `~/.ssh/id_rsa.pub` por defecto
 3. **Permisos 700 y 600**: SSH rechaza claves si los permisos son demasiado permisivos; directorio 700, archivo 600
 
 ::: {.callout-tip}
@@ -432,11 +432,11 @@ ls -la ~/.ssh/
 # Crear/editar archivo de configuración
 cat <<'EOF' >> ~/.ssh/config
 
-# Servidor de desarrollo - Abacom
-Host dev.abacom.cl
+# Servidor de desarrollo
+Host dev.ejemplo.com
   HostName 192.168.1.100
   User admin
-  IdentityFile ~/.ssh/id_ed25519_abacom
+  IdentityFile ~/.ssh/id_ed25519_lab
   IdentitiesOnly yes
   Port 22
 
@@ -444,14 +444,14 @@ Host dev.abacom.cl
 Host github.com
   HostName github.com
   User git
-  IdentityFile ~/.ssh/id_ed25519_abacom
+  IdentityFile ~/.ssh/id_ed25519_lab
   IdentitiesOnly yes
 
 # GitLab
 Host gitlab.com
   HostName gitlab.com
   User git
-  IdentityFile ~/.ssh/id_ed25519_abacom
+  IdentityFile ~/.ssh/id_ed25519_lab
   IdentitiesOnly yes
 EOF
 
@@ -461,12 +461,12 @@ chmod 600 ~/.ssh/config
 
 ```bash
 # Ahora puedes conectarte usando el alias
-ssh dev.abacom.cl    # En vez de: ssh admin@192.168.1.100
+ssh dev.ejemplo.com    # En vez de: ssh admin@192.168.1.100
 ```
 
 2. **`IdentitiesOnly yes`**: Fuerza usar SOLO la clave especificada; evita que SSH pruebe otras claves automáticamente
 3. **`chmod 600`**: Permisos restrictivos; SSH rechaza el archivo si otros usuarios pueden leerlo
-4. **Alias de host**: Después de configurar, `ssh dev.abacom.cl` reemplaza a `ssh admin@192.168.1.100`
+4. **Alias de host**: Después de configurar, `ssh dev.ejemplo.com` reemplaza a `ssh admin@192.168.1.100`
 
 #### Paso 4: Conectar sin contraseña
 
@@ -479,7 +479,7 @@ ssh usuario@192.168.1.100
 # Para evitar escribir passphrase en cada uso, usar ssh-agent:
 
 eval "$(ssh-agent -s)"     # Iniciar agente SSH
-ssh-add ~/.ssh/id_ed25519_abacom    # Agregar clave al agente
+ssh-add ~/.ssh/id_ed25519_lab    # Agregar clave al agente
 ```
 
 1. **`eval "$(ssh-agent -s)"`**: Inicia el agente SSH en la sesión actual; mantiene la clave en memoria
@@ -491,7 +491,7 @@ ssh-add ~/.ssh/id_ed25519_abacom    # Agregar clave al agente
 |----------|-------|----------|
 | `Permission denied (publickey)` | Clave no está en `authorized_keys` | Verificar con `ssh-copy-id` o pegar manualmente |
 | `Permissions too open` | Permisos incorrectos | `chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys ~/.ssh/config` |
-| `Warning: Identity file ... not accessible` | Archivo de clave no existe o permisos | Verificar ruta y permisos: `chmod 600 ~/.ssh/id_ed25519_abacom` |
+| `Warning: Identity file ... not accessible` | Archivo de clave no existe o permisos | Verificar ruta y permisos: `chmod 600 ~/.ssh/id_ed25519_lab` |
 | `Host key verification failed` | Firma del servidor cambió | `ssh-keygen -R <hostname>` para eliminar registro antiguo |
 | `Connection refused` | SSH no está corriendo en el servidor | `sudo systemctl status sshd` y `sudo apt install openssh-server` |
 
@@ -499,13 +499,13 @@ ssh-add ~/.ssh/id_ed25519_abacom    # Agregar clave al agente
 
 | Archivo | Ubicación | Propósito | ¿Se sube a GitHub? |
 |---------|-----------|-----------|---------------------|
-| **Clave privada** | `~/.ssh/id_ed25519_abacom` | Autenticación del cliente | ❌ NUNCA |
-| **Clave pública** | `~/.ssh/id_ed25519_abacom.pub` | Autorización en servidor | ⚠️ Solo a servidores |
+| **Clave privada** | `~/.ssh/id_ed25519_lab` | Autenticación del cliente | ❌ NUNCA |
+| **Clave pública** | `~/.ssh/id_ed25519_lab.pub` | Autorización en servidor | ⚠️ Solo a servidores |
 | **Authorized keys** | `~/.ssh/authorized_keys` | Claves permitidas (servidor) | ❌ No |
 | **Config** | `~/.ssh/config` | Aliases y configuración | ⚠️ Sin claves privadas |
 | **Known hosts** | `~/.ssh/known_hosts` | Firma de servidores conocidos | ❌ No |
 
-### 4.3 Firma de commits con GPG — **Requerido en Abacom**
+### 4.3 Firma de commits con GPG — **Requerido en producción**
 
 ```bash
 # 1. Generar clave GPG (si no tienes)

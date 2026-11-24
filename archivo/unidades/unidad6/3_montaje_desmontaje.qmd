@@ -100,7 +100,7 @@ $ sudo blkid /dev/loop2p1  # <1>
 Ejemplo de entrada en `/etc/fstab` (referencia):
 
 ```text
-UUID=9a1b2c3d-4e5f-6789-aaaa-bbbbccccdddd  /data  ext4  defaults,noatime  0  2
+UUID=9a1b2c3d-4e5f-6789-aaaa-bbbbccccdddd  /mnt/u6-data  ext4  defaults,noatime  0  2
 ```
 
 :::{.callout-warning}
@@ -123,8 +123,8 @@ Validacion recomendada:
 $ sudo mount -a  # <1>
 
 
-$ findmnt | grep -E "\s/data\s"  # <2>
-/data /dev/sdb1 ext4 rw,noatime,relatime
+$ findmnt /mnt/u6-data  # <2>
+/mnt/u6-data /dev/loop2p1 ext4 rw,noatime
 
 ```
 

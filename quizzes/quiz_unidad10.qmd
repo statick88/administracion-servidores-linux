@@ -1,5 +1,5 @@
 ---
-title: "Quiz Unidad 10: Servidor Web (NGINX) y (Apache)"
+title: "Quiz Unidad 10: Nginx y SSL"
 description: "Evaluación sobre configuración de Nginx, reverse proxy, SSL/TLS y hardening"
 author: "Diego Saavedra"
 date: today
@@ -9,145 +9,158 @@ format:
     number-sections: false
 ---
 
-# Quiz: Unidad 10 - Servidor Web (NGINX) y (Apache)
+# Quiz: Unidad 10 - Nginx y SSL/TLS
 
-````quizdown
+::: quizdown
 ## ¿Qué es Nginx?
 
-1. [x] Un servidor web ligero y de alto rendimiento, también usado como reverse proxy y load balancer
-1. [ ] Un sistema de base de datos
-1. [ ] Un lenguaje de programación
-1. [ ] Un tipo de firewall
+[x] Un servidor web ligero y de alto rendimiento, también usado como reverse proxy y load balancer
+[ ] Un sistema de base de datos
+[ ] Un lenguaje de programación
+[ ] Un tipo de firewall
 
-> Nginx es famoso por su rendimiento bajo carga alta con poco uso de recursos.
+*Nginx es famoso por su rendimiento bajo carga alta con poco uso de recursos.*
 
+---
 
 ## ¿Cuál es el archivo de configuración principal de Nginx?
 
-1. [x] /etc/nginx/nginx.conf
-1. [ ] /etc/apache2/apache2.conf
-1. [ ] /etc/nginx/sites-enabled/
-1. [ ] /etc/httpd/nginx.conf
+[x] /etc/nginx/nginx.conf
+[ ] /etc/apache2/apache2.conf
+[ ] /etc/nginx/sites-enabled/
+[ ] /etc/httpd/nginx.conf
 
-> nginx.conf es el archivo de configuración global.
+*nginx.conf es el archivo de configuración global.*
 
+---
 
 ## ¿Qué directorio contiene los VirtualHosts en Nginx?
 
-1. [x] /etc/nginx/sites-available/ y /etc/nginx/sites-enabled/
-1. [ ] /etc/apache2/sites-available/
-1. [ ] /etc/nginx/conf.d/
-1. [ ] /etc/nginx/sites-enabled/ solo
+[x] /etc/nginx/sites-available/ y /etc/nginx/sites-enabled/
+[ ] /etc/apache2/sites-available/
+[ ] /etc/nginx/conf.d/
+[ ] /etc/nginx/sites-enabled/ solo
 
-> Los sites-available contienen configs, sites-enabled tiene symlinks.
+*Los sites-available contienen configs, sites-enabled tiene symlinks.*
 
+---
 
 ## ¿Qué significa "proxy_pass" en Nginx?
 
-1. [x] Define a dónde se redirigen las solicitudes (backend)
-1. [ ] Permite acceso remoto
-1. [ ] Configura SSL
-1. [ ] Define el puerto
+[x] Define a dónde se redirigen las solicitudes (backend)
+[ ] Permite acceso remoto
+[ ] Configura SSL
+[ ] Define el puerto
 
-> proxy_pass http://backend; redirige tráfico al servidor backend.
+*proxy_pass http://backend; redirige tráfico al servidor backend.*
 
+---
 
 ## ¿Qué puerto usa Nginx por defecto?
 
-1. [x] 80
-1. [ ] 443
-1. [ ] 8080
-1. [ ] 22
+[x] 80
+[ ] 443
+[ ] 8080
+[ ] 22
 
-> Nginx escucha en puerto 80 para HTTP y 443 para HTTPS.
+*Nginx escucha en puerto 80 para HTTP y 443 para HTTPS.*
 
+---
 
 ## ¿Qué comando prueba la sintaxis de configuración de Nginx?
 
-1. [x] sudo nginx -t
-1. [ ] sudo nginx test
-1. [ ] sudo nginx check
-1. [ ] sudo nginx validate
+[x] sudo nginx -t
+[ ] sudo nginx test
+[ ] sudo nginx check
+[ ] sudo nginx validate
 
-> nginx -t verifica que la configuración no tenga errores de sintaxis.
+*nginx -t verifica que la configuración no tenga errores de sintaxis.*
 
+---
 
 ## ¿Qué comando recarga Nginx sin perder conexiones?
 
-1. [x] sudo nginx -s reload
-1. [ ] sudo systemctl restart nginx
-1. [ ] sudo nginx reload
-1. [ ] sudo nginx start
+[x] sudo nginx -s reload
+[ ] sudo systemctl restart nginx
+[ ] sudo nginx reload
+[ ] sudo nginx start
 
-> nginx -s reload recarga configuración suavemente.
+*nginx -s reload recarga configuración suavemente.*
 
+---
 
 ## ¿Qué es Certbot?
 
-1. [x] Una herramienta automática para obtener e instalar certificados SSL de Let's Encrypt
-1. [ ] Un servidor web
-1. [ ] Un tipo de base de datos
-1. [ ] Un firewall
+[x] Una herramienta automática para obtener e instalar certificados SSL de Let's Encrypt
+[ ] Un servidor web
+[ ] Un tipo de base de datos
+[ ] Un firewall
 
-> Certbot automatiza la configuración de HTTPS gratis.
+*Certbot automatiza la configuración de HTTPS gratis.*
 
+---
 
 ## ¿Qué es Let's Encrypt?
 
-1. [x] Una autoridad certificadora gratuita que emite certificados SSL
-1. [ ] Un tipo de servidor web
-1. [ ] Una empresa de hosting
-1. [ ] Un protocolo de red
+[x] Una autoridad certificadora gratuita que emite certificados SSL
+[ ] Un tipo de servidor web
+[ ] Una empresa de hosting
+[ ] Un protocolo de red
 
-> Let's Encrypt proporciona certificados SSL gratuitos y automatizados.
+*Let's Encrypt proporciona certificados SSL gratuitos y automatizados.*
 
+---
 
 ## ¿Qué significa SSL?
 
-1. [x] Secure Sockets Layer - Capa de sockets segura (protocolo de encriptación)
-1. [ ] Secure Server Link
-1. [ ] Standard Security Layer
-1. [ ] Server Side Language
+[x] Secure Sockets Layer - Capa de sockets segura (protocolo de encriptación)
+[ ] Secure Server Link
+[ ] Standard Security Layer
+[ ] Server Side Language
 
-> SSL/TLS encripta la comunicación entre cliente y servidor.
+*SSL/TLS encripta la comunicación entre cliente y servidor.*
 
+---
 
 ## ¿Qué comando obtiene un certificado SSL con Certbot?
 
-1. [x] sudo certbot --nginx -d midominio.com
-1. [ ] sudo certbot install
-1. [ ] sudo nginx ssl enable
-1. [ ] sudo getssl dominio.com
+[x] sudo certbot --nginx -d midominio.com
+[ ] sudo certbot install
+[ ] sudo nginx ssl enable
+[ ] sudo getssl dominio.com
 
-> --nginx usa el plugin de Nginx para configurar automáticamente.
+*--nginx usa el plugin de Nginx para configurar automáticamente.*
 
+---
 
 ## ¿Qué son los headers de seguridad en Nginx?
 
-1. [x] Encabezados HTTP que protegen contra ataques comunes (XSS, clickjacking)
-1. [ ] Configuraciones de rendimiento
-1. [ ] Opciones de caché
-1. [ ] Settings de logging
+[x] Encabezados HTTP que protegen contra ataques comunes (XSS, clickjacking)
+[ ] Configuraciones de rendimiento
+[ ] Opciones de caché
+[ ] Settings de logging
 
-> Headers como X-Frame-Options, HSTS, CSP mejoran seguridad.
+*Headers como X-Frame-Options, HSTS, CSP mejoran seguridad.*
 
+---
 
 ## ¿Qué significa "upstream" en Nginx?
 
-1. [x] Un bloque que define servidores backend para proxy_pass
-1. [ ] El servidor web principal
-1. [ ] Un tipo de base de datos
-1. [ ] Un protocolo de red
+[x] Un bloque que define servidores backend para proxy_pass
+[ ] El servidor web principal
+[ ] Un tipo de base de datos
+[ ] Un protocolo de red
 
-> upstream backend { server 192.168.1.10; } define los servidores backend.
+*upstream backend { server 192.168.1.10; } define los servidores backend.*
 
+---
 
 ## ¿Qué es "gzip" en Nginx?
 
-1. [x] Compresión de respuestas para reducir ancho de banda y mejorar velocidad
-1. [ ] Un tipo de logging
-1. [ ] Un sistema de caché
-1. [ ] Un módulo de autenticación
+[x] Compresión de respuestas para reducir ancho de banda y mejorar velocidad
+[ ] Un tipo de logging
+[ ] Un sistema de caché
+[ ] Un módulo de autenticación
 
-> gzip on; comprime texto (HTML, CSS, JS) típicamente 70%.
-````
+*gzip on; comprime texto (HTML, CSS, JS) típicamente 70%.*
+:::

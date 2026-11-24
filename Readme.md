@@ -1,28 +1,32 @@
 # Administración de Servidores Linux
 
-Material del curso profesional para Abacom.
+Material del curso profesional.
 
 Instructor: Diego Saavedra (https://statick88.github.io)
 
 ## Acceso rápido
 
-- Ebook (publicado): `https://statick88.github.io/administracion-servidores-linux/`
-- Ebook (HTML generado): `docs/index.html`
-- Diapositivas (Reveal.js): `docs/presentaciones/index.html`
+- Sitio (publicado): `https://statick88.github.io/administracion-servidores-linux/`
+- Sitio (HTML generado): `_site/index.html`
+- Diapositivas: `recursos/presentaciones/curso/index.html` (fuentes `.qmd` en `presentaciones/`)
 - Guía de entorno: `SETUP.qmd` (fuente: `SETUP.md`)
+- Migración desde Quarto: `MIGRATION.md`
 
 ## Ejecutar en local
 
-- Preview del ebook: `quarto preview`
-- Render del ebook: `quarto render --to html`
-- Render de las diapositivas: `quarto render presentaciones`
+- Construir el sitio (sin dependencias externas): `python3 tools/build_site.py --output _site`
+- Ver el sitio generado: `python3 -m http.server -d _site 8000`
+- Ejecutar las pruebas: `node --test site/*.test.mjs tests/*.test.mjs`
+- Preview del ebook (fuente `.qmd`, requiere Quarto): `quarto preview`
+- Render de las diapositivas (requiere Quarto): `quarto render presentaciones`
 
 ## Estructura
 
-- `01-fundamentos/` … `11-bases-datos/`: capítulos del ebook
+- `site/`, `tools/`, `course/`: constructor del sitio estático
+- `01-fundamentos/` … `11-bases-datos/`: contenido por unidad (fuentes `.qmd`)
 - `unidades/`: unidades publicadas por carpeta (instalación, DHCP, Apache, Proyecto Final, extras)
 - `quizzes/`: quizzes interactivos por unidad y avanzados
 - `anexos/`: mini-cursos complementarios
 - `lab-practicos/`, `practicas/`: laboratorios y prácticas guiadas
 - `presentaciones/`: subproyecto de slides (Reveal.js)
-- `docs/`: salida HTML publicada
+- `_site/`: salida HTML generada (no se versiona)

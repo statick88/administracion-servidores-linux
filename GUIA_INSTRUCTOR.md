@@ -1,7 +1,6 @@
 # Guía del Instructor - Administración de Servidores Linux
 
 **Instructor Principal:** Diego Saavedra  
-**Empresa Beneficiaria:** Abacom  
 **Versión:** 1.0  
 **Última Actualización:** Enero 2026
 
@@ -10,7 +9,7 @@
 ## 1. Visión General del Curso
 
 ### Propósito
-Este curso capacita a profesionales de TI de Abacom en la administración profesional de servidores Linux, desde conceptos fundamentales hasta operaciones complejas en producción.
+Este curso capacita a profesionales de TI de la empresa en la administración profesional de servidores Linux, desde conceptos fundamentales hasta operaciones complejas en producción.
 
 ### Público Objetivo
 - Administradores de sistemas junior/senior
@@ -134,7 +133,7 @@ Al completar el curso, los participantes podrán:
 #### Laboratorios Integrados
 - Proyectos que abarcan múltiples conceptos
 - Aumentan en complejidad
-- Simulan escenarios reales de Abacom
+- Simulan escenarios reales de la empresa
 
 ### Técnicas Efectivas
 
@@ -368,7 +367,7 @@ Escala sugerida:
 ## 12. Checklist Pre-Curso
 
 ### 2 Semanas Antes
-- [ ] Confirmar fecha, horario, formato con Abacom
+- [ ] Confirmar fecha, horario, formato con la empresa
 - [ ] Verificar acceso a todos los recursos
 - [ ] Probar herramientas de videoconferencia
 - [ ] Preparar lista de participantes
@@ -399,7 +398,6 @@ Escala sugerida:
 
 **Instructor:** Diego Saavedra  
 **Web:** https://statick88.github.io  
-**Organización:** Abacom
 
 Para preguntas sobre esta guía o mejoras sugeridas, contactar al instructor.
 

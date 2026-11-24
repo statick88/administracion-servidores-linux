@@ -18,7 +18,7 @@ Después de completar este tema, serás capaz de:
 
 ## 🎯 Por Qué Esta Lección Es Crítica
 
-Tu servidor Ubuntu sale de la caja con **UN SOLO USUARIO ADMINISTRADOR**. Esto es un riesgo de seguridad. En Abacom, cada administrador necesita su propia cuenta, acceso SSH seguro, y permisos apropiados sin usar **root** directamente.
+Tu servidor Ubuntu sale de la caja con **UN SOLO USUARIO ADMINISTRADOR**. Esto es un riesgo de seguridad. En producción, cada administrador necesita su propia cuenta, acceso SSH seguro, y permisos apropiados sin usar **root** directamente.
 
 **Tiempo estimado**: 90-120 minutos de lectura + laboratorio
 
@@ -231,15 +231,15 @@ SSH (Secure Shell) es la forma profesional de administrar servidores Linux de fo
 
 ```bash
 # **Generar par de claves (pública + privada)**
-ssh-keygen -t ed25519 -C "diego@abacom.com" -f ~/.ssh/diego_abacom
+ssh-keygen -t ed25519 -C "diego@ejemplo.com" -f ~/.ssh/diego_lab
 
 # **Alternativa si ed25519 no es soportado (legacy)**
-ssh-keygen -t rsa -b 4096 -C "diego@abacom.com" -f ~/.ssh/diego_legacy
+ssh-keygen -t rsa -b 4096 -C "diego@ejemplo.com" -f ~/.ssh/diego_legacy
 
 # **Opciones explicadas**:
 # **-t ed25519**: Tipo moderno y seguro (recomendado)
-# **-C "diego@abacom.com"**: Comentario/email para identificar
-# **-f ~/.ssh/diego_abacom**: Ubicación y nombre del archivo
+# **-C "diego@ejemplo.com"**: Comentario/email para identificar
+# **-f ~/.ssh/diego_lab**: Ubicación y nombre del archivo
 ```
 
 **El sistema preguntará por passphrase** (contraseña para la clave):
@@ -253,8 +253,8 @@ Enter same passphrase again: [CONFIRMA]
 # **Ver archivos creados**
 ls -la ~/.ssh/
 
-# **-rw-------  1 diego diego 464 Jan 29 10:30 .ssh/diego_abacom**
-# **-rw-r--r--  1 diego diego 102 Jan 29 10:30 .ssh/diego_abacom.pub**
+# **-rw-------  1 diego diego 464 Jan 29 10:30 .ssh/diego_lab**
+# **-rw-r--r--  1 diego diego 102 Jan 29 10:30 .ssh/diego_lab.pub**
 
 # **Privada**: NUNCA compartir, guardar en lugar seguro
 # **Pública**: Distribuir al servidor
@@ -263,11 +263,11 @@ ls -la ~/.ssh/
 **Ver contenido de claves**:
 ```bash
 # **VER CLAVE PÚBLICA (seguro compartir)**
-cat ~/.ssh/diego_abacom.pub
-# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDk... diego@abacom.com
+cat ~/.ssh/diego_lab.pub
+# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDk... diego@ejemplo.com
 
 # **NUNCA mostrar clave privada en público**
-cat ~/.ssh/diego_abacom  # ⚠️ NUNCA, NUNCA, NUNCA
+cat ~/.ssh/diego_lab  # ⚠️ NUNCA, NUNCA, NUNCA
 ```
 
 ### 2.3 Copiar Clave Pública al Servidor
@@ -276,7 +276,7 @@ cat ~/.ssh/diego_abacom  # ⚠️ NUNCA, NUNCA, NUNCA
 
 ```bash
 # **Copiar clave pública al servidor automáticamente**
-ssh-copy-id -i ~/.ssh/diego_abacom.pub diego@192.168.1.100
+ssh-copy-id -i ~/.ssh/diego_lab.pub diego@192.168.1.100
 
 # **-i**: Especificar archivo de clave
 # **diego**: Usuario en el servidor
@@ -293,7 +293,7 @@ ssh-copy-id -i ~/.ssh/diego_abacom.pub diego@192.168.1.100
 ssh diego@192.168.1.100 "mkdir -p ~/.ssh"
 
 # **Copiar clave desde local al servidor**
-cat ~/.ssh/diego_abacom.pub | \
+cat ~/.ssh/diego_lab.pub | \
   ssh diego@192.168.1.100 "cat >> ~/.ssh/authorized_keys"
 
 # **Fijar permisos correctos en servidor (critico!)**
@@ -306,10 +306,10 @@ ssh diego@192.168.1.100 "chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"
 
 ```bash
 # **Conectar usando clave específica**
-ssh -i ~/.ssh/diego_abacom diego@192.168.1.100
+ssh -i ~/.ssh/diego_lab diego@192.168.1.100
 
 # **Verificar que funciona**
-ssh -i ~/.ssh/diego_abacom diego@192.168.1.100 "whoami"
+ssh -i ~/.ssh/diego_lab diego@192.168.1.100 "whoami"
 # Salida: diego
 ```
 
@@ -317,45 +317,45 @@ ssh -i ~/.ssh/diego_abacom diego@192.168.1.100 "whoami"
 
 Crear/editar **~/.ssh/config**:
 ```
-Host abacom-prod
+Host lab-prod
     HostName 192.168.1.100
     User diego
-    IdentityFile ~/.ssh/diego_abacom
+    IdentityFile ~/.ssh/diego_lab
     Port 22
 
-Host abacom-backup
+Host lab-backup
     HostName 192.168.1.101
     User diego
-    IdentityFile ~/.ssh/diego_abacom
+    IdentityFile ~/.ssh/diego_lab
     Port 22
 ```
 
 **Usar alias**:
 ```bash
 # **Ahora conectar es fácil**
-ssh abacom-prod
-ssh abacom-backup
+ssh lab-prod
+ssh lab-backup
 
 # **Copiar archivos con SCP también funciona**
-scp miarchivo.txt abacom-prod:~/  
+scp miarchivo.txt lab-prod:~/  
 # <1>
 
 # Copiar un archivo usando una clave especifica
-scp -i ~/.ssh/diego_abacom miarchivo.txt diego@192.168.1.100:~/  
+scp -i ~/.ssh/diego_lab miarchivo.txt diego@192.168.1.100:~/  
 # <2>
 
 # Copiar un directorio completo (recursivo)
-scp -r carpeta/ abacom-prod:~/  
+scp -r carpeta/ lab-prod:~/  
 # <3>
 
 # Copiar desde el servidor hacia tu maquina local
-scp abacom-prod:/var/log/syslog ./syslog  
+scp lab-prod:/var/log/syslog ./syslog  
 # <4>
 ```
 
 
 
-1. **scp** copia un archivo al home remoto usando el alias `abacom-prod` de `~/.ssh/config`.
+1. **scp** copia un archivo al home remoto usando el alias `lab-prod` de `~/.ssh/config`.
 2. **-i** fuerza una clave especifica (util si tienes multiples llaves o no usas alias).
 3. **-r** copia directorios recursivamente.
 4. En `origen:destino`, poner el alias/host antes del path descarga el archivo desde el servidor.
@@ -368,15 +368,15 @@ Para transferencias grandes o repetitivas, usa **rsync**: es mas rapido, reinten
 
 ```bash
 # Sincronizar un directorio al servidor (solo diferencias)
-rsync -avz --progress --partial -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  
+rsync -avz --progress --partial -e "ssh -i ~/.ssh/diego_lab" carpeta/ diego@192.168.1.100:~/carpeta/  
 # <1>
 
 # Excluir archivos (ej: caches) durante la sincronizacion
-rsync -avz --progress --partial --exclude '.cache/' -e "ssh -i ~/.ssh/diego_abacom" carpeta/ diego@192.168.1.100:~/carpeta/  
+rsync -avz --progress --partial --exclude '.cache/' -e "ssh -i ~/.ssh/diego_lab" carpeta/ diego@192.168.1.100:~/carpeta/  
 # <2>
 
 # Traer logs desde el servidor a local
-rsync -avz --progress -e "ssh -i ~/.ssh/diego_abacom" diego@192.168.1.100:/var/log/ ./logs/  
+rsync -avz --progress -e "ssh -i ~/.ssh/diego_lab" diego@192.168.1.100:/var/log/ ./logs/  
 # <3>
 ```
 
@@ -681,7 +681,7 @@ sudo -u www-data ls -la /var/www/
 
 ### 5.1 Escenario
 
-Tienes un nuevo administrador que ingresa a Abacom: **María García**.
+Tienes un nuevo administrador que ingresa al equipo: **María García**.
 
 Necesitas:
 
@@ -700,7 +700,7 @@ Necesitas:
 **PASO 1: En tu máquina local, generar clave para María**
 
 ```bash
-ssh-keygen -t ed25519 -C "maria@abacom.com" -f ~/.ssh/maria_abacom
+ssh-keygen -t ed25519 -C "maria@ejemplo.com" -f ~/.ssh/maria_lab
 # Ingresa passphrase cuando pida
 ```
 
@@ -728,7 +728,7 @@ groups maria
 
 ```bash
 # **Desde tu máquina local**
-ssh-copy-id -i ~/.ssh/maria_abacom.pub maria@192.168.1.100
+ssh-copy-id -i ~/.ssh/maria_lab.pub maria@192.168.1.100
 
 # **Te pide contraseña de maria - usa la que estableciste**
 ```
@@ -758,7 +758,7 @@ sudo passwd -l maria
 
 ```bash
 # **Desde tu máquina local**
-ssh -i ~/.ssh/maria_abacom.pub maria@192.168.1.100
+ssh -i ~/.ssh/maria_lab.pub maria@192.168.1.100
 
 # **Dentro del servidor como María**
 sudo systemctl status ssh
@@ -934,26 +934,26 @@ carlos  True   Developer
 | macOS | `dscl . -create /Users/carlos` | Complejo |
 | Windows | `New-LocalUser -Name carlos` | Simple |
 
-### Ejemplo 3: Caso Real Abacom - Crear Usuario de Servicio
+### Ejemplo 3: Caso Real - Crear Usuario de Servicio
 
 #### Linux (Servidor Ubuntu)
 ```bash
 # Crear usuario de servicio para aplicación web
-$ sudo useradd -r -s /sbin/nologin -d /var/www/app webapp_abacom
+$ sudo useradd -r -s /sbin/nologin -d /var/www/app webapp_lab
 
 # Verificar que NO puede conectarse
-$ su - webapp_abacom
+$ su - webapp_lab
 # Error: /sbin/nologin
 # Nologin previene acceso interactivo
 
 # Asignar permisos a carpetas de aplicación
-$ sudo chown -R webapp_abacom:www-data /var/www/app
+$ sudo chown -R webapp_lab:www-data /var/www/app
 $ sudo chmod 755 /var/www/app
 $ sudo find /var/www/app -type f -exec chmod 644 {} \;
 
 # Verificar
 $ ls -la /var/www/app | head -5
-drwxr-xr-x  webapp_abacom www-data  /var/www/app
+drwxr-xr-x  webapp_lab www-data  /var/www/app
 ```
 
 #### macOS (Servidor macOS - Deprecated)
@@ -961,9 +961,9 @@ drwxr-xr-x  webapp_abacom www-data  /var/www/app
 # macOS ya NO soporta Server.app (fue discontinued en 2023)
 # Pero si quisieras crear usuario de servicio:
 
-$ sudo dscl . -create /Users/webapp_abacom
-$ sudo dscl . -create /Users/webapp_abacom UserShell /usr/sbin/nologin
-$ sudo dscl . -create /Users/webapp_abacom RealName "Abacom Web App"
+$ sudo dscl . -create /Users/webapp_lab
+$ sudo dscl . -create /Users/webapp_lab UserShell /usr/sbin/nologin
+$ sudo dscl . -create /Users/webapp_lab RealName "Web App Lab"
 
 # Mejor: Usar Docker o Kubernetes en lugar de macOS para servidores
 ```
@@ -972,23 +972,23 @@ $ sudo dscl . -create /Users/webapp_abacom RealName "Abacom Web App"
 ```powershell
 # Crear cuenta de servicio (service account) para aplicación
 PS> $ServicePassword = ConvertTo-SecureString "Complex!Pass123" -AsPlainText -Force
-PS> New-LocalUser -Name "svc_abacom" -Password $ServicePassword `
-     -Description "Service account for Abacom Web App" `
+PS> New-LocalUser -Name "svc_lab" -Password $ServicePassword `
+     -Description "Service account for Web App Lab" `
      -PasswordNeverExpires
 
 # Asignar permisos NTFS
 PS> $ACL = Get-Acl "C:\www\app"
 PS> $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule `
-     ("svc_abacom", "Modify", "ContainerInherit,ObjectInherit", "None", "Allow")
+     ("svc_lab", "Modify", "ContainerInherit,ObjectInherit", "None", "Allow")
 PS> $ACL.AddAccessRule($AccessRule)
 PS> Set-Acl "C:\www\app" $ACL
 
 # Crear tarea planificada (equivalente a systemd service)
 PS> $TaskAction = New-ScheduledTaskAction -Execute "C:\app\webapp.exe"
 PS> $TaskTrigger = New-ScheduledTaskTrigger -AtStartup
-PS> Register-ScheduledTask -TaskName "AbacomWebApp" `
+PS> Register-ScheduledTask -TaskName "WebApp" `
      -Action $TaskAction -Trigger $TaskTrigger `
-     -User "svc_abacom" -Password $ServicePassword
+     -User "svc_lab" -Password $ServicePassword
 ```
 
 **Comparación arquitectura de servicios:**
@@ -1041,7 +1041,7 @@ sudo find /var/www/app -type f -exec chmod 644 {} \;  # Archivos
 
 ### Ejercicio 3: Configurar SSH para usuario nuevo
 
-Dado usuario **carlos** en servidor **prod.abacom.com**:
+Dado usuario **carlos** en servidor **prod.ejemplo.com**:
 
 - Generar clave SSH
 - Copiar al servidor
@@ -1051,19 +1051,19 @@ Dado usuario **carlos** en servidor **prod.abacom.com**:
 **Solución**:
 ```bash
 # Local
-ssh-keygen -t ed25519 -C "carlos@abacom.com" -f ~/.ssh/carlos_prod
+ssh-keygen -t ed25519 -C "carlos@ejemplo.com" -f ~/.ssh/carlos_prod
 
 # Copiar clave
-ssh-copy-id -i ~/.ssh/carlos_prod.pub carlos@prod.abacom.com
+ssh-copy-id -i ~/.ssh/carlos_prod.pub carlos@prod.ejemplo.com
 
 # Crear alias (~/.ssh/config)
-echo "Host abacom-prod
-    HostName prod.abacom.com
+echo "Host lab-prod
+    HostName prod.ejemplo.com
     User carlos
     IdentityFile ~/.ssh/carlos_prod" >> ~/.ssh/config
 
 # Verificar
-ssh abacom-prod whoami
+ssh lab-prod whoami
 # carlos
 ```
 

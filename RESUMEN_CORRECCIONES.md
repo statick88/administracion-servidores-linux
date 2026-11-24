@@ -1,5 +1,5 @@
 # RESUMEN DE CORRECCIONES REALIZADAS
-## Proyecto: Administración de Servidores Linux - Abacom
+## Proyecto: Administración de Servidores Linux
 
 **Fecha:** Enero 29, 2026  
 **Instructor:** Diego Saavedra  
@@ -12,7 +12,7 @@
 ### ✅ Error 1: Falta de Definición de Curso Principal
 **Problema:** Proyecto contenía múltiples cursos (Linux, Django, React) sin coherencia
 **Solución:**
-- Definición clara: **Administración de Servidores Linux para Abacom**
+- Definición clara: **Administración de Servidores Linux**
 - Alineación de todo el material a este objetivo
 - Eliminación de contenido duplicado o irrelevante
 
@@ -20,9 +20,9 @@
 **Problema:** Título no coincidía con contenido real
 **Solución:**
 - Actualizado title: "Administración de Servidores Linux"
-- Agregado subtitle: "Curso Profesional para Abacom"
+- Agregado subtitle: "Curso Profesional"
 - Autor: "Diego Saavedra - Instructor Principal"
-- Actualizado description con contexto Abacom
+- Actualizado description con contexto del curso
 - Actualizado URL a sitio del instructor
 
 ### ✅ Error 3: README.md Desactualizado
@@ -95,7 +95,7 @@
 
 | Archivo | Cambios | Estado |
 |---------|---------|--------|
-| `_quarto.yml` | Config actualizada para Abacom y Linux | ✅ |
+| `_quarto.yml` | Config actualizada para la empresa y Linux | ✅ |
 | `README.md` | Reescrito completo para Linux Admin | ✅ |
 | `about.qmd` | Biografía del instructor mejorada | ✅ |
 | `GUIA_INSTRUCTOR.md` | Nuevo - 12 secciones de orientación | ✅ NUEVO |
@@ -200,7 +200,7 @@
 - ✅ Troubleshooting integrado
 - ✅ Conceptos clave explicados
 
-### Para Abacom
+### Para la empresa
 - ✅ Personalización a nivel empresa
 - ✅ Competencias alineadas a roles profesionales
 - ✅ Certificación clara de aprendizajes
@@ -215,7 +215,7 @@
 - ✅ Proyecto está listo para comenzar
 
 ### Antes del Curso (Semana 1)
-- [ ] Comunicar con estudiantes de Abacom
+- [ ] Comunicar con estudiantes de la empresa
 - [ ] Preparar máquinas virtuales base
 - [ ] Crear grupo de comunicación (Slack, Teams)
 - [ ] Prueba tecnológica de videoconferencia
@@ -240,13 +240,13 @@
 
 | Componente | Estado | Notas |
 |-----------|--------|-------|
-| Definición curso | ✅ Completado | Linux para Abacom |
+| Definición curso | ✅ Completado | Linux en la empresa |
 | Configuración Quarto | ✅ Validada | Renderiza HTML correctamente |
 | Documentación instructor | ✅ Completa | 12 secciones exhaustivas |
 | Laboratorios | ✅ 4 creados | 420 minutos de práctica |
 | Evaluación | ✅ Rúbrica clara | Criterios transparentes |
 | Materiales estudiantes | ✅ Completos | README, labs, recursos |
-| Personalización Abacom | ✅ Implementada | Empresa específica |
+| Personalización | ✅ Implementada | Empresa específica |
 | Validación técnica | ✅ Pasada | Quarto, markdown, estructura |
 
 ---
@@ -261,7 +261,7 @@
 - 10+ archivos corregidos/creados
 - 4 laboratorios completos (420 min)
 - 1 guía del instructor (12 secciones)
-- 100% personalizado para Abacom
+- 100% personalizado para la empresa
 - Validado técnicamente
 
 **Resultado:** Proyecto profesional, escalable y listo para comenzar.
@@ -269,6 +269,5 @@
 ---
 
 **Instructor:** Diego Saavedra  
-**Empresa:** Abacom  
 **Fecha:** Enero 29, 2026  
 **Estado:** ✅ COMPLETO Y VALIDADO

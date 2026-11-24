@@ -1,153 +1,40 @@
 ---
 title: "Quiz Unidad 4: Administración y Seguridad de Usuarios"
-description: "Evaluación sobre /etc/passwd, /etc/shadow y /etc/group, PAM básico, sudoers y chage"
+description: "Evaluación sobre cuentas, PAM, sudo y claves SSH"
 author: "Diego Saavedra"
-date: today
-format:
-  html:
-    toc: true
-    number-sections: false
 ---
 
 # Quiz: Unidad 4 - Administración y Seguridad de Usuarios
 
-````quizdown
-## ¿Qué archivo guarda los hashes de contraseña y el envejecimiento de las cuentas?
+::: quizdown
+## ¿Qué archivo contiene los hashes de contraseña de los usuarios?
 
-1. [x] /etc/shadow
-1. [ ] /etc/passwd
-1. [ ] /etc/group
-1. [ ] /etc/login.defs
+[ ] /etc/passwd
+[x] /etc/shadow
+[ ] /etc/group
+[ ] /etc/hosts
 
-> `/etc/shadow` es de lectura restringida (`640 root:shadow`); `/etc/shadow` es el único que contiene los hashes.
+*`/etc/shadow` guarda hashes y datos de expiración con permisos restringidos.*
 
+---
 
-## ¿Cuáles son los permisos típicos de /etc/shadow?
+## ¿Qué herramienta debe usarse para editar reglas sudoers?
 
-1. [x] 640 root:shadow
-1. [ ] 644 root:root
-1. [ ] 600 root:root
-1. [ ] 440 shadow:shadow
+[ ] nano /etc/sudoers
+[x] visudo
+[ ] chmod
+[ ] passwd
 
-> `640 root:shadow` permite leer el archivo solo a root y al grupo `shadow`, que es el que usan las herramientas de autenticación.
+*`visudo` valida la sintaxis antes de guardar para evitar bloquear el acceso administrativo.*
 
+---
 
-## ¿Qué contiene el campo 2 de una línea de /etc/shadow?
+## ¿Qué permiso es apropiado para una clave privada SSH?
 
-1. [x] El hash de la contraseña, con su prefijo de algoritmo
-1. [ ] El UID numérico del usuario
-1. [ ] La fecha del último cambio de contraseña
-1. [ ] El directorio home
+[ ] 777
+[ ] 644
+[x] 600
+[ ] 444
 
-> El prefijo identifica el algoritmo: `$y$` yescrypt, `$6$` SHA-512, `$1$` MD5 (obsoleto).
-
-
-## ¿Qué representa el campo 3 de /etc/shadow?
-
-1. [x] Los días transcurridos desde el 1 de enero de 1970 (epoch) del último cambio de contraseña
-1. [ ] La fecha en que la cuenta expira
-1. [ ] El número mínimo de días entre cambios
-1. [ ] Los días de aviso antes de expirar
-
-> Los campos 4 a 8 son mínimo, máximo, aviso, gracia e inactividad; el campo 8 marca la expiración de la cuenta.
-
-
-## ¿Qué archivo de la misma familia almacena los grupos y sus miembros?
-
-1. [x] /etc/group
-1. [ ] /etc/gshadow únicamente
-1. [ ] /etc/groups
-1. [ ] /etc/group.conf
-
-> `/etc/group` guarda nombre, GID y miembros; `/etc/gshadow` añade contraseña y administradores del grupo.
-
-
-## ¿Cuál es la forma segura de editar /etc/passwd sin corromper el índice del sistema?
-
-1. [x] Usar vipw (o vigr para /etc/group) y useradd/usermod/userdel
-1. [ ] Abrirlo con vim y guardarlo directamente
-1. [ ] Redirigir un echo sobre el archivo
-1. [ ] Borrarlo y regenerarlo con cat
-
-> Editar a mano deja índices desincronizados y puede dejar el sistema sin acceso; `vipw` abre una copia y valida antes de reemplazarla.
-
-
-## ¿Qué hace exactamente `chage -d 0 juanp`?
-
-1. [x] Obliga al usuario a cambiar su contraseña en el siguiente inicio de sesión
-1. [ ] Elimina la contraseña del usuario
-1. [ ] Bloquea la cuenta indefinidamente
-1. [ ] Establece la contraseña a cero días de validez
-
-> Poner el campo de último cambio en 0 hace que el sistema lo considere vencido: la primera autenticación fuerza el cambio.
-
-
-## ¿Qué comando muestra el estado de envejecimiento de una cuenta?
-
-1. [x] chage -l juanp
-1. [ ] chage -d juanp
-1. [ ] passwd -S juanp
-1. [ ] usermod -l juanp
-
-> `chage -l` lista último cambio, mínimo, máximo, aviso, inactividad y expiración; `passwd -S` da un resumen más corto.
-
-
-## ¿Dónde vive la configuración de PAM para cada servicio?
-
-1. [x] En /etc/pam.d/, un archivo por servicio (sshd, sudo, login, common-*)
-1. [ ] En /etc/pam.conf únicamente
-1. [ ] En /etc/security/pam.d/
-1. [ ] En /etc/pam/hosts
-
-> Los archivos `common-*` se incluyen desde cada servicio para mantener una política única en todo el sistema.
-
-
-## ¿Cuál es el tipo de módulo PAM que verifica la identidad del usuario?
-
-1. [x] auth
-1. [ ] account
-1. [ ] password
-1. [ ] session
-
-> `auth` comprueba credenciales, `account` el estado de la cuenta, `password` el cambio de contraseña y `session` el inicio y cierre de sesión.
-
-
-## ¿Qué módulo PAM impone longitud y complejidad a las contraseñas?
-
-1. [x] pam_pwquality.so
-1. [ ] pam_unix.so
-1. [ ] pam_limits.so
-1. [ ] pam_rootok.so
-
-> Se añade como `requisite` en `/etc/pam.d/common-password`, antes de `pam_unix.so`, para que el rechazo detenga el cambio.
-
-
-## Si un módulo PAM está marcado como `sufficient` y devuelve éxito, ¿qué ocurre?
-
-1. [x] Se acepta la autenticación sin evaluar el resto de módulos del tipo
-1. [ ] Se continúa evaluando todos los módulos obligatorios
-1. [ ] Se revierte la decisión de los módulos `required`
-1. [ ] La sesión se cierra automáticamente
-
-> `required` obliga a que todos pasen, `requisite` corta al fallar y `sufficient` corta al tener éxito.
-
-
-## ¿Cuál es el formato correcto para que el usuario `deploy` ejecute solo /opt/scripts/deploy.sh como www-data sin pedir contraseña?
-
-1. [x] deploy ALL=(www-data:www-data) NOPASSWD: /opt/scripts/deploy.sh
-1. [ ] deploy ALL=NOPASSWD: /opt/scripts/deploy.sh
-1. [ ] %deploy ALL=(www-data) /opt/scripts/deploy.sh
-1. [ ] deploy www-data /opt/scripts/deploy.sh
-
-> El segundo campo del paréntesis es el grupo destino; sin él se permite cualquier usuario del sistema.
-
-
-## ¿Qué archivo debe editarse para definir reglas de sudo y con qué herramienta?
-
-1. [x] /etc/sudoers, siempre con visudo (o incluyendo archivos desde sudoers.d)
-1. [ ] /etc/sudo.conf, con vim directamente
-1. [ ] /etc/sudo/permissions, con chmod
-1. [ ] ~/.sudoers, con cualquier editor
-
-> `visudo` valida la sintaxis antes de guardar: un error tipeado en `/etc/sudoers` puede dejar a todos sin privilegios.
-````
+*El permiso 600 impide que otros usuarios lean una clave privada.*
+:::

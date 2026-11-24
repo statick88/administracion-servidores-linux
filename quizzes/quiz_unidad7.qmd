@@ -1,163 +1,40 @@
 ---
-title: "Quiz Unidad 7: Seguridad Práctica - Hardening"
-description: "Evaluación sobre permisos avanzados, umask y GPG, modos de SELinux y AppArmor, auditd y Lynis"
+title: "Quiz Unidad 7: Seguridad Práctica"
+description: "Evaluación sobre UFW, Fail2Ban y hardening"
 author: "Diego Saavedra"
-date: today
-format:
-  html:
-    toc: true
-    number-sections: false
 ---
 
-# Quiz: Unidad 7 - Seguridad Práctica - Hardening
+# Quiz: Unidad 7 - Seguridad Práctica (Hardening)
 
-````quizdown
-## ¿Qué permiso especial queda activo con `chmod 4755 archivo`?
+::: quizdown
+## ¿Cuál es la política recomendada de UFW para tráfico entrante?
 
-1. [x] SUID (Set User ID)
-1. [ ] SGID (Set Group ID)
-1. [ ] Sticky Bit
-1. [ ] ACL por defecto
+[x] Denegar todo lo entrante y permitir solo reglas explícitas
+[ ] Permitir todo lo entrante
+[ ] Denegar todo lo saliente
+[ ] Desactivar el firewall
 
-> El 4 inicial enciende SUID; 2 es SGID y 1 es sticky bit. Los tres se aplican sobre el octeto de permisos clásico.
+*Una política deny-by-default reduce la superficie expuesta del servidor.*
 
+---
 
-## ¿Qué significa que un binario tenga SUID?
+## ¿Qué hace Fail2Ban ante intentos de acceso fallidos repetidos?
 
-1. [x] Se ejecuta siempre con los privilegios de su propietario, no con los de quien lo lanza
-1. [ ] Solo el grupo propietario puede ejecutarlo
-1. [ ] El archivo no puede ser borrado por otros usuarios
-1. [ ] Hereda los permisos del directorio donde está
+[ ] Reinicia el servidor
+[x] Bloquea temporalmente la IP que supera el límite
+[ ] Elimina usuarios del sistema
+[ ] Actualiza paquetes automáticamente
 
-> Por eso `/usr/bin/passwd` tiene SUID root: cambia `/etc/shadow` aunque lo ejecute un usuario normal — y por eso un binario SUID mal configurado es un riesgo crítico.
+*Fail2Ban observa logs y aplica bloqueos cuando se supera `maxretry`.*
 
+---
 
-## ¿Qué hace el sticky bit en un directorio como /tmp?
+## ¿Qué ajuste SSH reduce ataques por contraseña?
 
-1. [x] Solo el propietario del archivo (o root) puede borrarlo o renombrarlo
-1. [ ] Impide crear archivos nuevos dentro del directorio
-1. [ ] Hace que todos los archivos sean de solo lectura
-1. [ ] Oculta el directorio de los demás usuarios
+[ ] PasswordAuthentication yes
+[x] PasswordAuthentication no después de validar las claves
+[ ] PermitRootLogin yes
+[ ] Usar permisos 777 en .ssh
 
-> Sin sticky bit, cualquier usuario con permiso de escritura en el directorio podría borrar los archivos de los demás.
-
-
-## ¿Cómo se otorgan permisos a un usuario concreto sin cambiar owner ni grupo?
-
-1. [x] Con una ACL: setfacl -m u:deploy:rwx /ruta
-1. [ ] Con chmod u+rwx en el directorio raíz
-1. [ ] Con chown deploy /ruta
-1. [ ] Con umask 000
-
-> Las ACL (`setfacl` / `getfacl`) complementan los permisos POSIX; `setfacl -b` las elimina todas.
-
-
-## Con una umask de 022, ¿con qué permisos nace un archivo nuevo?
-
-1. [x] 644 (-rw-r--r--)
-1. [ ] 600 (-rw-------)
-1. [ ] 755 (drwxr-xr-x)
-1. [ ] 666 (-rw-rw-rw-)
-
-> El archivo parte de 666 y se restan los permisos de la umask: 666 − 022 = 644. Un directorio parte de 777 y queda en 755.
-
-
-## ¿Qué umask se usa para respaldos o claves donde solo debe entrar el propietario?
-
-1. [x] 077
-1. [ ] 022
-1. [ ] 002
-1. [ ] 000
-
-> Con 077 el archivo nace en 600 y el directorio en 700; 022 es el valor por defecto de servidor y 002 sirve para directorios de equipo compartidos.
-
-
-## ¿Afecta la umask a los archivos que ya existen en el sistema?
-
-1. [x] No, solo se aplica en el momento de crear archivos y directorios nuevos
-1. [ ] Sí, recalcula los permisos de todo el árbol al iniciar sesión
-1. [ ] Sí, pero solo para los archivos creados por root
-1. [ ] Solo afecta a los directorios, no a los archivos
-
-> Para modificar permisos de archivos existentes se usan `chmod` y `chown`; cambiar la umask no los toca.
-
-
-## ¿Qué opción de GPG genera solo la firma (.sig) y deja el respaldo original intacto?
-
-1. [x] gpg --detach-sign respaldo.tar.gz
-1. [ ] gpg --sign respaldo.tar.gz
-1. [ ] gpg --symmetric respaldo.tar.gz
-1. [ ] gpg --export respaldo.tar.gz
-
-> `--sign` empaqueta original y firma en un solo archivo; `--detach-sign` deja el `.sig` separado, el formato habitual para respaldos, y `gpg --verify respaldo.tar.gz.sig respaldo.tar.gz` reporta `Good signature` si el archivo no cambió desde que se firmó.
-
-
-## ¿Cuáles son los tres modos de operación de SELinux?
-
-1. [x] enforcing, permissive y disabled
-1. [ ] enforce, complain y disabled
-1. [ ] active, audit y off
-1. [ ] strict, relaxed y off
-
-> `enforcing` bloquea y registra, `permissive` solo registra y `disabled` no carga política. `enforce`/`complain` son los modos de perfil de AppArmor.
-
-
-## ¿Qué comando muestra el modo de SELinux activo en este momento?
-
-1. [x] getenforce
-1. [ ] aa-status
-1. [ ] getsebool -a
-1. [ ] semanage fcontext -l
-
-> `getenforce` devuelve Enforcing, Permissive o Disabled; `setenforce 1` o `0` cambia el modo en caliente, pero el valor persistente vive en `/etc/selinux/config`.
-
-
-## ¿Cuál es la diferencia entre el modo permissive de SELinux y el modo complain de AppArmor?
-
-1. [x] permissive es global para todo el sistema; complain se aplica a cada perfil de forma individual
-1. [ ] No hay diferencia, son el mismo concepto con otro nombre
-1. [ ] complain bloquea y permissive solo registra
-1. [ ] permissive es por perfil y complain es global
-
-> En AppArmor cada perfil tiene su modo, así que un servicio puede estar en enforce mientras se depura otro en complain; en SELinux el modo es único para el sistema.
-
-
-## ¿Qué muestra `aa-status`?
-
-1. [x] Los perfiles de AppArmor cargados y cuántos están en enforce o complain
-1. [ ] El modo global de SELinux
-1. [ ] Las reglas activas de auditd
-1. [ ] El índice de hardening de Lynis
-
-> Es el punto de partida para auditar AppArmor: lista perfiles, perfiles de ejecución y estado del módulo.
-
-
-## ¿Qué marco MAC trae Ubuntu 24.04 activado por defecto?
-
-1. [x] AppArmor
-1. [ ] SELinux en enforcing
-1. [ ] TOMOYO
-1. [ ] YAMA
-
-> SELinux está en los repos pero deshabilitado en una instalación estándar; en Ubuntu se trabaja normalmente en permissive antes de forzar enforcing.
-
-
-## ¿Qué audita exactamente la regla `auditd -w /etc/passwd -p wa -k identity`?
-
-1. [x] Escrituras y cambios de atributos sobre /etc/passwd
-1. [ ] Lecturas del archivo por parte de los usuarios
-1. [ ] La ejecución del archivo /etc/passwd
-1. [ ] Solo el cambio de propietario
-
-> `-w` watch, `-p wa` write + attribute, `-k identity` etiqueta los eventos para filtrarlos después con `ausearch -k identity`.
-
-
-## ¿Qué produce `lynis audit system` y qué valor conviene vigilar?
-
-1. [x] Un informe de auditoría con recomendaciones y un hardening index de 0 a 100
-1. [ ] Un firewall activo con reglas predefinidas
-1. [ ] La rotación automática de todos los logs
-1. [ ] El bloqueo de cuentas con contraseñas débiles
-
-> Lynis audita el sistema contra benchmarks; el hardening index es la métrica que se sigue en cada iteración de hardening.
-````
+*Las claves deben estar probadas antes de deshabilitar la autenticación por contraseña.*
+:::
