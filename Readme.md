@@ -24,6 +24,9 @@ Instructor: Diego Saavedra (https://statick88.github.io)
 
 - `site/`, `tools/`, `course/`: constructor del sitio estático
 - `01-fundamentos/` … `11-bases-datos/`: contenido por unidad (fuentes `.qmd`)
-- `lab-practicos/`: laboratorios
+- `unidades/`: unidades publicadas por carpeta (instalación, DHCP, Apache, Proyecto Final, extras)
+- `quizzes/`: quizzes interactivos por unidad y avanzados
+- `anexos/`: mini-cursos complementarios
+- `lab-practicos/`, `practicas/`: laboratorios y prácticas guiadas
 - `presentaciones/`: subproyecto de slides (Reveal.js)
 - `_site/`: salida HTML generada (no se versiona)

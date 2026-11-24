@@ -1,0 +1,282 @@
+---
+title: "Unidad VIII: Opciones y reservaciones"
+subtitle: "8.2 Opciones y reservaciones — parámetros por alcance y direcciones fijas en dhcpd"
+author: "Diego Saavedra"
+date: "2026-11-14"
+date-format: medium
+---
+
+# Unidad VIII: Opciones y reservaciones
+
+## Introducción
+
+En la parte 8.2 del temario vemos las dos formas en que dhcpd entrega valor específico: las **opciones** (parámetros de red que recibe cada cliente) y las **reservaciones** (direcciones fijas ligadas a una MAC). Ambas se expresan en `/etc/dhcp/dhcpd.conf` y comparten la misma regla de precedencia.
+
+Al terminar esta unidad podrás:
+
+1. Explicar la jerarquía de alcances y qué parámetro gana en cada caso.
+2. Configurar las opciones DHCP más usadas (router, DNS, dominio, NTP).
+3. Crear reservaciones con `host`, `hardware ethernet` y `fixed-address`.
+4. Limitar el servicio a clientes reservados con `allow` / `deny`.
+5. Validar y aplicar cambios sin romper el servicio.
+
+**Punto del brochure:** 8.2 — Opciones y reservaciones.
+
+---
+
+## Jerarquía de alcances: dónde aplica cada parámetro
+
+dhcpd organiza la configuración en niveles. Cuando un parámetro aparece en más de un nivel, **gana el más específico**:
+
+```
+   global (todo el servidor)
+        └── shared-network (varias subredes en un segmento)
+                └── subnet (un scope)
+                        └── pool / group (subconjuntos)
+                                └── host (un equipo)   ← más específico
+```
+
+| Nivel | Ejemplo de parámetro | Efecto |
+|-------|----------------------|--------|
+| Global | `option domain-name-servers 192.168.100.1;` | Aplica a todos los clientes |
+| `subnet` | `option routers 192.168.100.1;` | Aplica a los clientes de esa red |
+| `host` | `option domain-name-servers 192.168.100.5;` | Solo a ese equipo; **sobreescribe** lo anterior |
+
+Esto permite tener un DNS general para la oficina y, a la vez, otro DNS para un equipo puntual, sin duplicar configuración.
+
+---
+
+## Opciones DHCP más usadas
+
+Las opciones son valores estandarizados en el RFC 2132. En `dhcpd.conf` se escriben con la palabra `option` seguida del nombre conocido por dhcpd:
+
+| Opción | Sentencia en dhcpd.conf | N.º | Qué entrega al cliente |
+|--------|-------------------------|-----|------------------------|
+| Máscara de red | `option subnet-mask` | 1 | Normalmente la deriva dhcpd del `netmask` del scope |
+| Puerta de enlace | `option routers` | 3 | Router por defecto del scope |
+| DNS | `option domain-name-servers` | 6 | Servidores de nombres (una o varias IPs) |
+| Nombre de equipo | `option host-name` | 12 | Nombre sugerido para el cliente |
+| Dominio | `option domain-name` | 15 | Dominio DNS del ámbito |
+| MTU | `option interface-mtu` | 26 | Tamaño de trama de la interfaz |
+| Broadcast | `option broadcast-address` | 28 | Dirección de broadcast del scope |
+| Hora (NTP) | `option ntp-servers` | 42 | Servidores de tiempo |
+| Tiempo de lease | `default-lease-time` / `max-lease-time` | 51 | Duración de la concesión |
+
+:::{.callout-note}
+## 📝 NOTA
+
+`default-lease-time` y `max-lease-time` **no** llevan la palabra `option`: son parámetros del servidor, no opciones del protocolo. Lo mismo ocurre con `authoritative` y `range`.
+:::
+
+---
+
+## Definir opciones en la práctica
+
+La siguiente configuración combina parámetros globales, opciones del scope y una opción a nivel de equipo, aplicando la jerarquía anterior:
+
+```bash
+# Respaldo antes de modificar (por si queremos volver al estado previo)
+$ sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.opciones  # <1>
+
+# Configurar opciones globales + opciones del scope
+$ sudo tee /etc/dhcp/dhcpd.conf >/dev/null <<'EOF'  # <2>
+authoritative;
+
+default-lease-time 3600;
+max-lease-time 86400;
+
+# Opciones globales: aplican a todos los scopes
+option domain-name "lab.curso.local";
+option domain-name-servers 192.168.100.1, 8.8.8.8;
+option ntp-servers 192.168.100.1;
+
+subnet 192.168.100.0 netmask 255.255.255.0 {
+    range 192.168.100.100 192.168.100.199;
+
+    # Opciones del scope: sobreescriben lo global para esta red
+    option routers 192.168.100.1;
+    option broadcast-address 192.168.100.255;
+    option domain-name-servers 192.168.100.1;
+}
+EOF
+```
+
+
+
+1. **cp**: conserva la versión anterior del archivo como `dhcpd.conf.opciones`.
+2. **tee**: reescribe el `dhcpd.conf` con opciones globales (DNS y NTP para todos) y opciones del scope (router, broadcast y un DNS propio de la red).
+
+Resultado para cada cliente de `192.168.100.0/24`:
+
+| Parámetro | Valor entregado | Origen |
+|-----------|-----------------|--------|
+| `routers` | `192.168.100.1` | scope `subnet` |
+| `domain-name-servers` | `192.168.100.1` | scope `subnet` (sobreescribe el global `8.8.8.8`) |
+| `domain-name` | `lab.curso.local` | global (el scope no lo redefine) |
+| `ntp-servers` | `192.168.100.1` | global |
+
+---
+
+## Reservaciones (host + fixed-address)
+
+Una **reservación** liga una dirección IP fija a la dirección MAC de un equipo: siempre recibirá la misma IP, aunque se reinicie el servidor o pase mucho tiempo sin conectarse.
+
+```text
+host impresora-piso3 {
+    hardware ethernet 02:00:00:00:00:01;   ← identidad del equipo (MAC)
+    fixed-address 192.168.100.50;          ← IP que siempre recibirá
+}
+```
+
+Reglas importantes de las reservaciones:
+
+1. El `fixed-address` **debe pertenecer a un `subnet` declarado**, pero puede estar **fuera** del `range` dinámico (es lo recomendable: así ninguna dirección dinámica choca con una reserva).
+2. Si el cliente reservado pide una dirección distinta, el servidor le responde `DHCPNAK`; con `authoritative` el servidor también rechaza direcciones que no pertenecen a su red.
+3. dhcpd identifica al equipo por su MAC; si el cliente envía también el *client-identifier*, dhcpd lo considera como clave adicional de búsqueda.
+4. Las opciones declaradas dentro del `host` solo aplican a ese equipo (nivel más específico).
+
+### Obtener la MAC del cliente
+
+```bash
+# Ver la dirección MAC de una interfaz
+$ ip link show eth0  # <1>
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT
+    link/ether 00:0c:29:aa:bb:cc brd ff:ff:ff:ff:ff:ff
+
+# Forma corta: solo la MAC
+$ cat /sys/class/net/eth0/address  # <2>
+00:0c:29:aa:bb:cc
+```
+
+
+
+1. **ip link show**: muestra `link/ether` con la MAC; sirve para cualquier interfaz (`eth0`, `ens33`, `wlan0`...).
+2. **/sys/class/net**: ruta del kernel con la MAC de la interfaz; útil en scripts de inventario.
+
+### Agregar la reserva
+
+```bash
+# Anexar la declaración host al final de dhcpd.conf
+$ sudo tee -a /etc/dhcp/dhcpd.conf >/dev/null <<'EOF'  # <1>
+host impresora-piso3 {
+    hardware ethernet 02:00:00:00:00:01;
+    fixed-address 192.168.100.50;
+    option host-name "impresora";
+    max-lease-time 604800;
+}
+EOF
+```
+
+
+
+1. **tee -a**: agrega la reserva sin tocar el resto del archivo; `max-lease-time 604800` da a la impresora una concesión de 7 días (nivel `host`, el más específico).
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+**Separa el rango dinámico de las direcciones reservadas.**
+
+**Casos de uso:**
+- `range 192.168.100.100 192.168.100.199` para equipos temporales.
+- Reservas en `192.168.100.200-254` (fuera del rango) para impresoras, cámaras y servidores.
+
+**Cuándo aplicar:** siempre; una reserva dentro del `range` funciona, pero mezclar ambos mundos complica el plan de direcciones y el troubleshooting.
+:::
+
+---
+
+## Limitar el servicio a clientes reservados
+
+Con `deny unknown-clients` el servidor solo atiende a los declarados con `host` ("known clients"):
+
+```text
+subnet 192.168.100.0 netmask 255.255.255.0 {
+    range 192.168.100.100 192.168.100.199;
+    option routers 192.168.100.1;
+    deny unknown-clients;      # los no reservados no reciben IP
+}
+
+host impresora-piso3 {
+    hardware ethernet 02:00:00:00:00:01;
+    fixed-address 192.168.100.50;
+}
+```
+
+Sentencias equivalentes según el objetivo:
+
+| Sentencia | Efecto |
+|-----------|--------|
+| `allow unknown-clients;` | Cualquiera recibe IP (comportamiento por defecto de un `range`) |
+| `deny unknown-clients;` | Solo los declarados con `host` ("known clients") reciben oferta |
+| `allow known-clients;` | Equivalente a `deny unknown-clients`; se usa dentro de `pool` cuando se combinan listas de permitidos y denegados |
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA — Cerrar el DHCP a desconocidos
+
+**Lo que podría salir mal:**
+- Un equipo nuevo (o una MAC que cambió por privacidad de Wi-Fi/VM) queda **sin IP** y sin acceso a la red.
+- Dejar `deny unknown-clients` olvidado después de un ejercicio bloquea a todos los invitados.
+
+**Cómo prevenirlo:**
+1. Usa `deny unknown-clients` solo en segmentos controlados (impresoras, IoT, laboratorio).
+2. Retira la sentencia cuando termine el ejercicio.
+3. Lleva un inventario MAC ↔ equipo: si la MAC del cliente cambia, la reserva deja de coincidir.
+:::
+
+---
+
+## Validar y aplicar cambios
+
+```bash
+# 1. Probar la sintaxis antes de tocar el servicio
+$ sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf  # <1>
+
+# 2. Reiniciar (dhcpd no recarga configuración en caliente)
+$ sudo systemctl restart isc-dhcp-server  # <2>
+
+# 3. Confirmar que sigue activo
+$ sudo systemctl status isc-dhcp-server --no-pager  # <3>
+● isc-dhcp-server.service - ISC DHCP IPv4 server
+     Loaded: loaded (/usr/lib/systemd/system/isc-dhcp-server.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-11-14 10:05:12 -05; 4s ago
+   Main PID: 2451 (dhcpd)
+      Tasks: 1 (limit: 9402)
+
+# 4. Revisar los mensajes recientes del servidor
+$ sudo journalctl -u isc-dhcp-server --since "2 min ago" --no-pager  # <4>
+Nov 14 10:05:12 ubuntu dhcpd: Internet Systems Consortium DHCP Server 4.4.3-P1
+Nov 14 10:05:12 ubuntu dhcpd: Config file: /etc/dhcp/dhcpd.conf
+Nov 14 10:05:12 ubuntu dhcpd: Listening on LPF/eth0/00:0c:29:aa:bb:cc
+```
+
+
+
+1. **dhcpd -t**: si hay un error de sintaxis (llave sin cerrar, `;` faltante), dhcpd imprime la línea exacta y no se reinicia el servicio.
+2. **systemctl restart**: obligatorio; dhcpd no admite recarga en caliente.
+3. **systemctl status**: debe quedar `active (running)`.
+4. **journalctl**: confirma qué archivo de configuración quedó cargado y en qué interfaz escucha.
+
+La verificación completa desde el cliente (que la reserva entrega siempre la misma IP) se realiza en el laboratorio de esta unidad, donde un cliente DHCP real hace el intercambio DORA contra el servidor.
+
+---
+
+## Resumen
+
+| Tema | Sentencia | Propósito |
+|------|-----------|-----------|
+| Opción global | `option domain-name-servers ...` | Parámetro para todos los scopes |
+| Opción de scope | `option routers ...` | Parámetro para una subred |
+| Opción por equipo | `option ...` dentro de `host` | Sobreescribe niveles superiores |
+| Reservación | `host X { hardware ethernet ...; fixed-address ...; }` | IP fija por MAC |
+| Restringir | `deny unknown-clients` | Solo clientes reservados |
+| Validar | `dhcpd -t -cf /etc/dhcp/dhcpd.conf` | Comprobar sintaxis |
+| Aplicar | `systemctl restart isc-dhcp-server` | Cargar los cambios |
+
+---
+
+## Referencias
+
+- [dhcp-options(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcp-options.5.html)
+- [dhcpd.conf(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcpd.conf.5.html)
+- [RFC 2132 — DHCP Options and BOOTP Vendor Extensions](https://www.rfc-editor.org/rfc/rfc2132)
+- [ISC DHCP 4.4 Manual Pages](https://kb.isc.org/docs/isc-dhcp-441-manual-pages)

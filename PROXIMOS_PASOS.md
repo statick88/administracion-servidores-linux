@@ -4,6 +4,9 @@
 **Fecha:** Enero 29, 2026  
 **Para:** Diego Saavedra (Instructor)
 
+> [!NOTE]
+> **Estado del repositorio (16 de noviembre de 2026):** el contenido del curso ya está alineado con el brochure oficial. Las Fases 1–3 de [`PLAN_REMEDIACION_BROCHURE.md`](PLAN_REMEDIACION_BROCHURE.md) están completadas (estructura I–XII, DHCP, Apache y Proyecto Final publicados, quizzes re-mapeados). Esta guía sigue siendo válida para la logística y las sesiones del curso; el trabajo técnico pendiente se hace seguimiento en el plan enlazado.
+
 ---
 
 ## 📋 CHECKLIST: Antes de la Primera Sesión
@@ -142,6 +145,8 @@ Seguir estructura de GUIA_INSTRUCTOR.md con adapaciones por unidad.
 ---
 
 ## 🎯 PROYECTO FINAL SUGERIDO
+
+> **Actualizado:** el proyecto final ya está publicado con entregable y rúbrica en [`unidades/unidad12/7_proyecto_final.qmd`](unidades/unidad12/7_proyecto_final.qmd) (Unidad XII del brochure). La propuesta de abajo es la versión original.
 
 **Objetivo:** Configurar un servidor empresarial completo para la empresa
 

@@ -5,6 +5,10 @@
 **Fecha:** 29 de Enero de 2026  
 **Objetivo:** Crear contenido teórico faltante (38 archivos)
 
+> [!WARNING]
+> **PLAN HISTÓRICO — LA CREACIÓN DE CONTENIDO YA SE EJECUTÓ POR OTRA VÍA.**
+> Este plan (29 de enero de 2026) estimaba 38 archivos faltantes y un 9,5 % de completitud. El contenido se creó y publicó después siguiendo [`PLAN_REMEDIACION_BROCHURE.md`](PLAN_REMEDIACION_BROCHURE.md) (Fases 1–3 completadas): el libro publica hoy las 12 unidades del brochure (I–XII), con DHCP (`unidades/unidad-dhcp/`), Apache (`unidades/unidad9/`), Proyecto Final con entregable y rúbrica (`unidades/unidad12/7_proyecto_final.qmd`) y las unidades extra declaradas. Las cifras, fases y cronograma de este documento se conservan como referencia histórica; no usarlo para planificar trabajo nuevo.
+
 ---
 
 ## 📋 RESUMEN EJECUTIVO

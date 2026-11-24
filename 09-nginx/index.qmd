@@ -1,5 +1,5 @@
 ---
-title: "UNIDAD IX: Nginx como Servidor Web y Proxy"
+title: "UNIDAD X: Nginx como Servidor Web y Proxy"
 subtitle: "Configuración, Servidor Estático y Reverse Proxy — Enfoque WSL2 (Ubuntu 24.04 LTS) + Docker"
 author: "Diego Saavedra - Instructor Principal"
 date: "2026-07-20"
@@ -11,7 +11,7 @@ format:
     highlight-style: github
 ---
 
-# UNIDAD IX: Nginx como Servidor Web y Proxy
+# UNIDAD X: Nginx como Servidor Web y Proxy
 
 ## Objetivos de la Unidad
 
@@ -22,7 +22,8 @@ Al finalizar esta unidad, serás capaz de:
 - Navegar y editar la **estructura de configuración** (`nginx.conf`, `sites-available/`, `sites-enabled/`, `conf.d/`).
 - Servir un **sitio estático** y configurar **server blocks** (virtual hosts).
 - Configurar un **reverse proxy** hacia una aplicación Node/Python, incluyendo soporte de **WebSockets**.
-- Gestionar el servicio (`reload`, `nginx -t`, logs) y aplicar **hardening básico** (sin TLS — eso es la UNIDAD X).
+- Balancear la carga entre varios backends con bloques **`upstream`** (round-robin, `least_conn`, `ip_hash`).
+- Gestionar el servicio (`reload`, `nginx -t`, logs) y aplicar **hardening básico** y **security headers** (sin TLS — eso es el capítulo de Certificados SSL).
 
 ---
 
@@ -35,7 +36,7 @@ Hoy Nginx domina la capa de borde de internet:
 - **Servidor web estático**: sirve HTML, CSS, JS, imágenes y descargas con mínimo consumo de CPU/RAM.
 - **Reverse proxy**: recibe el tráfico externo y lo reenvía a aplicaciones internas (Node, Python, Go, Java).
 - **Load balancer**: distribuye carga entre múltiples backends con algoritmos round-robin, least-conn, etc.
-- **Terminador TLS / WAF / cache**: funciona como puerta de entrada (en la UNIDAD X veremos TLS).
+- **Terminador TLS / WAF / cache**: funciona como puerta de entrada (en el capítulo de Certificados SSL veremos TLS).
 
 ::: {.callout-note}
 ## Arquitectura en producción (patrón típico)
@@ -57,8 +58,8 @@ Nginx queda expuesto al mundo; la aplicación solo escucha en `localhost`. Esto 
 |-----|-------------|----------------------|
 | **Servidor web estático** | Entrega archivos directamente | Sitio HTML en `/var/www/html` |
 | **Reverse proxy** | Reenvía rutas a backends | `proxy_pass http://localhost:3000` |
-| **Load balancer** | Distribuye entre N backends | `upstream` con 2+ servidores (mención) |
-| **Terminador TLS** | Cifra HTTPS | ⚠️ UNIDAD X (no aquí) |
+| **Load balancer** | Distribuye entre N backends | `upstream` con 3 servidores (sección 7) |
+| **Terminador TLS** | Cifra HTTPS | ⚠️ Capítulo de Certificados SSL (no aquí) |
 
 ### 1.2 Por qué WSL2 + Docker (sin VirtualBox/VMware)
 
@@ -283,7 +284,7 @@ server {
 }
 ```
 
-- **`listen 80`**: el puerto (en UNIDAD X será `443 ssl`).
+- **`listen 80`**: el puerto (en el capítulo de Certificados SSL será `443 ssl`).
 - **`server_name`**: Nginx selecciona este bloque cuando el header `Host` coincide.
 - **`try_files $uri $uri/ =404`**: intenta servir el archivo exacto, luego un directorio, y si no existe devuelve 404 (en lugar del `index.html` por defecto de `/`).
 
@@ -516,9 +517,89 @@ Así Nginx decide `upgrade` o `close` según si el cliente envió el header `Upg
 
 ---
 
-## 7. Comandos de gestión
+## 7. Balanceo de carga
 
-### 7.1 Ciclo de vida del servicio
+Hasta aquí el `proxy_pass` apunta a un **único** backend. Con un bloque `upstream`, Nginx agrupa varios servidores y reparte las peticiones entre ellos: el mismo reverse proxy se convierte en un **balanceador de carga**. Por defecto el algoritmo es *round-robin* (una petición a cada backend, en rotación).
+
+### 7.1 Bloque `upstream`
+
+```bash
+$ sudo tee /etc/nginx/sites-available/loadbalancer.conf >/dev/null <<'EOF'  # <1>
+upstream api_backend {
+    server 10.0.1.11:3000;
+    server 10.0.1.12:3000;
+    server 10.0.1.13:3000;
+}
+
+server {
+    listen 80;
+    server_name api.local;
+
+    location / {
+        proxy_pass http://api_backend; # Nombre del grupo, no una URL
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+
+
+$ sudo ln -sf /etc/nginx/sites-available/loadbalancer.conf /etc/nginx/sites-enabled/loadbalancer.conf  # <2>
+
+
+$ sudo nginx -t && sudo systemctl reload nginx  # <3>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+```
+
+1. **tee + heredoc** define el grupo `upstream` con tres backends y un `server` cuyo `proxy_pass` apunta al nombre del grupo.
+2. **ln -sf** habilita el balanceador en `sites-enabled/`.
+3. **nginx -t && reload** valida y aplica; con la configuración por defecto, Nginx rota las peticiones entre los tres servidores.
+
+### 7.2 Algoritmos de balanceo
+
+```nginx
+upstream api_backend {
+    least_conn;                       # Envía la petición al backend con menos conexiones activas
+    server 10.0.1.11:3000;
+    server 10.0.1.12:3000;
+}
+```
+
+- **round-robin** (por defecto): reparto uniforme en rotación; no considera la carga real.
+- **`least_conn`**: elige el backend con menos conexiones activas — ideal cuando las peticiones duran tiempos distintos.
+- **`ip_hash`**: la IP del cliente siempre cae en el mismo backend (sesiones *sticky*); útil cuando hay estado en memoria.
+- **`weight=N`**: reparto proporcional; `weight=5` recibe cinco veces más tráfico que un servidor sin peso (`weight=1`).
+
+### 7.3 Failover: `max_fails`, `backup` y `down`
+
+```nginx
+upstream api_backend {
+    server 10.0.1.11:3000 max_fails=3 fail_timeout=30s;
+    server 10.0.1.12:3000 max_fails=3 fail_timeout=30s;
+    server 10.0.1.13:3000 backup;    # Solo atiende si fallan los primarios
+    server 10.0.1.14:3000 down;      # Fuera de rotación hasta reactivarlo
+}
+```
+
+- **`max_fails=3 fail_timeout=30s`**: marca el servidor como caído tras 3 fallos en 30 s y deja de enviarle tráfico durante ese periodo.
+- **`backup`**: respaldo en frío; solo recibe peticiones cuando todos los primarios están caídos.
+- **`down`**: retira el servidor de la rotación hasta que edites la configuración y lo reactives.
+
+::: {.callout-note}
+## Detección de fallos en Nginx open source
+
+Nginx (versión comunitaria) solo detecta fallos de forma **pasiva**: cuenta los errores que devuelve cada backend (`max_fails`). No comprueba periódicamente si el servicio responde; para eso necesitas un health check externo (script, load balancer) o Nginx Plus.
+:::
+
+---
+
+## 8. Comandos de gestión
+
+### 8.1 Ciclo de vida del servicio
 
 ```bash
 $ sudo systemctl start nginx  
@@ -539,7 +620,7 @@ $ sudo systemctl restart nginx
 3. **systemctl reload** recarga config sin perder conexiones activas (graceful).
 4. **systemctl restart** detiene y arranca (breve caída); úsalo solo si `reload` no basta.
 
-### 7.2 Validación y diagnóstico
+### 8.2 Validación y diagnóstico
 
 ```bash
 $ sudo nginx -t  
@@ -562,7 +643,7 @@ Content-Type: text/html
 2. **ss -lntp** lista los puertos en escucha (80/443) y el PID de Nginx.
 3. **curl -I** verifica respuesta HTTP 200 del servidor.
 
-### 7.3 Logs
+### 8.3 Logs
 
 ```bash
 $ sudo tail -f /var/log/nginx/access.log  
@@ -584,11 +665,11 @@ El nivel de log se controla con `error_log /var/log/nginx/error.log warn;` (nive
 
 ---
 
-## 8. Hardening básico
+## 9. Hardening básico
 
-> **Nota**: Los certificados TLS/HTTPS se implementan en la **UNIDAD X**. Aquí NO configuramos cifrado; estas medidas reducen la superficie de ataque sobre HTTP.
+> **Nota**: Los certificados TLS/HTTPS se implementan en el **capítulo de Certificados SSL**. Aquí NO configuramos cifrado; estas medidas reducen la superficie de ataque sobre HTTP.
 
-### 8.1 Ocultar la versión y limitar métodos
+### 9.1 Ocultar la versión y limitar métodos
 
 ```bash
 $ sudo tee /etc/nginx/conf.d/hardening.conf >/dev/null <<'EOF'  
@@ -628,14 +709,14 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 - Dejar `server_tokens on` revela la versión exacta, facilitando la búsqueda de CVEs dirigidos.
 - Permitir métodos `PUT`/`DELETE`/`TRACE` abre vectores de manipulación de archivos y enumeración.
 - Exponer puertos de administración o backends directamente a internet (sin proxy) amplía la superficie de ataque.
-- Servir la unidad IX sin TLS (HTTP plano) expone credenciales y cookies en claro — se corrige en UNIDAD X.
+- Servir la unidad sin TLS (HTTP plano) expone credenciales y cookies en claro — se corrige en el capítulo de Certificados SSL.
 
 **Cómo prevenirlo:**
 3. Configura `server_tokens off;` en todas las instalaciones.
 4. Restringe métodos HTTP con una lista blanca (`GET|HEAD|POST`).
 5. Expón solo Nginx; mantén backends en `127.0.0.1`.
 6. Nunca publiques el bloque `server` sin primero validar con `nginx -t`.
-7. Programa la implementación de TLS (UNIDAD X) antes de cualquier entorno real.
+7. Programa la implementación de TLS (capítulo de Certificados SSL) antes de cualquier entorno real.
 :::
 
 ::: {.callout-tip}
@@ -646,7 +727,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 - `server_tokens off;` — oculta la versión.
 - Lista blanca de métodos HTTP.
 - `client_max_body_size` limitado para evitar uploads gigantes (ej. `client_max_body_size 10m;`).
-- Rate limiting básico con `limit_req_zone` (se profundiza en UNIDAD X).
+- Rate limiting básico con `limit_req_zone`.
 - Backends siempre en `localhost`; Nginx es la única cara pública.
 
 **Cuándo aplicar:** en cualquier entorno que no sea un laboratorio aislado.
@@ -654,10 +735,121 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 ---
 
-## 9. Resumen y Próximos Pasos
+## 10. Security headers y protección de archivos
+
+Los **security headers** son cabeceras que Nginx agrega a cada respuesta para endurecer el comportamiento del navegador: impiden el clickjacking, el MIME sniffing y el acceso a archivos internos del sitio. Se definen una sola vez en un snippet y se incluyen en cada `server` block.
+
+### 10.1 Headers esenciales
+
+```bash
+$ sudo tee /etc/nginx/snippets/security-headers.conf >/dev/null <<'EOF'  # <1>
+# Evita que el navegador "adivine" el tipo de contenido (MIME sniffing)
+add_header X-Content-Type-Options "nosniff" always;
+# Impide que otros sitios incrusten la página en un iframe (clickjacking)
+add_header X-Frame-Options "SAMEORIGIN" always;
+# Envía solo el origen en peticiones cruzadas (equilibrio privacidad/utilidad)
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+# Deshabilita geolocalización, micrófono y cámara si la página no los usa
+add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+EOF
+```
+
+1. **tee + heredoc** crea el snippet con los headers de seguridad; se reutiliza en todos los `server` block con un solo `include`.
+
+El snippet se carga dentro del `server` block de cada sitio:
+
+```nginx
+server {
+    listen 80;
+    server_name mi-sitio.local;
+
+    root /var/www/mi-sitio;
+    index index.html;
+
+    # Headers de seguridad en cada respuesta de este sitio
+    include /etc/nginx/snippets/security-headers.conf;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+```
+
+```bash
+$ sudo nginx -t && sudo systemctl reload nginx  # <1>
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+
+$ curl -I -H 'Host: mi-sitio.local' http://127.0.0.1  # <2>
+HTTP/1.1 200 OK
+Server: nginx
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+```
+
+1. **nginx -t && reload** aplica el `include` en el server block.
+2. **curl -I** muestra las cabeceras de respuesta: si los cuatro headers aparecen, el snippet se está aplicando.
+
+::: {.callout-note}
+## HSTS espera al TLS
+
+`Strict-Transport-Security` solo tiene efecto sobre HTTPS; en HTTP plano el navegador lo ignora. Se configura en el bloque `443` de los certificados (capítulo de Certificados SSL), junto con la redirección HTTP → HTTPS.
+:::
+
+### 10.2 Content Security Policy (CSP)
+
+```bash
+$ sudo tee /etc/nginx/snippets/csp.conf >/dev/null <<'EOF'  # <1>
+# CSP de ejemplo: el contenido debe venir del propio dominio
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;" always;
+EOF
+```
+
+1. **tee + heredoc** crea un snippet de CSP que restringe scripts, estilos e imágenes al propio dominio.
+
+- **`default-src 'self'`**: todo el recurso debe cargarse desde el mismo dominio.
+- **`'unsafe-inline'`**: permite scripts y estilos en línea; cómodo en desarrollo, pero debilita la CSP en producción — elimínalo cuando el código viva en tus propios archivos.
+
+### 10.3 Protección de archivos ocultos y sensibles
+
+Añade estos `location` dentro del `server` block para que rutas como `.git/`, `.env` o `.htaccess` nunca se entreguen:
+
+```nginx
+# Bloquear archivos ocultos (.git, .env, .htaccess)
+location ~ /\. {
+    deny all;
+    access_log off;
+    log_not_found off;
+}
+
+# Bloquear archivos de configuración y metadatos
+location ~* \.(htaccess|htpasswd|git|env|ini|yml)$ {
+    deny all;
+}
+```
+
+- **`deny all`**: devuelve `403 Forbidden` para cualquier ruta que empiece por `.` o termine en una extensión peligrosa.
+- **`access_log off` / `log_not_found off`**: evita llenar los logs con los escaneos automáticos de bots.
+
+```bash
+$ curl -I -H 'Host: mi-sitio.local' http://127.0.0.1/.env  # <1>
+HTTP/1.1 403 Forbidden
+Server: nginx
+
+```
+
+1. **curl -I** confirma que un archivo sensible devuelve `403` en lugar de entregar su contenido.
+
+---
+
+## 11. Resumen y Próximos Pasos
 
 ::: {.callout-tip}
-## ✅ Lo esencial de la UNIDAD IX
+## ✅ Lo esencial de Nginx
 
 8. **Nginx** es servidor web, reverse proxy y load balancer de alto rendimiento (arquitectura event-loop).
 9. **Instalación**: `apt install nginx` en WSL2 Ubuntu 24.04, o imagen oficial `nginx:stable` en Docker.
@@ -665,10 +857,10 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 11. **Estáticos y virtual hosts**: `root`, `index`, `server_name` y `try_files`.
 12. **Reverse proxy**: `proxy_pass` + headers `X-Real-IP`/`X-Forwarded-*`; WebSockets con `Upgrade`/`Connection`.
 13. **Gestión**: siempre `nginx -t` antes de `reload`; revisa `/var/log/nginx/`.
-14. **Hardening**: `server_tokens off`, métodos restringidos — el TLS llega en UNIDAD X.
+14. **Hardening**: `server_tokens off`, métodos restringidos — el TLS llega en el capítulo de Certificados SSL.
 :::
 
-### 📋 Checklist de competencias Unidad IX
+### 📋 Checklist de competencias — Nginx
 
 - [ ] Instalar Nginx vía `apt` y vía Docker, verificando con `nginx -v`.
 - [ ] Explicar el rol de `nginx.conf`, `sites-available/`, `sites-enabled/` y `conf.d/`.
@@ -676,12 +868,15 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 - [ ] Configurar múltiples `server_name` (virtual hosts).
 - [ ] Implementar un reverse proxy con los headers correctos.
 - [ ] Habilitar WebSockets en el proxy (`Upgrade`/`Connection`).
+- [ ] Balancear carga entre varios backends con un bloque `upstream` (round-robin, `least_conn`, `ip_hash`).
 - [ ] Validar con `nginx -t` y recargar sin caída.
 - [ ] Aplicar hardening básico (`server_tokens off`, métodos restringidos).
+- [ ] Aplicar security headers desde un snippet y verificarlos con `curl -I`.
+- [ ] Bloquear archivos ocultos y sensibles (`.git`, `.env`) con `deny all`.
 
 ---
 
-## 10. Recursos y Referencias
+## 12. Recursos y Referencias
 
 - **Nginx Official Docs**: <https://nginx.org/en/docs/>
 - **Beginner's Guide (Nginx)**: <https://nginx.org/en/docs/beginners_guide.html>
@@ -693,7 +888,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 ---
 
-## 11. Quiz Interactivo (quizdown)
+## 13. Quiz Interactivo (quizdown)
 
 ```{quizdown}
 ---

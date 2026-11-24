@@ -9,12 +9,12 @@ const root = resolve(import.meta.dirname, '..');
 const pythonEnv = { ...process.env, PYTHONDONTWRITEBYTECODE: '1' };
 
 function quizExpectations(text) {
-  const blocks = [...text.matchAll(/```\{quizdown\}\n([\s\S]*?)```|::: quizdown\n([\s\S]*?):::/g)];
-  return blocks.flatMap(([, fenced, div]) => {
-    const parts = (fenced || div).split(/^##\s+(.+)$/m);
+  const blocks = [...text.matchAll(/```\{quizdown\}\n([\s\S]*?)```|````quizdown\n([\s\S]*?)````|::: quizdown\n([\s\S]*?):::/g)];
+  return blocks.flatMap(([, fenced, official, div]) => {
+    const parts = (fenced || official || div).split(/^##\s+(.+)$/m);
     const questions = [];
     for (let index = 1; index < parts.length; index += 2) {
-      const options = [...parts[index + 1].matchAll(/^\s*-?\s*\[([ xX]?)\]\s*(.+)$/gm)];
+      const options = [...parts[index + 1].matchAll(/^\s*(?:\d+\.\s*)?-?\s*\[([ xX]?)\]\s*(.+)$/gm)];
       if (options.length) questions.push({ count: options.length, answer: options.findIndex(([, mark]) => mark.toLowerCase() === 'x') });
     }
     return questions;

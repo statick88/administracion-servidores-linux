@@ -19,9 +19,13 @@ Al finalizar esta unidad, serás capaz de:
 
 - Diagnosticar conectividad: interfaces, IP, rutas, DNS, puertos con `ip`, `ss`, `resolvectl`.
 - Configurar red persistente con **Netplan** (Ubuntu) y entender `systemd-networkd`/`NetworkManager`.
+- Operar conexiones de red con **`nmcli`** (NetworkManager): `device status`, `connection show`, `connection add/mod/up/down`.
+- Exigir redundancia con **RAID por software** (mdadm): niveles 0/1/5/6, creación, montaje y verificación de estado.
 - Gestionar almacenamiento con **LVM**: PV, VG, LV, snapshots, resize online.
 - Montar sistemas de archivos de forma persistente y segura en `/etc/fstab` (UUID, opciones, `nofail`, `x-systemd.automount`).
+- Limitar el consumo por usuario y grupo con **quotas** (`usrquota`/`grpquota`) sobre filesystems montados.
 - Aplicar hardening de red: `ufw`, `nftables` básico, `ss`/`lsof` para auditoría de puertos.
+- Segmentar el tráfico con **`firewall-cmd`** (firewalld): zonas, servicios permanentes y rich rules, y elegir entre firewalld, `ufw` y `nftables`.
 
 ---
 
@@ -127,6 +131,8 @@ drill api.ejemplo.com
 
 ## 2. Configuración de Red Persistente — Netplan (Ubuntu 24.04)
 
+Netplan es la forma **declarativa** de configurar la red en Ubuntu: defines el resultado en YAML y el sistema lo aplica con `networkd` o NetworkManager. Para cambios operativos sobre perfiles de NetworkManager, sin editar YAML, se usa `nmcli` (sección siguiente).
+
 ### 2.1 Estructura y archivos
 
 ```bash
@@ -227,9 +233,166 @@ sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 ---
 
-## 3. Almacenamiento — LVM (Logical Volume Manager)
+## 3. nmcli — Gestión operativa de conexiones con NetworkManager
 
-### 3.1 Conceptos: PV → VG → LV
+`nmcli` es la línea de comandos de NetworkManager: inspecciona el estado de la red, crea y modifica perfiles de conexión y sube/baja interfaces sin editar archivos. Es la contraparte **operativa** de Netplan: Netplan declara la configuración persistente en YAML (sección anterior) y `nmcli` aplica cambios puntuales, scriptables y reversibles sobre los perfiles guardados.
+
+::: {.callout-note}
+## 📝 ¿Funciona `nmcli` en este servidor?
+
+`nmcli` solo opera si NetworkManager está corriendo. Ubuntu Server 24.04 usa `systemd-networkd` como renderer por defecto y no incluye NetworkManager; Ubuntu Desktop usa NetworkManager. Verifica antes de continuar:
+
+```bash
+systemctl is-active NetworkManager   # <1>
+nmcli general status                 # <2>
+```
+
+1. **systemctl is-active NetworkManager** responde `active` si NetworkManager está en ejecución; `inactive` indica que no está instalado o no está habilitado.
+2. **nmcli general status** muestra el estado global de NetworkManager (STATE, CONNECTIVITY). Si el servicio no corre, el comando falla con `Error: NetworkManager is not running`.
+:::
+
+### 3.1 Estado: general, dispositivos y conexiones
+
+```bash
+nmcli general status                      # <1>
+nmcli device status                       # <2>
+nmcli connection show                     # <3>
+nmcli connection show --active            # <4>
+nmcli -f GENERAL.STATE device show eth0   # <5>
+```
+
+1. **nmcli general status** muestra el estado general de NetworkManager: conectividad efectiva y estado de los interruptores de hardware (Wi-Fi, WWAN).
+2. **nmcli device status** lista cada interfaz con su tipo, estado (connected, disconnected, unavailable) y la conexión que la gobierna. Primera parada del diagnóstico con `nmcli`.
+3. **nmcli connection show** lista todos los **perfiles guardados** (nombre, UUID, tipo, dispositivo), activos o no. Los perfiles son lo que sobrevive a un reinicio.
+4. **nmcli connection show --active** filtra solo las conexiones activas en este momento. Responde qué perfil está sirviendo a cada interfaz.
+5. **nmcli -f GENERAL.STATE device show eth0** muestra el estado de una interfaz concreta. `-f` selecciona campos: usa `IP4.ADDRESS` o `GENERAL.CONNECTION` para ver la IP o el perfil activo.
+
+### 3.2 Crear, modificar, activar y borrar conexiones
+
+```bash
+sudo nmcli connection add type ethernet con-name oficina-static ifname eth0 \
+    ipv4.method manual ipv4.addresses 10.0.1.50/24 \
+    ipv4.gateway 10.0.1.1 ipv4.dns "1.1.1.1 8.8.8.8"          # <1>
+
+sudo nmcli connection mod oficina-static ipv4.dns "1.1.1.1"    # <2>
+sudo nmcli connection mod oficina-static +ipv4.dns "8.8.8.8"   # <3>
+
+sudo nmcli connection up oficina-static                        # <4>
+sudo nmcli connection down oficina-static                      # <5>
+sudo nmcli connection delete oficina-static                    # <6>
+```
+
+1. **nmcli connection add** crea el perfil `oficina-static` para `eth0` con IP estática, gateway y DNS, y lo deja activo si el dispositivo está disponible. `type ethernet` define el tipo de conexión.
+2. **nmcli connection mod ... ipv4.dns** **reemplaza** la lista DNS del perfil por la indicada. `mod` modifica un perfil guardado sin crear otro nuevo.
+3. **`+ipv4.dns`** agrega un servidor a la lista existente en lugar de reemplazarla: el prefijo `+` suma, sin él se sobreescribe.
+4. **nmcli connection up** activa el perfil: aplica IP, gateway y DNS y levanta la conexión en el dispositivo.
+5. **nmcli connection down** desactiva la conexión (la interfaz queda sin la configuración del perfil) pero **no borra** el perfil guardado.
+6. **nmcli connection delete** elimina el perfil de forma permanente.
+
+### 3.3 Flujos de trabajo habituales
+
+| Flujo | Secuencia de comandos |
+|-------|----------------------|
+| **Diagnóstico rápido** | `nmcli device status` → `nmcli connection show --active` |
+| **Pasar de DHCP a IP estática** | `nmcli connection mod <con> ipv4.method manual ipv4.addresses <ip/m> ipv4.gateway <gw>` → `nmcli connection up <con>` |
+| **Cambiar los DNS** | `nmcli connection mod <con> ipv4.dns "1.1.1.1 8.8.8.8"` → `nmcli connection up <con>` |
+| **Ignorar el DNS del DHCP** | `nmcli connection mod <con> ipv4.ignore-auto-dns yes` → `nmcli connection up <con>` |
+| **Renovar lease DHCP** | `nmcli connection up <con>` (re-activa el perfil y renueva la concesión) |
+| **Desconectar / reconectar** | `nmcli connection down <con>` / `nmcli connection up <con>` |
+| **Verificar el cambio** | `nmcli -f GENERAL.STATE device show eth0` → `ip -br addr` → `ip route` |
+
+::: {.callout-warning}
+## ⚠️ Cambios de red sobre una sesión SSH
+
+**Un `mod` de IP o gateway mal aplicado puede cortar tu acceso remoto.**
+
+**Cómo prevenirlo:**
+
+1. Anota los valores actuales (`nmcli connection show <con>`) antes de modificar, para poder revertir con el mismo `mod`.
+2. Aplica el cambio y valida en el momento: `ip -br addr`, `ip route`, `ping <gateway>`.
+3. Si puedes, trabaja con consola directa (hipervisor o consola del proveedor) durante el cambio.
+:::
+
+### 3.4 Netplan declarativo vs nmcli operativo
+
+| Aspecto | Netplan | nmcli |
+|---------|---------|-------|
+| **Modelo** | Declarativo: describes el resultado en YAML | Imperativo: ejecutas comandos |
+| **Alcance** | Todo el stack de red (`networkd` o NetworkManager) | Solo perfiles de NetworkManager |
+| **Persistencia** | Archivos en `/etc/netplan/` (auditables y versionables) | Perfiles en `/etc/NetworkManager/system-connections/` |
+| **Aplicar** | `sudo netplan try` / `sudo netplan apply` | `sudo nmcli connection up <con>` |
+| **Ideal para** | Configuración base del servidor: IP estática, VLAN, bond, bridge | Cambios operativos: renovar DHCP, cambiar DNS, probar una IP, scripts |
+| **Riesgo típico** | YAML mal escrito (se mitiga con `netplan try`) | Cambio puntual que otro gestor puede sobreescribir |
+
+::: {.callout-note}
+## 📝 ¿Cuándo usar cada uno?
+
+- **Configuración que debe sobrevivir a reinicios y ser auditable** → Netplan (fuente de verdad en YAML).
+- **Cambio puntual, reversible o scripteado** en un sistema con NetworkManager → `nmcli`.
+- **Ubuntu Server con renderer `networkd`** (por defecto): los cambios temporales van con los comandos `ip` de la sección de diagnóstico; para usar `nmcli` instala `network-manager` y declara `renderer: NetworkManager` en Netplan para esa interfaz. Nunca dos gestores sobre la misma interfaz.
+:::
+
+---
+
+## 4. RAID con mdadm — redundancia por software
+
+**RAID** agrupa discos lógicamente para ganar redundancia, rendimiento o ambos. En servidores sin controladora dedicada, el RAID por software con `mdadm` es el estándar de Linux.
+
+| Nivel | Objetivo | Ventaja | Contrapartida |
+|-------|----------|---------|---------------|
+| RAID 0 | Rendimiento | Escritura rápida (striping) | **Sin redundancia**: un disco muerto = todo perdido |
+| RAID 1 | Redundancia | Simple; tolera 1 disco (espejo) | Capacidad útil al 50 % |
+| RAID 5 | Balance | Tolera 1 disco con paridad | Rebuild costoso en discos grandes |
+| RAID 6 | Máxima tolerancia | Tolera 2 discos | Mayor overhead de paridad |
+
+::: {.callout-warning}
+## RAID NO es backup
+
+El arreglo protege contra **fallo de disco**, no contra borrado accidental, ransomware ni corrupción lógica: eso se **replica**. Mantén backups fuera del arreglo (otra máquina/nube) y **prueba las restauraciones**, no solo las crees.
+:::
+
+### Demo: RAID 1 con mdadm (discos loop)
+
+Práctica sin hardware dedicado: dos "discos" de 200 MB sobre archivos loop.
+
+```bash
+sudo apt update
+sudo apt install -y mdadm
+
+# Dos discos de laboratorio
+sudo fallocate -l 200M /tmp/raid-a.img
+sudo fallocate -l 200M /tmp/raid-b.img
+sudo losetup -fP /tmp/raid-a.img
+sudo losetup -fP /tmp/raid-b.img
+losetup -a | grep raid          # verificar los /dev/loop asignados
+
+# Crear el arreglo RAID 1 (espejo) con los dispositivos loop detectados
+LOOP_A=$(losetup -j /tmp/raid-a.img | cut -d: -f1)
+LOOP_B=$(losetup -j /tmp/raid-b.img | cut -d: -f1)
+sudo mdadm --create /dev/md0 --level=1 --raid-devices=2 "$LOOP_A" "$LOOP_B"
+
+# Estado del arreglo: [UU] = ambos discos OK
+cat /proc/mdstat
+# md0 : active raid1 loop4[1] loop3[0]
+#       204800 blocks super 1.2 [2/2] [UU]
+
+# Montar y usar
+sudo mkdir -p /mnt/raid1
+sudo mount /dev/md0 /mnt/raid1
+```
+
+**Operación en producción:**
+
+- `cat /proc/mdstat` y `mdadm --detail /dev/md0` — estado y sincronización del arreglo.
+- Si un disco falla, el arreglo queda **degradado** (`[U_]`): se reemplaza el disco y se reconstruye con `mdadm --manage /dev/md0 --add /dev/nuevo`.
+- Persiste la configuración con `mdadm --detail --scan >> /etc/mdadm/mdadm.conf` para que el arreglo se reconstruya al arrancar.
+- En `/etc/fstab` usa el **UUID del arreglo** (`/dev/disk/by-id/md-uuid-...`), no `/dev/md0`, porque la numeración `mdN` puede cambiar.
+
+---
+
+## 5. Almacenamiento — LVM (Logical Volume Manager)
+
+### 4.1 Conceptos: PV → VG → LV
 
 ```
 Disco físico (/dev/sdb, /dev/nvme1n1)
@@ -245,7 +408,7 @@ Volume Group (VG) ── vgcreate vg_data /dev/sdb
     └───▶ LV ── lvcreate -n lv_db -L 200G vg_data
 ```
 
-### 3.2 Operaciones diarias
+### 4.2 Operaciones diarias
 
 ```bash
 sudo pvcreate /dev/nvme1n1          
@@ -276,7 +439,7 @@ sudo mount /dev/vg_data/lv_app /srv/app
 10. **mkdir -p** crea el directorio de montaje (y padres si no existen). `-p` evita error si el directorio ya existe.
 11. **mount** monta el LV en el directorio. El LV ahora es accesible como `/srv/app` con el espacio asignado.
 
-### 3.3 Redimensionar (Online — ext4/XFS)
+### 4.3 Redimensionar (Online — ext4/XFS)
 
 ```bash
 sudo lvextend -L +50G /dev/vg_data/lv_app   
@@ -299,7 +462,7 @@ sudo mount /dev/vg_data/lv_app /srv/app
 7. **lvreduce -L 80G** reduce el LV a 80GB. Solo después de que el FS fue reducido. Si el LV se reduce primero, se pierden datos.
 8. **mount** remonta el LV reducido. El espacio ahora es 80GB y el FS está intacto.
 
-### 3.4 Snapshots (Backup consistente)
+### 4.4 Snapshots (Backup consistente)
 
 ```bash
 sudo lvcreate -L 10G -s -n lv_app_snap_$(date +%F) /dev/vg_data/lv_app  
@@ -318,7 +481,7 @@ sudo lvremove vg_data/lv_app_snap_2026-07-20
 4. **umount** desmonta el snapshot después de usarlo. No olvidar desmontar antes de eliminar.
 5. **lvremove** elimina el snapshot. Liberar el espacio COW reservado. El snapshot consume espacio del VG mientras existe.
 
-### 3.5 Thin Provisioning (Over-provisioning controlado)
+### 4.5 Thin Provisioning (Over-provisioning controlado)
 
 ```bash
 sudo lvcreate -L 1T -T vg_data/thinpool        
@@ -332,9 +495,9 @@ sudo lvs -o +data_percent,vg_data/thinpool
 
 ---
 
-## 4. Montaje Persistente — `/etc/fstab` Seguro
+## 6. Montaje Persistente — `/etc/fstab` Seguro
 
-### 4.1 Estructura y opciones recomendadas
+### 5.1 Estructura y opciones recomendadas
 
 ```fstab
 # <device>              <mount>   <type>  <options>                           <dump> <pass>
@@ -355,7 +518,7 @@ tmpfs                   /tmp      tmpfs   defaults,noatime,nosuid,nodev,size=2G 
 tmpfs                   /run/user/1000 tmpfs defaults,noatime,nosuid,nodev,uid=1000,gid=1000 0 0
 ```
 
-### 4.2 Opciones clave explicadas
+### 5.2 Opciones clave explicadas
 
 | Opción | Uso | Recomendación del curso |
 |--------|-----|---------------------|
@@ -368,7 +531,7 @@ tmpfs                   /run/user/1000 tmpfs defaults,noatime,nosuid,nodev,uid=1
 | `_netdev` | Red necesaria (systemd espera network-online) | NFS, iSCSI, CIFS |
 | `discard` / `fstrim` | TRIM SSD (mejor: timer fstrim) | `systemctl enable fstrim.timer` |
 
-### 4.3 Validar y probar
+### 5.3 Validar y probar
 
 ```bash
 sudo findmnt --verify --verbose     
@@ -388,9 +551,36 @@ sudo systemctl restart local-fs.target
 
 ---
 
-## 5. Hardening de Red Básico
+## 7. Quotas — límite de espacio por usuario y grupo
 
-### 5.1 `ufw` (Uncomplicated Firewall) — Frontend iptables/nftables
+Las **quotas** limitan cuánto puede consumir un usuario o grupo en un filesystem. En servidores multiusuario evitan que un solo usuario llene el disco y deje caído servicios compartidos (correo, bases de datos, logs).
+
+```bash
+# Instalar herramientas (ejemplo ext4)
+sudo apt update && sudo apt install -y quota
+
+# Habilitar cuotas: añadir usrquota,grpquota a las opciones del filesystem en /etc/fstab
+# <UUID>  /  ext4  defaults,usrquota,grpquota  0  1
+sudo mount -o remount /
+
+# Inicializar índices, activar y definir límites
+sudo quotacheck -cum /
+sudo quotaon /
+sudo edquota -u usuario    # límites blando (soft) y duro (hard) por bloque/inodo
+sudo repquota /            # reporte de consumo actual
+```
+
+::: {.callout-note}
+## Buena práctica
+
+Define el límite blando por debajo del duro (deja margen de aviso), documenta los valores por equipo y revisa `repquota` en la operación periódica. Combinalo con rotación de logs para que ningún servicio se quede sin espacio.
+:::
+
+---
+
+## 8. Hardening de Red Básico
+
+### 6.1 `ufw` (Uncomplicated Firewall) — Frontend iptables/nftables
 
 ```bash
 sudo apt install -y ufw             
@@ -422,7 +612,7 @@ sudo ufw delete 3
 10. **ufw status numbered** muestra las reglas con números de índice. Los números permiten eliminar reglas específicas con `ufw delete`.
 11. **ufw delete 3** elimina la regla número 3. Verificar con `status numbered` antes de borrar para no eliminar la regla equivocada.
 
-### 5.2 `nftables` — Bajo nivel (si necesitas control total)
+### 6.2 `nftables` — Bajo nivel (si necesitas control total)
 
 ```bash
 # /etc/nftables.conf
@@ -456,7 +646,7 @@ sudo systemctl enable --now nftables
 1. **nft -c** verifica la sintaxis del archivo de configuración sin aplicar. `-c` check mode: parsea y reporta errores sin modificar las reglas activas.
 2. **systemctl enable --now nftables** habilita e inicia el servicio nftables. Carga las reglas al arrancar y las aplica inmediatamente.
 
-### 5.3 Auditoría de puertos y servicios
+### 6.3 Auditoría de puertos y servicios
 
 ```bash
 sudo ss -lntp | head -20           
@@ -474,7 +664,98 @@ sudo lsof -i -P -n | grep LISTEN
 
 ---
 
-## 6. Laboratorio Práctico: Red y Almacenamiento
+## 9. firewall-cmd (firewalld) — Zonas y reglas permanentes
+
+`firewalld` es el firewall por defecto de RHEL, Fedora y CentOS: organiza el tráfico en **zonas** (public, internal, dmz, work...) y abre **servicios** predefinidos (http, ssh, mariadb...) o **rich rules** para reglas finas por IP, puerto y protocolo. Por debajo escribe las reglas en `nftables` (o `iptables`), así que no compite con nftables: lo gestiona por ti.
+
+::: {.callout-note}
+## 📝 Ubuntu 24.04: ufw es el predeterminado
+
+En Ubuntu 24.04 **el firewall host por defecto es `ufw`** (cubierto en la sección de Hardening y en el capítulo de seguridad). `firewalld` **no viene instalado**: está en los repositorios y se agrega con `sudo apt install firewalld`. Elige **uno solo**: `ufw` y `firewalld` activos a la vez producen reglas impredecibles; si activas firewalld, desactiva antes ufw con `sudo ufw disable`.
+:::
+
+### 7.1 Instalación, estado y zonas
+
+```bash
+sudo apt install -y firewalld                 # <1>
+sudo systemctl enable --now firewalld         # <2>
+
+sudo firewall-cmd --state                     # <3>
+sudo firewall-cmd --get-active-zones          # <4>
+sudo firewall-cmd --get-zones                 # <5>
+sudo firewall-cmd --zone=public --list-all    # <6>
+```
+
+1. **apt install firewalld** instala el demonio y la utilidad `firewall-cmd` desde los repositorios de Ubuntu.
+2. **systemctl enable --now** habilita firewalld para el arranque y lo inicia de inmediato.
+3. **firewall-cmd --state** confirma que el demonio responde (salida `running`).
+4. **--get-active-zones** muestra las zonas en uso y qué interfaces administran. En un servidor, la interfaz sin confianza suele asignarse a la zona `public`.
+5. **--get-zones** lista las zonas disponibles: public, block, dmz, drop, external, home, internal, work...
+6. **--zone=public --list-all** detalla una zona: servicios y puertos permitidos, rich rules, forwarding y política de reenvío.
+
+### 7.2 Servicios y puertos permanentes
+
+```bash
+sudo firewall-cmd --permanent --zone=public --add-service=http     # <1>
+sudo firewall-cmd --permanent --add-service=https                  # <2>
+sudo firewall-cmd --permanent --add-port=8080/tcp                  # <3>
+sudo firewall-cmd --reload                                         # <4>
+
+sudo firewall-cmd --zone=public --list-services                    # <5>
+sudo firewall-cmd --permanent --zone=public --remove-service=http  # <6>
+sudo firewall-cmd --reload                                         # <7>
+```
+
+1. **--permanent --add-service=http** agrega el servicio `http` (definido en `/usr/lib/firewalld/services/`) a la zona de forma **permanente**. Sin `--permanent` el cambio solo vive en la configuración runtime y se pierde al reiniciar.
+2. **--add-service=https** hace lo mismo para HTTPS; si se omite `--zone`, se usa la zona por defecto.
+3. **--add-port=8080/tcp** abre un puerto concreto cuando no existe un servicio predefinido. Formato `<puerto>/<protocolo>`.
+4. **--reload** aplica la configuración **permanente** sobre la runtime: los cambios con `--permanent` no surten efecto hasta recargar.
+5. **--list-services** muestra los servicios permitidos en la zona runtime: verificación de que http y https quedaron abiertos.
+6. **--remove-service=http** retira el servicio de la zona permanente (mismo patrón para servicios y puertos).
+7. **--reload** vuelve a sincronizar runtime con permanente, esta vez aplicando la eliminación.
+
+### 7.3 Rich rules — reglas finas
+
+```bash
+sudo firewall-cmd --permanent --zone=public \
+    --add-rich-rule='rule family="ipv4" source address="10.0.0.0/8" port port="5432" protocol="tcp" accept'   # <1>
+
+sudo firewall-cmd --permanent --zone=public \
+    --add-rich-rule='rule family="ipv4" source address="10.0.1.0/24" service name="ssh" accept'               # <2>
+
+sudo firewall-cmd --reload                       # <3>
+sudo firewall-cmd --zone=public --list-rich-rules # <4>
+```
+
+1. **--add-rich-rule (puerto por origen)** permite PostgreSQL (5432/tcp) solo desde `10.0.0.0/8`: la misma segmentación que se logró con `ufw allow from...port 5432`.
+2. **--add-rich-rule (servicio por origen)** restringe SSH a la red de gestión `10.0.1.0/24`. Las rich rules aceptan `family`, `source`, `service`/`port`, `protocol` y la acción (`accept`, `drop`, `reject`).
+3. **--reload** aplica las rich rules permanentes a la configuración activa.
+4. **--list-rich-rules** lista las rich rules vigentes en la zona: verificación final.
+
+### 7.4 Comparativa: firewalld vs ufw vs nftables
+
+| Aspecto | `ufw` | `firewalld` (`firewall-cmd`) | `nftables` |
+|---------|-------|------------------------------|------------|
+| **Por defecto en** | Ubuntu y Debian | RHEL, Fedora, CentOS | Ninguna distro (herramienta de bajo nivel) |
+| **Modelo** | Reglas simples allow/deny | Zonas + servicios + rich rules | Tablas, cadenas, prioridades y hooks |
+| **Sintaxis típica** | `ufw allow 80/tcp` | `firewall-cmd --add-service=http` | `nft -f /etc/nftables.conf` |
+| **Persistencia** | Automática al crear la regla | Requiere `--permanent` + `--reload` | Archivo de configuración + servicio `nftables` |
+| **Verificación** | `ufw status numbered` | `firewall-cmd --list-all` (por zona) | `nft list ruleset` |
+| **Curva de aprendizaje** | Baja | Media | Alta |
+| **Ideal para** | Servidor Ubuntu simple | Múltiples zonas/interfaces, entornos RHEL | NAT, reglas complejas, control total |
+
+::: {.callout-tip}
+## 💡 ¿Cuándo usar cada uno?
+
+- **Ubuntu 24.04 (este curso):** `ufw` — es el predeterminado y ya está cubierto en el laboratorio de la unidad y en el capítulo de seguridad.
+- **Entorno RHEL/Fedora o varias zonas por interfaz:** `firewalld`.
+- **Reglas complejas** (NAT, tráfico reenviado, cadenas propias): `nftables` directo.
+- **Regla de oro:** un solo firewall host activo por sistema; si cambias de herramienta, desactiva la anterior antes de activar la nueva.
+:::
+
+---
+
+## 10. Laboratorio Práctico: Red y Almacenamiento
 
 ::: {.callout-note}
 ## 🎯 Lab 06 — Red, LVM, fstab, Firewall (60-90 min)
@@ -520,7 +801,7 @@ sudo lsof -i -P -n | grep LISTEN
 
 ---
 
-## 7. Resumen y Próximos Pasos
+## 11. Resumen y Próximos Pasos
 
 ::: {.callout-tip}
 ## ✅ Lo esencial de la Unidad VI
@@ -530,6 +811,8 @@ sudo lsof -i -P -n | grep LISTEN
 12. **LVM**: PV → VG → LV. `lvextend + resize2fs/xfs_growfs` online. Snapshots COW para backup.
 13. **fstab**: UUID, `noatime`, `nosuid/noexec/nodev`, `x-systemd.automount`, `nofail` para discos opcionales.
 14. **Firewall**: `ufw` por defecto deny, reglas explícitas, `ufw status numbered`.
+15. **nmcli**: `nmcli device status` y `connection show/add/mod/up/down` para operar perfiles de NetworkManager.
+16. **firewalld**: zonas, `firewall-cmd --permanent --add-service` y rich rules; un solo firewall host activo por sistema.
 :::
 
 ### 📋 Checklist de competencias Unidad VI
@@ -539,11 +822,13 @@ sudo lsof -i -P -n | grep LISTEN
 - [ ] Crear/extender/reducir LVs, crear snapshots, usar thin provisioning.
 - [ ] Escribir `/etc/fstab` seguro y validado.
 - [ ] Configurar `ufw`/`nftables` con política deny-by-default.
+- [ ] Gestionar conexiones con `nmcli`: estado, `connection show/add/mod/up/down`, verificar con `ip -br addr`.
+- [ ] Aplicar reglas con `firewall-cmd` (zonas, servicios permanentes, rich rules) y elegir entre firewalld, ufw y nftables.
 - [ ] Auditar puertos expuestos y mapear a procesos.
 
 ---
 
-## 8. Recursos y Referencias
+## 12. Recursos y Referencias
 
 - **iproute2**: <https://man7.org/linux/man-pages/man8/ip.8.html>
 - **ss**: <https://man7.org/linux/man-pages/man8/ss.8.html>
@@ -552,10 +837,12 @@ sudo lsof -i -P -n | grep LISTEN
 - **systemd.mount/fstab**: <https://www.freedesktop.org/software/systemd/man/systemd.mount.html>
 - **ufw**: <https://manpages.ubuntu.com/manpages/noble/man8/ufw.8.html>
 - **nftables**: <https://wiki.nftables.org/>
+- **nmcli (NetworkManager)**: <https://manpages.ubuntu.com/manpages/noble/man1/nmcli.1.html>, <https://networkmanager.dev/docs/>
+- **firewalld / firewall-cmd**: <https://manpages.ubuntu.com/manpages/noble/man1/firewall-cmd.1.html>, <https://firewalld.org/>
 
 ---
 
-## 9. Quiz Interactivo (quizdown)
+## 13. Quiz Interactivo (quizdown)
 
 ```{quizdown}
 ---

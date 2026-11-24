@@ -1,0 +1,404 @@
+---
+title: "Laboratorio: Servidor DHCP"
+subtitle: "Unidad VIII — scope, reservas, opciones, leases y firewall en Ubuntu 24.04"
+author: "Diego Saavedra"
+date: "2026-11-15"
+date-format: medium
+---
+
+# Laboratorio: Servidor DHCP
+
+## Introducción
+
+En este laboratorio levantas un servidor DHCP completo y lo pruebas con un cliente real: instalas `isc-dhcp-server`, defines un scope con opciones y una reserva, verificas la concesión desde un cliente aislado con `dhclient` e `ip addr`, inspeccionas el lease file y aplicas la regla de firewall para UDP 67.
+
+Como en el capítulo de fundamentos, WSL2 vive detrás de una red NAT: para practicar usamos una **topología aislada** con un *network namespace* de cliente enlazado al servidor por un par veth. Así el broadcast de DHCP circula sin tocar la red real.
+
+## Objetivos del laboratorio
+
+1. Instalar `isc-dhcp-server` y `isc-dhcp-client` en Ubuntu 24.04.
+2. Crear una topología aislada (netns + veth) para el cliente de pruebas.
+3. Configurar un scope con opciones y una reserva por MAC.
+4. Obtener una concesión desde el cliente con `dhclient` y verificarla con `ip addr`.
+5. Inspeccionar las concesiones con `dhcp-lease-list` y el lease file.
+6. Aplicar y verificar la regla de firewall para DHCP en ufw.
+
+## Requisitos
+
+- Ubuntu 24.04 (físico, VM o WSL2) con acceso a `sudo`.
+- Paquetes `isc-dhcp-server` e `isc-dhcp-client` disponibles en los repositorios (`universe` habilitado).
+- Sin otro servidor DHCP activo en la misma interfaz de práctica.
+
+**Duración estimada:** 45 minutos.
+
+---
+
+## Paso 1: Instalar los paquetes
+
+```bash
+# Actualizar el índice de paquetes
+$ sudo apt update  # <1>
+
+# Instalar servidor y cliente DHCP
+$ sudo apt install -y isc-dhcp-server isc-dhcp-client  # <2>
+
+# Confirmar versiones
+$ dpkg -l | grep isc-dhcp  # <3>
+ii  isc-dhcp-client   4.4.3-P1-4ubuntu2   amd64   DHCP client for automatically obtaining an IP address
+ii  isc-dhcp-server  4.4.3-P1-4ubuntu2   amd64   ISC DHCP server for automatic IP address assignment
+```
+
+
+
+1. **apt update**: refresca la lista de paquetes antes de instalar.
+2. **isc-dhcp-server + isc-dhcp-client**: instala `dhcpd` (servidor) y `dhclient` (cliente con el que probaremos); en Ubuntu 24.04 corresponden a ISC DHCP 4.4.3-P1.
+3. **dpkg -l**: confirma que ambos paquetes quedaron instalados.
+
+:::{.callout-note}
+## 📝 NOTA
+
+El servicio `isc-dhcp-server` suele quedar `failed` tras la instalación: todavía no hay ningún scope declarado. Es el comportamiento esperado y lo resolvemos en el Paso 4.
+:::
+
+---
+
+## Paso 2: Crear la topología aislada (netns + veth)
+
+El cliente de pruebas vivirá en un *network namespace* propio, enlazado al host por un par veth: `veth-srv` en el host (lado servidor) y `eth0` dentro del netns (lado cliente).
+
+```bash
+# Crear el namespace del cliente
+$ sudo ip netns add lab-cli  # <1>
+
+# Crear el par veth: veth-srv en el host, eth0 dentro de lab-cli
+$ sudo ip link add veth-srv type veth peer name eth0 netns lab-cli  # <2>
+
+# Asignar IP al lado servidor y levantar la interfaz
+$ sudo ip addr add 192.168.100.1/24 dev veth-srv  # <3>
+$ sudo ip link set veth-srv up
+
+# Levantar el lado cliente (loopback y eth0 dentro del netns)
+$ sudo ip netns exec lab-cli ip link set lo up  # <4>
+$ sudo ip netns exec lab-cli ip link set eth0 up
+```
+
+
+
+1. **ip netns add**: crea el namespace `lab-cli`; sus interfaces y stack de red son independientes del host.
+2. **ip link add ... type veth**: crea el par de interfaces virtuales; `peer name eth0 netns lab-cli` coloca directamente el extremo opuesto dentro del netns.
+3. **ip addr add / link set up**: el host queda como `192.168.100.1` en el segmento de práctica; dhcpd escuchará en `veth-srv`.
+4. **netns exec ... up**: levanta `lo` y `eth0` del cliente; sin esto el cliente no puede emitir nada.
+
+Comprueba la topología:
+
+```bash
+# Ver el lado servidor en el host
+$ ip -4 addr show veth-srv  # <1>
+3: veth-srv: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 ...
+    inet 192.168.100.1/24 scope global veth-srv
+
+# Ver el lado cliente dentro del netns
+$ sudo ip netns exec lab-cli ip -br addr  # <2>
+lo               UNKNOWN        127.0.0.1/8
+eth0             DOWN           (sin IP: la obtendrá por DHCP)
+```
+
+
+
+1. **ip addr show veth-srv**: confirma que el lado servidor tiene `192.168.100.1/24` y está `UP`.
+2. **ip -br addr en el netns**: `eth0` aparece sin dirección — justo el punto de partida de un cliente DHCP.
+
+---
+
+## Paso 3: Configurar scope, opciones y reserva
+
+Primero obtén la MAC del cliente: la necesitas para la reserva.
+
+```bash
+# Respaldo de la configuración original (para la limpieza al final)
+$ sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.orig  # <1>
+
+# Leer la MAC de eth0 dentro del netns
+$ CLIENT_MAC=$(sudo ip netns exec lab-cli cat /sys/class/net/eth0/address) && echo "$CLIENT_MAC"  # <2>
+02:00:00:00:00:01
+
+# Escribir dhcpd.conf: scope + opciones + reserva para esa MAC
+$ sudo tee /etc/dhcp/dhcpd.conf >/dev/null <<EOF  # <3>
+authoritative;
+
+default-lease-time 600;
+max-lease-time 3600;
+
+option domain-name "lab.curso.local";
+option domain-name-servers 192.168.100.1, 8.8.8.8;
+
+subnet 192.168.100.0 netmask 255.255.255.0 {
+    range 192.168.100.100 192.168.100.199;
+    option routers 192.168.100.1;
+    option broadcast-address 192.168.100.255;
+    option domain-name-servers 192.168.100.1;
+}
+
+host laptop-lab {
+    hardware ethernet $CLIENT_MAC;
+    fixed-address 192.168.100.50;
+    option host-name "laptop-lab";
+}
+EOF
+```
+
+
+
+1. **cp**: guarda el `dhcpd.conf` de ejemplo en `dhcpd.conf.orig` para restaurarlo en la limpieza.
+2. **CLIENT_MAC=...**: captura la MAC del cliente dentro del netns; cada netns creado genera una MAC nueva, por eso se lee en el momento.
+3. **tee <<EOF**: escribe el `dhcpd.conf` completo; el scope reparte `.100-.199`, las opciones del scope entregan router/DNS/dominio, y la reserva `host laptop-lab` promete la `192.168.100.50` (fuera del rango dinámico, como recomienda el capítulo de reservaciones). El `$CLIENT_MAC` se expande al escribir el archivo.
+
+| Parte del archivo | Función |
+|-------------------|---------|
+| `authoritative;` | El servidor responde `DHCPNAK` a clientes con direcciones ajenas a la red |
+| `default-lease-time 600` | Concesión de 10 minutos: fácil de observar renovaciones |
+| `subnet ... { range ... }` | Scope: red `192.168.100.0/24` con rango `.100-.199` |
+| `option routers / domain-name-servers` | Opciones entregadas a los clientes del scope |
+| `host laptop-lab` | Reserva: MAC → `192.168.100.50` fija |
+
+---
+
+## Paso 4: Elegir interfaz, validar y arrancar
+
+```bash
+# Declarar veth-srv como interfaz de escucha del servidor
+$ sudo tee /etc/default/isc-dhcp-server >/dev/null <<'EOF'  # <1>
+INTERFACESv4="veth-srv"
+INTERFACESv6=""
+EOF
+
+# Validar la sintaxis sin tocar la red
+$ sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf  # <2>
+
+# Arrancar el servicio (dhcpd no recarga: siempre restart)
+$ sudo systemctl restart isc-dhcp-server  # <3>
+
+# Confirmar que quedó activo
+$ sudo systemctl status isc-dhcp-server --no-pager  # <4>
+● isc-dhcp-server.service - ISC DHCP IPv4 server
+     Loaded: loaded (/usr/lib/systemd/system/isc-dhcp-server.service; enabled)
+     Active: active (running) since Sun 2026-11-15 10:12:41 -05; 3s ago
+   Main PID: 2461 (dhcpd)
+```
+
+
+
+1. **INTERFACESv4**: dhcpd solo atenderá `veth-srv`; si queda vacío o apunta a otra interfaz, el servidor no verá el broadcast del cliente.
+2. **dhcpd -t**: valida la configuración; sin errores sale en silencio con código 0.
+3. **systemctl restart**: obligatorio tras cada cambio de `dhcpd.conf`.
+4. **systemctl status**: `active (running)` confirma que aceptó la configuración y arrancó.
+
+Verifica que escucha en la interfaz correcta:
+
+```bash
+# Socket UDP 67 y proceso dhcpd
+$ sudo ss -ulnp | grep dhcpd  # <1>
+UNCONN 0 0 0.0.0.0:67 0.0.0.0:* users:(("dhcpd",pid=2461,fd=7))
+
+# Interfaz atendida según el journal
+$ sudo journalctl -u isc-dhcp-server -n 3 --no-pager  # <2>
+Nov 15 10:12:41 ubuntu dhcpd: Config file: /etc/dhcp/dhcpd.conf
+Nov 15 10:12:41 ubuntu dhcpd: Database file: /var/lib/dhcp/dhcpd.leases
+Nov 15 10:12:41 ubuntu dhcpd: Listening on LPF/veth-srv/00:00:00:00:00:00
+```
+
+
+
+1. **ss -ulnp**: el socket `0.0.0.0:67` confirma que dhcpd escucha en el puerto DHCP.
+2. **journalctl**: `Listening on LPF/veth-srv/...` prueba que atiende la interfaz del laboratorio (si dijera otra interfaz, revisa `INTERFACESv4`).
+
+---
+
+## Paso 5: Obtener la concesión desde el cliente
+
+```bash
+# Pedir dirección con dhclient dentro del netns (muestra el intercambio DORA)
+$ sudo ip netns exec lab-cli dhclient -v eth0  # <1>
+DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
+DHCPOFFER of 192.168.100.50 from 192.168.100.1
+DHCPREQUEST for 192.168.100.50 on eth0 to 255.255.255.255 port 67
+DHCPACK of 192.168.100.50 from 192.168.100.1
+
+# Ver la dirección asignada con su tiempo de vida
+$ sudo ip netns exec lab-cli ip -4 addr show eth0  # <2>
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 ...
+    inet 192.168.100.50/24 brd 192.168.100.255 scope global dynamic eth0
+       valid_lft 551sec preferred_lft 551sec
+
+# Probar conectividad con el lado servidor
+$ sudo ip netns exec lab-cli ping -c 2 192.168.100.1  # <3>
+PING 192.168.100.1 (192.168.100.1) 56(84) bytes of data.
+64 bytes from 192.168.100.1: icmp_seq=1 ttl=64 time=0.042 ms
+```
+
+
+
+1. **dhclient -v**: ejecuta DORA completo dentro del netns; `-v` muestra cada mensaje. La IP ofrecida (`192.168.100.50`) confirma que la **reserva** del Paso 3 funcionó: no salió del rango `.100-.199`.
+2. **ip addr**: `scope global dynamic` + `valid_lft` indican concesión DHCP; el tiempo baja en vivo hasta T1 (50 % de 600 s), cuando el cliente renueva.
+3. **ping**: comprueba que el cliente y el servidor converse en el segmento veth.
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA — Si el cliente no recibe oferta
+
+**Lo que podría salir mal:** `dhclient` se queda en `DHCPDISCOVER` sin `DHCPOFFER` y finaliza con timeout.
+
+**Cómo prevenirlo:**
+1. Comprueba que ufw esté inactivo o que la regla del Paso 7 ya esté aplicada (ufw por defecto deniega entradas y descarta el broadcast).
+2. Revisa `INTERFACESv4="veth-srv"` y `Listening on LPF/veth-srv` en el journal (interfaz equivocada).
+3. Verifica la topología: `ip netns exec lab-cli ip link show eth0` debe estar `UP`, y `veth-srv` también.
+:::
+
+---
+
+## Paso 6: Inspeccionar las concesiones
+
+```bash
+# Tabla de concesiones activas (viene con isc-dhcp-server)
+$ dhcp-lease-list  # <1>
+Universe IP address for hardware device MAC addresses
+192.168.100.50     02:00:00:00:00:01     laptop-lab
+
+# Ver la declaración completa en el lease file
+$ sudo grep -A5 '192.168.100.50' /var/lib/dhcp/dhcpd.leases  # <2>
+lease 192.168.100.50 {
+  starts 4 2026/11/15 15:13:02;
+  ends   4 2026/11/15 15:23:02;
+  hardware ethernet 02:00:00:00:00:01;
+  client-hostname "laptop-lab";
+  binding state active;
+```
+
+
+
+1. **dhcp-lease-list**: tabla filtrada con IP, MAC y nombre del cliente; es la revisión rápida de quién tiene qué dirección.
+2. **grep en dhcpd.leases**: muestra la declaración cruda; `starts`/`ends` están en **UTC** y `binding state active` confirma la concesión vigente.
+
+---
+
+## Paso 7: Regla de firewall para DHCP
+
+Si en tu máquina ufw está activo, el broadcast del cliente (UDP 67 con origen `0.0.0.0`) se descarta con la política `deny (incoming)` por defecto. La regla correcta abre el 67 **sin filtro de origen** en la interfaz del segmento:
+
+```bash
+# Ver el estado del firewall
+$ sudo ufw status verbose  # <1>
+Status: active
+Default: deny (incoming), allow (outgoing), allow (routed)
+
+# Permitir DHCP de entrada en la interfaz del laboratorio
+$ sudo ufw allow in on veth-srv to any port 67 proto udp  # <2>
+Rule added
+Rule added (v6)
+
+# Verificar la regla aplicada
+$ sudo ufw status numbered  # <3>
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 67/udp on veth-srv         ALLOW IN    Anywhere
+```
+
+
+
+1. **ufw status verbose**: confirma la política de entrada; si dice `inactive`, las reglas no se aplican (en ese caso habilita ufw con `sudo ufw enable` permitiendo antes tu SSH, o continúa sin habilitarlo).
+2. **allow in on veth-srv to any port 67**: entrada UDP 67 solo en la interfaz del laboratorio; las respuestas del servidor (67 → 68) son de salida y ufw las deja pasar, así que no hace falta abrir el 68 en el servidor.
+3. **ufw status numbered**: la regla `[ 1]` queda visible; para retirarla: `sudo ufw delete 1`.
+
+:::{.callout-note}
+## 📝 NOTA
+
+El `DHCPDISCOVER` llega con origen `0.0.0.0`, por eso la regla **no** restringe `from 192.168.100.0/24`: un filtro por origen descartaría el primer paquete del DORA. Con un relay DHCP sí sería válido filtrar por la IP del relay (ver el capítulo 8.3).
+:::
+
+---
+
+## Troubleshooting
+
+| Síntoma | Causa probable | Solución |
+|---------|----------------|----------|
+| `systemctl status` → `failed`, journal: `No subnet declaration for veth-srv` | Falta el bloque `subnet` para la red de la interfaz | Declara el scope del Paso 3 en `dhcpd.conf` |
+| Servicio arranca pero el cliente no recibe oferta; journal sin `DHCPDISCOVER` | **Interfaz equivocada**: `INTERFACESv4` vacío o apuntando a `eth0` | Pon `INTERFACESv4="veth-srv"`, reinicia y confirma `Listening on LPF/veth-srv` con `journalctl` |
+| `dhclient` hace timeout: solo `DHCPDISCOVER` sin oferta | **Broadcast bloqueado**: ufw activo sin regla, o el par veth/netns está caído | Aplica la regla del Paso 7; verifica `ip link set veth-srv up` y `ip netns exec lab-cli ip link set eth0 up` |
+| El cliente recibe otra IP en vez de `192.168.100.50` | La MAC de la reserva no coincide (netns recreado con MAC nueva) | Vuelve a leer `CLIENT_MAC` y reescribe la reserva; reinicia dhcpd |
+| `dhcpd -t` imprime error de sintaxis | Llave sin cerrar o `;` faltante | dhcpd marca la línea exacta; corrígela y valida de nuevo |
+
+---
+
+## Criterios de verificación
+
+| Criterio | Comando | Resultado esperado |
+|----------|---------|-------------------|
+| Servidor instalado y activo | `systemctl status isc-dhcp-server` | `active (running)` |
+| Escucha en la interfaz correcta | `sudo ss -ulnp \| grep dhcpd` y `journalctl -u isc-dhcp-server` | Socket `:67` y `Listening on LPF/veth-srv` |
+| Reserva aplicada | `sudo ip netns exec lab-cli ip -4 addr show eth0` | `inet 192.168.100.50/24 ... dynamic` |
+| Opciones entregadas | `ip netns exec lab-cli ip route` / `resolvectl` en el netns | Gateway `192.168.100.1` y DNS del scope |
+| Concesión registrada | `dhcp-lease-list` | Entrada con IP `192.168.100.50`, MAC y `laptop-lab` |
+| Lease file consistente | `sudo grep -A5 192.168.100.50 /var/lib/dhcp/dhcpd.leases` | Bloque `lease` con `binding state active` |
+| Firewall correcto | `sudo ufw status numbered` | Regla `67/udp on veth-srv ALLOW IN` (si ufw está activo) |
+
+---
+
+## Limpieza
+
+```bash
+# Liberar la concesión y detener el cliente
+$ sudo ip netns exec lab-cli dhclient -r eth0  # <1>
+
+# Detener el servidor y restaurar la configuración original
+$ sudo systemctl stop isc-dhcp-server  # <2>
+$ sudo rm /etc/dhcp/dhcpd.conf && sudo cp /etc/dhcp/dhcpd.conf.orig /etc/dhcp/dhcpd.conf
+
+# Eliminar la topología de práctica
+$ sudo ip netns del lab-cli  # <3>
+$ sudo ip link del veth-srv
+
+# Retirar la regla de firewall (si la añadiste)
+$ sudo ufw status numbered  # <4>
+$ sudo ufw delete 1
+```
+
+
+
+1. **dhclient -r**: envía `DHCPRELEASE` y el servidor marca la IP como `free`.
+2. **stop + restaurar**: devuelve `dhcpd.conf` al respaldo (`dhcpd.conf.orig` creado en el Paso 3 con `cp` previo) o al archivo de ejemplo del paquete.
+3. **ip netns del / ip link del**: borra el netns (consigo su `eth0`) y el extremo `veth-srv`; no deja interfaces huérfanas.
+4. **ufw delete**: `status numbered` muestra el índice de la regla a eliminar.
+
+:::{.callout-tip}
+## 💡 RECOMENDACIÓN
+
+Si vas a repetir el laboratorio, omite la limpieza completa: deja el servidor corriendo y solo libera la concesión del cliente (`dhclient -r`) para volver a observar el DORA desde cero.
+:::
+
+---
+
+## Resumen de comandos
+
+| Tema | Comando | Propósito |
+|------|---------|-----------|
+| Paquetes | `apt install isc-dhcp-server isc-dhcp-client` | Servidor y cliente DHCP |
+| Topología | `ip netns add` + `ip link add ... type veth` | Cliente aislado enlazado al servidor |
+| Configuración | `/etc/dhcp/dhcpd.conf` | Scope, opciones y reservas |
+| Interfaz | `/etc/default/isc-dhcp-server` (`INTERFACESv4`) | Interfaces que atiende dhcpd |
+| Validar | `dhcpd -t -cf /etc/dhcp/dhcpd.conf` | Comprobar sintaxis |
+| Cliente | `ip netns exec lab-cli dhclient -v eth0` | Solicitar concesión (DORA) |
+| Ver IP | `ip -4 addr show eth0` | Concesión y `valid_lft` |
+| Leases | `dhcp-lease-list` / `cat /var/lib/dhcp/dhcpd.leases` | Concesiones activas / crudo |
+| Firewall | `ufw allow in on veth-srv to any port 67 proto udp` | Entrada UDP 67 |
+| Logs | `journalctl -u isc-dhcp-server` | Arranque y transacciones |
+
+---
+
+## Referencias
+
+- [dhcpd(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/dhcpd.8.html)
+- [dhcpd.conf(5) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man5/dhcpd.conf.5.html)
+- [dhclient(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/dhclient.8.html)
+- [dhcp-lease-list(8) — Ubuntu Manpages (noble)](https://manpages.ubuntu.com/manpages/noble/man8/dhcp-lease-list.8.html)
+- [RFC 2131 — Dynamic Host Configuration Protocol](https://www.rfc-editor.org/rfc/rfc2131)
