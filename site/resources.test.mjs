@@ -18,7 +18,7 @@ test('build publishes safe registered resources and links them from home and mat
     const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
     const bandit = readFileSync(join(output, 'recursos', 'bandit.html'), 'utf8');
     const proxmox = readFileSync(join(output, 'recursos', 'proxmox.html'), 'utf8');
-    assert.equal(run.stdout, 'Built 29 pages.\n');
+    assert.equal(run.stdout, 'Built 15 pages.\n');
     assert.equal(run.stderr, '');
     assert.match(resources, /href="recursos\/bandit\.html/);
     assert.match(resources, /href="recursos\/proxmox\.html/);

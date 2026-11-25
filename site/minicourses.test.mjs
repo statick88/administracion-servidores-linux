@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -14,12 +14,21 @@ const slugs = [
 test('Recursos links a separate index and thirteen distinct minicourse pages', () => {
   const output = mkdtempSync(join(tmpdir(), 'linux-minicourses-'));
   try {
-    const run = spawnSync('python3', ['tools/build_site.py', '--output', output], {
+    const standard = join(output, 'standard');
+    const preview = join(output, 'preview');
+    const build = (...args) => spawnSync('python3', ['tools/build_site.py', ...args], {
       cwd: root, encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' },
     });
+    const defaultRun = build('--output', standard);
+    assert.equal(defaultRun.status, 0, defaultRun.stderr);
+    assert.equal(defaultRun.stdout, 'Built 15 pages.\n');
+    assert.equal(defaultRun.stderr, '');
+    assert.equal(existsSync(join(standard, 'recursos', 'minicursos')), false);
+    assert.doesNotMatch(readFileSync(join(standard, 'recursos.html'), 'utf8'), /recursos\/minicursos\//);
+    const run = build('--output', preview, '--include-minicourses');
     assert.equal(run.status, 0, run.stderr);
     assert.equal(run.stderr, '');
-    const read = (...path) => readFileSync(join(output, ...path), 'utf8');
+    const read = (...path) => readFileSync(join(preview, ...path), 'utf8');
     assert.match(read('recursos.html'), /href="recursos\/minicursos\/index\.html"/);
     const index = read('recursos', 'minicursos', 'index.html');
     assert.match(index, /href="\.\.\/\.\.\/recursos\.html"/);

@@ -60,15 +60,16 @@ def unit_resource_links(resources, unit_id, base):
     return f'<section class="related-resources"><h2>Recursos relacionados</h2><ul>{links}</ul></section>'
 
 
-def render_resources(resources, root, unit_titles):
+def render_resources(resources, root, unit_titles, *, include_minicourses=False):
     """Render only registered guides and metadata; never read historical source files."""
     guides = [item for item in resources if item["publication"] == SAFE_GUIDE]
     listings = [item for item in resources if item["publication"] == LISTING]
     excluded = [item for item in resources if item["publication"] == OUT_OF_SCOPE]
     content = ('<article><h1>Recursos</h1>'
                '<p>Material complementario revisado para la malla vigente. Los recursos se presentan con su alcance; no se publican fuentes históricas ni procedimientos fuera de ese alcance.</p>')
-    content += ('<section><h2>Minicursos</h2><p><a href="recursos/minicursos/index.html">'
-                'Ver minicursos de terminal y operación de servidores</a></p></section>')
+    if include_minicourses:
+        content += ('<section><h2>Minicursos</h2><p><a href="recursos/minicursos/index.html">'
+                    'Ver minicursos de terminal y operación de servidores</a></p></section>')
     workshops = [item for item in resources if item["publication"] == WORKSHOP]
     for heading, items in (("Guías publicadas", guides), ("Talleres por unidad", workshops)):
         if not items:
