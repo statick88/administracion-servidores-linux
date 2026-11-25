@@ -53,6 +53,36 @@ test('build publishes the twelve brochure units in the official sequence without
     const historicalReader = readFileSync(join(output, 'unidades', '11-bases-datos-multimotor.html'), 'utf8');
     assert.match(historicalReader, /lectura histórica multi-motor/i);
     assert.match(historicalReader, /la ruta oficial de la Unidad XI está centrada en MariaDB/);
+    for (const reader of [...Object.keys(preservedReaders), '11-bases-datos-multimotor']) {
+      const page = readFileSync(join(output, 'unidades', `${reader}.html`), 'utf8');
+      assert.match(page, /<details class="sidebar-toggle" open>/, `${reader} restores its unit navigation open`);
+    }
+  } finally { rmSync(output, { recursive: true, force: true }); }
+});
+
+test('official readers expose valid topic anchors and canonical previous/next destinations', () => {
+  const output = mkdtempSync(join(tmpdir(), 'linux-reader-navigation-'));
+  try {
+    const run = spawnSync('python3', ['tools/build_site.py', '--output', output], { cwd: root, encoding: 'utf8' });
+    assert.equal(run.status, 0, run.stderr);
+    const home = readFileSync(join(output, 'index.html'), 'utf8');
+    assert.equal((home.match(/<nav aria-label="Principal" class="primary-nav">/g) || []).length, 1);
+    assert.match(home, /<div class="hero-actions"><a class="cta"[^>]*>Empezar a estudiar →<\/a><nav aria-label="Principal"/);
+    assert.ok(home.indexOf('Empezar a estudiar →</a>') < home.indexOf('<nav aria-label="Principal"'));
+    const units = JSON.parse(readFileSync(join(root, 'course/catalog.json'), 'utf8')).units;
+    for (const [index, unit] of units.entries()) {
+      const reader = readFileSync(join(output, 'unidades', `${unit.id}.html`), 'utf8');
+      assert.match(reader, /class="reader-topic-nav"/);
+      assert.match(reader, /class="reader-rail-toggle"/);
+      const headingIds = new Set([...reader.matchAll(/<h[1-6] id="([^"]+)"/g)].map((match) => match[1]));
+      const rail = reader.match(/<nav class="reader-topic-nav"[\s\S]*?<\/nav>/)?.[0] || '';
+      for (const href of rail.matchAll(/href="#([^"]+)"/g)) assert.ok(headingIds.has(href[1]), `${unit.id}#${href[1]}`);
+      const pager = reader.match(/<nav class="unit-pager"[\s\S]*?<\/nav>/)?.[0] || '';
+      if (index) assert.ok(pager.includes(`href="${units[index - 1].id}.html">← Anterior: ${units[index - 1].title}`));
+      else assert.doesNotMatch(pager, /Anterior:/);
+      if (index + 1 < units.length) assert.ok(pager.includes(`href="${units[index + 1].id}.html">Siguiente: ${units[index + 1].title} →`));
+      else assert.doesNotMatch(pager, /Siguiente:/);
+    }
   } finally { rmSync(output, { recursive: true, force: true }); }
 });
 

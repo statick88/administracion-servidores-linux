@@ -22,6 +22,13 @@ export function readerNavigationState({ isReader, scrollY, lastScrollY, navigati
   return 'hidden';
 }
 
+export function readerRailState({ event, hasHover, hasFocus, hoverSuppressed }) {
+  if (event === 'escape') return { open: false, hoverSuppressed: hasHover };
+  if (event === 'enter') return { open: hasHover && !hoverSuppressed, hoverSuppressed };
+  if (event === 'leave') return { open: hasFocus && !hoverSuppressed, hoverSuppressed: false };
+  return { open: false, hoverSuppressed };
+}
+
 function initializeSearch() {
   const input = document.querySelector('#site-search');
   const status = document.querySelector('#search-status');
@@ -66,6 +73,7 @@ function initializeReaderNavigation() {
   const header = document.querySelector('#site-header');
   const sidebar = document.querySelector('#course-sidebar');
   const restore = document.querySelector('.reader-navigation-restore');
+  const topicToggle = document.querySelector('.reader-rail-toggle');
   const isReader = Boolean(sidebar?.querySelector('nav ul'));
   if (!header || !sidebar || !restore || !isReader) return;
 
@@ -87,6 +95,32 @@ function initializeReaderNavigation() {
     setVisibility('visible');
     lastScrollY = window.scrollY;
     header.querySelector('a, button, input, summary')?.focus();
+  });
+
+  if (!topicToggle) return;
+  const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  let hoverSuppressed = false;
+  let pointerInside = false;
+  const setRailState = (event, hasFocus = topicToggle.matches(':focus-within')) => {
+    const state = readerRailState({ event, hasHover: pointerInside, hasFocus, hoverSuppressed });
+    topicToggle.open = state.open;
+    hoverSuppressed = state.hoverSuppressed;
+  };
+
+  topicToggle.addEventListener('pointerenter', (event) => {
+    if (!supportsHover || event.pointerType !== 'mouse') return;
+    pointerInside = true;
+    setRailState('enter');
+  });
+  topicToggle.addEventListener('pointerleave', (event) => {
+    if (!supportsHover || event.pointerType !== 'mouse') return;
+    pointerInside = false;
+    setRailState('leave');
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !topicToggle.open) return;
+    setRailState('escape');
+    event.preventDefault();
   });
 }
 

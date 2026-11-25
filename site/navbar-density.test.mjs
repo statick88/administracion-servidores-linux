@@ -7,13 +7,11 @@ const root = resolve(import.meta.dirname, '..');
 const page = readFileSync(resolve(root, 'site/page.html'), 'utf8');
 const styles = readFileSync(resolve(root, 'site/style.css'), 'utf8');
 
-test('navbar keeps every destination in a compact, native disclosure structure', () => {
+test('template places the shared primary landmark at the page-specific navigation slot', () => {
   assert.match(page, /<a class="brand"[^>]*aria-label="Administración de Servidores Linux, inicio"/);
   assert.match(page, /<span class="brand-title">Administración de Servidores Linux<\/span>/);
-  assert.match(page, /<details class="resources-menu">\s*<summary>Recursos<\/summary>/);
-  for (const route of ['index.html', 'index.html#catalogo', 'recursos.html', 'recursos/bandit.html', 'recursos/proxmox.html', 'recursos.html#talleres']) {
-    assert.ok(page.includes(`href="{{base}}${route}"`), route);
-  }
+  assert.match(page, /\{\{primary_navigation\}\}/);
+  assert.doesNotMatch(page, /<nav aria-label="Principal"/);
 });
 
 test('navbar uses compact desktop spacing and touch-safe mobile controls without a horizontal scroll container', () => {

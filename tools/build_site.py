@@ -45,11 +45,42 @@ UNIT_SEARCH = ('<form class="search-form" role="search" data-search-scope="unida
                '</form><p id="search-status" class="search-status" aria-live="polite"></p>')
 
 
-def page(template, title, content, navigation, base, search=""):
+def primary_navigation(base, *, include_minicourses=False):
+    minicourses = f'<a href="{base}recursos/minicursos/index.html">Minicursos</a>' if include_minicourses else ''
+    return (f'<nav aria-label="Principal" class="primary-nav"><a href="{base}index.html">Inicio</a>'
+            f'<a href="{base}index.html#catalogo">Unidades</a>{minicourses}'
+            '<details class="resources-menu"><summary>Recursos</summary><ul>'
+            f'<li><a href="{base}recursos.html">Todos los recursos</a></li>'
+            f'<li><a href="{base}recursos/bandit.html">Bandit</a></li>'
+            f'<li><a href="{base}recursos/proxmox.html">Proxmox VE</a></li>'
+            f'<li><a href="{base}recursos.html#talleres">Talleres</a></li>'
+            '</ul></details></nav>')
+
+
+def page(template, title, content, navigation, base, search="", primary_navigation_html=""):
     values = dict(title=escape(title), content=content, navigation=navigation, base=base,
-                  search=search)
-    return re.sub(r'\{\{(title|content|navigation|base|search)\}\}',
+                  search=search, primary_navigation=primary_navigation_html)
+    return re.sub(r'\{\{(title|content|navigation|base|search|primary_navigation)\}\}',
                   lambda match: values[match[1]], template)
+
+
+def reader_topics(content):
+    """Return only anchors emitted by the renderer, never source-derived guesses."""
+    headings = re.findall(r'<h([23]) id="([^"]+)">(.*?)</h\1>', content)
+    links = ''.join(f'<li><a href="#{escape(anchor)}">{escape(html.unescape(re.sub(r"<[^>]+>", "", title)).strip())}</a></li>'
+                    for _, anchor, title in headings)
+    return ('<nav class="reader-topic-nav" aria-label="Secciones de esta unidad">'
+            '<details class="reader-rail-toggle"><summary>Secciones de esta unidad</summary><ul>'
+            f'{links}</ul></details></nav>')
+
+
+def unit_navigation(units, current):
+    links = '<a href="../index.html">← Todas las unidades</a><ul>'
+    for other in units:
+        current_attr = ' aria-current="page"' if other == current else ''
+        links += f'<li data-search><a href="{other["id"]}.html"{current_attr}>{escape(other["title"])}</a></li>'
+    return ('<details class="sidebar-toggle" open><summary>Navegación de unidades</summary>'
+            f'<nav aria-label="Unidades">{links}</ul></nav></details>')
 
 
 def build(output, *, include_minicourses=False):
@@ -75,9 +106,10 @@ def build(output, *, include_minicourses=False):
     }
     if any(len(items) != 1 for items in workshops.values()):
         raise ValueError('Each published unit must have exactly one matching workshop')
+    home_navigation = primary_navigation('./', include_minicourses=include_minicourses)
     home = (f'<section class="hero"><p class="eyebrow">WSL2 · Docker · Nginx · HTTPS</p>'
             f'<h1>{escape(catalog["title"])}</h1><p>{escape(catalog["description"])}</p>'
-            f'<a class="cta" href="unidades/{units[0]["id"]}.html">Empezar a estudiar →</a>'
+            f'<div class="hero-actions"><a class="cta" href="unidades/{units[0]["id"]}.html">Empezar a estudiar →</a>{home_navigation}</div>'
             '<p>12 unidades · Contenido práctico en español</p></section>'
             '<section aria-labelledby="catalog-title"><h2 id="catalog-title">Recorrido del curso</h2>'
             '<div class="catalog" id="catalogo">')
@@ -104,20 +136,15 @@ def build(output, *, include_minicourses=False):
     }
     planned = {
         'index.html': page(template, catalog['title'], home, '', './', UNIT_SEARCH),
-        'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles, resource_routes, include_minicourses=include_minicourses), '', './'),
+        'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles, resource_routes, include_minicourses=include_minicourses), '', './', primary_navigation_html=primary_navigation('./', include_minicourses=include_minicourses)),
     }
     for route, title, content in render_guide_pages(resources, ROOT):
-        planned[route] = page(template, title, content, '', '../')
+        planned[route] = page(template, title, content, '', '../', primary_navigation_html=primary_navigation('../', include_minicourses=include_minicourses))
     if include_minicourses:
         for route, title, content in render_minicourse_pages(ROOT):
-            planned[route] = page(template, title, content, '', '../../')
+            planned[route] = page(template, title, content, '', '../../', primary_navigation_html=primary_navigation('../../', include_minicourses=True))
     for index, unit in enumerate(units):
-        navigation = '<a href="../index.html">← Todas las unidades</a><ul>'
-        for other in units:
-            current = ' aria-current="page"' if other == unit else ''
-            navigation += (f'<li data-search><a href="{other["id"]}.html"{current}>'
-                           f'{escape(other["title"])}</a></li>')
-        navigation += '</ul>'
+        navigation = unit_navigation(units, unit)
         source = (ROOT / unit['source']).read_text()
         unit_routes = {item['id']: f"../{item['id']}.html" for item in units}
         lesson = render_markdown(source, unit_routes)
@@ -139,8 +166,18 @@ def build(output, *, include_minicourses=False):
                       f'<a href="{reader_id}.html">{escape(historical_readers[unit["id"]][0])}</a>. '
                       'La ruta oficial está centrada en MariaDB.</p>')
         related_resources = unit_resource_links(resources, unit['id'], '../')
-        content = f'<article>{guide}{lesson}{related_resources}<section id="evaluaciones" aria-label="Evaluaciones">{internal_quiz}{external_quiz}</section></article>'
-        planned[f'unidades/{unit["id"]}.html'] = page(template, unit['title'], content, navigation, '../', UNIT_SEARCH)
+        pager = '<nav class="unit-pager" aria-label="Navegación entre unidades">'
+        if index:
+            previous = units[index - 1]
+            pager += f'<a href="{previous["id"]}.html">← Anterior: {escape(previous["title"])}</a>'
+        if index + 1 < len(units):
+            following = units[index + 1]
+            pager += f'<a href="{following["id"]}.html">Siguiente: {escape(following["title"])} →</a>'
+        pager += '</nav>'
+        content = f'<article>{guide}{lesson}{related_resources}<section id="evaluaciones" aria-label="Evaluaciones">{internal_quiz}{external_quiz}</section>{pager}</article>'
+        navigation = reader_topics(content) + navigation
+        planned[f'unidades/{unit["id"]}.html'] = page(template, unit['title'], content, navigation, '../', UNIT_SEARCH,
+                                                        primary_navigation_html=primary_navigation('../', include_minicourses=include_minicourses))
     # Preserve complete established readers after the brochure renumbering.
     legacy_readers = {
         '08-docker': ('Docker (material complementario)', '08-docker/index.qmd'),
@@ -153,8 +190,9 @@ def build(output, *, include_minicourses=False):
                    '<p>Esta ruta se conserva para lectores existentes. Es material complementario '
                    'del recorrido oficial; continúa en la <a href="10-web.html">Unidad X: Nginx y Apache</a>.'
                    '</p>' + render_markdown(source, unit_routes) + '</article>')
-        planned[f'unidades/{old_id}.html'] = page(template, title, content,
-                                                   '<a href="../index.html">← Todas las unidades</a>', '../', UNIT_SEARCH)
+        navigation = '<details class="sidebar-toggle" open><summary>Navegación de unidades</summary><nav aria-label="Unidades"><a href="../index.html">← Todas las unidades</a></nav></details>'
+        planned[f'unidades/{old_id}.html'] = page(template, title, content, navigation, '../', UNIT_SEARCH,
+                                                   primary_navigation_html=primary_navigation('../', include_minicourses=include_minicourses))
     for unit_id, (title, source_path) in historical_readers.items():
         reader_id = '11-bases-datos-multimotor'
         source = (ROOT / source_path).read_text(encoding='utf-8')
@@ -163,8 +201,9 @@ def build(output, *, include_minicourses=False):
                    '<p>Esta lectura histórica multi-motor se conserva completa como complemento; '
                    'la ruta oficial de la Unidad XI está centrada en MariaDB.</p>'
                    + render_markdown(source, unit_routes) + '</article>')
-        planned[f'unidades/{reader_id}.html'] = page(template, title, content,
-                                                      '<a href="../index.html">← Todas las unidades</a>', '../', UNIT_SEARCH)
+        navigation = '<details class="sidebar-toggle" open><summary>Navegación de unidades</summary><nav aria-label="Unidades"><a href="../index.html">← Todas las unidades</a></nav></details>'
+        planned[f'unidades/{reader_id}.html'] = page(template, title, content, navigation, '../', UNIT_SEARCH,
+                                                      primary_navigation_html=primary_navigation('../', include_minicourses=include_minicourses))
     for name in ('style.css', 'app.js'):
         asset = ROOT / 'site' / name
         if asset.exists():

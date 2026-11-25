@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { readerNavigationState } from './app.js';
+import { readerNavigationState, readerRailState } from './app.js';
 
 const root = resolve(import.meta.dirname, '..');
 
@@ -21,6 +21,20 @@ test('reader navigation hides only after a downward scroll and stays visible whe
   assert.equal(readerNavigationState({ isReader: true, scrollY: 160, lastScrollY: 80, navigationHasFocus: true }), 'visible');
   assert.equal(readerNavigationState({ isReader: true, scrollY: 80, lastScrollY: 160, navigationHasFocus: false }), 'visible');
   assert.equal(readerNavigationState({ isReader: false, scrollY: 160, lastScrollY: 80, navigationHasFocus: false }), 'visible');
+});
+
+test('reader rail hover opens its disclosure and Escape waits for a fresh pointer entry', () => {
+  assert.deepEqual(readerRailState({ event: 'enter', hasHover: true, hasFocus: false, hoverSuppressed: false }), { open: true, hoverSuppressed: false });
+  assert.deepEqual(readerRailState({ event: 'escape', hasHover: true, hasFocus: false, hoverSuppressed: false }), { open: false, hoverSuppressed: true });
+  assert.deepEqual(readerRailState({ event: 'escape', hasHover: false, hasFocus: true, hoverSuppressed: false }), { open: false, hoverSuppressed: false });
+  assert.deepEqual(readerRailState({ event: 'enter', hasHover: true, hasFocus: false, hoverSuppressed: true }), { open: false, hoverSuppressed: true });
+  assert.deepEqual(readerRailState({ event: 'leave', hasHover: true, hasFocus: false, hoverSuppressed: true }), { open: false, hoverSuppressed: false });
+  assert.deepEqual(readerRailState({ event: 'leave', hasHover: true, hasFocus: true, hoverSuppressed: true }), { open: false, hoverSuppressed: false });
+  assert.deepEqual(readerRailState({ event: 'leave', hasHover: true, hasFocus: true, hoverSuppressed: false }), { open: true, hoverSuppressed: false });
+  const app = readFileSync(join(root, 'site', 'app.js'), 'utf8');
+  assert.match(app, /let pointerInside = false;/);
+  assert.match(app, /hasHover: pointerInside/);
+  assert.doesNotMatch(app, /hasHover: supportsHover/);
 });
 
 test('built unit readers provide a keyboard-accessible restore control without activating reading mode on the homepage', () => {
