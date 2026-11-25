@@ -19,7 +19,8 @@ test('navbar uses compact desktop spacing and touch-safe mobile controls without
   assert.match(styles, /\.primary-nav a, \.resources-menu summary \{[^}]*min-height: 44px;/s);
   assert.match(styles, /@media \(max-width: 900px\) \{[\s\S]*?\.primary-nav \{[^}]*flex-wrap: wrap;/);
   assert.doesNotMatch(styles, /\.primary-nav \{[^}]*overflow-x: auto;/);
-  assert.match(styles, /@media \(max-width: 760px\) \{[\s\S]*?\.brand-title, \.search-form label, \.search-scope \{[^}]*clip: rect\(0 0 0 0\);/);
+  assert.match(styles, /@media \(max-width: 760px\) \{[\s\S]*?\.brand-title \{[^}]*clip: rect\(0 0 0 0\);/);
+  assert.doesNotMatch(styles, /\.search-form label|\.search-scope/);
 });
 
 test('compact navbar retains search and reading-mode hooks', () => {

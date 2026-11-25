@@ -67,8 +67,10 @@ test('official readers expose valid topic anchors and canonical previous/next de
     assert.equal(run.status, 0, run.stderr);
     const home = readFileSync(join(output, 'index.html'), 'utf8');
     assert.equal((home.match(/<nav aria-label="Principal" class="primary-nav">/g) || []).length, 1);
-    assert.match(home, /<div class="hero-actions"><a class="cta"[^>]*>Empezar a estudiar →<\/a><nav aria-label="Principal"/);
-    assert.ok(home.indexOf('Empezar a estudiar →</a>') < home.indexOf('<nav aria-label="Principal"'));
+    const header = home.match(/<header id="site-header" class="site-header">([\s\S]*?)<\/header>/)?.[1] || '';
+    const hero = home.match(/<section class="hero">([\s\S]*?)<\/section>/)?.[1] || '';
+    assert.match(header, /<nav aria-label="Principal" class="primary-nav">/);
+    assert.doesNotMatch(hero, /<nav aria-label="Principal" class="primary-nav">/);
     const units = JSON.parse(readFileSync(join(root, 'course/catalog.json'), 'utf8')).units;
     for (const [index, unit] of units.entries()) {
       const reader = readFileSync(join(output, 'unidades', `${unit.id}.html`), 'utf8');

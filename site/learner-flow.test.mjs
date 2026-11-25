@@ -58,7 +58,8 @@ test('search is scoped to indexed units and omitted from pages without entries',
     const reader = readFileSync(join(output, 'unidades', '01-fundamentos.html'), 'utf8');
     const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
     assert.match(home, /<form class="search-form" role="search" data-search-scope="unidades">/);
-    assert.match(home, /Busca solo en unidades publicadas\./);
+    assert.doesNotMatch(home, /Buscar en el curso|Busca solo en unidades publicadas\./);
+    assert.match(home, /<input id="site-search" type="search"[^>]*aria-label="Buscar unidades"/);
     assert.match(reader, /data-search-scope="unidades"/);
     assert.doesNotMatch(resources, /id="site-search"|class="search-form"/);
   } finally {

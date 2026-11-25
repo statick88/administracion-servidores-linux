@@ -39,9 +39,7 @@ def load_catalog():
 
 
 UNIT_SEARCH = ('<form class="search-form" role="search" data-search-scope="unidades">'
-               '<label for="site-search">Buscar en el curso</label>'
-               '<p id="search-scope" class="search-scope">Busca solo en unidades publicadas.</p>'
-               '<input id="site-search" type="search" autocomplete="off" aria-describedby="search-scope" placeholder="Docker, Nginx, permisos…">'
+               '<input id="site-search" type="search" autocomplete="off" aria-label="Buscar unidades" placeholder="Docker, Nginx, permisos…">'
                '</form><p id="search-status" class="search-status" aria-live="polite"></p>')
 
 
@@ -106,10 +104,9 @@ def build(output, *, include_minicourses=False):
     }
     if any(len(items) != 1 for items in workshops.values()):
         raise ValueError('Each published unit must have exactly one matching workshop')
-    home_navigation = primary_navigation('./', include_minicourses=include_minicourses)
     home = (f'<section class="hero"><p class="eyebrow">WSL2 · Docker · Nginx · HTTPS</p>'
             f'<h1>{escape(catalog["title"])}</h1><p>{escape(catalog["description"])}</p>'
-            f'<div class="hero-actions"><a class="cta" href="unidades/{units[0]["id"]}.html">Empezar a estudiar →</a>{home_navigation}</div>'
+            f'<a class="cta" href="unidades/{units[0]["id"]}.html">Empezar a estudiar →</a>'
             '<p>12 unidades · Contenido práctico en español</p></section>'
             '<section aria-labelledby="catalog-title"><h2 id="catalog-title">Recorrido del curso</h2>'
             '<div class="catalog" id="catalogo">')
@@ -135,7 +132,8 @@ def build(output, *, include_minicourses=False):
         '11-bases-datos-multimotor': 'unidades/11-bases-datos-multimotor',
     }
     planned = {
-        'index.html': page(template, catalog['title'], home, '', './', UNIT_SEARCH),
+        'index.html': page(template, catalog['title'], home, '', './', UNIT_SEARCH,
+                           primary_navigation_html=primary_navigation('./', include_minicourses=include_minicourses)),
         'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles, resource_routes, include_minicourses=include_minicourses), '', './', primary_navigation_html=primary_navigation('./', include_minicourses=include_minicourses)),
     }
     for route, title, content in render_guide_pages(resources, ROOT):

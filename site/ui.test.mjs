@@ -25,7 +25,7 @@ test('the public builder emits the production interface landmarks and assets', (
     assert.match(home, /<header id="site-header" class="site-header">/);
     assert.match(home, /<main id="contenido">/);
     assert.match(home, /<nav aria-label="Principal" class="primary-nav">/);
-    assert.match(home, /<label for="site-search">Buscar en el curso<\/label>/);
+    assert.match(home, /<input id="site-search" type="search"[^>]*aria-label="Buscar unidades"/);
     assert.match(home, /<section class="hero">/);
     assert.match(home, /class="catalog" id="catalogo"/);
     assert.match(reader, /<aside id="course-sidebar" class="course-sidebar"/);
