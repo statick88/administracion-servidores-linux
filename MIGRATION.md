@@ -21,7 +21,8 @@ siguiendo el precedente del ebook de `practicas` (`tools/build_site.py`,
   `tools/build_site.py` y el material de referencia del curso.
 - **`presentaciones/`**: subproyecto independiente con su propio `presentaciones/_quarto.yml`
   (`project.type: website`). Se renderiza aparte con Quarto y queda fuera del sitio publicado.
-- **`course/resources/`**: guías y adaptaciones curadas registradas en `course/resources.json`; el builder publica el índice estático `recursos.html` sin invocar Quarto.
+- **`course/minicourses/`**: trece minicursos en español. El generador publica su índice en `recursos/minicursos/index.html` y una página por tema; el índice se enlaza desde Recursos.
+- **`course/resources/`**: guías y adaptaciones curadas registradas en `course/resources.json`; el builder publica el índice estático `recursos.html` y las subpáginas `recursos/bandit.html` y `recursos/proxmox.html` sin invocar Quarto.
 
 ## Cómo se construye el sitio
 

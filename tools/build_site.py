@@ -9,7 +9,8 @@ import sys
 
 from content import quiz_forms, render_markdown
 from lesson import load_lesson_sections, render_lesson_guide
-from resources import load_resources, render_resources, unit_resource_links
+from minicourses import render_minicourse_pages
+from resources import load_resources, render_guide_pages, render_resources, unit_resource_links
 
 ROOT = Path(__file__).resolve().parents[1]
 FALLBACK = '''<!doctype html><html lang="es"><meta charset="utf-8">
@@ -76,6 +77,10 @@ def build(output):
         'index.html': page(template, catalog['title'], home, '', './'),
         'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles), '', './'),
     }
+    for route, title, content in render_guide_pages(resources, ROOT):
+        planned[route] = page(template, title, content, '', '../')
+    for route, title, content in render_minicourse_pages(ROOT):
+        planned[route] = page(template, title, content, '', '../../')
     for index, unit in enumerate(units):
         navigation = '<a href="../index.html">← Todas las unidades</a><ul>'
         for other in units:

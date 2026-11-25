@@ -10,6 +10,12 @@ SAFE_GUIDE = "guide"
 WORKSHOP = "workshop"
 LISTING = "listing"
 OUT_OF_SCOPE = "out-of-scope"
+GUIDE_PAGES = {
+    "bandit": ("Bandit", ("bandit-pistas-seguras",)),
+    "proxmox": ("Proxmox VE", ("proxmox-fundamentos-compatibles", "proxmox-avanzado")),
+}
+GUIDE_ROUTES = {identifier: f"recursos/{slug}.html"
+                for slug, (_, identifiers) in GUIDE_PAGES.items() for identifier in identifiers}
 
 
 def load_resources(path: Path, unit_ids):
@@ -41,7 +47,9 @@ def load_resources(path: Path, unit_ids):
 
 
 def _resource_link(resource, base):
-    return f'<a href="{base}recursos.html#{escape(resource["id"])}">{escape(resource["title"])}</a>'
+    identifier = resource["id"]
+    route = GUIDE_ROUTES.get(identifier, "recursos.html")
+    return f'<a href="{base}{route}#{escape(identifier)}">{escape(resource["title"])}</a>'
 
 
 def unit_resource_links(resources, unit_id, base):
@@ -59,12 +67,17 @@ def render_resources(resources, root, unit_titles):
     excluded = [item for item in resources if item["publication"] == OUT_OF_SCOPE]
     content = ('<article><h1>Recursos</h1>'
                '<p>Material complementario revisado para la malla vigente. Los recursos se presentan con su alcance; no se publican fuentes históricas ni procedimientos fuera de ese alcance.</p>')
+    content += ('<section><h2>Minicursos</h2><p><a href="recursos/minicursos/index.html">'
+                'Ver minicursos de terminal y operación de servidores</a></p></section>')
     workshops = [item for item in resources if item["publication"] == WORKSHOP]
     for heading, items in (("Guías publicadas", guides), ("Talleres por unidad", workshops)):
         if not items:
             continue
         content += f'<section><h2>{heading}</h2>'
         for item in items:
+            if item["id"] in GUIDE_ROUTES:
+                content += f'<p id="{escape(item["id"])}">{_resource_link(item, "")}</p>'
+                continue
             source = (root / item["source"]).read_text(encoding="utf-8")
             if item["publication"] == WORKSHOP and source.startswith("# "):
                 source = source.partition("\n")[2]
@@ -80,3 +93,18 @@ def render_resources(resources, root, unit_titles):
     for item in excluded:
         content += f'<li id="{escape(item["id"])}"><strong>{escape(item["title"])}</strong>: {escape(item["scope"])}</li>'
     return content + '</ul></section></article>'
+
+
+def render_guide_pages(resources, root):
+    guides = {item["id"]: item for item in resources if item["publication"] == SAFE_GUIDE}
+    for slug, (title, identifiers) in GUIDE_PAGES.items():
+        content = (f'<article><p><a href="../recursos.html">← Volver a Recursos</a></p>'
+                   f'<h1>{escape(title)}</h1>')
+        for identifier in identifiers:
+            guide = guides[identifier]
+            source = (root / guide["source"]).read_text(encoding="utf-8")
+            if source.startswith("# "):
+                source = source.partition("\n")[2]
+            content += (f'<section id="{escape(identifier)}"><h2>{escape(guide["title"])}</h2>'
+                        f'{render_markdown(source, {})}</section>')
+        yield f"recursos/{slug}.html", title, content + '</article>'
