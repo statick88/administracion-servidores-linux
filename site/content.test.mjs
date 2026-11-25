@@ -34,7 +34,7 @@ test('public builder converts every published unit and its Quizdown forms', () =
   try {
     const run = spawnSync('python3', ['tools/build_site.py', '--output', output], { cwd: root, encoding: 'utf8', env: pythonEnv });
     assert.equal(run.status, 0, run.stderr);
-    assert.equal(run.stdout, 'Built 15 pages.\n');
+    assert.equal(run.stdout, 'Built 20 pages.\n');
     assert.equal(run.stderr, '');
     const catalog = JSON.parse(readFileSync(join(root, 'course/catalog.json'), 'utf8'));
     for (const unit of catalog.units) {
@@ -89,11 +89,11 @@ test('associated quizzes match the brochure units and reject legacy topics', () 
     1: '¿Qué es un Sistema Operativo?', 2: '¿Qué comando actualiza el índice de paquetes',
     3: '¿Qué opción activa', 4: '¿Qué archivo contiene los hashes',
     5: '¿Qué es un proceso en Linux?', 6: '¿Qué es LVM',
-    7: '¿Cuál es la política recomendada de UFW', 8: '¿Qué comando verifica que Docker',
-    9: '¿Qué directiva envía solicitudes a un backend', 10: '¿Qué es Certbot?',
-    11: '¿Qué es MariaDB?'
+    7: '¿Cuál es la política recomendada de UFW', 8: '¿Qué define un scope DHCP?',
+    9: '¿Qué describe un virtual host de Apache?', 10: '¿Qué es Nginx?',
+    11: '¿Qué es MariaDB?', 12: '¿Qué es la metodología de diagnóstico?'
   };
-  const legacy = { 2: 'requisito mínimo de RAM', 3: 'directorio actual', 4: 'contenedor Docker', 7: 'TCP/IP', 8: '¿Qué es un servidor web?', 9: 'Apache' };
+  const legacy = { 2: 'requisito mínimo de RAM', 3: 'directorio actual', 4: 'contenedor Docker', 7: 'TCP/IP', 8: 'Docker', 9: 'Nginx' };
   for (const [unit, question] of Object.entries(expected)) {
     const quiz = readFileSync(join(root, 'quizzes', `quiz_unidad${unit}.qmd`), 'utf8');
     assert.ok(quiz.includes(question), `unidad ${unit} uses its brochure topic`);

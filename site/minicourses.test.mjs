@@ -21,7 +21,7 @@ test('Recursos links a separate index and thirteen distinct minicourse pages', (
     });
     const defaultRun = build('--output', standard);
     assert.equal(defaultRun.status, 0, defaultRun.stderr);
-    assert.equal(defaultRun.stdout, 'Built 15 pages.\n');
+    assert.equal(defaultRun.stdout, 'Built 20 pages.\n');
     assert.equal(defaultRun.stderr, '');
     assert.equal(existsSync(join(standard, 'recursos', 'minicursos')), false);
     assert.doesNotMatch(readFileSync(join(standard, 'recursos.html'), 'utf8'), /recursos\/minicursos\//);
@@ -48,7 +48,7 @@ test('Recursos links a separate index and thirteen distinct minicourse pages', (
     for (const slug of ['bandit', 'proxmox']) {
       assert.ok(read('recursos', `${slug}.html`));
     }
-    assert.equal(run.stdout, 'Built 29 pages.\n');
+    assert.equal(run.stdout, 'Built 34 pages.\n');
   } finally {
     rmSync(output, { recursive: true, force: true });
   }

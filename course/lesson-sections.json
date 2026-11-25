@@ -78,49 +78,60 @@
       "Conclusión": "El hardening eficaz combina mínimo privilegio, validación y evidencia.",
       "Siguiente tema": "Continúa con imágenes, contenedores y operación básica de Docker."
     },
-    "08-docker": {
-      "Tema": "Fundamentos de Docker: imágenes, contenedores, redes y volúmenes.",
-      "Objetivo": "Entender el ciclo de vida de un contenedor sin perder control del host ni de los datos.",
-      "Conceptos": "Docker Engine, imágenes, Dockerfile, puertos, redes bridge y volúmenes.",
-      "Ejemplo": "Comprueba la instalación con `docker version` y ejecuta la imagen de prueba indicada en la lección.",
-      "Práctica": "En Docker Desktop o un host de laboratorio, ejecuta `docker run --rm hello-world` y registra solo su resultado.",
-      "Tarea": "Describe un Dockerfile mínimo para una aplicación propia, indicando imagen base, usuario no root y puerto documentado.",
-      "Quiz": "Comprueba imágenes, contenedores, puertos y volúmenes en la evaluación de Docker.",
-      "Conclusión": "Los contenedores son reproducibles cuando se versionan imágenes y se persisten los datos fuera de su capa efímera.",
-      "Siguiente tema": "Avanza a Nginx para publicar contenido y proxyear aplicaciones."
+    "08-dhcp": {
+      "Tema": "Servidor DHCP: scopes, opciones, reservaciones y leases.",
+      "Objetivo": "Explicar una asignación dinámica sin afectar redes ajenas.",
+      "Conceptos": "Scope, lease, reservación, opciones y aislamiento de red.",
+      "Ejemplo": "Relaciona una dirección de prueba con su lease dentro de un segmento aislado.",
+      "Práctica": "Usa solo una VM o simulación no transmisora; nunca una LAN o Wi-Fi.",
+      "Tarea": "Documenta un scope ficticio, una reservación y su evidencia saneada.",
+      "Quiz": "Comprueba scopes, leases y el límite de aislamiento.",
+      "Conclusión": "DHCP solo es seguro en un segmento que controlas y puedes detener.",
+      "Siguiente tema": "Continúa con Apache como servidor web local."
     },
-    "09-nginx": {
-      "Tema": "Nginx como servidor estático, reverse proxy y balanceador.",
-      "Objetivo": "Publicar una aplicación local con configuración validada y exposición mínima.",
-      "Conceptos": "server blocks, `proxy_pass`, upstream, logs, headers y `nginx -t`.",
-      "Ejemplo": "Valida una configuración con `sudo nginx -t` antes de cualquier recarga.",
-      "Práctica": "En un contenedor o equipo local, inspecciona la página por defecto de Nginx con `curl -I http://localhost` sin exponer servicios externos.",
-      "Tarea": "Redacta un server block de ejemplo para contenido estático e identifica dónde validarías sintaxis y respuesta HTTP.",
-      "Quiz": "Responde la evaluación sobre server blocks, proxy inverso y validación Nginx.",
-      "Conclusión": "Nginx debe ser la entrada controlada: valida antes de recargar y mantiene los backends fuera de exposición pública.",
-      "Siguiente tema": "Continúa con certificados TLS, HTTPS y renovación automática."
+    "09-apache": {
+      "Tema": "Apache, virtual hosts, contenido estático y registros.",
+      "Objetivo": "Servir y verificar contenido local sin exposición externa.",
+      "Conceptos": "Apache, virtual host, document root, logs y validación.",
+      "Ejemplo": "Valida una configuración antes de recargar Apache.",
+      "Práctica": "Limita el sitio de prueba a localhost y revisa su respuesta y registro local.",
+      "Tarea": "Entrega un virtual host local y evidencia saneada de la comprobación.",
+      "Quiz": "Comprueba virtual hosts y el alcance local de Apache.",
+      "Conclusión": "Un servicio web se cambia con validación previa y alcance mínimo.",
+      "Siguiente tema": "Continúa con Nginx y Apache; TLS es un complemento."
     },
-    "10-ssl": {
-      "Tema": "Certificados TLS, HTTPS, redirecciones y renovación con Certbot.",
-      "Objetivo": "Planificar HTTPS verificable sin arriesgar dominios ni servicios en producción.",
-      "Conceptos": "ACME, Let's Encrypt, Certbot, HSTS, OCSP stapling y renovación.",
-      "Ejemplo": "Prueba una renovación configurada con `certbot renew --dry-run`.",
-      "Práctica": "En un entorno con dominio de prueba propio, revisa DNS y la configuración de Nginx antes de solicitar un certificado; no uses credenciales ajenas.",
-      "Tarea": "Prepara un checklist de emisión que incluya DNS, puertos, prueba de renovación y plan de reversión.",
-      "Quiz": "Comprueba ACME, HSTS, OCSP y renovación automática en la evaluación.",
-      "Conclusión": "HTTPS exige automatización de renovación y validación continua, no solo emitir un certificado.",
-      "Siguiente tema": "Avanza al despliegue de una aplicación con base de datos en contenedores."
+    "10-web": {
+      "Tema": "Nginx y Apache como servidores web y proxy local.",
+      "Objetivo": "Comparar ambos servicios con una exposición limitada a localhost.",
+      "Conceptos": "Nginx, Apache, proxy inverso, virtual hosts y TLS de laboratorio.",
+      "Ejemplo": "Valida la configuración antes de recargar y consulta solo localhost.",
+      "Práctica": "Sirve contenido de prueba en localhost; TLS usa certificado local como complemento.",
+      "Tarea": "Explica qué servidor entrega el contenido y dónde encajaría un proxy local.",
+      "Quiz": "Comprueba Nginx, Apache y el uso complementario de TLS.",
+      "Conclusión": "La comparación web no requiere publicar un servicio ni emitir certificados públicos.",
+      "Siguiente tema": "Avanza a MariaDB y sus respaldos verificables."
     },
     "11-bases-datos": {
-      "Tema": "Bases de datos en contenedores y despliegue de una aplicación.",
-      "Objetivo": "Desplegar una pila App + DB con persistencia, mínimo privilegio y respaldos verificables.",
-      "Conceptos": "MySQL, PostgreSQL, Docker Compose, healthchecks, volúmenes, backup y túnel SSH.",
-      "Ejemplo": "Comprueba el estado de la pila con `docker compose ps` y verifica el volumen de datos.",
-      "Práctica": "En un entorno local, lee un archivo Compose de ejemplo e identifica la red interna, el volumen y el healthcheck sin publicar la base de datos.",
-      "Tarea": "Entrega un plan de despliegue con usuario de aplicación, volumen persistente, backup y prueba de restauración.",
+      "Tema": "MariaDB local: instalación aislada, roles y recuperación verificable.",
+      "Objetivo": "Administrar una instancia MariaDB desechable con mínimo privilegio, respaldo y restauración comprobada.",
+      "Conceptos": "MariaDB, Docker Compose, healthcheck, volumen, roles, GRANT, mariadb-dump y ajuste básico.",
+      "Ejemplo": "Comprueba el contenedor con `docker compose ps` y contrasta el recuento de origen con el de restauración.",
+      "Práctica": "En un entorno local desechable, usa solo datos ficticios y un puerto ligado a localhost; separa la cuenta administradora de la cuenta de aplicación.",
+      "Tarea": "Entrega evidencia saneada de privilegios, dump, restauración con tres filas y los límites locales de buffer y conexiones.",
       "Quiz": "Responde la evaluación final sobre persistencia, privilegios, Compose y acceso seguro a bases de datos.",
-      "Conclusión": "Una aplicación desplegable protege sus datos con volúmenes, privilegios mínimos y restauraciones probadas.",
+      "Conclusión": "MariaDB se opera de forma segura cuando los roles son mínimos y cada respaldo se valida mediante una restauración aislada.",
       "Siguiente tema": "Cierra el recorrido revisando el catálogo y eligiendo una práctica integradora."
+    },
+    "12-rescate-proyecto": {
+      "Tema": "Modo rescate, diagnóstico y proyecto integrador.",
+      "Objetivo": "Planificar una recuperación verificable en una VM desechable.",
+      "Conceptos": "Modo rescate, sistema de archivos, instantánea, evidencia y reversión.",
+      "Ejemplo": "Identifica un volumen virtual de prueba antes de cualquier diagnóstico.",
+      "Práctica": "Usa una VM desechable y ningún disco físico.",
+      "Tarea": "Entrega un plan de rescate y una rúbrica con validación y reversión.",
+      "Quiz": "Comprueba los límites seguros del proyecto final.",
+      "Conclusión": "Recuperar exige aislar, validar y poder volver atrás.",
+      "Siguiente tema": "Has completado las doce unidades del brochure."
     }
   }
 }

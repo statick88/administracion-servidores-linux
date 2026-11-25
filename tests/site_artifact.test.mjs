@@ -38,7 +38,7 @@ test('public artifact validator accepts a complete production fixture', () => {
     'recursos/proxmox.html': '<a href="../recursos.html">Recursos</a>',
     'recursos/minicursos/index.html': '<a href="nvim.html">Nvim</a>',
     ...Object.fromEntries(['nvim', 'zsh', 'oh-my-zsh', 'lazyvim', 'herdr', 'opencode', 'ranger', 'bash-scripting', 'monitoreo', 'fallos', 'errores', 'hardening', 'zero-trust'].map((slug) => [`recursos/minicursos/${slug}.html`, '<a href="index.html">Índice</a>'])),
-    ...Object.fromEntries(['01-fundamentos', '02-paquetes', '03-scripting', '04-usuarios', '05-procesos', '06-redes', '07-seguridad', '08-docker', '09-nginx', '10-ssl', '11-bases-datos'].map((unit) => [`unidades/${unit}.html`, '<a href="../index.html">Inicio</a>'])),
+    ...Object.fromEntries(['01-fundamentos', '02-paquetes', '03-scripting', '04-usuarios', '05-procesos', '06-redes', '07-seguridad', '08-dhcp', '09-apache', '10-web', '11-bases-datos', '12-rescate-proyecto', '08-docker', '09-nginx', '10-ssl'].map((unit) => [`unidades/${unit}.html`, '<a href="../index.html">Inicio</a>'])),
   });
   try {
     const result = run(output, '--production');

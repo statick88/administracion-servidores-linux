@@ -22,10 +22,11 @@ test('public lessons keep Docker access, cleanup, and database examples safe for
     assert.match(docker, /grupo equivale a control administrativo/i);
     assert.match(docker, /rootless/i);
     assert.match(docker, /solo.*laboratorio.*datos.*desechables/is);
+    assert.match(databases, /mariadb:11\.4/);
     assert.match(databases, /--env-file \.env\.lab/);
-    assert.match(databases, /127\.0\.0\.1:3306:3306/);
-    assert.match(databases, /127\.0\.0\.1:5432:5432/);
-    assert.doesNotMatch(databases, /CambiaEstePasswordFuerte|PasswordAppFuerte|NuevaPasswordFuerte/);
+    assert.match(databases, /127\.0\.0\.1:3307:3306/);
+    assert.match(databases, /mariadb-dump/);
+    assert.doesNotMatch(databases, /0\.0\.0\.0:|CambiaEstePasswordFuerte|PasswordAppFuerte|NuevaPasswordFuerte/);
   } finally {
     rmSync(output, { recursive: true, force: true });
   }

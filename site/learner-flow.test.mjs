@@ -36,7 +36,7 @@ test('wrong quiz answers offer a conceptual review link', async () => {
   const { output, run } = buildSite();
   try {
     assert.equal(run.status, 0, run.stderr);
-    const page = readFileSync(join(output, 'unidades', '08-docker.html'), 'utf8');
+    const page = readFileSync(join(output, 'unidades', '08-dhcp.html'), 'utf8');
     assert.match(page, /<fieldset data-answer="\d+" data-review-href="#lesson-conceptos">/);
     const { quizFeedback } = await import('./app.js');
     assert.deepEqual(quizFeedback('0', 1, '#lesson-conceptos'), {

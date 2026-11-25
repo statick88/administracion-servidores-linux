@@ -60,8 +60,17 @@ def unit_resource_links(resources, unit_id, base):
     return f'<section class="related-resources"><h2>Recursos relacionados</h2><ul>{links}</ul></section>'
 
 
-def render_resources(resources, root, unit_titles, *, include_minicourses=False):
-    """Render only registered guides and metadata; never read historical source files."""
+def _render_resource_material(material, resource_routes):
+    """Render material and map only registered reader source identifiers to local routes."""
+    rendered = render_markdown(material, resource_routes)
+    for identifier, route in resource_routes.items():
+        rendered = rendered.replace(f'href="{escape(identifier)}.html"',
+                                    f'href="{escape(route)}.html"')
+    return rendered
+
+
+def render_resources(resources, root, unit_titles, resource_routes, *, include_minicourses=False):
+    """Render registered resources with an explicit allowlist of local reader routes."""
     guides = [item for item in resources if item["publication"] == SAFE_GUIDE]
     listings = [item for item in resources if item["publication"] == LISTING]
     excluded = [item for item in resources if item["publication"] == OUT_OF_SCOPE]
@@ -90,7 +99,7 @@ def render_resources(resources, root, unit_titles, *, include_minicourses=False)
         units = ", ".join(unit_titles[unit] for unit in item.get("units", []))
         content += (f'<section id="{escape(item["id"])}"><h3>{escape(item["title"])}</h3>'
                     f'<p>{escape(item["scope"])} <em>Unidad: {escape(units)}.</em></p>'
-                    f'{render_markdown(item["material"], {})}</section>')
+                    f'{_render_resource_material(item["material"], resource_routes)}</section>')
     content += '</section><section><h2>Fuera de alcance curricular actual</h2><ul>'
     for item in excluded:
         content += f'<li id="{escape(item["id"])}"><strong>{escape(item["title"])}</strong>: {escape(item["scope"])}</li>'

@@ -18,7 +18,7 @@ test('build publishes safe registered resources and links them from home and mat
     const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
     const bandit = readFileSync(join(output, 'recursos', 'bandit.html'), 'utf8');
     const proxmox = readFileSync(join(output, 'recursos', 'proxmox.html'), 'utf8');
-    assert.equal(run.stdout, 'Built 15 pages.\n');
+    assert.equal(run.stdout, 'Built 20 pages.\n');
     assert.equal(run.stderr, '');
     assert.match(resources, /href="recursos\/bandit\.html/);
     assert.match(resources, /href="recursos\/proxmox\.html/);
@@ -54,6 +54,16 @@ test('build publishes safe registered resources and links them from home and mat
     assert.match(resources, /Prácticas existentes y minicursos compatibles/);
     assert.match(resources, /Antes de automatizar, define una entrada, una salida esperada y un límite de permisos/);
     assert.match(resources, /Verifica una política UFW y una señal de Fail2Ban en un laboratorio aislado/);
+    assert.match(resources, /Lab Linux: cobertura y límites/);
+    assert.match(resources, /Lectores complementarios: Docker, Nginx y TLS/);
+    assert.match(resources, /href="unidades\/08-docker\.html">Docker<\/a>/);
+    assert.match(resources, /href="unidades\/09-nginx\.html">Nginx<\/a>/);
+    assert.match(resources, /href="unidades\/10-ssl\.html">TLS\/HTTPS<\/a>/);
+    assert.match(resources, /href="unidades\/11-bases-datos\.html">lección oficial de MariaDB<\/a>/);
+    assert.match(resources, /href="unidades\/11-bases-datos-multimotor\.html">lectura complementaria sobre bases de datos en contenedores<\/a>/);
+    assert.match(resources, /sus números no equivalen a las unidades del brochure/);
+    assert.match(resources, /Cobertura parcial de la Unidad X; no es equivalencia numérica con el laboratorio/);
+    assert.match(resources, /configuraciones privilegiadas o acceso a socket/);
     assert.match(resources, /Fuera de alcance curricular actual/);
     assert.match(bandit, /no contiene datos de acceso/);
     assert.doesNotMatch(bandit, /bandit[0-9]+/i);
@@ -65,7 +75,7 @@ test('build publishes safe registered resources and links them from home and mat
     assert.match(resources, /<h2>Talleres por unidad<\/h2>/);
     for (const { id } of catalog.units) {
       const reader = readFileSync(join(output, 'unidades', `${id}.html`), 'utf8');
-      const workshop = resources.split(`<section id="taller-${id}">`)[1]?.split('</section>')[0];
+      const workshop = resources.split(`<section id="taller-${id}">`)[1]?.split(/<section id="taller-/)[0];
       assert.ok(workshop, `Missing workshop for ${id}`);
       assert.match(workshop, /Pasos guiados/);
       assert.match(workshop, /Entregables/);

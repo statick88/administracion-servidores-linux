@@ -24,8 +24,8 @@ def escape(value):
 
 def load_catalog():
     catalog = json.loads((ROOT / 'course/catalog.json').read_text())
-    if catalog.get('schemaVersion') != 1 or len(catalog.get('units', [])) != 11:
-        raise ValueError('Expected schemaVersion 1 and eleven brochure units')
+    if catalog.get('schemaVersion') != 1 or len(catalog.get('units', [])) != 12:
+        raise ValueError('Expected schemaVersion 1 and twelve brochure units')
     ids = set()
     for unit in catalog['units']:
         if not re.fullmatch(r'[0-9]{2}-[a-z-]+', unit['id']) or unit['id'] in ids:
@@ -78,7 +78,7 @@ def build(output, *, include_minicourses=False):
     home = (f'<section class="hero"><p class="eyebrow">WSL2 · Docker · Nginx · HTTPS</p>'
             f'<h1>{escape(catalog["title"])}</h1><p>{escape(catalog["description"])}</p>'
             f'<a class="cta" href="unidades/{units[0]["id"]}.html">Empezar a estudiar →</a>'
-            '<p>11 unidades · Contenido práctico en español</p></section>'
+            '<p>12 unidades · Contenido práctico en español</p></section>'
             '<section aria-labelledby="catalog-title"><h2 id="catalog-title">Recorrido del curso</h2>'
             '<div class="catalog" id="catalogo">')
     for index, unit in enumerate(units, 1):
@@ -91,9 +91,20 @@ def build(output, *, include_minicourses=False):
              '<p>Consulta guías seguras, prácticas existentes y minicursos compatibles con la malla actual.</p>'
              '<p><a href="recursos.html">Ver recursos</a></p></section>'
              f'<p>{escape(catalog["author"])}</p>')
+    historical_readers = {
+        '11-bases-datos': ('Bases de datos en contenedores (lectura histórica multi-motor)',
+                            '11-bases-datos/index.qmd'),
+    }
+    resource_routes = {
+        **{item['id']: f"unidades/{item['id']}" for item in units},
+        '08-docker': 'unidades/08-docker',
+        '09-nginx': 'unidades/09-nginx',
+        '10-ssl': 'unidades/10-ssl',
+        '11-bases-datos-multimotor': 'unidades/11-bases-datos-multimotor',
+    }
     planned = {
         'index.html': page(template, catalog['title'], home, '', './', UNIT_SEARCH),
-        'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles, include_minicourses=include_minicourses), '', './'),
+        'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles, resource_routes, include_minicourses=include_minicourses), '', './'),
     }
     for route, title, content in render_guide_pages(resources, ROOT):
         planned[route] = page(template, title, content, '', '../')
@@ -122,9 +133,38 @@ def build(output, *, include_minicourses=False):
         workshop = workshops[unit['id']][0]
         guide = render_lesson_guide(guides[unit['id']], next_href, next_title,
                                     f'../recursos.html#{workshop["id"]}', workshop['title'])
+        if unit['id'] in historical_readers:
+            reader_id = '11-bases-datos-multimotor'
+            guide += ('<p class="supplemental-reader">Lectura histórica complementaria: '
+                      f'<a href="{reader_id}.html">{escape(historical_readers[unit["id"]][0])}</a>. '
+                      'La ruta oficial está centrada en MariaDB.</p>')
         related_resources = unit_resource_links(resources, unit['id'], '../')
         content = f'<article>{guide}{lesson}{related_resources}<section id="evaluaciones" aria-label="Evaluaciones">{internal_quiz}{external_quiz}</section></article>'
         planned[f'unidades/{unit["id"]}.html'] = page(template, unit['title'], content, navigation, '../', UNIT_SEARCH)
+    # Preserve complete established readers after the brochure renumbering.
+    legacy_readers = {
+        '08-docker': ('Docker (material complementario)', '08-docker/index.qmd'),
+        '09-nginx': ('Nginx (material complementario)', '09-nginx/index.qmd'),
+        '10-ssl': ('TLS y HTTPS (material complementario)', '10-ssl/index.qmd'),
+    }
+    for old_id, (title, source_path) in legacy_readers.items():
+        source = (ROOT / source_path).read_text(encoding='utf-8')
+        content = ('<article><h1>' + escape(title) + '</h1>'
+                   '<p>Esta ruta se conserva para lectores existentes. Es material complementario '
+                   'del recorrido oficial; continúa en la <a href="10-web.html">Unidad X: Nginx y Apache</a>.'
+                   '</p>' + render_markdown(source, unit_routes) + '</article>')
+        planned[f'unidades/{old_id}.html'] = page(template, title, content,
+                                                   '<a href="../index.html">← Todas las unidades</a>', '../', UNIT_SEARCH)
+    for unit_id, (title, source_path) in historical_readers.items():
+        reader_id = '11-bases-datos-multimotor'
+        source = (ROOT / source_path).read_text(encoding='utf-8')
+        content = ('<article><p><a href="11-bases-datos.html">← Volver a Unidad XI</a></p>'
+                   f'<h1>{escape(title)}</h1>'
+                   '<p>Esta lectura histórica multi-motor se conserva completa como complemento; '
+                   'la ruta oficial de la Unidad XI está centrada en MariaDB.</p>'
+                   + render_markdown(source, unit_routes) + '</article>')
+        planned[f'unidades/{reader_id}.html'] = page(template, title, content,
+                                                      '<a href="../index.html">← Todas las unidades</a>', '../', UNIT_SEARCH)
     for name in ('style.css', 'app.js'):
         asset = ROOT / 'site' / name
         if asset.exists():

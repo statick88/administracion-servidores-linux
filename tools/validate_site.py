@@ -10,8 +10,8 @@ from urllib.parse import urlsplit
 
 UNITS = (
     "01-fundamentos", "02-paquetes", "03-scripting", "04-usuarios",
-    "05-procesos", "06-redes", "07-seguridad", "08-docker", "09-nginx",
-    "10-ssl", "11-bases-datos",
+    "05-procesos", "06-redes", "07-seguridad", "08-dhcp", "09-apache",
+    "10-web", "11-bases-datos", "12-rescate-proyecto",
 )
 MINICOURSES = (
     "nvim", "zsh", "oh-my-zsh", "lazyvim", "herdr", "opencode", "ranger",
@@ -20,6 +20,7 @@ MINICOURSES = (
 PRODUCTION_ROUTES = (
     "index.html", "recursos.html", "recursos/bandit.html", "recursos/proxmox.html",
     *(f"unidades/{unit}.html" for unit in UNITS),
+    "unidades/08-docker.html", "unidades/09-nginx.html", "unidades/10-ssl.html",
     "recursos/minicursos/index.html",
     *(f"recursos/minicursos/{course}.html" for course in MINICOURSES),
 )

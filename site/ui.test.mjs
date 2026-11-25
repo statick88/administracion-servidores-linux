@@ -45,7 +45,7 @@ test('primary navigation links to available course sections from both build mode
     try {
       assert.equal(run.status, 0, run.stderr);
       assert.equal(run.stderr, '');
-      assert.equal(run.stdout, `Built ${include ? 29 : 15} pages.\n`);
+      assert.equal(run.stdout, `Built ${include ? 34 : 20} pages.\n`);
       const read = (path) => readFileSync(join(output, path), 'utf8');
       for (const [path, base] of [['index.html', './'], ['unidades/01-fundamentos.html', '../'],
         ...(include ? [['recursos/minicursos/nvim.html', '../../']] : [])]) {
