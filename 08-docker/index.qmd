@@ -141,7 +141,6 @@ $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -
 $ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null  
 $ sudo apt update  
 $ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  
-$ sudo usermod -aG docker $USER  
 ```
 
 1. **apt update** refresca el índice de paquetes disponibles.
@@ -151,7 +150,21 @@ $ sudo usermod -aG docker $USER
 5. **tee** agrega el repositorio de Docker a la lista de fuentes de APT.
 6. **apt update** vuelve a refrescar para reconocer los paquetes de Docker.
 7. **docker-ce / docker-ce-cli / containerd.io / buildx / compose** instala el Engine completo.
-8. **usermod -aG docker** añade tu usuario al grupo `docker` (requiere re-login para aplicar).
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**No añadas tu cuenta al grupo `docker` como atajo para evitar `sudo`: ese grupo equivale a control administrativo del host.** Un proceso que pueda usar el socket Docker puede montar el filesystem del host o ejecutar contenedores privilegiados.
+
+**Lo que podría salir mal:**
+- Una cuenta o herramienta comprometida obtiene privilegios equivalentes a root mediante Docker.
+- Se normaliza el acceso al socket para tareas que no lo necesitan.
+
+**Cómo prevenirlo:**
+1. En el laboratorio, usa Docker Desktop o ejecuta las prácticas puntuales con `sudo` cuando el entorno lo requiera.
+2. Para desarrollo sin privilegios, evalúa el modo **rootless** oficial de Docker y sigue su guía de instalación; comprueba antes sus límites de red y compatibilidad.
+3. No montes ni compartas `/var/run/docker.sock` con contenedores o usuarios no confiables.
+:::
 
 ### macOS (Docker Desktop)
 
@@ -398,7 +411,7 @@ $ docker volume create db-data
 db-data
 
 
-$ docker run -d --name postgres -v db-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=secret postgres:16  
+$ docker run -d --name postgres --env-file .env.lab -v db-data:/var/lib/postgresql/data postgres:16
 
 
 $ docker volume ls  
@@ -411,9 +424,10 @@ $ docker volume rm db-data
 ```
 
 1. **docker volume create** crea un volumen nombrado gestionado por Docker.
-2. **-v db-data:/var/lib/postgresql/data** monta el volumen en la ruta de datos de Postgres.
-3. **docker volume ls** lista los volúmenes existentes.
-4. **docker volume rm** elimina un volumen (¡cuidado: borra los datos!).
+2. **--env-file .env.lab** carga una contraseña única del entorno de laboratorio; el archivo no se publica ni se reutiliza fuera de él.
+3. **-v db-data:/var/lib/postgresql/data** monta el volumen en la ruta de datos de Postgres.
+4. **docker volume ls** lista los volúmenes existentes.
+5. **docker volume rm** elimina un volumen y sus datos: úsalo solo para `db-data` en un laboratorio con datos desechables, después de confirmar el nombre y tener un backup verificable.
 
 ### Redes: el driver bridge
 
@@ -500,7 +514,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=secret
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
 volumes:
   db-data:
@@ -548,24 +562,39 @@ Usa DevContainers para aislar el toolchain de cada proyecto (Python, Node, Go) y
 - Usar `:latest` en producción rompe la reproducibilidad y dificulta rollbacks.
 
 **Cómo prevenirlo:**
-3. Define un usuario no root en el Dockerfile (`RUN useradd -m app && USER app`).
-4. Limpia periódicamente con `docker system prune -a` y elimina volúmenes huérfanos.
-5. Nunca montes `/var/run/docker.sock` salvo herramientas de infraestructura de absoluta confianza.
-6. Fija tags versionados (`:1.0.0`) y escanea imágenes con `docker scout` o Trivy.
-7. Aplica el principio de mínimo privilegio: solo los puertos y volúmenes estrictamente necesarios.
+1. Define un usuario no root en el Dockerfile (`RUN useradd -m app && USER app`).
+2. Inspecciona primero el uso de disco; elimina únicamente recursos identificados y prescindibles.
+3. Nunca montes `/var/run/docker.sock` salvo herramientas de infraestructura de absoluta confianza.
+4. Fija tags versionados (`:1.0.0`) y escanea imágenes con `docker scout` o Trivy.
+5. Aplica el principio de mínimo privilegio: solo los puertos y volúmenes estrictamente necesarios.
 :::
 
 ```bash
-$ docker system prune -a --volumes  
-WARNING! This will remove:
-  - all stopped containers
-  - all networks not used by at least one container
-  - all images without at least one container associated
-  - all build cache
-
+$ docker system df  # <1>
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          4         2         1.2GB     700MB (58%)
+Containers      2         1         12MB      4MB (33%)
+Local Volumes   1         1         80MB      0B (0%)
 ```
 
-1. **docker system prune -a --volumes** libera espacio eliminando contenedores detenidos, redes e imágenes huérfanas (¡borra también volúmenes no usados!).
+
+
+1. **docker system df** solo inspecciona el espacio usado y recuperable; no elimina nada.
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**La limpieza destructiva es solo para un laboratorio con datos desechables.** No ejecutes `docker system prune -a --volumes` como mantenimiento rutinario ni en un host que contenga proyectos, volúmenes o backups que deban conservarse.
+
+**Lo que podría salir mal:**
+- Se eliminan imágenes, cachés o volúmenes necesarios para otro proyecto.
+- Un volumen de base de datos sin backup queda irrecuperable.
+
+**Cómo prevenirlo:**
+1. Revisa primero `docker system df` y lista por separado los recursos candidatos.
+2. Confirma el nombre, propietario y necesidad de cada recurso; crea y prueba un backup antes de borrar datos.
+3. En producción, aplica la política de retención aprobada en lugar de una limpieza global.
+:::
 
 ---
 
