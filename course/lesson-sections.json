@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "sections": {
+    "01-fundamentos": {
+      "Tema": "Fundamentos de Linux, WSL2, terminal Bash y virtualización ligera.",
+      "Objetivo": "Preparar un entorno de trabajo seguro y reconocer las bases del sistema Linux.",
+      "Conceptos": "Kernel, distribución, FHS, permisos, GRUB y targets de systemd.",
+      "Ejemplo": "Comprueba la distribución con `cat /etc/os-release` y el kernel con `uname -r`.",
+      "Práctica": "En tu equipo local, verifica WSL2 o tu distribución y navega por `/etc`, `/var` y tu directorio personal; no modifiques archivos del sistema.",
+      "Tarea": "Entrega una breve evidencia de la versión del sistema, tu ruta de trabajo y tres directorios FHS identificados.",
+      "Quiz": "Comprueba los conceptos de kernel, WSL2, permisos y FHS en la evaluación de la unidad.",
+      "Conclusión": "Linux se administra con observación, permisos mínimos y cambios reproducibles.",
+      "Siguiente tema": "Continúa con la gestión segura de paquetes y repositorios."
+    },
+    "02-paquetes": {
+      "Tema": "Gestión de paquetes, repositorios firmados y entornos de desarrollo.",
+      "Objetivo": "Instalar, revisar y actualizar software conservando trazabilidad y verificación de origen.",
+      "Conceptos": "APT, DNF, firmas GPG, repositorios, pinning y Git.",
+      "Ejemplo": "Consulta una versión disponible con `apt policy nginx` antes de instalarla.",
+      "Práctica": "En un entorno de laboratorio, ejecuta `apt update` y revisa paquetes actualizables sin aplicar cambios.",
+      "Tarea": "Documenta el origen y la huella de una clave de repositorio oficial antes de proponer su uso.",
+      "Quiz": "Responde la evaluación sobre APT, DNF, pinning y firmas de repositorios.",
+      "Conclusión": "Un paquete confiable combina repositorio conocido, firma verificable y versión revisada.",
+      "Siguiente tema": "Avanza a scripts Bash para automatizar tareas repetibles."
+    },
+    "03-scripting": {
+      "Tema": "Scripting Bash, FHS, backups, logs y automatización.",
+      "Objetivo": "Crear automatizaciones legibles que validen su entorno y produzcan evidencia.",
+      "Conceptos": "Shebang, `set -euo pipefail`, funciones, permisos, tar, logrotate y timers.",
+      "Ejemplo": "Un script robusto valida el origen antes de crear un archivo de respaldo.",
+      "Práctica": "Crea en tu directorio personal un script que liste archivos y escriba su salida en un log temporal.",
+      "Tarea": "Completa el laboratorio enlazado de la unidad o entrega el script con una explicación de sus validaciones.",
+      "Quiz": "Revisa scripting, FHS, backups y automatización en la evaluación asociada.",
+      "Conclusión": "Automatizar no es solo ejecutar: es validar, registrar y poder repetir el resultado.",
+      "Siguiente tema": "Continúa con la administración segura de usuarios y accesos."
+    },
+    "04-usuarios": {
+      "Tema": "Usuarios, grupos, PAM, sudoers y claves SSH.",
+      "Objetivo": "Aplicar mínimo privilegio al acceso de personas y servicios.",
+      "Conceptos": "passwd, shadow, grupos, PAM, sudoers, ed25519 y hardening SSH.",
+      "Ejemplo": "Antes de recargar SSH, valida la configuración con `sshd -t`.",
+      "Práctica": "En una máquina de laboratorio, consulta los grupos de tu usuario y revisa permisos de `~/.ssh` sin cambiar la configuración del servidor.",
+      "Tarea": "Propón una matriz simple de roles y privilegios para un equipo de aplicación, despliegue y monitoreo.",
+      "Quiz": "Comprueba usuarios, PAM, sudoers y rotación de claves en la evaluación.",
+      "Conclusión": "Las cuentas y sus privilegios deben ser específicos, verificables y revocables.",
+      "Siguiente tema": "Avanza al diagnóstico de procesos, servicios y registros."
+    },
+    "05-procesos": {
+      "Tema": "Procesos, unidades systemd, logs, timers y límites de recursos.",
+      "Objetivo": "Observar servicios y programar tareas sin perder trazabilidad operativa.",
+      "Conceptos": "systemd, journalctl, htop, cron, timers y cgroups v2.",
+      "Ejemplo": "Filtra eventos recientes de una unidad con `journalctl -u nombre-servicio --since \"1 hour ago\"`.",
+      "Práctica": "Consulta el estado de un servicio existente y lee sus últimas líneas de journal sin reiniciarlo.",
+      "Tarea": "Escribe un plan de verificación para un timer: unidad, horario, logs y criterio de éxito.",
+      "Quiz": "Responde la evaluación sobre systemd, journalctl, timers y cgroups.",
+      "Conclusión": "La operación confiable mide estado, registros y recursos antes de intervenir.",
+      "Siguiente tema": "Continúa con redes, almacenamiento y montaje persistente."
+    },
+    "06-redes": {
+      "Tema": "Diagnóstico de red, almacenamiento local, LVM y firewall.",
+      "Objetivo": "Relacionar conectividad, puertos, discos y montajes con configuraciones seguras.",
+      "Conceptos": "ip, ss, DNS, Netplan, LVM, fstab, UFW y firewalld.",
+      "Ejemplo": "Usa `ip -br addr` y `ip route` para observar direcciones y rutas sin alterarlas.",
+      "Práctica": "En un laboratorio local, recopila interfaz, ruta por defecto y puertos en escucha; no cambies IP ni reglas remotas.",
+      "Tarea": "Diseña una entrada fstab con UUID y opciones apropiadas para un disco de respaldo opcional.",
+      "Quiz": "Comprueba DNS, rutas, LVM, fstab y políticas de firewall en la evaluación.",
+      "Conclusión": "La red y el almacenamiento se administran mejor con inspección previa y cambios reversibles.",
+      "Siguiente tema": "Avanza al hardening de servicios y del sistema."
+    },
+    "07-seguridad": {
+      "Tema": "Hardening práctico con firewall, fail2ban, auditoría y controles MAC.",
+      "Objetivo": "Reducir superficie de ataque y registrar los cambios de seguridad.",
+      "Conceptos": "UFW, fail2ban, SSH, sysctl, auditd, SELinux y AppArmor.",
+      "Ejemplo": "Revisa reglas activas con `sudo ufw status numbered` antes de modificar el firewall.",
+      "Práctica": "En una VM o entorno de laboratorio con consola disponible, inventaría reglas y perfiles activos sin habilitar ni borrar reglas.",
+      "Tarea": "Elabora una lista de hardening priorizada que incluya validación y un plan de reversión.",
+      "Quiz": "Responde la evaluación sobre firewall, fail2ban, SSH y auditoría.",
+      "Conclusión": "El hardening eficaz combina mínimo privilegio, validación y evidencia.",
+      "Siguiente tema": "Continúa con imágenes, contenedores y operación básica de Docker."
+    },
+    "08-docker": {
+      "Tema": "Fundamentos de Docker: imágenes, contenedores, redes y volúmenes.",
+      "Objetivo": "Entender el ciclo de vida de un contenedor sin perder control del host ni de los datos.",
+      "Conceptos": "Docker Engine, imágenes, Dockerfile, puertos, redes bridge y volúmenes.",
+      "Ejemplo": "Comprueba la instalación con `docker version` y ejecuta la imagen de prueba indicada en la lección.",
+      "Práctica": "En Docker Desktop o un host de laboratorio, ejecuta `docker run --rm hello-world` y registra solo su resultado.",
+      "Tarea": "Describe un Dockerfile mínimo para una aplicación propia, indicando imagen base, usuario no root y puerto documentado.",
+      "Quiz": "Comprueba imágenes, contenedores, puertos y volúmenes en la evaluación de Docker.",
+      "Conclusión": "Los contenedores son reproducibles cuando se versionan imágenes y se persisten los datos fuera de su capa efímera.",
+      "Siguiente tema": "Avanza a Nginx para publicar contenido y proxyear aplicaciones."
+    },
+    "09-nginx": {
+      "Tema": "Nginx como servidor estático, reverse proxy y balanceador.",
+      "Objetivo": "Publicar una aplicación local con configuración validada y exposición mínima.",
+      "Conceptos": "server blocks, `proxy_pass`, upstream, logs, headers y `nginx -t`.",
+      "Ejemplo": "Valida una configuración con `sudo nginx -t` antes de cualquier recarga.",
+      "Práctica": "En un contenedor o equipo local, inspecciona la página por defecto de Nginx con `curl -I http://localhost` sin exponer servicios externos.",
+      "Tarea": "Redacta un server block de ejemplo para contenido estático e identifica dónde validarías sintaxis y respuesta HTTP.",
+      "Quiz": "Responde la evaluación sobre server blocks, proxy inverso y validación Nginx.",
+      "Conclusión": "Nginx debe ser la entrada controlada: valida antes de recargar y mantiene los backends fuera de exposición pública.",
+      "Siguiente tema": "Continúa con certificados TLS, HTTPS y renovación automática."
+    },
+    "10-ssl": {
+      "Tema": "Certificados TLS, HTTPS, redirecciones y renovación con Certbot.",
+      "Objetivo": "Planificar HTTPS verificable sin arriesgar dominios ni servicios en producción.",
+      "Conceptos": "ACME, Let's Encrypt, Certbot, HSTS, OCSP stapling y renovación.",
+      "Ejemplo": "Prueba una renovación configurada con `certbot renew --dry-run`.",
+      "Práctica": "En un entorno con dominio de prueba propio, revisa DNS y la configuración de Nginx antes de solicitar un certificado; no uses credenciales ajenas.",
+      "Tarea": "Prepara un checklist de emisión que incluya DNS, puertos, prueba de renovación y plan de reversión.",
+      "Quiz": "Comprueba ACME, HSTS, OCSP y renovación automática en la evaluación.",
+      "Conclusión": "HTTPS exige automatización de renovación y validación continua, no solo emitir un certificado.",
+      "Siguiente tema": "Avanza al despliegue de una aplicación con base de datos en contenedores."
+    },
+    "11-bases-datos": {
+      "Tema": "Bases de datos en contenedores y despliegue de una aplicación.",
+      "Objetivo": "Desplegar una pila App + DB con persistencia, mínimo privilegio y respaldos verificables.",
+      "Conceptos": "MySQL, PostgreSQL, Docker Compose, healthchecks, volúmenes, backup y túnel SSH.",
+      "Ejemplo": "Comprueba el estado de la pila con `docker compose ps` y verifica el volumen de datos.",
+      "Práctica": "En un entorno local, lee un archivo Compose de ejemplo e identifica la red interna, el volumen y el healthcheck sin publicar la base de datos.",
+      "Tarea": "Entrega un plan de despliegue con usuario de aplicación, volumen persistente, backup y prueba de restauración.",
+      "Quiz": "Responde la evaluación final sobre persistencia, privilegios, Compose y acceso seguro a bases de datos.",
+      "Conclusión": "Una aplicación desplegable protege sus datos con volúmenes, privilegios mínimos y restauraciones probadas.",
+      "Siguiente tema": "Cierra el recorrido revisando el catálogo y eligiendo una práctica integradora."
+    }
+  }
+}

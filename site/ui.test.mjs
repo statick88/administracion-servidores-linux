@@ -22,13 +22,13 @@ test('the public builder emits the production interface landmarks and assets', (
     const home = readFileSync(join(output, 'index.html'), 'utf8');
     const reader = readFileSync(join(output, 'unidades', '01-fundamentos.html'), 'utf8');
     assert.match(home, /<a class="skip-link" href="#contenido">/);
-    assert.match(home, /<header class="site-header">/);
+    assert.match(home, /<header id="site-header" class="site-header">/);
     assert.match(home, /<main id="contenido">/);
     assert.match(home, /<nav aria-label="Principal" class="primary-nav">/);
     assert.match(home, /<label for="site-search">Buscar en el curso<\/label>/);
     assert.match(home, /<section class="hero">/);
     assert.match(home, /class="catalog" id="catalogo"/);
-    assert.match(reader, /<aside class="course-sidebar"/);
+    assert.match(reader, /<aside id="course-sidebar" class="course-sidebar"/);
     assert.match(reader, /<details[^>]*class="sidebar-toggle"/);
     assert.match(reader, /assets\/style\.css/);
     assert.match(reader, /assets\/app\.js/);
@@ -59,8 +59,8 @@ test('generated homepage restores its full-width column when the sidebar has no 
     const home = readFileSync(join(output, 'index.html'), 'utf8');
     const reader = readFileSync(join(output, 'unidades', '01-fundamentos.html'), 'utf8');
     const styles = readFileSync(join(output, 'assets', 'style.css'), 'utf8');
-    const homeSidebar = home.match(/<aside class="course-sidebar"[\s\S]*?<\/aside>/)?.[0] || '';
-    const readerSidebar = reader.match(/<aside class="course-sidebar"[\s\S]*?<\/aside>/)?.[0] || '';
+    const homeSidebar = home.match(/<aside id="course-sidebar" class="course-sidebar"[\s\S]*?<\/aside>/)?.[0] || '';
+    const readerSidebar = reader.match(/<aside id="course-sidebar" class="course-sidebar"[\s\S]*?<\/aside>/)?.[0] || '';
     assert.doesNotMatch(homeSidebar, /<ul>/);
     assert.match(readerSidebar, /<ul>/);
     assert.match(styles, /main:not\(:has\(\.course-sidebar ul\)\) \{ display: block; \}/);
