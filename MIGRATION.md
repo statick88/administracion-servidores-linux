@@ -21,7 +21,7 @@ siguiendo el precedente del ebook de `practicas` (`tools/build_site.py`,
   `tools/build_site.py` y el material de referencia del curso.
 - **`presentaciones/`**: subproyecto independiente con su propio `presentaciones/_quarto.yml`
   (`project.type: website`). Se renderiza aparte con Quarto y queda fuera del sitio publicado.
-- **`recursos/`**: material de apoyo, también fuera del sitio publicado.
+- **`course/resources/`**: guías y adaptaciones curadas registradas en `course/resources.json`; el builder publica el índice estático `recursos.html` sin invocar Quarto.
 
 ## Cómo se construye el sitio
 
@@ -33,7 +33,8 @@ node --test site/*.test.mjs tests/*.test.mjs # pruebas
 
 El builder valida el contrato antes de escribir nada: `course/catalog.json` debe tener
 `schemaVersion: 1` y exactamente 11 unidades, cada `source`/`quiz` debe existir dentro del
-repo, y la salida debe estar vacía (no sobreescribe archivos generados).
+repo; `course/resources.json` registra las guías y adaptaciones publicables; y la salida debe
+estar vacía (no sobreescribe archivos generados).
 
 ## Qué publica GitHub Pages
 
@@ -45,6 +46,10 @@ builder → artifact `_site` → deploy. **No instala ni invoca Quarto.** Los di
 
 ## Fuera del sitio publicado
 
-Por decisión de alcance, el sitio solo publica las 11 unidades del brochure con sus quizzes.
-Quedan en el repo como fuentes, sin publicar: unidades 12–15, `unidades/` detalladas,
-laboratorios, prácticas, wargames, presentaciones y anexos.
+El sitio publica las 11 unidades del brochure con sus quizzes y un índice de recursos estático.
+Las prácticas y minicursos compatibles se adaptan de forma curada en ese índice; los textos
+históricos no se renderizan directamente. La guía suplementaria de Proxmox VE avanzado
+adapta de forma defensiva plantillas, LXC no privilegiado, aislamiento de red y restauración,
+sin asignarla a una unidad ni publicar procedimientos de producción. Quedan fuera de
+publicación las unidades 12–15, `unidades/` detalladas, wargames y contenidos que no
+encajan en la malla, además de presentaciones y anexos sin adaptación revisada.
