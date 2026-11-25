@@ -189,7 +189,7 @@ def render_markdown(text, unit_routes):
     return "\n".join(result)
 
 
-def quiz_forms(text, unit_id, start=0):
+def quiz_forms(text, unit_id, start=0, review_href="#lesson-conceptos"):
     """Turn Quizdown blocks into accessible forms and reject invalid question data."""
     blocks = re.findall(
         r"(?:```\{quizdown\}\n(.*?)```|````quizdown\n(.*?)````|::: quizdown\n(.*?):::)",
@@ -240,6 +240,6 @@ def quiz_forms(text, unit_id, start=0):
             else ""
         )
         forms.append(
-            f'<form class="quiz"><fieldset data-answer="{answer}"><legend>{_inline(prompt, {})}</legend>{choices}</fieldset><button type="submit">Comprobar respuesta</button><p class="feedback" role="status"></p>{details}</form>'
+            f'<form class="quiz"><fieldset data-answer="{answer}" data-review-href="{escape(review_href)}"><legend>{_inline(prompt, {})}</legend>{choices}</fieldset><button type="submit">Comprobar respuesta</button><p class="feedback" role="status"></p>{details}</form>'
         )
     return "\n".join(forms), start + len(questions)

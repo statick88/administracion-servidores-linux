@@ -67,9 +67,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run site tests
-        run: node --test site/*.test.mjs tests/*.test.mjs
-
       - name: Build site
         if: github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: python3 tools/build_site.py --output _site
@@ -77,6 +74,20 @@ jobs:
       - name: Build production site with minicourses
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: python3 tools/build_site.py --output _site --include-minicourses
+
+      - name: Run site tests
+        run: node --test site/*.test.mjs $(find tests -name '*.test.mjs' ! -name 'guard_brand.test.mjs')
+
+      - name: Guard generated artifact brand
+        run: SITE_OUTPUT=_site node --test tests/guard_brand.test.mjs
+
+      - name: Validate preview artifact
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        run: python3 tools/validate_site.py --site _site
+
+      - name: Validate production artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python3 tools/validate_site.py --site _site --production
 
       - name: Upload artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

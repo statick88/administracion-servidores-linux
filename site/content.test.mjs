@@ -52,7 +52,7 @@ test('public builder converts every published unit and its Quizdown forms', () =
         assert.match(page, /<table>/);
         assert.ok(page.includes(table[1].trim()), `${unit.id} preserves a source table header`);
       }
-      const forms = [...page.matchAll(/<fieldset data-answer="(\d+)">([\s\S]*?)<\/fieldset>/g)];
+      const forms = [...page.matchAll(/<fieldset data-answer="(\d+)"[^>]*>([\s\S]*?)<\/fieldset>/g)];
       assert.equal(forms.length, expected.length, `${unit.id} keeps every source and associated-quiz question`);
       for (const [index, [, answer, fieldset]] of forms.entries()) {
         const options = [...fieldset.matchAll(/type="radio" name="([^"]+)" value="(\d+)"/g)];

@@ -26,7 +26,15 @@ body.reader-navigation-hidden .course-sidebar { visibility: hidden; opacity: 0; 
 body.reader-navigation-hidden .reader-navigation-restore { display: block; }
 .brand { align-self: center; font-weight: 750; }
 .brand span { display: inline-block; margin-right: .45rem; padding: .28rem .55rem; border-radius: .4rem; background: var(--amber); color: var(--ink); font-weight: 900; }
-.primary-nav { display: flex; gap: 1rem; align-self: center; color: var(--muted); }
+.primary-nav { display: flex; flex-wrap: wrap; gap: .25rem; align-items: center; align-self: center; color: var(--muted); }
+.primary-nav a, .resources-menu summary { display: flex; align-items: center; min-height: 44px; padding: .35rem .65rem; border-radius: .4rem; }
+.primary-nav a:hover, .resources-menu summary:hover, .resources-menu[open] summary { background: var(--panel-raised); color: var(--amber-soft); }
+.resources-menu { position: relative; }
+.resources-menu summary { cursor: pointer; gap: .45rem; list-style: none; }
+.resources-menu summary::-webkit-details-marker { display: none; }
+.resources-menu summary::after { content: ''; width: .4rem; height: .4rem; border-right: 2px solid; border-bottom: 2px solid; transform: rotate(45deg); }
+.resources-menu[open] summary::after { transform: rotate(225deg); }
+.resources-menu ul { position: absolute; z-index: 1; inset-inline-end: 0; top: 100%; min-width: max-content; margin: .25rem 0 0; padding: .3rem; list-style: none; border: 1px solid var(--line); border-radius: .5rem; background: var(--panel); }
 .search-form { display: grid; gap: .2rem; }
 .search-form label { color: var(--muted); font-size: .85rem; }
 .search-form input { width: 100%; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: .4rem; background: var(--panel); color: var(--text); font: inherit; }
@@ -73,9 +81,11 @@ article .table-wrap { max-width: 100%; overflow-x: auto; }
 .feedback[data-state="correct"] { color: var(--amber-soft); }
 .feedback[data-state="wrong"] { color: var(--danger); }
 footer { padding: 2rem clamp(1rem, 5vw, 5rem); border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
-@media (max-width: 760px) {
-  .site-header { grid-template-columns: 1fr auto; align-items: center; }
-  .primary-nav { justify-content: end; }
+@media (max-width: 900px) {
+  .site-header { grid-template-columns: minmax(0, 1fr); align-items: center; gap: .55rem; }
+  .primary-nav a, .resources-menu summary { padding-inline: .5rem; }
+  .resources-menu ul { position: static; }
+  .resources-menu:has(summary:focus-visible) { z-index: 1; }
   .search-form, .search-status { grid-column: 1 / -1; }
   .search-status { margin: -.65rem 0 0; }
   main { display: block; }

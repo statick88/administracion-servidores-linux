@@ -27,11 +27,16 @@ test('build publishes safe registered resources and links them from home and mat
       assert.match(guide, /href="\.\.\/recursos\.html"/);
       assert.match(guide, /href="\.\.\/assets\/style\.css"/);
     }
-    assert.doesNotMatch(bandit, /Proxmox VE/);
-    assert.doesNotMatch(proxmox, /Bandit/);
+    const article = (page) => {
+      const body = page.match(/<article>[\s\S]*?<\/article>/)?.[0];
+      assert.ok(body, 'Missing guide article');
+      return body;
+    };
+    assert.doesNotMatch(article(bandit), /Proxmox VE/);
+    assert.doesNotMatch(article(proxmox), /Bandit/);
     const fundamentals = readFileSync(join(output, 'unidades', '01-fundamentos.html'), 'utf8');
     const security = readFileSync(join(output, 'unidades', '07-seguridad.html'), 'utf8');
-    assert.match(home, /href="(?:\.\/)?recursos\.html">Recursos</);
+    assert.match(home, /href="(?:\.\/)?recursos\.html">Todos los recursos</);
     assert.match(resources, /Bandit: guía de pistas seguras para aprender/);
     assert.match(resources, /Proxmox VE: orientación compatible/);
     const resourceManifest = JSON.parse(readFileSync(join(root, 'course/resources.json'), 'utf8'));

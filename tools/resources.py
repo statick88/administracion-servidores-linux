@@ -74,7 +74,8 @@ def render_resources(resources, root, unit_titles, *, include_minicourses=False)
     for heading, items in (("Guías publicadas", guides), ("Talleres por unidad", workshops)):
         if not items:
             continue
-        content += f'<section><h2>{heading}</h2>'
+        section_id = ' id="talleres"' if items is workshops else ''
+        content += f'<section{section_id}><h2>{heading}</h2>'
         for item in items:
             if item["id"] in GUIDE_ROUTES:
                 content += f'<p id="{escape(item["id"])}">{_resource_link(item, "")}</p>'

@@ -38,9 +38,17 @@ def load_catalog():
     return catalog
 
 
-def page(template, title, content, navigation, base):
-    values = dict(title=escape(title), content=content, navigation=navigation, base=base)
-    return re.sub(r'\{\{(title|content|navigation|base)\}\}',
+UNIT_SEARCH = ('<form class="search-form" role="search" data-search-scope="unidades">'
+               '<label for="site-search">Buscar en el curso</label>'
+               '<p id="search-scope" class="search-scope">Busca solo en unidades publicadas.</p>'
+               '<input id="site-search" type="search" autocomplete="off" aria-describedby="search-scope" placeholder="Docker, Nginx, permisos…">'
+               '</form><p id="search-status" class="search-status" aria-live="polite"></p>')
+
+
+def page(template, title, content, navigation, base, search=""):
+    values = dict(title=escape(title), content=content, navigation=navigation, base=base,
+                  search=search)
+    return re.sub(r'\{\{(title|content|navigation|base|search)\}\}',
                   lambda match: values[match[1]], template)
 
 
@@ -53,10 +61,20 @@ def build(output, *, include_minicourses=False):
         raise ValueError('Use _site or an isolated output directory outside the source tree')
     template_path = ROOT / 'site/page.html'
     template = template_path.read_text() if template_path.exists() else FALLBACK
+    template = template.replace('{{minicourse_link}}',
+                                '<a href="{{base}}recursos/minicursos/index.html">Minicursos</a>'
+                                if include_minicourses else '')
     units = catalog['units']
     guides = load_lesson_sections(ROOT / 'course/lesson-sections.json', [unit['id'] for unit in units])
     resources = load_resources(ROOT / 'course/resources.json', {unit['id'] for unit in units})
     unit_titles = {unit['id']: unit['title'] for unit in units}
+    workshops = {
+        unit['id']: [resource for resource in resources
+                     if resource['publication'] == 'workshop' and unit['id'] in resource['units']]
+        for unit in units
+    }
+    if any(len(items) != 1 for items in workshops.values()):
+        raise ValueError('Each published unit must have exactly one matching workshop')
     home = (f'<section class="hero"><p class="eyebrow">WSL2 · Docker · Nginx · HTTPS</p>'
             f'<h1>{escape(catalog["title"])}</h1><p>{escape(catalog["description"])}</p>'
             f'<a class="cta" href="unidades/{units[0]["id"]}.html">Empezar a estudiar →</a>'
@@ -74,7 +92,7 @@ def build(output, *, include_minicourses=False):
              '<p><a href="recursos.html">Ver recursos</a></p></section>'
              f'<p>{escape(catalog["author"])}</p>')
     planned = {
-        'index.html': page(template, catalog['title'], home, '', './'),
+        'index.html': page(template, catalog['title'], home, '', './', UNIT_SEARCH),
         'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles, include_minicourses=include_minicourses), '', './'),
     }
     for route, title, content in render_guide_pages(resources, ROOT):
@@ -101,10 +119,12 @@ def build(output, *, include_minicourses=False):
             next_href, next_title = f'{next_unit["id"]}.html', next_unit['title']
         else:
             next_href, next_title = '../index.html', 'Volver al catálogo del curso'
-        guide = render_lesson_guide(guides[unit['id']], next_href, next_title)
+        workshop = workshops[unit['id']][0]
+        guide = render_lesson_guide(guides[unit['id']], next_href, next_title,
+                                    f'../recursos.html#{workshop["id"]}', workshop['title'])
         related_resources = unit_resource_links(resources, unit['id'], '../')
         content = f'<article>{guide}{lesson}{related_resources}<section id="evaluaciones" aria-label="Evaluaciones">{internal_quiz}{external_quiz}</section></article>'
-        planned[f'unidades/{unit["id"]}.html'] = page(template, unit['title'], content, navigation, '../')
+        planned[f'unidades/{unit["id"]}.html'] = page(template, unit['title'], content, navigation, '../', UNIT_SEARCH)
     for name in ('style.css', 'app.js'):
         asset = ROOT / 'site' / name
         if asset.exists():

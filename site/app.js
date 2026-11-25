@@ -3,14 +3,18 @@ export function filterEntries(entries, query) {
   return term ? entries.filter((entry) => String(entry.text).toLocaleLowerCase('es').includes(term)) : entries;
 }
 
-export function quizFeedback(selected, answer) {
+export function quizFeedback(selected, answer, reviewHref = '') {
   if (selected === null || selected === undefined || selected === '') {
     return { state: 'unanswered', message: 'Selecciona una opción antes de comprobar tu respuesta.' };
   }
   if (Number(selected) === Number(answer)) {
     return { state: 'correct', message: 'Correcto. Puedes continuar con la siguiente pregunta.' };
   }
-  return { state: 'wrong', message: 'Aún no es correcto. Revisa el contenido e inténtalo de nuevo.' };
+  return {
+    state: 'wrong',
+    message: 'Aún no es correcto. Repasa el concepto y vuelve a intentarlo.',
+    reviewHref: String(reviewHref).startsWith('#') ? reviewHref : ''
+  };
 }
 
 export function readerNavigationState({ isReader, scrollY, lastScrollY, navigationHasFocus }) {
@@ -24,14 +28,15 @@ function initializeSearch() {
   const entries = [...document.querySelectorAll('[data-search]')].map((element) => ({
     element, text: element.textContent
   }));
-  if (!input || !status || !entries.length) return;
+  const scope = input?.closest('[data-search-scope]')?.dataset.searchScope;
+  if (!input || !status || !scope || !entries.length) return;
 
   const update = () => {
     const matches = new Set(filterEntries(entries, input.value));
     entries.forEach((entry) => { entry.element.hidden = !matches.has(entry); });
     const term = input.value.trim();
     status.textContent = term
-      ? (matches.size ? `${matches.size} resultado${matches.size === 1 ? '' : 's'} para “${term}”.` : `No hay resultados para “${term}”.`)
+      ? (matches.size ? `${matches.size} resultado${matches.size === 1 ? '' : 's'} en ${scope} para “${term}”.` : `No hay resultados en ${scope} para “${term}”.`)
       : '';
   };
   input.addEventListener('input', update);
@@ -44,8 +49,14 @@ function initializeQuizzes() {
       const fieldset = form.querySelector('fieldset[data-answer]');
       const feedback = form.querySelector('.feedback');
       const selected = form.querySelector('input[type="radio"]:checked');
-      const result = quizFeedback(selected?.value ?? null, fieldset?.dataset.answer);
-      feedback.textContent = result.message;
+      const result = quizFeedback(selected?.value ?? null, fieldset?.dataset.answer, fieldset?.dataset.reviewHref);
+      feedback.replaceChildren(document.createTextNode(result.message));
+      if (result.reviewHref) {
+        const review = document.createElement('a');
+        review.href = result.reviewHref;
+        review.textContent = ' Repasar conceptos.';
+        feedback.append(review);
+      }
       feedback.dataset.state = result.state;
     });
   });

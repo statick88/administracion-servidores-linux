@@ -42,7 +42,7 @@ test("tracked text sources contain zero brand occurrences", () => {
 
 test("built site output contains zero brand occurrences", () => {
   const out = process.env.SITE_OUTPUT || join(ROOT, "_site");
-  if (!existsSync(out)) return; // build output checked by CI after the site build (T7)
+  assert.ok(existsSync(out), `generated site output is required: ${out}`);
   const hits = [];
   const walk = (dir) => {
     for (const entry of readdirSync(dir)) {

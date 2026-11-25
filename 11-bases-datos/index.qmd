@@ -69,67 +69,75 @@ MySQL y su fork MariaDB son motores relacionales compatibles. Para este curso us
 
 ```bash
 $ docker run -d \
-    --name mysql \
-    -e MYSQL_ROOT_PASSWORD='CambiaEstePasswordFuerte' \
-    -e MYSQL_DATABASE=appdb \
-    -e MYSQL_USER=appuser \
-    -e MYSQL_PASSWORD='PasswordAppFuerte' \
+    --name mysql-lab \
+    --env-file .env.lab \
     -v mysql_data:/var/lib/mysql \
-    -p 3306:3306 \
+    -p 127.0.0.1:3306:3306 \
     --restart unless-stopped \
-    mysql:8.0  
+    mysql:8.0  # <1>
 
 ```
 
-1. **`docker run -d --name mysql`** crea y arranca en segundo plano (`-d`) un contenedor llamado `mysql`. Sin `--name`, Docker asigna uno aleatorio; nombrarlo facilita `docker exec`/`docker logs`.
+1. **`docker run -d --name mysql-lab`** crea y arranca en segundo plano (`-d`) un contenedor de laboratorio con nombre explícito; nombrarlo facilita `docker exec`/`docker logs`.
+
+:::{.callout-warning}
+## ⚠️ ADVERTENCIA CRÍTICA
+
+**`.env.lab` debe contener valores únicos generados para este laboratorio y no se debe versionar ni reutilizar.** Define allí `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER` y `MYSQL_PASSWORD` antes de ejecutar el ejemplo.
+
+**Lo que podría salir mal:**
+- Una contraseña incluida en el repositorio puede copiarse a otros entornos.
+- Publicar el puerto de MySQL en todas las interfaces permite conexiones no previstas.
+
+**Cómo prevenirlo:**
+1. Crea `.env.lab` fuera del control de versiones con un gestor de secretos o un generador de contraseñas.
+2. Conserva `-p 127.0.0.1:3306:3306` para que solo el host local acceda al puerto durante el laboratorio.
+3. Para una app en Compose, no publiques el puerto: usa la red interna del servicio.
+:::
 
 Analicemos cada flag del comando anterior con detalle:
 
 ```bash
 $ docker run -d \
-    --name mysql \
-    -e MYSQL_ROOT_PASSWORD='CambiaEstePasswordFuerte' \  
-    -e MYSQL_DATABASE=appdb \                            
-    -e MYSQL_USER=appuser \                              
-    -e MYSQL_PASSWORD='PasswordAppFuerte' \              
-    -v mysql_data:/var/lib/mysql \                       
-    -p 3306:3306 \                                      
-    --restart unless-stopped \                           
-    mysql:8.0                                            
+    --name mysql-lab \
+    --env-file .env.lab \
+    -v mysql_data:/var/lib/mysql \
+    -p 127.0.0.1:3306:3306 \
+    --restart unless-stopped \
+    mysql:8.0  # <1>
 
 ```
 
-1. **`-e MYSQL_ROOT_PASSWORD`** define la contraseña del usuario administrador `root`. Es **obligatoria**; sin ella el contenedor no arranca. Usa una contraseña fuerte.
-2. **`-e MYSQL_DATABASE`** crea automáticamente una base de datos inicial (`appdb`) al primer arranque.
-3. **`-e MYSQL_USER`** crea un usuario no-root (`appuser`) asociado a esa base.
-4. **`-e MYSQL_PASSWORD`** define la contraseña del usuario `appuser` (no uses root en la app).
-5. **`-v mysql_data:/var/lib/mysql`** monta el **volumen nombrado** `mysql_data` en la ruta de datos de MySQL. Aquí vive la BD de forma persistente.
-6. **`-p 3306:3306`** publica el puerto 3306 del contenedor en el 3306 del host (solo para desarrollo local; ver sección de red segura).
-7. **`--restart unless-stopped`** reinicia el contenedor automáticamente si el Docker daemon se reinicia, salvo que lo detengas explícitamente.
-8. **`mysql:8.0`** es la imagen y versión a utilizar (pinnear versión es buena práctica en producción).
+1. **`--env-file .env.lab`** carga las variables de inicialización desde un archivo local no versionado: `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER` y `MYSQL_PASSWORD`.
+2. **`-v mysql_data:/var/lib/mysql`** monta el **volumen nombrado** `mysql_data` en la ruta de datos de MySQL. Aquí vive la BD de forma persistente.
+3. **`-p 127.0.0.1:3306:3306`** publica el puerto solo en loopback del host para este laboratorio; no acepta conexiones desde la red.
+4. **`--restart unless-stopped`** reinicia el contenedor automáticamente si el Docker daemon se reinicia, salvo que lo detengas explícitamente.
+5. **`mysql:8.0`** es la imagen y versión a utilizar (pinnear versión es buena práctica en producción).
 
 ### 2.2 Verificar el contenedor y conectar
 
 ```bash
-$ docker ps --filter name=mysql  
-CONTAINER ID   IMAGE       COMMAND                  STATUS         PORTS                                       NAMES
-a1b2c3d4e5f6   mysql:8.0   "docker-entrypoint.s…"   Up 30 seconds  0.0.0.0:3306->3306/tcp, :::3306->3306/tcp   mysql
+$ docker ps --filter name=mysql-lab  # <1>
+CONTAINER ID   IMAGE       COMMAND                  STATUS         PORTS                         NAMES
+a1b2c3d4e5f6   mysql:8.0   "docker-entrypoint.s…"   Up 30 seconds  127.0.0.1:3306->3306/tcp   mysql-lab
 
 ```
 
-1. **`docker ps --filter name=mysql`** lista solo el contenedor `mysql` y confirma que está `Up` y con el puerto mapeado.
+
+
+1. **`docker ps --filter name=mysql-lab`** lista solo el contenedor del laboratorio y confirma que está `Up` con el puerto limitado al host local.
 
 ```bash
-$ docker logs mysql --tail 20  
+$ docker logs mysql-lab --tail 20  # <1>
 2026-07-20T12:00:01.234567Z 0 [System] [MY-010931] ... X Plugin ready for connections.
 2026-07-20T12:00:01.234567Z 0 [System] [MY-011323] ... MySQL 8.0.x started; log sequence number ...
 
 ```
 
-1. **`docker logs mysql --tail 20`** muestra las últimas 20 líneas del log; busca "ready for connections" para confirmar arranque correcto.
+1. **`docker logs mysql-lab --tail 20`** muestra las últimas 20 líneas del log; busca "ready for connections" para confirmar arranque correcto.
 
 ```bash
-$ docker exec -it mysql mysql -u appuser -p appdb  
+$ docker exec -it mysql-lab mysql -u appuser -p appdb  # <1>
 Enter password:
 mysql> SELECT VERSION();
 +-----------+
@@ -141,7 +149,7 @@ mysql> EXIT;
 
 ```
 
-1. **`docker exec -it mysql mysql -u appuser -p appdb`** abre la consola SQL **dentro** del contenedor conectando a `appdb` como `appuser`. `-it` habilita modo interactivo.
+1. **`docker exec -it mysql-lab mysql -u appuser -p appdb`** abre la consola SQL **dentro** del contenedor conectando a `appdb` como `appuser`. `-it` habilita modo interactivo.
 
 ::: {.callout-tip}
 ## Recomendación de versión
@@ -159,44 +167,38 @@ PostgreSQL es un motor relacional avanzado (ACID, JSON, extensiones). Su desplie
 
 ```bash
 $ docker run -d \
-    --name pg \
-    -e POSTGRES_PASSWORD='CambiaEstePasswordFuerte' \
-    -e POSTGRES_DB=appdb \
-    -e POSTGRES_USER=appuser \
+    --name pg-lab \
+    --env-file .env.lab \
     -v pg_data:/var/lib/postgresql/data \
-    -p 5432:5432 \
+    -p 127.0.0.1:5432:5432 \
     --restart unless-stopped \
-    postgres:16  
+    postgres:16  # <1>
 
 ```
 
-1. **`docker run -d --name pg ... postgres:16`** arranca PostgreSQL 16 en segundo plano; las variables `POSTGRES_*` inicializan usuario, base y contraseña al primer arranque.
+1. **`docker run -d --name pg-lab ... postgres:16`** arranca PostgreSQL 16 en segundo plano; `.env.lab` aporta las variables `POSTGRES_*` con valores únicos para el laboratorio.
 
 Al igual que con MySQL, desglosamos los flags clave:
 
 ```bash
 $ docker run -d \
-    --name pg \
-    -e POSTGRES_PASSWORD='CambiaEstePasswordFuerte' \  
-    -e POSTGRES_DB=appdb \                             
-    -e POSTGRES_USER=appuser \                         
-    -v pg_data:/var/lib/postgresql/data \              
-    -p 5432:5432 \                                    
-    postgres:16                                        
+    --name pg-lab \
+    --env-file .env.lab \
+    -v pg_data:/var/lib/postgresql/data \
+    -p 127.0.0.1:5432:5432 \
+    postgres:16  # <1>
 
 ```
 
-1. **`-e POSTGRES_PASSWORD`** contraseña del superusuario (o del usuario definido en `POSTGRES_USER`). Obligatoria.
-2. **`-e POSTGRES_DB`** crea la base inicial `appdb`.
-3. **`-e POSTGRES_USER`** define un usuario (si se omite, el superusuario es `postgres`).
-4. **`-v pg_data:/var/lib/postgresql/data`** monta el volumen persistente en la ruta de datos de PostgreSQL.
-5. **`-p 5432:5432`** publica el puerto por defecto de PostgreSQL (desarrollo local).
-6. **`postgres:16`** imagen y versión mayor fijada.
+1. **`--env-file .env.lab`** carga `POSTGRES_PASSWORD`, `POSTGRES_DB` y `POSTGRES_USER` desde un archivo local no versionado con valores únicos.
+2. **`-v pg_data:/var/lib/postgresql/data`** monta el volumen persistente en la ruta de datos de PostgreSQL.
+3. **`-p 127.0.0.1:5432:5432`** publica el puerto solo en loopback del host para el laboratorio.
+4. **`postgres:16`** imagen y versión mayor fijada.
 
 ### 3.2 Verificar y conectar
 
 ```bash
-$ docker exec -it pg psql -U appuser -d appdb  
+$ docker exec -it pg-lab psql -U appuser -d appdb  # <1>
 psql (16.x)
 appdb=> SELECT version();
                                                  version
@@ -206,7 +208,7 @@ appdb=> \q
 
 ```
 
-1. **`docker exec -it pg psql -U appuser -d appdb`** abre `psql` (consola PostgreSQL) dentro del contenedor conectando como `appuser` a `appdb`. `\q` sale.
+1. **`docker exec -it pg-lab psql -U appuser -d appdb`** abre `psql` (consola PostgreSQL) dentro del contenedor conectando como `appuser` a `appdb`. `\q` sale.
 
 ---
 
@@ -219,7 +221,7 @@ Tanto en MySQL como en PostgreSQL, la regla de seguridad fundamental es: **la ap
 ```bash
 $ docker exec -it mysql mysql -u root -p  
 Enter password:
-mysql> CREATE USER 'appuser'@'%' IDENTIFIED BY 'NuevaPasswordFuerte';  
+mysql> CREATE USER 'appuser'@'%' IDENTIFIED BY '<contraseña-única-del-gestor-de-secretos>';
 mysql> CREATE DATABASE IF NOT EXISTS appdb;                            
 mysql> GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'appuser'@'%';  
 mysql> FLUSH PRIVILEGES;                                               
@@ -238,7 +240,7 @@ mysql> EXIT;
 ```bash
 $ docker exec -it pg psql -U postgres  
 psql (16.x)
-postgres=# CREATE USER appuser WITH PASSWORD 'NuevaPasswordFuerte';  
+postgres=# CREATE USER appuser WITH PASSWORD '<contraseña-única-del-gestor-de-secretos>';
 postgres=# CREATE DATABASE appdb OWNER appuser;                     
 postgres=# GRANT CONNECT ON DATABASE appdb TO appuser;              
 postgres=# \c appdb                                                 
@@ -657,13 +659,7 @@ $ docker compose down
 
 No incluyas contraseñas en el `compose.yaml` commiteado. Usa un `.env` junto al compose:
 
-```bash
-MYSQL_ROOT_PASSWORD=CambiaEstePasswordFuerte
-MYSQL_PASSWORD=PasswordAppFuerte
-POSTGRES_PASSWORD=CambiaEstePasswordFuerte
-```
-
-Y añade `.env` a tu `.gitignore`. Docker Compose lee `.env` automáticamente.
+Genera valores únicos en un gestor de secretos y guárdalos en un archivo `.env` local que no se versiona; Docker Compose lo lee automáticamente. Nunca copies una contraseña de ejemplo a un entorno real.
 :::
 
 ---
