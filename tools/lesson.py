@@ -26,14 +26,19 @@ def load_lesson_sections(path, unit_ids):
     return sections
 
 
-def render_lesson_guide(guide, next_href, next_title):
+def render_lesson_guide(guide, next_href, next_title, practice_href, practice_title):
     """Render trusted, validated guide prose while escaping every configuration value."""
     cards = []
     for label in LABELS:
         text = html.escape(guide[label], quote=True)
-        if label == "Quiz":
+        anchors = {"Conceptos": "lesson-conceptos", "Práctica": "lesson-practica"}
+        item_id = f' id="{anchors[label]}"' if label in anchors else ""
+        if label == "Práctica":
+            text += (f' <a href="{html.escape(practice_href, quote=True)}">Abrir taller: '
+                     f'{html.escape(practice_title, quote=True)}</a>.')
+        elif label == "Quiz":
             text += ' <a href="#evaluaciones">Ir a la evaluación</a>.'
         elif label == "Siguiente tema":
             text += f' <a href="{html.escape(next_href, quote=True)}">{html.escape(next_title, quote=True)}</a>.'
-        cards.append(f'<div class="lesson-guide-item"><h2>{label}</h2><p>{text}</p></div>')
+        cards.append(f'<div class="lesson-guide-item"{item_id}><h2>{label}</h2><p>{text}</p></div>')
     return '<section class="lesson-guide" aria-label="Guía didáctica">' + "".join(cards) + "</section>"
