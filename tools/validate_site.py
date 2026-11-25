@@ -17,8 +17,13 @@ MINICOURSES = (
     "nvim", "zsh", "oh-my-zsh", "lazyvim", "herdr", "opencode", "ranger",
     "bash-scripting", "monitoreo", "fallos", "errores", "hardening", "zero-trust",
 )
+LAB_LINUX_PAGES = (
+    "index", "06-redes", "08-dhcp", "09-apache", "10-nginx-apache", "11-mariadb",
+    "12-rescate-proyecto",
+)
 PRODUCTION_ROUTES = (
     "index.html", "recursos.html", "recursos/bandit.html", "recursos/proxmox.html",
+    *(f"recursos/lab-linux/{page}.html" for page in LAB_LINUX_PAGES),
     *(f"unidades/{unit}.html" for unit in UNITS),
     "unidades/08-docker.html", "unidades/09-nginx.html", "unidades/10-ssl.html",
     "recursos/minicursos/index.html",

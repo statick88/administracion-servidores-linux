@@ -45,7 +45,7 @@ test('primary navigation links to available course sections from both build mode
     try {
       assert.equal(run.status, 0, run.stderr);
       assert.equal(run.stderr, '');
-      assert.equal(run.stdout, `Built ${include ? 34 : 20} pages.\n`);
+      assert.equal(run.stdout, `Built ${include ? 41 : 27} pages.\n`);
       const read = (path) => readFileSync(join(output, path), 'utf8');
       for (const [path, base] of [['index.html', './'], ['unidades/01-fundamentos.html', '../'],
         ...(include ? [['recursos/minicursos/nvim.html', '../../']] : [])]) {
@@ -53,7 +53,7 @@ test('primary navigation links to available course sections from both build mode
         assert.ok(nav, path);
         assert.ok(nav.includes(`href="${base}index.html#catalogo">Unidades</a>`));
         assert.match(nav, /<details class="resources-menu">\s*<summary>Recursos<\/summary>/);
-        for (const route of ['recursos.html', 'recursos/bandit.html', 'recursos/proxmox.html', 'recursos.html#talleres']) {
+        for (const route of ['recursos.html', 'recursos/bandit.html', 'recursos/proxmox.html', 'recursos/lab-linux/index.html', 'recursos.html#talleres']) {
           assert.ok(nav.includes(`href="${base}${route}"`), route);
         }
         assert.equal(nav.includes(`href="${base}recursos/minicursos/index.html"`), include);

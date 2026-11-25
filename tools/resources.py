@@ -16,6 +16,17 @@ GUIDE_PAGES = {
 }
 GUIDE_ROUTES = {identifier: f"recursos/{slug}.html"
                 for slug, (_, identifiers) in GUIDE_PAGES.items() for identifier in identifiers}
+LAB_LINUX_ID = "lab-linux-documentacion-local"
+LAB_LINUX_PAGES = (
+    ("index", "Guía de uso y mapa de Lab Linux"),
+    ("06-redes", "Práctica 06: Redes"),
+    ("08-dhcp", "Práctica 08: DHCP"),
+    ("09-apache", "Práctica 09: Apache"),
+    ("10-nginx-apache", "Práctica 10: Nginx y Apache"),
+    ("11-mariadb", "Práctica 11: MariaDB"),
+    ("12-rescate-proyecto", "Práctica 12: Rescate y proyecto"),
+)
+LAB_LINUX_ROUTES = {slug: f"recursos/lab-linux/{slug}.html" for slug, _ in LAB_LINUX_PAGES}
 
 
 def load_resources(path: Path, unit_ids):
@@ -48,6 +59,8 @@ def load_resources(path: Path, unit_ids):
 
 def _resource_link(resource, base):
     identifier = resource["id"]
+    if identifier == LAB_LINUX_ID:
+        return f'<a href="{base}{LAB_LINUX_ROUTES["index"]}">{escape(resource["title"])}</a>'
     route = GUIDE_ROUTES.get(identifier, "recursos.html")
     return f'<a href="{base}{route}#{escape(identifier)}">{escape(resource["title"])}</a>'
 
@@ -95,7 +108,14 @@ def render_resources(resources, root, unit_titles, resource_routes, *, include_m
             content += f'<section id="{escape(item["id"])}"><h3>{escape(item["title"])}</h3>{render_markdown(source, {})}</section>'
         content += '</section>'
     content += '<section><h2>Prácticas existentes y minicursos compatibles</h2>'
+    local_lab = next((item for item in listings if item["id"] == LAB_LINUX_ID), None)
+    if local_lab:
+        content += (f'<section id="{escape(local_lab["id"])}"><h3>{_resource_link(local_lab, "")}</h3>'
+                    '<p>Documentación local incluida en este sitio: guía de uso, mapa y seis prácticas completas. '
+                    'No requiere red para consultarse.</p></section>')
     for item in listings:
+        if item["id"] == LAB_LINUX_ID:
+            continue
         units = ", ".join(unit_titles[unit] for unit in item.get("units", []))
         content += (f'<section id="{escape(item["id"])}"><h3>{escape(item["title"])}</h3>'
                     f'<p>{escape(item["scope"])} <em>Unidad: {escape(units)}.</em></p>'
@@ -104,6 +124,33 @@ def render_resources(resources, root, unit_titles, resource_routes, *, include_m
     for item in excluded:
         content += f'<li id="{escape(item["id"])}"><strong>{escape(item["title"])}</strong>: {escape(item["scope"])}</li>'
     return content + '</ul></section></article>'
+
+
+def render_lab_linux_pages(root):
+    """Render the local Lab Linux guide with only known, artifact-local navigation."""
+    directory = root / "course/lab-linux"
+    pages = []
+    for slug, title in LAB_LINUX_PAGES:
+        source = directory / f"{slug}.md"
+        if not source.is_file():
+            raise ValueError(f"Invalid Lab Linux source: {source.relative_to(root)}")
+        pages.append((slug, title, source.read_text(encoding="utf-8")))
+    for slug, title, source in pages:
+        links = ''.join(
+            f'<li><a href="{other_slug}.html">'
+            f'{"Volver al índice de Lab Linux" if other_slug == "index" and slug != "index" else escape(other_title)}'
+            '</a></li>'
+            for other_slug, other_title, _ in pages
+        )
+        body = source.partition("\n")[2] if source.startswith("# ") else source
+        content = ('<article><p><a href="../../recursos.html">← Volver a Recursos</a></p>'
+                   f'<h1>{escape(title)}</h1>'
+                   '<p><strong>Documentación local incluida en este sitio.</strong> '
+                   f'Origen local: <code>course/lab-linux/{escape(slug)}.md</code>. '
+                   'El repositorio de Lab Linux es una atribución opcional; esta guía se puede leer sin red.</p>'
+                   '<nav aria-label="Guías de Lab Linux"><ul>' + links + '</ul></nav>'
+                   + render_markdown(body, {}) + '</article>')
+        yield f"recursos/lab-linux/{slug}.html", title, content
 
 
 def render_guide_pages(resources, root):

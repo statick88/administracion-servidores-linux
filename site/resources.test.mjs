@@ -18,7 +18,7 @@ test('build publishes safe registered resources and links them from home and mat
     const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
     const bandit = readFileSync(join(output, 'recursos', 'bandit.html'), 'utf8');
     const proxmox = readFileSync(join(output, 'recursos', 'proxmox.html'), 'utf8');
-    assert.equal(run.stdout, 'Built 20 pages.\n');
+    assert.equal(run.stdout, 'Built 27 pages.\n');
     assert.equal(run.stderr, '');
     assert.match(resources, /href="recursos\/bandit\.html/);
     assert.match(resources, /href="recursos\/proxmox\.html/);
@@ -80,6 +80,35 @@ test('build publishes safe registered resources and links them from home and mat
       assert.match(workshop, /Pasos guiados/);
       assert.match(workshop, /Entregables/);
       assert.ok(reader.includes(`href="../recursos.html#taller-${id}"`), `Missing workshop link for ${id}`);
+    }
+  } finally {
+    rmSync(output, { recursive: true, force: true });
+  }
+});
+
+test('build publishes the offline Lab Linux index and six locally navigable companion practices', () => {
+  const output = mkdtempSync(join(tmpdir(), 'linux-lab-linux-'));
+  try {
+    const run = spawnSync('python3', ['tools/build_site.py', '--output', output], {
+      cwd: root, encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
+    });
+    assert.equal(run.status, 0, run.stderr);
+    assert.equal(run.stdout, 'Built 27 pages.\n');
+    const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
+    assert.match(resources, /href="recursos\/lab-linux\/index\.html">Lab Linux/);
+    const index = readFileSync(join(output, 'recursos', 'lab-linux', 'index.html'), 'utf8');
+    assert.match(index, /documentación local incluida en este sitio/i);
+    assert.match(index, /repositorio de Lab Linux/i);
+    assert.match(index, /href="\.\.\/\.\.\/recursos\.html"/);
+    const rescue = readFileSync(join(output, 'recursos', 'lab-linux', '12-rescate-proyecto.html'), 'utf8');
+    assert.doesNotMatch(rescue, /(?:^|\n)\s*kill\s+(?!-0\b)/m, 'The rescue guide must not signal a saved PID');
+    const pages = ['06-redes', '08-dhcp', '09-apache', '10-nginx-apache', '11-mariadb', '12-rescate-proyecto'];
+    for (const slug of pages) {
+      assert.match(index, new RegExp(`href="${slug}\\.html"`));
+      const guide = readFileSync(join(output, 'recursos', 'lab-linux', `${slug}.html`), 'utf8');
+      assert.match(guide, /documentación local incluida en este sitio/i);
+      assert.match(guide, /href="index\.html">Volver al índice de Lab Linux/);
+      assert.match(guide, /href="\.\.\/\.\.\/assets\/style\.css"/);
     }
   } finally {
     rmSync(output, { recursive: true, force: true });
