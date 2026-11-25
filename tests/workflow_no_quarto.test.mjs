@@ -20,6 +20,13 @@ test("Pages workflow builds the site with tools/build_site.py", () => {
   assert.ok(/path:\s*_site\b/.test(workflow), "artifact path must be _site");
 });
 
+test("Pages validates its exact generated artifact before upload", () => {
+  assert.match(workflow, /python3 tools\/validate_site\.py --site _site --production/);
+  assert.match(workflow, /SITE_OUTPUT=_site node --test tests\/guard_brand\.test\.mjs/);
+  assert.ok(workflow.indexOf("Build production site with minicourses") < workflow.indexOf("validate_site.py"));
+  assert.ok(workflow.indexOf("validate_site.py") < workflow.indexOf("Upload artifact"));
+});
+
 test("repository keeps no root Quarto build configuration", () => {
   for (const rel of [
     "_quarto.yml",

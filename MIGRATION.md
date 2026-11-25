@@ -29,7 +29,8 @@ siguiendo el precedente del ebook de `practicas` (`tools/build_site.py`,
 ```bash
 python3 tools/build_site.py --output _site   # sin dependencias externas (solo Python 3 stdlib)
 python3 -m http.server -d _site 8000         # verlo en local
-node --test site/*.test.mjs tests/*.test.mjs # pruebas
+node --test site/*.test.mjs tests/*.test.mjs # pruebas (después de construir _site)
+python3 tools/validate_site.py --site _site --production # rutas y enlaces de producción
 ```
 
 El builder valida el contrato antes de escribir nada: `course/catalog.json` debe tener
@@ -39,10 +40,14 @@ estar vacía (no sobreescribe archivos generados).
 
 ## Qué publica GitHub Pages
 
-`.github/workflows/pages.yml` corre en Python 3.11 + Node 20 sobre `main`: pruebas →
-builder → artifact `_site` → deploy. **No instala ni invoca Quarto.** Los disparadores
-(`paths`) cubren las entradas reales del builder: `site/`, `tools/`, `course/`,
-`quizzes/`, `01-fundamentos/` … `11-bases-datos/`, `tests/` y el propio workflow.
+`.github/workflows/pages.yml` corre en Python 3.11 + Node 20 sobre `main`: builder →
+pruebas → validación del artifact `_site` → deploy. Antes de subir el artifact de
+producción, `tools/validate_site.py --site _site --production` exige todas las rutas
+publicadas, incluidos los minicursos opcionales, y verifica enlaces locales sin consultar
+sitios externos. El guard de marca se ejecuta sobre ese mismo `_site` y falla si falta la
+salida. **No instala ni invoca Quarto.** Los disparadores (`paths`) cubren las entradas
+reales del builder: `site/`, `tools/`, `course/`, `quizzes/`, `01-fundamentos/` …
+`11-bases-datos/`, `tests/` y el propio workflow.
 `tests/workflow_no_quarto.test.mjs` fija este contrato.
 
 ## Fuera del sitio publicado
