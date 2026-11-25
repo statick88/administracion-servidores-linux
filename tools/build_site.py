@@ -8,6 +8,8 @@ import re
 import sys
 
 from content import quiz_forms, render_markdown
+from lesson import load_lesson_sections, render_lesson_guide
+from resources import load_resources, render_resources, unit_resource_links
 
 ROOT = Path(__file__).resolve().parents[1]
 FALLBACK = '''<!doctype html><html lang="es"><meta charset="utf-8">
@@ -51,6 +53,9 @@ def build(output):
     template_path = ROOT / 'site/page.html'
     template = template_path.read_text() if template_path.exists() else FALLBACK
     units = catalog['units']
+    guides = load_lesson_sections(ROOT / 'course/lesson-sections.json', [unit['id'] for unit in units])
+    resources = load_resources(ROOT / 'course/resources.json', {unit['id'] for unit in units})
+    unit_titles = {unit['id']: unit['title'] for unit in units}
     home = (f'<section class="hero"><p class="eyebrow">WSL2 · Docker · Nginx · HTTPS</p>'
             f'<h1>{escape(catalog["title"])}</h1><p>{escape(catalog["description"])}</p>'
             f'<a class="cta" href="unidades/{units[0]["id"]}.html">Empezar a estudiar →</a>'
@@ -63,9 +68,15 @@ def build(output):
                  '<ul>' + ''.join(f'<li>{escape(topic)}</li>' for topic in unit['topics']) + '</ul></section>')
     home += '</div></section><section><h2>Requisitos de inscripción</h2><ul>'
     home += ''.join(f'<li>{escape(item)}</li>' for item in catalog['requirements'])
-    home += f'</ul></section><p>{escape(catalog["author"])}</p>'
-    planned = {'index.html': page(template, catalog['title'], home, '', './')}
-    for unit in units:
+    home += (f'</ul></section><section><h2>Recursos complementarios</h2>'
+             '<p>Consulta guías seguras, prácticas existentes y minicursos compatibles con la malla actual.</p>'
+             '<p><a href="recursos.html">Ver recursos</a></p></section>'
+             f'<p>{escape(catalog["author"])}</p>')
+    planned = {
+        'index.html': page(template, catalog['title'], home, '', './'),
+        'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles), '', './'),
+    }
+    for index, unit in enumerate(units):
         navigation = '<a href="../index.html">← Todas las unidades</a><ul>'
         for other in units:
             current = ' aria-current="page"' if other == unit else ''
@@ -79,7 +90,14 @@ def build(output):
         if 'quizdown' in source:
             internal_quiz, offset = quiz_forms(source, unit['id'])
         external_quiz, _ = quiz_forms((ROOT / unit['quiz']).read_text(), unit['id'], offset)
-        content = f'<article>{lesson}<section aria-label="Evaluaciones">{internal_quiz}{external_quiz}</section></article>'
+        if index + 1 < len(units):
+            next_unit = units[index + 1]
+            next_href, next_title = f'{next_unit["id"]}.html', next_unit['title']
+        else:
+            next_href, next_title = '../index.html', 'Volver al catálogo del curso'
+        guide = render_lesson_guide(guides[unit['id']], next_href, next_title)
+        related_resources = unit_resource_links(resources, unit['id'], '../')
+        content = f'<article>{guide}{lesson}{related_resources}<section id="evaluaciones" aria-label="Evaluaciones">{internal_quiz}{external_quiz}</section></article>'
         planned[f'unidades/{unit["id"]}.html'] = page(template, unit['title'], content, navigation, '../')
     for name in ('style.css', 'app.js'):
         asset = ROOT / 'site' / name
@@ -96,7 +114,7 @@ def build(output):
         destination = output / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(content, encoding='utf-8')
-    print(f'Built {len(units) + 1} pages.')
+    print(f'Built {sum(path.endswith(".html") for path in planned)} pages.')
 
 
 def main():

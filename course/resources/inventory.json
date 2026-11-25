@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Inventario de fuentes para integrar recursos sin modificar el constructor ni las unidades.",
+  "catalogSource": "main:course/catalog.json",
+  "catalogUnits": [
+    {"unit": "01-fundamentos", "topic": "WSL2, terminal e instalación de Linux", "matchingResources": ["proxmox-fundamentos-compatibles"], "status": "matched"},
+    {"unit": "02-paquetes", "topic": "Gestores de paquetes, repositorios, firmas GPG y Git", "matchingResources": ["anexo-c-package-managers", "anexo-l-ssh-github"], "status": "matched"},
+    {"unit": "03-scripting", "topic": "Bash, FHS, permisos, ACL, enlaces, find y automatización", "matchingResources": ["anexo-a-bash-scripting", "anexo-e-grep-find-sed-awk"], "status": "matched"},
+    {"unit": "04-usuarios", "topic": "Usuarios, PAM, sudoers, SSH keys y mínimo privilegio", "matchingResources": ["anexo-h-ssh-scp-keys", "anexo-n-ssh-llaves-servidores"], "status": "matched"},
+    {"unit": "05-procesos", "topic": "systemd, journalctl, cron y diagnóstico de recursos", "matchingResources": ["anexo-d-herramientas-monitoreo"], "status": "matched"},
+    {"unit": "06-redes", "topic": "DNS, puertos, NAT, LVM y fstab", "matchingResources": [], "status": "no-explicit-minicourse-match"},
+    {"unit": "07-seguridad", "topic": "UFW y Fail2Ban", "matchingResources": ["bandit-pistas-seguras"], "status": "adjacent-safe-practice-only"},
+    {"unit": "08-docker", "topic": "Docker Engine y contenedor Hola Mundo", "matchingResources": [], "status": "no-explicit-minicourse-match"},
+    {"unit": "09-nginx", "topic": "Nginx, rendimiento y contenido estático", "matchingResources": [], "status": "no-explicit-minicourse-match"},
+    {"unit": "10-ssl", "topic": "Let's Encrypt, HTTPS y redirecciones HTTP", "matchingResources": [], "status": "no-explicit-minicourse-match"},
+    {"unit": "11-bases-datos", "topic": "MySQL/PostgreSQL, Nginx y Docker Compose", "matchingResources": [], "status": "no-explicit-minicourse-match"}
+  ],
+  "explicitMinicoursesFromMainHistory": [
+    {"id": "anexo-a-bash-scripting", "origin": "1a75b3d:anexos/Anexo_A_Bash_Scripting.qmd", "topic": "Bash y scripting", "mappedUnits": ["03-scripting"], "status": "topic-match"},
+    {"id": "anexo-b-editores", "origin": "1a75b3d:anexos/Anexo_B_Editores_Vi_Nvim.qmd", "topic": "Editores Vi/Nvim", "mappedUnits": [], "status": "legacy-nonmatching"},
+    {"id": "anexo-c-package-managers", "origin": "1a75b3d:anexos/Anexo_C_Package_Managers.qmd", "topic": "Gestores de paquetes", "mappedUnits": ["02-paquetes"], "status": "topic-match"},
+    {"id": "anexo-d-herramientas-monitoreo", "origin": "1a75b3d:anexos/Anexo_D_Herramientas_Monitoreo.qmd", "topic": "Monitorización", "mappedUnits": ["05-procesos"], "status": "topic-match"},
+    {"id": "anexo-e-grep-find-sed-awk", "origin": "1a75b3d:anexos/Anexo_E_Grep_Find_Sed_Awk.qmd", "topic": "Búsqueda y procesamiento de texto", "mappedUnits": ["03-scripting"], "status": "topic-match"},
+    {"id": "anexo-f-ranger", "origin": "1a75b3d:anexos/Anexo_F_Ranger_Servidores.qmd", "topic": "Gestor de archivos Ranger", "mappedUnits": [], "status": "legacy-nonmatching"},
+    {"id": "anexo-g-opencode", "origin": "1a75b3d:anexos/Anexo_G_OpenCode_Gestion_Servidores.qmd", "topic": "OpenCode", "mappedUnits": [], "status": "legacy-nonmatching"},
+    {"id": "anexo-h-ssh-scp-keys", "origin": "1a75b3d:anexos/Anexo_H_SSH_SCP_Keys.qmd", "topic": "SSH, SCP y llaves", "mappedUnits": ["04-usuarios"], "status": "topic-match"},
+    {"id": "anexo-i-openclaw", "origin": "main:anexos/Anexo_I_Openclaw_Telegram_Bot.qmd", "topic": "Openclaw y Telegram", "mappedUnits": [], "status": "legacy-nonmatching"},
+    {"id": "anexo-l-ssh-github", "origin": "1a75b3d:anexos/Anexo_L_SSH_GitHub_Minicurso.qmd", "topic": "SSH y Git", "mappedUnits": ["02-paquetes", "04-usuarios"], "status": "topic-match"},
+    {"id": "anexo-n-ssh-llaves-servidores", "origin": "1a75b3d:anexos/Anexo_N_SSH_Llaves_Servidores.qmd", "topic": "Llaves SSH de servidores", "mappedUnits": ["04-usuarios"], "status": "topic-match"},
+    {"id": "proxmox-fundamentos-compatibles", "origin": "1a75b3d:anexos/Anexo_O_Proxmox_VE_Minicurso.qmd", "topic": "Hipervisor tipo 1 y laboratorio de instalación", "mappedUnits": ["01-fundamentos"], "status": "topic-match-with-scope"}
+  ],
+  "proxmoxStashReview": {
+    "origin": "09b451e^3 (solo lectura; no aplicar stash)",
+    "compatible": [
+      {"source": "lab-practicos/proxmox-lab-01-install.md", "mappedUnits": ["01-fundamentos"], "reason": "Virtualización anidada y planificación de una instalación de laboratorio."}
+    ],
+    "legacyNonmatching": [
+      {"source": "lab-practicos/proxmox-lab-02-vm-template.md", "reason": "Cloud-init, plantillas y clonado no figuran en los temas explícitos de las once unidades."},
+      {"source": "lab-practicos/proxmox-lab-03-lxc-networking.md", "reason": "LXC, VLAN y nesting de Docker exceden los temas explícitos de redes y Docker."},
+      {"source": "lab-practicos/proxmox-lab-04-backup-ha.md", "reason": "PBS, alta disponibilidad, clústeres y fencing no figuran en los temas explícitos de las once unidades."}
+    ],
+    "excludedArtifacts": "Directorios *_files y cualquier activo Quarto; no son contenido fuente portable."
+  },
+  "integrationRequirements": [
+    "El integrador debe decidir rutas y enlaces de publicación; este inventario no cambia el constructor ni el índice.",
+    "Solo integrar recursos con status topic-match o topic-match-with-scope sin ampliar el temario aprobado.",
+    "Mantener los elementos legacy-nonmatching fuera de las unidades hasta que se apruebe una ampliación curricular.",
+    "Conservar Bandit como guía de pistas seguras: sin datos de acceso, descubrimiento de contraseñas, explotación ni soluciones paso a paso."
+  ]
+}

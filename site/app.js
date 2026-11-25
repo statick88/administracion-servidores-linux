@@ -13,6 +13,11 @@ export function quizFeedback(selected, answer) {
   return { state: 'wrong', message: 'Aún no es correcto. Revisa el contenido e inténtalo de nuevo.' };
 }
 
+export function readerNavigationState({ isReader, scrollY, lastScrollY, navigationHasFocus }) {
+  if (!isReader || navigationHasFocus || scrollY < 96 || scrollY <= lastScrollY) return 'visible';
+  return 'hidden';
+}
+
 function initializeSearch() {
   const input = document.querySelector('#site-search');
   const status = document.querySelector('#search-status');
@@ -46,7 +51,36 @@ function initializeQuizzes() {
   });
 }
 
+function initializeReaderNavigation() {
+  const header = document.querySelector('#site-header');
+  const sidebar = document.querySelector('#course-sidebar');
+  const restore = document.querySelector('.reader-navigation-restore');
+  const isReader = Boolean(sidebar?.querySelector('nav ul'));
+  if (!header || !sidebar || !restore || !isReader) return;
+
+  let lastScrollY = window.scrollY;
+  const setVisibility = (state) => {
+    const hidden = state === 'hidden';
+    document.body.classList.toggle('reader-navigation-hidden', hidden);
+    restore.hidden = !hidden;
+  };
+
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const navigationHasFocus = header.contains(document.activeElement) || sidebar.contains(document.activeElement);
+    setVisibility(readerNavigationState({ isReader, scrollY, lastScrollY, navigationHasFocus }));
+    lastScrollY = scrollY;
+  }, { passive: true });
+
+  restore.addEventListener('click', () => {
+    setVisibility('visible');
+    lastScrollY = window.scrollY;
+    header.querySelector('a, button, input, summary')?.focus();
+  });
+}
+
 if (typeof document !== 'undefined') {
   initializeSearch();
   initializeQuizzes();
+  initializeReaderNavigation();
 }
