@@ -14,9 +14,21 @@ test('build publishes safe registered resources and links them from home and mat
       cwd: root, encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
     });
     assert.equal(run.status, 0, run.stderr);
-    assert.equal(run.stdout, 'Built 13 pages.\n');
     const home = readFileSync(join(output, 'index.html'), 'utf8');
     const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
+    const bandit = readFileSync(join(output, 'recursos', 'bandit.html'), 'utf8');
+    const proxmox = readFileSync(join(output, 'recursos', 'proxmox.html'), 'utf8');
+    assert.equal(run.stdout, 'Built 15 pages.\n');
+    assert.equal(run.stderr, '');
+    assert.match(resources, /href="recursos\/bandit\.html/);
+    assert.match(resources, /href="recursos\/proxmox\.html/);
+    assert.doesNotMatch(resources, /Plantillas y cloud-init sin secretos|no contiene datos de acceso/);
+    for (const guide of [bandit, proxmox]) {
+      assert.match(guide, /href="\.\.\/recursos\.html"/);
+      assert.match(guide, /href="\.\.\/assets\/style\.css"/);
+    }
+    assert.doesNotMatch(bandit, /Proxmox VE/);
+    assert.doesNotMatch(proxmox, /Bandit/);
     const fundamentals = readFileSync(join(output, 'unidades', '01-fundamentos.html'), 'utf8');
     const security = readFileSync(join(output, 'unidades', '07-seguridad.html'), 'utf8');
     assert.match(home, /href="(?:\.\/)?recursos\.html">Recursos</);
@@ -26,7 +38,7 @@ test('build publishes safe registered resources and links them from home and mat
     const advancedRecord = resourceManifest.resources.find(({ id }) => id === 'proxmox-avanzado');
     assert.deepEqual(advancedRecord?.units, [], 'Advanced Proxmox must remain supplemental');
     assert.equal(advancedRecord?.publication, 'guide');
-    const advanced = resources.split('<section id="proxmox-avanzado">')[1];
+    const advanced = proxmox.split('<section id="proxmox-avanzado">')[1];
     assert.ok(advanced, 'Missing advanced Proxmox guide');
     assert.match(advanced, /Proxmox VE avanzado: laboratorio administrativo aislado/);
     assert.match(advanced, /Plantillas y cloud-init sin secretos/);
@@ -38,11 +50,11 @@ test('build publishes safe registered resources and links them from home and mat
     assert.match(resources, /Antes de automatizar, define una entrada, una salida esperada y un límite de permisos/);
     assert.match(resources, /Verifica una política UFW y una señal de Fail2Ban en un laboratorio aislado/);
     assert.match(resources, /Fuera de alcance curricular actual/);
-    assert.match(resources, /no contiene datos de acceso/);
-    assert.doesNotMatch(resources, /bandit[0-9]+/i);
-    assert.match(fundamentals, /href="\.\.\/recursos\.html#proxmox-fundamentos-compatibles"/);
+    assert.match(bandit, /no contiene datos de acceso/);
+    assert.doesNotMatch(bandit, /bandit[0-9]+/i);
+    assert.match(fundamentals, /href="\.\.\/recursos\/proxmox\.html#proxmox-fundamentos-compatibles"/);
     assert.match(fundamentals, /href="\.\.\/recursos\.html#practica-fundamentos-wsl2"/);
-    assert.match(security, /href="\.\.\/recursos\.html#bandit-pistas-seguras"/);
+    assert.match(security, /href="\.\.\/recursos\/bandit\.html#bandit-pistas-seguras"/);
     assert.match(security, /href="\.\.\/recursos\.html#practica-hardening"/);
     const catalog = JSON.parse(readFileSync(join(root, 'course/catalog.json'), 'utf8'));
     assert.match(resources, /<h2>Talleres por unidad<\/h2>/);

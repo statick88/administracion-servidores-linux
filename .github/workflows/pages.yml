@@ -71,7 +71,12 @@ jobs:
         run: node --test site/*.test.mjs tests/*.test.mjs
 
       - name: Build site
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: python3 tools/build_site.py --output _site
+
+      - name: Build production site with minicourses
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python3 tools/build_site.py --output _site --include-minicourses
 
       - name: Upload artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

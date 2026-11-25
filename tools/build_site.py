@@ -9,7 +9,8 @@ import sys
 
 from content import quiz_forms, render_markdown
 from lesson import load_lesson_sections, render_lesson_guide
-from resources import load_resources, render_resources, unit_resource_links
+from minicourses import render_minicourse_pages
+from resources import load_resources, render_guide_pages, render_resources, unit_resource_links
 
 ROOT = Path(__file__).resolve().parents[1]
 FALLBACK = '''<!doctype html><html lang="es"><meta charset="utf-8">
@@ -43,7 +44,7 @@ def page(template, title, content, navigation, base):
                   lambda match: values[match[1]], template)
 
 
-def build(output):
+def build(output, *, include_minicourses=False):
     catalog = load_catalog()
     output = output.resolve()
     # Never overwrite source directories, including through an output symlink.
@@ -74,8 +75,13 @@ def build(output):
              f'<p>{escape(catalog["author"])}</p>')
     planned = {
         'index.html': page(template, catalog['title'], home, '', './'),
-        'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles), '', './'),
+        'recursos.html': page(template, 'Recursos', render_resources(resources, ROOT, unit_titles, include_minicourses=include_minicourses), '', './'),
     }
+    for route, title, content in render_guide_pages(resources, ROOT):
+        planned[route] = page(template, title, content, '', '../')
+    if include_minicourses:
+        for route, title, content in render_minicourse_pages(ROOT):
+            planned[route] = page(template, title, content, '', '../../')
     for index, unit in enumerate(units):
         navigation = '<a href="../index.html">← Todas las unidades</a><ul>'
         for other in units:
@@ -121,9 +127,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=ROOT / '_site',
                         help='fresh output directory (default: _site); existing files are never overwritten')
+    parser.add_argument('--include-minicourses', action='store_true',
+                        help='include supplemental minicourses in the generated artifact (does not deploy)')
     args = parser.parse_args()
     try:
-        build(args.output)
+        build(args.output, include_minicourses=args.include_minicourses)
     except (OSError, ValueError, KeyError) as error:
         print(f'Build failed: {error}', file=sys.stderr)
         return 1
