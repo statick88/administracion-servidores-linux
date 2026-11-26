@@ -18,7 +18,7 @@ test('build publishes safe registered resources and links them from home and mat
     const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
     const bandit = readFileSync(join(output, 'recursos', 'bandit.html'), 'utf8');
     const proxmox = readFileSync(join(output, 'recursos', 'proxmox.html'), 'utf8');
-    assert.equal(run.stdout, 'Built 27 pages.\n');
+    assert.equal(run.stdout, 'Built 30 pages.\n');
     assert.equal(run.stderr, '');
     assert.match(resources, /href="recursos\/bandit\.html/);
     assert.match(resources, /href="recursos\/proxmox\.html/);
@@ -86,6 +86,39 @@ test('build publishes safe registered resources and links them from home and mat
   }
 });
 
+test('build publishes three complete guided practices linked from their historical listings and official units', () => {
+  const output = mkdtempSync(join(tmpdir(), 'linux-guided-practices-'));
+  try {
+    const run = spawnSync('python3', ['tools/build_site.py', '--output', output], {
+      cwd: root, encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
+    });
+    assert.equal(run.status, 0, run.stderr);
+    assert.equal(run.stdout, 'Built 30 pages.\n');
+    const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
+    const expected = [
+      ['05-diagnostico', '05-procesos', /fixture local operativo/, /127\.0\.0\.1:18080/],
+      ['06-almacenamiento', '06-redes', /disco-laboratorio\.img/, /fstab\.simulado/],
+      ['11-mariadb', '11-bases-datos', /ventas_xi_restaurada/, /mariadb-dump/],
+    ];
+    for (const [slug, unit, firstMarker, secondMarker] of expected) {
+      const route = `recursos/practicas/${slug}.html`;
+      assert.match(resources, new RegExp(`href="${route}"`), `${slug} is reachable from Recursos`);
+      assert.match(resources, new RegExp(`href="${route}"`), `${slug} extends its historical listing locally`);
+      const page = readFileSync(join(output, ...route.split('/')), 'utf8');
+      assert.match(page, /href="\.\.\/\.\.\/recursos\.html"/);
+      assert.match(page, firstMarker, `${slug} retains its first command/evidence marker`);
+      assert.match(page, secondMarker, `${slug} retains its step-by-step body`);
+      const officialUnit = readFileSync(join(output, 'unidades', `${unit}.html`), 'utf8');
+      assert.match(officialUnit, new RegExp(`href="\.\.\/${route}"`), `${slug} is reachable from its official unit`);
+    }
+    assert.match(resources, /<h2>Prácticas guiadas publicadas<\/h2>/);
+    assert.match(resources, /<h2>Talleres por unidad<\/h2>/);
+    assert.match(resources, /Lab Linux: guía local de uso y prácticas/);
+  } finally {
+    rmSync(output, { recursive: true, force: true });
+  }
+});
+
 test('build publishes the offline Lab Linux index and six locally navigable companion practices', () => {
   const output = mkdtempSync(join(tmpdir(), 'linux-lab-linux-'));
   try {
@@ -93,7 +126,7 @@ test('build publishes the offline Lab Linux index and six locally navigable comp
       cwd: root, encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
     });
     assert.equal(run.status, 0, run.stderr);
-    assert.equal(run.stdout, 'Built 27 pages.\n');
+    assert.equal(run.stdout, 'Built 30 pages.\n');
     const resources = readFileSync(join(output, 'recursos.html'), 'utf8');
     assert.match(resources, /href="recursos\/lab-linux\/index\.html">Lab Linux/);
     const index = readFileSync(join(output, 'recursos', 'lab-linux', 'index.html'), 'utf8');

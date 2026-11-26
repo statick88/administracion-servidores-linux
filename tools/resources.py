@@ -9,6 +9,7 @@ from content import escape, render_markdown
 SAFE_GUIDE = "guide"
 WORKSHOP = "workshop"
 LISTING = "listing"
+GUIDED_PRACTICE = "guided-practice"
 OUT_OF_SCOPE = "out-of-scope"
 GUIDE_PAGES = {
     "bandit": ("Bandit", ("bandit-pistas-seguras",)),
@@ -16,6 +17,16 @@ GUIDE_PAGES = {
 }
 GUIDE_ROUTES = {identifier: f"recursos/{slug}.html"
                 for slug, (_, identifiers) in GUIDE_PAGES.items() for identifier in identifiers}
+GUIDED_PRACTICE_ROUTES = {
+    "practica-guiada-diagnostico": "recursos/practicas/05-diagnostico.html",
+    "practica-guiada-almacenamiento": "recursos/practicas/06-almacenamiento.html",
+    "practica-guiada-mariadb": "recursos/practicas/11-mariadb.html",
+}
+HISTORICAL_GUIDED_PRACTICES = {
+    "practica-troubleshooting": "practica-guiada-diagnostico",
+    "practica-almacenamiento": "practica-guiada-almacenamiento",
+    "practica-mariadb-respaldo": "practica-guiada-mariadb",
+}
 LAB_LINUX_ID = "lab-linux-documentacion-local"
 LAB_LINUX_PAGES = (
     ("index", "Guía de uso y mapa de Lab Linux"),
@@ -39,7 +50,7 @@ def load_resources(path: Path, unit_ids):
         identifier = item.get("id", "")
         if not re.fullmatch(r"[a-z0-9-]+", identifier) or identifier in ids:
             raise ValueError("Invalid or duplicate resource id")
-        if not item.get("title") or item.get("publication") not in {SAFE_GUIDE, WORKSHOP, LISTING, OUT_OF_SCOPE}:
+        if not item.get("title") or item.get("publication") not in {SAFE_GUIDE, WORKSHOP, LISTING, GUIDED_PRACTICE, OUT_OF_SCOPE}:
             raise ValueError(f"Invalid resource: {identifier}")
         units = item.get("units", [])
         if not isinstance(units, list) or not set(units).issubset(unit_ids):
@@ -47,11 +58,13 @@ def load_resources(path: Path, unit_ids):
         source = item.get("source", "")
         if item["publication"] == LISTING and not isinstance(item.get("material"), str):
             raise ValueError(f"Missing curated material: {identifier}")
-        if item["publication"] in {SAFE_GUIDE, WORKSHOP}:
+        if item["publication"] in {SAFE_GUIDE, WORKSHOP, GUIDED_PRACTICE}:
             source_path = (path.parents[1] / source).resolve()
             root = path.parents[1].resolve()
             if not source_path.is_relative_to(root) or not source_path.is_file():
                 raise ValueError(f"Invalid resource source: {source}")
+        if item["publication"] == GUIDED_PRACTICE and identifier not in GUIDED_PRACTICE_ROUTES:
+            raise ValueError(f"Invalid guided practice route: {identifier}")
         ids.add(identifier)
         resources.append(item)
     return resources
@@ -61,6 +74,8 @@ def _resource_link(resource, base):
     identifier = resource["id"]
     if identifier == LAB_LINUX_ID:
         return f'<a href="{base}{LAB_LINUX_ROUTES["index"]}">{escape(resource["title"])}</a>'
+    if identifier in GUIDED_PRACTICE_ROUTES:
+        return f'<a href="{base}{GUIDED_PRACTICE_ROUTES[identifier]}">{escape(resource["title"])}</a>'
     route = GUIDE_ROUTES.get(identifier, "recursos.html")
     return f'<a href="{base}{route}#{escape(identifier)}">{escape(resource["title"])}</a>'
 
@@ -93,13 +108,14 @@ def render_resources(resources, root, unit_titles, resource_routes, *, include_m
         content += ('<section><h2>Minicursos</h2><p><a href="recursos/minicursos/index.html">'
                     'Ver minicursos de terminal y operación de servidores</a></p></section>')
     workshops = [item for item in resources if item["publication"] == WORKSHOP]
-    for heading, items in (("Guías publicadas", guides), ("Talleres por unidad", workshops)):
+    guided_practices = [item for item in resources if item["publication"] == GUIDED_PRACTICE]
+    for heading, items in (("Guías publicadas", guides), ("Prácticas guiadas publicadas", guided_practices), ("Talleres por unidad", workshops)):
         if not items:
             continue
         section_id = ' id="talleres"' if items is workshops else ''
         content += f'<section{section_id}><h2>{heading}</h2>'
         for item in items:
-            if item["id"] in GUIDE_ROUTES:
+            if item["id"] in GUIDE_ROUTES or item["id"] in GUIDED_PRACTICE_ROUTES:
                 content += f'<p id="{escape(item["id"])}">{_resource_link(item, "")}</p>'
                 continue
             source = (root / item["source"]).read_text(encoding="utf-8")
@@ -117,13 +133,33 @@ def render_resources(resources, root, unit_titles, resource_routes, *, include_m
         if item["id"] == LAB_LINUX_ID:
             continue
         units = ", ".join(unit_titles[unit] for unit in item.get("units", []))
+        guided_id = HISTORICAL_GUIDED_PRACTICES.get(item["id"])
+        guided_link = ''
+        if guided_id:
+            guided = next(resource for resource in resources if resource["id"] == guided_id)
+            guided_link = f'<p>Secuencia completa recuperada: {_resource_link(guided, "")}.</p>'
         content += (f'<section id="{escape(item["id"])}"><h3>{escape(item["title"])}</h3>'
                     f'<p>{escape(item["scope"])} <em>Unidad: {escape(units)}.</em></p>'
-                    f'{_render_resource_material(item["material"], resource_routes)}</section>')
+                    f'{_render_resource_material(item["material"], resource_routes)}{guided_link}</section>')
     content += '</section><section><h2>Fuera de alcance curricular actual</h2><ul>'
     for item in excluded:
         content += f'<li id="{escape(item["id"])}"><strong>{escape(item["title"])}</strong>: {escape(item["scope"])}</li>'
     return content + '</ul></section></article>'
+
+
+def render_guided_practice_pages(resources, root):
+    """Render complete local practice bodies with a stable, non-redirect route."""
+    for practice in resources:
+        if practice["publication"] != GUIDED_PRACTICE:
+            continue
+        source = (root / practice["source"]).read_text(encoding="utf-8")
+        if source.startswith("# "):
+            source = source.partition("\n")[2]
+        content = ('<article><p><a href="../../recursos.html">← Volver a Recursos</a></p>'
+                   f'<h1>{escape(practice["title"])}</h1>'
+                   '<p><strong>Práctica guiada local.</strong> Sigue los límites y el cierre seguro descritos en cada paso.</p>'
+                   + render_markdown(source, {}) + '</article>')
+        yield GUIDED_PRACTICE_ROUTES[practice["id"]], practice["title"], content
 
 
 def render_lab_linux_pages(root):

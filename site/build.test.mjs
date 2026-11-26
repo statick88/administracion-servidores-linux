@@ -12,7 +12,7 @@ test('build publishes the twelve brochure units in the official sequence without
     const run = spawnSync('python3', ['tools/build_site.py', '--output', output], { cwd: root, encoding: 'utf8' });
     assert.equal(run.status, 0, run.stderr);
     assert.equal(run.stderr, '');
-    assert.equal(run.stdout, 'Built 27 pages.\n');
+    assert.equal(run.stdout, 'Built 30 pages.\n');
     const catalog = JSON.parse(readFileSync(join(root, 'course/catalog.json'), 'utf8'));
     assert.equal(catalog.schemaVersion, 1);
     assert.equal(catalog.units.length, 12);

@@ -21,8 +21,12 @@ LAB_LINUX_PAGES = (
     "index", "06-redes", "08-dhcp", "09-apache", "10-nginx-apache", "11-mariadb",
     "12-rescate-proyecto",
 )
+GUIDED_PRACTICE_PAGES = (
+    "05-diagnostico", "06-almacenamiento", "11-mariadb",
+)
 PRODUCTION_ROUTES = (
     "index.html", "recursos.html", "recursos/bandit.html", "recursos/proxmox.html",
+    *(f"recursos/practicas/{page}.html" for page in GUIDED_PRACTICE_PAGES),
     *(f"recursos/lab-linux/{page}.html" for page in LAB_LINUX_PAGES),
     *(f"unidades/{unit}.html" for unit in UNITS),
     "unidades/08-docker.html", "unidades/09-nginx.html", "unidades/10-ssl.html",

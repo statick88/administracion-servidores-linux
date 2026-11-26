@@ -34,7 +34,7 @@ test('public builder converts every published unit and its Quizdown forms', () =
   try {
     const run = spawnSync('python3', ['tools/build_site.py', '--output', output], { cwd: root, encoding: 'utf8', env: pythonEnv });
     assert.equal(run.status, 0, run.stderr);
-    assert.equal(run.stdout, 'Built 27 pages.\n');
+    assert.equal(run.stdout, 'Built 30 pages.\n');
     assert.equal(run.stderr, '');
     const catalog = JSON.parse(readFileSync(join(root, 'course/catalog.json'), 'utf8'));
     for (const unit of catalog.units) {

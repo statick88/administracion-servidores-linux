@@ -10,8 +10,8 @@ import sys
 from content import quiz_forms, render_markdown
 from lesson import load_lesson_sections, render_lesson_guide
 from minicourses import render_minicourse_pages
-from resources import (load_resources, render_guide_pages, render_lab_linux_pages,
-                       render_resources, unit_resource_links)
+from resources import (load_resources, render_guide_pages, render_guided_practice_pages,
+                       render_lab_linux_pages, render_resources, unit_resource_links)
 
 ROOT = Path(__file__).resolve().parents[1]
 FALLBACK = '''<!doctype html><html lang="es"><meta charset="utf-8">
@@ -140,6 +140,8 @@ def build(output, *, include_minicourses=False):
     }
     for route, title, content in render_guide_pages(resources, ROOT):
         planned[route] = page(template, title, content, '', '../', primary_navigation_html=primary_navigation('../', include_minicourses=include_minicourses))
+    for route, title, content in render_guided_practice_pages(resources, ROOT):
+        planned[route] = page(template, title, content, '', '../../', primary_navigation_html=primary_navigation('../../', include_minicourses=include_minicourses))
     for route, title, content in render_lab_linux_pages(ROOT):
         planned[route] = page(template, title, content, '', '../../', primary_navigation_html=primary_navigation('../../', include_minicourses=include_minicourses))
     if include_minicourses:
