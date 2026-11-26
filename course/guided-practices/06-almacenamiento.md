@@ -45,7 +45,7 @@ assert_owned_loop() {                                           # <3>
   case "$IMAGE" in "$LAB"/*) ;; *) return 1;; esac
   test -f "$IMAGE" && test -n "${LOOP:-}"
   case "$LOOP" in /dev/loop[0-9]*) ;; *) return 1;; esac
-  test "$(sudo losetup -n -O BACK-FILE "$LOOP" | xargs -r readlink -f)" = "$(readlink -f "$IMAGE")"
+  test "$(sudo losetup -l -n -O BACK-FILE "$LOOP" | xargs -r readlink -f)" = "$(readlink -f "$IMAGE")"
 }
 LOOP="$(sudo losetup --find --show --partscan "$IMAGE")"     # <4>
 printf 'LOOP=%s\n' "$LOOP"                                    # <5>

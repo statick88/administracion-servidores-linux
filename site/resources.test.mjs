@@ -108,6 +108,7 @@ test('build publishes three complete guided practices linked from their historic
       assert.match(page, /href="\.\.\/\.\.\/recursos\.html"/);
       assert.match(page, firstMarker, `${slug} retains its first command/evidence marker`);
       assert.match(page, secondMarker, `${slug} retains its step-by-step body`);
+      if (slug === '06-almacenamiento') assert.match(page, /losetup -l -n -O BACK-FILE/);
       const officialUnit = readFileSync(join(output, 'unidades', `${unit}.html`), 'utf8');
       assert.match(officialUnit, new RegExp(`href="\.\.\/${route}"`), `${slug} is reachable from its official unit`);
     }
